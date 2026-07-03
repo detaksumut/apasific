@@ -1,7 +1,14 @@
-# APA-EA-001 Enterprise Documentation Governance
+---
+Document ID: APA-EA-001
+Title: Enterprise Documentation Governance
+Version: 1.0.0
+Status: Frozen
+Owner: Architecture Board
+Reviewer: Chief Enterprise Architect
+Classification: Internal
+---
 
-**Project:** APASIFIC ONE
-**Status:** FROZEN
+# APA-EA-001 Enterprise Documentation Governance
 
 ## 1. Document Classification
 | Status | Meaning |
@@ -14,7 +21,7 @@
 | **Archived** | Historical reference only |
 
 ## 2. Versioning Policy
-- **Major (X.0.0)**: Significant architectural shift (e.g., changing cloud providers).
+- **Major (X.0.0)**: Significant architectural shift.
 - **Minor (0.X.0)**: New modules or features added to existing architecture.
 - **Patch (0.0.X)**: Typo fixes or minor clarifications without architectural impact.
 

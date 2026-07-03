@@ -1,3 +1,12 @@
+---
+Document ID: APA-EA-200
+Title: Enterprise Architecture Blueprint
+Version: 2.0.0
+Status: Frozen
+Owner: Architecture Board
+Reviewer: Chief Enterprise Architect
+Classification: Internal
+---
 # APASIFIC ONE: Volume 2 - Enterprise Architecture Blueprint
 
 **Project Codename:** APASIFIC ONE  
@@ -290,3 +299,4 @@ graph LR
 > [!CAUTION]
 > **ARCHITECTURE FREEZE**
 > Upon approval of this document, Sprint 0 is officially completed. All subsequent development sprints (Sprint 1-6) must strictly adhere to the constraints, layers, and domains established in this Blueprint.
+
