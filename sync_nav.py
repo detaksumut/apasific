@@ -1,4 +1,4 @@
-﻿import os, re
+import os, re
 
 with open("index.html", "r", encoding="utf-8") as f:
     idx_content = f.read()
@@ -16,7 +16,8 @@ files = [
     "publication.html","mobility.html","competition.html","community.html",
     "quality.html","academy.html","young.html","awards.html","research.html",
     "accounting.html","business.html","finance.html","hr.html",
-    "economics.html","law.html","it.html","engineering.html","social.html","education.html"
+    "economics.html","law.html","it.html","engineering.html","social.html","education.html",
+    "tourism.html","health.html","agriculture.html","islamic.html"
 ]
 
 synced = 0
