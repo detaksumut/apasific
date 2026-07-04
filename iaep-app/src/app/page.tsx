@@ -1,65 +1,735 @@
-import Image from "next/image";
-
 export default function Home() {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+    <main dangerouslySetInnerHTML={{ __html: `
+
+  <!-- ═══════════════════════════════════════════
+       HERO SECTION
+  ═══════════════════════════════════════════ -->
+  <section class="hero" id="home">
+    <!-- Full-width background image — all content is inside the banner -->
+    <div class="hero-bg-image">
+      <img src="/banner-apasific.png" alt="ASIA – Association of Asia Pacific Academician" id="hero-bg-img" />
     </div>
+    <!-- Logo overlay: di sebelah kanan teks ASSOCIATION di banner -->
+    <div class="hero-logo-overlay">
+      <img src="/logo-apasific.png"
+           alt="ASIA Logo"
+           class="hero-logo-img"
+           onerror="this.style.display='none'" />
+    </div>
+    <!-- CTA Button Overlay -->
+    <div class="hero-cta-overlay" data-aos="fade-up" data-aos-delay="200">
+      <a href="#membership" class="btn-primary" id="hero-become-member">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        BECOME A MEMBER
+      </a>
+      <a href="#programs" class="btn-outline" id="hero-explore">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+        EXPLORE RESOURCES
+      </a>
+    </div>
+    
+    <!-- Stats Bar -->
+    <div class="hero-stats">
+      <div class="stats-container">
+        <div class="stat-item">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" stroke-width="1.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          <div><span class="stat-num" data-target="5000">0</span><span class="stat-plus">+</span><p class="stat-label">Members</p></div>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+          <div><span class="stat-num" data-target="25">0</span><span class="stat-plus">+</span><p class="stat-label">Countries</p></div>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" stroke-width="1.5"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+          <div><span class="stat-num" data-target="100">0</span><span class="stat-plus">+</span><p class="stat-label">Academic Disciplines</p></div>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" stroke-width="1.5"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+          <div><span class="stat-num" data-target="300">0</span><span class="stat-plus">+</span><p class="stat-label">Publications</p></div>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" stroke-width="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <div><span class="stat-num" data-target="20">0</span><span class="stat-plus">+</span><p class="stat-label">Annual Events</p></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════
+       ABOUT ASIA
+  ═══════════════════════════════════════════ -->
+  <section class="section about-section" id="about">
+    <div class="container">
+      <div class="section-header">
+        <p class="section-eyebrow">WHO WE ARE</p>
+        <h2 class="section-title">About <span class="gold">ASIA</span></h2>
+        <div class="title-ornament"><span></span><svg width="20" height="20" viewBox="0 0 20 20"><polygon points="10,1 12.9,7 19.5,7.6 14.7,12 16.2,18.5 10,15 3.8,18.5 5.3,12 0.5,7.6 7.1,7" fill="#c9a84c"/></svg><span></span></div>
+      </div>
+
+      <!-- Vision & Mission -->
+      <div class="about-vm" id="vision-mission">
+        <div class="vm-card" data-aos="fade-up">
+          <div class="vm-icon">
+            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" stroke-width="1.5"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          </div>
+          <h3>Our Vision</h3>
+          <p>To become the leading academic association in Asia Pacific, recognized globally for excellence in knowledge creation, academic leadership, and sustainable impact.</p>
+        </div>
+        <div class="vm-card" data-aos="fade-up" style="animation-delay:0.15s">
+          <div class="vm-icon">
+            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" stroke-width="1.5"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+          </div>
+          <h3>Our Mission</h3>
+          <p>To foster academic collaboration, promote research excellence, advance professional certification, and empower scholars across Asia Pacific through innovative programs and inclusive platforms.</p>
+        </div>
+        <div class="vm-card" data-aos="fade-up" style="animation-delay:0.3s">
+          <div class="vm-icon">
+            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+          </div>
+          <h3>Core Values</h3>
+          <p>Excellence · Integrity · Collaboration · Innovation · Inclusivity · Sustainability — guiding every initiative we undertake across the region.</p>
+        </div>
+      </div>
+
+      <!-- Leadership -->
+      <div class="subsection" id="leadership">
+        <h3 class="subsection-title">Leadership</h3>
+        <div class="leadership-grid">
+          <div class="leader-card" data-aos="fade-up">
+            <div class="leader-avatar">
+              <div class="avatar-placeholder">
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" stroke-width="1.2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              </div>
+            </div>
+            <div class="leader-info">
+              <h4>President General</h4>
+              <p class="leader-name">Prof. Dr. [Name]</p>
+              <p class="leader-affil">Asia Pacific Academic Leadership</p>
+            </div>
+          </div>
+          <div class="leader-card" data-aos="fade-up" style="animation-delay:0.1s">
+            <div class="leader-avatar">
+              <div class="avatar-placeholder">
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" stroke-width="1.2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              </div>
+            </div>
+            <div class="leader-info">
+              <h4>Secretary General</h4>
+              <p class="leader-name">Assoc. Prof. Dr. [Name]</p>
+              <p class="leader-affil">Strategic Operations &amp; Governance</p>
+            </div>
+          </div>
+          <div class="leader-card" data-aos="fade-up" style="animation-delay:0.2s">
+            <div class="leader-avatar">
+              <div class="avatar-placeholder">
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" stroke-width="1.2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              </div>
+            </div>
+            <div class="leader-info">
+              <h4>Treasurer General</h4>
+              <p class="leader-name">Dr. [Name]</p>
+              <p class="leader-affil">Finance &amp; Resource Management</p>
+            </div>
+          </div>
+          <div class="leader-card" data-aos="fade-up" style="animation-delay:0.3s">
+            <div class="leader-avatar">
+              <div class="avatar-placeholder">
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" stroke-width="1.2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              </div>
+            </div>
+            <div class="leader-info">
+              <h4>Director of Research</h4>
+              <p class="leader-name">Prof. Dr. [Name]</p>
+              <p class="leader-affil">Research &amp; Innovation Council</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Regional Chapters -->
+      <div class="subsection" id="regional-chapters">
+        <h3 class="subsection-title">Regional Chapters</h3>
+        <div class="chapters-grid">
+          <div class="chapter-badge" data-aos="zoom-in">🇲🇾 Malaysia</div>
+          <div class="chapter-badge" data-aos="zoom-in" style="animation-delay:0.05s">🇮🇩 Indonesia</div>
+          <div class="chapter-badge" data-aos="zoom-in" style="animation-delay:0.1s">🇵🇭 Philippines</div>
+          <div class="chapter-badge" data-aos="zoom-in" style="animation-delay:0.15s">🇹🇭 Thailand</div>
+          <div class="chapter-badge" data-aos="zoom-in" style="animation-delay:0.2s">🇧🇩 Bangladesh</div>
+          <div class="chapter-badge" data-aos="zoom-in" style="animation-delay:0.25s">🇵🇰 Pakistan</div>
+          <div class="chapter-badge" data-aos="zoom-in" style="animation-delay:0.3s">🇮🇳 India</div>
+          <div class="chapter-badge" data-aos="zoom-in" style="animation-delay:0.35s">🇨🇳 China</div>
+          <div class="chapter-badge" data-aos="zoom-in" style="animation-delay:0.4s">🇯🇵 Japan</div>
+          <div class="chapter-badge" data-aos="zoom-in" style="animation-delay:0.45s">🇰🇷 Korea</div>
+          <div class="chapter-badge" data-aos="zoom-in" style="animation-delay:0.5s">🇸🇬 Singapore</div>
+          <div class="chapter-badge" data-aos="zoom-in" style="animation-delay:0.55s">🇻🇳 Vietnam</div>
+          <div class="chapter-badge" data-aos="zoom-in" style="animation-delay:0.6s">🇳🇬 Nigeria</div>
+          <div class="chapter-badge" data-aos="zoom-in" style="animation-delay:0.65s">🇹🇷 Turkey</div>
+          <div class="chapter-badge" data-aos="zoom-in" style="animation-delay:0.7s">🇦🇺 Australia</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════
+       ACADEMIC DIVISIONS
+  ═══════════════════════════════════════════ -->
+  <section class="section divisions-section" id="academic-divisions">
+    <div class="container">
+      <div class="section-header">
+        <p class="section-eyebrow">14 SPECIALIZED FIELDS</p>
+        <h2 class="section-title">Academic <span class="gold">Divisions</span></h2>
+        <div class="title-ornament"><span></span><svg width="20" height="20" viewBox="0 0 20 20"><polygon points="10,1 12.9,7 19.5,7.6 14.7,12 16.2,18.5 10,15 3.8,18.5 5.3,12 0.5,7.6 7.1,7" fill="#c9a84c"/></svg><span></span></div>
+        <p class="section-subtitle">Spanning diverse academic disciplines to serve every scholar and professional in Asia Pacific</p>
+      </div>
+      <div class="divisions-grid">
+        <div class="division-card" id="div-accounting" data-aos="fade-up">
+          <div class="div-num">01</div>
+          <div class="div-icon">📊</div>
+          <h3>Accounting, Auditing &amp; Taxation</h3>
+          <p>Advancing standards in financial reporting, audit practices, and tax policy across the region.</p>
+          <a href="accounting.html" class="div-link">Explore Division →</a>
+        </div>
+        <div class="division-card" id="div-business" data-aos="fade-up" style="animation-delay:0.05s">
+          <div class="div-num">02</div>
+          <div class="div-icon">💼</div>
+          <h3>Business, Management &amp; Entrepreneurship</h3>
+          <p>Driving innovation, leadership, and entrepreneurial excellence in modern business ecosystems.</p>
+          <a href="business.html" class="div-link">Explore Division →</a>
+        </div>
+        <div class="division-card" id="div-finance" data-aos="fade-up" style="animation-delay:0.1s">
+          <div class="div-num">03</div>
+          <div class="div-icon">🏦</div>
+          <h3>Finance, Banking &amp; Investment</h3>
+          <p>Strengthening financial systems, capital markets, and investment ecosystems across Asia Pacific.</p>
+          <a href="finance.html" class="div-link">Explore Division →</a>
+        </div>
+        <div class="division-card" id="div-hr" data-aos="fade-up" style="animation-delay:0.15s">
+          <div class="div-num">04</div>
+          <div class="div-icon">👥</div>
+          <h3>Human Resources</h3>
+          <p>Developing human capital strategies, organizational behavior, and workforce excellence.</p>
+          <a href="hr.html" class="div-link">Explore Division →</a>
+        </div>
+        <div class="division-card" id="div-economics" data-aos="fade-up" style="animation-delay:0.2s">
+          <div class="div-num">05</div>
+          <div class="div-icon">📈</div>
+          <h3>Economics &amp; Public Policy</h3>
+          <p>Informing evidence-based policymaking and macroeconomic resilience across the Asia Pacific.</p>
+          <a href="economics.html" class="div-link">Explore Division →</a>
+        </div>
+        <div class="division-card" id="div-education" data-aos="fade-up" style="animation-delay:0.25s">
+          <div class="div-num">06</div>
+          <div class="div-icon">🎓</div>
+          <h3>Education</h3>
+          <p>Transforming pedagogy, curriculum design, and educational leadership for the 21st century.</p>
+          <a href="economics.html" class="div-link">Explore Division →</a>
+        </div>
+        <div class="division-card" id="div-law" data-aos="fade-up" style="animation-delay:0.3s">
+          <div class="div-num">07</div>
+          <div class="div-icon">⚖️</div>
+          <h3>Law &amp; Governance</h3>
+          <p>Promoting rule of law, institutional governance, and legal scholarship across jurisdictions.</p>
+          <a href="law.html" class="div-link">Explore Division →</a>
+        </div>
+        <div class="division-card" id="div-it" data-aos="fade-up" style="animation-delay:0.35s">
+          <div class="div-num">08</div>
+          <div class="div-icon">🤖</div>
+          <h3>IT, AI &amp; Digital Transformation</h3>
+          <p>Leading the frontier of artificial intelligence, cybersecurity, and digital innovation research.</p>
+          <a href="it.html" class="div-link">Explore Division →</a>
+        </div>
+        <div class="division-card" id="div-engineering" data-aos="fade-up" style="animation-delay:0.4s">
+          <div class="div-num">09</div>
+          <div class="div-icon">⚙️</div>
+          <h3>Engineering</h3>
+          <p>Advancing engineering sciences, applied technology, and sustainable infrastructure solutions.</p>
+          <a href="it.html" class="div-link">Explore Division →</a>
+        </div>
+        <div class="division-card" id="div-social" data-aos="fade-up" style="animation-delay:0.45s">
+          <div class="div-num">10</div>
+          <div class="div-icon">🌐</div>
+          <h3>Social Sciences</h3>
+          <p>Exploring human society, cultural dynamics, and interdisciplinary social research.</p>
+          <a href="engineering.html" class="div-link">Explore Division →</a>
+        </div>
+        <div class="division-card" id="div-tourism" data-aos="fade-up" style="animation-delay:0.5s">
+          <div class="div-num">11</div>
+          <div class="div-icon">✈️</div>
+          <h3>Tourism</h3>
+          <p>Advancing sustainable tourism, hospitality management, and cultural heritage preservation.</p>
+          <a href="social.html" class="div-link">Explore Division →</a>
+        </div>
+        <div class="division-card" id="div-health" data-aos="fade-up" style="animation-delay:0.55s">
+          <div class="div-num">12</div>
+          <div class="div-icon">🏥</div>
+          <h3>Health</h3>
+          <p>Promoting public health, medical research, and health system innovation across the region.</p>
+          <a href="#contact" class="div-link">Learn More →</a>
+        </div>
+        <div class="division-card" id="div-agriculture" data-aos="fade-up" style="animation-delay:0.6s">
+          <div class="div-num">13</div>
+          <div class="div-icon">🌾</div>
+          <h3>Agriculture</h3>
+          <p>Supporting agri-food innovation, rural development, and food security research.</p>
+          <a href="#contact" class="div-link">Learn More →</a>
+        </div>
+        <div class="division-card" id="div-islamic" data-aos="fade-up" style="animation-delay:0.65s">
+          <div class="div-num">14</div>
+          <div class="div-icon">☪️</div>
+          <h3>Islamic Studies</h3>
+          <p>Advancing Islamic scholarship, jurisprudence, and the integration of Islamic values in academia.</p>
+          <a href="#contact" class="div-link">Learn More →</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════
+       STRATEGIC BODIES
+  ═══════════════════════════════════════════ -->
+  <section class="section bodies-section" id="strategic-bodies">
+    <div class="container">
+      <div class="section-header">
+        <p class="section-eyebrow">INSTITUTIONAL FRAMEWORK</p>
+        <h2 class="section-title">Strategic <span class="gold">Bodies</span></h2>
+        <div class="title-ornament"><span></span><svg width="20" height="20" viewBox="0 0 20 20"><polygon points="10,1 12.9,7 19.5,7.6 14.7,12 16.2,18.5 10,15 3.8,18.5 5.3,12 0.5,7.6 7.1,7" fill="#c9a84c"/></svg><span></span></div>
+        <p class="section-subtitle">Specialized organs that power ASIA's mission across certification, research, publications, and more</p>
+      </div>
+      <div class="bodies-grid">
+        <div class="body-card featured" id="boc" data-aos="fade-up">
+          <div class="body-badge">FLAGSHIP</div>
+          <div class="body-icon">🏛️</div>
+          <h3>ASIA Board of Certification (BOC)</h3>
+          <p>The apex body governing all professional and academic certification standards under ASIA's framework.</p>
+          <a href="https://apasific.org/boc" target="_blank" class="div-link">Visit Website →</a>
+        </div>
+        <div class="body-card featured" id="asiacert" data-aos="fade-up" style="animation-delay:0.1s">
+          <div class="body-badge">CERTIFICATION</div>
+          <div class="body-icon">🎖️</div>
+          <h3>ASIACERT</h3>
+          <p>Official certification arm issuing internationally recognized credentials to qualified academicians and professionals.</p>
+          <a href="https://apasific.org/asiacert" target="_blank" class="div-link">Visit Website →</a>
+        </div>
+        <div class="body-card" id="research-council" data-aos="fade-up" style="animation-delay:0.15s">
+          <div class="body-icon">🔬</div>
+          <h3>Research &amp; Innovation Council</h3>
+          <p>Spearheading collaborative research initiatives, innovation grants, and knowledge generation programs.</p>
+          <a href="https://apasific.org/research" target="_blank" class="div-link">Visit Website →</a>
+        </div>
+        <div class="body-card" id="conference-forum" data-aos="fade-up" style="animation-delay:0.2s">
+          <div class="body-icon">🎤</div>
+          <h3>Conference &amp; Academic Forum</h3>
+          <p>Organizing premier international conferences and academic forums for knowledge exchange and networking.</p>
+          <a href="https://apasific.org/conference" target="_blank" class="div-link">Visit Website →</a>
+        </div>
+        <div class="body-card" id="publication-center" data-aos="fade-up" style="animation-delay:0.25s">
+          <div class="body-icon">📚</div>
+          <h3>Publication &amp; Knowledge Center</h3>
+          <p>Managing scholarly publications, open-access journals, and the dissemination of academic knowledge.</p>
+          <a href="https://apasific.org/publication" target="_blank" class="div-link">Visit Website →</a>
+        </div>
+        <div class="body-card" id="mobility-center" data-aos="fade-up" style="animation-delay:0.3s">
+          <div class="body-icon">🌏</div>
+          <h3>Academic Mobility Center</h3>
+          <p>Facilitating cross-border academic exchanges, visiting scholar programs, and mobility fellowships.</p>
+          <a href="https://apasific.org/mobility" target="_blank" class="div-link">Visit Website →</a>
+        </div>
+        <div class="body-card" id="competition-center" data-aos="fade-up" style="animation-delay:0.35s">
+          <div class="body-icon">🏆</div>
+          <h3>Competition Center</h3>
+          <p>Hosting academic competitions, olympiads, and case study challenges for students and researchers.</p>
+          <a href="https://apasific.org/competition" target="_blank" class="div-link">Visit Website →</a>
+        </div>
+        <div class="body-card" id="community-center" data-aos="fade-up" style="animation-delay:0.4s">
+          <div class="body-icon">🌱</div>
+          <h3>Community Engagement &amp; SDGs Center</h3>
+          <p>Aligning academic activities with UN Sustainable Development Goals and community empowerment.</p>
+          <a href="https://apasific.org/community" target="_blank" class="div-link">Visit Website →</a>
+        </div>
+        <div class="body-card" id="qa-board" data-aos="fade-up" style="animation-delay:0.45s">
+          <div class="body-icon">✅</div>
+          <h3>Quality Assurance &amp; Accreditation Board</h3>
+          <p>Upholding academic standards, institutional accreditation, and quality benchmarking across programs.</p>
+          <a href="https://apasific.org/quality" target="_blank" class="div-link">Visit Website →</a>
+        </div>
+        <div class="body-card" id="digital-academy" data-aos="fade-up" style="animation-delay:0.5s">
+          <div class="body-icon">💻</div>
+          <h3>Digital Academy &amp; AI Center</h3>
+          <p>Delivering digital literacy, AI education, and cutting-edge technology training for academics.</p>
+          <a href="https://apasific.org/academy" target="_blank" class="div-link">Visit Website →</a>
+        </div>
+        <div class="body-card" id="young-network" data-aos="fade-up" style="animation-delay:0.55s">
+          <div class="body-icon">🌟</div>
+          <h3>Young Academician Network</h3>
+          <p>Nurturing emerging scholars and early-career researchers through mentorship and collaborative platforms.</p>
+          <a href="https://apasific.org/young" target="_blank" class="div-link">Visit Website →</a>
+        </div>
+        <div class="body-card" id="awards-council" data-aos="fade-up" style="animation-delay:0.6s">
+          <div class="body-icon">🏅</div>
+          <h3>Awards &amp; Recognition Council</h3>
+          <p>Celebrating academic excellence through prestigious awards honoring outstanding contributions to scholarship.</p>
+          <a href="https://apasific.org/awards" target="_blank" class="div-link">Visit Website →</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════
+       PUBLICATIONS
+  ═══════════════════════════════════════════ -->
+  <section class="section publications-section" id="publications">
+    <div class="container">
+      <div class="section-header">
+        <p class="section-eyebrow">SCHOLARLY OUTPUT</p>
+        <h2 class="section-title">Our <span class="gold">Publications</span></h2>
+        <div class="title-ornament"><span></span><svg width="20" height="20" viewBox="0 0 20 20"><polygon points="10,1 12.9,7 19.5,7.6 14.7,12 16.2,18.5 10,15 3.8,18.5 5.3,12 0.5,7.6 7.1,7" fill="#c9a84c"/></svg><span></span></div>
+      </div>
+      <div class="pub-grid">
+        <div class="pub-card" id="journals" data-aos="fade-up">
+          <div class="pub-icon-wrap">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+          </div>
+          <h3>Academic Journals</h3>
+          <p>Peer-reviewed journals covering all 14 academic divisions, indexed in leading global databases.</p>
+          <div class="pub-meta"><span>Quarterly</span><span>ISI / Scopus Indexed</span></div>
+          <a href="#contact" class="pub-link">Browse Journals →</a>
+        </div>
+        <div class="pub-card" id="proceedings" data-aos="fade-up" style="animation-delay:0.1s">
+          <div class="pub-icon-wrap">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/></svg>
+          </div>
+          <h3>Proceedings</h3>
+          <p>Official conference proceedings capturing breakthrough research and scholarly presentations.</p>
+          <div class="pub-meta"><span>Per Conference</span><span>ISBN Registered</span></div>
+          <a href="#contact" class="pub-link">Browse Proceedings →</a>
+        </div>
+        <div class="pub-card" id="books" data-aos="fade-up" style="animation-delay:0.2s">
+          <div class="pub-icon-wrap">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" stroke-width="1.5"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+          </div>
+          <h3>Academic Books</h3>
+          <p>Scholarly books authored and edited by ASIA members, covering theory, practice, and case studies.</p>
+          <div class="pub-meta"><span>Annual</span><span>DOI Registered</span></div>
+          <a href="#contact" class="pub-link">Browse Books →</a>
+        </div>
+        <div class="pub-card" id="monographs" data-aos="fade-up" style="animation-delay:0.3s">
+          <div class="pub-icon-wrap">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" stroke-width="1.5"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+          </div>
+          <h3>Monographs</h3>
+          <p>In-depth single-topic scholarly works advancing specialized knowledge in key academic fields.</p>
+          <div class="pub-meta"><span>Bi-annual</span><span>Open Access</span></div>
+          <a href="#contact" class="pub-link">Browse Monographs →</a>
+        </div>
+        <div class="pub-card" id="policy-briefs" data-aos="fade-up" style="animation-delay:0.4s">
+          <div class="pub-icon-wrap">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" stroke-width="1.5"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+          </div>
+          <h3>Policy Briefs</h3>
+          <p>Evidence-based policy recommendations addressing real-world challenges for regional policymakers.</p>
+          <div class="pub-meta"><span>Ongoing</span><span>Free Download</span></div>
+          <a href="#contact" class="pub-link">Browse Policy Briefs →</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════
+       PROGRAMS
+  ═══════════════════════════════════════════ -->
+  <section class="section programs-section" id="programs">
+    <div class="container">
+      <div class="section-header">
+        <p class="section-eyebrow">WHAT WE OFFER</p>
+        <h2 class="section-title">Our <span class="gold">Programs</span></h2>
+        <div class="title-ornament"><span></span><svg width="20" height="20" viewBox="0 0 20 20"><polygon points="10,1 12.9,7 19.5,7.6 14.7,12 16.2,18.5 10,15 3.8,18.5 5.3,12 0.5,7.6 7.1,7" fill="#c9a84c"/></svg><span></span></div>
+        <p class="section-subtitle">Comprehensive programs designed to elevate academic careers and institutional excellence</p>
+      </div>
+      <div class="programs-grid">
+        <div class="program-card" id="certification" data-aos="fade-up">
+          <div class="prog-number">01</div>
+          <div class="prog-icon">🎖️</div>
+          <h3>Certification</h3>
+          <p>Internationally recognized professional certifications validating academic and field expertise through ASIACERT.</p>
+          <ul class="prog-features">
+            <li>Multiple certification tracks</li>
+            <li>Online &amp; in-person assessment</li>
+            <li>Globally recognized credentials</li>
+          </ul>
+          <a href="#contact" class="btn-prog" id="btn-certification">Apply Now</a>
+        </div>
+        <div class="program-card" id="conferences" data-aos="fade-up" style="animation-delay:0.1s">
+          <div class="prog-number">02</div>
+          <div class="prog-icon">🎤</div>
+          <h3>Conferences</h3>
+          <p>International academic conferences and symposia bringing together leading minds across disciplines.</p>
+          <ul class="prog-features">
+            <li>Annual international conference</li>
+            <li>Virtual &amp; hybrid formats</li>
+            <li>Indexed proceedings</li>
+          </ul>
+          <a href="#contact" class="btn-prog" id="btn-conferences">Register</a>
+        </div>
+        <div class="program-card" id="competitions" data-aos="fade-up" style="animation-delay:0.2s">
+          <div class="prog-number">03</div>
+          <div class="prog-icon">🏆</div>
+          <h3>Competitions</h3>
+          <p>Academic olympiads, case competitions, and research challenges for students and early-career researchers.</p>
+          <ul class="prog-features">
+            <li>Open to all ASIA members</li>
+            <li>Cash prizes &amp; recognition</li>
+            <li>Published winning entries</li>
+          </ul>
+          <a href="#contact" class="btn-prog" id="btn-competitions">Compete</a>
+        </div>
+        <div class="program-card" id="training" data-aos="fade-up" style="animation-delay:0.3s">
+          <div class="prog-number">04</div>
+          <div class="prog-icon">📖</div>
+          <h3>Training</h3>
+          <p>Short courses, workshops, and capacity building programs for academic and professional development.</p>
+          <ul class="prog-features">
+            <li>Expert-led workshops</li>
+            <li>CPD hours awarded</li>
+            <li>Certificate of completion</li>
+          </ul>
+          <a href="#contact" class="btn-prog" id="btn-training">Enroll</a>
+        </div>
+        <div class="program-card" id="mobility" data-aos="fade-up" style="animation-delay:0.4s">
+          <div class="prog-number">05</div>
+          <div class="prog-icon">🌏</div>
+          <h3>Mobility</h3>
+          <p>Academic exchange programs, visiting scholar fellowships, and cross-institution collaborative residencies.</p>
+          <ul class="prog-features">
+            <li>Partner institutions across 25+ countries</li>
+            <li>Stipend support available</li>
+            <li>MOU-backed placements</li>
+          </ul>
+          <a href="#contact" class="btn-prog" id="btn-mobility">Apply</a>
+        </div>
+        <div class="program-card" id="research-grants" data-aos="fade-up" style="animation-delay:0.5s">
+          <div class="prog-number">06</div>
+          <div class="prog-icon">🔬</div>
+          <h3>Research Grants</h3>
+          <p>Funding opportunities for collaborative research projects across ASIA's 14 academic divisions.</p>
+          <ul class="prog-features">
+            <li>Seed and full grants</li>
+            <li>Multi-country collaboration</li>
+            <li>Publication support</li>
+          </ul>
+          <a href="#contact" class="btn-prog" id="btn-grants">Apply for Grant</a>
+        </div>
+        <div class="program-card" id="awards-prog" data-aos="fade-up" style="animation-delay:0.6s">
+          <div class="prog-number">07</div>
+          <div class="prog-icon">🏅</div>
+          <h3>Awards</h3>
+          <p>Prestigious awards recognizing outstanding academic contributions, leadership, and community impact.</p>
+          <ul class="prog-features">
+            <li>Annual excellence awards</li>
+            <li>Best researcher &amp; educator</li>
+            <li>Young academician award</li>
+          </ul>
+          <a href="#contact" class="btn-prog" id="btn-awards">Nominate</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════
+       MEMBERSHIP
+  ═══════════════════════════════════════════ -->
+  <section class="section membership-section" id="membership">
+    <div class="membership-bg-pattern"></div>
+    <div class="container">
+      <div class="section-header">
+        <p class="section-eyebrow">JOIN THE COMMUNITY</p>
+        <h2 class="section-title">Become a <span class="gold">Member</span></h2>
+        <div class="title-ornament"><span></span><svg width="20" height="20" viewBox="0 0 20 20"><polygon points="10,1 12.9,7 19.5,7.6 14.7,12 16.2,18.5 10,15 3.8,18.5 5.3,12 0.5,7.6 7.1,7" fill="#c9a84c"/></svg><span></span></div>
+        <p class="section-subtitle">Join 5,000+ scholars and professionals shaping the future of Asia Pacific academic excellence</p>
+      </div>
+      <div class="membership-tiers">
+        <div class="tier-card" data-aos="fade-up">
+          <div class="tier-header">
+            <div class="tier-icon">🎓</div>
+            <h3>Student Member</h3>
+            <div class="tier-price">USD <span>30</span> / year</div>
+          </div>
+          <ul class="tier-benefits">
+            <li>✓ Access to digital resources</li>
+            <li>✓ Conference early-bird rates</li>
+            <li>✓ Young Academician Network</li>
+            <li>✓ E-Certificate of membership</li>
+            <li>✓ Competition eligibility</li>
+          </ul>
+          <a href="#contact" class="btn-tier" id="btn-student-member">Join Now</a>
+        </div>
+        <div class="tier-card featured-tier" data-aos="fade-up" style="animation-delay:0.15s">
+          <div class="tier-popular">MOST POPULAR</div>
+          <div class="tier-header">
+            <div class="tier-icon">🏛️</div>
+            <h3>Professional Member</h3>
+            <div class="tier-price">USD <span>80</span> / year</div>
+          </div>
+          <ul class="tier-benefits">
+            <li>✓ All Student Member benefits</li>
+            <li>✓ Journal publication discount</li>
+            <li>✓ Research grant eligibility</li>
+            <li>✓ Certification fast-track</li>
+            <li>✓ Networking directory access</li>
+            <li>✓ Voting rights in ASIA governance</li>
+          </ul>
+          <a href="#contact" class="btn-tier btn-tier-featured" id="btn-prof-member">Join Now</a>
+        </div>
+        <div class="tier-card" data-aos="fade-up" style="animation-delay:0.3s">
+          <div class="tier-header">
+            <div class="tier-icon">🏆</div>
+            <h3>Fellow Member</h3>
+            <div class="tier-price">USD <span>150</span> / year</div>
+          </div>
+          <ul class="tier-benefits">
+            <li>✓ All Professional Member benefits</li>
+            <li>✓ Priority conference speaking slot</li>
+            <li>✓ Editorial board consideration</li>
+            <li>✓ ASIA Fellow designation (FASIA)</li>
+            <li>✓ Strategic body participation</li>
+            <li>✓ Leadership nomination eligibility</li>
+          </ul>
+          <a href="#contact" class="btn-tier" id="btn-fellow-member">Join Now</a>
+        </div>
+        <div class="tier-card" data-aos="fade-up" style="animation-delay:0.45s">
+          <div class="tier-header">
+            <div class="tier-icon">🏢</div>
+            <h3>Institutional Member</h3>
+            <div class="tier-price">USD <span>500</span> / year</div>
+          </div>
+          <ul class="tier-benefits">
+            <li>✓ Up to 20 staff memberships</li>
+            <li>✓ Co-branding opportunities</li>
+            <li>✓ MOU partnership eligibility</li>
+            <li>✓ Priority event hosting</li>
+            <li>✓ Dedicated liaison officer</li>
+            <li>✓ Accreditation advisory support</li>
+          </ul>
+          <a href="#contact" class="btn-tier" id="btn-inst-member">Join Now</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════
+       CONTACT
+  ═══════════════════════════════════════════ -->
+  <section class="section contact-section" id="contact">
+    <div class="container">
+      <div class="section-header">
+        <p class="section-eyebrow">GET IN TOUCH</p>
+        <h2 class="section-title">Contact <span class="gold">Us</span></h2>
+        <div class="title-ornament"><span></span><svg width="20" height="20" viewBox="0 0 20 20"><polygon points="10,1 12.9,7 19.5,7.6 14.7,12 16.2,18.5 10,15 3.8,18.5 5.3,12 0.5,7.6 7.1,7" fill="#c9a84c"/></svg><span></span></div>
+      </div>
+      <div class="contact-wrapper">
+        <div class="contact-info" data-aos="fade-right">
+          <h3>Reach Out to ASIA</h3>
+          <p>We welcome inquiries about membership, programs, collaborations, and partnerships. Our team is ready to assist you.</p>
+          <div class="contact-items">
+            <div class="contact-item">
+              <div class="c-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" stroke-width="1.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></div>
+              <div>
+                <p class="c-label">Alamat / Headquarters</p>
+                <p class="c-value">Jalan Perjuangan No. 80 B, Kelurahan Sei Kera Hilir,<br>Kec. Medan Perjuangan, Medan – Sumatera Utara, Indonesia</p>
+              </div>
+            </div>
+            <div class="contact-item">
+              <div class="c-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" stroke-width="1.5"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></div>
+              <div>
+                <p class="c-label">Email</p>
+                <p class="c-value"><a href="mailto:admin@apasific.org" style="color:var(--gold)">admin@apasific.org</a></p>
+              </div>
+            </div>
+            <div class="contact-item">
+              <div class="c-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" stroke-width="1.5"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 2.18h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8 9.91a16 16 0 0 0 6 6l.86-.86a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21.73 17z"/></svg></div>
+              <div>
+                <p class="c-label">Phone / WhatsApp</p>
+                <p class="c-value"><a href="https://wa.me/6281370062009" target="_blank" style="color:var(--gold)">+62 813-7006-2009</a></p>
+              </div>
+            </div>
+            <div class="contact-item">
+              <div class="c-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+              <div>
+                <p class="c-label">Office Hours</p>
+                <p class="c-value">Senin – Jumat, 08:00 – 17:00 WIB</p>
+              </div>
+            </div>
+          </div>
+          <div class="social-links">
+            <a href="#" class="social-btn" id="social-linkedin" aria-label="LinkedIn">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
+            </a>
+            <a href="#" class="social-btn" id="social-facebook" aria-label="Facebook">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+            </a>
+            <a href="#" class="social-btn" id="social-instagram" aria-label="Instagram">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+            </a>
+            <a href="#" class="social-btn" id="social-twitter" aria-label="Twitter/X">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+            </a>
+          </div>
+        </div>
+        <div class="contact-form-wrap" data-aos="fade-left">
+          <form class="contact-form" id="contact-form" onsubmit="handleFormSubmit(event)">
+            <div class="form-row">
+              <div class="form-group">
+                <label for="c-name">Full Name *</label>
+                <input type="text" id="c-name" placeholder="Your full name" required />
+              </div>
+              <div class="form-group">
+                <label for="c-email">Email Address *</label>
+                <input type="email" id="c-email" placeholder="your@email.com" required />
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label for="c-institution">Institution</label>
+                <input type="text" id="c-institution" placeholder="Your university / institution" />
+              </div>
+              <div class="form-group">
+                <label for="c-subject">Subject *</label>
+                <select id="c-subject" required>
+                  <option value="">Select a topic</option>
+                  <option>Membership Inquiry</option>
+                  <option>Certification</option>
+                  <option>Conference</option>
+                  <option>Publication</option>
+                  <option>Partnership / MOU</option>
+                  <option>Research Grant</option>
+                  <option>Other</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="c-message">Message *</label>
+              <textarea id="c-message" rows="5" placeholder="Write your message here..." required></textarea>
+            </div>
+            <button type="submit" class="btn-submit" id="btn-contact-submit">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+              Send Message
+            </button>
+            <div class="form-success" id="form-success">
+              ✅ Thank you! Your message has been sent. We'll get back to you within 2 business days.
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════
+       FOOTER
+  ═══════════════════════════════════════════ -->
+  ` }} />
   );
 }
