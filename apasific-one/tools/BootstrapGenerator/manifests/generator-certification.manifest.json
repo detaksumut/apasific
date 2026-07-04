@@ -1,0 +1,17 @@
+{
+  "schema": "apasific/generator-certification-manifest/v1",
+  "manifestVersion": "1.0",
+  "generatedBy": "BootstrapGenerator",
+  "lastModified": "2026-07-04T12:00:00Z",
+  "payload": {
+    "certificationTarget": "BootstrapGenerator",
+    "version": "1.0",
+    "status": "PASS",
+    "metrics": {
+      "Generate": { "status": "PASS", "warnings": 0, "errors": 0, "filesCreated": 0 },
+      "Update": { "status": "PASS", "warnings": 0, "errors": 0, "filesModified": 0 },
+      "Verify": { "status": "PASS", "namespaces": "PASS", "dependencies": "PASS", "templates": "PASS", "architecture": "PASS", "integrity": "PASS" },
+      "Repair": { "status": "PASS", "warnings": 0, "errors": 0, "filesRepaired": 0 }
+    }
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "schema": "apasific/template-manifest/v1",
+  "manifestVersion": "1.0",
+  "generatedBy": "BootstrapGenerator",
+  "lastModified": "2026-07-04T12:00:00Z",
+  "payload": {
+    "templates": [
+      {
+        "templateId": "tpl-aggregate-root",
+        "language": "C#",
+        "version": "1.0",
+        "engine": "DotLiquid",
+        "supportedLayer": "Domain",
+        "outputExtension": ".cs",
+        "generator": "BootstrapGenerator"
+      },
+      {
+        "templateId": "tpl-command-handler",
+        "language": "C#",
+        "version": "1.0",
+        "engine": "DotLiquid",
+        "supportedLayer": "Application",
+        "outputExtension": ".cs",
+        "generator": "BootstrapGenerator"
+      },
+      {
+        "templateId": "tpl-api-controller",
+        "language": "C#",
+        "version": "1.0",
+        "engine": "DotLiquid",
+        "supportedLayer": "Presentation",
+        "outputExtension": ".cs",
+        "generator": "BootstrapGenerator"
+      }
+    ]
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "apiName": "Apasific.Backend.Identity",
+  "version": "1.0.0",
+  "freezeDate": "2026-07-04T12:00:00Z",
+  "namespaces": [
+    {
+      "name": "Apasific.Backend.Identity.Domain.Users",
+      "types": [
+        { "name": "User", "type": "class", "base": "AggregateRoot<UserId>" },
+        { "name": "Role", "type": "class", "base": "Entity<RoleId>" }
+      ]
+    },
+    {
+      "name": "Apasific.Backend.Identity.Application.Users.Commands",
+      "types": [
+        { "name": "RegisterUserCommand", "type": "record" },
+        { "name": "RegisterUserCommandHandler", "type": "class" }
+      ]
+    },
+    {
+      "name": "Apasific.Backend.Identity.Presentation.Controllers",
+      "types": [
+        { "name": "UserController", "type": "class" }
+      ]
+    }
+  ]
+}

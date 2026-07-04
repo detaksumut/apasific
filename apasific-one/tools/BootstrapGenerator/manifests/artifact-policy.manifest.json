@@ -1,0 +1,26 @@
+{
+  "schema": "apasific/artifact-policy-manifest/v1",
+  "manifestVersion": "1.0",
+  "generatedBy": "BootstrapGenerator",
+  "lastModified": "2026-07-04T12:00:00Z",
+  "payload": {
+    "policies": [
+      {
+        "component": "Controller",
+        "policy": "Generated"
+      },
+      {
+        "component": "AggregateRoot",
+        "policy": "Manual-Protected"
+      },
+      {
+        "component": "BusinessRule",
+        "policy": "Manual-Protected"
+      },
+      {
+        "component": "Command",
+        "policy": "Generated-Protected"
+      }
+    ]
+  }
+}

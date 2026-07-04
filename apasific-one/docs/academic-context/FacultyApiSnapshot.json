@@ -1,0 +1,51 @@
+{
+  "apiName": "Apasific.Backend.Academic",
+  "aggregate": "Faculty",
+  "version": "1.0.0",
+  "sprint": "Sprint 1",
+  "snapshotDate": "2026-07-04T12:00:00Z",
+  "endpoints": [
+    {
+      "method": "POST",
+      "path": "/api/v1/academic/faculty",
+      "requestType": "CreateFacultyCommand",
+      "responseType": "Result<Guid>",
+      "description": "Creates a new Faculty master data record."
+    },
+    {
+      "method": "PUT",
+      "path": "/api/v1/academic/faculty/{id}",
+      "requestType": "UpdateFacultyCommand",
+      "responseType": "Result<Unit>",
+      "description": "Updates Faculty details."
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/v1/academic/faculty/{id}/activate",
+      "requestType": "ActivateFacultyCommand",
+      "responseType": "Result<Unit>",
+      "description": "Sets Faculty to active status."
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/v1/academic/faculty/{id}/deactivate",
+      "requestType": "DeactivateFacultyCommand",
+      "responseType": "Result<Unit>",
+      "description": "Sets Faculty to inactive status."
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/academic/faculty/{id}",
+      "requestType": "GetFacultyByIdQuery",
+      "responseType": "Result<FacultyDto>",
+      "description": "Retrieves Faculty details by ID."
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/academic/faculty",
+      "requestType": "SearchFacultyQuery",
+      "responseType": "Result<PagedList<FacultyDto>>",
+      "description": "Retrieves a paginated list of Faculties."
+    }
+  ]
+}

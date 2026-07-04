@@ -1,0 +1,40 @@
+{
+  "apiName": "Apasific.Backend.Shared",
+  "version": "1.0.0",
+  "freezeDate": "2026-07-04T12:00:00Z",
+  "namespaces": [
+    {
+      "name": "Apasific.Backend.Shared.Domain",
+      "types": [
+        { "name": "Entity<TId>", "type": "abstract class" },
+        { "name": "AggregateRoot<TId>", "type": "abstract class" },
+        { "name": "ValueObject", "type": "abstract class" },
+        { "name": "DomainEvent", "type": "abstract record" },
+        { "name": "DomainException", "type": "class" }
+      ]
+    },
+    {
+      "name": "Apasific.Backend.Shared.Results",
+      "types": [
+        { "name": "Result", "type": "class" },
+        { "name": "Result<T>", "type": "class" },
+        { "name": "Error", "type": "record" }
+      ]
+    },
+    {
+      "name": "Apasific.Backend.Shared.Contracts",
+      "types": [
+        { "name": "IRepository<T>", "type": "interface" },
+        { "name": "IUnitOfWork", "type": "interface" },
+        { "name": "IClock", "type": "interface" },
+        { "name": "IEventPublisher", "type": "interface" }
+      ]
+    },
+    {
+      "name": "Apasific.Backend.Shared.Specifications",
+      "types": [
+        { "name": "Specification<T>", "type": "abstract class" }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,26 @@
+{
+  "schema": "apasific/kernel-manifest/v1",
+  "manifestVersion": "1.0",
+  "generatedBy": "BootstrapGenerator",
+  "lastModified": "2026-07-04T12:00:00Z",
+  "payload": {
+    "kernelVersion": "1.0.0",
+    "type": "SharedKernel",
+    "businessRuleAllowed": false,
+    "boundedContextReferenceAllowed": false,
+    "certificationLevel": "Foundation",
+    "components": {
+      "Entity": "Domain Primitive",
+      "ValueObject": "Domain Primitive",
+      "AggregateRoot": "DDD",
+      "Result": "Infrastructure Independent",
+      "Specification": "DDD Pattern",
+      "DomainEvent": "EDA Pattern",
+      "DomainException": "Domain Primitive",
+      "UnitOfWork": "Infrastructure Abstraction",
+      "IRepository": "Infrastructure Abstraction",
+      "IClock": "Infrastructure Abstraction",
+      "IEventPublisher": "Infrastructure Abstraction"
+    }
+  }
+}

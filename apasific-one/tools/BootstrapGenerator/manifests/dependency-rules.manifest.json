@@ -1,0 +1,23 @@
+{
+  "schema": "apasific/dependency-rules-manifest/v1",
+  "manifestVersion": "1.0",
+  "generatedBy": "BootstrapGenerator",
+  "lastModified": "2026-07-04T12:00:00Z",
+  "payload": {
+    "allowedExternalReferences": [
+      "Microsoft.Extensions.DependencyInjection",
+      "MediatR",
+      "FluentValidation",
+      "Serilog",
+      "OpenTelemetry"
+    ],
+    "forbiddenExternalReferences": [
+      "Newtonsoft.Json",
+      "AutoMapper" 
+    ],
+    "sharedKernelUsage": {
+      "mandatoryInLayers": ["Domain", "Application"],
+      "forbiddenInLayers": []
+    }
+  }
+}

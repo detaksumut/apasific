@@ -1,0 +1,90 @@
+{
+  "version": "1.0",
+  "compatibleGenerator": ["1.0", "1.1"],
+  "manifests": [
+    {
+      "name": "repository",
+      "schema": "apasific/repository-manifest/v1",
+      "file": "repository.manifest.json",
+      "required": true,
+      "capabilities": ["Generate", "Verify"]
+    },
+    {
+      "name": "solution",
+      "schema": "apasific/solution-manifest/v1",
+      "file": "solution.manifest.json",
+      "required": true,
+      "capabilities": ["Generate", "Update", "Verify"]
+    },
+    {
+      "name": "dependency",
+      "schema": "apasific/dependency-manifest/v1",
+      "file": "dependency.manifest.json",
+      "required": true,
+      "capabilities": ["Verify"]
+    },
+    {
+      "name": "identity-context",
+      "schema": "apasific/context-manifest/v1",
+      "file": "identity.manifest.json",
+      "required": true,
+      "capabilities": ["Generate", "Update", "Verify"]
+    },
+    {
+      "name": "academic-context",
+      "schema": "apasific/context-manifest/v1",
+      "file": "academic.manifest.json",
+      "required": true,
+      "capabilities": ["Generate", "Update", "Verify"]
+    },
+    {
+      "name": "kernel",
+      "schema": "apasific/kernel-manifest/v1",
+      "file": "kernel.manifest.json",
+      "required": true,
+      "capabilities": ["Generate", "Verify"]
+    },
+    {
+      "name": "project-blueprint",
+      "schema": "apasific/project-blueprint-manifest/v1",
+      "file": "project-blueprint.manifest.json",
+      "required": true,
+      "capabilities": ["Verify"]
+    },
+    {
+      "name": "namespace",
+      "schema": "apasific/namespace-manifest/v1",
+      "file": "namespace.manifest.json",
+      "required": true,
+      "capabilities": ["Verify"]
+    },
+    {
+      "name": "template",
+      "schema": "apasific/template-manifest/v1",
+      "file": "template.manifest.json",
+      "required": true,
+      "capabilities": ["Generate"]
+    },
+    {
+      "name": "dependency-rules",
+      "schema": "apasific/dependency-rules-manifest/v1",
+      "file": "dependency-rules.manifest.json",
+      "required": true,
+      "capabilities": ["Verify"]
+    },
+    {
+      "name": "artifact-policy",
+      "schema": "apasific/artifact-policy-manifest/v1",
+      "file": "artifact-policy.manifest.json",
+      "required": true,
+      "capabilities": ["Update", "Repair"]
+    },
+    {
+      "name": "generator-certification",
+      "schema": "apasific/generator-certification-manifest/v1",
+      "file": "generator-certification.manifest.json",
+      "required": true,
+      "capabilities": ["Verify"]
+    }
+  ]
+}

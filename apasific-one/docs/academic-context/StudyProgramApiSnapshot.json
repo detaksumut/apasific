@@ -1,0 +1,58 @@
+{
+  "apiName": "Apasific.Backend.Academic",
+  "aggregate": "StudyProgram",
+  "version": "1.0.0",
+  "sprint": "Sprint 2",
+  "snapshotDate": "2026-07-04T12:00:00Z",
+  "endpoints": [
+    {
+      "method": "POST",
+      "path": "/api/v1/academic/studyprograms",
+      "requestType": "RegisterStudyProgramCommand",
+      "responseType": "Result<Guid>",
+      "description": "Registers a new Study Program under a specific Faculty."
+    },
+    {
+      "method": "PUT",
+      "path": "/api/v1/academic/studyprograms/{id}",
+      "requestType": "UpdateStudyProgramProfileCommand",
+      "responseType": "Result<Unit>",
+      "description": "Updates Study Program profile details."
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/v1/academic/studyprograms/{id}/transfer",
+      "requestType": "TransferStudyProgramCommand",
+      "responseType": "Result<Unit>",
+      "description": "Transfers the Study Program to a new Faculty."
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/v1/academic/studyprograms/{id}/activate",
+      "requestType": "ActivateStudyProgramCommand",
+      "responseType": "Result<Unit>",
+      "description": "Sets Study Program to active status."
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/v1/academic/studyprograms/{id}/deactivate",
+      "requestType": "DeactivateStudyProgramCommand",
+      "responseType": "Result<Unit>",
+      "description": "Sets Study Program to inactive status."
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/academic/studyprograms/{id}",
+      "requestType": "GetStudyProgramByIdQuery",
+      "responseType": "Result<StudyProgramDto>",
+      "description": "Retrieves Study Program details by ID."
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/academic/studyprograms",
+      "requestType": "SearchStudyProgramsQuery",
+      "responseType": "Result<PagedList<StudyProgramDto>>",
+      "description": "Retrieves a paginated list of Study Programs, optionally filtered by FacultyId."
+    }
+  ]
+}

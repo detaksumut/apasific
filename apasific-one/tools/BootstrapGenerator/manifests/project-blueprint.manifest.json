@@ -1,0 +1,43 @@
+{
+  "schema": "apasific/project-blueprint-manifest/v1",
+  "manifestVersion": "1.0",
+  "generatedBy": "BootstrapGenerator",
+  "lastModified": "2026-07-04T12:00:00Z",
+  "payload": {
+    "layers": [
+      "Domain",
+      "Application",
+      "Infrastructure",
+      "Presentation",
+      "Contracts",
+      "Tests"
+    ],
+    "dependencyGraph": [
+      {
+        "source": "Presentation",
+        "dependsOn": ["Application"],
+        "cannotReference": ["Infrastructure", "Domain"]
+      },
+      {
+        "source": "Infrastructure",
+        "dependsOn": ["Application"],
+        "cannotReference": ["Presentation"]
+      },
+      {
+        "source": "Application",
+        "dependsOn": ["Domain"],
+        "cannotReference": ["Infrastructure", "Presentation"]
+      },
+      {
+        "source": "Domain",
+        "dependsOn": [],
+        "cannotReference": ["Application", "Infrastructure", "Presentation", "Contracts"]
+      },
+      {
+        "source": "Contracts",
+        "dependsOn": [],
+        "cannotReference": ["Domain", "Application", "Infrastructure", "Presentation"]
+      }
+    ]
+  }
+}

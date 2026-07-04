@@ -46,23 +46,52 @@
     this.classList.toggle('active');
   });
 
-  /* Close menu when link clicked */
+  /* Close menu when link clicked (except dropdown triggers) */
   navLinks.querySelectorAll('a').forEach(function (link) {
     link.addEventListener('click', function () {
-      navLinks.classList.remove('open');
-      hamburger.classList.remove('active');
+      const parentLi = link.closest('li');
+      const isDropdownTrigger = parentLi && parentLi.classList.contains('has-dropdown') && link.classList.contains('nav-link');
+      if (!isDropdownTrigger) {
+        navLinks.classList.remove('open');
+        hamburger.classList.remove('active');
+      }
     });
   });
 
-  /* Mobile dropdown toggle */
+  /* Mobile and Touch dropdown toggle */
   document.querySelectorAll('.has-dropdown').forEach(function (item) {
     const link = item.querySelector('.nav-link');
     link.addEventListener('click', function (e) {
-      if (window.innerWidth <= 992) {
-        e.preventDefault();
-        item.classList.toggle('open');
+      const isTouch = window.matchMedia('(pointer: coarse)').matches;
+      const isMobile = window.innerWidth <= 992;
+      
+      if (isTouch || isMobile) {
+        if (!item.classList.contains('open')) {
+          e.preventDefault();
+          // Close other dropdowns
+          document.querySelectorAll('.has-dropdown').forEach(function (other) {
+            if (other !== item) other.classList.remove('open');
+          });
+          item.classList.add('open');
+        } else {
+          // If already open and on mobile, or it's a hash link, prevent navigation and toggle off
+          const href = link.getAttribute('href');
+          if (isMobile || (href && href.startsWith('#'))) {
+            e.preventDefault();
+            item.classList.remove('open');
+          }
+        }
       }
     });
+  });
+
+  /* Close dropdowns when clicking outside */
+  document.addEventListener('click', function (e) {
+    if (!e.target.closest('.has-dropdown')) {
+      document.querySelectorAll('.has-dropdown').forEach(function (item) {
+        item.classList.remove('open');
+      });
+    }
   });
 
   /* ═══════════════════════════════════════════════

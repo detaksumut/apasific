@@ -1,0 +1,52 @@
+{
+  "schema": "apasific/context-manifest/v1",
+  "manifestVersion": "1.0",
+  "generatedBy": "BootstrapGenerator",
+  "lastModified": "2026-07-04T12:00:00Z",
+  "checksum": "sha256-faculty-studyprogram-academic",
+  "payload": {
+    "contextName": "Academic",
+    "owner": "Academic Domain Team",
+    "aggregates": [
+      "Faculty",
+      "StudyProgram"
+    ],
+    "commands": [
+      "CreateFacultyCommand",
+      "UpdateFacultyCommand",
+      "ActivateFacultyCommand",
+      "DeactivateFacultyCommand",
+      "RegisterStudyProgramCommand",
+      "UpdateStudyProgramProfileCommand",
+      "TransferStudyProgramCommand",
+      "ActivateStudyProgramCommand",
+      "DeactivateStudyProgramCommand"
+    ],
+    "queries": [
+      "GetFacultyByIdQuery",
+      "SearchFacultyQuery",
+      "GetStudyProgramByIdQuery",
+      "ListStudyProgramsQuery",
+      "SearchStudyProgramsQuery"
+    ],
+    "publishedEvents": [
+      "FacultyCreatedEvent",
+      "FacultyActivatedEvent",
+      "StudyProgramRegisteredEvent",
+      "StudyProgramTransferredEvent"
+    ],
+    "projections": [
+      "FacultyPublicView",
+      "StudyProgramPublicView"
+    ],
+    "rules": [
+      "FacultyCodeMustBeUnique",
+      "StudyProgramCodeMustBeUniqueGlobally",
+      "StudyProgramMustBelongToActiveFaculty"
+    ],
+    "acceptance": [
+      "ACC-ACAD-001",
+      "ACC-ACAD-002"
+    ]
+  }
+}
