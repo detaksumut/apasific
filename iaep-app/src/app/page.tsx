@@ -18,8 +18,8 @@ export default function Home() {
            onerror="this.style.display='none'" />
     </div>
     <!-- CTA Button Overlay -->
-    <div class="hero-cta-overlay" data-aos="fade-up" data-aos-delay="200">
-      <a href="#membership" class="btn-primary" id="hero-become-member">
+    <div class="hero-cta-overlay">
+      <a href="/auth/membership" class="btn-primary" id="hero-become-member">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
         BECOME A MEMBER
       </a>
@@ -73,21 +73,21 @@ export default function Home() {
 
       <!-- Vision & Mission -->
       <div class="about-vm" id="vision-mission">
-        <div class="vm-card" data-aos="fade-up">
+        <div class="vm-card">
           <div class="vm-icon">
             <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" stroke-width="1.5"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
           </div>
           <h3>Our Vision</h3>
           <p>To become the leading academic association in Asia Pacific, recognized globally for excellence in knowledge creation, academic leadership, and sustainable impact.</p>
         </div>
-        <div class="vm-card" data-aos="fade-up" style="animation-delay:0.15s">
+        <div class="vm-card" style="animation-delay:0.15s">
           <div class="vm-icon">
             <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" stroke-width="1.5"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
           </div>
           <h3>Our Mission</h3>
           <p>To foster academic collaboration, promote research excellence, advance professional certification, and empower scholars across Asia Pacific through innovative programs and inclusive platforms.</p>
         </div>
-        <div class="vm-card" data-aos="fade-up" style="animation-delay:0.3s">
+        <div class="vm-card" style="animation-delay:0.3s">
           <div class="vm-icon">
             <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
           </div>
@@ -100,7 +100,7 @@ export default function Home() {
       <div class="subsection" id="leadership">
         <h3 class="subsection-title">Leadership</h3>
         <div class="leadership-grid">
-          <div class="leader-card" data-aos="fade-up">
+          <div class="leader-card">
             <div class="leader-avatar">
               <div class="avatar-placeholder">
                 <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" stroke-width="1.2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
@@ -112,7 +112,7 @@ export default function Home() {
               <p class="leader-affil">Asia Pacific Academic Leadership</p>
             </div>
           </div>
-          <div class="leader-card" data-aos="fade-up" style="animation-delay:0.1s">
+          <div class="leader-card" style="animation-delay:0.1s">
             <div class="leader-avatar">
               <div class="avatar-placeholder">
                 <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" stroke-width="1.2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
@@ -124,7 +124,7 @@ export default function Home() {
               <p class="leader-affil">Strategic Operations &amp; Governance</p>
             </div>
           </div>
-          <div class="leader-card" data-aos="fade-up" style="animation-delay:0.2s">
+          <div class="leader-card" style="animation-delay:0.2s">
             <div class="leader-avatar">
               <div class="avatar-placeholder">
                 <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" stroke-width="1.2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
@@ -136,7 +136,7 @@ export default function Home() {
               <p class="leader-affil">Finance &amp; Resource Management</p>
             </div>
           </div>
-          <div class="leader-card" data-aos="fade-up" style="animation-delay:0.3s">
+          <div class="leader-card" style="animation-delay:0.3s">
             <div class="leader-avatar">
               <div class="avatar-placeholder">
                 <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" stroke-width="1.2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
@@ -155,21 +155,21 @@ export default function Home() {
       <div class="subsection" id="regional-chapters">
         <h3 class="subsection-title">Regional Chapters</h3>
         <div class="chapters-grid">
-          <div class="chapter-badge" data-aos="zoom-in">🇲🇾 Malaysia</div>
-          <div class="chapter-badge" data-aos="zoom-in" style="animation-delay:0.05s">🇮🇩 Indonesia</div>
-          <div class="chapter-badge" data-aos="zoom-in" style="animation-delay:0.1s">🇵🇭 Philippines</div>
-          <div class="chapter-badge" data-aos="zoom-in" style="animation-delay:0.15s">🇹🇭 Thailand</div>
-          <div class="chapter-badge" data-aos="zoom-in" style="animation-delay:0.2s">🇧🇩 Bangladesh</div>
-          <div class="chapter-badge" data-aos="zoom-in" style="animation-delay:0.25s">🇵🇰 Pakistan</div>
-          <div class="chapter-badge" data-aos="zoom-in" style="animation-delay:0.3s">🇮🇳 India</div>
-          <div class="chapter-badge" data-aos="zoom-in" style="animation-delay:0.35s">🇨🇳 China</div>
-          <div class="chapter-badge" data-aos="zoom-in" style="animation-delay:0.4s">🇯🇵 Japan</div>
-          <div class="chapter-badge" data-aos="zoom-in" style="animation-delay:0.45s">🇰🇷 Korea</div>
-          <div class="chapter-badge" data-aos="zoom-in" style="animation-delay:0.5s">🇸🇬 Singapore</div>
-          <div class="chapter-badge" data-aos="zoom-in" style="animation-delay:0.55s">🇻🇳 Vietnam</div>
-          <div class="chapter-badge" data-aos="zoom-in" style="animation-delay:0.6s">🇳🇬 Nigeria</div>
-          <div class="chapter-badge" data-aos="zoom-in" style="animation-delay:0.65s">🇹🇷 Turkey</div>
-          <div class="chapter-badge" data-aos="zoom-in" style="animation-delay:0.7s">🇦🇺 Australia</div>
+          <div class="chapter-badge">🇲🇾 Malaysia</div>
+          <div class="chapter-badge" style="animation-delay:0.05s">🇮🇩 Indonesia</div>
+          <div class="chapter-badge" style="animation-delay:0.1s">🇵🇭 Philippines</div>
+          <div class="chapter-badge" style="animation-delay:0.15s">🇹🇭 Thailand</div>
+          <div class="chapter-badge" style="animation-delay:0.2s">🇧🇩 Bangladesh</div>
+          <div class="chapter-badge" style="animation-delay:0.25s">🇵🇰 Pakistan</div>
+          <div class="chapter-badge" style="animation-delay:0.3s">🇮🇳 India</div>
+          <div class="chapter-badge" style="animation-delay:0.35s">🇨🇳 China</div>
+          <div class="chapter-badge" style="animation-delay:0.4s">🇯🇵 Japan</div>
+          <div class="chapter-badge" style="animation-delay:0.45s">🇰🇷 Korea</div>
+          <div class="chapter-badge" style="animation-delay:0.5s">🇸🇬 Singapore</div>
+          <div class="chapter-badge" style="animation-delay:0.55s">🇻🇳 Vietnam</div>
+          <div class="chapter-badge" style="animation-delay:0.6s">🇳🇬 Nigeria</div>
+          <div class="chapter-badge" style="animation-delay:0.65s">🇹🇷 Turkey</div>
+          <div class="chapter-badge" style="animation-delay:0.7s">🇦🇺 Australia</div>
         </div>
       </div>
     </div>
@@ -187,98 +187,98 @@ export default function Home() {
         <p class="section-subtitle">Spanning diverse academic disciplines to serve every scholar and professional in Asia Pacific</p>
       </div>
       <div class="divisions-grid">
-        <div class="division-card" id="div-accounting" data-aos="fade-up">
+        <div class="division-card" id="div-accounting">
           <div class="div-num">01</div>
           <div class="div-icon">📊</div>
           <h3>Accounting, Auditing &amp; Taxation</h3>
           <p>Advancing standards in financial reporting, audit practices, and tax policy across the region.</p>
           <a href="accounting.html" class="div-link">Explore Division →</a>
         </div>
-        <div class="division-card" id="div-business" data-aos="fade-up" style="animation-delay:0.05s">
+        <div class="division-card" id="div-business" style="animation-delay:0.05s">
           <div class="div-num">02</div>
           <div class="div-icon">💼</div>
           <h3>Business, Management &amp; Entrepreneurship</h3>
           <p>Driving innovation, leadership, and entrepreneurial excellence in modern business ecosystems.</p>
           <a href="business.html" class="div-link">Explore Division →</a>
         </div>
-        <div class="division-card" id="div-finance" data-aos="fade-up" style="animation-delay:0.1s">
+        <div class="division-card" id="div-finance" style="animation-delay:0.1s">
           <div class="div-num">03</div>
           <div class="div-icon">🏦</div>
           <h3>Finance, Banking &amp; Investment</h3>
           <p>Strengthening financial systems, capital markets, and investment ecosystems across Asia Pacific.</p>
           <a href="finance.html" class="div-link">Explore Division →</a>
         </div>
-        <div class="division-card" id="div-hr" data-aos="fade-up" style="animation-delay:0.15s">
+        <div class="division-card" id="div-hr" style="animation-delay:0.15s">
           <div class="div-num">04</div>
           <div class="div-icon">👥</div>
           <h3>Human Resources</h3>
           <p>Developing human capital strategies, organizational behavior, and workforce excellence.</p>
           <a href="hr.html" class="div-link">Explore Division →</a>
         </div>
-        <div class="division-card" id="div-economics" data-aos="fade-up" style="animation-delay:0.2s">
+        <div class="division-card" id="div-economics" style="animation-delay:0.2s">
           <div class="div-num">05</div>
           <div class="div-icon">📈</div>
           <h3>Economics &amp; Public Policy</h3>
           <p>Informing evidence-based policymaking and macroeconomic resilience across the Asia Pacific.</p>
           <a href="economics.html" class="div-link">Explore Division →</a>
         </div>
-        <div class="division-card" id="div-education" data-aos="fade-up" style="animation-delay:0.25s">
+        <div class="division-card" id="div-education" style="animation-delay:0.25s">
           <div class="div-num">06</div>
           <div class="div-icon">🎓</div>
           <h3>Education</h3>
           <p>Transforming pedagogy, curriculum design, and educational leadership for the 21st century.</p>
           <a href="economics.html" class="div-link">Explore Division →</a>
         </div>
-        <div class="division-card" id="div-law" data-aos="fade-up" style="animation-delay:0.3s">
+        <div class="division-card" id="div-law" style="animation-delay:0.3s">
           <div class="div-num">07</div>
           <div class="div-icon">⚖️</div>
           <h3>Law &amp; Governance</h3>
           <p>Promoting rule of law, institutional governance, and legal scholarship across jurisdictions.</p>
           <a href="law.html" class="div-link">Explore Division →</a>
         </div>
-        <div class="division-card" id="div-it" data-aos="fade-up" style="animation-delay:0.35s">
+        <div class="division-card" id="div-it" style="animation-delay:0.35s">
           <div class="div-num">08</div>
           <div class="div-icon">🤖</div>
           <h3>IT, AI &amp; Digital Transformation</h3>
           <p>Leading the frontier of artificial intelligence, cybersecurity, and digital innovation research.</p>
           <a href="it.html" class="div-link">Explore Division →</a>
         </div>
-        <div class="division-card" id="div-engineering" data-aos="fade-up" style="animation-delay:0.4s">
+        <div class="division-card" id="div-engineering" style="animation-delay:0.4s">
           <div class="div-num">09</div>
           <div class="div-icon">⚙️</div>
           <h3>Engineering</h3>
           <p>Advancing engineering sciences, applied technology, and sustainable infrastructure solutions.</p>
           <a href="it.html" class="div-link">Explore Division →</a>
         </div>
-        <div class="division-card" id="div-social" data-aos="fade-up" style="animation-delay:0.45s">
+        <div class="division-card" id="div-social" style="animation-delay:0.45s">
           <div class="div-num">10</div>
           <div class="div-icon">🌐</div>
           <h3>Social Sciences</h3>
           <p>Exploring human society, cultural dynamics, and interdisciplinary social research.</p>
           <a href="engineering.html" class="div-link">Explore Division →</a>
         </div>
-        <div class="division-card" id="div-tourism" data-aos="fade-up" style="animation-delay:0.5s">
+        <div class="division-card" id="div-tourism" style="animation-delay:0.5s">
           <div class="div-num">11</div>
           <div class="div-icon">✈️</div>
           <h3>Tourism</h3>
           <p>Advancing sustainable tourism, hospitality management, and cultural heritage preservation.</p>
           <a href="social.html" class="div-link">Explore Division →</a>
         </div>
-        <div class="division-card" id="div-health" data-aos="fade-up" style="animation-delay:0.55s">
+        <div class="division-card" id="div-health" style="animation-delay:0.55s">
           <div class="div-num">12</div>
           <div class="div-icon">🏥</div>
           <h3>Health</h3>
           <p>Promoting public health, medical research, and health system innovation across the region.</p>
           <a href="#contact" class="div-link">Learn More →</a>
         </div>
-        <div class="division-card" id="div-agriculture" data-aos="fade-up" style="animation-delay:0.6s">
+        <div class="division-card" id="div-agriculture" style="animation-delay:0.6s">
           <div class="div-num">13</div>
           <div class="div-icon">🌾</div>
           <h3>Agriculture</h3>
           <p>Supporting agri-food innovation, rural development, and food security research.</p>
           <a href="#contact" class="div-link">Learn More →</a>
         </div>
-        <div class="division-card" id="div-islamic" data-aos="fade-up" style="animation-delay:0.65s">
+        <div class="division-card" id="div-islamic" style="animation-delay:0.65s">
           <div class="div-num">14</div>
           <div class="div-icon">☪️</div>
           <h3>Islamic Studies</h3>
@@ -301,75 +301,75 @@ export default function Home() {
         <p class="section-subtitle">Specialized organs that power ASIA's mission across certification, research, publications, and more</p>
       </div>
       <div class="bodies-grid">
-        <div class="body-card featured" id="boc" data-aos="fade-up">
+        <div class="body-card featured" id="boc">
           <div class="body-badge">FLAGSHIP</div>
           <div class="body-icon">🏛️</div>
           <h3>ASIA Board of Certification (BOC)</h3>
           <p>The apex body governing all professional and academic certification standards under ASIA's framework.</p>
           <a href="https://apasific.org/boc" target="_blank" class="div-link">Visit Website →</a>
         </div>
-        <div class="body-card featured" id="asiacert" data-aos="fade-up" style="animation-delay:0.1s">
+        <div class="body-card featured" id="asiacert" style="animation-delay:0.1s">
           <div class="body-badge">CERTIFICATION</div>
           <div class="body-icon">🎖️</div>
           <h3>ASIACERT</h3>
           <p>Official certification arm issuing internationally recognized credentials to qualified academicians and professionals.</p>
           <a href="https://apasific.org/asiacert" target="_blank" class="div-link">Visit Website →</a>
         </div>
-        <div class="body-card" id="research-council" data-aos="fade-up" style="animation-delay:0.15s">
+        <div class="body-card" id="research-council" style="animation-delay:0.15s">
           <div class="body-icon">🔬</div>
           <h3>Research &amp; Innovation Council</h3>
           <p>Spearheading collaborative research initiatives, innovation grants, and knowledge generation programs.</p>
           <a href="https://apasific.org/research" target="_blank" class="div-link">Visit Website →</a>
         </div>
-        <div class="body-card" id="conference-forum" data-aos="fade-up" style="animation-delay:0.2s">
+        <div class="body-card" id="conference-forum" style="animation-delay:0.2s">
           <div class="body-icon">🎤</div>
           <h3>Conference &amp; Academic Forum</h3>
           <p>Organizing premier international conferences and academic forums for knowledge exchange and networking.</p>
           <a href="https://apasific.org/conference" target="_blank" class="div-link">Visit Website →</a>
         </div>
-        <div class="body-card" id="publication-center" data-aos="fade-up" style="animation-delay:0.25s">
+        <div class="body-card" id="publication-center" style="animation-delay:0.25s">
           <div class="body-icon">📚</div>
           <h3>Publication &amp; Knowledge Center</h3>
           <p>Managing scholarly publications, open-access journals, and the dissemination of academic knowledge.</p>
           <a href="https://apasific.org/publication" target="_blank" class="div-link">Visit Website →</a>
         </div>
-        <div class="body-card" id="mobility-center" data-aos="fade-up" style="animation-delay:0.3s">
+        <div class="body-card" id="mobility-center" style="animation-delay:0.3s">
           <div class="body-icon">🌏</div>
           <h3>Academic Mobility Center</h3>
           <p>Facilitating cross-border academic exchanges, visiting scholar programs, and mobility fellowships.</p>
           <a href="https://apasific.org/mobility" target="_blank" class="div-link">Visit Website →</a>
         </div>
-        <div class="body-card" id="competition-center" data-aos="fade-up" style="animation-delay:0.35s">
+        <div class="body-card" id="competition-center" style="animation-delay:0.35s">
           <div class="body-icon">🏆</div>
           <h3>Competition Center</h3>
           <p>Hosting academic competitions, olympiads, and case study challenges for students and researchers.</p>
           <a href="https://apasific.org/competition" target="_blank" class="div-link">Visit Website →</a>
         </div>
-        <div class="body-card" id="community-center" data-aos="fade-up" style="animation-delay:0.4s">
+        <div class="body-card" id="community-center" style="animation-delay:0.4s">
           <div class="body-icon">🌱</div>
           <h3>Community Engagement &amp; SDGs Center</h3>
           <p>Aligning academic activities with UN Sustainable Development Goals and community empowerment.</p>
           <a href="https://apasific.org/community" target="_blank" class="div-link">Visit Website →</a>
         </div>
-        <div class="body-card" id="qa-board" data-aos="fade-up" style="animation-delay:0.45s">
+        <div class="body-card" id="qa-board" style="animation-delay:0.45s">
           <div class="body-icon">✅</div>
           <h3>Quality Assurance &amp; Accreditation Board</h3>
           <p>Upholding academic standards, institutional accreditation, and quality benchmarking across programs.</p>
           <a href="https://apasific.org/quality" target="_blank" class="div-link">Visit Website →</a>
         </div>
-        <div class="body-card" id="digital-academy" data-aos="fade-up" style="animation-delay:0.5s">
+        <div class="body-card" id="digital-academy" style="animation-delay:0.5s">
           <div class="body-icon">💻</div>
           <h3>Digital Academy &amp; AI Center</h3>
           <p>Delivering digital literacy, AI education, and cutting-edge technology training for academics.</p>
           <a href="https://apasific.org/academy" target="_blank" class="div-link">Visit Website →</a>
         </div>
-        <div class="body-card" id="young-network" data-aos="fade-up" style="animation-delay:0.55s">
+        <div class="body-card" id="young-network" style="animation-delay:0.55s">
           <div class="body-icon">🌟</div>
           <h3>Young Academician Network</h3>
           <p>Nurturing emerging scholars and early-career researchers through mentorship and collaborative platforms.</p>
           <a href="https://apasific.org/young" target="_blank" class="div-link">Visit Website →</a>
         </div>
-        <div class="body-card" id="awards-council" data-aos="fade-up" style="animation-delay:0.6s">
+        <div class="body-card" id="awards-council" style="animation-delay:0.6s">
           <div class="body-icon">🏅</div>
           <h3>Awards &amp; Recognition Council</h3>
           <p>Celebrating academic excellence through prestigious awards honoring outstanding contributions to scholarship.</p>
@@ -390,7 +390,7 @@ export default function Home() {
         <div class="title-ornament"><span></span><svg width="20" height="20" viewBox="0 0 20 20"><polygon points="10,1 12.9,7 19.5,7.6 14.7,12 16.2,18.5 10,15 3.8,18.5 5.3,12 0.5,7.6 7.1,7" fill="#c9a84c"/></svg><span></span></div>
       </div>
       <div class="pub-grid">
-        <div class="pub-card" id="journals" data-aos="fade-up">
+        <div class="pub-card" id="journals">
           <div class="pub-icon-wrap">
             <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
           </div>
@@ -399,7 +399,7 @@ export default function Home() {
           <div class="pub-meta"><span>Quarterly</span><span>ISI / Scopus Indexed</span></div>
           <a href="#contact" class="pub-link">Browse Journals →</a>
         </div>
-        <div class="pub-card" id="proceedings" data-aos="fade-up" style="animation-delay:0.1s">
+        <div class="pub-card" id="proceedings" style="animation-delay:0.1s">
           <div class="pub-icon-wrap">
             <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/></svg>
           </div>
@@ -408,7 +408,7 @@ export default function Home() {
           <div class="pub-meta"><span>Per Conference</span><span>ISBN Registered</span></div>
           <a href="#contact" class="pub-link">Browse Proceedings →</a>
         </div>
-        <div class="pub-card" id="books" data-aos="fade-up" style="animation-delay:0.2s">
+        <div class="pub-card" id="books" style="animation-delay:0.2s">
           <div class="pub-icon-wrap">
             <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" stroke-width="1.5"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
           </div>
@@ -417,7 +417,7 @@ export default function Home() {
           <div class="pub-meta"><span>Annual</span><span>DOI Registered</span></div>
           <a href="#contact" class="pub-link">Browse Books →</a>
         </div>
-        <div class="pub-card" id="monographs" data-aos="fade-up" style="animation-delay:0.3s">
+        <div class="pub-card" id="monographs" style="animation-delay:0.3s">
           <div class="pub-icon-wrap">
             <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" stroke-width="1.5"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
           </div>
@@ -426,7 +426,7 @@ export default function Home() {
           <div class="pub-meta"><span>Bi-annual</span><span>Open Access</span></div>
           <a href="#contact" class="pub-link">Browse Monographs →</a>
         </div>
-        <div class="pub-card" id="policy-briefs" data-aos="fade-up" style="animation-delay:0.4s">
+        <div class="pub-card" id="policy-briefs" style="animation-delay:0.4s">
           <div class="pub-icon-wrap">
             <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" stroke-width="1.5"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
           </div>
@@ -451,7 +451,7 @@ export default function Home() {
         <p class="section-subtitle">Comprehensive programs designed to elevate academic careers and institutional excellence</p>
       </div>
       <div class="programs-grid">
-        <div class="program-card" id="certification" data-aos="fade-up">
+        <div class="program-card" id="certification">
           <div class="prog-number">01</div>
           <div class="prog-icon">🎖️</div>
           <h3>Certification</h3>
@@ -463,7 +463,7 @@ export default function Home() {
           </ul>
           <a href="#contact" class="btn-prog" id="btn-certification">Apply Now</a>
         </div>
-        <div class="program-card" id="conferences" data-aos="fade-up" style="animation-delay:0.1s">
+        <div class="program-card" id="conferences" style="animation-delay:0.1s">
           <div class="prog-number">02</div>
           <div class="prog-icon">🎤</div>
           <h3>Conferences</h3>
@@ -475,7 +475,7 @@ export default function Home() {
           </ul>
           <a href="#contact" class="btn-prog" id="btn-conferences">Register</a>
         </div>
-        <div class="program-card" id="competitions" data-aos="fade-up" style="animation-delay:0.2s">
+        <div class="program-card" id="competitions" style="animation-delay:0.2s">
           <div class="prog-number">03</div>
           <div class="prog-icon">🏆</div>
           <h3>Competitions</h3>
@@ -487,7 +487,7 @@ export default function Home() {
           </ul>
           <a href="#contact" class="btn-prog" id="btn-competitions">Compete</a>
         </div>
-        <div class="program-card" id="training" data-aos="fade-up" style="animation-delay:0.3s">
+        <div class="program-card" id="training" style="animation-delay:0.3s">
           <div class="prog-number">04</div>
           <div class="prog-icon">📖</div>
           <h3>Training</h3>
@@ -499,7 +499,7 @@ export default function Home() {
           </ul>
           <a href="#contact" class="btn-prog" id="btn-training">Enroll</a>
         </div>
-        <div class="program-card" id="mobility" data-aos="fade-up" style="animation-delay:0.4s">
+        <div class="program-card" id="mobility" style="animation-delay:0.4s">
           <div class="prog-number">05</div>
           <div class="prog-icon">🌏</div>
           <h3>Mobility</h3>
@@ -511,7 +511,7 @@ export default function Home() {
           </ul>
           <a href="#contact" class="btn-prog" id="btn-mobility">Apply</a>
         </div>
-        <div class="program-card" id="research-grants" data-aos="fade-up" style="animation-delay:0.5s">
+        <div class="program-card" id="research-grants" style="animation-delay:0.5s">
           <div class="prog-number">06</div>
           <div class="prog-icon">🔬</div>
           <h3>Research Grants</h3>
@@ -523,7 +523,7 @@ export default function Home() {
           </ul>
           <a href="#contact" class="btn-prog" id="btn-grants">Apply for Grant</a>
         </div>
-        <div class="program-card" id="awards-prog" data-aos="fade-up" style="animation-delay:0.6s">
+        <div class="program-card" id="awards-prog" style="animation-delay:0.6s">
           <div class="prog-number">07</div>
           <div class="prog-icon">🏅</div>
           <h3>Awards</h3>
@@ -552,7 +552,7 @@ export default function Home() {
         <p class="section-subtitle">Join 5,000+ scholars and professionals shaping the future of Asia Pacific academic excellence</p>
       </div>
       <div class="membership-tiers">
-        <div class="tier-card" data-aos="fade-up">
+        <div class="tier-card">
           <div class="tier-header">
             <div class="tier-icon">🎓</div>
             <h3>Student Member</h3>
@@ -567,7 +567,7 @@ export default function Home() {
           </ul>
           <a href="#contact" class="btn-tier" id="btn-student-member">Join Now</a>
         </div>
-        <div class="tier-card featured-tier" data-aos="fade-up" style="animation-delay:0.15s">
+        <div class="tier-card featured-tier" style="animation-delay:0.15s">
           <div class="tier-popular">MOST POPULAR</div>
           <div class="tier-header">
             <div class="tier-icon">🏛️</div>
@@ -584,7 +584,7 @@ export default function Home() {
           </ul>
           <a href="#contact" class="btn-tier btn-tier-featured" id="btn-prof-member">Join Now</a>
         </div>
-        <div class="tier-card" data-aos="fade-up" style="animation-delay:0.3s">
+        <div class="tier-card" style="animation-delay:0.3s">
           <div class="tier-header">
             <div class="tier-icon">🏆</div>
             <h3>Fellow Member</h3>
@@ -600,7 +600,7 @@ export default function Home() {
           </ul>
           <a href="#contact" class="btn-tier" id="btn-fellow-member">Join Now</a>
         </div>
-        <div class="tier-card" data-aos="fade-up" style="animation-delay:0.45s">
+        <div class="tier-card" style="animation-delay:0.45s">
           <div class="tier-header">
             <div class="tier-icon">🏢</div>
             <h3>Institutional Member</h3>
@@ -631,7 +631,7 @@ export default function Home() {
         <div class="title-ornament"><span></span><svg width="20" height="20" viewBox="0 0 20 20"><polygon points="10,1 12.9,7 19.5,7.6 14.7,12 16.2,18.5 10,15 3.8,18.5 5.3,12 0.5,7.6 7.1,7" fill="#c9a84c"/></svg><span></span></div>
       </div>
       <div class="contact-wrapper">
-        <div class="contact-info" data-aos="fade-right">
+        <div class="contact-info">
           <h3>Reach Out to ASIA</h3>
           <p>We welcome inquiries about membership, programs, collaborations, and partnerships. Our team is ready to assist you.</p>
           <div class="contact-items">
@@ -679,7 +679,7 @@ export default function Home() {
             </a>
           </div>
         </div>
-        <div class="contact-form-wrap" data-aos="fade-left">
+        <div class="contact-form-wrap">
           <form class="contact-form" id="contact-form" onsubmit="handleFormSubmit(event)">
             <div class="form-row">
               <div class="form-group">

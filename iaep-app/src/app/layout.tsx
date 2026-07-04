@@ -127,9 +127,7 @@ export default function RootLayout({
       </ul>
 
       <div style={{ display: 'flex', gap: '10px' }}>
-        <a href="#submitter" className="btn-join" id="btn-submitter-nav">Submitter</a>
-        <a href="#reviewer" className="btn-join" id="btn-reviewer-nav">Reviewer</a>
-        <a href="#editor" className="btn-join" id="btn-editor-nav">Editor</a>
+        <a href="/auth/login" className="btn-join" id="btn-login-nav">LOGIN / DAFTAR</a>
       </div>
       <button class="hamburger" id="hamburger" aria-label="Open menu">
         <span></span><span></span><span></span>
