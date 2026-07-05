@@ -2369,12 +2369,12 @@ img { max-width: 100%; display: block; }
 }
 
 .hero-leader-card.ketua {
-  right: calc(50% + 150px);
+  right: calc(50% + 240px);
   border-color: rgba(201, 168, 76, 0.25);
 }
 
 .hero-leader-card.sekretaris {
-  left: calc(50% + 150px);
+  left: calc(50% + 240px);
 }
 
 @media (max-width: 768px) {
