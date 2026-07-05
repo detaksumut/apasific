@@ -550,6 +550,7 @@ function initCertificationExamForm() {
   // Inject CSS style block into the document head
   const style = document.createElement('style');
   style.innerHTML = `
+    @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Playfair+Display:ital,wght@1,500;1,600&family=Inter:wght@400;600;700&display=swap');
     .cert-section {
       background: rgba(255,255,255,0.025);
       border: 1.5px solid rgba(201, 168, 76, 0.15);
@@ -787,8 +788,165 @@ function initCertificationExamForm() {
     }
     .success-label { color: rgba(255,255,255,0.3); }
     .success-val { color: rgba(255,255,255,0.85); font-weight: 600; }
+
+    /* Certificate Previews */
+    .cert-preview-section {
+      margin-top: 40px;
+      border-top: 1px solid rgba(201, 168, 76, 0.15);
+      padding-top: 30px;
+      width: 100%;
+    }
+    .cert-preview-heading {
+      font-family: 'Cinzel', serif;
+      font-size: 18px;
+      color: #c9a84c;
+      text-align: center;
+      margin-bottom: 8px;
+      letter-spacing: 1px;
+    }
+    .cert-preview-subheading {
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.5);
+      text-align: center;
+      margin-bottom: 25px;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+      line-height: 1.5;
+    }
+    .cert-preview-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+    @media (max-width: 768px) {
+      .cert-preview-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+    .certificate-card {
+      background: linear-gradient(135deg, #07080d 0%, #10121d 100%);
+      border: 1.5px solid #c9a84c;
+      border-radius: 12px;
+      padding: 15px;
+      position: relative;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+      font-family: 'Inter', sans-serif;
+      color: #fff;
+      text-align: center;
+      box-sizing: border-box;
+      overflow: hidden;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .certificate-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 15px 30px rgba(201,168,76,0.15);
+    }
+    .certificate-inner {
+      border: 1px solid rgba(201,168,76,0.15);
+      padding: 12px;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      box-sizing: border-box;
+      min-height: 270px;
+    }
+    .cert-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 7.5px;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: rgba(255,255,255,0.35);
+    }
+    .cert-card-main-title {
+      font-family: 'Cinzel', serif;
+      font-size: 12px;
+      color: #c9a84c;
+      letter-spacing: 1.5px;
+      font-weight: 700;
+      margin-top: 6px;
+    }
+    .cert-card-to {
+      font-size: 8.5px;
+      color: rgba(255,255,255,0.45);
+      font-style: italic;
+      margin-top: 4px;
+    }
+    .cert-card-name {
+      font-family: 'Playfair Display', serif;
+      font-size: 14.5px;
+      color: #fff;
+      font-weight: 600;
+      margin: 4px 0;
+    }
+    .cert-card-text {
+      font-size: 8px;
+      color: rgba(255,255,255,0.45);
+      line-height: 1.3;
+    }
+    .cert-card-award {
+      font-size: 11px;
+      color: #c9a84c;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      margin-top: 4px;
+    }
+    .cert-card-scheme {
+      font-size: 8px;
+      color: rgba(255,255,255,0.65);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-top: 1px;
+      margin-bottom: 8px;
+    }
+    .cert-card-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      margin-top: auto;
+    }
+    .cert-sig {
+      text-align: center;
+      flex: 1;
+    }
+    .sig-line {
+      font-family: 'Playfair Display', serif;
+      font-style: italic;
+      font-size: 10px;
+      color: #fff;
+      border-bottom: 1px solid rgba(255,255,255,0.15);
+      padding-bottom: 1px;
+      margin-bottom: 3px;
+    }
+    .sig-title {
+      font-size: 7px;
+      color: rgba(255,255,255,0.35);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .cert-qr {
+      margin: 0 8px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .cert-qr img {
+      width: 44px;
+      height: 44px;
+      border: 1px solid rgba(201, 168, 76, 0.25);
+      border-radius: 3px;
+      background: #fff;
+      padding: 1.5px;
+    }
   `;
   document.head.appendChild(style);
+
+  const certNameOnly = scheme.cert.replace(/\s*\([^)]*\)\s*$/, '');
+  const level1 = scheme.levels[0];
+  const level2 = scheme.levels[1];
 
   // Create form element
   const container = document.createElement('section');
@@ -811,18 +969,18 @@ function initCertificationExamForm() {
         <div class="cert-row">
           <div class="cert-group">
             <label class="cert-label">Full Name & Title</label>
-            <input type="text" class="cert-input" id="certName" placeholder="e.g. Dr. Jane Doe" required />
+            <input type="text" class="cert-input" id="certName" placeholder="e.g. Prof. Dr. M A Rahman" required />
           </div>
           <div class="cert-group">
             <label class="cert-label">Email Address</label>
-            <input type="email" class="cert-input" id="certEmail" placeholder="e.g. jane@univ.edu" required />
+            <input type="email" class="cert-input" id="certEmail" placeholder="e.g. marahman2169@gmail.com" required />
           </div>
         </div>
 
         <div class="cert-row">
           <div class="cert-group">
             <label class="cert-label">Institution / University</label>
-            <input type="text" class="cert-input" id="certUniv" placeholder="e.g. National University of Singapore" required />
+            <input type="text" class="cert-input" id="certUniv" placeholder="e.g. Universitas Negeri Medan" required />
           </div>
           <div class="cert-group">
             <label class="cert-label">Select Exam Schedule</label>
@@ -889,6 +1047,74 @@ function initCertificationExamForm() {
         </div>
       </div>
       <button class="cert-submit" style="background: rgba(255,255,255,0.06); color: #fff; border: 1px solid rgba(255,255,255,0.1); width: 180px;" id="certResetBtn">Register Another</button>
+    </div>
+
+    <!-- Certificate Mockups Preview -->
+    <div class="cert-preview-section">
+      <h4 class="cert-preview-heading">Sample Credentials Preview</h4>
+      <p class="cert-preview-subheading">Upon passing the assessment, candidates will receive the official digital credentials signed by board directors, verifiable via QR code.</p>
+      
+      <div class="cert-preview-grid">
+        <!-- Certificate 1: Level 1 -->
+        <div class="certificate-card">
+          <div class="certificate-inner">
+            <div class="cert-card-header">
+              <span class="cert-org">ASIACERT & BOC Board Certification</span>
+              <span class="cert-id">ID: AC-${key.toUpperCase()}-0842</span>
+            </div>
+            <div class="cert-card-main-title">BOARD CERTIFICATE</div>
+            <div class="cert-card-to">This is to certify that</div>
+            <div class="cert-card-name">Prof. Ahmad Fauzi, Ph.D.</div>
+            <div class="cert-card-text">has successfully completed the prescribed course of study and examination, meeting all board standards, and is hereby awarded the designation of</div>
+            <div class="cert-card-award">${level1}</div>
+            <div class="cert-card-scheme">${certNameOnly}</div>
+            
+            <div class="cert-card-footer">
+              <div class="cert-sig">
+                <div class="sig-line">Dr. Arfan Ikhsan</div>
+                <div class="sig-title">President ASIACERT</div>
+              </div>
+              <div class="cert-qr">
+                <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://apasific.org" alt="QR Code" />
+              </div>
+              <div class="cert-sig">
+                <div class="sig-line">Dr. Sazili Zainal Abidin</div>
+                <div class="sig-title">Chairman BOC</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Certificate 2: Level 2 -->
+        <div class="certificate-card">
+          <div class="certificate-inner">
+            <div class="cert-card-header">
+              <span class="cert-org">ASIACERT & BOC Board Certification</span>
+              <span class="cert-id">ID: AC-${key.toUpperCase()}-0843</span>
+            </div>
+            <div class="cert-card-main-title">BOARD CERTIFICATE</div>
+            <div class="cert-card-to">This is to certify that</div>
+            <div class="cert-card-name">Dr. Sarah Jenkins, M.B.A.</div>
+            <div class="cert-card-text">has successfully completed the prescribed course of study and examination, meeting all board standards, and is hereby awarded the designation of</div>
+            <div class="cert-card-award">${level2}</div>
+            <div class="cert-card-scheme">${certNameOnly}</div>
+            
+            <div class="cert-card-footer">
+              <div class="cert-sig">
+                <div class="sig-line">Dr. Arfan Ikhsan</div>
+                <div class="sig-title">President ASIACERT</div>
+              </div>
+              <div class="cert-qr">
+                <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://apasific.org" alt="QR Code" />
+              </div>
+              <div class="cert-sig">
+                <div class="sig-line">Dr. Sazili Zainal Abidin</div>
+                <div class="sig-title">Chairman BOC</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   `;
 
