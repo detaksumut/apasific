@@ -410,199 +410,189 @@ function verifyCertificate() {
   `;
 }
 
-// Global Journal Index Data & Search Logic
-const ASIA_JOURNALS_DATA = [
+// Scholar Analytics Dashboard — Top Publications Data
+const ASIA_TOP_ARTICLES = [
   {
-    title: "ASIA Journal of Accounting and Finance (AJAF)",
-    issn: "2775-1287 (Online) | 2775-1279 (Print)",
-    category: "accounting",
-    tags: ["ISSN", "Google Scholar", "OpenAIRE", "DOI (Crossref)", "Scopus"],
-    citeScore: "3.8",
-    hIndex: "18",
-    logoText: "AJAF",
-    status: "Active"
+    title: "Earnings Management, Corporate Governance, and Firm Performance: Evidence from Indonesia",
+    authors: "Arfan Ikhsan, Muhammad Yamin Noch, Tridessy Fadillah",
+    venue: "ASIA Journal of Accounting and Finance (AJAF)",
+    doi: "10.xxxx/ajaf.2022.001",
+    tags: ["Scopus", "DOI"],
+    citations: 312,
+    year: 2022
   },
   {
-    title: "Asia Pacific Journal of Business Administration (APJBA)",
-    issn: "1757-4323 (Online) | 1757-4315 (Print)",
-    category: "business",
-    tags: ["ISSN", "Google Scholar", "OpenAIRE", "DOI (Crossref)", "Scopus Q2", "Web of Science"],
-    citeScore: "4.2",
-    hIndex: "26",
-    logoText: "APJBA",
-    status: "Active"
+    title: "Digital Transformation and Organizational Resilience in Asia Pacific SMEs",
+    authors: "Istianingsih Sastrodiharjo, M. A. Rahman",
+    venue: "Asia Pacific Journal of Business Administration (APJBA)",
+    doi: "10.xxxx/apjba.2023.014",
+    tags: ["Scopus Q2", "Web of Science"],
+    citations: 284,
+    year: 2023
   },
   {
-    title: "ASIA Journal of Information Technology & Engineering (AJITE)",
-    issn: "2985-6458 (Online) | 2985-644X (Print)",
-    category: "it",
-    tags: ["ISSN", "Google Scholar", "OpenAIRE", "DOI (Crossref)", "DOAJ"],
-    citeScore: "2.9",
-    hIndex: "12",
-    logoText: "AJITE",
-    status: "Active"
+    title: "Public Sector Accountability and Corruption Control: Comparative Study of 10 ASEAN Nations",
+    authors: "Ngatemin, Indra Maipita, Arfan Ikhsan",
+    venue: "ASIA Journal of Law and Society (AJLS)",
+    doi: "10.xxxx/ajls.2021.009",
+    tags: ["Scopus Q1", "OpenAIRE"],
+    citations: 251,
+    year: 2021
   },
   {
-    title: "ASIA Journal of Law and Society (AJLS)",
-    issn: "2052-9023 (Online) | 2052-9015 (Print)",
-    category: "law",
-    tags: ["ISSN", "Google Scholar", "OpenAIRE", "DOI (Crossref)", "Scopus Q1", "Web of Science"],
-    citeScore: "5.1",
-    hIndex: "35",
-    logoText: "AJLS",
-    status: "Active"
+    title: "AI-Driven Financial Fraud Detection in Banking Institutions: A Machine Learning Approach",
+    authors: "M. A. Rahman, Muhammad Yamin Noch",
+    venue: "ASIA Journal of IT & Engineering (AJITE)",
+    doi: "10.xxxx/ajite.2024.002",
+    tags: ["Google Scholar", "DOAJ"],
+    citations: 198,
+    year: 2024
   },
   {
-    title: "Asia Pacific Journal of Education & Pedagogy (APJEP)",
-    issn: "2809-543X (Online) | 2809-5421 (Print)",
-    category: "law",
-    tags: ["ISSN", "Google Scholar", "OpenAIRE", "DOI (Crossref)", "DOAJ"],
-    citeScore: "2.7",
-    hIndex: "9",
-    logoText: "APJEP",
-    status: "Active"
+    title: "Green Accounting and Sustainability Reporting: Asia Pacific Corporate Trends 2019–2023",
+    authors: "Tridessy Fadillah, Istianingsih Sastrodiharjo",
+    venue: "ASIA Journal of Accounting and Finance (AJAF)",
+    doi: "10.xxxx/ajaf.2023.007",
+    tags: ["Scopus", "ISSN"],
+    citations: 176,
+    year: 2023
   },
   {
-    title: "ASIA Journal of Economics and Development (AJED)",
-    issn: "2656-789X (Online) | 2656-7881 (Print)",
-    category: "business",
-    tags: ["ISSN", "Google Scholar", "OpenAIRE", "DOI (Crossref)", "Scopus Q3"],
-    citeScore: "3.1",
-    hIndex: "14",
-    logoText: "AJED",
-    status: "Active"
+    title: "Monetary Policy Effectiveness in Emerging Economies: Panel Data Evidence",
+    authors: "Indra Maipita, Muhammad Yamin Noch",
+    venue: "ASIA Journal of Economics and Development (AJED)",
+    doi: "10.xxxx/ajed.2022.011",
+    tags: ["Scopus Q3", "OpenAIRE"],
+    citations: 154,
+    year: 2022
   },
   {
-    title: "ASIA Journal of Social Sciences & Humanities (AJSSH)",
-    issn: "2186-8492 (Online) | 2186-8484 (Print)",
-    category: "law",
-    tags: ["ISSN", "Google Scholar", "OpenAIRE", "DOI (Crossref)", "Index Copernicus"],
-    citeScore: "2.1",
-    hIndex: "8",
-    logoText: "AJSSH",
-    status: "Active"
+    title: "Higher Education Quality Assurance Frameworks in ASEAN: A Comparative Analysis",
+    authors: "Ngatemin, Arfan Ikhsan",
+    venue: "Asia Pacific Journal of Education & Pedagogy (APJEP)",
+    doi: "10.xxxx/apjep.2023.005",
+    tags: ["Google Scholar", "DOAJ"],
+    citations: 138,
+    year: 2023
+  },
+  {
+    title: "Human Capital Development and Economic Growth: A Meta-Analysis of Asia Pacific Studies",
+    authors: "Indra Maipita, Istianingsih Sastrodiharjo",
+    venue: "ASIA Journal of Social Sciences & Humanities (AJSSH)",
+    doi: "10.xxxx/ajssh.2024.003",
+    tags: ["Index Copernicus", "OpenAIRE"],
+    citations: 119,
+    year: 2024
   }
 ];
 
-function initJournalIndex() {
-  const searchInput = document.getElementById('index-search-input');
-  const clearBtn = document.getElementById('search-clear-btn');
-  const resultsContainer = document.getElementById('index-results-container');
-  const noResultsDiv = document.getElementById('index-no-results');
-  const filterTabs = document.querySelectorAll('.filter-tab');
+// Initialize Scholar Analytics Dashboard
+function initScholarAnalytics() {
+  initChartTooltips();
+  initArticlesTable();
+}
 
-  if (!resultsContainer) return;
+// Chart Bar Tooltips
+function initChartTooltips() {
+  const tooltip = document.getElementById('chart-tooltip');
+  const barGroups = document.querySelectorAll('.chart-bar-group');
+  if (!tooltip || !barGroups.length) return;
 
-  let currentSearch = "";
-  let currentCategory = "all";
+  barGroups.forEach(group => {
+    const rect = group.querySelector('rect');
+    if (!rect) return;
+    const year = group.getAttribute('data-year');
+    const value = group.getAttribute('data-value');
 
-  function renderJournals() {
-    const filtered = ASIA_JOURNALS_DATA.filter(journal => {
-      const matchesSearch = journal.title.toLowerCase().includes(currentSearch) ||
-                            journal.issn.toLowerCase().includes(currentSearch) ||
-                            journal.logoText.toLowerCase().includes(currentSearch);
-      
-      const matchesCategory = currentCategory === "all" || journal.category === currentCategory;
-      
-      return matchesSearch && matchesCategory;
+    group.addEventListener('mouseenter', (e) => {
+      tooltip.innerHTML = `<strong>${year}</strong><br>${value} citations`;
+      tooltip.style.display = 'block';
     });
+    group.addEventListener('mousemove', (e) => {
+      const wrapper = tooltip.closest('.graph-wrapper') || tooltip.parentElement;
+      const wrapperRect = wrapper ? wrapper.getBoundingClientRect() : { left: 0, top: 0 };
+      const svgEl = group.closest('svg');
+      const svgRect = svgEl ? svgEl.getBoundingClientRect() : { left: 0, top: 0, width: 600, height: 280 };
+      const x = e.clientX - svgRect.left;
+      const y = e.clientY - svgRect.top;
+      const relX = (x / svgRect.width) * svgEl.viewBox.baseVal.width;
+      const relY = (y / svgRect.height) * svgEl.viewBox.baseVal.height;
+      // Convert from SVG viewBox to px
+      const pxX = (x / svgRect.width) * svgRect.width;
+      const pxY = (y / svgRect.height) * svgRect.height;
+      tooltip.style.left = `${pxX}px`;
+      tooltip.style.top = `${pxY - 10}px`;
+    });
+    group.addEventListener('mouseleave', () => {
+      tooltip.style.display = 'none';
+    });
+  });
+}
 
-    resultsContainer.innerHTML = "";
-    if (filtered.length === 0) {
-      if (noResultsDiv) noResultsDiv.style.display = "block";
-      resultsContainer.style.display = "none";
-    } else {
-      if (noResultsDiv) noResultsDiv.style.display = "none";
-      resultsContainer.style.display = "grid";
-      
-      filtered.forEach((journal, idx) => {
-        const card = document.createElement('div');
-        card.className = "journal-index-card";
-        card.setAttribute('data-aos', 'fade-up');
-        card.style.animationDelay = `${idx * 0.05}s`;
-        
-        const tagsHTML = journal.tags.map(tag => {
-          let tagClass = "asia";
-          const lower = tag.toLowerCase();
-          if (lower === "issn") tagClass = "issn";
-          else if (lower.includes("openaire")) tagClass = "openaire";
-          else if (lower.includes("doi")) tagClass = "doi";
-          else if (lower.includes("scopus")) tagClass = "scopus";
-          else if (lower.includes("web of science") || lower.includes("wos")) tagClass = "wos";
-          else if (lower.includes("google scholar") || lower.includes("scholar")) tagClass = "scholar";
-          return `<span class="journal-tag ${tagClass}">${tag}</span>`;
-        }).join('');
+// Articles Table
+function initArticlesTable() {
+  const tbody = document.getElementById('articles-table-body');
+  const searchInput = document.getElementById('article-search-input');
+  if (!tbody) return;
 
-        card.innerHTML = `
-          <div>
-            <div class="journal-header">
-              <div class="journal-logo-box">${journal.logoText}</div>
-              <div class="journal-title-wrapper">
-                <h3>${journal.title}</h3>
-                <span class="journal-issn">ISSN: ${journal.issn}</span>
-              </div>
-            </div>
-            <div class="journal-body">
-              <div class="journal-tags">
-                ${tagsHTML}
-              </div>
-              <div class="journal-metrics">
-                <div class="metric-item">
-                  <span class="metric-label">Impact Metric</span>
-                  <span class="metric-value">CiteScore ${journal.citeScore}</span>
-                </div>
-                <div class="metric-item">
-                  <span class="metric-label">H-Index</span>
-                  <span class="metric-value">h5-Index: ${journal.hIndex}</span>
-                </div>
-              </div>
-            </div>
+  let currentQuery = '';
+
+  function renderArticles() {
+    const filtered = ASIA_TOP_ARTICLES.filter(a =>
+      a.title.toLowerCase().includes(currentQuery) ||
+      a.authors.toLowerCase().includes(currentQuery) ||
+      a.venue.toLowerCase().includes(currentQuery) ||
+      a.doi.toLowerCase().includes(currentQuery)
+    );
+
+    tbody.innerHTML = '';
+    filtered.forEach(article => {
+      const tagsHTML = article.tags.map(tag => {
+        let cls = 'asia';
+        const l = tag.toLowerCase();
+        if (l.includes('scopus')) cls = 'scopus';
+        else if (l.includes('web of science') || l.includes('wos')) cls = 'wos';
+        else if (l.includes('scholar')) cls = 'scholar';
+        else if (l.includes('doi')) cls = 'doi';
+        else if (l.includes('openaire')) cls = 'openaire';
+        else if (l.includes('issn')) cls = 'issn';
+        return `<span class="journal-tag ${cls}">${tag}</span>`;
+      }).join('');
+
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>
+          <a class="article-title-link" href="https://doi.org/${article.doi}" target="_blank">${article.title}</a>
+          <div class="article-authors">${article.authors}</div>
+          <div class="article-venue">${article.venue} &nbsp;|&nbsp; DOI: <code style="font-size:10px;color:var(--text-muted)">${article.doi}</code></div>
+          <div style="margin-top:6px">${tagsHTML}</div>
+        </td>
+        <td class="text-center"><span class="citation-count-badge">${article.citations.toLocaleString()}</span></td>
+        <td class="text-center article-year">${article.year}</td>
+        <td>
+          <div class="article-actions">
+            <a href="https://doi.org/${article.doi}" target="_blank" class="action-btn-mini primary">View</a>
+            <button class="action-btn-mini secondary" onclick="navigator.clipboard.writeText('${article.doi}')">Copy DOI</button>
           </div>
-          <div class="journal-footer">
-            <div class="journal-status">
-              <span class="status-dot"></span>
-              <span>Indexed & Active</span>
-            </div>
-            <button class="journal-action-btn" onclick="window.location.href='/publications.html'">Submit Article</button>
-          </div>
-        `;
-        resultsContainer.appendChild(card);
-      });
-    }
+        </td>
+      `;
+      tbody.appendChild(tr);
+    });
   }
 
   if (searchInput) {
-    searchInput.addEventListener('input', (e) => {
-      currentSearch = e.target.value.toLowerCase().trim();
-      if (clearBtn) clearBtn.style.display = currentSearch.length > 0 ? "block" : "none";
-      renderJournals();
+    searchInput.addEventListener('input', e => {
+      currentQuery = e.target.value.toLowerCase().trim();
+      renderArticles();
     });
   }
 
-  if (clearBtn) {
-    clearBtn.addEventListener('click', () => {
-      if (searchInput) searchInput.value = "";
-      currentSearch = "";
-      clearBtn.style.display = "none";
-      if (searchInput) searchInput.focus();
-      renderJournals();
-    });
-  }
-
-  filterTabs.forEach(tab => {
-    tab.addEventListener('click', () => {
-      filterTabs.forEach(t => t.classList.remove('active'));
-      tab.classList.add('active');
-      currentCategory = tab.getAttribute('data-category');
-      renderJournals();
-    });
-  });
-
-  renderJournals();
+  renderArticles();
 }
 
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', initJournalIndex);
+  document.addEventListener('DOMContentLoaded', initScholarAnalytics);
 } else {
-  initJournalIndex();
+  initScholarAnalytics();
 }
+
