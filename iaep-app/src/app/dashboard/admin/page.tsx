@@ -8,7 +8,6 @@ export default function SuperAdminOverview() {
   const [activities, setActivities] = useState<any[]>([]);
 
   useEffect(() => {
-    // 1. Calculate submissions count dynamically
     const defaultSubsLength = 3;
     const storedSubs = localStorage.getItem("mock_submissions");
     if (storedSubs) {
@@ -16,26 +15,20 @@ export default function SuperAdminOverview() {
         const parsed = JSON.parse(storedSubs);
         const addedCount = Math.max(0, parsed.length - defaultSubsLength);
         setSubmissionCount(342 + addedCount);
-      } catch (e) {
-        console.error(e);
-      }
+      } catch (e) { console.error(e); }
     }
 
-    // 2. Load system logs
     const defaultLogs = [
-      { time: "10 mins ago", text: "New Journal created: 'APASIFIC Medical Journal'", status: "success" },
-      { time: "1 hour ago", text: "System backup completed successfully.", status: "info" },
-      { time: "3 hours ago", text: "M. A. Rahman granted 'Editor' role in RJRAKP.", status: "warning" },
-      { time: "1 day ago", text: "High traffic warning: 50+ simultaneous submissions.", status: "error" },
+      { time: "10 menit lalu",  text: "Jurnal baru dibuat: 'APASIFIC Medical Journal'",       status: "success" },
+      { time: "1 jam lalu",     text: "Backup sistem berhasil diselesaikan.",                  status: "info"    },
+      { time: "3 jam lalu",     text: "M. A. Rahman diberikan peran 'Editor' di RJRAKP.",     status: "warning" },
+      { time: "1 hari lalu",    text: "Peringatan traffic tinggi: 50+ submission serentak.",  status: "error"   },
     ];
 
     const storedLogs = localStorage.getItem("mock_system_logs");
     if (storedLogs) {
-      try {
-        setActivities(JSON.parse(storedLogs));
-      } catch (e) {
-        setActivities(defaultLogs);
-      }
+      try { setActivities(JSON.parse(storedLogs)); }
+      catch (e) { setActivities(defaultLogs); }
     } else {
       localStorage.setItem("mock_system_logs", JSON.stringify(defaultLogs));
       setActivities(defaultLogs);
@@ -43,111 +36,243 @@ export default function SuperAdminOverview() {
   }, []);
 
   const stats = [
-    { label: "Total Journals", value: "3", icon: "M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" },
-    { label: "Active Users", value: "1,248", icon: "M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" },
-    { label: "Total Submissions", value: String(submissionCount), icon: "M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" },
-    { label: "System Health", value: "99.9%", icon: "M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" },
+    { label: "Total Jurnal",      value: "3",              delta: "+1 bulan ini",  color: "#c9a84c", icon: "📚" },
+    { label: "Pengguna Aktif",    value: "1,248",          delta: "+12%",          color: "#34a853", icon: "👥" },
+    { label: "Total Submission",  value: String(submissionCount), delta: "+8%",   color: "#4285f4", icon: "📄" },
+    { label: "System Health",     value: "99.9%",          delta: "Stabil",        color: "#a3c94c", icon: "✅" },
   ];
 
+  const statusColor: Record<string, string> = {
+    success: "#34a853",
+    info:    "#4285f4",
+    warning: "#f59e0b",
+    error:   "#ef4444",
+  };
+
   return (
-    <div className="w-full space-y-8 pb-12">
-      {/* Header */}
-      <div className="bg-[#12121f] rounded-2xl shadow-xl overflow-hidden border border-[#c9a84c]/20 relative">
-        <div className="absolute top-0 right-0 p-8 opacity-10 pointer-events-none">
-          <svg className="w-32 h-32 text-[#c9a84c]" fill="currentColor" viewBox="0 0 24 24">
-            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
-          </svg>
-        </div>
-        <div className="px-8 py-10 relative z-10">
-          <h1 className="text-3xl font-bold text-white font-['Cinzel'] mb-2">Super Admin Overview</h1>
-          <p className="text-[#8888aa]">Global oversight of the APASIFIC Academician Publishing Network.</p>
-        </div>
-      </div>
+    <>
+      <style>{`
+        /* ── Reset font for all numbers in dashboard ── */
+        .dash-num {
+          font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
+          font-variant-numeric: tabular-nums;
+          font-weight: 800;
+          letter-spacing: -0.5px;
+        }
 
-      {/* Metrics Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {stats.map((stat, i) => (
-          <div key={i} className="bg-[#18182e] p-6 rounded-2xl shadow-lg border border-gray-800 hover:border-[#c9a84c]/50 transition-colors group">
-            <div className="flex items-center justify-between mb-4">
-              <div className="p-3 bg-[#0d0d1a] rounded-lg group-hover:bg-[#c9a84c]/10 transition-colors">
-                <svg className="w-6 h-6 text-[#c9a84c]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d={stat.icon} />
-                </svg>
-              </div>
-              <div className="text-xs font-semibold text-green-400 bg-green-400/10 px-2 py-1 rounded-full">+12%</div>
-            </div>
-            <div className="text-3xl font-bold text-white mb-1">{stat.value}</div>
-            <div className="text-sm text-[#8888aa]">{stat.label}</div>
-          </div>
-        ))}
-      </div>
+        /* ── Header banner ── */
+        .dash-header {
+          background: linear-gradient(135deg, #12122a 0%, #1a1a38 60%, #12122a 100%);
+          border: 1px solid rgba(201,168,76,0.2);
+          border-radius: 16px;
+          padding: 36px 40px;
+          position: relative;
+          overflow: hidden;
+          margin-bottom: 28px;
+        }
+        .dash-header::before {
+          content: '';
+          position: absolute; top: -60px; right: -60px;
+          width: 280px; height: 280px;
+          background: radial-gradient(circle, rgba(201,168,76,0.12) 0%, transparent 70%);
+          pointer-events: none;
+        }
+        .dash-header h1 {
+          font-size: 26px; font-weight: 800; color: #fff;
+          margin: 0 0 6px;
+          font-family: 'Inter', sans-serif;
+        }
+        .dash-header h1 span { color: #c9a84c; }
+        .dash-header p { color: rgba(255,255,255,0.45); font-size: 14px; margin: 0; }
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Hosted Journals */}
-        <div className="lg:col-span-2 bg-[#18182e] rounded-2xl shadow-lg border border-gray-800 overflow-hidden">
-          <div className="px-6 py-5 border-b border-gray-800 flex justify-between items-center bg-[#111120]">
-            <h2 className="text-lg font-bold text-white">Hosted Journals (OJS)</h2>
-            <Link href="/dashboard/admin/journals" className="text-sm font-semibold text-[#c9a84c] hover:text-[#e8c97a]">Manage All</Link>
-          </div>
-          <div className="divide-y divide-gray-800">
-            <div className="p-6 flex items-center justify-between hover:bg-[#1a1a2e] transition-colors">
-              <div className="flex items-center space-x-4">
-                <div className="w-12 h-12 bg-gradient-to-br from-[#c9a84c] to-[#9a7a30] rounded-lg flex items-center justify-center text-white font-bold font-['Cinzel'] text-xl">RJ</div>
-                <div>
-                  <h3 className="font-bold text-white text-lg">RJRAKP</h3>
-                  <p className="text-sm text-[#8888aa]">Riau Journal of Review Audit & Knowledge...</p>
-                </div>
-              </div>
-              <div className="text-right">
-                <div className="text-sm font-semibold text-white">215 Users</div>
-                <div className="text-xs text-green-400">● Active</div>
-              </div>
-            </div>
-            <div className="p-6 flex items-center justify-between hover:bg-[#1a1a2e] transition-colors">
-              <div className="flex items-center space-x-4">
-                <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-indigo-800 rounded-lg flex items-center justify-center text-white font-bold font-['Cinzel'] text-xl">IA</div>
-                <div>
-                  <h3 className="font-bold text-white text-lg">APASIFIC IAEP</h3>
-                  <p className="text-sm text-[#8888aa]">Impact of Artificial Intelligence...</p>
-                </div>
-              </div>
-              <div className="text-right">
-                <div className="text-sm font-semibold text-white">1,033 Users</div>
-                <div className="text-xs text-green-400">● Active</div>
-              </div>
-            </div>
-          </div>
+        /* ── Stat Cards ── */
+        .stat-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+          gap: 18px;
+          margin-bottom: 28px;
+        }
+        .stat-card {
+          background: #13131f;
+          border: 1px solid rgba(255,255,255,0.07);
+          border-radius: 14px;
+          padding: 24px 24px 20px;
+          transition: border-color 0.2s, transform 0.2s;
+        }
+        .stat-card:hover { border-color: rgba(201,168,76,0.35); transform: translateY(-2px); }
+        .stat-card-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+        .stat-icon { font-size: 22px; }
+        .stat-delta {
+          font-size: 11px; font-weight: 700; padding: 3px 8px;
+          border-radius: 20px; background: rgba(52,168,83,0.12); color: #34a853;
+        }
+        .stat-value {
+          font-size: 32px;
+          color: #fff;
+          margin-bottom: 4px;
+          line-height: 1;
+        }
+        .stat-label { font-size: 12px; color: rgba(255,255,255,0.4); font-weight: 500; }
+
+        /* ── Main grid ── */
+        .dash-main-grid {
+          display: grid;
+          grid-template-columns: 1fr 360px;
+          gap: 20px;
+        }
+        @media (max-width: 1100px) { .dash-main-grid { grid-template-columns: 1fr; } }
+
+        /* ── Card ── */
+        .dash-card {
+          background: #13131f;
+          border: 1px solid rgba(255,255,255,0.07);
+          border-radius: 14px;
+          overflow: hidden;
+        }
+        .dash-card-head {
+          display: flex; align-items: center; justify-content: space-between;
+          padding: 18px 24px;
+          border-bottom: 1px solid rgba(255,255,255,0.06);
+          background: rgba(255,255,255,0.02);
+        }
+        .dash-card-head h2 { font-size: 15px; font-weight: 700; color: #fff; margin: 0; }
+        .dash-card-head a  { font-size: 12px; font-weight: 600; color: #c9a84c; text-decoration: none; transition: color 0.2s; }
+        .dash-card-head a:hover { color: #fff; }
+
+        /* ── Journal rows ── */
+        .journal-row {
+          display: flex; align-items: center; justify-content: space-between;
+          padding: 18px 24px;
+          border-bottom: 1px solid rgba(255,255,255,0.04);
+          transition: background 0.15s;
+        }
+        .journal-row:last-child { border-bottom: none; }
+        .journal-row:hover { background: rgba(255,255,255,0.03); }
+        .journal-avatar {
+          width: 44px; height: 44px; border-radius: 10px;
+          display: flex; align-items: center; justify-content: center;
+          font-size: 14px; font-weight: 800; color: #fff;
+          flex-shrink: 0;
+          font-family: 'Inter', sans-serif;
+        }
+        .journal-info { margin-left: 14px; }
+        .journal-info h3 { font-size: 14px; font-weight: 700; color: #fff; margin: 0 0 3px; }
+        .journal-info p  { font-size: 12px; color: rgba(255,255,255,0.4); margin: 0; }
+        .journal-meta { text-align: right; }
+        .journal-meta .users { font-size: 13px; font-weight: 600; color: #fff; }
+        .journal-meta .status { font-size: 11px; color: #34a853; margin-top: 2px; }
+
+        /* ── System Logs ── */
+        .log-body { padding: 20px 24px; }
+        .log-item { display: flex; gap: 14px; margin-bottom: 20px; }
+        .log-item:last-child { margin-bottom: 0; }
+        .log-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; margin-top: 4px; }
+        .log-time { font-size: 11px; color: rgba(255,255,255,0.3); margin-bottom: 3px; font-family: monospace; }
+        .log-text { font-size: 13px; color: rgba(255,255,255,0.7); line-height: 1.5; }
+        .btn-view-all {
+          display: block; width: 100%; padding: 10px;
+          background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
+          color: rgba(255,255,255,0.5); font-size: 12px; font-weight: 600;
+          border-radius: 8px; cursor: pointer; margin-top: 16px;
+          transition: all 0.2s; text-align: center;
+        }
+        .btn-view-all:hover { background: rgba(255,255,255,0.08); color: #fff; }
+      `}</style>
+
+      <div>
+        {/* ── Header ── */}
+        <div className="dash-header">
+          <h1>Super Admin <span>Overview</span></h1>
+          <p>Pengawasan global jaringan penerbitan akademik APASIFIC.</p>
         </div>
 
-        {/* System Activity */}
-        <div className="bg-[#18182e] rounded-2xl shadow-lg border border-gray-800 overflow-hidden">
-          <div className="px-6 py-5 border-b border-gray-800 bg-[#111120]">
-            <h2 className="text-lg font-bold text-white">System Logs</h2>
-          </div>
-          <div className="p-6">
-            <div className="space-y-6">
-              {activities.map((act, i) => (
-                <div key={i} className="flex relative">
-                  {i !== activities.length - 1 && <div className="absolute top-8 left-[9px] w-0.5 h-full bg-gray-800 -z-10"></div>}
-                  <div className={`mt-1.5 w-5 h-5 rounded-full flex-shrink-0 flex items-center justify-center border-2 border-[#18182e] ${
-                    act.status === 'success' ? 'bg-green-500' :
-                    act.status === 'warning' ? 'bg-yellow-500' :
-                    act.status === 'error' ? 'bg-red-500' : 'bg-blue-500'
-                  }`}>
+        {/* ── Stats ── */}
+        <div className="stat-grid">
+          {stats.map((s, i) => (
+            <div key={i} className="stat-card">
+              <div className="stat-card-top">
+                <span className="stat-icon">{s.icon}</span>
+                <span className="stat-delta">{s.delta}</span>
+              </div>
+              <div className="stat-value dash-num" style={{ color: s.color }}>{s.value}</div>
+              <div className="stat-label">{s.label}</div>
+            </div>
+          ))}
+        </div>
+
+        {/* ── Main grid ── */}
+        <div className="dash-main-grid">
+
+          {/* Hosted Journals */}
+          <div className="dash-card">
+            <div className="dash-card-head">
+              <h2>Jurnal yang Dikelola (OJS)</h2>
+              <Link href="/dashboard/admin/journals">Kelola Semua →</Link>
+            </div>
+            <div>
+              <div className="journal-row">
+                <div style={{ display: "flex", alignItems: "center" }}>
+                  <div className="journal-avatar" style={{ background: "linear-gradient(135deg, #c9a84c, #9a7a30)" }}>RJ</div>
+                  <div className="journal-info">
+                    <h3>RJRAKP</h3>
+                    <p>Riau Journal of Review Audit &amp; Knowledge Practice</p>
                   </div>
-                  <div className="ml-4">
-                    <p className="text-xs text-gray-500 font-mono mb-1">{act.time}</p>
-                    <p className="text-sm text-gray-300">{act.text}</p>
+                </div>
+                <div className="journal-meta">
+                  <div className="users dash-num">215</div>
+                  <div className="status">● Aktif</div>
+                </div>
+              </div>
+              <div className="journal-row">
+                <div style={{ display: "flex", alignItems: "center" }}>
+                  <div className="journal-avatar" style={{ background: "linear-gradient(135deg, #4285f4, #1a56c4)" }}>IA</div>
+                  <div className="journal-info">
+                    <h3>APASIFIC IAEP</h3>
+                    <p>Impact of Artificial Intelligence on Education &amp; Practice</p>
+                  </div>
+                </div>
+                <div className="journal-meta">
+                  <div className="users dash-num">1,033</div>
+                  <div className="status">● Aktif</div>
+                </div>
+              </div>
+              <div className="journal-row">
+                <div style={{ display: "flex", alignItems: "center" }}>
+                  <div className="journal-avatar" style={{ background: "linear-gradient(135deg, #34a853, #1a7a35)" }}>AJ</div>
+                  <div className="journal-info">
+                    <h3>ASIA Journal</h3>
+                    <p>Asia Pacific Multidisciplinary Academic Journal</p>
+                  </div>
+                </div>
+                <div className="journal-meta">
+                  <div className="users dash-num">—</div>
+                  <div className="status" style={{ color: "#f59e0b" }}>● Persiapan</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* System Logs */}
+          <div className="dash-card">
+            <div className="dash-card-head">
+              <h2>Log Sistem</h2>
+            </div>
+            <div className="log-body">
+              {activities.map((act, i) => (
+                <div key={i} className="log-item">
+                  <div className="log-dot" style={{ background: statusColor[act.status] || "#4285f4" }} />
+                  <div>
+                    <div className="log-time">{act.time}</div>
+                    <div className="log-text">{act.text}</div>
                   </div>
                 </div>
               ))}
+              <button className="btn-view-all">Lihat Semua Log</button>
             </div>
-            <button className="w-full mt-6 py-2 border border-gray-700 text-gray-400 rounded-lg text-sm font-semibold hover:bg-gray-800 hover:text-white transition-colors">
-              View All Logs
-            </button>
           </div>
+
         </div>
       </div>
-    </div>
+    </>
   );
 }
