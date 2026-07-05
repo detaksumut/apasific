@@ -64,7 +64,7 @@ export default function Sidebar({ role }: SidebarProps) {
           display: "flex",
           alignItems: "center",
           gap: "12px",
-          padding: "11px 16px",
+          padding: "8px 14px",
           borderRadius: "10px",
           fontSize: "13.5px",
           fontWeight: isActive ? 600 : 400,
@@ -73,7 +73,7 @@ export default function Sidebar({ role }: SidebarProps) {
           border: isActive ? "1px solid rgba(201,168,76,0.2)" : "1px solid transparent",
           textDecoration: "none",
           transition: "all 0.18s",
-          marginBottom: "4px",
+          marginBottom: "2px",
         }}
         onMouseEnter={e => {
           if (!isActive) {
@@ -112,7 +112,7 @@ export default function Sidebar({ role }: SidebarProps) {
     >
       {/* Brand */}
       <div style={{
-        padding: "28px 24px 20px",
+        padding: "20px 24px 16px",
         borderBottom: "1px solid rgba(255,255,255,0.06)",
       }}>
         <div style={{ fontSize: 17, fontWeight: 800, color: "#c9a84c", letterSpacing: "1.5px", fontFamily: "serif" }}>
@@ -124,16 +124,16 @@ export default function Sidebar({ role }: SidebarProps) {
       </div>
 
       {/* Nav */}
-      <div style={{ flex: 1, overflowY: "auto", padding: "24px 16px" }}>
+      <div style={{ flex: 1, overflowY: "auto", padding: "16px 12px" }}>
 
         {/* Section: Utama */}
-        <div style={{ fontSize: 10, fontWeight: 700, color: "rgba(255,255,255,0.2)", letterSpacing: "2px", marginBottom: 12, paddingLeft: 4 }}>
+        <div style={{ fontSize: 10, fontWeight: 700, color: "rgba(255,255,255,0.2)", letterSpacing: "2px", marginBottom: 8, paddingLeft: 4 }}>
           UTAMA
         </div>
         {commonLinks.map(link => <NavLink key={link.path} link={link} />)}
 
         {/* Section: Role Actions */}
-        <div style={{ fontSize: 10, fontWeight: 700, color: "rgba(255,255,255,0.2)", letterSpacing: "2px", marginTop: 32, marginBottom: 12, paddingLeft: 4 }}>
+        <div style={{ fontSize: 10, fontWeight: 700, color: "rgba(255,255,255,0.2)", letterSpacing: "2px", marginTop: 20, marginBottom: 8, paddingLeft: 4 }}>
           {roleLabelMap[role] || role} ACTIONS
         </div>
         {getRoleLinks().map(link => <NavLink key={link.path} link={link} />)}
@@ -142,7 +142,7 @@ export default function Sidebar({ role }: SidebarProps) {
 
       {/* Footer */}
       <div style={{
-        padding: "20px 20px 24px",
+        padding: "14px 16px 18px",
         borderTop: "1px solid rgba(255,255,255,0.06)",
       }}>
         <div style={{ fontSize: 11, color: "rgba(255,255,255,0.2)", marginBottom: 10 }}>
