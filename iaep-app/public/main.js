@@ -988,7 +988,7 @@ function initAsiacertHubForm() {
             <label class="cert-label">Select Certification Field</label>
             <select class="cert-select" id="hubField" required>
               <option value="">-- Choose Field / Strategic Body --</option>
-              ${Object.keys(certSchemeMap).map(k => `<option value="${k}">${certSchemeMap[k].name} (${certSchemeMap[k].cert.match(/\\(([^)]+)\\)/)[1]})</option>`).join('')}
+              ${Object.keys(certSchemeMap).map(k => `<option value="${k}">${certSchemeMap[k].name} (${certSchemeMap[k].cert.split('(')[1].replace(')', '')})</option>`).join('')}
             </select>
           </div>
           <div class="cert-group">
@@ -1179,15 +1179,15 @@ function initAsiacertHubForm() {
 
     if (fieldKey && certSchemeMap[fieldKey]) {
       const scheme = certSchemeMap[fieldKey];
-      const certNameOnly = scheme.cert.replace(/\\s*\\([^)]*\\)\\s*$/, '');
+      const certNameOnly = scheme.cert.replace(/\s*\([^)]*\)\s*$/, '');
       
       container.querySelector('#previewScheme1').innerText = certNameOnly;
       container.querySelector('#previewScheme2').innerText = certNameOnly;
       container.querySelector('#previewLevel1').innerText = levelVal || scheme.levels[0];
       container.querySelector('#previewLevel2').innerText = scheme.levels[1] || scheme.levels[0];
       
-      container.querySelector('#previewId1').innerText = `ID: AC-\${fieldKey.toUpperCase()}-0842`;
-      container.querySelector('#previewId2').innerText = `ID: AC-\${fieldKey.toUpperCase()}-0843`;
+      container.querySelector('#previewId1').innerText = 'ID: AC-' + fieldKey.toUpperCase() + '-0842';
+      container.querySelector('#previewId2').innerText = 'ID: AC-' + fieldKey.toUpperCase() + '-0843';
     } else {
       container.querySelector('#previewScheme1').innerText = "Select Strategic Field";
       container.querySelector('#previewScheme2').innerText = "Select Strategic Field";
