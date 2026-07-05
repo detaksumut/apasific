@@ -12,7 +12,7 @@ export default async function DashboardHome() {
   };
 
   try {
-    const supabase = createClient();
+    const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
     
     if (user) {
