@@ -474,7 +474,7 @@ function initDynamicLeadership() {
       
       const photoUrl = data.ketuaPhoto || 'logo-apasific.png';
       ketuaCard.innerHTML = `
-        <img src="${photoUrl}" style="width: 90px; height: 120px; border-radius: 6px; object-fit: cover; border: 2px solid #c9a84c; margin-bottom: 10px; filter: drop-shadow(0 4px 8px rgba(201,168,76,0.3));" />
+        <img src="${photoUrl}" style="width: 120px; height: 160px; border-radius: 6px; object-fit: cover; border: 2px solid #c9a84c; margin-bottom: 12px; filter: drop-shadow(0 4px 8px rgba(201,168,76,0.35));" />
         <div style="font-weight: 700; color: #fff; font-size: 13px; margin-bottom: 4px; font-family: \'Cinzel\', serif; line-height: 1.3;">${data.ketuaNama}</div>
         <div style="color: #c9a84c; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">${data.ketuaJabatan || 'Ketua'}</div>
         <div style="color: rgba(255,255,255,0.4); font-size: 10px;">${data.ketuaNegara || ''}</div>
@@ -493,7 +493,7 @@ function initDynamicLeadership() {
       
       const photoUrl = data.sekretarisPhoto || 'logo-apasific.png';
       sekCard.innerHTML = `
-        <img src="${photoUrl}" style="width: 90px; height: 120px; border-radius: 6px; object-fit: cover; border: 2px solid rgba(255,255,255,0.4); margin-bottom: 10px; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.4));" />
+        <img src="${photoUrl}" style="width: 120px; height: 160px; border-radius: 6px; object-fit: cover; border: 2px solid rgba(255,255,255,0.4); margin-bottom: 12px; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.45));" />
         <div style="font-weight: 700; color: #fff; font-size: 13px; margin-bottom: 4px; font-family: \'Cinzel\', serif; line-height: 1.3;">${data.sekNama}</div>
         <div style="color: rgba(255,255,255,0.5); font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">${data.sekJabatan || 'Sekretaris'}</div>
         <div style="color: rgba(255,255,255,0.4); font-size: 10px;">${data.sekNegara || ''}</div>
