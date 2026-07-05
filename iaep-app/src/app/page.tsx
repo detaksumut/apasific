@@ -106,9 +106,7 @@ export default function Home() {
           <!-- Founding Father -->
           <div class="leader-card" data-aos="fade-up">
             <div class="leader-avatar">
-              <div class="avatar-placeholder">
-                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" stroke-width="1.2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-              </div>
+              <img src="arfan.png" alt="DR. ARFAN IKHSAN LUBIS" />
             </div>
             <div class="leader-info">
               <h4>Founding Father</h4>
@@ -134,9 +132,7 @@ export default function Home() {
           <!-- President -->
           <div class="leader-card" data-aos="fade-up" style="animation-delay:0.1s">
             <div class="leader-avatar">
-              <div class="avatar-placeholder">
-                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" stroke-width="1.2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-              </div>
+              <img src="arfan.png" alt="DR. ARFAN IKHSAN LUBIS" />
             </div>
             <div class="leader-info">
               <h4>President</h4>
