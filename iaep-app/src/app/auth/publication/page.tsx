@@ -10,13 +10,13 @@ export default function PublicationAuth() {
 
   return (
     <div className="min-h-screen pt-24 pb-12 px-4 flex flex-col items-center">
-      <div className="w-full max-w-2xl mb-8">
+      <div className="w-full max-w-lg mb-8">
         <Link href="/" className="text-[#c9a84c] hover:text-white transition-colors">
           ← Back to Home
         </Link>
       </div>
       
-      <div className="text-center max-w-3xl mb-8">
+      <div className="text-center max-w-xl mb-8">
         <h1 className="text-3xl md:text-5xl font-['Cinzel'] font-bold text-white mb-4">
           Publication <span className="text-[#c9a84c]">Portal</span>
         </h1>

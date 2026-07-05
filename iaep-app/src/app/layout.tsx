@@ -1,5 +1,8 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import "./landing.css";
+import Script from "next/script";
+
 
 export const metadata: Metadata = {
   title: "ASIA – Association of Asia Pacific Academician",
@@ -13,7 +16,18 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body>
+      <body className="bg-[#05050a]">
+        {/* Global Lively Background - Premium Dark Gold Glow */}
+        <div className="fixed inset-0 z-[-1] bg-[#05050a]">
+          <div className="absolute inset-0 bg-gradient-to-b from-[#05050a] via-[#0d0d1a] to-[#05050a]"></div>
+          <div 
+            className="absolute inset-0 opacity-30" 
+            style={{ 
+              background: 'radial-gradient(circle at 50% 30%, rgba(201, 168, 76, 0.15) 0%, transparent 60%)' 
+            }}
+          ></div>
+        </div>
+
         {/* Navigation */}
         <div dangerouslySetInnerHTML={{ __html: `<nav class="navbar" id="navbar">
     <div class="nav-container">
@@ -83,18 +97,18 @@ export default function RootLayout({
           <a href="#strategic-bodies" class="nav-link" id="nav-bodies">STRATEGIC BODIES <span class="chevron">▾</span></a>
           <div class="dropdown dropdown-wide">
             <div class="dd-grid">
-              <a href="https://apasific.org/boc" target="_blank"><span class="dd-icon">◈</span> ASIA Board of Certification (BOC)</a>
-              <a href="https://apasific.org/asiacert" target="_blank"><span class="dd-icon">◈</span> ASIACERT</a>
-              <a href="https://apasific.org/research" target="_blank"><span class="dd-icon">◈</span> Research &amp; Innovation Council</a>
-              <a href="https://apasific.org/conference" target="_blank"><span class="dd-icon">◈</span> Conference &amp; Academic Forum</a>
-              <a href="https://apasific.org/publication" target="_blank"><span class="dd-icon">◈</span> Publication &amp; Knowledge Center</a>
-              <a href="https://apasific.org/mobility" target="_blank"><span class="dd-icon">◈</span> Academic Mobility Center</a>
-              <a href="https://apasific.org/competition" target="_blank"><span class="dd-icon">◈</span> Competition Center</a>
-              <a href="https://apasific.org/community" target="_blank"><span class="dd-icon">◈</span> Community Engagement &amp; SDGs Center</a>
-              <a href="https://apasific.org/quality" target="_blank"><span class="dd-icon">◈</span> Quality Assurance &amp; Accreditation Board</a>
-              <a href="https://apasific.org/academy" target="_blank"><span class="dd-icon">◈</span> Digital Academy &amp; AI Center</a>
-              <a href="https://apasific.org/young" target="_blank"><span class="dd-icon">◈</span> Young Academician Network</a>
-              <a href="https://apasific.org/awards" target="_blank"><span class="dd-icon">◈</span> Awards &amp; Recognition Council</a>
+              <a href="/boc.html" target="_blank"><span class="dd-icon">◈</span> ASIA Board of Certification (BOC)</a>
+              <a href="/asiacert.html" target="_blank"><span class="dd-icon">◈</span> ASIACERT</a>
+              <a href="/research.html" target="_blank"><span class="dd-icon">◈</span> Research &amp; Innovation Council</a>
+              <a href="/conference.html" target="_blank"><span class="dd-icon">◈</span> Conference &amp; Academic Forum</a>
+              <a href="/publication.html" target="_blank"><span class="dd-icon">◈</span> Publication &amp; Knowledge Center</a>
+              <a href="/mobility.html" target="_blank"><span class="dd-icon">◈</span> Academic Mobility Center</a>
+              <a href="/competition.html" target="_blank"><span class="dd-icon">◈</span> Competition Center</a>
+              <a href="/community.html" target="_blank"><span class="dd-icon">◈</span> Community Engagement &amp; SDGs Center</a>
+              <a href="/quality.html" target="_blank"><span class="dd-icon">◈</span> Quality Assurance &amp; Accreditation Board</a>
+              <a href="/academy.html" target="_blank"><span class="dd-icon">◈</span> Digital Academy &amp; AI Center</a>
+              <a href="/young.html" target="_blank"><span class="dd-icon">◈</span> Young Academician Network</a>
+              <a href="/awards.html" target="_blank"><span class="dd-icon">◈</span> Awards &amp; Recognition Council</a>
             </div>
           </div>
         </li>
@@ -122,8 +136,6 @@ export default function RootLayout({
             <a href="#awards-prog"><span class="dd-icon">◈</span> Awards</a>
           </div>
         </li>
-
-        <li><a href="#contact" class="nav-link" id="nav-contact">CONTACT</a></li>
       </ul>
 
       <div style={{ display: 'flex', gap: '10px' }}>
@@ -209,6 +221,7 @@ export default function RootLayout({
       </div>
     </div>
   </footer>` }} />
+        <Script src="/main.js" strategy="afterInteractive" />
       </body>
     </html>
   );

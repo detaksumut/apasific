@@ -1,4 +1,4 @@
-﻿import os, re
+import os, re
 
 with open("index.html", "r", encoding="utf-8") as f:
     idx_content = f.read()
@@ -10,6 +10,7 @@ if not nav_match:
 
 nav_html = nav_match.group(0)
 nav_html_sub = re.sub(r'href="(#[^"]+)"', r'href="index.html\1"', nav_html)
+nav_html_sub = nav_html_sub.replace('href="index.html#home"', 'href="index.html"')
 
 files = [
     "vision-mission.html","asiacert.html","boc.html","conference.html",
@@ -21,22 +22,24 @@ files = [
 
 synced = 0
 for fn in files:
-    if not os.path.exists(fn):
-        print("SKIP: " + fn)
-        continue
-    with open(fn, "r", encoding="utf-8") as f:
-        content = f.read()
-    s = content.find('<nav class="navbar" id="navbar">')
-    e = content.find("</nav>", s)
-    if s == -1 or e == -1:
-        print("Nav not found: " + fn)
-        continue
-    e += 6
-    new_content = content[:s] + nav_html_sub + content[e:]
-    new_content = re.sub(r"style\.css\?v=\d+", "style.css?v=36", new_content)
-    with open(fn, "w", encoding="utf-8") as f:
-        f.write(new_content)
-    print("Synced: " + fn)
-    synced += 1
+    # Target paths in root and public folders
+    paths = [fn, os.path.join("iaep-app", "public", fn)]
+    for fp in paths:
+        if not os.path.exists(fp):
+            continue
+        with open(fp, "r", encoding="utf-8") as f:
+            content = f.read()
+        s = content.find('<nav class="navbar" id="navbar">')
+        e = content.find("</nav>", s)
+        if s == -1 or e == -1:
+            print("Nav not found: " + fp)
+            continue
+        e += 6
+        new_content = content[:s] + nav_html_sub + content[e:]
+        new_content = re.sub(r"style\.css\?v=\d+", "style.css?v=36", new_content)
+        with open(fp, "w", encoding="utf-8") as f:
+            f.write(new_content)
+        print("Synced: " + fp)
+        synced += 1
 
 print("Done. Synced " + str(synced) + " files.")

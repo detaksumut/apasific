@@ -307,6 +307,24 @@ img { max-width: 100%; display: block; }
   display: block;
 }
 
+/* Custom Overlays */
+.hero-cta-overlay {
+  position: absolute;
+  bottom: 108px;
+  left: max(24px, calc((100vw - 1240px) / 2 + 24px)); /* Aligns with container */
+  z-index: 10;
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.hero-cta-overlay .btn-primary {
+  box-shadow: 0 10px 40px rgba(201, 168, 76, 0.7);
+}
+.hero-cta-overlay .btn-outline {
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.9);
+  background: rgba(0, 0, 0, 0.6);
+}
+
 /* Stats Bar */
 .hero-stats {
   background: rgba(8,8,16,0.95);

@@ -269,21 +269,21 @@ export default function Home() {
           <div class="div-icon">🏥</div>
           <h3>Health</h3>
           <p>Promoting public health, medical research, and health system innovation across the region.</p>
-          <a href="#contact" class="div-link">Learn More →</a>
+          <a href="health.html" class="div-link">Learn More →</a>
         </div>
         <div class="division-card" id="div-agriculture" style="animation-delay:0.6s">
           <div class="div-num">13</div>
           <div class="div-icon">🌾</div>
           <h3>Agriculture</h3>
           <p>Supporting agri-food innovation, rural development, and food security research.</p>
-          <a href="#contact" class="div-link">Learn More →</a>
+          <a href="agriculture.html" class="div-link">Learn More →</a>
         </div>
         <div class="division-card" id="div-islamic" style="animation-delay:0.65s">
           <div class="div-num">14</div>
           <div class="div-icon">☪️</div>
           <h3>Islamic Studies</h3>
           <p>Advancing Islamic scholarship, jurisprudence, and the integration of Islamic values in academia.</p>
-          <a href="#contact" class="div-link">Learn More →</a>
+          <a href="islamic.html" class="div-link">Learn More →</a>
         </div>
       </div>
     </div>
@@ -306,74 +306,74 @@ export default function Home() {
           <div class="body-icon">🏛️</div>
           <h3>ASIA Board of Certification (BOC)</h3>
           <p>The apex body governing all professional and academic certification standards under ASIA's framework.</p>
-          <a href="https://apasific.org/boc" target="_blank" class="div-link">Visit Website →</a>
+          <a href="/boc.html" target="_blank" class="div-link">Visit Website →</a>
         </div>
         <div class="body-card featured" id="asiacert" style="animation-delay:0.1s">
           <div class="body-badge">CERTIFICATION</div>
           <div class="body-icon">🎖️</div>
           <h3>ASIACERT</h3>
           <p>Official certification arm issuing internationally recognized credentials to qualified academicians and professionals.</p>
-          <a href="https://apasific.org/asiacert" target="_blank" class="div-link">Visit Website →</a>
+          <a href="/asiacert.html" target="_blank" class="div-link">Visit Website →</a>
         </div>
         <div class="body-card" id="research-council" style="animation-delay:0.15s">
           <div class="body-icon">🔬</div>
           <h3>Research &amp; Innovation Council</h3>
           <p>Spearheading collaborative research initiatives, innovation grants, and knowledge generation programs.</p>
-          <a href="https://apasific.org/research" target="_blank" class="div-link">Visit Website →</a>
+          <a href="/research.html" target="_blank" class="div-link">Visit Website →</a>
         </div>
         <div class="body-card" id="conference-forum" style="animation-delay:0.2s">
           <div class="body-icon">🎤</div>
           <h3>Conference &amp; Academic Forum</h3>
           <p>Organizing premier international conferences and academic forums for knowledge exchange and networking.</p>
-          <a href="https://apasific.org/conference" target="_blank" class="div-link">Visit Website →</a>
+          <a href="/conference.html" target="_blank" class="div-link">Visit Website →</a>
         </div>
         <div class="body-card" id="publication-center" style="animation-delay:0.25s">
           <div class="body-icon">📚</div>
           <h3>Publication &amp; Knowledge Center</h3>
           <p>Managing scholarly publications, open-access journals, and the dissemination of academic knowledge.</p>
-          <a href="https://apasific.org/publication" target="_blank" class="div-link">Visit Website →</a>
+          <a href="/publication.html" target="_blank" class="div-link">Visit Website →</a>
         </div>
         <div class="body-card" id="mobility-center" style="animation-delay:0.3s">
           <div class="body-icon">🌏</div>
           <h3>Academic Mobility Center</h3>
           <p>Facilitating cross-border academic exchanges, visiting scholar programs, and mobility fellowships.</p>
-          <a href="https://apasific.org/mobility" target="_blank" class="div-link">Visit Website →</a>
+          <a href="/mobility.html" target="_blank" class="div-link">Visit Website →</a>
         </div>
         <div class="body-card" id="competition-center" style="animation-delay:0.35s">
           <div class="body-icon">🏆</div>
           <h3>Competition Center</h3>
           <p>Hosting academic competitions, olympiads, and case study challenges for students and researchers.</p>
-          <a href="https://apasific.org/competition" target="_blank" class="div-link">Visit Website →</a>
+          <a href="/competition.html" target="_blank" class="div-link">Visit Website →</a>
         </div>
         <div class="body-card" id="community-center" style="animation-delay:0.4s">
           <div class="body-icon">🌱</div>
           <h3>Community Engagement &amp; SDGs Center</h3>
           <p>Aligning academic activities with UN Sustainable Development Goals and community empowerment.</p>
-          <a href="https://apasific.org/community" target="_blank" class="div-link">Visit Website →</a>
+          <a href="/community.html" target="_blank" class="div-link">Visit Website →</a>
         </div>
         <div class="body-card" id="qa-board" style="animation-delay:0.45s">
           <div class="body-icon">✅</div>
           <h3>Quality Assurance &amp; Accreditation Board</h3>
           <p>Upholding academic standards, institutional accreditation, and quality benchmarking across programs.</p>
-          <a href="https://apasific.org/quality" target="_blank" class="div-link">Visit Website →</a>
+          <a href="/quality.html" target="_blank" class="div-link">Visit Website →</a>
         </div>
         <div class="body-card" id="digital-academy" style="animation-delay:0.5s">
           <div class="body-icon">💻</div>
           <h3>Digital Academy &amp; AI Center</h3>
           <p>Delivering digital literacy, AI education, and cutting-edge technology training for academics.</p>
-          <a href="https://apasific.org/academy" target="_blank" class="div-link">Visit Website →</a>
+          <a href="/academy.html" target="_blank" class="div-link">Visit Website →</a>
         </div>
         <div class="body-card" id="young-network" style="animation-delay:0.55s">
           <div class="body-icon">🌟</div>
           <h3>Young Academician Network</h3>
           <p>Nurturing emerging scholars and early-career researchers through mentorship and collaborative platforms.</p>
-          <a href="https://apasific.org/young" target="_blank" class="div-link">Visit Website →</a>
+          <a href="/young.html" target="_blank" class="div-link">Visit Website →</a>
         </div>
         <div class="body-card" id="awards-council" style="animation-delay:0.6s">
           <div class="body-icon">🏅</div>
           <h3>Awards &amp; Recognition Council</h3>
           <p>Celebrating academic excellence through prestigious awards honoring outstanding contributions to scholarship.</p>
-          <a href="https://apasific.org/awards" target="_blank" class="div-link">Visit Website →</a>
+          <a href="/awards.html" target="_blank" class="div-link">Visit Website →</a>
         </div>
       </div>
     </div>
@@ -397,7 +397,7 @@ export default function Home() {
           <h3>Academic Journals</h3>
           <p>Peer-reviewed journals covering all 14 academic divisions, indexed in leading global databases.</p>
           <div class="pub-meta"><span>Quarterly</span><span>ISI / Scopus Indexed</span></div>
-          <a href="#contact" class="pub-link">Browse Journals →</a>
+          <a href="publication.html" class="pub-link">Browse Journals →</a>
         </div>
         <div class="pub-card" id="proceedings" style="animation-delay:0.1s">
           <div class="pub-icon-wrap">
@@ -406,7 +406,7 @@ export default function Home() {
           <h3>Proceedings</h3>
           <p>Official conference proceedings capturing breakthrough research and scholarly presentations.</p>
           <div class="pub-meta"><span>Per Conference</span><span>ISBN Registered</span></div>
-          <a href="#contact" class="pub-link">Browse Proceedings →</a>
+          <a href="publication.html" class="pub-link">Browse Proceedings →</a>
         </div>
         <div class="pub-card" id="books" style="animation-delay:0.2s">
           <div class="pub-icon-wrap">
@@ -415,7 +415,7 @@ export default function Home() {
           <h3>Academic Books</h3>
           <p>Scholarly books authored and edited by ASIA members, covering theory, practice, and case studies.</p>
           <div class="pub-meta"><span>Annual</span><span>DOI Registered</span></div>
-          <a href="#contact" class="pub-link">Browse Books →</a>
+          <a href="publication.html" class="pub-link">Browse Books →</a>
         </div>
         <div class="pub-card" id="monographs" style="animation-delay:0.3s">
           <div class="pub-icon-wrap">
@@ -424,7 +424,7 @@ export default function Home() {
           <h3>Monographs</h3>
           <p>In-depth single-topic scholarly works advancing specialized knowledge in key academic fields.</p>
           <div class="pub-meta"><span>Bi-annual</span><span>Open Access</span></div>
-          <a href="#contact" class="pub-link">Browse Monographs →</a>
+          <a href="publication.html" class="pub-link">Browse Monographs →</a>
         </div>
         <div class="pub-card" id="policy-briefs" style="animation-delay:0.4s">
           <div class="pub-icon-wrap">
@@ -433,7 +433,7 @@ export default function Home() {
           <h3>Policy Briefs</h3>
           <p>Evidence-based policy recommendations addressing real-world challenges for regional policymakers.</p>
           <div class="pub-meta"><span>Ongoing</span><span>Free Download</span></div>
-          <a href="#contact" class="pub-link">Browse Policy Briefs →</a>
+          <a href="publication.html" class="pub-link">Browse Policy Briefs →</a>
         </div>
       </div>
     </div>
@@ -461,7 +461,7 @@ export default function Home() {
             <li>Online &amp; in-person assessment</li>
             <li>Globally recognized credentials</li>
           </ul>
-          <a href="#contact" class="btn-prog" id="btn-certification">Apply Now</a>
+          <a href="asiacert.html" class="btn-prog" id="btn-certification">Apply Now</a>
         </div>
         <div class="program-card" id="conferences" style="animation-delay:0.1s">
           <div class="prog-number">02</div>
@@ -473,7 +473,7 @@ export default function Home() {
             <li>Virtual &amp; hybrid formats</li>
             <li>Indexed proceedings</li>
           </ul>
-          <a href="#contact" class="btn-prog" id="btn-conferences">Register</a>
+          <a href="conference.html" class="btn-prog" id="btn-conferences">Register</a>
         </div>
         <div class="program-card" id="competitions" style="animation-delay:0.2s">
           <div class="prog-number">03</div>
@@ -485,7 +485,7 @@ export default function Home() {
             <li>Cash prizes &amp; recognition</li>
             <li>Published winning entries</li>
           </ul>
-          <a href="#contact" class="btn-prog" id="btn-competitions">Compete</a>
+          <a href="competition.html" class="btn-prog" id="btn-competitions">Compete</a>
         </div>
         <div class="program-card" id="training" style="animation-delay:0.3s">
           <div class="prog-number">04</div>
@@ -497,7 +497,7 @@ export default function Home() {
             <li>CPD hours awarded</li>
             <li>Certificate of completion</li>
           </ul>
-          <a href="#contact" class="btn-prog" id="btn-training">Enroll</a>
+          <a href="academy.html" class="btn-prog" id="btn-training">Enroll</a>
         </div>
         <div class="program-card" id="mobility" style="animation-delay:0.4s">
           <div class="prog-number">05</div>
@@ -509,7 +509,7 @@ export default function Home() {
             <li>Stipend support available</li>
             <li>MOU-backed placements</li>
           </ul>
-          <a href="#contact" class="btn-prog" id="btn-mobility">Apply</a>
+          <a href="mobility.html" class="btn-prog" id="btn-mobility">Apply</a>
         </div>
         <div class="program-card" id="research-grants" style="animation-delay:0.5s">
           <div class="prog-number">06</div>
@@ -521,7 +521,7 @@ export default function Home() {
             <li>Multi-country collaboration</li>
             <li>Publication support</li>
           </ul>
-          <a href="#contact" class="btn-prog" id="btn-grants">Apply for Grant</a>
+          <a href="research.html" class="btn-prog" id="btn-grants">Apply for Grant</a>
         </div>
         <div class="program-card" id="awards-prog" style="animation-delay:0.6s">
           <div class="prog-number">07</div>
@@ -533,7 +533,7 @@ export default function Home() {
             <li>Best researcher &amp; educator</li>
             <li>Young academician award</li>
           </ul>
-          <a href="#contact" class="btn-prog" id="btn-awards">Nominate</a>
+          <a href="awards.html" class="btn-prog" id="btn-awards">Nominate</a>
         </div>
       </div>
     </div>
@@ -615,113 +615,6 @@ export default function Home() {
             <li>✓ Accreditation advisory support</li>
           </ul>
           <a href="#contact" class="btn-tier" id="btn-inst-member">Join Now</a>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ═══════════════════════════════════════════
-       CONTACT
-  ═══════════════════════════════════════════ -->
-  <section class="section contact-section" id="contact">
-    <div class="container">
-      <div class="section-header">
-        <p class="section-eyebrow">GET IN TOUCH</p>
-        <h2 class="section-title">Contact <span class="gold">Us</span></h2>
-        <div class="title-ornament"><span></span><svg width="20" height="20" viewBox="0 0 20 20"><polygon points="10,1 12.9,7 19.5,7.6 14.7,12 16.2,18.5 10,15 3.8,18.5 5.3,12 0.5,7.6 7.1,7" fill="#c9a84c"/></svg><span></span></div>
-      </div>
-      <div class="contact-wrapper">
-        <div class="contact-info">
-          <h3>Reach Out to ASIA</h3>
-          <p>We welcome inquiries about membership, programs, collaborations, and partnerships. Our team is ready to assist you.</p>
-          <div class="contact-items">
-            <div class="contact-item">
-              <div class="c-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" stroke-width="1.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></div>
-              <div>
-                <p class="c-label">Alamat / Headquarters</p>
-                <p class="c-value">Jalan Perjuangan No. 80 B, Kelurahan Sei Kera Hilir,<br>Kec. Medan Perjuangan, Medan – Sumatera Utara, Indonesia</p>
-              </div>
-            </div>
-            <div class="contact-item">
-              <div class="c-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" stroke-width="1.5"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></div>
-              <div>
-                <p class="c-label">Email</p>
-                <p class="c-value"><a href="mailto:admin@apasific.org" style="color:var(--gold)">admin@apasific.org</a></p>
-              </div>
-            </div>
-            <div class="contact-item">
-              <div class="c-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" stroke-width="1.5"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 2.18h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8 9.91a16 16 0 0 0 6 6l.86-.86a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21.73 17z"/></svg></div>
-              <div>
-                <p class="c-label">Phone / WhatsApp</p>
-                <p class="c-value"><a href="https://wa.me/6281370062009" target="_blank" style="color:var(--gold)">+62 813-7006-2009</a></p>
-              </div>
-            </div>
-            <div class="contact-item">
-              <div class="c-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
-              <div>
-                <p class="c-label">Office Hours</p>
-                <p class="c-value">Senin – Jumat, 08:00 – 17:00 WIB</p>
-              </div>
-            </div>
-          </div>
-          <div class="social-links">
-            <a href="#" class="social-btn" id="social-linkedin" aria-label="LinkedIn">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
-            </a>
-            <a href="#" class="social-btn" id="social-facebook" aria-label="Facebook">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
-            </a>
-            <a href="#" class="social-btn" id="social-instagram" aria-label="Instagram">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
-            </a>
-            <a href="#" class="social-btn" id="social-twitter" aria-label="Twitter/X">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
-            </a>
-          </div>
-        </div>
-        <div class="contact-form-wrap">
-          <form class="contact-form" id="contact-form" onsubmit="handleFormSubmit(event)">
-            <div class="form-row">
-              <div class="form-group">
-                <label for="c-name">Full Name *</label>
-                <input type="text" id="c-name" placeholder="Your full name" required />
-              </div>
-              <div class="form-group">
-                <label for="c-email">Email Address *</label>
-                <input type="email" id="c-email" placeholder="your@email.com" required />
-              </div>
-            </div>
-            <div class="form-row">
-              <div class="form-group">
-                <label for="c-institution">Institution</label>
-                <input type="text" id="c-institution" placeholder="Your university / institution" />
-              </div>
-              <div class="form-group">
-                <label for="c-subject">Subject *</label>
-                <select id="c-subject" required>
-                  <option value="">Select a topic</option>
-                  <option>Membership Inquiry</option>
-                  <option>Certification</option>
-                  <option>Conference</option>
-                  <option>Publication</option>
-                  <option>Partnership / MOU</option>
-                  <option>Research Grant</option>
-                  <option>Other</option>
-                </select>
-              </div>
-            </div>
-            <div class="form-group">
-              <label for="c-message">Message *</label>
-              <textarea id="c-message" rows="5" placeholder="Write your message here..." required></textarea>
-            </div>
-            <button type="submit" class="btn-submit" id="btn-contact-submit">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
-              Send Message
-            </button>
-            <div class="form-success" id="form-success">
-              ✅ Thank you! Your message has been sent. We'll get back to you within 2 business days.
-            </div>
-          </form>
         </div>
       </div>
     </div>

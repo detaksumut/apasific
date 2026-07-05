@@ -13,7 +13,7 @@ boc_main_content = """
     <header class="page-hero">
       <div class="page-hero-bg"></div>
       <div class="container page-hero-content">
-        <img src="public/asia-boc.png" alt="ASIA BOC Logo" class="page-hero-logo" style="width: 200px; height: 200px; margin-bottom: 30px; animation: pulse-glow 4s infinite;" data-aos="zoom-in" />
+        <img src="asia-boc.png" alt="ASIA BOC Logo" class="page-hero-logo" style="width: 200px; height: 200px; margin-bottom: 30px; animation: pulse-glow 4s infinite;" data-aos="zoom-in" />
         <h1 class="page-title" style="font-size: 3.4rem; margin-bottom: 12px;" data-aos="fade-up" data-aos-delay="100">ASIA BOC</h1>
         <p class="page-subtitle" style="font-size: 1.4rem; color: var(--gold); margin-bottom: 16px; font-weight: 600; font-family: var(--font-cinzel);" data-aos="fade-up" data-aos-delay="200">ASIA Board of Certification</p>
         <p class="page-subtitle" style="font-size: 1.15rem; font-style: italic; max-width: 600px;" data-aos="fade-up" data-aos-delay="300">Governing Board of ASIACERT</p>
@@ -32,6 +32,48 @@ boc_main_content = """
         <p class="lead-text" style="text-align: justify;">
           Rather than conducting day-to-day certification operations, the Board provides strategic leadership and institutional oversight, ensuring that ASIACERT remains independent, accountable, transparent, and internationally respected.
         </p>
+      </div>
+    </section>
+
+    <!-- ACTIVITY GALLERY -->
+    <section class="activity-gallery" style="padding: 40px 0; background: var(--bg-card); border-top: 1px solid rgba(201, 168, 76, 0.2); border-bottom: 1px solid rgba(201, 168, 76, 0.2);">
+      <div class="container">
+        <h2 class="section-title" style="font-size: 28px; text-align: center; margin-bottom: 30px;" data-aos="fade-up">Recent <span class="gold">Activities</span></h2>
+        
+        <!-- Swiper -->
+        <div class="swiper activity-swiper" style="width: 100%; padding-bottom: 40px;" data-aos="fade-up" data-aos-delay="100">
+          <div class="swiper-wrapper" id="activity-gallery-wrapper">
+            <!-- Mock slide 1 -->
+            <div class="swiper-slide">
+              <div style="border-radius: 12px; overflow: hidden; position: relative; height: 250px; background: #1a1a1a; box-shadow: 0 10px 20px rgba(0,0,0,0.3);">
+                <div style="width: 100%; height: 100%; background: url('https://images.unsplash.com/photo-1540575467063-178a50c2df87?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80') center/cover no-repeat;"></div>
+                <div style="position: absolute; bottom: 0; left: 0; width: 100%; padding: 15px; background: linear-gradient(transparent, rgba(0,0,0,0.8));">
+                  <p style="color: #fff; margin: 0; font-weight: 500; font-size: 1rem;">International Conference 2025</p>
+                </div>
+              </div>
+            </div>
+            <!-- Mock slide 2 -->
+            <div class="swiper-slide">
+              <div style="border-radius: 12px; overflow: hidden; position: relative; height: 250px; background: #1a1a1a; box-shadow: 0 10px 20px rgba(0,0,0,0.3);">
+                <div style="width: 100%; height: 100%; background: url('https://images.unsplash.com/photo-1515187029135-18ee286d815b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80') center/cover no-repeat;"></div>
+                <div style="position: absolute; bottom: 0; left: 0; width: 100%; padding: 15px; background: linear-gradient(transparent, rgba(0,0,0,0.8));">
+                  <p style="color: #fff; margin: 0; font-weight: 500; font-size: 1rem;">Board Member Meeting</p>
+                </div>
+              </div>
+            </div>
+            <!-- Mock slide 3 -->
+            <div class="swiper-slide">
+              <div style="border-radius: 12px; overflow: hidden; position: relative; height: 250px; background: #1a1a1a; box-shadow: 0 10px 20px rgba(0,0,0,0.3);">
+                <div style="width: 100%; height: 100%; background: url('https://images.unsplash.com/photo-1475721027785-f74eccf877e2?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80') center/cover no-repeat;"></div>
+                <div style="position: absolute; bottom: 0; left: 0; width: 100%; padding: 15px; background: linear-gradient(transparent, rgba(0,0,0,0.8));">
+                  <p style="color: #fff; margin: 0; font-weight: 500; font-size: 1rem;">Certification Training Session</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Add Pagination -->
+          <div class="swiper-pagination"></div>
+        </div>
       </div>
     </section>
 
@@ -67,7 +109,7 @@ boc_main_content = """
         <p style="text-align: center; max-width: 800px; margin: 0 auto 30px auto; color: var(--text-main);" data-aos="fade-up">
           The Board is actively responsible for the following domains of governance and oversight:
         </p>
-        <div class="framework-grid" data-aos="fade-up">
+        <div class="framework-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;" data-aos="fade-up">
           <div class="framework-card">
             <h4>Governance & Policy</h4>
             <ul>

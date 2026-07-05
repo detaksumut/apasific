@@ -13,7 +13,7 @@ asiacert_main_content = """
     <header class="page-hero">
       <div class="page-hero-bg"></div>
       <div class="container page-hero-content">
-        <img src="public/asia-cert.png" alt="ASIACERT Logo" class="page-hero-logo" style="width: 200px; height: 200px; margin-bottom: 30px; animation: pulse-glow 4s infinite;" data-aos="zoom-in" />
+        <img src="asia-cert.png" alt="ASIACERT Logo" class="page-hero-logo" style="width: 200px; height: 200px; margin-bottom: 30px; animation: pulse-glow 4s infinite;" data-aos="zoom-in" />
         <h1 class="page-title" style="font-size: 3.4rem; margin-bottom: 12px;" data-aos="fade-up" data-aos-delay="100">ASIACERT</h1>
         <p class="page-subtitle" style="font-size: 1.4rem; color: var(--gold); margin-bottom: 16px; font-weight: 600; font-family: var(--font-cinzel);" data-aos="fade-up" data-aos-delay="200">Asia Professional Certification Center</p>
         <p class="page-subtitle" style="font-size: 1.15rem; font-style: italic; max-width: 600px;" data-aos="fade-up" data-aos-delay="300">Certifying Competence. Empowering Professionals. Advancing Global Excellence.</p>

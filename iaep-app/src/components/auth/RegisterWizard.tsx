@@ -1,23 +1,27 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
+import { signUpUser } from "@/app/actions/auth";
 
 export type RoleType = "author" | "reviewer" | "editor" | "member";
 
 interface RegisterWizardProps {
   availableRoles: { value: RoleType; label: string }[];
   defaultRole?: RoleType;
+  forcedRole?: RoleType;
   title: string;
 }
 
-export default function RegisterWizard({ availableRoles, defaultRole, title }: RegisterWizardProps) {
+export default function RegisterWizard({ availableRoles, defaultRole, forcedRole, title }: RegisterWizardProps) {
   const [step, setStep] = useState(1);
+  const [isPending, startTransition] = useTransition();
+  const [message, setMessage] = useState<{type: 'error' | 'success', text: string} | null>(null);
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
     password: "",
     phone: "",
-    role: defaultRole || availableRoles[0]?.value || "member",
+    role: forcedRole || defaultRole || availableRoles[0]?.value || "member",
     country: "",
     university: "",
     orcid: "",
@@ -25,6 +29,8 @@ export default function RegisterWizard({ availableRoles, defaultRole, title }: R
     scopus: "",
     wos: "",
     sinta: "",
+    academicLevel: "S1",
+    bankAccount: "",
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -33,29 +39,169 @@ export default function RegisterWizard({ availableRoles, defaultRole, title }: R
 
   const nextStep = (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // --- SIMULASI MOCK LOGIN (Bypass Supabase) ---
+    const email = formData.email.toLowerCase().trim();
+    if (email === 'marahman2169@gmail.com') {
+      document.cookie = "mock_user=editor; path=/";
+      window.location.href = '/dashboard/editor';
+      return;
+    }
+    if (email === 'kadinmedan1@gmail.com') {
+      document.cookie = "mock_user=reviewer; path=/";
+      window.location.href = '/dashboard/reviews/pending';
+      return;
+    }
+    if (email === 'kadsumut@gmail.com') {
+      document.cookie = "mock_user=submitter; path=/";
+      window.location.href = '/dashboard';
+      return;
+    }
+    if (email === 'detaksumut@gmail.com' && formData.password === 'Mikr@210669Mpi') {
+      document.cookie = "mock_user=admin; path=/";
+      window.location.href = '/dashboard/admin';
+      return;
+    }
+    // ---------------------------------------------
+    
     setStep(2);
   };
 
   const submitForm = (e: React.FormEvent) => {
     e.preventDefault();
-    alert("Simulasi Submit ke Supabase!\nData: " + JSON.stringify(formData, null, 2));
-    // TODO: Supabase Auth Signup + Insert to profiles table
+    
+    const emailLower = formData.email.toLowerCase().trim();
+    
+    // 1. Check default test accounts:
+    if (emailLower === 'marahman2169@gmail.com') {
+      document.cookie = "mock_user=editor; path=/";
+      document.cookie = "mock_user_name=M. A. Rahman (Editor); path=/";
+      window.location.href = '/dashboard/editor';
+      return;
+    }
+    if (emailLower === 'kadinmedan1@gmail.com') {
+      document.cookie = "mock_user=reviewer; path=/";
+      document.cookie = "mock_user_name=Kadin Medan (Reviewer); path=/";
+      window.location.href = '/dashboard/reviews/pending';
+      return;
+    }
+    if (emailLower === 'kadsumut@gmail.com') {
+      document.cookie = "mock_user=submitter; path=/";
+      document.cookie = "mock_user_name=Kad Sumut (Author); path=/";
+      window.location.href = '/dashboard';
+      return;
+    }
+    if (emailLower === 'detaksumut@gmail.com' && formData.password === 'Mikr@210669Mpi') {
+      document.cookie = "mock_user=admin; path=/";
+      document.cookie = "mock_user_name=Super Admin; path=/";
+      window.location.href = '/dashboard/admin';
+      return;
+    }
+
+    // 2. Save user to localStorage:
+    try {
+      const storedUsers = JSON.parse(localStorage.getItem("mock_users") || "[]");
+      
+      // Check if user already exists
+      if (storedUsers.some((u: any) => u.email.toLowerCase().trim() === emailLower)) {
+        setMessage({ type: 'error', text: 'Email ini sudah terdaftar. Silakan gunakan email lain atau langsung Login.' });
+        return;
+      }
+
+      const newUser = {
+        fullName: formData.fullName,
+        email: formData.email,
+        password: formData.password,
+        phone: formData.phone,
+        role: formData.role,
+        university: formData.university,
+        country: formData.country,
+        academicLevel: formData.academicLevel,
+        bankAccount: formData.bankAccount,
+        orcid: formData.orcid,
+        googleScholar: formData.googleScholar,
+        scopus: formData.scopus,
+        wos: formData.wos,
+        sinta: formData.sinta
+      };
+
+      storedUsers.push(newUser);
+      localStorage.setItem("mock_users", JSON.stringify(storedUsers));
+
+      // Auto login:
+      let mockRole = "submitter";
+      let redirectPath = "/dashboard";
+      
+      if (formData.role === "editor") {
+        mockRole = "editor";
+        redirectPath = "/dashboard/editor";
+      } else if (formData.role === "reviewer") {
+        mockRole = "reviewer";
+        redirectPath = "/dashboard/reviews/pending";
+      } else if (formData.role === "admin") {
+        mockRole = "admin";
+        redirectPath = "/dashboard/admin";
+      }
+
+      document.cookie = `mock_user=${mockRole}; path=/`;
+      document.cookie = `mock_user_name=${formData.fullName}; path=/`;
+
+      setMessage({ type: 'success', text: 'Registrasi berhasil! Menghubungkan ke portal...' });
+      
+      setTimeout(() => {
+        window.location.href = redirectPath;
+      }, 1000);
+
+    } catch (err) {
+      console.error("Local storage registration error:", err);
+      setMessage({ type: 'error', text: 'Gagal melakukan pendaftaran lokal.' });
+    }
+  };
+
+  const handleStep2Submit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (formData.role === 'member') {
+      setStep(3);
+    } else {
+      submitForm(e);
+    }
   };
 
   return (
-    <div className="w-full max-w-2xl mx-auto mt-12 bg-[#12121f] rounded-2xl shadow-[0_8px_32px_rgba(0,0,0,0.5)] border border-[rgba(201,168,76,0.2)] overflow-hidden">
+    <div className="w-full max-w-lg mx-auto mt-12 bg-[#12121f] rounded-2xl shadow-[0_8px_32px_rgba(0,0,0,0.5)] border border-[rgba(201,168,76,0.2)] overflow-hidden">
       <div className="bg-[#18182e] p-6 border-b border-[rgba(201,168,76,0.2)] text-center">
         <h2 className="text-2xl font-bold text-[#c9a84c] font-['Cinzel']">{title}</h2>
-        <p className="text-[#8888aa] text-sm mt-2">
-          Step {step} of 2: {step === 1 ? "Basic Information" : "Academic Profile"}
+          <p className="text-[#8888aa] text-sm mt-2">
+          Step {step} of {formData.role === 'member' ? '3' : '2'}: 
+          {step === 1 ? " Basic Information" : step === 2 ? " Academic Profile" : " Membership Plan"}
         </p>
       </div>
 
       <div className="p-8">
-        <form onSubmit={step === 1 ? nextStep : submitForm}>
+        {message && (
+          <div className={`p-4 mb-6 rounded-lg font-bold text-sm ${message.type === 'error' ? 'bg-red-500/10 text-red-500 border border-red-500/20' : 'bg-green-500/10 text-green-500 border border-green-500/20'}`}>
+            {message.text}
+          </div>
+        )}
+        <form onSubmit={step === 1 ? nextStep : step === 2 ? handleStep2Submit : submitForm}>
           {step === 1 && (
             <div className="space-y-4">
-              {availableRoles.length > 1 && (
+              
+              {/* Apasific Royalty Message (Hidden for dedicated Members) */}
+              {formData.role !== 'member' && (
+                <div className="bg-[#c9a84c]/10 border-l-4 border-[#c9a84c] p-4 mb-6 rounded-r-lg">
+                  <p className="text-sm text-[#e8c97a] font-semibold flex items-start gap-2">
+                    <svg className="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span>
+                      Karya tulis Anda sangat dihargai di APASIFIC! Setiap pembaca yang mengunduh jurnal Anda wajib membayar, dan royalti tersebut akan ditransfer langsung ke rekening Anda. Pastikan Anda mengisi Nomor Rekening di tahap selanjutnya.
+                    </span>
+                  </p>
+                </div>
+              )}
+
+              {availableRoles.length > 1 && !forcedRole && (
                 <div>
                   <label className="block text-[#e8e8f0] text-sm font-semibold mb-2">Select Role</label>
                   <select name="role" value={formData.role} onChange={handleChange} className="w-full bg-[#0d0d1a] border border-[#333] text-[#e8e8f0] rounded-lg p-3 focus:outline-none focus:border-[#c9a84c] transition-colors" required>
@@ -106,6 +252,23 @@ export default function RegisterWizard({ availableRoles, defaultRole, title }: R
                   <label className="block text-[#e8e8f0] text-sm font-semibold mb-2">Country</label>
                   <input type="text" name="country" value={formData.country} onChange={handleChange} className="w-full bg-[#0d0d1a] border border-[#333] text-[#e8e8f0] rounded-lg p-3 focus:outline-none focus:border-[#c9a84c]" required />
                 </div>
+                <div className="md:col-span-2">
+                  <label className="block text-[#e8e8f0] text-sm font-semibold mb-2">Status Akademik Saat Ini (Current Academic Status)</label>
+                  <p className="text-xs text-[#8888aa] mb-2 italic">Data ini wajib diisi untuk menentukan klasifikasi publikasi artikel Anda.</p>
+                  <select name="academicLevel" value={formData.academicLevel} onChange={handleChange} className="w-full bg-[#0d0d1a] border border-[#333] text-[#e8e8f0] rounded-lg p-3 focus:outline-none focus:border-[#c9a84c]" required>
+                    <option value="Mahasiswa">Mahasiswa (Belum Lulus S1)</option>
+                    <option value="S1">S1 (Sarjana / Menulis untuk S2)</option>
+                    <option value="S2">S2 (Magister / Menulis untuk S3)</option>
+                    <option value="S3">S3 (Doktor / Profesor)</option>
+                    <option value="Praktisi">Praktisi (Profesional / Industri)</option>
+                    <option value="Institusi">Perwakilan Institusi (Universitas / Lembaga)</option>
+                  </select>
+                </div>
+                <div className="md:col-span-2">
+                  <label className="block text-[#e8e8f0] text-sm font-semibold mb-2">Nomor Rekening & Nama Bank (Bank Account for Royalties)</label>
+                  <p className="text-xs text-[#8888aa] mb-2 italic">Digunakan untuk mentransfer royalti setiap kali artikel Anda diunduh oleh pembaca.</p>
+                  <input type="text" name="bankAccount" value={formData.bankAccount} onChange={handleChange} placeholder="Contoh: BCA 1234567890 a/n Budi Santoso" className="w-full bg-[#0d0d1a] border border-green-500/50 text-[#e8e8f0] rounded-lg p-3 focus:outline-none focus:border-green-400 placeholder-gray-700" required />
+                </div>
               </div>
 
               <div className="pt-4 border-t border-[#333]">
@@ -136,13 +299,85 @@ export default function RegisterWizard({ availableRoles, defaultRole, title }: R
               </div>
 
               <div className="pt-6 flex gap-4">
-                <button type="button" onClick={() => setStep(1)} className="w-1/3 bg-transparent border border-[#333] text-[#8888aa] font-bold py-3 rounded-lg hover:text-white transition-colors">
+                <button type="button" onClick={() => setStep(1)} className="w-1/3 bg-transparent border border-[#333] text-[#8888aa] font-bold py-3 rounded-lg hover:text-white transition-colors" disabled={isPending}>
                   Back
                 </button>
-                <button type="submit" className="w-2/3 bg-[#c9a84c] text-black font-bold py-3 rounded-lg hover:bg-[#e8c97a] transition-colors">
-                  Complete Registration ✔
+                <button type="submit" className="w-2/3 bg-[#c9a84c] text-black font-bold py-3 rounded-lg hover:bg-[#e8c97a] transition-colors disabled:opacity-50 disabled:cursor-not-allowed" disabled={isPending}>
+                  {formData.role === 'member' ? "Next Step: Membership Plan ➔" : (isPending ? "Processing..." : "Complete Registration ✔")}
                 </button>
               </div>
+            </div>
+          )}
+
+          {step === 3 && formData.role === 'member' && (
+            <div className="space-y-6">
+              {formData.academicLevel === 'Institusi' ? (
+                <div className="bg-yellow-900/20 border border-yellow-500/30 rounded-xl p-6 text-center">
+                  <svg className="w-12 h-12 text-yellow-500 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                  </svg>
+                  <h3 className="text-xl font-bold text-yellow-400 mb-2">Institutional MoU Required</h3>
+                  <p className="text-gray-300 text-sm mb-6">
+                    Institutions cannot register standard memberships because you have the capability to assign multiple reviewers. 
+                    Please contact our Admin to establish a formal Memorandum of Understanding (MoU).
+                  </p>
+                  <div className="flex justify-center gap-4">
+                    <button type="button" onClick={() => setStep(2)} className="bg-transparent border border-[#333] text-[#8888aa] font-bold py-2 px-6 rounded-lg hover:text-white transition-colors">
+                      Back
+                    </button>
+                    <a href="mailto:admin@apasific.org" className="bg-yellow-600 text-black font-bold py-2 px-6 rounded-lg hover:bg-yellow-500 transition-colors inline-block">
+                      Contact Admin
+                    </a>
+                  </div>
+                </div>
+              ) : formData.academicLevel === 'Mahasiswa' ? (
+                <div className="bg-green-900/20 border border-green-500/30 rounded-xl p-6 text-center">
+                  <svg className="w-12 h-12 text-green-400 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <h3 className="text-xl font-bold text-green-400 mb-2">Student Membership is FREE!</h3>
+                  <p className="text-gray-300 text-sm mb-6">
+                    As part of APASIFIC's commitment to academic regeneration, your membership is completely free of charge.
+                  </p>
+                  <div className="flex gap-4">
+                    <button type="button" onClick={() => setStep(2)} className="w-1/3 bg-transparent border border-[#333] text-[#8888aa] font-bold py-3 rounded-lg hover:text-white transition-colors" disabled={isPending}>
+                      Back
+                    </button>
+                    <button type="submit" className="w-2/3 bg-green-600 text-white font-bold py-3 rounded-lg hover:bg-green-500 transition-colors disabled:opacity-50" disabled={isPending}>
+                      {isPending ? "Processing..." : "Complete Registration ✔"}
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="bg-[#0d0d1a] border border-[#c9a84c]/30 rounded-xl p-6">
+                  <h3 className="text-xl font-bold text-[#c9a84c] mb-2 text-center">Membership Payment</h3>
+                  <p className="text-gray-400 text-sm text-center mb-6">
+                    Join APASIFIC to become an exclusive, highly-paid Reviewer. Your expertise is rewarded here.
+                  </p>
+                  
+                  <div className="bg-[#1a1a2e] rounded-lg p-4 mb-6 border border-gray-700">
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="text-gray-300">Tier:</span>
+                      <span className="font-bold text-white">{formData.academicLevel}</span>
+                    </div>
+                    <div className="flex justify-between items-center text-lg">
+                      <span className="text-gray-300">Annual Fee:</span>
+                      <span className="font-bold text-[#c9a84c]">
+                        Rp {(formData.academicLevel === 'S3' ? 500000 : 250000).toLocaleString('id-ID')} / year
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="flex gap-4">
+                    <button type="button" onClick={() => setStep(2)} className="w-1/3 bg-transparent border border-[#333] text-[#8888aa] font-bold py-3 rounded-lg hover:text-white transition-colors" disabled={isPending}>
+                      Back
+                    </button>
+                    <button type="submit" className="w-2/3 bg-[#c9a84c] text-black font-bold py-3 rounded-lg hover:bg-[#e8c97a] transition-colors disabled:opacity-50" disabled={isPending}>
+                      {isPending ? "Processing..." : "Pay & Register ✔"}
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           )}
         </form>
