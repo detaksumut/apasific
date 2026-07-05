@@ -19,34 +19,31 @@ export default function LeadershipManagementPage() {
   // Load saved data when selectedBody changes
   useEffect(() => {
     if (!selectedBody) return;
-    const key = `leadership_${selectedBody}`;
-    const savedData = localStorage.getItem(key);
-    if (savedData) {
-      try {
-        const parsed = JSON.parse(savedData);
+    
+    // Fetch from Supabase API
+    fetch(`/api/leadership?body=${encodeURIComponent(selectedBody)}`)
+      .then(res => res.json())
+      .then(data => {
+        if (data.error) {
+          console.error("Error fetching leadership data:", data.error);
+          return;
+        }
         setForm({
-          ketuaNama: parsed.ketuaNama || "",
-          ketuaJabatan: parsed.ketuaJabatan || "",
-          ketuaNegara: parsed.ketuaNegara || "",
-          ketuaId: parsed.ketuaId || "",
-          sekNama: parsed.sekNama || "",
-          sekJabatan: parsed.sekJabatan || "",
-          sekNegara: parsed.sekNegara || "",
-          sekId: parsed.sekId || "",
+          ketuaNama: data.ketuaNama || "",
+          ketuaJabatan: data.ketuaJabatan || "",
+          ketuaNegara: data.ketuaNegara || "",
+          ketuaId: data.ketuaId || "",
+          sekNama: data.sekNama || "",
+          sekJabatan: data.sekJabatan || "",
+          sekNegara: data.sekNegara || "",
+          sekId: data.sekId || "",
         });
-        setKetuaPhoto(parsed.ketuaPhoto || null);
-        setSekretarisPhoto(parsed.sekretarisPhoto || null);
-      } catch (err) {
-        console.error("Error parsing leadership data", err);
-      }
-    } else {
-      setForm({
-        ketuaNama: "", ketuaJabatan: "", ketuaNegara: "", ketuaId: "",
-        sekNama: "", sekJabatan: "", sekNegara: "", sekId: "",
+        setKetuaPhoto(data.ketuaPhoto || null);
+        setSekretarisPhoto(data.sekretarisPhoto || null);
+      })
+      .catch(err => {
+        console.error("Failed to load leadership data", err);
       });
-      setKetuaPhoto(null);
-      setSekretarisPhoto(null);
-    }
   }, [selectedBody]);
 
   const bodies = [
@@ -75,14 +72,37 @@ export default function LeadershipManagementPage() {
     reader.readAsDataURL(file);
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!selectedBody) { alert("Pilih badan terlebih dahulu."); return; }
-    // Save to localStorage as mock persistence
-    const key = `leadership_${selectedBody}`;
-    const data = { ...form, ketuaPhoto, sekretarisPhoto, savedAt: new Date().toISOString() };
-    localStorage.setItem(key, JSON.stringify(data));
-    setSaved(true);
-    setTimeout(() => setSaved(false), 3000);
+    
+    try {
+      const response = await fetch("/api/leadership", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          bodyName: selectedBody,
+          ...form,
+          ketuaPhoto,
+          sekretarisPhoto,
+        }),
+      });
+
+      const resData = await response.json();
+      if (!response.ok || resData.error) {
+        throw new Error(resData.error || "Gagal menyimpan data");
+      }
+
+      // Also update localStorage as a local fallback
+      const key = `leadership_${selectedBody}`;
+      localStorage.setItem(key, JSON.stringify({ ...form, ketuaPhoto, sekretarisPhoto }));
+
+      setSaved(true);
+      setTimeout(() => setSaved(false), 3000);
+    } catch (err: any) {
+      alert(`Gagal menyimpan data: ${err.message}`);
+    }
   };
 
   const field = (key: keyof typeof form, label: string, placeholder: string) => (

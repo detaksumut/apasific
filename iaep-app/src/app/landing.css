@@ -1998,3 +1998,270 @@ img { max-width: 100%; display: block; }
   .verify-box { flex-direction: column; }
 }
 
+/* Journal Indexing Status Section */
+.index-section {
+  background: var(--bg-alt);
+  padding: 80px 0;
+  border-bottom: 1px solid var(--border);
+  position: relative;
+}
+
+.index-launch-banner {
+  display: flex;
+  align-items: center;
+  background: linear-gradient(135deg, rgba(201, 168, 76, 0.05) 0%, rgba(20, 24, 35, 0.6) 100%);
+  border: 1px solid rgba(201, 168, 76, 0.2);
+  border-radius: var(--radius);
+  padding: 24px 30px;
+  margin-bottom: 40px;
+  gap: 24px;
+}
+.launch-year-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: var(--gold-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  padding: 0 10px;
+}
+.launch-year {
+  font-family: 'Cinzel', serif;
+  font-size: 36px;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--gold);
+}
+.launch-year-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-top: 4px;
+}
+.launch-divider {
+  width: 1px;
+  height: 60px;
+  background: var(--border);
+}
+.launch-progress-info {
+  flex: 1;
+}
+.launch-headline {
+  font-family: 'Cinzel', serif;
+  font-size: 18px;
+  color: var(--text);
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+.launch-sub {
+  font-size: 13px;
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+.launch-badge-wrap {
+  display: flex;
+  align-items: center;
+}
+
+/* Database Grid */
+.db-status-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  margin-bottom: 50px;
+}
+.db-status-card {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  transition: all var(--transition);
+}
+.db-status-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(201, 168, 76, 0.3);
+  box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+}
+.db-icon-wrap {
+  width: 46px;
+  height: 46px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 16px;
+}
+.db-info {
+  flex: 1;
+  margin-bottom: 20px;
+}
+.db-name {
+  font-family: 'Cinzel', serif;
+  font-size: 16px;
+  color: var(--text);
+  margin-bottom: 8px;
+}
+.db-desc {
+  font-size: 12.5px;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+/* Badges */
+.db-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 5px 12px;
+  border-radius: 20px;
+  align-self: flex-start;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.db-badge.submitted {
+  background: rgba(201, 168, 76, 0.1);
+  color: var(--gold);
+  border: 1px solid rgba(201, 168, 76, 0.2);
+}
+.db-badge.in-review {
+  background: rgba(52, 168, 83, 0.1);
+  color: #34a853;
+  border: 1px solid rgba(52, 168, 83, 0.2);
+}
+.db-badge.planned {
+  background: rgba(0, 188, 212, 0.1);
+  color: #00bcd4;
+  border: 1px solid rgba(0, 188, 212, 0.2);
+}
+.db-badge.roadmap {
+  background: rgba(158, 158, 158, 0.1);
+  color: #9e9e9e;
+  border: 1px solid rgba(158, 158, 158, 0.2);
+}
+.db-badge.in-progress {
+  background: rgba(245, 158, 11, 0.1);
+  color: #f59e0b;
+  border: 1px solid rgba(245, 158, 11, 0.2);
+}
+.db-badge.small {
+  padding: 2px 8px;
+  font-size: 10px;
+}
+
+/* Colors for svg wraps */
+.gs-color { background: rgba(66, 133, 244, 0.08); }
+.doi-color { background: rgba(201, 168, 76, 0.08); }
+.issn-color { background: rgba(52, 168, 83, 0.08); }
+.openaire-color { background: rgba(0, 188, 212, 0.08); }
+.doaj-color { background: rgba(233, 30, 99, 0.08); }
+.scopus-color { background: rgba(255, 111, 0, 0.08); }
+
+/* Journal Launch Section */
+.journal-launch-wrap {
+  background: rgba(255, 255, 255, 0.01);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 30px;
+}
+.journal-launch-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 24px;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 12px;
+}
+.journal-launch-header h3 {
+  font-family: 'Cinzel', serif;
+  font-size: 16px;
+  color: var(--gold);
+  font-weight: 600;
+}
+.journal-launch-table-wrap {
+  overflow-x: auto;
+}
+.journal-launch-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 13.5px;
+}
+.journal-launch-table th {
+  border-bottom: 2px solid var(--border);
+  padding: 12px 16px;
+  font-family: 'Cinzel', serif;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-muted);
+}
+.journal-launch-table td {
+  padding: 16px;
+  border-bottom: 1px solid var(--border);
+  color: var(--text);
+}
+.jl-abbr {
+  font-family: monospace;
+  background: rgba(255,255,255,0.05);
+  color: var(--gold);
+  padding: 2px 6px;
+  border-radius: 4px;
+  margin-right: 10px;
+  font-weight: bold;
+}
+.jl-year {
+  font-family: monospace;
+  color: var(--text-muted);
+}
+.field-tag {
+  display: inline-block;
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+.field-tag.accounting { background: rgba(156, 39, 176, 0.1); color: #e040fb; }
+.field-tag.business { background: rgba(33, 150, 243, 0.1); color: #448aff; }
+.field-tag.tech { background: rgba(76, 175, 80, 0.1); color: #69f0ae; }
+.field-tag.law { background: rgba(255, 87, 34, 0.1); color: #ff6e40; }
+.field-tag.edu { background: rgba(0, 150, 136, 0.1); color: #1de9b6; }
+.field-tag.econ { background: rgba(255, 193, 7, 0.1); color: #ffd740; }
+.field-tag.social { background: rgba(233, 30, 99, 0.1); color: #ff4081; }
+
+.journal-launch-note {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 20px;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+@media (max-width: 992px) {
+  .db-status-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .index-launch-banner {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+  .launch-divider {
+    width: 100%;
+    height: 1px;
+  }
+}
+@media (max-width: 576px) {
+  .db-status-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+

@@ -430,7 +430,7 @@ function verifyCertificate() {
 }
 
 /* ── Dynamic Leadership Section for Subpages ── */
-function initDynamicLeadership() {
+async function initDynamicLeadership() {
   const pageToBodyMap = {
     'asiacert.html': 'ASIACERT',
     'boc.html': 'ASIA Board of Certification (BOC)',
@@ -452,11 +452,25 @@ function initDynamicLeadership() {
 
   if (!bodyName) return;
 
-  const savedData = localStorage.getItem(`leadership_${bodyName}`);
-  if (!savedData) return;
-
   try {
-    const data = JSON.parse(savedData);
+    // Attempt to load from API (database)
+    const response = await fetch(`/api/leadership?body=${encodeURIComponent(bodyName)}`);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    const data = await response.json();
+    
+    // Check if we have at least Ketua or Sekretaris data
+    if (!data.ketuaNama && !data.sekNama) {
+      // Fallback: check localStorage
+      const savedLocal = localStorage.getItem(`leadership_${bodyName}`);
+      if (savedLocal) {
+        Object.assign(data, JSON.parse(savedLocal));
+      } else {
+        return; // No data found
+      }
+    }
+
     const logo = document.querySelector('.page-hero-logo, .boc-hero-logo img');
     if (!logo) return;
 
@@ -475,7 +489,7 @@ function initDynamicLeadership() {
       const photoUrl = data.ketuaPhoto || 'logo-apasific.png';
       ketuaCard.innerHTML = `
         <img src="${photoUrl}" style="width: 150px; height: 200px; border-radius: 6px; object-fit: cover; border: 2px solid #c9a84c; margin-bottom: 12px; filter: drop-shadow(0 4px 8px rgba(201,168,76,0.35));" />
-        <div style="font-weight: 700; color: #fff; font-size: 13px; margin-bottom: 4px; font-family: \'Cinzel\', serif; line-height: 1.3;">${data.ketuaNama}</div>
+        <div style="font-weight: 700; color: #fff; font-size: 13px; margin-bottom: 4px; font-family: 'Cinzel', serif; line-height: 1.3;">${data.ketuaNama}</div>
         <div style="color: #c9a84c; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">${data.ketuaJabatan || 'Ketua'}</div>
         <div style="color: rgba(255,255,255,0.4); font-size: 10px;">${data.ketuaNegara || ''}</div>
         <div style="color: rgba(255,255,255,0.2); font-size: 8px; margin-top: 2px;">${data.ketuaId || ''}</div>
@@ -491,10 +505,10 @@ function initDynamicLeadership() {
       const sekCard = document.createElement('div');
       sekCard.className = 'hero-leader-card sekretaris';
       
-      const photoUrl = data.sekretarisPhoto || 'logo-apasific.png';
+      const photoUrl = data.sekretarisPhoto || data.sekPhoto || 'logo-apasific.png';
       sekCard.innerHTML = `
         <img src="${photoUrl}" style="width: 150px; height: 200px; border-radius: 6px; object-fit: cover; border: 2px solid rgba(255,255,255,0.4); margin-bottom: 12px; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.45));" />
-        <div style="font-weight: 700; color: #fff; font-size: 13px; margin-bottom: 4px; font-family: \'Cinzel\', serif; line-height: 1.3;">${data.sekNama}</div>
+        <div style="font-weight: 700; color: #fff; font-size: 13px; margin-bottom: 4px; font-family: 'Cinzel', serif; line-height: 1.3;">${data.sekNama}</div>
         <div style="color: rgba(255,255,255,0.5); font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">${data.sekJabatan || 'Sekretaris'}</div>
         <div style="color: rgba(255,255,255,0.4); font-size: 10px;">${data.sekNegara || ''}</div>
         <div style="color: rgba(255,255,255,0.2); font-size: 8px; margin-top: 2px;">${data.sekId || ''}</div>
