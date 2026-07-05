@@ -184,7 +184,7 @@ export default async function DashboardHome() {
         </div>
       </div>
 
-      <style jsx>{`
+      <style dangerouslySetInnerHTML={{ __html: `
         .ent-dashboard {
           display: flex;
           flex-direction: column;
@@ -573,8 +573,7 @@ export default async function DashboardHome() {
         .ent-activity-time {
           font-size: 11px;
           color: rgba(255,255,255,0.22);
-        }
-      `}</style>
+      ` }} />
     </div>
   );
 }
