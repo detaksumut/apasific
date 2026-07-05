@@ -19,6 +19,7 @@ export async function GET(request: NextRequest) {
       name: c.name,
       email: c.email,
       phone: c.phone || "",
+      academicField: c.academic_field || "",
       cert: c.cert,
       method: c.method,
       schedule: new Date(c.schedule).toLocaleString("en-GB", { day: "numeric", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit" }),
@@ -36,7 +37,7 @@ export async function POST(request: NextRequest) {
   try {
     const supabase = await createClient();
     const payload = await request.json();
-    const { id, name, email, phone, cert, method, schedule, status, zoomLink } = payload;
+    const { id, name, email, phone, academicField, cert, method, schedule, status, zoomLink } = payload;
 
     if (!name || !email || !cert) {
       return NextResponse.json({ error: "Missing required candidate info" }, { status: 400 });
@@ -46,6 +47,7 @@ export async function POST(request: NextRequest) {
       name,
       email,
       phone: phone || null,
+      academic_field: academicField || null,
       cert,
       method,
       schedule: new Date(schedule).toISOString(),

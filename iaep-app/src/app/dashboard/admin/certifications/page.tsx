@@ -16,6 +16,7 @@ interface Candidate {
   name: string;
   email?: string;
   phone?: string;
+  academicField?: string;
   cert: string;
   method: string;
   schedule: string;
@@ -335,6 +336,9 @@ export default function CertificationsAdmin() {
                       </td>
                       <td>
                         <div className="cand-cert">{c.cert}</div>
+                        {c.academicField && (
+                          <div style={{ fontSize: "11px", color: "#c9a84c", marginTop: "3px", fontStyle: "italic" }}>📚 {c.academicField}</div>
+                        )}
                       </td>
                       <td>
                         <span className={`cand-method ${c.method.toLowerCase().includes("zoom") || c.method.toLowerCase().includes("interview") ? "zoom" : "mcq"}`}>

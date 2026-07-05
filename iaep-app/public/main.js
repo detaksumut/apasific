@@ -1972,7 +1972,8 @@ function initCertificationExamForm() {
           name,
           email,
           phone,
-          cert: `${cert} (${academicField})`,
+          academicField,
+          cert,
           method: selectedMethod,
           schedule: scheduleRaw,
           status: selectedMethod.includes("Zoom") ? "Awaiting Zoom Link" : "Token Emailed"
