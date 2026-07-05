@@ -125,16 +125,16 @@ export default function LeadershipManagementPage() {
         borderRadius: 10, cursor: "pointer",
         background: "rgba(255,255,255,0.02)",
         transition: "border-color 0.2s",
-        minHeight: 160,
+        minHeight: 200,
       }}
       onMouseEnter={e => ((e.currentTarget as HTMLElement).style.borderColor = "rgba(201,168,76,0.5)")}
       onMouseLeave={e => ((e.currentTarget as HTMLElement).style.borderColor = "rgba(255,255,255,0.12)")}
     >
       <input ref={inputRef} type="file" accept="image/*" style={{ display: "none" }} onChange={onUpload} />
       {photo ? (
-        <img src={photo} alt="preview" style={{ width: 120, height: 160, borderRadius: "6px", objectFit: "cover", border: "2px solid #c9a84c" }} />
+        <img src={photo} alt="preview" style={{ width: 150, height: 200, borderRadius: "6px", objectFit: "cover", border: "2px solid #c9a84c" }} />
       ) : (
-        <div style={{ width: 120, height: 160, borderRadius: "6px", background: "rgba(255,255,255,0.06)", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 8 }}>
+        <div style={{ width: 150, height: 200, borderRadius: "6px", background: "rgba(255,255,255,0.06)", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 8 }}>
           <svg width="26" height="26" fill="none" stroke="rgba(255,255,255,0.2)" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
           </svg>
