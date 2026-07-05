@@ -32,7 +32,7 @@ export default function RootLayout({
         <div dangerouslySetInnerHTML={{ __html: `<nav class="navbar" id="navbar">
     <div class="nav-container">
       <!-- Logo -->
-      <a href="#home" class="nav-logo">
+      <a href="/" class="nav-logo">
         <div class="logo-icon">
           <!-- Logo image: place your file at public/images/logo.png -->
           <img id="nav-logo-img"
@@ -58,21 +58,21 @@ export default function RootLayout({
 
       <!-- Nav Links -->
       <ul class="nav-links" id="nav-links">
-        <li><a href="#home" class="nav-link active" id="nav-home">HOME</a></li>
+        <li><a href="/" class="nav-link active" id="nav-home">HOME</a></li>
 
         <li class="has-dropdown">
-          <a href="#about" class="nav-link" id="nav-about">ABOUT ASIA <span class="chevron">▾</span></a>
+          <a href="/#about" class="nav-link" id="nav-about">ABOUT ASIA <span class="chevron">▾</span></a>
           <div class="dropdown">
             <a href="/vision-mission.html"><span class="dd-icon">◈</span> Vision &amp; Mission</a>
-            <a href="#leadership"><span class="dd-icon">◈</span> Leadership</a>
-            <a href="#org-structure"><span class="dd-icon">◈</span> Organizational Structure</a>
-            <a href="#regional-chapters"><span class="dd-icon">◈</span> Regional Chapters</a>
-            <a href="#strategic-partners"><span class="dd-icon">◈</span> Strategic Partners</a>
+            <a href="/#leadership"><span class="dd-icon">◈</span> Leadership</a>
+            <a href="/#org-structure"><span class="dd-icon">◈</span> Organizational Structure</a>
+            <a href="/#regional-chapters"><span class="dd-icon">◈</span> Regional Chapters</a>
+            <a href="/#strategic-partners"><span class="dd-icon">◈</span> Strategic Partners</a>
           </div>
         </li>
 
         <li class="has-dropdown">
-          <a href="#academic-divisions" class="nav-link" id="nav-divisions">ACADEMIC DIVISIONS <span class="chevron">▾</span></a>
+          <a href="/#academic-divisions" class="nav-link" id="nav-divisions">ACADEMIC DIVISIONS <span class="chevron">▾</span></a>
           <div class="dropdown dropdown-wide">
             <div class="dd-grid">
               <a href="accounting.html"><span class="dd-icon">◈</span> Accounting, Auditing &amp; Taxation</a>
@@ -94,7 +94,7 @@ export default function RootLayout({
         </li>
 
         <li class="has-dropdown">
-          <a href="#strategic-bodies" class="nav-link" id="nav-bodies">STRATEGIC BODIES <span class="chevron">▾</span></a>
+          <a href="/#strategic-bodies" class="nav-link" id="nav-bodies">STRATEGIC BODIES <span class="chevron">▾</span></a>
           <div class="dropdown dropdown-wide">
             <div class="dd-grid">
               <a href="/boc.html" target="_blank"><span class="dd-icon">◈</span> ASIA Board of Certification (BOC)</a>
@@ -114,26 +114,26 @@ export default function RootLayout({
         </li>
 
         <li class="has-dropdown">
-          <a href="#publications" class="nav-link" id="nav-publications">PUBLICATIONS <span class="chevron">▾</span></a>
+          <a href="/#publications" class="nav-link" id="nav-publications">PUBLICATIONS <span class="chevron">▾</span></a>
           <div class="dropdown">
-            <a href="#journals"><span class="dd-icon">◈</span> Academic Journals</a>
-            <a href="#proceedings"><span class="dd-icon">◈</span> Proceedings</a>
-            <a href="#books"><span class="dd-icon">◈</span> Academic Books</a>
-            <a href="#monographs"><span class="dd-icon">◈</span> Monographs</a>
-            <a href="#policy-briefs"><span class="dd-icon">◈</span> Policy Briefs</a>
+            <a href="/#journals"><span class="dd-icon">◈</span> Academic Journals</a>
+            <a href="/#proceedings"><span class="dd-icon">◈</span> Proceedings</a>
+            <a href="/#books"><span class="dd-icon">◈</span> Academic Books</a>
+            <a href="/#monographs"><span class="dd-icon">◈</span> Monographs</a>
+            <a href="/#policy-briefs"><span class="dd-icon">◈</span> Policy Briefs</a>
           </div>
         </li>
 
         <li class="has-dropdown">
-          <a href="#programs" class="nav-link" id="nav-programs">PROGRAMS <span class="chevron">▾</span></a>
+          <a href="/#programs" class="nav-link" id="nav-programs">PROGRAMS <span class="chevron">▾</span></a>
           <div class="dropdown">
-            <a href="#certification"><span class="dd-icon">◈</span> Certification</a>
-            <a href="#conferences"><span class="dd-icon">◈</span> Conferences</a>
-            <a href="#competitions"><span class="dd-icon">◈</span> Competitions</a>
-            <a href="#training"><span class="dd-icon">◈</span> Training</a>
-            <a href="#mobility"><span class="dd-icon">◈</span> Mobility</a>
-            <a href="#research-grants"><span class="dd-icon">◈</span> Research Grants</a>
-            <a href="#awards-prog"><span class="dd-icon">◈</span> Awards</a>
+            <a href="/#certification"><span class="dd-icon">◈</span> Certification</a>
+            <a href="/#conferences"><span class="dd-icon">◈</span> Conferences</a>
+            <a href="/#competitions"><span class="dd-icon">◈</span> Competitions</a>
+            <a href="/#training"><span class="dd-icon">◈</span> Training</a>
+            <a href="/#mobility"><span class="dd-icon">◈</span> Mobility</a>
+            <a href="/#research-grants"><span class="dd-icon">◈</span> Research Grants</a>
+            <a href="/#awards-prog"><span class="dd-icon">◈</span> Awards</a>
           </div>
         </li>
       </ul>

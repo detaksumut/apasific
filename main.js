@@ -16,16 +16,16 @@
      SCROLL-AWARE NAVBAR
   ═══════════════════════════════════════════════ */
   function onScroll() {
-    if (window.scrollY > 60) {
+    if (navbar && window.scrollY > 60) {
       navbar.classList.add('scrolled');
-    } else {
+    } else if (navbar) {
       navbar.classList.remove('scrolled');
     }
 
     /* Back-to-top visibility */
-    if (window.scrollY > 400) {
+    if (backToTop && window.scrollY > 400) {
       backToTop.classList.add('visible');
-    } else {
+    } else if (backToTop) {
       backToTop.classList.remove('visible');
     }
 
@@ -41,22 +41,24 @@
   /* ═══════════════════════════════════════════════
      HAMBURGER MENU
   ═══════════════════════════════════════════════ */
-  hamburger.addEventListener('click', function () {
-    navLinks.classList.toggle('open');
-    this.classList.toggle('active');
-  });
-
-  /* Close menu when link clicked (except dropdown triggers) */
-  navLinks.querySelectorAll('a').forEach(function (link) {
-    link.addEventListener('click', function () {
-      const parentLi = link.closest('li');
-      const isDropdownTrigger = parentLi && parentLi.classList.contains('has-dropdown') && link.classList.contains('nav-link');
-      if (!isDropdownTrigger) {
-        navLinks.classList.remove('open');
-        hamburger.classList.remove('active');
-      }
+  if (hamburger && navLinks) {
+    hamburger.addEventListener('click', function () {
+      navLinks.classList.toggle('open');
+      this.classList.toggle('active');
     });
-  });
+
+    /* Close menu when link clicked (except dropdown triggers) */
+    navLinks.querySelectorAll('a').forEach(function (link) {
+      link.addEventListener('click', function () {
+        const parentLi = link.closest('li');
+        const isDropdownTrigger = parentLi && parentLi.classList.contains('has-dropdown') && link.classList.contains('nav-link');
+        if (!isDropdownTrigger) {
+          navLinks.classList.remove('open');
+          hamburger.classList.remove('active');
+        }
+      });
+    });
+  }
 
   /* Mobile and Touch dropdown toggle */
   document.querySelectorAll('.has-dropdown').forEach(function (item) {
@@ -101,6 +103,7 @@
   const navItems = document.querySelectorAll('.nav-link');
 
   function highlightActiveSection() {
+    if (!sections.length) return;
     const scrollPos = window.scrollY + 140;
 
     sections.forEach(function (section) {
@@ -112,7 +115,7 @@
         navItems.forEach(function (link) {
           link.classList.remove('active');
           const href = link.getAttribute('href');
-          if (href && href === '#' + id) {
+          if (href && (href === '#' + id || href === '/#' + id)) {
             link.classList.add('active');
           }
         });
@@ -191,12 +194,27 @@
   /* ═══════════════════════════════════════════════
      SMOOTH SCROLL FOR ALL ANCHOR LINKS
   ═══════════════════════════════════════════════ */
+  /* Smooth scroll for pure #id anchors */
   document.querySelectorAll('a[href^="#"]').forEach(function (anchor) {
     anchor.addEventListener('click', function (e) {
       const href = this.getAttribute('href');
       if (href === '#') return;
 
       const target = document.querySelector(href);
+      if (target) {
+        e.preventDefault();
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    });
+  });
+
+  /* Smooth scroll for /#id anchors when already on home page */
+  document.querySelectorAll('a[href^="/#"]').forEach(function (anchor) {
+    anchor.addEventListener('click', function (e) {
+      if (window.location.pathname !== '/') return; // Let browser navigate normally if not on home
+      const href = this.getAttribute('href');
+      const id = href.replace('/#', '#');
+      const target = document.querySelector(id);
       if (target) {
         e.preventDefault();
         target.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -212,15 +230,16 @@
     const btn      = document.getElementById('btn-contact-submit');
     const success  = document.getElementById('form-success');
 
+    if (!btn) return;
     btn.textContent = 'Sending…';
     btn.disabled = true;
 
     setTimeout(function () {
-      success.classList.add('show');
+      if (success) success.classList.add('show');
       btn.textContent = '✓ Sent!';
       btn.style.background = '#4ade80';
       btn.style.color = '#0a1a0a';
-      e.target.reset();
+      if (e.target) e.target.reset();
     }, 1200);
   };
 
