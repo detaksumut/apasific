@@ -3,7 +3,7 @@ import Link from "next/link";
 
 export default async function DashboardHome() {
   let profile = {
-    fullName: "Dr. John Doe",
+    fullName: "Dr. M A Rahman",
     email: "john.doe@university.edu",
     role: "Author",
     university: "National University of Singapore",

@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 
 export default function ProfilePage() {
-  const [userName, setUserName] = useState("Dr. John Doe");
+  const [userName, setUserName] = useState("Dr. M A Rahman");
   const [userRole, setUserRole] = useState("Author");
   const [email, setEmail] = useState("author@example.com");
 

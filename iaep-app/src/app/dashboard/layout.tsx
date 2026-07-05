@@ -6,7 +6,7 @@ import { createClient } from "@/utils/supabase/server";
 
 export default async function DashboardLayout({ children }: { children: ReactNode }) {
   let userRole = "author";
-  let userName = "Dr. John Doe";
+  let userName = "Dr. M A Rahman";
 
   try {
     const cookieStore = await cookies();
