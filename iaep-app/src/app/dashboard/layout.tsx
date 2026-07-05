@@ -46,7 +46,7 @@ export default async function DashboardLayout({ children }: { children: ReactNod
   }
 
   return (
-    <div className="flex h-screen bg-[#f4f7f6]">
+    <div className="flex h-screen" style={{ background: "#08080f" }}>
       {/* Sidebar - Dark Premium Theme */}
       <Sidebar role={userRole} />
 
@@ -56,7 +56,7 @@ export default async function DashboardLayout({ children }: { children: ReactNod
         <Topbar userName={userName} role={userRole} />
 
         {/* Page Content - Light/Clean Theme for reading manuscripts */}
-        <main className="flex-1 overflow-x-hidden overflow-y-auto bg-[#f4f7f6]" style={{ padding: '24px' }}>
+        <main className="flex-1 overflow-x-hidden overflow-y-auto" style={{ background: "#0c0c14", padding: "28px 32px" }}>
           <div className="w-full max-w-6xl mx-auto">
             {children}
           </div>
