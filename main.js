@@ -416,7 +416,7 @@ const ASIA_JOURNALS_DATA = [
     title: "ASIA Journal of Accounting and Finance (AJAF)",
     issn: "2775-1287 (Online) | 2775-1279 (Print)",
     category: "accounting",
-    tags: ["Scopus", "Google Scholar", "Crossref", "ASIA Index"],
+    tags: ["ISSN", "Google Scholar", "OpenAIRE", "DOI (Crossref)", "Scopus"],
     citeScore: "3.8",
     hIndex: "18",
     logoText: "AJAF",
@@ -426,7 +426,7 @@ const ASIA_JOURNALS_DATA = [
     title: "Asia Pacific Journal of Business Administration (APJBA)",
     issn: "1757-4323 (Online) | 1757-4315 (Print)",
     category: "business",
-    tags: ["Scopus Q2", "Web of Science", "Google Scholar", "Crossref"],
+    tags: ["ISSN", "Google Scholar", "OpenAIRE", "DOI (Crossref)", "Scopus Q2", "Web of Science"],
     citeScore: "4.2",
     hIndex: "26",
     logoText: "APJBA",
@@ -436,7 +436,7 @@ const ASIA_JOURNALS_DATA = [
     title: "ASIA Journal of Information Technology & Engineering (AJITE)",
     issn: "2985-6458 (Online) | 2985-644X (Print)",
     category: "it",
-    tags: ["Google Scholar", "DOAJ", "Crossref", "ASIA Index"],
+    tags: ["ISSN", "Google Scholar", "OpenAIRE", "DOI (Crossref)", "DOAJ"],
     citeScore: "2.9",
     hIndex: "12",
     logoText: "AJITE",
@@ -446,7 +446,7 @@ const ASIA_JOURNALS_DATA = [
     title: "ASIA Journal of Law and Society (AJLS)",
     issn: "2052-9023 (Online) | 2052-9015 (Print)",
     category: "law",
-    tags: ["Scopus Q1", "Web of Science", "Google Scholar", "Crossref"],
+    tags: ["ISSN", "Google Scholar", "OpenAIRE", "DOI (Crossref)", "Scopus Q1", "Web of Science"],
     citeScore: "5.1",
     hIndex: "35",
     logoText: "AJLS",
@@ -456,7 +456,7 @@ const ASIA_JOURNALS_DATA = [
     title: "Asia Pacific Journal of Education & Pedagogy (APJEP)",
     issn: "2809-543X (Online) | 2809-5421 (Print)",
     category: "law",
-    tags: ["Google Scholar", "DOAJ", "Crossref", "ASIA Index"],
+    tags: ["ISSN", "Google Scholar", "OpenAIRE", "DOI (Crossref)", "DOAJ"],
     citeScore: "2.7",
     hIndex: "9",
     logoText: "APJEP",
@@ -466,7 +466,7 @@ const ASIA_JOURNALS_DATA = [
     title: "ASIA Journal of Economics and Development (AJED)",
     issn: "2656-789X (Online) | 2656-7881 (Print)",
     category: "business",
-    tags: ["Scopus Q3", "Google Scholar", "Crossref", "ASIA Index"],
+    tags: ["ISSN", "Google Scholar", "OpenAIRE", "DOI (Crossref)", "Scopus Q3"],
     citeScore: "3.1",
     hIndex: "14",
     logoText: "AJED",
@@ -476,7 +476,7 @@ const ASIA_JOURNALS_DATA = [
     title: "ASIA Journal of Social Sciences & Humanities (AJSSH)",
     issn: "2186-8492 (Online) | 2186-8484 (Print)",
     category: "law",
-    tags: ["Google Scholar", "Index Copernicus", "Crossref", "ASIA Index"],
+    tags: ["ISSN", "Google Scholar", "OpenAIRE", "DOI (Crossref)", "Index Copernicus"],
     citeScore: "2.1",
     hIndex: "8",
     logoText: "AJSSH",
@@ -523,9 +523,13 @@ function initJournalIndex() {
         
         const tagsHTML = journal.tags.map(tag => {
           let tagClass = "asia";
-          if (tag.toLowerCase().includes("scopus")) tagClass = "scopus";
-          else if (tag.toLowerCase().includes("web of science") || tag.toLowerCase().includes("wos")) tagClass = "wos";
-          else if (tag.toLowerCase().includes("google scholar") || tag.toLowerCase().includes("scholar")) tagClass = "scholar";
+          const lower = tag.toLowerCase();
+          if (lower === "issn") tagClass = "issn";
+          else if (lower.includes("openaire")) tagClass = "openaire";
+          else if (lower.includes("doi")) tagClass = "doi";
+          else if (lower.includes("scopus")) tagClass = "scopus";
+          else if (lower.includes("web of science") || lower.includes("wos")) tagClass = "wos";
+          else if (lower.includes("google scholar") || lower.includes("scholar")) tagClass = "scholar";
           return `<span class="journal-tag ${tagClass}">${tag}</span>`;
         }).join('');
 
