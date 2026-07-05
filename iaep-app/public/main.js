@@ -1714,6 +1714,78 @@ function initCertificationExamForm() {
       background: #fff;
       padding: 1.5px;
     }
+    
+    .cert-tabs {
+      display: flex;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      margin-bottom: 25px;
+    }
+    .cert-tab-btn {
+      flex: 1;
+      background: transparent;
+      border: none;
+      color: rgba(255,255,255,0.5);
+      padding: 14px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      position: relative;
+      transition: color 0.3s;
+    }
+    .cert-tab-btn.active {
+      color: #c9a84c;
+    }
+    .cert-tab-btn.active::after {
+      content: '';
+      position: absolute;
+      bottom: -1px; left: 0; right: 0;
+      height: 2px;
+      background: #c9a84c;
+    }
+    .exam-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      padding-bottom: 15px;
+      border-bottom: 1px dashed rgba(255,255,255,0.1);
+    }
+    .exam-timer {
+      font-family: monospace;
+      font-size: 20px;
+      font-weight: 700;
+      color: #ff4444;
+      background: rgba(255, 68, 68, 0.1);
+      padding: 4px 10px;
+      border-radius: 4px;
+    }
+    .exam-q-block {
+      margin-bottom: 24px;
+      background: rgba(255,255,255,0.02);
+      padding: 20px;
+      border-radius: 8px;
+      border: 1px solid rgba(255,255,255,0.05);
+    }
+    .exam-q-text {
+      font-size: 15px;
+      margin-bottom: 16px;
+      line-height: 1.5;
+    }
+    .exam-opt-label {
+      display: block;
+      margin-bottom: 10px;
+      padding: 12px;
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .exam-opt-label:hover {
+      background: rgba(255,255,255,0.05);
+    }
+    .exam-opt-label input {
+      margin-right: 10px;
+    }
   `;
   document.head.appendChild(style);
 
@@ -1728,10 +1800,16 @@ function initCertificationExamForm() {
   
   container.innerHTML = `
     <div id="certFormWrapper">
-      <h3 class="cert-title">Certification Registration</h3>
-      <p class="cert-sub">${scheme.cert}</p>
-      
-      <form class="cert-form" id="certRegForm" onsubmit="event.preventDefault();">
+      <div class="cert-tabs">
+        <button class="cert-tab-btn active" id="tabRegister">Registration</button>
+        <button class="cert-tab-btn" id="tabExam">Take Exam (MCQ)</button>
+      </div>
+
+      <div id="certRegSection">
+        <h3 class="cert-title">Certification Registration</h3>
+        <p class="cert-sub">${scheme.cert}</p>
+        
+        <form class="cert-form" id="certRegForm" onsubmit="event.preventDefault();">
         <div class="cert-group">
           <label class="cert-label">Research Scope / Academic Focus</label>
           <select class="cert-select" id="certAcademicField" required>
@@ -1806,6 +1884,39 @@ function initCertificationExamForm() {
 
         <button type="submit" class="cert-submit" id="certSubmitBtn">Submit Exam Registration</button>
       </form>
+      </div> <!-- Close certRegSection -->
+
+      <div id="certExamSection" style="display: none;">
+        <h3 class="cert-title">Online MCQ Exam</h3>
+        <p class="cert-sub">${scheme.cert}</p>
+        
+        <div id="examAuthBox">
+          <form class="cert-form" id="certExamLoginForm" onsubmit="event.preventDefault();">
+            <div class="cert-group">
+               <label class="cert-label">Candidate ID (Token)</label>
+               <input type="text" id="examToken" class="cert-input" placeholder="e.g. C-1234" required />
+            </div>
+            <div class="cert-group">
+               <label class="cert-label">Registered Email</label>
+               <input type="email" id="examEmail" class="cert-input" placeholder="e.g. email@example.com" required />
+            </div>
+            <div id="examError" class="cert-error" style="display:none; color:#ff4444; margin-bottom:15px; font-size:14px; background:rgba(255,68,68,0.1); padding:10px; border-radius:4px;"></div>
+            <button type="submit" class="cert-submit" id="startExamBtn" style="margin-top: 10px;">Access Exam</button>
+          </form>
+        </div>
+
+        <div id="examActiveBox" style="display:none;">
+           <!-- Header will be generated here -->
+           <div id="examQuestionsContainer"></div>
+           <button type="button" class="cert-submit" id="submitExamAnswersBtn" style="margin-top:20px; background:#4CAF50;">Submit Answers</button>
+        </div>
+        
+        <div id="examResultBox" style="display:none; text-align:center;">
+           <div class="success-icon" id="resultIcon">✓</div>
+           <h3 class="success-title" id="resultTitle">Exam Completed</h3>
+           <p class="success-desc" id="resultDesc">Score: <span id="resultScore"></span>%</p>
+        </div>
+      </div>
     </div>
 
     <div class="cert-success" id="certSuccessWrapper">
@@ -1947,6 +2058,194 @@ function initCertificationExamForm() {
     container.querySelector('#certRegForm').reset();
     cardMC.click();
   });
+
+  // Tab Switching Logic
+  const tabReg = container.querySelector('#tabRegister');
+  const tabExam = container.querySelector('#tabExam');
+  const secReg = container.querySelector('#certRegSection');
+  const secExam = container.querySelector('#certExamSection');
+
+  if (tabReg && tabExam) {
+    tabReg.addEventListener('click', () => {
+      tabReg.classList.add('active');
+      tabExam.classList.remove('active');
+      secReg.style.display = 'block';
+      secExam.style.display = 'none';
+    });
+
+    tabExam.addEventListener('click', () => {
+      tabExam.classList.add('active');
+      tabReg.classList.remove('active');
+      secExam.style.display = 'block';
+      secReg.style.display = 'none';
+    });
+  }
+
+  // Exam Logic States
+  let examTimer = null;
+  let examTimeRemaining = 0;
+  let currentCandidateId = null;
+  let currentEmail = null;
+  let currentQuestions = [];
+  
+  const examLoginForm = container.querySelector('#certExamLoginForm');
+  const examAuthBox = container.querySelector('#examAuthBox');
+  const examActiveBox = container.querySelector('#examActiveBox');
+  const examResultBox = container.querySelector('#examResultBox');
+  const examQuestionsContainer = container.querySelector('#examQuestionsContainer');
+  const examError = container.querySelector('#examError');
+  const startExamBtn = container.querySelector('#startExamBtn');
+  const submitExamAnswersBtn = container.querySelector('#submitExamAnswersBtn');
+
+  const updateTimerDisplay = () => {
+    const min = Math.floor(examTimeRemaining / 60);
+    const sec = examTimeRemaining % 60;
+    const disp = document.getElementById('examCountdown');
+    if (disp) {
+      disp.innerText = `${min.toString().padStart(2, '0')}:${sec.toString().padStart(2, '0')}`;
+    }
+  };
+
+  const autoSubmitExam = () => {
+    clearInterval(examTimer);
+    if (submitExamAnswersBtn) submitExamAnswersBtn.click();
+  };
+
+  if (examLoginForm) {
+    examLoginForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const token = container.querySelector('#examToken').value;
+      const email = container.querySelector('#examEmail').value;
+      
+      examError.style.display = 'none';
+      startExamBtn.innerText = "Authenticating...";
+      startExamBtn.disabled = true;
+
+      try {
+        const res = await fetch(`/api/certifications/exam?id=${encodeURIComponent(token)}&email=${encodeURIComponent(email)}`);
+        const data = await res.json();
+        
+        if (!res.ok) {
+          throw new Error(data.error || "Failed to access exam.");
+        }
+
+        if (data.completed) {
+          examAuthBox.style.display = 'none';
+          examResultBox.style.display = 'block';
+          container.querySelector('#resultScore').innerText = data.score;
+          const isPass = data.status === "PASSED";
+          container.querySelector('#resultTitle').innerText = isPass ? "Congratulations! You Passed" : "Exam Failed";
+          container.querySelector('#resultIcon').innerText = isPass ? "✓" : "✕";
+          container.querySelector('#resultIcon').style.background = isPass ? "linear-gradient(135deg, #b89739 0%, #d4b86a 100%)" : "#ff4444";
+          return;
+        }
+
+        // Start Exam Session
+        currentCandidateId = token;
+        currentEmail = email;
+        currentQuestions = data.questions;
+        examTimeRemaining = data.timeLimit * 60;
+        
+        examAuthBox.style.display = 'none';
+        examActiveBox.style.display = 'block';
+        
+        // Render Header
+        const headerHtml = `
+          <div class="exam-header">
+            <div>
+              <h4 style="margin:0; color:#c9a84c;">Official Assessment</h4>
+              <div style="font-size:12px; opacity:0.6; margin-top:4px;">Candidate: ${token}</div>
+            </div>
+            <div class="exam-timer" id="examCountdown">--:--</div>
+          </div>
+        `;
+        
+        // Render Questions
+        const qsHtml = currentQuestions.map((q, i) => `
+          <div class="exam-q-block">
+            <div class="exam-q-text"><strong>${i+1}.</strong> ${q.text}</div>
+            <label class="exam-opt-label">
+              <input type="radio" name="ans_${q.id}" value="A" required> A. ${q.options.A}
+            </label>
+            <label class="exam-opt-label">
+              <input type="radio" name="ans_${q.id}" value="B"> B. ${q.options.B}
+            </label>
+            <label class="exam-opt-label">
+              <input type="radio" name="ans_${q.id}" value="C"> C. ${q.options.C}
+            </label>
+            <label class="exam-opt-label">
+              <input type="radio" name="ans_${q.id}" value="D"> D. ${q.options.D}
+            </label>
+          </div>
+        `).join('');
+        
+        examQuestionsContainer.innerHTML = headerHtml + '<form id="examAnswersForm">' + qsHtml + '</form>';
+        updateTimerDisplay();
+        
+        // Start Timer
+        examTimer = setInterval(() => {
+          if (examTimeRemaining <= 0) {
+            autoSubmitExam();
+          } else {
+            examTimeRemaining--;
+            updateTimerDisplay();
+          }
+        }, 1000);
+
+      } catch (err) {
+        examError.innerText = err.message;
+        examError.style.display = 'block';
+      } finally {
+        startExamBtn.innerText = "Access Exam";
+        startExamBtn.disabled = false;
+      }
+    });
+  }
+
+  if (submitExamAnswersBtn) {
+    submitExamAnswersBtn.addEventListener('click', async () => {
+      clearInterval(examTimer);
+      submitExamAnswersBtn.innerText = "Submitting & Grading...";
+      submitExamAnswersBtn.disabled = true;
+
+      const ansForm = document.getElementById('examAnswersForm');
+      const formData = new FormData(ansForm);
+      const answers = {};
+      
+      currentQuestions.forEach(q => {
+        answers[q.id] = formData.get(`ans_${q.id}`) || null;
+      });
+
+      try {
+        const res = await fetch('/api/certifications/exam', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            candidateId: currentCandidateId,
+            email: currentEmail,
+            answers
+          })
+        });
+        const data = await res.json();
+        
+        if (!res.ok) throw new Error(data.error || "Submission failed");
+        
+        examActiveBox.style.display = 'none';
+        examResultBox.style.display = 'block';
+        
+        const isPass = data.status === "PASSED";
+        container.querySelector('#resultScore').innerText = data.score;
+        container.querySelector('#resultTitle').innerText = isPass ? "Congratulations! You Passed" : "Exam Failed";
+        container.querySelector('#resultIcon').innerText = isPass ? "✓" : "✕";
+        container.querySelector('#resultIcon').style.background = isPass ? "linear-gradient(135deg, #b89739 0%, #d4b86a 100%)" : "#ff4444";
+        
+      } catch (err) {
+        alert("Error submitting exam: " + err.message);
+        submitExamAnswersBtn.innerText = "Submit Answers";
+        submitExamAnswersBtn.disabled = false;
+      }
+    });
+  }
 
   // Handle Form Submission
   const form = container.querySelector('#certRegForm');

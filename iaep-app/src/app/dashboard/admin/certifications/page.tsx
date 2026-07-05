@@ -22,6 +22,8 @@ interface Candidate {
   schedule: string;
   status: string;
   zoomLink?: string;
+  assessorAccessCode?: string;
+  examScore?: number;
 }
 
 const initialQuestions: Question[] = [
@@ -110,6 +112,7 @@ export default function CertificationsAdmin() {
   const [correctAns, setCorrectAns] = useState<"A" | "B" | "C" | "D">("A");
   const [score, setScore] = useState(10);
   const [filterScheme, setFilterScheme] = useState("All");
+  const [filterCandidateScheme, setFilterCandidateScheme] = useState("All");
 
   const schemes = [
     "Certified Research & Innovation Professional (CRIP)",
@@ -252,6 +255,7 @@ export default function CertificationsAdmin() {
   };
 
   const filteredQuestions = filterScheme === "All" ? questions : questions.filter(q => q.scheme === filterScheme);
+  const filteredCandidates = filterCandidateScheme === "All" ? candidates : candidates.filter(c => c.cert.includes(filterCandidateScheme));
 
   return (
     <div className="adm-cert-wrap">
@@ -279,7 +283,18 @@ export default function CertificationsAdmin() {
       <div className="adm-panel">
         {activeTab === "candidates" && (
           <div className="adm-tab-content">
-            <h3 className="adm-sec-title">Active Candidate Registrations</h3>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
+              <h3 className="adm-sec-title" style={{ margin: 0 }}>Active Candidate Registrations</h3>
+              <select 
+                className="cert-select" 
+                style={{ width: "300px", padding: "8px", background: "#111", border: "1px solid rgba(184, 151, 57, 0.3)", color: "#fff", borderRadius: "4px" }}
+                value={filterCandidateScheme} 
+                onChange={(e) => setFilterCandidateScheme(e.target.value)}
+              >
+                <option value="All">All Certification Fields</option>
+                {schemes.map(s => <option key={s} value={s}>{s}</option>)}
+              </select>
+            </div>
             <div className="adm-table-wrap">
               <table className="adm-table">
                 <thead>
@@ -294,12 +309,17 @@ export default function CertificationsAdmin() {
                   </tr>
                 </thead>
                 <tbody>
-                  {candidates.map(c => (
+                  {filteredCandidates.map(c => (
                     <tr key={c.id} className="adm-tr">
                       <td>
                         <div className="cand-name">{c.name}</div>
                         <div className="cand-id">ID: {c.id}</div>
-                        {c.email && <div style={{ fontSize: "11px", color: "rgba(255,255,255,0.4)", marginTop: "2px" }}>{c.email}</div>}
+                        {c.assessorAccessCode && (
+                          <div style={{ display: "inline-block", background: "rgba(184, 151, 57, 0.15)", color: "#b89739", padding: "2px 6px", borderRadius: "4px", fontSize: "10px", marginTop: "4px", fontWeight: "bold" }}>
+                            Assessor Code: {c.assessorAccessCode}
+                          </div>
+                        )}
+                        {c.email && <div style={{ fontSize: "11px", color: "rgba(255,255,255,0.4)", marginTop: "4px" }}>{c.email}</div>}
                       </td>
                       <td>
                         {c.phone ? (
