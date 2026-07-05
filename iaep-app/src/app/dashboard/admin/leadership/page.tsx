@@ -1,5 +1,5 @@
 "use client";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 
 export default function LeadershipManagementPage() {
   const [selectedBody, setSelectedBody] = useState("");
@@ -15,6 +15,39 @@ export default function LeadershipManagementPage() {
     ketuaNama: "", ketuaJabatan: "", ketuaNegara: "", ketuaId: "",
     sekNama:   "", sekJabatan:   "", sekNegara:   "", sekId:   "",
   });
+
+  // Load saved data when selectedBody changes
+  useEffect(() => {
+    if (!selectedBody) return;
+    const key = `leadership_${selectedBody}`;
+    const savedData = localStorage.getItem(key);
+    if (savedData) {
+      try {
+        const parsed = JSON.parse(savedData);
+        setForm({
+          ketuaNama: parsed.ketuaNama || "",
+          ketuaJabatan: parsed.ketuaJabatan || "",
+          ketuaNegara: parsed.ketuaNegara || "",
+          ketuaId: parsed.ketuaId || "",
+          sekNama: parsed.sekNama || "",
+          sekJabatan: parsed.sekJabatan || "",
+          sekNegara: parsed.sekNegara || "",
+          sekId: parsed.sekId || "",
+        });
+        setKetuaPhoto(parsed.ketuaPhoto || null);
+        setSekretarisPhoto(parsed.sekretarisPhoto || null);
+      } catch (err) {
+        console.error("Error parsing leadership data", err);
+      }
+    } else {
+      setForm({
+        ketuaNama: "", ketuaJabatan: "", ketuaNegara: "", ketuaId: "",
+        sekNama: "", sekJabatan: "", sekNegara: "", sekId: "",
+      });
+      setKetuaPhoto(null);
+      setSekretarisPhoto(null);
+    }
+  }, [selectedBody]);
 
   const bodies = [
     "ASIACERT",
@@ -134,7 +167,7 @@ export default function LeadershipManagementPage() {
         </label>
         <select
           value={selectedBody}
-          onChange={e => { setSelectedBody(e.target.value); setSaved(false); setForm({ ketuaNama:"",ketuaJabatan:"",ketuaNegara:"",ketuaId:"",sekNama:"",sekJabatan:"",sekNegara:"",sekId:"" }); setKetuaPhoto(null); setSekretarisPhoto(null); }}
+          onChange={e => { setSelectedBody(e.target.value); setSaved(false); }}
           style={{
             width: "100%", maxWidth: 520,
             background: "#1a1a2e", border: "1.5px solid rgba(255,255,255,0.12)",
