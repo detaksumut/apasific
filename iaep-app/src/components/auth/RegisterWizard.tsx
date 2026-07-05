@@ -138,7 +138,7 @@ export default function RegisterWizard({ availableRoles, defaultRole, forcedRole
       } else if (formData.role === "reviewer") {
         mockRole = "reviewer";
         redirectPath = "/dashboard/reviews/pending";
-      } else if (formData.role === "admin") {
+      } else if ((formData.role as string) === "admin") {
         mockRole = "admin";
         redirectPath = "/dashboard/admin";
       }
