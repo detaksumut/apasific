@@ -429,3 +429,93 @@ function verifyCertificate() {
   `;
 }
 
+/* ── Dynamic Leadership Section for Subpages ── */
+function initDynamicLeadership() {
+  const pageToBodyMap = {
+    'asiacert.html': 'ASIACERT',
+    'boc.html': 'ASIA Board of Certification (BOC)',
+    'research.html': 'ASIA Research & Innovation Council (ASIA-RIC)',
+    'conference.html': 'ASIA Conference & Academic Forum (ASIA-CAF)',
+    'publication.html': 'ASIA Publication & Knowledge Center (ASIA-PKC)',
+    'mobility.html': 'ASIA Academic Mobility Center (ASIA-AMC)',
+    'competition.html': 'ASIA Competition Center (ASIA-CC)',
+    'community.html': 'ASIA Community Engagement & SDGs Center (ASIA-CES)',
+    'quality.html': 'ASIA Quality Assurance & Accreditation Board (ASIA-QAAB)',
+    'academy.html': 'ASIA Digital Academy & AI Center (ASIA-DAC)',
+    'young.html': 'ASIA Young Academician Network (ASIA-YAN)',
+    'awards.html': 'ASIA Awards & Recognition Council (ASIA-ARC)'
+  };
+
+  const path = window.location.pathname;
+  const page = path.substring(path.lastIndexOf('/') + 1) || 'index.html';
+  const bodyName = pageToBodyMap[page];
+
+  if (!bodyName) return;
+
+  const savedData = localStorage.getItem(`leadership_${bodyName}`);
+  if (!savedData) return;
+
+  try {
+    const data = JSON.parse(savedData);
+    const logo = document.querySelector('.page-hero-logo, .boc-hero-logo img');
+    if (!logo) return;
+
+    // Create wrapper row
+    const row = document.createElement('div');
+    row.className = 'hero-leaders-row';
+    row.style.cssText = 'display: flex; align-items: center; justify-content: center; gap: 40px; margin-bottom: 30px; width: 100%; flex-wrap: wrap; z-index: 5; position: relative;';
+
+    // Insert row before logo
+    logo.parentNode.insertBefore(row, logo);
+
+    // Create Ketua Card (Left)
+    if (data.ketuaNama) {
+      const ketuaCard = document.createElement('div');
+      ketuaCard.className = 'hero-leader-card';
+      ketuaCard.style.cssText = 'display: flex; flex-direction: column; align-items: center; text-align: center; background: rgba(8,8,16,0.6); border: 1.5px solid rgba(201,168,76,0.25); border-radius: 12px; padding: 15px; width: 220px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); backdrop-filter: blur(10px); transition: all 0.3s;';
+      
+      const photoUrl = data.ketuaPhoto || 'logo-apasific.png';
+      ketuaCard.innerHTML = `
+        <img src="${photoUrl}" style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 2px solid #c9a84c; margin-bottom: 10px; filter: drop-shadow(0 0 8px rgba(201,168,76,0.35));" />
+        <div style="font-weight: 700; color: #fff; font-size: 13px; margin-bottom: 4px; font-family: \'Cinzel\', serif; line-height: 1.3;">${data.ketuaNama}</div>
+        <div style="color: #c9a84c; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">${data.ketuaJabatan || 'Ketua'}</div>
+        <div style="color: rgba(255,255,255,0.4); font-size: 10px;">${data.ketuaNegara || ''}</div>
+        <div style="color: rgba(255,255,255,0.2); font-size: 8px; margin-top: 2px;">${data.ketuaId || ''}</div>
+      `;
+      row.appendChild(ketuaCard);
+    }
+
+    // Append Logo to center
+    logo.style.margin = '0';
+    row.appendChild(logo);
+
+    // Create Sekretaris Card (Right)
+    if (data.sekNama) {
+      const sekCard = document.createElement('div');
+      sekCard.className = 'hero-leader-card';
+      sekCard.style.cssText = 'display: flex; flex-direction: column; align-items: center; text-align: center; background: rgba(8,8,16,0.6); border: 1.5px solid rgba(255,255,255,0.15); border-radius: 12px; padding: 15px; width: 220px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); backdrop-filter: blur(10px); transition: all 0.3s;';
+      
+      const photoUrl = data.sekretarisPhoto || 'logo-apasific.png';
+      sekCard.innerHTML = `
+        <img src="${photoUrl}" style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 2px solid rgba(255,255,255,0.4); margin-bottom: 10px; filter: drop-shadow(0 0 8px rgba(255,255,255,0.15));" />
+        <div style="font-weight: 700; color: #fff; font-size: 13px; margin-bottom: 4px; font-family: \'Cinzel\', serif; line-height: 1.3;">${data.sekNama}</div>
+        <div style="color: rgba(255,255,255,0.5); font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">${data.sekJabatan || 'Sekretaris'}</div>
+        <div style="color: rgba(255,255,255,0.4); font-size: 10px;">${data.sekNegara || ''}</div>
+        <div style="color: rgba(255,255,255,0.2); font-size: 8px; margin-top: 2px;">${data.sekId || ''}</div>
+      `;
+      row.appendChild(sekCard);
+    }
+
+  } catch (e) {
+    console.error('Error rendering dynamic leadership', e);
+  }
+}
+
+// Trigger load
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initDynamicLeadership);
+} else {
+  initDynamicLeadership();
+}
+
+
