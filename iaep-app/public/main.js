@@ -539,8 +539,794 @@ const certSchemeMap = {
   'awards': { name: 'Awards & Recognition Council', cert: 'Certified Academic Leadership & Excellence Fellow (CALEF)', levels: ['Associate (A-CALEF)', 'Professional (P-CALEF)', 'Senior Fellow (SF-CALEF)'] }
 };
 
+function initAsiacertHubForm() {
+  // Inject CSS style block into the document head
+  const style = document.createElement('style');
+  style.innerHTML = `
+    @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Playfair+Display:ital,wght@1,500;1,600&family=Inter:wght@400;600;700&display=swap');
+    .cert-section {
+      background: rgba(255,255,255,0.025);
+      border: 1.5px solid rgba(201, 168, 76, 0.15);
+      border-radius: 20px;
+      padding: 40px;
+      max-width: 900px;
+      margin: 40px auto 80px auto;
+      font-family: 'Inter', sans-serif;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+      position: relative;
+      overflow: hidden;
+    }
+    .cert-section::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, #c9a84c, #a07828);
+    }
+    .cert-title {
+      font-family: 'Cinzel', serif;
+      font-size: 24px;
+      font-weight: 700;
+      color: #fff;
+      text-align: center;
+      margin-bottom: 8px;
+    }
+    .cert-sub {
+      color: #c9a84c;
+      font-size: 13.5px;
+      text-align: center;
+      margin-bottom: 30px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .cert-form {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    .cert-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    @media (max-width: 600px) {
+      .cert-row { grid-template-columns: 1fr; }
+    }
+    .cert-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .cert-label {
+      font-size: 10px;
+      font-weight: 700;
+      color: rgba(255,255,255,0.3);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    .cert-input, .cert-select {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 8px;
+      padding: 12px 14px;
+      font-size: 13.5px;
+      color: #fff;
+      outline: none;
+      transition: all 0.2s;
+    }
+    .cert-input:focus, .cert-select:focus {
+      border-color: rgba(201,168,76,0.5);
+      background: rgba(201,168,76,0.03);
+    }
+    .cert-select option {
+      background: #05050a;
+      color: #fff;
+    }
+    /* Exam Methods */
+    .method-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+    @media (max-width: 600px) {
+      .method-grid { grid-template-columns: 1fr; }
+    }
+    .method-card {
+      background: rgba(255,255,255,0.02);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 12px;
+      padding: 18px;
+      cursor: pointer;
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      transition: all 0.2s;
+    }
+    .method-card:hover {
+      border-color: rgba(255,255,255,0.15);
+      background: rgba(255,255,255,0.04);
+    }
+    .method-card.active {
+      border-color: rgba(201,168,76,0.4);
+      background: rgba(201,168,76,0.06);
+    }
+    .method-radio {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      border: 2px solid rgba(255,255,255,0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+    .method-card.active .method-radio {
+      border-color: #c9a84c;
+    }
+    .method-radio::after {
+      content: '';
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #c9a84c;
+      display: none;
+    }
+    .method-card.active .method-radio::after {
+      display: block;
+    }
+    .method-icon {
+      font-size: 24px;
+      flex-shrink: 0;
+    }
+    .method-name {
+      font-size: 13.5px;
+      font-weight: 700;
+      color: rgba(255,255,255,0.85);
+      margin-bottom: 4px;
+    }
+    .method-desc {
+      font-size: 12px;
+      color: rgba(255,255,255,0.4);
+      line-height: 1.4;
+    }
+    .method-info-box {
+      background: rgba(201,168,76,0.06);
+      border: 1px solid rgba(201,168,76,0.15);
+      border-radius: 10px;
+      padding: 14px 16px;
+      font-size: 12.5px;
+      color: rgba(255,255,255,0.6);
+      line-height: 1.5;
+      display: none;
+    }
+    .method-info-box.visible {
+      display: block;
+    }
+    .cert-submit {
+      background: linear-gradient(135deg, #c9a84c 0%, #a07828 100%);
+      color: #000;
+      border: none;
+      border-radius: 8px;
+      padding: 14px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 16px rgba(201,168,76,0.2);
+      transition: all 0.2s;
+      margin-top: 10px;
+    }
+    .cert-submit:hover {
+      box-shadow: 0 6px 24px rgba(201,168,76,0.35);
+      transform: translateY(-1px);
+    }
+    /* Success Page */
+    .cert-success {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      padding: 30px 10px;
+    }
+    .success-icon {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: rgba(52,211,153,0.1);
+      border: 1px solid rgba(52,211,153,0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #34d399;
+      font-size: 24px;
+      margin-bottom: 18px;
+    }
+    .success-title {
+      font-size: 20px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 8px;
+    }
+    .success-desc {
+      font-size: 13.5px;
+      color: rgba(255,255,255,0.4);
+      max-width: 460px;
+      line-height: 1.6;
+      margin-bottom: 24px;
+    }
+    .success-details {
+      background: rgba(255,255,255,0.02);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 10px;
+      width: 100%;
+      max-width: 440px;
+      padding: 16px;
+      text-align: left;
+      font-size: 12.5px;
+      margin-bottom: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .success-row {
+      display: flex;
+      justify-content: space-between;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      padding-bottom: 8px;
+    }
+    .success-row:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+    .success-label { color: rgba(255,255,255,0.3); }
+    .success-val { color: rgba(255,255,255,0.85); font-weight: 600; }
+
+    /* Certificate Previews */
+    .cert-preview-section {
+      margin-top: 40px;
+      border-top: 1px solid rgba(201, 168, 76, 0.15);
+      padding-top: 30px;
+      width: 100%;
+    }
+    .cert-preview-heading {
+      font-family: 'Cinzel', serif;
+      font-size: 18px;
+      color: #c9a84c;
+      text-align: center;
+      margin-bottom: 8px;
+      letter-spacing: 1px;
+    }
+    .cert-preview-subheading {
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.5);
+      text-align: center;
+      margin-bottom: 25px;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+      line-height: 1.5;
+    }
+    .cert-preview-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+    @media (max-width: 768px) {
+      .cert-preview-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+    .certificate-card {
+      background: linear-gradient(135deg, #fdfbf7 0%, #f5ebd2 100%);
+      border: 3px double #b89739;
+      border-radius: 8px;
+      padding: 15px;
+      position: relative;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+      font-family: 'Inter', sans-serif;
+      color: #1a1a1a;
+      text-align: center;
+      box-sizing: border-box;
+      overflow: hidden;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .certificate-card::after {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-image: url('/logo-apasific.png');
+      background-repeat: no-repeat;
+      background-position: center;
+      background-size: 55%;
+      opacity: 0.05;
+      pointer-events: none;
+      z-index: 1;
+    }
+    .certificate-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 15px 30px rgba(184, 151, 57, 0.25);
+    }
+    .certificate-inner {
+      border: 1px solid rgba(184, 151, 57, 0.3);
+      padding: 12px;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      box-sizing: border-box;
+      min-height: 270px;
+      background: rgba(255, 255, 255, 0.45);
+      position: relative;
+      z-index: 2;
+    }
+    .cert-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 7.5px;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: #555;
+      font-weight: 700;
+    }
+    .cert-card-main-title {
+      font-family: 'Cinzel', serif;
+      font-size: 13px;
+      color: #a07828;
+      letter-spacing: 1.5px;
+      font-weight: 700;
+      margin-top: 6px;
+      text-shadow: 0.5px 0.5px 0px rgba(255,255,255,0.8);
+    }
+    .cert-card-to {
+      font-size: 8.5px;
+      color: #444;
+      font-style: italic;
+      margin-top: 4px;
+    }
+    .cert-card-name {
+      font-family: 'Playfair Display', serif;
+      font-size: 15.5px;
+      color: #0f131d;
+      font-weight: 700;
+      margin: 4px 0;
+      border-bottom: 1px dashed rgba(184, 151, 57, 0.3);
+      display: inline-block;
+      padding-bottom: 2px;
+    }
+    .cert-card-text {
+      font-size: 8px;
+      color: #555;
+      line-height: 1.35;
+      max-width: 92%;
+      margin: 0 auto;
+    }
+    .cert-card-award {
+      font-size: 11.5px;
+      color: #a07828;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      margin-top: 4px;
+    }
+    .cert-card-scheme {
+      font-size: 8px;
+      color: #333;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-top: 1px;
+      margin-bottom: 8px;
+    }
+    .cert-card-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      margin-top: auto;
+    }
+    .cert-sig {
+      text-align: center;
+      flex: 1;
+    }
+    .sig-line {
+      font-family: 'Playfair Display', serif;
+      font-style: italic;
+      font-size: 10px;
+      color: #0f131d;
+      border-bottom: 1px solid rgba(0,0,0,0.15);
+      padding-bottom: 1px;
+      margin-bottom: 3px;
+      font-weight: 600;
+    }
+    .sig-title {
+      font-size: 7px;
+      color: #555;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      font-weight: 700;
+    }
+    .cert-qr {
+      margin: 0 8px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .cert-qr img {
+      width: 44px;
+      height: 44px;
+      border: 1px solid rgba(184, 151, 57, 0.3);
+      border-radius: 3px;
+      background: #fff;
+      padding: 1.5px;
+    }
+  `;
+  document.head.appendChild(style);
+
+  // Compute 14 days in advance date string
+  const minDate = new Date();
+  minDate.setDate(minDate.getDate() + 14);
+  const year = minDate.getFullYear();
+  const month = String(minDate.getMonth() + 1).padStart(2, '0');
+  const day = String(minDate.getDate()).padStart(2, '0');
+  const hours = String(minDate.getHours()).padStart(2, '0');
+  const minutes = String(minDate.getMinutes()).padStart(2, '0');
+  const minDateTimeStr = `${year}-${month}-${day}T${hours}:${minutes}`;
+
+  // Create form element
+  const container = document.createElement('section');
+  container.className = 'cert-section';
+  container.setAttribute('data-aos', 'fade-up');
+  
+  container.innerHTML = `
+    <div id="certFormWrapper">
+      <h3 class="cert-title">ASIACERT Board Registration Hub</h3>
+      <p class="cert-sub">ASIACERT & BOC Central Registry</p>
+      
+      <form class="cert-form" id="certRegForm" onsubmit="event.preventDefault();">
+        <div class="cert-row">
+          <div class="cert-group">
+            <label class="cert-label">Select Certification Field</label>
+            <select class="cert-select" id="hubField" required>
+              <option value="">-- Choose Field / Strategic Body --</option>
+              ${Object.keys(certSchemeMap).map(k => `<option value="${k}">${certSchemeMap[k].name} (${certSchemeMap[k].cert.match(/\\(([^)]+)\\)/)[1]})</option>`).join('')}
+            </select>
+          </div>
+          <div class="cert-group">
+            <label class="cert-label">Select Competency Level</label>
+            <select class="cert-select" id="hubLevel" required disabled>
+              <option value="">-- Select Field First --</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="cert-row">
+          <div class="cert-group">
+            <label class="cert-label">Full Name & Title</label>
+            <input type="text" class="cert-input" id="certName" placeholder="e.g. Prof. Dr. M A Rahman" required />
+          </div>
+          <div class="cert-group">
+            <label class="cert-label">Email Address</label>
+            <input type="email" class="cert-input" id="certEmail" placeholder="e.g. marahman2169@gmail.com" required />
+          </div>
+        </div>
+
+        <div class="cert-row">
+          <div class="cert-group">
+            <label class="cert-label">Institution / University</label>
+            <input type="text" class="cert-input" id="certUniv" placeholder="e.g. Universitas Negeri Medan" required />
+          </div>
+          <div class="cert-group">
+            <label class="cert-label">Select Exam Schedule (Min 14 Days In Advance)</label>
+            <input type="datetime-local" class="cert-input" id="certSchedule" min="${minDateTimeStr}" required />
+            <span style="font-size: 10px; color: rgba(255,255,255,0.4); margin-top: 2px;">
+              * Note: Dates prior to ${new Date(minDate).toLocaleDateString('id-ID', { dateStyle: 'medium' })} are disabled.
+            </span>
+          </div>
+        </div>
+
+        <div class="cert-group">
+          <label class="cert-label">Exam Method / Metode Ujian</label>
+          <div class="method-grid">
+            <div class="method-card active" id="methodMC">
+              <div class="method-radio"></div>
+              <div class="method-icon">📝</div>
+              <div>
+                <div class="method-name">Multiple Choice Exam</div>
+                <div class="method-desc">Online exam with computerized assessment on the ASIA portal.</div>
+              </div>
+            </div>
+            <div class="method-card" id="methodZoom">
+              <div class="method-radio"></div>
+              <div class="method-icon">💻</div>
+              <div>
+                <div class="method-name">Online Interview</div>
+                <div class="method-desc">Face-to-face interactive evaluation via Zoom with expert assessors.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="method-info-box visible" id="infoMC">
+          <strong>📝 Multiple Choice Exam:</strong> An access token and link to the ASIA online exam platform will be sent to your registered email address 24 hours prior to your scheduled exam time.
+        </div>
+
+        <div class="method-info-box" id="infoZoom">
+          <strong>💻 Online Interview:</strong> Your Zoom meeting link, assessor assignment, and interview preparation guide will be emailed to you after verification by the ASIA Board of Certification (BOC).
+        </div>
+
+        <button type="submit" class="cert-submit" id="certSubmitBtn">Submit Exam Registration</button>
+      </form>
+    </div>
+
+    <div class="cert-success" id="certSuccessWrapper">
+      <div class="success-icon">✓</div>
+      <h3 class="success-title">Exam Registration Successful!</h3>
+      <p class="success-desc">
+        Your registration has been received. Our certification team will verify your credentials and send details to your email address shortly.
+      </p>
+      <div class="success-details">
+        <div class="success-row">
+          <span class="success-label">Candidate</span>
+          <span class="success-val" id="resName">-</span>
+        </div>
+        <div class="success-row">
+          <span class="success-label">Certification</span>
+          <span class="success-val" id="resCert">-</span>
+        </div>
+        <div class="success-row">
+          <span class="success-label">Exam Method</span>
+          <span class="success-val" id="resMethod">-</span>
+        </div>
+        <div class="success-row">
+          <span class="success-label">Scheduled Date</span>
+          <span class="success-val" id="resSchedule">-</span>
+        </div>
+      </div>
+      <button class="cert-submit" style="background: rgba(255,255,255,0.06); color: #fff; border: 1px solid rgba(255,255,255,0.1); width: 180px;" id="certResetBtn">Register Another</button>
+    </div>
+
+    <!-- Certificate Mockups Preview -->
+    <div class="cert-preview-section">
+      <h4 class="cert-preview-heading">Sample Credentials Preview</h4>
+      <p class="cert-preview-subheading">Upon passing the assessment, candidates will receive the official digital credentials signed by board directors, verifiable via QR code.</p>
+      
+      <div class="cert-preview-grid">
+        <!-- Certificate 1 -->
+        <div class="certificate-card">
+          <div class="certificate-inner">
+            <div class="cert-card-header">
+              <span class="cert-org">ASIACERT & BOC Board Certification</span>
+              <span class="cert-id" id="previewId1">ID: AC-SELECT-0842</span>
+            </div>
+            <div class="cert-card-main-title">BOARD CERTIFICATE</div>
+            <div class="cert-card-to">This is to certify that</div>
+            <div class="cert-card-name" id="previewName1">Prof. Ahmad Fauzi, Ph.D.</div>
+            <div class="cert-card-text">has successfully completed the prescribed course of study and examination, meeting all board standards, and is hereby awarded the designation of</div>
+            <div class="cert-card-award" id="previewLevel1">Associate Level</div>
+            <div class="cert-card-scheme" id="previewScheme1">Select Strategic Field</div>
+            
+            <div class="cert-card-footer">
+              <div class="cert-sig">
+                <div class="sig-line">Dr. Arfan Ikhsan</div>
+                <div class="sig-title">President ASIACERT</div>
+              </div>
+              <div class="cert-qr">
+                <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://apasific.org" alt="QR Code" />
+              </div>
+              <div class="cert-sig">
+                <div class="sig-line">Dr. Sazili Zainal Abidin</div>
+                <div class="sig-title">Chairman BOC</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Certificate 2 -->
+        <div class="certificate-card">
+          <div class="certificate-inner">
+            <div class="cert-card-header">
+              <span class="cert-org">ASIACERT & BOC Board Certification</span>
+              <span class="cert-id" id="previewId2">ID: AC-SELECT-0843</span>
+            </div>
+            <div class="cert-card-main-title">BOARD CERTIFICATE</div>
+            <div class="cert-card-to">This is to certify that</div>
+            <div class="cert-card-name" id="previewName2">Prof. Ahmad Fauzi, Ph.D.</div>
+            <div class="cert-card-text">has successfully completed the prescribed course of study and examination, meeting all board standards, and is hereby awarded the designation of</div>
+            <div class="cert-card-award" id="previewLevel2">Professional Level</div>
+            <div class="cert-card-scheme" id="previewScheme2">Select Strategic Field</div>
+            
+            <div class="cert-card-footer">
+              <div class="cert-sig">
+                <div class="sig-line">Dr. Arfan Ikhsan</div>
+                <div class="sig-title">President ASIACERT</div>
+              </div>
+              <div class="cert-qr">
+                <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://apasific.org" alt="QR Code" />
+              </div>
+              <div class="cert-sig">
+                <div class="sig-line">Dr. Sazili Zainal Abidin</div>
+                <div class="sig-title">Chairman BOC</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+
+  // Find the closing section or footer to prepend the certification form
+  const main = document.querySelector('main');
+  const footer = document.querySelector('.footer');
+  if (main) {
+    main.appendChild(container);
+  } else if (footer) {
+    footer.parentNode.insertBefore(container, footer);
+  }
+
+  // Hook up dynamic selectors
+  const fieldSelect = container.querySelector('#hubField');
+  const levelSelect = container.querySelector('#hubLevel');
+  const nameInput = container.querySelector('#certName');
+  const dateInput = container.querySelector('#certSchedule');
+
+  function updatePreviews() {
+    const nameVal = nameInput.value.trim() || "Prof. Dr. M A Rahman";
+    container.querySelector('#previewName1').innerText = nameVal;
+    container.querySelector('#previewName2').innerText = nameVal;
+
+    const fieldKey = fieldSelect.value;
+    const levelVal = levelSelect.value;
+
+    if (fieldKey && certSchemeMap[fieldKey]) {
+      const scheme = certSchemeMap[fieldKey];
+      const certNameOnly = scheme.cert.replace(/\\s*\\([^)]*\\)\\s*$/, '');
+      
+      container.querySelector('#previewScheme1').innerText = certNameOnly;
+      container.querySelector('#previewScheme2').innerText = certNameOnly;
+      container.querySelector('#previewLevel1').innerText = levelVal || scheme.levels[0];
+      container.querySelector('#previewLevel2').innerText = scheme.levels[1] || scheme.levels[0];
+      
+      container.querySelector('#previewId1').innerText = `ID: AC-\${fieldKey.toUpperCase()}-0842`;
+      container.querySelector('#previewId2').innerText = `ID: AC-\${fieldKey.toUpperCase()}-0843`;
+    } else {
+      container.querySelector('#previewScheme1').innerText = "Select Strategic Field";
+      container.querySelector('#previewScheme2').innerText = "Select Strategic Field";
+      container.querySelector('#previewLevel1').innerText = "Associate Level";
+      container.querySelector('#previewLevel2').innerText = "Professional Level";
+      container.querySelector('#previewId1').innerText = "ID: AC-SELECT-0842";
+      container.querySelector('#previewId2').innerText = "ID: AC-SELECT-0843";
+    }
+  }
+
+  fieldSelect.addEventListener('change', () => {
+    const val = fieldSelect.value;
+    levelSelect.innerHTML = '';
+    if (val && certSchemeMap[val]) {
+      const scheme = certSchemeMap[val];
+      scheme.levels.forEach(lvl => {
+        const opt = document.createElement('option');
+        opt.value = lvl;
+        opt.innerText = lvl;
+        levelSelect.appendChild(opt);
+      });
+      levelSelect.disabled = false;
+    } else {
+      const opt = document.createElement('option');
+      opt.value = '';
+      opt.innerText = '-- Select Field First --';
+      levelSelect.appendChild(opt);
+      levelSelect.disabled = true;
+    }
+    updatePreviews();
+  });
+
+  levelSelect.addEventListener('change', updatePreviews);
+  nameInput.addEventListener('input', updatePreviews);
+
+  // Hook up event listeners for Exam Method selection
+  let selectedMethod = "Multiple Choice Exam";
+  const cardMC = container.querySelector('#methodMC');
+  const cardZoom = container.querySelector('#methodZoom');
+  const infoMC = container.querySelector('#infoMC');
+  const infoZoom = container.querySelector('#infoZoom');
+
+  cardMC.addEventListener('click', () => {
+    cardMC.classList.add('active');
+    cardZoom.classList.remove('active');
+    infoMC.classList.add('visible');
+    infoZoom.classList.remove('visible');
+    selectedMethod = "Multiple Choice Exam";
+  });
+
+  cardZoom.addEventListener('click', () => {
+    cardZoom.classList.add('active');
+    cardMC.classList.remove('active');
+    infoZoom.classList.add('visible');
+    infoMC.classList.remove('visible');
+    selectedMethod = "Online Interview (Zoom)";
+  });
+
+  // Handle Reset Button
+  container.querySelector('#certResetBtn').addEventListener('click', () => {
+    container.querySelector('#certSuccessWrapper').style.display = 'none';
+    container.querySelector('#certFormWrapper').style.display = 'block';
+    container.querySelector('#certRegForm').reset();
+    levelSelect.innerHTML = '<option value="">-- Select Field First --</option>';
+    levelSelect.disabled = true;
+    cardMC.click();
+    updatePreviews();
+  });
+
+  // Handle Form Submission
+  const form = container.querySelector('#certRegForm');
+  form.addEventListener('submit', async () => {
+    const name = nameInput.value;
+    const email = container.querySelector('#certEmail').value;
+    const fieldKey = fieldSelect.value;
+    const cert = levelSelect.value;
+    const univ = container.querySelector('#certUniv').value;
+    const scheduleRaw = dateInput.value;
+
+    // Validate 14 days logic in JS just in case
+    const chosenDate = new Date(scheduleRaw);
+    const minAllowedDate = new Date();
+    minAllowedDate.setDate(minAllowedDate.getDate() + 14);
+    
+    if (chosenDate < minAllowedDate) {
+      alert("Validation Error: Exam schedule must be at least 14 days from today.");
+      return;
+    }
+
+    const scheduleFormatted = chosenDate.toLocaleString('id-ID', { dateStyle: 'long', timeStyle: 'short' });
+    const submitBtn = container.querySelector('#certSubmitBtn');
+
+    submitBtn.innerText = "Submitting...";
+    submitBtn.disabled = true;
+
+    try {
+      const response = await fetch('/api/certifications/candidates', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name,
+          email,
+          cert: `${cert} (${univ})`,
+          method: selectedMethod,
+          schedule: scheduleRaw,
+          status: selectedMethod.includes("Zoom") ? "Awaiting Zoom Link" : "Token Emailed"
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('Registration failed');
+      }
+
+      // Populate results
+      container.querySelector('#resName').innerText = name;
+      container.querySelector('#resCert').innerText = cert;
+      container.querySelector('#resMethod').innerText = selectedMethod;
+      container.querySelector('#resSchedule').innerText = scheduleFormatted;
+
+      // Switch view
+      container.querySelector('#certFormWrapper').style.display = 'none';
+      container.querySelector('#certSuccessWrapper').style.display = 'flex';
+    } catch (e) {
+      alert('Error submitting registration: ' + e.message);
+    } finally {
+      submitBtn.innerText = "Submit Exam Registration";
+      submitBtn.disabled = false;
+    }
+  });
+}
+
 function initCertificationExamForm() {
   const path = window.location.pathname.toLowerCase();
+  
+  if (path.includes('asiacert')) {
+    initAsiacertHubForm();
+    return;
+  }
+
   // Find which key in certSchemeMap is in path
   const key = Object.keys(certSchemeMap).find(p => path.includes(p));
   if (!key) return;
