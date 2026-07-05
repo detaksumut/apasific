@@ -8,6 +8,7 @@ export default function SubmissionControlPanel() {
   const [decisionModalOpen, setDecisionModalOpen] = useState(false);
   const [decision, setDecision] = useState("");
   const [emailText, setEmailText] = useState("Dear Jane Doe,\n\nWe have reached a decision regarding your submission to APASIFIC IAEP: The Impact of Artificial Intelligence on Southeast Asian Higher Education.\n\nOur decision is: ");
+  const [authorPhone, setAuthorPhone] = useState("+6281370062009");
 
   // Dummy submission data
   const submission = {
@@ -110,9 +111,20 @@ export default function SubmissionControlPanel() {
                   <div className="flex justify-between items-start mb-2">
                     <div>
                       <h4 className="font-bold text-gray-800">Prof. Alan Turing</h4>
-                      <div className="text-xs text-gray-500 mt-1">Due: July 30, 2024</div>
+                      <div className="text-xs text-gray-500 mt-1">Due: July 30, 2024 • Phone: +628111222333</div>
                     </div>
-                    <span className="px-2 py-1 bg-green-100 text-green-800 text-xs font-bold rounded">Completed</span>
+                    <div className="text-right">
+                      <span className="px-2 py-1 bg-green-100 text-green-800 text-xs font-bold rounded">Completed</span>
+                      <a 
+                        href={`https://wa.me/628111222333?text=${encodeURIComponent("Dear Prof. Alan Turing, thank you for completing the review of paper #1045 on the APASIFIC platform.")}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="block text-[#25D366] hover:text-[#20ba56] text-xs font-semibold mt-2"
+                        style={{ textDecoration: 'none' }}
+                      >
+                        💬 Contact Reviewer
+                      </a>
+                    </div>
                   </div>
                   
                   <div className="mt-4 p-3 bg-gray-50 border border-gray-200 rounded text-sm text-gray-700">
@@ -137,10 +149,21 @@ export default function SubmissionControlPanel() {
                         <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse mr-3"></div>
                         <div>
                           <div className="font-semibold text-sm text-gray-800">Dr. Sarah Connor</div>
-                          <div className="text-xs text-gray-500">Expertise: AI, Machine Learning</div>
+                          <div className="text-xs text-gray-500">Expertise: AI, Machine Learning • Phone: +628987654321</div>
                         </div>
                       </div>
-                      <button className="text-xs bg-[#c9a84c] text-black font-semibold py-1 px-3 rounded hover:bg-[#b0923d]">Assign</button>
+                      <div className="flex items-center space-x-2">
+                        <a 
+                          href={`https://wa.me/628987654321?text=${encodeURIComponent("Dear Dr. Sarah Connor, we invite you to review paper #1045 (The Impact of Artificial Intelligence on Southeast Asian Higher Education) on the APASIFIC platform.")}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-xs bg-[#25D366] text-black font-semibold py-1 px-3 rounded hover:bg-[#22c35e] text-center"
+                          style={{ textDecoration: 'none' }}
+                        >
+                          💬 Invite
+                        </a>
+                        <button className="text-xs bg-[#c9a84c] text-black font-semibold py-1 px-3 rounded hover:bg-[#b0923d]">Assign</button>
+                      </div>
                     </div>
                     
                     <div className="flex items-center justify-between bg-white border border-gray-200 p-3 rounded-lg shadow-sm">
@@ -148,10 +171,21 @@ export default function SubmissionControlPanel() {
                         <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse mr-3"></div>
                         <div>
                           <div className="font-semibold text-sm text-gray-800">Prof. John von Neumann</div>
-                          <div className="text-xs text-gray-500">Expertise: Education Technology</div>
+                          <div className="text-xs text-gray-500">Expertise: Education Technology • Phone: +628776655443</div>
                         </div>
                       </div>
-                      <button className="text-xs bg-[#c9a84c] text-black font-semibold py-1 px-3 rounded hover:bg-[#b0923d]">Assign</button>
+                      <div className="flex items-center space-x-2">
+                        <a 
+                          href={`https://wa.me/628776655443?text=${encodeURIComponent("Dear Prof. John von Neumann, we invite you to review paper #1045 (The Impact of Artificial Intelligence on Southeast Asian Higher Education) on the APASIFIC platform.")}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-xs bg-[#25D366] text-black font-semibold py-1 px-3 rounded hover:bg-[#22c35e] text-center"
+                          style={{ textDecoration: 'none' }}
+                        >
+                          💬 Invite
+                        </a>
+                        <button className="text-xs bg-[#c9a84c] text-black font-semibold py-1 px-3 rounded hover:bg-[#b0923d]">Assign</button>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -219,19 +253,38 @@ export default function SubmissionControlPanel() {
                 </label>
                 <p className="text-xs text-gray-500 mb-2">Reviewer comments will be automatically attached below this email.</p>
                 <textarea 
-                  rows={8}
+                  rows={6}
                   value={emailText}
                   onChange={e => setEmailText(e.target.value)}
-                  className="w-full border border-gray-300 rounded p-3 text-sm text-gray-900 bg-white focus:border-[#c9a84c] font-mono focus:outline-none focus:ring-1 focus:ring-[#c9a84c]"
+                  className="w-full border border-gray-300 rounded p-3 text-sm text-gray-900 bg-white focus:border-[#c9a84c] font-mono focus:outline-none focus:ring-1 focus:ring-[#c9a84c] mb-4"
                 ></textarea>
+
+                <label className="block text-sm font-semibold mb-2 text-gray-700">Author's Phone / WhatsApp (Include Country Code)</label>
+                <input 
+                  type="tel"
+                  value={authorPhone}
+                  onChange={e => setAuthorPhone(e.target.value)}
+                  placeholder="e.g. +62 813-7006-2009"
+                  className="w-full border border-gray-300 rounded p-2 text-gray-900 bg-white focus:border-[#c9a84c] focus:outline-none focus:ring-1 focus:ring-[#c9a84c] text-sm"
+                />
               </div>
             </div>
 
-            <div className="p-6 border-t border-gray-200 flex justify-end space-x-3 bg-gray-50">
+            <div className="p-6 border-t border-gray-200 flex justify-end space-x-3 bg-gray-50 items-center">
               <button onClick={() => setDecisionModalOpen(false)} className="px-6 py-2 border border-gray-300 text-gray-700 rounded font-semibold hover:bg-gray-100">Cancel</button>
-              <button disabled={!decision} onClick={() => { alert('Decision Recorded & Email Sent!'); setDecisionModalOpen(false); }} className="px-6 py-2 bg-green-600 text-white rounded font-bold disabled:opacity-50 hover:bg-green-700">
-                Record Decision & Send Email
+              <button disabled={!decision} onClick={() => { alert('Decision Recorded & Email Sent!'); setDecisionModalOpen(false); }} className="px-6 py-2 bg-blue-600 text-white rounded font-bold disabled:opacity-50 hover:bg-blue-700">
+                Record & Send Email
               </button>
+              <a 
+                href={decision ? `https://wa.me/${authorPhone.replace(/[^0-9]/g, "").replace(/^0/, "62")}?text=${encodeURIComponent(emailText)}` : '#'}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() => { if (decision) { alert('Decision Recorded & WhatsApp Window Opened!'); setDecisionModalOpen(false); } }}
+                className={`px-6 py-2 bg-[#25D366] hover:bg-[#22c35e] text-black font-bold rounded flex items-center justify-center gap-1 transition-all ${!decision ? 'opacity-50 pointer-events-none' : ''}`}
+                style={{ textDecoration: 'none' }}
+              >
+                💬 Kirim WA
+              </a>
             </div>
           </div>
         </div>

@@ -15,6 +15,7 @@ interface Candidate {
   id: string;
   name: string;
   email?: string;
+  phone?: string;
   cert: string;
   method: string;
   schedule: string;
@@ -65,10 +66,30 @@ const initialQuestions: Question[] = [
 ];
 
 const initialCandidates: Candidate[] = [
-  { id: "C-901", name: "Dr. Amanda Lee", cert: "Professional (P-CRIP)", method: "Online Interview (Zoom)", schedule: "20 July 2026, 10:00", status: "Awaiting Zoom Link" },
-  { id: "C-902", name: "Prof. Salim Wijaya", cert: "Senior Fellow (SF-CAEM)", method: "Multiple Choice Exam", schedule: "22 July 2026, 14:00", status: "Token Emailed" },
-  { id: "C-903", name: "Rina Kartika, M.Si.", cert: "Associate (A-CSPS)", method: "Online Interview (Zoom)", schedule: "25 July 2026, 09:30", status: "Awaiting Zoom Link" }
+  { id: "C-901", name: "Dr. Amanda Lee", phone: "+6281370062009", cert: "Professional (P-CRIP)", method: "Online Interview (Zoom)", schedule: "20 July 2026, 10:00", status: "Awaiting Zoom Link" },
+  { id: "C-902", name: "Prof. Salim Wijaya", phone: "+6281234567890", cert: "Senior Fellow (SF-CAEM)", method: "Multiple Choice Exam", schedule: "22 July 2026, 14:00", status: "Token Emailed" },
+  { id: "C-903", name: "Rina Kartika, M.Si.", phone: "+6289876543210", cert: "Associate (A-CSPS)", method: "Online Interview (Zoom)", schedule: "25 July 2026, 09:30", status: "Awaiting Zoom Link" }
 ];
+
+const getWhatsAppText = (c: Candidate) => {
+  const base = `Halo ${c.name}, kami dari Board of Certification ASIACERT (APASIFIC). `;
+  if (c.status === "Awaiting Zoom Link") {
+    return base + `Registrasi Anda untuk sertifikasi ${c.cert} telah kami terima. Kami akan segera mengirimkan tautan Zoom ujian wawancara Anda.`;
+  }
+  if (c.status === "Zoom Link Sent") {
+    return base + `Berikut adalah tautan Zoom Meeting untuk ujian wawancara Anda: ${c.zoomLink || ''}\nJadwal: ${c.schedule}. Harap hadir tepat waktu.`;
+  }
+  if (c.status === "Token Emailed") {
+    return base + `Token dan petunjuk untuk Ujian Pilihan Berganda (MCQ) Anda telah dikirimkan ke email Anda. Jadwal ujian: ${c.schedule}.`;
+  }
+  if (c.status === "PASSED") {
+    return base + `Selamat! Anda dinyatakan LULUS ujian sertifikasi ${c.cert}. Sertifikat digital resmi Anda akan diterbitkan segera.`;
+  }
+  if (c.status === "FAILED") {
+    return base + `Kami menginformasikan bahwa Anda belum memenuhi standar kelulusan untuk sertifikasi ${c.cert}. Anda dapat mengajukan pendaftaran ulang di gelombang berikutnya.`;
+  }
+  return base + `Menghubungi terkait pendaftaran sertifikasi ${c.cert} Anda.`;
+};
 
 export default function CertificationsAdmin() {
   const [activeTab, setActiveTab] = useState<"candidates" | "questions">("candidates");
@@ -143,6 +164,7 @@ export default function CertificationsAdmin() {
           id: cand.id,
           name: cand.name,
           email: cand.email,
+          phone: cand.phone,
           cert: cand.cert,
           method: cand.method,
           schedule: cand.schedule,
@@ -169,6 +191,7 @@ export default function CertificationsAdmin() {
           id: cand.id,
           name: cand.name,
           email: cand.email,
+          phone: cand.phone,
           cert: cand.cert,
           method: cand.method,
           schedule: cand.schedule,
@@ -261,6 +284,7 @@ export default function CertificationsAdmin() {
                 <thead>
                   <tr className="adm-thead">
                     <th>Candidate</th>
+                    <th>Phone / WhatsApp</th>
                     <th>Certification / Scheme</th>
                     <th>Method</th>
                     <th>Date / Time</th>
@@ -274,13 +298,48 @@ export default function CertificationsAdmin() {
                       <td>
                         <div className="cand-name">{c.name}</div>
                         <div className="cand-id">ID: {c.id}</div>
+                        {c.email && <div style={{ fontSize: "11px", color: "rgba(255,255,255,0.4)", marginTop: "2px" }}>{c.email}</div>}
+                      </td>
+                      <td>
+                        {c.phone ? (
+                          <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                            <span style={{ fontSize: "12px", fontFamily: "monospace", color: "rgba(255,255,255,0.8)" }}>{c.phone}</span>
+                            <a
+                              href={`https://wa.me/${c.phone.replace(/[^0-9]/g, "").replace(/^0/, "62")}?text=${encodeURIComponent(getWhatsAppText(c))}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              style={{
+                                display: "inline-flex",
+                                alignItems: "center",
+                                gap: "4px",
+                                padding: "3px 8px",
+                                background: "#25D366",
+                                color: "#000",
+                                borderRadius: "4px",
+                                fontSize: "11px",
+                                fontWeight: 700,
+                                textDecoration: "none",
+                                width: "fit-content",
+                                transition: "opacity 0.2s"
+                              }}
+                              onMouseOver={e => e.currentTarget.style.opacity = "0.85"}
+                              onMouseOut={e => e.currentTarget.style.opacity = "1"}
+                              title="Kirim Pesan WhatsApp"
+                            >
+                              💬 Kirim WA
+                            </a>
+                          </div>
+                        ) : (
+                          <span style={{ color: "rgba(255,255,255,0.2)" }}>—</span>
+                        )}
                       </td>
                       <td>
                         <div className="cand-cert">{c.cert}</div>
                       </td>
                       <td>
-                        <span className={`cand-method ${c.method.includes("Zoom") ? "zoom" : "mcq"}`}>
-                          {c.method.includes("Zoom") ? "💻 Online Interview" : "📝 Multiple Choice"}
+                        <span className={`cand-method ${c.method.toLowerCase().includes("zoom") || c.method.toLowerCase().includes("interview") ? "zoom" : "mcq"}`}>
+                          {c.method.toLowerCase().includes("zoom") || c.method.toLowerCase().includes("interview") ? "💻 Online Interview" : 
+                           c.method.toLowerCase().includes("central") ? "🏛️ Central Hub Registry" : "📝 Multiple Choice"}
                         </span>
                       </td>
                       <td>

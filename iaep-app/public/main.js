@@ -1016,42 +1016,17 @@ function initAsiacertHubForm() {
             <input type="text" class="cert-input" id="certUniv" placeholder="e.g. Universitas Negeri Medan" required />
           </div>
           <div class="cert-group">
-            <label class="cert-label">Select Exam Schedule (Min 14 Days In Advance)</label>
-            <input type="datetime-local" class="cert-input" id="certSchedule" min="${minDateTimeStr}" required />
-            <span style="font-size: 10px; color: rgba(255,255,255,0.4); margin-top: 2px;">
-              * Note: Dates prior to ${new Date(minDate).toLocaleDateString('id-ID', { dateStyle: 'medium' })} are disabled.
-            </span>
+            <label class="cert-label">Phone / WhatsApp Number (Include Country Code)</label>
+            <input type="tel" class="cert-input" id="certPhone" placeholder="e.g. +62 813-7006-2009" required />
           </div>
         </div>
 
         <div class="cert-group">
-          <label class="cert-label">Exam Method / Metode Ujian</label>
-          <div class="method-grid">
-            <div class="method-card active" id="methodMC">
-              <div class="method-radio"></div>
-              <div class="method-icon">📝</div>
-              <div>
-                <div class="method-name">Multiple Choice Exam</div>
-                <div class="method-desc">Online exam with computerized assessment on the ASIA portal.</div>
-              </div>
-            </div>
-            <div class="method-card" id="methodZoom">
-              <div class="method-radio"></div>
-              <div class="method-icon">💻</div>
-              <div>
-                <div class="method-name">Online Interview</div>
-                <div class="method-desc">Face-to-face interactive evaluation via Zoom with expert assessors.</div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="method-info-box visible" id="infoMC">
-          <strong>📝 Multiple Choice Exam:</strong> An access token and link to the ASIA online exam platform will be sent to your registered email address 24 hours prior to your scheduled exam time.
-        </div>
-
-        <div class="method-info-box" id="infoZoom">
-          <strong>💻 Online Interview:</strong> Your Zoom meeting link, assessor assignment, and interview preparation guide will be emailed to you after verification by the ASIA Board of Certification (BOC).
+          <label class="cert-label">Select Exam Schedule (Min 14 Days In Advance)</label>
+          <input type="datetime-local" class="cert-input" id="certSchedule" min="${minDateTimeStr}" required />
+          <span style="font-size: 10px; color: rgba(255,255,255,0.4); margin-top: 2px;">
+            * Note: Dates prior to ${new Date(minDate).toLocaleDateString('id-ID', { dateStyle: 'medium' })} are disabled.
+          </span>
         </div>
 
         <button type="submit" class="cert-submit" id="certSubmitBtn">Submit Exam Registration</button>
@@ -1062,7 +1037,7 @@ function initAsiacertHubForm() {
       <div class="success-icon">✓</div>
       <h3 class="success-title">Exam Registration Successful!</h3>
       <p class="success-desc">
-        Your registration has been received. Our certification team will verify your credentials and send details to your email address shortly.
+        Your registration has been received. A confirmation message has been sent to your Email and WhatsApp Number. Our certification team will verify your credentials shortly.
       </p>
       <div class="success-details">
         <div class="success-row">
@@ -1072,10 +1047,6 @@ function initAsiacertHubForm() {
         <div class="success-row">
           <span class="success-label">Certification</span>
           <span class="success-val" id="resCert">-</span>
-        </div>
-        <div class="success-row">
-          <span class="success-label">Exam Method</span>
-          <span class="success-val" id="resMethod">-</span>
         </div>
         <div class="success-row">
           <span class="success-label">Scheduled Date</span>
@@ -1223,29 +1194,6 @@ function initAsiacertHubForm() {
   levelSelect.addEventListener('change', updatePreviews);
   nameInput.addEventListener('input', updatePreviews);
 
-  // Hook up event listeners for Exam Method selection
-  let selectedMethod = "Multiple Choice Exam";
-  const cardMC = container.querySelector('#methodMC');
-  const cardZoom = container.querySelector('#methodZoom');
-  const infoMC = container.querySelector('#infoMC');
-  const infoZoom = container.querySelector('#infoZoom');
-
-  cardMC.addEventListener('click', () => {
-    cardMC.classList.add('active');
-    cardZoom.classList.remove('active');
-    infoMC.classList.add('visible');
-    infoZoom.classList.remove('visible');
-    selectedMethod = "Multiple Choice Exam";
-  });
-
-  cardZoom.addEventListener('click', () => {
-    cardZoom.classList.add('active');
-    cardMC.classList.remove('active');
-    infoZoom.classList.add('visible');
-    infoMC.classList.remove('visible');
-    selectedMethod = "Online Interview (Zoom)";
-  });
-
   // Handle Reset Button
   container.querySelector('#certResetBtn').addEventListener('click', () => {
     container.querySelector('#certSuccessWrapper').style.display = 'none';
@@ -1253,7 +1201,6 @@ function initAsiacertHubForm() {
     container.querySelector('#certRegForm').reset();
     levelSelect.innerHTML = '<option value="">-- Select Field First --</option>';
     levelSelect.disabled = true;
-    cardMC.click();
     updatePreviews();
   });
 
@@ -1262,6 +1209,7 @@ function initAsiacertHubForm() {
   form.addEventListener('submit', async () => {
     const name = nameInput.value;
     const email = container.querySelector('#certEmail').value;
+    const phone = container.querySelector('#certPhone').value;
     const fieldKey = fieldSelect.value;
     const cert = levelSelect.value;
     const univ = container.querySelector('#certUniv').value;
@@ -1290,10 +1238,11 @@ function initAsiacertHubForm() {
         body: JSON.stringify({
           name,
           email,
+          phone,
           cert: `${cert} (${univ})`,
-          method: selectedMethod,
+          method: "Central Registration",
           schedule: scheduleRaw,
-          status: selectedMethod.includes("Zoom") ? "Awaiting Zoom Link" : "Token Emailed"
+          status: "Awaiting Verification"
         })
       });
 
@@ -1304,7 +1253,6 @@ function initAsiacertHubForm() {
       // Populate results
       container.querySelector('#resName').innerText = name;
       container.querySelector('#resCert').innerText = cert;
-      container.querySelector('#resMethod').innerText = selectedMethod;
       container.querySelector('#resSchedule').innerText = scheduleFormatted;
 
       // Switch view
@@ -1794,9 +1742,14 @@ function initCertificationExamForm() {
             <input type="text" class="cert-input" id="certUniv" placeholder="e.g. Universitas Negeri Medan" required />
           </div>
           <div class="cert-group">
-            <label class="cert-label">Select Exam Schedule</label>
-            <input type="datetime-local" class="cert-input" id="certSchedule" required />
+            <label class="cert-label">Phone / WhatsApp Number (Include Country Code)</label>
+            <input type="tel" class="cert-input" id="certPhone" placeholder="e.g. +62 813-7006-2009" required />
           </div>
+        </div>
+
+        <div class="cert-group">
+          <label class="cert-label">Select Exam Schedule</label>
+          <input type="datetime-local" class="cert-input" id="certSchedule" required />
         </div>
 
         <div class="cert-group">
@@ -1974,6 +1927,7 @@ function initCertificationExamForm() {
   form.addEventListener('submit', async () => {
     const name = container.querySelector('#certName').value;
     const email = container.querySelector('#certEmail').value;
+    const phone = container.querySelector('#certPhone').value;
     const cert = container.querySelector('#certLevel').value;
     const univ = container.querySelector('#certUniv').value;
     const scheduleRaw = container.querySelector('#certSchedule').value;
@@ -1990,6 +1944,7 @@ function initCertificationExamForm() {
         body: JSON.stringify({
           name,
           email,
+          phone,
           cert: `${cert} (${univ})`,
           method: selectedMethod,
           schedule: scheduleRaw,
