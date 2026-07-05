@@ -825,25 +825,37 @@ function initCertificationExamForm() {
       }
     }
     .certificate-card {
-      background: linear-gradient(135deg, #07080d 0%, #10121d 100%);
-      border: 1.5px solid #c9a84c;
-      border-radius: 12px;
+      background: linear-gradient(135deg, #fdfbf7 0%, #f5ebd2 100%);
+      border: 3px double #b89739;
+      border-radius: 8px;
       padding: 15px;
       position: relative;
       box-shadow: 0 10px 25px rgba(0,0,0,0.5);
       font-family: 'Inter', sans-serif;
-      color: #fff;
+      color: #1a1a1a;
       text-align: center;
       box-sizing: border-box;
       overflow: hidden;
       transition: transform 0.3s ease, box-shadow 0.3s ease;
     }
+    .certificate-card::after {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-image: url('/logo-apasific.png');
+      background-repeat: no-repeat;
+      background-position: center;
+      background-size: 55%;
+      opacity: 0.05;
+      pointer-events: none;
+      z-index: 1;
+    }
     .certificate-card:hover {
       transform: translateY(-4px);
-      box-shadow: 0 15px 30px rgba(201,168,76,0.15);
+      box-shadow: 0 15px 30px rgba(184, 151, 57, 0.25);
     }
     .certificate-inner {
-      border: 1px solid rgba(201,168,76,0.15);
+      border: 1px solid rgba(184, 151, 57, 0.3);
       padding: 12px;
       height: 100%;
       display: flex;
@@ -851,6 +863,9 @@ function initCertificationExamForm() {
       justify-content: space-between;
       box-sizing: border-box;
       min-height: 270px;
+      background: rgba(255, 255, 255, 0.45);
+      position: relative;
+      z-index: 2;
     }
     .cert-card-header {
       display: flex;
@@ -859,44 +874,52 @@ function initCertificationExamForm() {
       font-size: 7.5px;
       text-transform: uppercase;
       letter-spacing: 0.8px;
-      color: rgba(255,255,255,0.35);
+      color: #555;
+      font-weight: 700;
     }
     .cert-card-main-title {
       font-family: 'Cinzel', serif;
-      font-size: 12px;
-      color: #c9a84c;
+      font-size: 13px;
+      color: #a07828;
       letter-spacing: 1.5px;
       font-weight: 700;
       margin-top: 6px;
+      text-shadow: 0.5px 0.5px 0px rgba(255,255,255,0.8);
     }
     .cert-card-to {
       font-size: 8.5px;
-      color: rgba(255,255,255,0.45);
+      color: #444;
       font-style: italic;
       margin-top: 4px;
     }
     .cert-card-name {
       font-family: 'Playfair Display', serif;
-      font-size: 14.5px;
-      color: #fff;
-      font-weight: 600;
+      font-size: 15.5px;
+      color: #0f131d;
+      font-weight: 700;
       margin: 4px 0;
+      border-bottom: 1px dashed rgba(184, 151, 57, 0.3);
+      display: inline-block;
+      padding-bottom: 2px;
     }
     .cert-card-text {
       font-size: 8px;
-      color: rgba(255,255,255,0.45);
-      line-height: 1.3;
+      color: #555;
+      line-height: 1.35;
+      max-width: 92%;
+      margin: 0 auto;
     }
     .cert-card-award {
-      font-size: 11px;
-      color: #c9a84c;
+      font-size: 11.5px;
+      color: #a07828;
       font-weight: 700;
       letter-spacing: 0.5px;
       margin-top: 4px;
     }
     .cert-card-scheme {
       font-size: 8px;
-      color: rgba(255,255,255,0.65);
+      color: #333;
+      font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 0.5px;
       margin-top: 1px;
@@ -916,16 +939,18 @@ function initCertificationExamForm() {
       font-family: 'Playfair Display', serif;
       font-style: italic;
       font-size: 10px;
-      color: #fff;
-      border-bottom: 1px solid rgba(255,255,255,0.15);
+      color: #0f131d;
+      border-bottom: 1px solid rgba(0,0,0,0.15);
       padding-bottom: 1px;
       margin-bottom: 3px;
+      font-weight: 600;
     }
     .sig-title {
       font-size: 7px;
-      color: rgba(255,255,255,0.35);
+      color: #555;
       text-transform: uppercase;
       letter-spacing: 0.5px;
+      font-weight: 700;
     }
     .cert-qr {
       margin: 0 8px;
@@ -936,7 +961,7 @@ function initCertificationExamForm() {
     .cert-qr img {
       width: 44px;
       height: 44px;
-      border: 1px solid rgba(201, 168, 76, 0.25);
+      border: 1px solid rgba(184, 151, 57, 0.3);
       border-radius: 3px;
       background: #fff;
       padding: 1.5px;
