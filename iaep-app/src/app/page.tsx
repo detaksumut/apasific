@@ -142,9 +142,7 @@ export default function Home() {
           <!-- Vice President 1 -->
           <div class="leader-card" data-aos="fade-up" style="animation-delay:0.15s">
             <div class="leader-avatar">
-              <div class="avatar-placeholder">
-                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" stroke-width="1.2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-              </div>
+              <img src="yamin.jpg" alt="DR. MUHAMMAD YAMIN NOCH" />
             </div>
             <div class="leader-info">
               <h4>Vice President</h4>
