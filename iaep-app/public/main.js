@@ -934,21 +934,51 @@ function initCertificationExamForm() {
 
   // Handle Form Submission
   const form = container.querySelector('#certRegForm');
-  form.addEventListener('submit', () => {
+  form.addEventListener('submit', async () => {
     const name = container.querySelector('#certName').value;
+    const email = container.querySelector('#certEmail').value;
     const cert = container.querySelector('#certLevel').value;
+    const univ = container.querySelector('#certUniv').value;
     const scheduleRaw = container.querySelector('#certSchedule').value;
     const scheduleFormatted = new Date(scheduleRaw).toLocaleString('id-ID', { dateStyle: 'long', timeStyle: 'short' });
+    const submitBtn = container.querySelector('#certSubmitBtn');
 
-    // Populate results
-    container.querySelector('#resName').innerText = name;
-    container.querySelector('#resCert').innerText = cert;
-    container.querySelector('#resMethod').innerText = selectedMethod;
-    container.querySelector('#resSchedule').innerText = scheduleFormatted;
+    submitBtn.innerText = "Submitting...";
+    submitBtn.disabled = true;
 
-    // Switch view
-    container.querySelector('#certFormWrapper').style.display = 'none';
-    container.querySelector('#certSuccessWrapper').style.display = 'flex';
+    try {
+      const response = await fetch('/api/certifications/candidates', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name,
+          email,
+          cert: `${cert} (${univ})`,
+          method: selectedMethod,
+          schedule: scheduleRaw,
+          status: selectedMethod.includes("Zoom") ? "Awaiting Zoom Link" : "Token Emailed"
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('Registration failed');
+      }
+
+      // Populate results
+      container.querySelector('#resName').innerText = name;
+      container.querySelector('#resCert').innerText = cert;
+      container.querySelector('#resMethod').innerText = selectedMethod;
+      container.querySelector('#resSchedule').innerText = scheduleFormatted;
+
+      // Switch view
+      container.querySelector('#certFormWrapper').style.display = 'none';
+      container.querySelector('#certSuccessWrapper').style.display = 'flex';
+    } catch (e) {
+      alert('Error submitting registration: ' + e.message);
+    } finally {
+      submitBtn.innerText = "Submit Exam Registration";
+      submitBtn.disabled = false;
+    }
   });
 }
 
