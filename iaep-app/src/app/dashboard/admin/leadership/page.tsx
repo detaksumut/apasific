@@ -5,8 +5,8 @@ export default function LeadershipManagementPage() {
   const [selectedBody, setSelectedBody] = useState("");
 
   const bodies = [
-    "ASIA Board of Certification (BOC)",
     "ASIACERT",
+    "ASIA Board of Certification (BOC)",
     "ASIA Quality Assurance & Accreditation Board (ASIA-QAAB)",
     "ASIA Competition Center (ASIA-CC)",
     "ASIA Publication & Knowledge Center (ASIA-PKC)",
