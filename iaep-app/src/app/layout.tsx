@@ -97,8 +97,8 @@ export default function RootLayout({
           <a href="/#strategic-bodies" class="nav-link" id="nav-bodies">STRATEGIC BODIES <span class="chevron">▾</span></a>
           <div class="dropdown dropdown-wide">
             <div class="dd-grid">
-              <a href="/boc.html" target="_blank"><span class="dd-icon">◈</span> ASIA Board of Certification (BOC)</a>
               <a href="/asiacert.html" target="_blank"><span class="dd-icon">◈</span> ASIACERT</a>
+              <a href="/boc.html" target="_blank"><span class="dd-icon">◈</span> ASIA Board of Certification (BOC)</a>
               <a href="/research.html" target="_blank"><span class="dd-icon">◈</span> Research &amp; Innovation Council</a>
               <a href="/conference.html" target="_blank"><span class="dd-icon">◈</span> Conference &amp; Academic Forum</a>
               <a href="/publication.html" target="_blank"><span class="dd-icon">◈</span> Publication &amp; Knowledge Center</a>
