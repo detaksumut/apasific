@@ -13,6 +13,10 @@ export default function LeadershipManagementPage() {
     "ASIA Academic Mobility Center (ASIA-AMC)",
     "ASIA Research & Innovation Council (ASIA-RIC)",
     "ASIA Conference & Academic Forum (ASIA-CAF)",
+    "ASIA Community Engagement & SDGs Center (ASIA-CES)",
+    "ASIA Digital Academy & AI Center (ASIA-DAC)",
+    "ASIA Young Academician Network (ASIA-YAN)",
+    "ASIA Awards & Recognition Council (ASIA-ARC)",
   ];
 
   const InputField = ({ label, placeholder }: { label: string; placeholder: string }) => (
