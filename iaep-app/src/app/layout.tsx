@@ -212,7 +212,7 @@ export default function RootLayout({
     </div>
     <div class="footer-bottom">
       <div class="container">
-        <p>© 2025 Association of Asia Pacific Academician (ASIA). All rights reserved. <span style="display: block; font-size: 11px; opacity: 0.7; margin-top: 4px;">Developed by <strong>PT. Bernas Sumut Jaya</strong> • Dilindungi Hak Cipta.</span></p>
+        <p>© 2025 Association of Asia Pacific Academician (ASIA). All rights reserved. | Developed by PT. Bernas Sumut Jaya • Dilindungi Hak Cipta.</p>
         <div class="footer-bottom-links">
           <a href="#">Privacy Policy</a>
           <a href="#">Terms of Use</a>
