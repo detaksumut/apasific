@@ -999,6 +999,38 @@ function initAsiacertHubForm() {
           </div>
         </div>
 
+        <div class="cert-group">
+          <label class="cert-label">Academic Fields Represented</label>
+          <select class="cert-select" id="certAcademicField" required>
+            <option value="" disabled selected>— Select Research Scope —</option>
+            <optgroup label="📊 Finance &amp; Business">
+              <option value="Finance &amp; Business">Finance &amp; Business (General)</option>
+              <option value="Accounting, Auditing &amp; Taxation">Accounting, Auditing &amp; Taxation</option>
+              <option value="Business, Management &amp; Entrepreneurship">Business, Management &amp; Entrepreneurship</option>
+              <option value="Finance, Banking &amp; Investment">Finance, Banking &amp; Investment</option>
+              <option value="Economics &amp; Public Policy">Economics &amp; Public Policy</option>
+            </optgroup>
+            <optgroup label="💻 Technology &amp; Engineering">
+              <option value="IT, Artificial Intelligence &amp; Digital Transformation">IT, Artificial Intelligence &amp; Digital Transformation</option>
+              <option value="Engineering, Technology &amp; Applied Sciences">Engineering, Technology &amp; Applied Sciences</option>
+            </optgroup>
+            <optgroup label="🎓 Social &amp; Humanities">
+              <option value="Human Resources &amp; Organizational Development">Human Resources &amp; Organizational Development</option>
+              <option value="Education &amp; Academic Development">Education &amp; Academic Development</option>
+              <option value="Law, Governance &amp; Public Administration">Law, Governance &amp; Public Administration</option>
+              <option value="Social Sciences, Humanities &amp; Communication">Social Sciences, Humanities &amp; Communication</option>
+            </optgroup>
+            <optgroup label="🏥 Health &amp; Sciences">
+              <option value="Health, Public Health &amp; Well-Being">Health, Public Health &amp; Well-Being</option>
+              <option value="Agriculture, Environment &amp; Sustainability">Agriculture, Environment &amp; Sustainability</option>
+            </optgroup>
+            <optgroup label="🌟 Industry &amp; Specializations">
+              <option value="Tourism, Hospitality &amp; Creative Economy">Tourism, Hospitality &amp; Creative Economy</option>
+              <option value="Islamic Studies, Ethics &amp; Spirituality">Islamic Studies, Ethics &amp; Spirituality</option>
+            </optgroup>
+          </select>
+        </div>
+
         <div class="cert-row">
           <div class="cert-group">
             <label class="cert-label">Full Name & Title</label>
@@ -1043,6 +1075,10 @@ function initAsiacertHubForm() {
         <div class="success-row">
           <span class="success-label">Candidate</span>
           <span class="success-val" id="resName">-</span>
+        </div>
+        <div class="success-row">
+          <span class="success-label">Academic Field</span>
+          <span class="success-val" id="resAcademicField">-</span>
         </div>
         <div class="success-row">
           <span class="success-label">Certification</span>
@@ -1212,6 +1248,7 @@ function initAsiacertHubForm() {
     const phone = container.querySelector('#certPhone').value;
     const fieldKey = fieldSelect.value;
     const cert = levelSelect.value;
+    const academicField = container.querySelector('#certAcademicField').value;
     const univ = container.querySelector('#certUniv').value;
     const scheduleRaw = dateInput.value;
 
@@ -1239,7 +1276,7 @@ function initAsiacertHubForm() {
           name,
           email,
           phone,
-          cert: `${cert} (${univ})`,
+          cert: `${cert} (${academicField})`,
           method: "Central Registration",
           schedule: scheduleRaw,
           status: "Awaiting Verification"
@@ -1252,6 +1289,7 @@ function initAsiacertHubForm() {
 
       // Populate results
       container.querySelector('#resName').innerText = name;
+      container.querySelector('#resAcademicField') && (container.querySelector('#resAcademicField').innerText = academicField);
       container.querySelector('#resCert').innerText = cert;
       container.querySelector('#resSchedule').innerText = scheduleFormatted;
 
