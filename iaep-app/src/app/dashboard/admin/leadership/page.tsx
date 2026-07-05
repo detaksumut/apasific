@@ -132,9 +132,9 @@ export default function LeadershipManagementPage() {
     >
       <input ref={inputRef} type="file" accept="image/*" style={{ display: "none" }} onChange={onUpload} />
       {photo ? (
-        <img src={photo} alt="preview" style={{ width: 72, height: 72, borderRadius: "50%", objectFit: "cover", border: "2px solid #c9a84c" }} />
+        <img src={photo} alt="preview" style={{ width: 90, height: 120, borderRadius: "6px", objectFit: "cover", border: "2px solid #c9a84c" }} />
       ) : (
-        <div style={{ width: 60, height: 60, borderRadius: "50%", background: "rgba(255,255,255,0.06)", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 8 }}>
+        <div style={{ width: 90, height: 120, borderRadius: "6px", background: "rgba(255,255,255,0.06)", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 8 }}>
           <svg width="26" height="26" fill="none" stroke="rgba(255,255,255,0.2)" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
           </svg>
@@ -143,7 +143,7 @@ export default function LeadershipManagementPage() {
       <span style={{ fontSize: 12, fontWeight: 600, color: "#c9a84c", marginTop: photo ? 8 : 0 }}>
         {photo ? "Ganti Foto" : "Upload Foto"}
       </span>
-      <span style={{ fontSize: 10, color: "rgba(255,255,255,0.25)", marginTop: 3 }}>Rasio 1:1, maks. 2MB</span>
+      <span style={{ fontSize: 10, color: "rgba(255,255,255,0.25)", marginTop: 3 }}>Rasio 3:4, maks. 2MB</span>
     </div>
   );
 
