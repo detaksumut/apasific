@@ -409,3 +409,196 @@ function verifyCertificate() {
     </div>
   `;
 }
+
+// Global Journal Index Data & Search Logic
+const ASIA_JOURNALS_DATA = [
+  {
+    title: "ASIA Journal of Accounting and Finance (AJAF)",
+    issn: "2775-1287 (Online) | 2775-1279 (Print)",
+    category: "accounting",
+    tags: ["Scopus", "Google Scholar", "Crossref", "ASIA Index"],
+    citeScore: "3.8",
+    hIndex: "18",
+    logoText: "AJAF",
+    status: "Active"
+  },
+  {
+    title: "Asia Pacific Journal of Business Administration (APJBA)",
+    issn: "1757-4323 (Online) | 1757-4315 (Print)",
+    category: "business",
+    tags: ["Scopus Q2", "Web of Science", "Google Scholar", "Crossref"],
+    citeScore: "4.2",
+    hIndex: "26",
+    logoText: "APJBA",
+    status: "Active"
+  },
+  {
+    title: "ASIA Journal of Information Technology & Engineering (AJITE)",
+    issn: "2985-6458 (Online) | 2985-644X (Print)",
+    category: "it",
+    tags: ["Google Scholar", "DOAJ", "Crossref", "ASIA Index"],
+    citeScore: "2.9",
+    hIndex: "12",
+    logoText: "AJITE",
+    status: "Active"
+  },
+  {
+    title: "ASIA Journal of Law and Society (AJLS)",
+    issn: "2052-9023 (Online) | 2052-9015 (Print)",
+    category: "law",
+    tags: ["Scopus Q1", "Web of Science", "Google Scholar", "Crossref"],
+    citeScore: "5.1",
+    hIndex: "35",
+    logoText: "AJLS",
+    status: "Active"
+  },
+  {
+    title: "Asia Pacific Journal of Education & Pedagogy (APJEP)",
+    issn: "2809-543X (Online) | 2809-5421 (Print)",
+    category: "law",
+    tags: ["Google Scholar", "DOAJ", "Crossref", "ASIA Index"],
+    citeScore: "2.7",
+    hIndex: "9",
+    logoText: "APJEP",
+    status: "Active"
+  },
+  {
+    title: "ASIA Journal of Economics and Development (AJED)",
+    issn: "2656-789X (Online) | 2656-7881 (Print)",
+    category: "business",
+    tags: ["Scopus Q3", "Google Scholar", "Crossref", "ASIA Index"],
+    citeScore: "3.1",
+    hIndex: "14",
+    logoText: "AJED",
+    status: "Active"
+  },
+  {
+    title: "ASIA Journal of Social Sciences & Humanities (AJSSH)",
+    issn: "2186-8492 (Online) | 2186-8484 (Print)",
+    category: "law",
+    tags: ["Google Scholar", "Index Copernicus", "Crossref", "ASIA Index"],
+    citeScore: "2.1",
+    hIndex: "8",
+    logoText: "AJSSH",
+    status: "Active"
+  }
+];
+
+function initJournalIndex() {
+  const searchInput = document.getElementById('index-search-input');
+  const clearBtn = document.getElementById('search-clear-btn');
+  const resultsContainer = document.getElementById('index-results-container');
+  const noResultsDiv = document.getElementById('index-no-results');
+  const filterTabs = document.querySelectorAll('.filter-tab');
+
+  if (!resultsContainer) return;
+
+  let currentSearch = "";
+  let currentCategory = "all";
+
+  function renderJournals() {
+    const filtered = ASIA_JOURNALS_DATA.filter(journal => {
+      const matchesSearch = journal.title.toLowerCase().includes(currentSearch) ||
+                            journal.issn.toLowerCase().includes(currentSearch) ||
+                            journal.logoText.toLowerCase().includes(currentSearch);
+      
+      const matchesCategory = currentCategory === "all" || journal.category === currentCategory;
+      
+      return matchesSearch && matchesCategory;
+    });
+
+    resultsContainer.innerHTML = "";
+    if (filtered.length === 0) {
+      if (noResultsDiv) noResultsDiv.style.display = "block";
+      resultsContainer.style.display = "none";
+    } else {
+      if (noResultsDiv) noResultsDiv.style.display = "none";
+      resultsContainer.style.display = "grid";
+      
+      filtered.forEach((journal, idx) => {
+        const card = document.createElement('div');
+        card.className = "journal-index-card";
+        card.setAttribute('data-aos', 'fade-up');
+        card.style.animationDelay = `${idx * 0.05}s`;
+        
+        const tagsHTML = journal.tags.map(tag => {
+          let tagClass = "asia";
+          if (tag.toLowerCase().includes("scopus")) tagClass = "scopus";
+          else if (tag.toLowerCase().includes("web of science") || tag.toLowerCase().includes("wos")) tagClass = "wos";
+          else if (tag.toLowerCase().includes("google scholar") || tag.toLowerCase().includes("scholar")) tagClass = "scholar";
+          return `<span class="journal-tag ${tagClass}">${tag}</span>`;
+        }).join('');
+
+        card.innerHTML = `
+          <div>
+            <div class="journal-header">
+              <div class="journal-logo-box">${journal.logoText}</div>
+              <div class="journal-title-wrapper">
+                <h3>${journal.title}</h3>
+                <span class="journal-issn">ISSN: ${journal.issn}</span>
+              </div>
+            </div>
+            <div class="journal-body">
+              <div class="journal-tags">
+                ${tagsHTML}
+              </div>
+              <div class="journal-metrics">
+                <div class="metric-item">
+                  <span class="metric-label">Impact Metric</span>
+                  <span class="metric-value">CiteScore ${journal.citeScore}</span>
+                </div>
+                <div class="metric-item">
+                  <span class="metric-label">H-Index</span>
+                  <span class="metric-value">h5-Index: ${journal.hIndex}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="journal-footer">
+            <div class="journal-status">
+              <span class="status-dot"></span>
+              <span>Indexed & Active</span>
+            </div>
+            <button class="journal-action-btn" onclick="window.location.href='/publications.html'">Submit Article</button>
+          </div>
+        `;
+        resultsContainer.appendChild(card);
+      });
+    }
+  }
+
+  if (searchInput) {
+    searchInput.addEventListener('input', (e) => {
+      currentSearch = e.target.value.toLowerCase().trim();
+      if (clearBtn) clearBtn.style.display = currentSearch.length > 0 ? "block" : "none";
+      renderJournals();
+    });
+  }
+
+  if (clearBtn) {
+    clearBtn.addEventListener('click', () => {
+      if (searchInput) searchInput.value = "";
+      currentSearch = "";
+      clearBtn.style.display = "none";
+      if (searchInput) searchInput.focus();
+      renderJournals();
+    });
+  }
+
+  filterTabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      filterTabs.forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      currentCategory = tab.getAttribute('data-category');
+      renderJournals();
+    });
+  });
+
+  renderJournals();
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initJournalIndex);
+} else {
+  initJournalIndex();
+}

@@ -192,6 +192,51 @@
   </section>
 
   <!-- ═══════════════════════════════════════════
+       GLOBAL PUBLICATION INDEX
+  ═══════════════════════════════════════════ -->
+  <section class="section index-section" id="journal-indexing">
+    <div class="container">
+      <div class="section-header">
+        <p class="section-eyebrow">ACADEMIC RESOURCE</p>
+        <h2 class="section-title">Global Journal <span class="gold">Index</span></h2>
+        <div class="title-ornament"><span></span><svg width="20" height="20" viewBox="0 0 20 20"><polygon points="10,1 12.9,7 19.5,7.6 14.7,12 16.2,18.5 10,15 3.8,18.5 5.3,12 0.5,7.6 7.1,7" fill="#c9a84c"/></svg><span></span></div>
+        <p class="section-desc">Search and verify the indexing status, impact metrics, and registration of official publications affiliated with the Association of Asia Pacific Academicians.</p>
+      </div>
+
+      <!-- Search & Filters Container -->
+      <div class="index-search-container" data-aos="fade-up">
+        <div class="search-box-wrapper">
+          <div class="search-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          </div>
+          <input type="text" id="index-search-input" placeholder="Search by Journal Name, ISSN, or Keyword..." autocomplete="off" />
+          <button id="search-clear-btn" style="display: none;">&times;</button>
+        </div>
+
+        <div class="filter-tabs">
+          <button class="filter-tab active" data-category="all">All Divisions</button>
+          <button class="filter-tab" data-category="accounting">Accounting & Finance</button>
+          <button class="filter-tab" data-category="business">Business & Econ</button>
+          <button class="filter-tab" data-category="it">IT & Engineering</button>
+          <button class="filter-tab" data-category="law">Law & Social</button>
+        </div>
+      </div>
+
+      <!-- Live Results Grid -->
+      <div class="index-results-grid" id="index-results-container" data-aos="fade-up">
+        <!-- Results will be dynamically populated here by JS -->
+      </div>
+      
+      <!-- No Results State -->
+      <div class="index-no-results" id="index-no-results" style="display: none;">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" stroke-width="1"><circle cx="12" cy="12" r="10"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+        <h4>No Indexed Journals Found</h4>
+        <p>Try adjusting your search keywords or choosing a different division.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════
        ABOUT ASIA
   ═══════════════════════════════════════════ -->
   <section class="section about-section" id="about">
