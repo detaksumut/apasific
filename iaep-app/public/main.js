@@ -527,16 +527,26 @@ async function initDynamicLeadership() {
 ═══════════════════════════════════════════════ */
 
 const certSchemeMap = {
-  'research': { name: 'Research & Innovation Council', cert: 'Certified Research & Innovation Professional (CRIP)', levels: ['Associate (A-CRIP)', 'Professional (P-CRIP)', 'Senior Fellow (SF-CRIP)'] },
-  'conference': { name: 'Conference & Academic Forum', cert: 'Certified Academic Event Manager (CAEM)', levels: ['Associate (A-CAEM)', 'Professional (P-CAEM)', 'Senior Fellow (SF-CAEM)'] },
-  'publication': { name: 'Publication & Knowledge Center', cert: 'Certified Scholarly Publishing Specialist (CSPS)', levels: ['Associate (A-CSPS)', 'Professional (P-CSPS)', 'Senior Fellow (SF-CSPS)'] },
-  'mobility': { name: 'Academic Mobility Center', cert: 'Certified Academic Mobility Advisor (CAMA)', levels: ['Associate (A-CAMA)', 'Professional (P-CAMA)', 'Senior Fellow (SF-CAMA)'] },
-  'competition': { name: 'Competition Center', cert: 'Certified Science & Technology Innovator (CSTI)', levels: ['Associate (A-CSTI)', 'Professional (P-CSTI)', 'Senior Fellow (SF-CSTI)'] },
-  'community': { name: 'Community Engagement & SDGs Center', cert: 'Certified Community Development Practitioner (CCDP)', levels: ['Associate (A-CCDP)', 'Professional (P-CCDP)', 'Senior Fellow (SF-CCDP)'] },
-  'quality': { name: 'Quality Assurance & Accreditation Board', cert: 'Certified Academic Quality Auditor (CAQA)', levels: ['Associate (A-CAQA)', 'Professional (P-CAQA)', 'Senior Fellow (SF-CAQA)'] },
-  'academy': { name: 'Digital Academy & AI Center', cert: 'Certified Digital Education & AI Educator (CDAE)', levels: ['Associate (A-CDAE)', 'Professional (P-CDAE)', 'Senior Fellow (SF-CDAE)'] },
-  'young': { name: 'Young Academician Network', cert: 'Certified Early-Career Scholar (CECS)', levels: ['Associate (A-CECS)', 'Professional (P-CECS)', 'Senior Fellow (SF-CECS)'] },
-  'awards': { name: 'Awards & Recognition Council', cert: 'Certified Academic Leadership & Excellence Fellow (CALEF)', levels: ['Associate (A-CALEF)', 'Professional (P-CALEF)', 'Senior Fellow (SF-CALEF)'] }
+  'research': { name: 'Research & Innovation Council', cert: 'Certified Research & Innovation Professional (CRIP)', levels: ['Associate (A-CRIP)', 'Professional (P-CRIP)', 'Senior Fellow (SF-CRIP)'],
+    scopes: ['Interdisciplinary & Applied Research', 'Quantitative & Mixed-Methods Research', 'Qualitative & Ethnographic Research', 'Policy & Evaluation Research', 'Innovation & Technology Development', 'Research Ethics & Integrity'] },
+  'conference': { name: 'Conference & Academic Forum', cert: 'Certified Academic Event Manager (CAEM)', levels: ['Associate (A-CAEM)', 'Professional (P-CAEM)', 'Senior Fellow (SF-CAEM)'],
+    scopes: ['International Academic Conference Management', 'Seminar & Symposium Organization', 'Virtual & Hybrid Event Coordination', 'Scientific Committee & Peer Review Facilitation', 'Conference Publication & Proceedings', 'Academic Networking & Collaboration'] },
+  'publication': { name: 'Publication & Knowledge Center', cert: 'Certified Scholarly Publishing Specialist (CSPS)', levels: ['Associate (A-CSPS)', 'Professional (P-CSPS)', 'Senior Fellow (SF-CSPS)'],
+    scopes: ['Scholarly Journal Publishing', 'Academic Book & Monograph Editing', 'Open Access & Digital Publishing', 'Peer Review Management', 'Citation Indexing & Impact Metrics', 'Intellectual Property & Copyright Management'] },
+  'mobility': { name: 'Academic Mobility Center', cert: 'Certified Academic Mobility Advisor (CAMA)', levels: ['Associate (A-CAMA)', 'Professional (P-CAMA)', 'Senior Fellow (SF-CAMA)'],
+    scopes: ['Student & Faculty Exchange Programs', 'International Partnership Development', 'Cross-Border Academic Recognition', 'Scholarship & Fellowship Administration', 'Intercultural Academic Advising', 'Mobility Program Evaluation'] },
+  'competition': { name: 'Competition Center', cert: 'Certified Science & Technology Innovator (CSTI)', levels: ['Associate (A-CSTI)', 'Professional (P-CSTI)', 'Senior Fellow (SF-CSTI)'],
+    scopes: ['STEM & Science Olympiad', 'Innovation & Startup Competition', 'Academic Case Study & Debate', 'Engineering Design Challenge', 'Social Impact & SDGs Competition', 'Creative Arts & Digital Media Competition'] },
+  'community': { name: 'Community Engagement & SDGs Center', cert: 'Certified Community Development Practitioner (CCDP)', levels: ['Associate (A-CCDP)', 'Professional (P-CCDP)', 'Senior Fellow (SF-CCDP)'],
+    scopes: ['Community Service & Social Outreach', 'SDGs Implementation & Reporting', 'Environmental Advocacy & Sustainability', 'Public Health & Community Well-being', 'Youth & Women Empowerment', 'Rural & Urban Development Programs'] },
+  'quality': { name: 'Quality Assurance & Accreditation Board', cert: 'Certified Academic Quality Auditor (CAQA)', levels: ['Associate (A-CAQA)', 'Professional (P-CAQA)', 'Senior Fellow (SF-CAQA)'],
+    scopes: ['Academic Accreditation & Standards', 'ISO Quality Management Systems', 'Curriculum & Program Evaluation', 'Institutional Assessment & Benchmarking', 'Internal Audit & Compliance', 'Continuous Improvement & Kaizen in Education'] },
+  'academy': { name: 'Digital Academy & AI Center', cert: 'Certified Digital Education & AI Educator (CDAE)', levels: ['Associate (A-CDAE)', 'Professional (P-CDAE)', 'Senior Fellow (SF-CDAE)'],
+    scopes: ['AI & Machine Learning in Education', 'Digital Learning Design & E-Learning', 'Data Science & Analytics Literacy', 'Cybersecurity Awareness in Academia', 'EdTech Platform Development', 'Digital Transformation Strategy in HEI'] },
+  'young': { name: 'Young Academician Network', cert: 'Certified Early-Career Scholar (CECS)', levels: ['Associate (A-CECS)', 'Professional (P-CECS)', 'Senior Fellow (SF-CECS)'],
+    scopes: ['Early-Career Research Development', 'Academic Writing & Scholarly Communication', 'Mentorship & Peer Learning Networks', 'Grant Writing & Research Funding', 'Career Development in Academia', 'Youth Leadership in Academic Institutions'] },
+  'awards': { name: 'Awards & Recognition Council', cert: 'Certified Academic Leadership & Excellence Fellow (CALEF)', levels: ['Associate (A-CALEF)', 'Professional (P-CALEF)', 'Senior Fellow (SF-CALEF)'],
+    scopes: ['Academic Excellence & Distinguished Scholar Award', 'Leadership in Higher Education', 'Innovation & Impact Recognition', 'Community & SDGs Contribution Award', 'Lifetime Achievement in Academia', 'Emerging Leader & Rising Star Award'] }
 };
 
 function initAsiacertHubForm() {
@@ -999,38 +1009,6 @@ function initAsiacertHubForm() {
           </div>
         </div>
 
-        <div class="cert-group">
-          <label class="cert-label">Academic Fields Represented</label>
-          <select class="cert-select" id="certAcademicField" required>
-            <option value="" disabled selected>— Select Research Scope —</option>
-            <optgroup label="📊 Finance &amp; Business">
-              <option value="Finance &amp; Business">Finance &amp; Business (General)</option>
-              <option value="Accounting, Auditing &amp; Taxation">Accounting, Auditing &amp; Taxation</option>
-              <option value="Business, Management &amp; Entrepreneurship">Business, Management &amp; Entrepreneurship</option>
-              <option value="Finance, Banking &amp; Investment">Finance, Banking &amp; Investment</option>
-              <option value="Economics &amp; Public Policy">Economics &amp; Public Policy</option>
-            </optgroup>
-            <optgroup label="💻 Technology &amp; Engineering">
-              <option value="IT, Artificial Intelligence &amp; Digital Transformation">IT, Artificial Intelligence &amp; Digital Transformation</option>
-              <option value="Engineering, Technology &amp; Applied Sciences">Engineering, Technology &amp; Applied Sciences</option>
-            </optgroup>
-            <optgroup label="🎓 Social &amp; Humanities">
-              <option value="Human Resources &amp; Organizational Development">Human Resources &amp; Organizational Development</option>
-              <option value="Education &amp; Academic Development">Education &amp; Academic Development</option>
-              <option value="Law, Governance &amp; Public Administration">Law, Governance &amp; Public Administration</option>
-              <option value="Social Sciences, Humanities &amp; Communication">Social Sciences, Humanities &amp; Communication</option>
-            </optgroup>
-            <optgroup label="🏥 Health &amp; Sciences">
-              <option value="Health, Public Health &amp; Well-Being">Health, Public Health &amp; Well-Being</option>
-              <option value="Agriculture, Environment &amp; Sustainability">Agriculture, Environment &amp; Sustainability</option>
-            </optgroup>
-            <optgroup label="🌟 Industry &amp; Specializations">
-              <option value="Tourism, Hospitality &amp; Creative Economy">Tourism, Hospitality &amp; Creative Economy</option>
-              <option value="Islamic Studies, Ethics &amp; Spirituality">Islamic Studies, Ethics &amp; Spirituality</option>
-            </optgroup>
-          </select>
-        </div>
-
         <div class="cert-row">
           <div class="cert-group">
             <label class="cert-label">Full Name & Title</label>
@@ -1248,7 +1226,6 @@ function initAsiacertHubForm() {
     const phone = container.querySelector('#certPhone').value;
     const fieldKey = fieldSelect.value;
     const cert = levelSelect.value;
-    const academicField = container.querySelector('#certAcademicField').value;
     const univ = container.querySelector('#certUniv').value;
     const scheduleRaw = dateInput.value;
 
@@ -1276,7 +1253,7 @@ function initAsiacertHubForm() {
           name,
           email,
           phone,
-          cert: `${cert} (${academicField})`,
+          cert: `${cert} — ${certSchemeMap[fieldKey]?.name || fieldKey}`,
           method: "Central Registration",
           schedule: scheduleRaw,
           status: "Awaiting Verification"
@@ -1289,7 +1266,6 @@ function initAsiacertHubForm() {
 
       // Populate results
       container.querySelector('#resName').innerText = name;
-      container.querySelector('#resAcademicField') && (container.querySelector('#resAcademicField').innerText = academicField);
       container.querySelector('#resCert').innerText = cert;
       container.querySelector('#resSchedule').innerText = scheduleFormatted;
 
@@ -1757,34 +1733,10 @@ function initCertificationExamForm() {
       
       <form class="cert-form" id="certRegForm" onsubmit="event.preventDefault();">
         <div class="cert-group">
-          <label class="cert-label">Academic Fields Represented</label>
+          <label class="cert-label">Research Scope / Academic Focus</label>
           <select class="cert-select" id="certAcademicField" required>
-            <option value="" disabled selected>— Select Research Scope —</option>
-            <optgroup label="📊 Finance &amp; Business">
-              <option value="Finance &amp; Business">Finance &amp; Business (General)</option>
-              <option value="Accounting, Auditing &amp; Taxation">Accounting, Auditing &amp; Taxation</option>
-              <option value="Business, Management &amp; Entrepreneurship">Business, Management &amp; Entrepreneurship</option>
-              <option value="Finance, Banking &amp; Investment">Finance, Banking &amp; Investment</option>
-              <option value="Economics &amp; Public Policy">Economics &amp; Public Policy</option>
-            </optgroup>
-            <optgroup label="💻 Technology &amp; Engineering">
-              <option value="IT, Artificial Intelligence &amp; Digital Transformation">IT, Artificial Intelligence &amp; Digital Transformation</option>
-              <option value="Engineering, Technology &amp; Applied Sciences">Engineering, Technology &amp; Applied Sciences</option>
-            </optgroup>
-            <optgroup label="🎓 Social &amp; Humanities">
-              <option value="Human Resources &amp; Organizational Development">Human Resources &amp; Organizational Development</option>
-              <option value="Education &amp; Academic Development">Education &amp; Academic Development</option>
-              <option value="Law, Governance &amp; Public Administration">Law, Governance &amp; Public Administration</option>
-              <option value="Social Sciences, Humanities &amp; Communication">Social Sciences, Humanities &amp; Communication</option>
-            </optgroup>
-            <optgroup label="🏥 Health &amp; Sciences">
-              <option value="Health, Public Health &amp; Well-Being">Health, Public Health &amp; Well-Being</option>
-              <option value="Agriculture, Environment &amp; Sustainability">Agriculture, Environment &amp; Sustainability</option>
-            </optgroup>
-            <optgroup label="🌟 Industry &amp; Specializations">
-              <option value="Tourism, Hospitality &amp; Creative Economy">Tourism, Hospitality &amp; Creative Economy</option>
-              <option value="Islamic Studies, Ethics &amp; Spirituality">Islamic Studies, Ethics &amp; Spirituality</option>
-            </optgroup>
+            <option value="" disabled selected>— Select Scope for ${scheme.name} —</option>
+            ${scheme.scopes ? scheme.scopes.map(s => `<option value="${s}">${s}</option>`).join('') : '<option value="General">General</option>'}
           </select>
         </div>
 
