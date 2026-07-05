@@ -1,12 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { submitManuscript } from "@/app/actions/submission";
 
 export default function SubmitManuscript() {
   const [step, setStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [message, setMessage] = useState<{type: 'error' | 'success', text: string} | null>(null);
+  const [message, setMessage] = useState<{ type: "error" | "success"; text: string } | null>(null);
 
   const [formData, setFormData] = useState({
     journalId: "1",
@@ -15,340 +14,910 @@ export default function SubmitManuscript() {
     abstractEn: "",
     file: null as File | null,
     anonFile: null as File | null,
-    agreeTerms: false
+    agreeTerms: false,
   });
 
-  const handleNext = () => setStep(s => Math.min(s + 1, 5));
-  const handlePrev = () => setStep(s => Math.max(s - 1, 1));
+  const handleNext = () => setStep((s) => Math.min(s + 1, 5));
+  const handlePrev = () => setStep((s) => Math.max(s - 1, 1));
 
   const handleSubmit = async () => {
     setIsSubmitting(true);
     setMessage(null);
     try {
-      // Simulate real-time API latency
-      await new Promise(resolve => setTimeout(resolve, 1200));
-
+      await new Promise((resolve) => setTimeout(resolve, 1200));
       const newId = String(Math.floor(1000 + Math.random() * 9000));
       const newSub = {
         id: newId,
         title: formData.title || "Untitled Manuscript",
         journal: formData.journalId === "1" ? "APASIFIC IAEP" : "RJRAKP",
-        date: new Date().toLocaleDateString('en-US', { month: 'long', day: '2-digit', year: 'numeric' }),
+        date: new Date().toLocaleDateString("en-US", { month: "long", day: "2-digit", year: "numeric" }),
         status: "Awaiting Assignment",
-        lastAction: "Submitted successfully"
+        lastAction: "Submitted successfully",
       };
-
-      // 1. Add to submissions in localStorage:
       const defaultSubs = [
-        {
-          id: "1045",
-          title: "The Impact of Artificial Intelligence on Southeast Asian Higher Education",
-          journal: "APASIFIC IAEP",
-          date: "July 01, 2026",
-          status: "Under Review",
-          lastAction: "Sent to Reviewers on July 03, 2026"
-        },
-        {
-          id: "1022",
-          title: "Analyzing Regional Economic Policies Post-Pandemic in ASEAN",
-          journal: "RJRAKP",
-          date: "May 15, 2026",
-          status: "Published",
-          lastAction: "Published in Vol. 4 No. 2 (2026)"
-        },
-        {
-          id: "1056",
-          title: "Blockchain Integration in Academic Credential Verification",
-          journal: "APASIFIC IAEP",
-          date: "July 04, 2026",
-          status: "Awaiting Assignment",
-          lastAction: "Submitted successfully"
-        }
+        { id: "1045", title: "The Impact of Artificial Intelligence on Southeast Asian Higher Education", journal: "APASIFIC IAEP", date: "July 01, 2026", status: "Under Review", lastAction: "Sent to Reviewers on July 03, 2026" },
+        { id: "1022", title: "Analyzing Regional Economic Policies Post-Pandemic in ASEAN", journal: "RJRAKP", date: "May 15, 2026", status: "Published", lastAction: "Published in Vol. 4 No. 2 (2026)" },
       ];
-
       const stored = localStorage.getItem("mock_submissions");
       const currentList = stored ? JSON.parse(stored) : defaultSubs;
-      currentList.unshift(newSub); // Insert at beginning of list
+      currentList.unshift(newSub);
       localStorage.setItem("mock_submissions", JSON.stringify(currentList));
-
-      // 2. Add to system activity logs:
-      try {
-        const defaultLogs = [
-          { time: "10 mins ago", text: "New Journal created: 'APASIFIC Medical Journal'", status: "success" },
-          { time: "1 hour ago", text: "System backup completed successfully.", status: "info" },
-          { time: "3 hours ago", text: "M. A. Rahman granted 'Editor' role in RJRAKP.", status: "warning" },
-          { time: "1 day ago", text: "High traffic warning: 50+ simultaneous submissions.", status: "error" }
-        ];
-        const storedLogs = localStorage.getItem("mock_system_logs");
-        const currentLogs = storedLogs ? JSON.parse(storedLogs) : defaultLogs;
-        currentLogs.unshift({
-          time: "Just now",
-          text: `New manuscript submitted: '${newSub.title}'`,
-          status: "success"
-        });
-        localStorage.setItem("mock_system_logs", JSON.stringify(currentLogs));
-      } catch (logErr) {
-        console.error("Log error:", logErr);
-      }
-
       setStep(5);
-    } catch (error: any) {
-      setMessage({ type: 'error', text: error.message || "Gagal mengirimkan manuskrip." });
+    } catch (error: unknown) {
+      const err = error as { message?: string };
+      setMessage({ type: "error", text: err.message || "Gagal mengirimkan manuskrip." });
     }
     setIsSubmitting(false);
   };
 
-  const steps = ["Start", "Upload Submission", "Enter Metadata", "Confirmation", "Next Steps"];
+  const steps = ["Start", "Upload Files", "Metadata", "Confirm", "Done"];
+  const stepDescriptions = [
+    "Review requirements and select submission type",
+    "Upload your manuscript documents",
+    "Enter article title and abstract",
+    "Review and finalize your submission",
+    "Submission complete",
+  ];
 
   return (
-    <div className="max-w-4xl mx-auto bg-white shadow-sm border border-gray-200 rounded-xl overflow-hidden">
-      <div className="bg-[#18182e] px-8 py-6 border-b border-[#c9a84c]/30">
-        <h1 className="text-2xl font-bold text-white font-['Cinzel']">Submit an Article</h1>
-        
-        {/* Stepper UI */}
-        <div className="flex items-center mt-8">
-          {steps.map((s, i) => (
-            <div key={s} className="flex items-center">
-              <div className={`flex items-center justify-center w-8 h-8 rounded-full border-2 text-sm font-bold ${
-                step > i + 1 ? 'bg-[#c9a84c] border-[#c9a84c] text-black' : 
-                step === i + 1 ? 'border-[#c9a84c] text-[#c9a84c]' : 'border-gray-600 text-gray-500'
-              }`}>
-                {step > i + 1 ? '✓' : i + 1}
-              </div>
-              <div className={`ml-2 text-xs font-semibold hidden md:block ${
-                step >= i + 1 ? 'text-white' : 'text-gray-500'
-              }`}>
-                {s}
-              </div>
-              {i < steps.length - 1 && (
-                <div className={`w-8 md:w-12 h-0.5 mx-2 md:mx-4 ${step > i + 1 ? 'bg-[#c9a84c]' : 'bg-gray-700'}`}></div>
-              )}
-            </div>
-          ))}
+    <div className="submit-enterprise">
+      {/* Page Header */}
+      <div className="submit-header">
+        <div>
+          <h1 className="submit-page-title">Submit Article</h1>
+          <p className="submit-page-subtitle">APASIFIC Double-Blind Peer Review System</p>
+        </div>
+        <div className="submit-journal-badge">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M4 19.5A2.5 2.5 0 016.5 17H20" /><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z" />
+          </svg>
+          APASIFIC IAEP
         </div>
       </div>
 
-      <div className="p-8 text-gray-800">
+      {/* Stepper */}
+      <div className="submit-stepper">
+        {steps.map((s, i) => (
+          <div key={s} className="submit-step-item">
+            <div className={`submit-step-circle ${step > i + 1 ? "done" : step === i + 1 ? "active" : ""}`}>
+              {step > i + 1 ? (
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="20 6 9 17 4 12" />
+                </svg>
+              ) : (
+                <span>{i + 1}</span>
+              )}
+            </div>
+            <div className={`submit-step-label ${step >= i + 1 ? "active" : ""}`}>{s}</div>
+            {i < steps.length - 1 && (
+              <div className={`submit-step-line ${step > i + 1 ? "done" : ""}`} />
+            )}
+          </div>
+        ))}
+      </div>
+
+      {/* Step Description */}
+      <div className="submit-step-desc">{stepDescriptions[step - 1]}</div>
+
+      {/* Form Panel */}
+      <div className="submit-panel">
         {message && (
-          <div className={`p-4 mb-6 rounded-lg text-sm border ${message.type === 'error' ? 'bg-red-50 text-red-600 border-red-200' : 'bg-green-50 text-green-600 border-green-200'}`}>
-            {message.text}
+          <div className={`submit-message ${message.type}`}>
+            {message.type === "error" ? "⚠" : "✓"} {message.text}
           </div>
         )}
 
-        {/* Step 1: Start */}
+        {/* Step 1 */}
         {step === 1 && (
-          <div className="space-y-6">
-            <h2 className="text-xl font-bold border-b pb-2">Step 1. Start</h2>
-            <div>
-              <label className="block text-sm font-semibold mb-2">Section</label>
-              <select 
-                value={formData.journalId} 
-                onChange={e => setFormData({...formData, journalId: e.target.value})}
-                className="w-full border border-gray-300 rounded p-2 focus:border-[#c9a84c] focus:ring-1 focus:ring-[#c9a84c]"
+          <div className="submit-step-content">
+            <div className="submit-field-group">
+              <label className="submit-label">Submission Type</label>
+              <select
+                value={formData.journalId}
+                onChange={(e) => setFormData({ ...formData, journalId: e.target.value })}
+                className="submit-select"
               >
-                <option value="1">Articles</option>
-                <option value="2">Reviews</option>
-                <option value="3">Editorials</option>
+                <option value="1">Articles — Original research paper</option>
+                <option value="2">Reviews — Literature review article</option>
+                <option value="3">Editorials — Editorial commentary</option>
               </select>
             </div>
-            
-            <div className="bg-gray-50 p-4 border border-gray-200 rounded">
-              <h3 className="font-semibold mb-2">Submission Requirements</h3>
-              <ul className="list-disc pl-5 text-sm space-y-2 text-gray-600">
-                <li>The submission has not been previously published.</li>
-                <li>The submission file is in OpenOffice, Microsoft Word, or RTF document file format.</li>
-                <li>Where available, URLs for the references have been provided.</li>
-                <li>The text adheres to the stylistic and bibliographic requirements.</li>
+
+            <div className="submit-requirements">
+              <div className="submit-req-title">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" />
+                </svg>
+                Submission Requirements
+              </div>
+              <ul className="submit-req-list">
+                {[
+                  "The submission has not been previously published.",
+                  "The manuscript is in OpenOffice, Microsoft Word, or RTF format.",
+                  "Where available, URLs for the references have been provided.",
+                  "The text adheres to the stylistic and bibliographic requirements.",
+                ].map((req, i) => (
+                  <li key={i} className="submit-req-item">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <polyline points="20 6 9 17 4 12" />
+                    </svg>
+                    {req}
+                  </li>
+                ))}
               </ul>
             </div>
 
-            <label className="flex items-center space-x-3 mt-4">
-              <input 
-                type="checkbox" 
-                checked={formData.agreeTerms}
-                onChange={e => setFormData({...formData, agreeTerms: e.target.checked})}
-                className="w-5 h-5 text-[#c9a84c] focus:ring-[#c9a84c] border-gray-300 rounded"
-              />
-              <span className="text-sm font-medium">Yes, I agree to abide by the terms of the copyright statement.</span>
+            <label className="submit-checkbox-wrap">
+              <div className={`submit-checkbox ${formData.agreeTerms ? "checked" : ""}`} onClick={() => setFormData({ ...formData, agreeTerms: !formData.agreeTerms })}>
+                {formData.agreeTerms && (
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="20 6 9 17 4 12" />
+                  </svg>
+                )}
+              </div>
+              <span>I agree to the terms of the <span style={{ color: "#c9a84c" }}>copyright statement</span> and confirm this manuscript has not been published elsewhere.</span>
             </label>
 
-            <div className="flex justify-end pt-4">
-              <button 
-                onClick={handleNext} 
-                disabled={!formData.agreeTerms}
-                className="bg-[#0d0d1a] text-white px-6 py-2 rounded font-semibold disabled:opacity-50 hover:bg-[#1a1a2e]"
-              >
-                Save and continue
+            <div className="submit-actions-end">
+              <button onClick={handleNext} disabled={!formData.agreeTerms} className="submit-btn-primary">
+                Continue
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M5 12h14M12 5l7 7-7 7" />
+                </svg>
               </button>
             </div>
           </div>
         )}
 
-        {/* Step 2: Upload */}
+        {/* Step 2 */}
         {step === 2 && (
-          <div className="space-y-6">
-            <h2 className="text-xl font-bold border-b pb-2">Step 2. Upload Submission Files</h2>
-            <div className="bg-yellow-50 border border-yellow-200 text-yellow-800 p-4 rounded text-sm mb-4">
-              <strong>Double-Blind Requirement:</strong> You must upload two separate files. One complete manuscript (with author names) and one anonymous manuscript (without author names or affiliations) in PDF format for the reviewers.
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* File 1: Author Version */}
-              <div className="border-2 border-dashed border-gray-300 p-6 text-center rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors">
-                <h3 className="font-bold text-gray-800 mb-2">1. Complete Manuscript</h3>
-                <p className="text-xs text-gray-500 mb-4">(Includes author names & affiliations. Word/PDF)</p>
-                <input 
-                  type="file" 
-                  id="file-upload-author" 
-                  className="hidden"
-                  onChange={e => setFormData({...formData, file: e.target.files?.[0] || null})}
-                />
-                <label htmlFor="file-upload-author" className="cursor-pointer bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded shadow-sm hover:bg-gray-50 font-medium inline-block">
-                  Upload File
-                </label>
-                {formData.file && (
-                  <div className="mt-4 text-green-600 font-medium text-sm truncate px-2">
-                    ✓ {formData.file.name}
-                  </div>
-                )}
-              </div>
-
-              {/* File 2: Anonymous Version */}
-              <div className="border-2 border-dashed border-gray-300 p-6 text-center rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors">
-                <h3 className="font-bold text-gray-800 mb-2">2. Anonymous Manuscript</h3>
-                <p className="text-xs text-gray-500 mb-4">(For Blind Review. MUST BE PDF)</p>
-                <input 
-                  type="file" 
-                  accept=".pdf"
-                  id="file-upload-anon" 
-                  className="hidden"
-                  onChange={e => setFormData({...formData, anonFile: e.target.files?.[0] || null})}
-                />
-                <label htmlFor="file-upload-anon" className="cursor-pointer bg-[#c9a84c] text-black border border-[#b0923d] px-4 py-2 rounded shadow-sm hover:bg-[#b0923d] font-semibold inline-block">
-                  Upload PDF
-                </label>
-                {formData.anonFile && (
-                  <div className="mt-4 text-green-600 font-medium text-sm truncate px-2">
-                    ✓ {formData.anonFile.name}
-                  </div>
-                )}
+          <div className="submit-step-content">
+            <div className="submit-alert-info">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+              </svg>
+              <div>
+                <strong>Double-Blind Review Policy</strong>
+                <p>You must upload two files: a complete manuscript (with author details) and an anonymised version (without author names) for fair peer review.</p>
               </div>
             </div>
 
-            <div className="flex justify-between pt-4 border-t">
-              <button onClick={handlePrev} className="text-gray-600 font-semibold px-4 py-2 hover:bg-gray-100 rounded">Cancel</button>
-              <button onClick={handleNext} disabled={!formData.file || !formData.anonFile} className="bg-[#0d0d1a] text-white px-6 py-2 rounded font-semibold disabled:opacity-50 hover:bg-[#1a1a2e]">Save and continue</button>
+            <div className="submit-upload-grid">
+              {[
+                { key: "file" as const, label: "Complete Manuscript", sub: "Word / PDF · Include author names & affiliations", icon: "📄", accept: undefined },
+                { key: "anonFile" as const, label: "Anonymous Manuscript", sub: "PDF only · Remove all author identifiers", icon: "🔒", accept: ".pdf" },
+              ].map((slot) => (
+                <div key={slot.key} className={`submit-upload-zone ${formData[slot.key] ? "uploaded" : ""}`}>
+                  <div className="submit-upload-icon">{slot.icon}</div>
+                  <div className="submit-upload-title">{slot.label}</div>
+                  <div className="submit-upload-sub">{slot.sub}</div>
+                  <input
+                    type="file"
+                    id={`file-${slot.key}`}
+                    className="hidden"
+                    accept={slot.accept}
+                    onChange={(e) => setFormData({ ...formData, [slot.key]: e.target.files?.[0] || null })}
+                  />
+                  <label htmlFor={`file-${slot.key}`} className={`submit-upload-btn ${formData[slot.key] ? "uploaded" : ""}`}>
+                    {formData[slot.key] ? "✓ Change File" : "Choose File"}
+                  </label>
+                  {formData[slot.key] && (
+                    <div className="submit-file-name">
+                      {(formData[slot.key] as File).name}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+
+            <div className="submit-actions-between">
+              <button onClick={handlePrev} className="submit-btn-ghost">← Back</button>
+              <button onClick={handleNext} disabled={!formData.file || !formData.anonFile} className="submit-btn-primary">
+                Continue →
+              </button>
             </div>
           </div>
         )}
 
-        {/* Step 3: Metadata */}
+        {/* Step 3 */}
         {step === 3 && (
-          <div className="space-y-6">
-            <h2 className="text-xl font-bold border-b pb-2">Step 3. Enter Metadata</h2>
-            
-            <div>
-              <label className="block text-sm font-semibold mb-1">Title *</label>
-              <input 
-                type="text" 
-                required
+          <div className="submit-step-content">
+            <div className="submit-field-group">
+              <label className="submit-label">Article Title <span style={{ color: "#c9a84c" }}>*</span></label>
+              <input
+                type="text"
                 value={formData.title}
-                onChange={e => setFormData({...formData, title: e.target.value})}
-                className="w-full border border-gray-300 rounded p-2 focus:border-[#c9a84c] focus:ring-1 focus:ring-[#c9a84c]"
+                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                placeholder="Enter the full title of your manuscript..."
+                className="submit-input"
               />
+              <div className="submit-field-hint">{formData.title.length} characters · Recommended: 10–150 characters</div>
             </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label className="block text-sm font-semibold mb-1">Abstract (Indonesian) *</label>
-                <textarea 
-                  rows={8}
-                  required
+
+            <div className="submit-abstract-grid">
+              <div className="submit-field-group">
+                <label className="submit-label">Abstract (Indonesian) <span style={{ color: "#c9a84c" }}>*</span></label>
+                <textarea
+                  rows={9}
                   value={formData.abstract}
-                  onChange={e => setFormData({...formData, abstract: e.target.value})}
-                  className="w-full border border-gray-300 rounded p-2 focus:border-[#c9a84c] focus:ring-1 focus:ring-[#c9a84c] text-sm"
-                  placeholder="Masukkan abstrak dalam bahasa Indonesia..."
-                ></textarea>
+                  onChange={(e) => setFormData({ ...formData, abstract: e.target.value })}
+                  placeholder="Masukkan abstrak dalam bahasa Indonesia (150–300 kata)..."
+                  className="submit-textarea"
+                />
+                <div className="submit-field-hint">{formData.abstract.split(/\s+/).filter(Boolean).length} words</div>
               </div>
-              
-              <div className="relative">
-                <div className="flex justify-between items-end mb-1">
-                  <label className="block text-sm font-semibold text-[#c9a84c]">Abstract (English) *</label>
-                  <button 
+
+              <div className="submit-field-group">
+                <div className="submit-label-row">
+                  <label className="submit-label" style={{ color: "#c9a84c" }}>Abstract (English) <span>*</span></label>
+                  <button
                     type="button"
+                    className="submit-translate-btn"
                     onClick={() => {
-                      if (!formData.abstract) return alert('Silakan isi abstrak bahasa Indonesia terlebih dahulu');
-                      // Dummy translate action
-                      setFormData({...formData, abstractEn: "Translating...\n\n" + formData.abstract + "\n\n(Translated via APASIFIC Neural Engine)"});
+                      if (!formData.abstract) return;
+                      setFormData({ ...formData, abstractEn: "AI Translation in progress...\n\n" + formData.abstract + "\n\n(Translated via APASIFIC Neural Engine)" });
                     }}
-                    className="text-xs bg-blue-50 text-blue-700 font-bold px-3 py-1 rounded border border-blue-200 hover:bg-blue-100 flex items-center transition-colors"
                   >
-                    <svg className="w-3 h-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129" /></svg>
-                    Auto Translate
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129" />
+                    </svg>
+                    Auto-Translate
                   </button>
                 </div>
-                <textarea 
-                  rows={8}
-                  required
+                <textarea
+                  rows={9}
                   value={formData.abstractEn}
-                  onChange={e => setFormData({...formData, abstractEn: e.target.value})}
-                  className="w-full border border-[#c9a84c]/50 bg-yellow-50/30 rounded p-2 focus:border-[#c9a84c] focus:ring-1 focus:ring-[#c9a84c] text-sm"
-                  placeholder="English translation will appear here..."
-                ></textarea>
+                  onChange={(e) => setFormData({ ...formData, abstractEn: e.target.value })}
+                  placeholder="English abstract will appear here after translation..."
+                  className="submit-textarea gold-focus"
+                />
+                <div className="submit-field-hint">{formData.abstractEn.split(/\s+/).filter(Boolean).length} words</div>
               </div>
             </div>
 
-            <div className="flex justify-between pt-4 border-t">
-              <button onClick={handlePrev} className="text-gray-600 font-semibold px-4 py-2 hover:bg-gray-100 rounded">Cancel</button>
-              <button onClick={handleNext} disabled={!formData.title || !formData.abstract || !formData.abstractEn} className="bg-[#0d0d1a] text-white px-6 py-2 rounded font-semibold disabled:opacity-50 hover:bg-[#1a1a2e]">Save and continue</button>
-            </div>
-          </div>
-        )}
-
-        {/* Step 4: Confirmation */}
-        {step === 4 && (
-          <div className="space-y-6">
-            <h2 className="text-xl font-bold border-b pb-2">Step 4. Confirmation</h2>
-            
-            <p className="text-gray-600">
-              Your submission has been uploaded and is ready to be sent. You may go back to review and adjust any of the information you have entered before continuing. When you are ready, click "Finish Submission".
-            </p>
-
-            <div className="bg-gray-50 border border-gray-200 rounded p-4">
-              <h3 className="font-semibold">{formData.title}</h3>
-              <p className="text-sm text-gray-500 mt-2">{formData.file?.name}</p>
-            </div>
-
-            <div className="flex justify-between pt-4">
-              <button onClick={handlePrev} className="text-gray-600 font-semibold px-4 py-2 hover:bg-gray-100 rounded" disabled={isSubmitting}>Cancel</button>
-              <button onClick={handleSubmit} disabled={isSubmitting} className="bg-green-600 text-white px-6 py-2 rounded font-semibold disabled:opacity-50 hover:bg-green-700">
-                {isSubmitting ? "Submitting..." : "Finish Submission"}
+            <div className="submit-actions-between">
+              <button onClick={handlePrev} className="submit-btn-ghost">← Back</button>
+              <button onClick={handleNext} disabled={!formData.title || !formData.abstract || !formData.abstractEn} className="submit-btn-primary">
+                Continue →
               </button>
             </div>
           </div>
         )}
 
-        {/* Step 5: Complete */}
+        {/* Step 4 */}
+        {step === 4 && (
+          <div className="submit-step-content">
+            <div className="submit-confirm-box">
+              <div className="submit-confirm-header">Submission Summary</div>
+              <div className="submit-confirm-rows">
+                <div className="submit-confirm-row">
+                  <span>Title</span>
+                  <strong>{formData.title}</strong>
+                </div>
+                <div className="submit-confirm-row">
+                  <span>Journal</span>
+                  <strong>{formData.journalId === "1" ? "APASIFIC IAEP" : "RJRAKP"}</strong>
+                </div>
+                <div className="submit-confirm-row">
+                  <span>Manuscript</span>
+                  <strong>{formData.file?.name}</strong>
+                </div>
+                <div className="submit-confirm-row">
+                  <span>Anonymous File</span>
+                  <strong>{formData.anonFile?.name}</strong>
+                </div>
+                <div className="submit-confirm-row">
+                  <span>Abstract (ID)</span>
+                  <strong className="submit-confirm-abstract">{formData.abstract.slice(0, 120)}...</strong>
+                </div>
+              </div>
+            </div>
+
+            <div className="submit-confirm-note">
+              By clicking "Finish Submission", you confirm all details above are accurate and you agree to the journal's publication terms.
+            </div>
+
+            <div className="submit-actions-between">
+              <button onClick={handlePrev} disabled={isSubmitting} className="submit-btn-ghost">← Back</button>
+              <button onClick={handleSubmit} disabled={isSubmitting} className="submit-btn-success">
+                {isSubmitting ? (
+                  <>
+                    <div className="submit-spinner" />
+                    Submitting...
+                  </>
+                ) : (
+                  <>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <polyline points="20 6 9 17 4 12" />
+                    </svg>
+                    Finish Submission
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Step 5 */}
         {step === 5 && (
-          <div className="space-y-6 text-center py-10">
-            <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-green-100 text-green-600 mb-6">
-              <svg className="w-10 h-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+          <div className="submit-success-screen">
+            <div className="submit-success-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="20 6 9 17 4 12" />
               </svg>
             </div>
-            <h2 className="text-2xl font-bold text-gray-900">Submission Complete</h2>
-            <p className="text-gray-600 max-w-md mx-auto">
-              Thank you for your interest in publishing with APASIFIC IAEP. What happens next? The journal has been notified of your submission, and you will be emailed a confirmation for your records.
+            <h2 className="submit-success-title">Submission Complete!</h2>
+            <p className="submit-success-desc">
+              Thank you for submitting to APASIFIC IAEP. The editorial team has been notified. 
+              You will receive a confirmation email with your manuscript ID and next steps.
             </p>
-            
-            <div className="pt-8">
-              <a href="/dashboard" className="text-[#c9a84c] font-semibold hover:underline">
-                Return to your dashboard
+            <div className="submit-success-actions">
+              <a href="/dashboard/submissions" className="submit-btn-primary" style={{ textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 8 }}>
+                View My Submissions →
+              </a>
+              <a href="/dashboard" className="submit-btn-ghost" style={{ textDecoration: "none" }}>
+                Return to Dashboard
               </a>
             </div>
           </div>
         )}
       </div>
+
+      <style jsx>{`
+        .submit-enterprise {
+          max-width: 900px;
+          margin: 0 auto;
+          padding-bottom: 60px;
+        }
+
+        /* Header */
+        .submit-header {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          margin-bottom: 32px;
+          flex-wrap: wrap;
+          gap: 12px;
+        }
+        .submit-page-title {
+          font-size: 24px;
+          font-weight: 700;
+          color: #f0f0f8;
+          margin: 0 0 4px;
+        }
+        .submit-page-subtitle {
+          font-size: 13px;
+          color: rgba(255,255,255,0.3);
+          margin: 0;
+        }
+        .submit-journal-badge {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          padding: 8px 16px;
+          background: rgba(201,168,76,0.08);
+          border: 1px solid rgba(201,168,76,0.2);
+          border-radius: 10px;
+          font-size: 13px;
+          font-weight: 700;
+          color: #c9a84c;
+        }
+        .submit-journal-badge svg { width: 15px; height: 15px; }
+
+        /* Stepper */
+        .submit-stepper {
+          display: flex;
+          align-items: center;
+          margin-bottom: 8px;
+          overflow-x: auto;
+          padding-bottom: 4px;
+        }
+        .submit-step-item {
+          display: flex;
+          align-items: center;
+          flex-shrink: 0;
+        }
+        .submit-step-circle {
+          width: 30px;
+          height: 30px;
+          border-radius: 50%;
+          border: 2px solid rgba(255,255,255,0.12);
+          color: rgba(255,255,255,0.25);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 12px;
+          font-weight: 700;
+          flex-shrink: 0;
+          transition: all 0.25s;
+        }
+        .submit-step-circle.active {
+          border-color: #c9a84c;
+          color: #c9a84c;
+          background: rgba(201,168,76,0.1);
+          box-shadow: 0 0 16px rgba(201,168,76,0.2);
+        }
+        .submit-step-circle.done {
+          border-color: #34d399;
+          background: rgba(52,211,153,0.12);
+          color: #34d399;
+        }
+        .submit-step-circle svg { width: 13px; height: 13px; }
+        .submit-step-label {
+          font-size: 11px;
+          color: rgba(255,255,255,0.2);
+          margin: 0 8px;
+          white-space: nowrap;
+          font-weight: 500;
+          transition: color 0.25s;
+        }
+        .submit-step-label.active { color: rgba(255,255,255,0.7); }
+        .submit-step-line {
+          height: 1px;
+          width: 32px;
+          background: rgba(255,255,255,0.08);
+          flex-shrink: 0;
+          transition: background 0.25s;
+        }
+        .submit-step-line.done { background: rgba(52,211,153,0.35); }
+
+        .submit-step-desc {
+          font-size: 12.5px;
+          color: rgba(255,255,255,0.3);
+          margin-bottom: 24px;
+          padding-left: 2px;
+        }
+
+        /* Panel */
+        .submit-panel {
+          background: rgba(255,255,255,0.025);
+          border: 1px solid rgba(255,255,255,0.07);
+          border-radius: 18px;
+          padding: 32px;
+        }
+
+        .submit-message {
+          padding: 12px 16px;
+          border-radius: 10px;
+          font-size: 13px;
+          margin-bottom: 24px;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+        }
+        .submit-message.error {
+          background: rgba(239,68,68,0.08);
+          border: 1px solid rgba(239,68,68,0.2);
+          color: #f87171;
+        }
+        .submit-message.success {
+          background: rgba(52,211,153,0.08);
+          border: 1px solid rgba(52,211,153,0.2);
+          color: #34d399;
+        }
+
+        .submit-step-content {
+          display: flex;
+          flex-direction: column;
+          gap: 20px;
+        }
+
+        /* Fields */
+        .submit-field-group {
+          display: flex;
+          flex-direction: column;
+          gap: 6px;
+        }
+        .submit-label {
+          font-size: 12.5px;
+          font-weight: 600;
+          color: rgba(255,255,255,0.6);
+          letter-spacing: 0.2px;
+        }
+        .submit-field-hint {
+          font-size: 11px;
+          color: rgba(255,255,255,0.2);
+          margin-top: 4px;
+        }
+        :global(.submit-select),
+        :global(.submit-input),
+        :global(.submit-textarea) {
+          background: rgba(255,255,255,0.04);
+          border: 1px solid rgba(255,255,255,0.1);
+          border-radius: 10px;
+          padding: 10px 14px;
+          font-size: 13.5px;
+          color: rgba(255,255,255,0.8);
+          font-family: inherit;
+          outline: none;
+          transition: border-color 0.2s, background 0.2s;
+          width: 100%;
+        }
+        :global(.submit-select:focus),
+        :global(.submit-input:focus),
+        :global(.submit-textarea:focus) {
+          border-color: rgba(201,168,76,0.4);
+          background: rgba(201,168,76,0.04);
+        }
+        :global(.submit-select option) {
+          background: #0f0f1a;
+          color: #e0e0e8;
+        }
+        :global(.submit-textarea) { resize: vertical; }
+        :global(.submit-textarea.gold-focus:focus) {
+          border-color: rgba(201,168,76,0.5);
+        }
+
+        /* Requirements */
+        .submit-requirements {
+          background: rgba(255,255,255,0.02);
+          border: 1px solid rgba(255,255,255,0.06);
+          border-radius: 12px;
+          padding: 18px;
+        }
+        .submit-req-title {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          font-size: 12.5px;
+          font-weight: 700;
+          color: rgba(255,255,255,0.55);
+          margin-bottom: 14px;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+        }
+        .submit-req-title svg { width: 15px; height: 15px; color: #c9a84c; }
+        .submit-req-list {
+          display: flex;
+          flex-direction: column;
+          gap: 9px;
+          list-style: none;
+          margin: 0;
+          padding: 0;
+        }
+        .submit-req-item {
+          display: flex;
+          align-items: flex-start;
+          gap: 9px;
+          font-size: 13px;
+          color: rgba(255,255,255,0.45);
+          line-height: 1.5;
+        }
+        .submit-req-item svg {
+          width: 14px;
+          height: 14px;
+          color: #34d399;
+          flex-shrink: 0;
+          margin-top: 2px;
+        }
+
+        /* Checkbox */
+        .submit-checkbox-wrap {
+          display: flex;
+          align-items: flex-start;
+          gap: 12px;
+          cursor: pointer;
+          font-size: 13px;
+          color: rgba(255,255,255,0.55);
+          line-height: 1.5;
+          user-select: none;
+        }
+        .submit-checkbox {
+          width: 20px;
+          height: 20px;
+          border-radius: 6px;
+          border: 2px solid rgba(255,255,255,0.15);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          flex-shrink: 0;
+          transition: all 0.18s;
+          margin-top: 1px;
+        }
+        .submit-checkbox.checked {
+          background: rgba(201,168,76,0.15);
+          border-color: #c9a84c;
+        }
+        .submit-checkbox svg { width: 11px; height: 11px; color: #c9a84c; }
+
+        /* Buttons */
+        .submit-actions-end {
+          display: flex;
+          justify-content: flex-end;
+          padding-top: 8px;
+          border-top: 1px solid rgba(255,255,255,0.05);
+        }
+        .submit-actions-between {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding-top: 8px;
+          border-top: 1px solid rgba(255,255,255,0.05);
+        }
+        :global(.submit-btn-primary) {
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
+          padding: 10px 22px;
+          background: linear-gradient(135deg, #c9a84c 0%, #a07828 100%);
+          color: #000;
+          font-size: 13px;
+          font-weight: 700;
+          border: none;
+          border-radius: 10px;
+          cursor: pointer;
+          transition: all 0.2s;
+          box-shadow: 0 4px 16px rgba(201,168,76,0.2);
+          text-decoration: none;
+        }
+        :global(.submit-btn-primary:hover:not(:disabled)) {
+          box-shadow: 0 6px 24px rgba(201,168,76,0.35);
+          transform: translateY(-1px);
+        }
+        :global(.submit-btn-primary:disabled) {
+          opacity: 0.35;
+          cursor: not-allowed;
+        }
+        :global(.submit-btn-primary svg) { width: 14px; height: 14px; }
+
+        :global(.submit-btn-ghost) {
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          padding: 10px 18px;
+          background: transparent;
+          border: 1px solid rgba(255,255,255,0.1);
+          color: rgba(255,255,255,0.4);
+          font-size: 13px;
+          font-weight: 500;
+          border-radius: 10px;
+          cursor: pointer;
+          transition: all 0.18s;
+          text-decoration: none;
+        }
+        :global(.submit-btn-ghost:hover:not(:disabled)) {
+          border-color: rgba(255,255,255,0.2);
+          color: rgba(255,255,255,0.7);
+          background: rgba(255,255,255,0.04);
+        }
+
+        .submit-btn-success {
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
+          padding: 10px 22px;
+          background: linear-gradient(135deg, #34d399 0%, #059669 100%);
+          color: #000;
+          font-size: 13px;
+          font-weight: 700;
+          border: none;
+          border-radius: 10px;
+          cursor: pointer;
+          transition: all 0.2s;
+          box-shadow: 0 4px 16px rgba(52,211,153,0.2);
+        }
+        .submit-btn-success:hover:not(:disabled) {
+          box-shadow: 0 6px 24px rgba(52,211,153,0.35);
+          transform: translateY(-1px);
+        }
+        .submit-btn-success:disabled { opacity: 0.6; cursor: not-allowed; }
+        .submit-btn-success svg { width: 14px; height: 14px; }
+
+        /* Upload */
+        .submit-alert-info {
+          display: flex;
+          align-items: flex-start;
+          gap: 12px;
+          padding: 14px 16px;
+          background: rgba(96,165,250,0.07);
+          border: 1px solid rgba(96,165,250,0.15);
+          border-radius: 12px;
+          font-size: 13px;
+          color: rgba(255,255,255,0.55);
+          line-height: 1.6;
+        }
+        .submit-alert-info svg { width: 18px; height: 18px; color: #60a5fa; flex-shrink: 0; margin-top: 1px; }
+        .submit-alert-info strong { display: block; color: #60a5fa; margin-bottom: 4px; font-size: 13px; }
+        .submit-alert-info p { margin: 0; }
+        .submit-upload-grid {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 16px;
+        }
+        @media (max-width: 640px) {
+          .submit-upload-grid { grid-template-columns: 1fr; }
+        }
+        .submit-upload-zone {
+          border: 2px dashed rgba(255,255,255,0.1);
+          border-radius: 14px;
+          padding: 28px 20px;
+          text-align: center;
+          transition: all 0.2s;
+        }
+        .submit-upload-zone.uploaded {
+          border-color: rgba(52,211,153,0.3);
+          background: rgba(52,211,153,0.03);
+        }
+        .submit-upload-zone:hover {
+          border-color: rgba(255,255,255,0.18);
+          background: rgba(255,255,255,0.02);
+        }
+        .submit-upload-icon { font-size: 32px; margin-bottom: 10px; }
+        .submit-upload-title {
+          font-size: 14px;
+          font-weight: 700;
+          color: rgba(255,255,255,0.75);
+          margin-bottom: 4px;
+        }
+        .submit-upload-sub {
+          font-size: 11.5px;
+          color: rgba(255,255,255,0.25);
+          margin-bottom: 14px;
+          line-height: 1.5;
+        }
+        :global(.submit-upload-btn) {
+          display: inline-block;
+          padding: 7px 18px;
+          border-radius: 8px;
+          font-size: 12.5px;
+          font-weight: 600;
+          cursor: pointer;
+          border: 1px solid rgba(255,255,255,0.15);
+          background: rgba(255,255,255,0.05);
+          color: rgba(255,255,255,0.6);
+          transition: all 0.18s;
+        }
+        :global(.submit-upload-btn:hover) {
+          background: rgba(255,255,255,0.08);
+          border-color: rgba(255,255,255,0.25);
+        }
+        :global(.submit-upload-btn.uploaded) {
+          border-color: rgba(52,211,153,0.35);
+          color: #34d399;
+          background: rgba(52,211,153,0.08);
+        }
+        .submit-file-name {
+          font-size: 11px;
+          color: #34d399;
+          margin-top: 8px;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+          padding: 0 8px;
+        }
+
+        /* Metadata */
+        .submit-label-row {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+        }
+        .submit-translate-btn {
+          display: inline-flex;
+          align-items: center;
+          gap: 5px;
+          padding: 4px 10px;
+          background: rgba(96,165,250,0.08);
+          border: 1px solid rgba(96,165,250,0.2);
+          border-radius: 7px;
+          font-size: 11px;
+          font-weight: 600;
+          color: #60a5fa;
+          cursor: pointer;
+          transition: all 0.18s;
+        }
+        .submit-translate-btn:hover {
+          background: rgba(96,165,250,0.15);
+          border-color: rgba(96,165,250,0.35);
+        }
+        .submit-translate-btn svg { width: 12px; height: 12px; }
+        .submit-abstract-grid {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 16px;
+        }
+        @media (max-width: 760px) {
+          .submit-abstract-grid { grid-template-columns: 1fr; }
+        }
+
+        /* Confirm */
+        .submit-confirm-box {
+          background: rgba(255,255,255,0.02);
+          border: 1px solid rgba(255,255,255,0.07);
+          border-radius: 14px;
+          overflow: hidden;
+        }
+        .submit-confirm-header {
+          background: rgba(201,168,76,0.06);
+          border-bottom: 1px solid rgba(201,168,76,0.1);
+          padding: 12px 20px;
+          font-size: 12px;
+          font-weight: 700;
+          color: #c9a84c;
+          text-transform: uppercase;
+          letter-spacing: 1px;
+        }
+        .submit-confirm-rows {
+          display: flex;
+          flex-direction: column;
+        }
+        .submit-confirm-row {
+          display: flex;
+          justify-content: space-between;
+          align-items: flex-start;
+          gap: 16px;
+          padding: 13px 20px;
+          border-bottom: 1px solid rgba(255,255,255,0.04);
+          font-size: 13px;
+        }
+        .submit-confirm-row:last-child { border-bottom: none; }
+        .submit-confirm-row span { color: rgba(255,255,255,0.3); flex-shrink: 0; min-width: 100px; }
+        .submit-confirm-row strong { color: rgba(255,255,255,0.7); text-align: right; word-break: break-word; }
+        .submit-confirm-abstract { font-weight: 400 !important; font-style: italic; font-size: 12px !important; }
+        .submit-confirm-note {
+          font-size: 12px;
+          color: rgba(255,255,255,0.25);
+          line-height: 1.6;
+          padding: 4px 0;
+        }
+
+        /* Submit Spinner */
+        .submit-spinner {
+          width: 14px;
+          height: 14px;
+          border: 2px solid rgba(0,0,0,0.2);
+          border-top-color: #000;
+          border-radius: 50%;
+          animation: spin 0.7s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* Success */
+        .submit-success-screen {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          text-align: center;
+          padding: 40px 20px;
+        }
+        .submit-success-icon {
+          width: 70px;
+          height: 70px;
+          border-radius: 50%;
+          background: rgba(52,211,153,0.1);
+          border: 2px solid rgba(52,211,153,0.3);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          margin-bottom: 20px;
+          animation: success-pop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        @keyframes success-pop {
+          from { transform: scale(0.6); opacity: 0; }
+          to { transform: scale(1); opacity: 1; }
+        }
+        .submit-success-icon svg { width: 30px; height: 30px; color: #34d399; }
+        .submit-success-title {
+          font-size: 24px;
+          font-weight: 700;
+          color: #f0f0f8;
+          margin: 0 0 12px;
+        }
+        .submit-success-desc {
+          font-size: 14px;
+          color: rgba(255,255,255,0.4);
+          max-width: 460px;
+          line-height: 1.7;
+          margin-bottom: 28px;
+        }
+        .submit-success-actions {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          flex-wrap: wrap;
+          justify-content: center;
+        }
+      `}</style>
     </div>
   );
 }

@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { ReactNode } from "react";
 import Sidebar from "@/components/dashboard/Sidebar";
 import Topbar from "@/components/dashboard/Topbar";
@@ -6,32 +5,28 @@ import { cookies } from "next/headers";
 import { createClient } from "@/utils/supabase/server";
 
 export default async function DashboardLayout({ children }: { children: ReactNode }) {
-  // Try to fetch real user from Supabase
   let userRole = "author";
   let userName = "Dr. John Doe";
 
   try {
-    // 1. Coba baca dari cookie mock UI dulu
     const cookieStore = await cookies();
     const mockUser = cookieStore.get('mock_user')?.value;
-    
+
     if (mockUser === 'admin') {
       userRole = 'admin';
       userName = 'Super Admin';
     } else if (mockUser === 'editor') {
       userRole = 'editor';
-      userName = cookieStore.get('mock_user_name')?.value || 'M. A. Rahman (Editor)';
+      userName = cookieStore.get('mock_user_name')?.value || 'M. A. Rahman';
     } else if (mockUser === 'reviewer') {
       userRole = 'reviewer';
-      userName = cookieStore.get('mock_user_name')?.value || 'Kadin Medan (Reviewer)';
+      userName = cookieStore.get('mock_user_name')?.value || 'Kadin Medan';
     } else if (mockUser === 'submitter') {
       userRole = 'author';
-      userName = cookieStore.get('mock_user_name')?.value || 'Kad Sumut (Author)';
+      userName = cookieStore.get('mock_user_name')?.value || 'Kad Sumut';
     } else {
-      // 2. Jika tidak ada cookie, baru coba Supabase
       const supabase = await createClient();
       const { data: { user } } = await supabase.auth.getUser();
-      
       if (user) {
         const { data: profile } = await supabase.from('profiles').select('full_name, role').eq('id', user.id).single();
         if (profile) {
@@ -40,28 +35,29 @@ export default async function DashboardLayout({ children }: { children: ReactNod
         }
       }
     }
-  } catch (error) {
-    // Fallback to dummy data if keys are invalid
+  } catch {
     console.log("Using fallback dashboard data");
   }
 
   return (
-    <div className="flex h-screen" style={{ background: "#08080f" }}>
-      {/* Sidebar - Dark Premium Theme */}
+    <div style={{ display: "flex", height: "100vh", background: "#07070e", overflow: "hidden" }}>
       <Sidebar role={userRole} />
-
-      {/* Main Content Area */}
-      <div className="flex-1 flex flex-col overflow-hidden">
-        {/* Topbar */}
+      <div style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden", minWidth: 0 }}>
         <Topbar userName={userName} role={userRole} />
-
-        {/* Page Content - Light/Clean Theme for reading manuscripts */}
-        <main className="flex-1 overflow-x-hidden overflow-y-auto" style={{ background: "#0c0c14", padding: "28px 32px" }}>
-          <div className="w-full max-w-6xl mx-auto">
+        <main
+          style={{
+            flex: 1,
+            overflowX: "hidden",
+            overflowY: "auto",
+            background: "#07070e",
+            padding: "28px 32px",
+          }}
+        >
+          <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
             {children}
           </div>
         </main>
       </div>
     </div>
   );
-} // trigger CSS rebuild
+}
