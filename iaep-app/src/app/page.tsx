@@ -97,22 +97,84 @@ export default function Home() {
       </div>
 
       <!-- Leadership -->
-      <div class="subsection" id="leadership">
-        <h3 class="subsection-title">Leadership</h3>
+      <!-- Leadership / Organizational Structure -->
+      <div class="subsection" id="leadership" style="scroll-margin-top: 100px;">
+        <a id="org-structure" style="position: relative; top: -100px; display: block; visibility: hidden;"></a>
+        <h3 class="subsection-title">Organizational Structure</h3>
         <div class="leadership-grid">
-          <div class="leader-card">
+          
+          <!-- Founding Father -->
+          <div class="leader-card" data-aos="fade-up">
             <div class="leader-avatar">
               <div class="avatar-placeholder">
                 <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" stroke-width="1.2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
               </div>
             </div>
             <div class="leader-info">
-              <h4>President General</h4>
-              <p class="leader-name">Prof. Dr. [Name]</p>
+              <h4>Founding Father</h4>
+              <p class="leader-name">DR. ARFAN IKHSAN LUBIS., SE., M.Si., CATr</p>
+              <p class="leader-affil">Association of Asia Pacific Academician</p>
+            </div>
+          </div>
+
+          <!-- Advisor -->
+          <div class="leader-card" data-aos="fade-up" style="animation-delay:0.05s">
+            <div class="leader-avatar">
+              <div class="avatar-placeholder">
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" stroke-width="1.2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              </div>
+            </div>
+            <div class="leader-info">
+              <h4>Advisor</h4>
+              <p class="leader-name">PROF. DR. INDRA MAIPITA., M.Si</p>
+              <p class="leader-affil">Asia Pacific Academic Advisory Board</p>
+            </div>
+          </div>
+
+          <!-- President -->
+          <div class="leader-card" data-aos="fade-up" style="animation-delay:0.1s">
+            <div class="leader-avatar">
+              <div class="avatar-placeholder">
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" stroke-width="1.2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              </div>
+            </div>
+            <div class="leader-info">
+              <h4>President</h4>
+              <p class="leader-name">DR. ARFAN IKHSAN LUBIS., SE., M.Si., CATr</p>
               <p class="leader-affil">Asia Pacific Academic Leadership</p>
             </div>
           </div>
-          <div class="leader-card" style="animation-delay:0.1s">
+
+          <!-- Vice President 1 -->
+          <div class="leader-card" data-aos="fade-up" style="animation-delay:0.15s">
+            <div class="leader-avatar">
+              <div class="avatar-placeholder">
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" stroke-width="1.2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              </div>
+            </div>
+            <div class="leader-info">
+              <h4>Vice President</h4>
+              <p class="leader-name">DR. MUHAMMAD YAMIN NOCH., SE., MSA</p>
+              <p class="leader-affil">Academic Affairs &amp; Institutional Development</p>
+            </div>
+          </div>
+
+          <!-- Vice President 2 -->
+          <div class="leader-card" data-aos="fade-up" style="animation-delay:0.2s">
+            <div class="leader-avatar">
+              <div class="avatar-placeholder">
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" stroke-width="1.2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              </div>
+            </div>
+            <div class="leader-info">
+              <h4>Vice President</h4>
+              <p class="leader-name">PROF. DR. ISTIANINGSIH SASTRODIHARJO., SE., M.Si</p>
+              <p class="leader-affil">Research &amp; International Cooperation</p>
+            </div>
+          </div>
+
+          <!-- Secretary General -->
+          <div class="leader-card" data-aos="fade-up" style="animation-delay:0.25s">
             <div class="leader-avatar">
               <div class="avatar-placeholder">
                 <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" stroke-width="1.2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
@@ -120,34 +182,39 @@ export default function Home() {
             </div>
             <div class="leader-info">
               <h4>Secretary General</h4>
-              <p class="leader-name">Assoc. Prof. Dr. [Name]</p>
+              <p class="leader-name">DR. NGATEMIN., M.Si</p>
               <p class="leader-affil">Strategic Operations &amp; Governance</p>
             </div>
           </div>
-          <div class="leader-card" style="animation-delay:0.2s">
+
+          <!-- Treasurer -->
+          <div class="leader-card" data-aos="fade-up" style="animation-delay:0.3s">
             <div class="leader-avatar">
               <div class="avatar-placeholder">
                 <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" stroke-width="1.2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
               </div>
             </div>
             <div class="leader-info">
-              <h4>Treasurer General</h4>
-              <p class="leader-name">Dr. [Name]</p>
+              <h4>Treasurer</h4>
+              <p class="leader-name">TRI DESSY FADILLAH., SE., M.Ak</p>
               <p class="leader-affil">Finance &amp; Resource Management</p>
             </div>
           </div>
-          <div class="leader-card" style="animation-delay:0.3s">
+
+          <!-- Information Technology -->
+          <div class="leader-card" data-aos="fade-up" style="animation-delay:0.35s">
             <div class="leader-avatar">
               <div class="avatar-placeholder">
                 <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" stroke-width="1.2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
               </div>
             </div>
             <div class="leader-info">
-              <h4>Director of Research</h4>
-              <p class="leader-name">Prof. Dr. [Name]</p>
-              <p class="leader-affil">Research &amp; Innovation Council</p>
+              <h4>Information Technology</h4>
+              <p class="leader-name">M. A. RAHMAN</p>
+              <p class="leader-affil">Digital Platform &amp; System Integration</p>
             </div>
           </div>
+
         </div>
       </div>
 
