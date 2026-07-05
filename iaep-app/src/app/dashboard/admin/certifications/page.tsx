@@ -14,6 +14,7 @@ interface Question {
 interface Candidate {
   id: string;
   name: string;
+  email?: string;
   cert: string;
   method: string;
   schedule: string;
