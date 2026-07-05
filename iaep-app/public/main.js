@@ -463,7 +463,6 @@ function initDynamicLeadership() {
     // Create wrapper row
     const row = document.createElement('div');
     row.className = 'hero-leaders-row';
-    row.style.cssText = 'display: flex; align-items: center; justify-content: center; gap: 40px; margin-bottom: 30px; width: 100%; flex-wrap: wrap; z-index: 5; position: relative;';
 
     // Insert row before logo
     logo.parentNode.insertBefore(row, logo);
@@ -471,8 +470,7 @@ function initDynamicLeadership() {
     // Create Ketua Card (Left)
     if (data.ketuaNama) {
       const ketuaCard = document.createElement('div');
-      ketuaCard.className = 'hero-leader-card';
-      ketuaCard.style.cssText = 'display: flex; flex-direction: column; align-items: center; text-align: center; background: rgba(8,8,16,0.6); border: 1.5px solid rgba(201,168,76,0.25); border-radius: 12px; padding: 15px; width: 220px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); backdrop-filter: blur(10px); transition: all 0.3s;';
+      ketuaCard.className = 'hero-leader-card ketua';
       
       const photoUrl = data.ketuaPhoto || 'logo-apasific.png';
       ketuaCard.innerHTML = `
@@ -486,14 +484,12 @@ function initDynamicLeadership() {
     }
 
     // Append Logo to center
-    logo.style.margin = '0';
     row.appendChild(logo);
 
     // Create Sekretaris Card (Right)
     if (data.sekNama) {
       const sekCard = document.createElement('div');
-      sekCard.className = 'hero-leader-card';
-      sekCard.style.cssText = 'display: flex; flex-direction: column; align-items: center; text-align: center; background: rgba(8,8,16,0.6); border: 1.5px solid rgba(255,255,255,0.15); border-radius: 12px; padding: 15px; width: 220px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); backdrop-filter: blur(10px); transition: all 0.3s;';
+      sekCard.className = 'hero-leader-card sekretaris';
       
       const photoUrl = data.sekretarisPhoto || 'logo-apasific.png';
       sekCard.innerHTML = `

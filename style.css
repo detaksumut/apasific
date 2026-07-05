@@ -2331,5 +2331,65 @@ img { max-width: 100%; display: block; }
   }
 }
 
+/* ── Dynamic Leadership Layout ── */
+.hero-leaders-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  position: relative;
+  min-height: 220px;
+  margin-bottom: 25px;
+}
+
+.hero-leaders-row .page-hero-logo,
+.hero-leaders-row .boc-hero-logo img {
+  position: relative;
+  z-index: 2;
+  margin: 0 !important;
+}
+
+.hero-leader-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  background: rgba(8, 8, 16, 0.65);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+  padding: 15px;
+  width: 215px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 3;
+}
+
+.hero-leader-card.ketua {
+  right: calc(50% + 150px);
+  border-color: rgba(201, 168, 76, 0.25);
+}
+
+.hero-leader-card.sekretaris {
+  left: calc(50% + 150px);
+}
+
+@media (max-width: 768px) {
+  .hero-leaders-row {
+    flex-direction: column;
+    min-height: auto;
+    gap: 20px;
+  }
+  .hero-leader-card {
+    position: static;
+    transform: none;
+    width: 240px;
+  }
+}
+
+
 
 
