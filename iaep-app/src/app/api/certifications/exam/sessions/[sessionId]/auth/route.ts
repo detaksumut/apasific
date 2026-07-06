@@ -5,8 +5,9 @@ const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 const supabase = createClient(supabaseUrl, supabaseKey);
 
-export async function POST(req: Request, { params }: { params: { sessionId: string } }) {
+export async function POST(req: Request, { params }: { params: Promise<{ sessionId: string }> }) {
   try {
+    const { sessionId } = await params;
     const { access_code } = await req.json();
 
     if (!access_code) {
@@ -16,7 +17,7 @@ export async function POST(req: Request, { params }: { params: { sessionId: stri
     const { data, error } = await supabase
       .from("exam_sessions")
       .select("*")
-      .eq("id", params.sessionId)
+      .eq("id", sessionId)
       .single();
 
     if (error || !data) {

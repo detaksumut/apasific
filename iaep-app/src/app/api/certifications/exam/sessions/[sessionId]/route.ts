@@ -5,12 +5,13 @@ const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 const supabase = createClient(supabaseUrl, supabaseKey);
 
-export async function GET(req: Request, { params }: { params: { sessionId: string } }) {
+export async function GET(req: Request, { params }: { params: Promise<{ sessionId: string }> }) {
   try {
+    const { sessionId } = await params;
     const { data, error } = await supabase
       .from("exam_sessions")
       .select("id, certification_field, status")
-      .eq("id", params.sessionId)
+      .eq("id", sessionId)
       .single();
 
     if (error || !data) {
