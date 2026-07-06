@@ -314,15 +314,31 @@ export default function Home() {
 
     <div dangerouslySetInnerHTML={{ __html: `
 
-      <!-- Mitra Strategis (Strategic Partners) -->
-      <div class="subsection" id="mitra-strategis">
-        <h3 class="subsection-title">Mitra Strategis</h3>
-        <div class="partners-grid" style="display: flex; flex-wrap: wrap; justify-content: center; gap: 40px; align-items: center; margin-top: 30px; padding: 20px; background: rgba(255,255,255,0.02); border-radius: 12px; border: 1px solid rgba(255,255,255,0.05);">
-          <img src="/adai.jpg" alt="ADAI" style="height: 70px; object-fit: contain; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3)); transition: transform 0.3s;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'" />
-          <img src="/adihgi.jpg" alt="ADIHGI" style="height: 70px; object-fit: contain; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3)); transition: transform 0.3s;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'" />
-          <img src="/amas.jpeg" alt="AMAS" style="height: 70px; object-fit: contain; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3)); transition: transform 0.3s;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'" />
-          <img src="/apfea.jpeg" alt="APFEA" style="height: 70px; object-fit: contain; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3)); transition: transform 0.3s;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'" />
-          <img src="/kemdesia.jpeg" alt="KEMDESIA" style="height: 70px; object-fit: contain; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3)); transition: transform 0.3s;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'" />
+      <!-- Regional Chapters -->
+      <div class="subsection" id="regional-chapters">
+        <h3 class="subsection-title">Regional Chapters</h3>
+        <div class="chapters-grid">
+          <div class="chapter-badge"><img src="https://flagcdn.com/w40/my.png" alt="" /> Malaysia</div>
+          <div class="chapter-badge" style="animation-delay:0.05s"><img src="https://flagcdn.com/w40/id.png" alt="" /> Indonesia</div>
+          <div class="chapter-badge" style="animation-delay:0.1s"><img src="https://flagcdn.com/w40/ph.png" alt="" /> Philippines</div>
+          <div class="chapter-badge" style="animation-delay:0.15s"><img src="https://flagcdn.com/w40/th.png" alt="" /> Thailand</div>
+          <div class="chapter-badge" style="animation-delay:0.2s"><img src="https://flagcdn.com/w40/bd.png" alt="" /> Bangladesh</div>
+          <div class="chapter-badge" style="animation-delay:0.25s"><img src="https://flagcdn.com/w40/pk.png" alt="" /> Pakistan</div>
+          <div class="chapter-badge" style="animation-delay:0.3s"><img src="https://flagcdn.com/w40/in.png" alt="" /> India</div>
+          <div class="chapter-badge" style="animation-delay:0.35s"><img src="https://flagcdn.com/w40/cn.png" alt="" /> China</div>
+          <div class="chapter-badge" style="animation-delay:0.4s"><img src="https://flagcdn.com/w40/jp.png" alt="" /> Japan</div>
+          <div class="chapter-badge" style="animation-delay:0.45s"><img src="https://flagcdn.com/w40/kr.png" alt="" /> Korea</div>
+          <div class="chapter-badge" style="animation-delay:0.5s"><img src="https://flagcdn.com/w40/sg.png" alt="" /> Singapore</div>
+          <div class="chapter-badge" style="animation-delay:0.55s"><img src="https://flagcdn.com/w40/vn.png" alt="" /> Vietnam</div>
+          <div class="chapter-badge" style="animation-delay:0.6s"><img src="https://flagcdn.com/w40/ng.png" alt="" /> Nigeria</div>
+          <div class="chapter-badge" style="animation-delay:0.65s"><img src="https://flagcdn.com/w40/tr.png" alt="" /> Turkey</div>
+          <div class="chapter-badge" style="animation-delay:0.7s"><img src="https://flagcdn.com/w40/au.png" alt="" /> Australia</div>
+          <div class="chapter-badge" style="animation-delay:0.75s"><img src="https://flagcdn.com/w40/bn.png" alt="" /> Brunei</div>
+          <div class="chapter-badge" style="animation-delay:0.8s"><img src="https://flagcdn.com/w40/nz.png" alt="" /> New Zealand</div>
+          <div class="chapter-badge" style="animation-delay:0.85s"><img src="https://flagcdn.com/w40/ca.png" alt="" /> Canada</div>
+          <div class="chapter-badge" style="animation-delay:0.9s"><img src="https://flagcdn.com/w40/mn.png" alt="" /> Mongolia</div>
+          <div class="chapter-badge" style="animation-delay:0.95s"><img src="https://flagcdn.com/w40/fj.png" alt="" /> Fiji</div>
+          <div class="chapter-badge" style="animation-delay:1.0s"><img src="https://flagcdn.com/w40/cl.png" alt="" /> Chile</div>
         </div>
       </div>
     </div>
@@ -693,82 +709,22 @@ export default function Home() {
   </section>
 
   <!-- ═══════════════════════════════════════════
-       MEMBERSHIP
+       MITRA STRATEGIS
   ═══════════════════════════════════════════ -->
-  <section class="section membership-section" id="membership">
+  <section class="section membership-section" id="mitra-strategis">
     <div class="membership-bg-pattern"></div>
     <div class="container">
       <div class="section-header">
-        <p class="section-eyebrow">JOIN THE COMMUNITY</p>
-        <h2 class="section-title">Become a <span class="gold">Member</span></h2>
+        <p class="section-eyebrow">OUR PARTNERS</p>
+        <h2 class="section-title">Mitra <span class="gold">Strategis</span></h2>
         <div class="title-ornament"><span></span><svg width="20" height="20" viewBox="0 0 20 20"><polygon points="10,1 12.9,7 19.5,7.6 14.7,12 16.2,18.5 10,15 3.8,18.5 5.3,12 0.5,7.6 7.1,7" fill="#c9a84c"/></svg><span></span></div>
-        <p class="section-subtitle">Join 5,000+ scholars and professionals shaping the future of Asia Pacific academic excellence</p>
       </div>
-      <div class="membership-tiers">
-        <div class="tier-card">
-          <div class="tier-header">
-            <div class="tier-icon">🎓</div>
-            <h3>Student Member</h3>
-            <div class="tier-price">USD <span>30</span> / year</div>
-          </div>
-          <ul class="tier-benefits">
-            <li>✓ Access to digital resources</li>
-            <li>✓ Conference early-bird rates</li>
-            <li>✓ Young Academician Network</li>
-            <li>✓ E-Certificate of membership</li>
-            <li>✓ Competition eligibility</li>
-          </ul>
-          <a href="#contact" class="btn-tier" id="btn-student-member">Join Now</a>
-        </div>
-        <div class="tier-card featured-tier" style="animation-delay:0.15s">
-          <div class="tier-popular">MOST POPULAR</div>
-          <div class="tier-header">
-            <div class="tier-icon">🏛️</div>
-            <h3>Professional Member</h3>
-            <div class="tier-price">USD <span>80</span> / year</div>
-          </div>
-          <ul class="tier-benefits">
-            <li>✓ All Student Member benefits</li>
-            <li>✓ Journal publication discount</li>
-            <li>✓ Research grant eligibility</li>
-            <li>✓ Certification fast-track</li>
-            <li>✓ Networking directory access</li>
-            <li>✓ Voting rights in ASIA governance</li>
-          </ul>
-          <a href="#contact" class="btn-tier btn-tier-featured" id="btn-prof-member">Join Now</a>
-        </div>
-        <div class="tier-card" style="animation-delay:0.3s">
-          <div class="tier-header">
-            <div class="tier-icon">🏆</div>
-            <h3>Fellow Member</h3>
-            <div class="tier-price">USD <span>150</span> / year</div>
-          </div>
-          <ul class="tier-benefits">
-            <li>✓ All Professional Member benefits</li>
-            <li>✓ Priority conference speaking slot</li>
-            <li>✓ Editorial board consideration</li>
-            <li>✓ ASIA Fellow designation (FASIA)</li>
-            <li>✓ Strategic body participation</li>
-            <li>✓ Leadership nomination eligibility</li>
-          </ul>
-          <a href="#contact" class="btn-tier" id="btn-fellow-member">Join Now</a>
-        </div>
-        <div class="tier-card" style="animation-delay:0.45s">
-          <div class="tier-header">
-            <div class="tier-icon">🏢</div>
-            <h3>Institutional Member</h3>
-            <div class="tier-price">USD <span>500</span> / year</div>
-          </div>
-          <ul class="tier-benefits">
-            <li>✓ Up to 20 staff memberships</li>
-            <li>✓ Co-branding opportunities</li>
-            <li>✓ MOU partnership eligibility</li>
-            <li>✓ Priority event hosting</li>
-            <li>✓ Dedicated liaison officer</li>
-            <li>✓ Accreditation advisory support</li>
-          </ul>
-          <a href="#contact" class="btn-tier" id="btn-inst-member">Join Now</a>
-        </div>
+      <div class="partners-grid" style="display: flex; flex-wrap: wrap; justify-content: center; gap: 50px; align-items: center; margin-top: 30px; padding: 40px; background: rgba(255,255,255,0.02); border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); box-shadow: 0 10px 30px rgba(0,0,0,0.2);">
+        <img src="/adai.jpg" alt="ADAI" style="height: 90px; object-fit: contain; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3)); transition: transform 0.3s; border-radius: 8px;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'" />
+        <img src="/adihgi.jpg" alt="ADIHGI" style="height: 90px; object-fit: contain; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3)); transition: transform 0.3s; border-radius: 8px;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'" />
+        <img src="/amas.jpeg" alt="AMAS" style="height: 90px; object-fit: contain; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3)); transition: transform 0.3s; border-radius: 8px;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'" />
+        <img src="/apfea.jpeg" alt="APFEA" style="height: 90px; object-fit: contain; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3)); transition: transform 0.3s; border-radius: 8px;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'" />
+        <img src="/kemdesia.jpeg" alt="KEMDESIA" style="height: 90px; object-fit: contain; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3)); transition: transform 0.3s; border-radius: 8px;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'" />
       </div>
     </div>
   </section>
