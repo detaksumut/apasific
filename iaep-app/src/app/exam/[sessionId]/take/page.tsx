@@ -60,10 +60,6 @@ export default function CandidateTakeExam() {
   };
 
   const handleSubmitAnswers = async () => {
-    if (!confirm("Apakah Anda yakin ingin submit? Jawaban tidak bisa diubah lagi! Pastikan semua soal telah terjawab.")) {
-      return;
-    }
-
     setIsSubmitting(true);
     try {
       const res = await fetch(`/api/certifications/exam/sessions/${sessionId}/data`, {
@@ -86,7 +82,8 @@ export default function CandidateTakeExam() {
         alert("Server Error: " + (errData.error || "Gagal menyimpan ke database."));
       }
     } catch (e: any) {
-      alert("Gagal mengirim jawaban (Koneksi Terputus).");
+      alert("Gagal mengirim jawaban (Koneksi Terputus). Cek console log.");
+      console.error(e);
     } finally {
       setIsSubmitting(false);
     }
