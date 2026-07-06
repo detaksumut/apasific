@@ -191,58 +191,59 @@ export default function MajesticMembershipPage() {
           </div>
 
           {/* Right Column: Live Member Card */}
-          <div className="lg:col-span-2 flex flex-col items-center justify-start sticky top-[96px]">
-            <h3 className="text-gray-400 font-semibold mb-[16px] text-center tracking-widest uppercase text-sm">Real-Time Card Preview</h3>
+          {/* Right Column: Live Member Card */}
+          <div className="lg:col-span-2 flex flex-col items-center justify-start sticky" style={{ top: '96px' }}>
+            <h3 className="text-gray-400 font-semibold text-center tracking-widest uppercase" style={{ marginBottom: '16px', fontSize: '14px' }}>Real-Time Card Preview</h3>
             
             {/* The Card */}
             <div 
-              className="w-full max-w-sm aspect-[1.586/1] rounded-[16px] p-[24px] relative overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.8)] border border-[#c9a84c]/40 group transition-all duration-500 hover:shadow-[0_20px_60px_rgba(201,168,76,0.2)] bg-cover bg-center"
-              style={{ backgroundImage: 'url(/card-bg.png)' }}
+              className="w-full max-w-sm aspect-[1.586/1] relative overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.8)] border border-[#c9a84c]/40 group transition-all duration-500 hover:shadow-[0_20px_60px_rgba(201,168,76,0.2)] bg-cover bg-center"
+              style={{ backgroundImage: 'url(/card-bg.png)', padding: '24px', borderRadius: '16px' }}
             >
               {/* Card Dark Overlay so text is readable */}
               <div className="absolute inset-0 bg-gradient-to-br from-[#1a1a2e]/60 to-[#0a0810]/80 z-0"></div>
 
               {/* Card Background Ornaments */}
-              <div className="absolute -right-[64px] -top-[64px] w-[192px] h-[192px] bg-[#c9a84c] rounded-full mix-blend-overlay filter blur-[64px] opacity-40 z-0"></div>
-              <div className="absolute -left-[64px] -bottom-[64px] w-[192px] h-[192px] bg-[#c9a84c] rounded-full mix-blend-overlay filter blur-[64px] opacity-30 z-0"></div>
+              <div className="absolute bg-[#c9a84c] rounded-full mix-blend-overlay filter blur-[64px] opacity-40 z-0" style={{ right: '-64px', top: '-64px', width: '192px', height: '192px' }}></div>
+              <div className="absolute bg-[#c9a84c] rounded-full mix-blend-overlay filter blur-[64px] opacity-30 z-0" style={{ left: '-64px', bottom: '-64px', width: '192px', height: '192px' }}></div>
               
               {/* Fake Chip */}
-              <div className="absolute left-[24px] top-[96px] w-[48px] h-[36px] rounded-[4px] bg-gradient-to-br from-[#e8c97a] to-[#9a7a30] opacity-90 flex items-center justify-center z-10 shadow-inner">
-                <div className="w-[32px] h-[20px] border border-black/20 rounded-[2px]"></div>
+              <div className="absolute bg-gradient-to-br from-[#e8c97a] to-[#9a7a30] opacity-90 flex items-center justify-center z-10 shadow-inner" style={{ left: '24px', top: '96px', width: '48px', height: '36px', borderRadius: '4px' }}>
+                <div className="border border-black/20" style={{ width: '32px', height: '20px', borderRadius: '2px' }}></div>
               </div>
 
               <div className="relative z-10 h-full flex flex-col justify-between">
                 {/* Header */}
                 <div className="flex justify-between items-start">
                   <div>
-                    <h4 className="text-[#c9a84c] font-bold text-[14px] tracking-widest uppercase" style={{ fontFamily: 'Cinzel, serif' }}>ASIA</h4>
-                    <p className="text-[8px] text-gray-400 uppercase tracking-wider max-w-[120px]">Association of Asia Pacific Academician</p>
+                    <h4 className="text-[#c9a84c] font-bold tracking-widest uppercase" style={{ fontFamily: 'Cinzel, serif', fontSize: '14px' }}>ASIA</h4>
+                    <p className="text-gray-400 uppercase tracking-wider max-w-[120px]" style={{ fontSize: '8px' }}>Association of Asia Pacific Academician</p>
                   </div>
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src="/logo-apasific.png" alt="Logo" className="w-[48px] h-[48px] object-contain" />
+                  <img src="/logo-apasific.png" alt="Logo" className="object-contain" style={{ width: '48px', height: '48px' }} />
                 </div>
 
                 {/* Body / User Info */}
-                <div className="mt-auto pb-[8px]">
-                  <p className="text-[10px] text-[#c9a84c] uppercase tracking-wider mb-[4px]">Official Member</p>
-                  <h2 className="text-[20px] font-bold text-white uppercase tracking-wider truncate drop-shadow-md">
+                <div className="mt-auto" style={{ paddingBottom: '8px' }}>
+                  <p className="text-[#c9a84c] uppercase tracking-wider" style={{ fontSize: '10px', marginBottom: '4px' }}>Official Member</p>
+                  <h2 className="font-bold text-white uppercase tracking-wider truncate drop-shadow-md" style={{ fontSize: '20px' }}>
                     {formData.fullName || "YOUR NAME HERE"}
                   </h2>
-                  <div className="flex gap-[16px] mt-[8px] text-gray-300">
+                  <div className="flex text-gray-300" style={{ gap: '16px', marginTop: '8px' }}>
                     <div>
-                      <p className="text-[8px] uppercase text-gray-500">Academic ID</p>
-                      <p className="text-[12px] font-mono tracking-widest">{formData.internationalId || "XXXX-XXXX-XXXX"}</p>
+                      <p className="uppercase text-gray-500" style={{ fontSize: '8px' }}>Academic ID</p>
+                      <p className="font-mono tracking-widest" style={{ fontSize: '12px' }}>{formData.internationalId || "XXXX-XXXX-XXXX"}</p>
                     </div>
                     <div>
-                      <p className="text-[8px] uppercase text-gray-500">Level</p>
-                      <p className="text-[12px] font-mono tracking-widest">{formData.academicLevel}</p>
+                      <p className="uppercase text-gray-500" style={{ fontSize: '8px' }}>Level</p>
+                      <p className="font-mono tracking-widest" style={{ fontSize: '12px' }}>{formData.academicLevel}</p>
                     </div>
                   </div>
                 </div>
               </div>
 
               {/* QR Code */}
-              <div className="absolute right-[24px] bottom-[24px] opacity-90 p-[6px] bg-white/10 rounded-[8px] backdrop-blur-sm border border-white/20 shadow-[0_0_10px_rgba(255,255,255,0.1)]">
+              <div className="absolute opacity-90 bg-white/10 backdrop-blur-sm border border-white/20 shadow-[0_0_10px_rgba(255,255,255,0.1)]" style={{ right: '24px', bottom: '24px', padding: '6px', borderRadius: '8px' }}>
                 <QRCode
                   value={formData.fullName ? formData.fullName : "ASIA MEMBER"}
                   size={36}
