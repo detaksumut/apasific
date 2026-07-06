@@ -52,7 +52,7 @@ export default function MajesticMembershipPage() {
       <div className="absolute top-0 left-1/4 w-96 h-96 bg-[#c9a84c] rounded-full mix-blend-color-dodge filter blur-[128px] opacity-20 animate-blob z-0"></div>
       <div className="absolute top-0 right-1/4 w-96 h-96 bg-[#c9a84c] rounded-full mix-blend-color-dodge filter blur-[128px] opacity-10 animate-blob animation-delay-2000 z-0"></div>
 
-      <div className="w-full max-w-7xl mx-auto relative z-10">
+      <div className="w-full max-w-[1024px] mx-auto relative z-10">
         
         <Link href="/">
           <div className="flex items-center gap-3 group cursor-pointer w-fit mb-8">
