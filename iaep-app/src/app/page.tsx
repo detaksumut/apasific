@@ -2,7 +2,8 @@ import OrgStructure from "@/components/OrgStructure";
 
 export default function Home() {
   return (
-    <main dangerouslySetInnerHTML={{ __html: `
+    <>
+      <main dangerouslySetInnerHTML={{ __html: `
 
   <!-- ═══════════════════════════════════════════
        HERO SECTION
@@ -792,5 +793,6 @@ export default function Home() {
        FOOTER
   ═══════════════════════════════════════════ -->
   ` }} />
+    </>
   );
 }
