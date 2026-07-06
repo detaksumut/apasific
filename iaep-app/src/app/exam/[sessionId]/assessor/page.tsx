@@ -12,6 +12,8 @@ export default function AssessorPage() {
   // Dynamic States for DRAFT
   const [mcqs, setMcqs] = useState<any[]>([]);
   const [essays, setEssays] = useState<any[]>([]);
+  const [interviewLink, setInterviewLink] = useState("");
+  const [interviewTime, setInterviewTime] = useState("");
 
   // States for Grading
   const [score, setScore] = useState<number>(0);
@@ -41,6 +43,8 @@ export default function AssessorPage() {
           if (data.exam_data) {
             setMcqs(data.exam_data.mcqs || []);
             setEssays(data.exam_data.essays || []);
+            setInterviewLink(data.exam_data.interviewLink || "");
+            setInterviewTime(data.exam_data.interviewTime || "");
           } else {
             // Default empty state
             setMcqs([{ id: Date.now().toString(), q: "", a: "", b: "", c: "", d: "", correct: "A" }]);
@@ -88,7 +92,7 @@ export default function AssessorPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           status: 'READY',
-          exam_data: { mcqs, essays }
+          exam_data: { mcqs, essays, interviewLink, interviewTime }
         })
       });
       if (res.ok) {
@@ -155,8 +159,30 @@ export default function AssessorPage() {
 
         {sessionData.status === 'DRAFT' && (
           <div className="bg-[#0d0d1a] border border-gray-800 rounded-xl shadow-xl" style={{ padding: '24px' }}>
-            <h2 className="text-xl font-bold text-white" style={{ marginBottom: '24px' }}>Tahap 1: Buat Soal Ujian</h2>
+            <h2 className="text-xl font-bold text-white" style={{ marginBottom: '24px' }}>Tahap 1: Buat Soal & Jadwal Ujian</h2>
             
+            {/* Interview Section */}
+            <div style={{ marginBottom: '40px', padding: '24px' }} className="bg-[#1a1510] border border-[#c9a84c]/30 rounded-xl">
+              <h3 className="font-semibold text-lg text-[#c9a84c]" style={{ marginBottom: '16px' }}>
+                <svg className="w-5 h-5 inline-block mr-2 -mt-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                </svg>
+                Jadwal Wawancara Online (Opsional)
+              </h3>
+              <p className="text-gray-400 text-sm" style={{ marginBottom: '16px' }}>Masukkan link Google Meet / Zoom dan waktunya. Kosongkan jika tidak ada wawancara.</p>
+              
+              <div className="flex flex-col md:flex-row" style={{ gap: '16px' }}>
+                <div className="flex-1">
+                  <label className="text-xs text-gray-500 font-bold mb-1 block">Tanggal & Waktu</label>
+                  <input type="text" placeholder="Contoh: 15 Juli 2026, 14:00 WIB" value={interviewTime} onChange={e => setInterviewTime(e.target.value)} className="w-full bg-[#05050a] border border-gray-700 rounded text-sm text-white" style={{ padding: '12px' }} />
+                </div>
+                <div className="flex-2 md:w-2/3">
+                  <label className="text-xs text-gray-500 font-bold mb-1 block">Link Google Meet / Zoom</label>
+                  <input type="url" placeholder="https://meet.google.com/xxx-xxxx-xxx" value={interviewLink} onChange={e => setInterviewLink(e.target.value)} className="w-full bg-[#05050a] border border-gray-700 rounded text-sm text-blue-400" style={{ padding: '12px' }} />
+                </div>
+              </div>
+            </div>
+
             {/* Multiple Choice Section */}
             <div style={{ marginBottom: '40px' }}>
               <div className="flex justify-between items-center" style={{ marginBottom: '16px' }}>
