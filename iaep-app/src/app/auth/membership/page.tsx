@@ -72,11 +72,11 @@ export default function MajesticMembershipPage() {
           </p>
         </div>
 
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '48px', alignItems: 'flex-start' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '48px', alignItems: 'center' }}>
           
-          {/* Left Column: Form */}
-          <div className="bg-[#0d0d1a]/80 border border-[#c9a84c]/20 shadow-2xl backdrop-blur-md" style={{ flex: '1 1 55%', minWidth: '320px', padding: '32px', borderRadius: '16px' }}>
-            <h2 className="font-bold text-[#c9a84c] border-b border-gray-800" style={{ fontSize: '24px', marginBottom: '24px', paddingBottom: '16px' }}>Membership Application Form</h2>
+          {/* Top: Form */}
+          <div className="bg-[#0d0d1a]/80 border border-[#c9a84c]/20 shadow-2xl backdrop-blur-md w-full" style={{ maxWidth: '800px', padding: '32px', borderRadius: '16px' }}>
+            <h2 className="font-bold text-[#c9a84c] border-b border-gray-800" style={{ fontSize: '24px', marginBottom: '24px', paddingBottom: '16px', textAlign: 'center' }}>Membership Application Form</h2>
             
             <form onSubmit={handleSubmit} style={{ marginTop: '16px' }}>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '24px' }}>
@@ -179,8 +179,8 @@ export default function MajesticMembershipPage() {
             </form>
           </div>
 
-          {/* Right Column: Live Member Card */}
-          <div className="flex flex-col items-center justify-start sticky" style={{ flex: '1 1 35%', minWidth: '320px', top: '96px' }}>
+          {/* Bottom: Live Member Card */}
+          <div className="flex flex-col items-center justify-start w-full" style={{ maxWidth: '400px' }}>
             <h3 className="text-gray-400 font-semibold text-center tracking-widest uppercase" style={{ marginBottom: '16px', fontSize: '14px' }}>Real-Time Card Preview</h3>
             
             {/* The Card */}
