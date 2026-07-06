@@ -2323,3 +2323,229 @@ img { max-width: 100%; display: block; }
 }
 
 
+/* ═══════════════════════════════════════════════════
+   RESPONSIVE — MOBILE FIRST
+   Breakpoints: 768px (tablet), 480px (phone)
+═══════════════════════════════════════════════════ */
+
+/* ── NAVBAR MOBILE ── */
+@media (max-width: 900px) {
+  .nav-links {
+    display: none;
+    position: fixed;
+    top: var(--nav-h);
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(8, 8, 16, 0.98);
+    backdrop-filter: blur(20px);
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 24px 20px;
+    overflow-y: auto;
+    z-index: 998;
+    gap: 4px;
+  }
+  .nav-links.open { display: flex; }
+
+  .nav-links li { width: 100%; }
+
+  .nav-link {
+    width: 100%;
+    font-size: 14px;
+    padding: 12px 16px;
+  }
+
+  /* Mobile Dropdown */
+  .dropdown, .dropdown.dropdown-wide {
+    position: static;
+    transform: none;
+    opacity: 1;
+    pointer-events: all;
+    display: none;
+    box-shadow: none;
+    border: none;
+    background: rgba(255,255,255,0.04);
+    border-radius: 8px;
+    margin: 4px 0 8px 16px;
+    padding: 8px 0;
+    min-width: unset;
+    width: 100%;
+  }
+  .has-dropdown.open .dropdown { display: block; }
+  .dd-grid { grid-template-columns: 1fr; }
+
+  .hamburger { display: flex; }
+  .btn-join { display: none; }
+}
+
+/* ── HERO SECTION MOBILE ── */
+@media (max-width: 768px) {
+  .hero { height: auto; min-height: 520px; }
+
+  .hero-bg-image img {
+    min-height: 520px;
+    object-position: center center;
+  }
+
+  /* Hide bank card overlay on mobile — too cramped */
+  .hero-bank-overlay { display: none; }
+
+  /* Move CTA buttons */
+  .hero-cta-overlay {
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: 110px;
+    width: 90%;
+    max-width: 400px;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+  }
+  .hero-cta-overlay .btn-primary,
+  .hero-cta-overlay .btn-outline {
+    width: 100%;
+    justify-content: center;
+    font-size: 13px;
+    padding: 12px 20px;
+  }
+
+  /* Stats bar */
+  .stats-container {
+    flex-wrap: wrap;
+    height: auto;
+    padding: 16px 16px;
+    gap: 12px;
+    justify-content: space-around;
+  }
+  .stat-divider { display: none; }
+  .stat-item { flex: 0 0 45%; justify-content: center; }
+  .stat-num { font-size: 20px; }
+}
+
+/* ── SECTIONS MOBILE ── */
+@media (max-width: 768px) {
+  .container { padding: 0 16px; }
+
+  /* Section spacing */
+  section, .section { padding: 48px 0; }
+
+  .section-title { font-size: clamp(22px, 6vw, 36px) !important; }
+  .section-sub { font-size: 13px !important; }
+
+  /* About / Two-column layouts → stack */
+  .about-grid,
+  .two-col,
+  .two-col-layout,
+  .vision-mission-grid {
+    grid-template-columns: 1fr !important;
+    gap: 32px;
+  }
+
+  /* Stats / counter grids */
+  .stats-grid,
+  .counters-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 16px;
+  }
+
+  /* Program cards grid → 1 col */
+  .programs-grid,
+  .body-cards,
+  .mission-grid,
+  .framework-grid {
+    grid-template-columns: 1fr !important;
+    gap: 16px;
+  }
+
+  /* Tabs */
+  .tabs { flex-wrap: wrap; gap: 8px; }
+  .tab-btn { font-size: 12px; padding: 8px 14px; }
+
+  /* Certification form */
+  .cert-form-grid,
+  .cert-form .form-row {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Footer */
+  .footer-grid {
+    grid-template-columns: 1fr !important;
+    gap: 32px;
+  }
+  .footer-links-col { min-width: unset; }
+
+  /* Leadership / org structure cards */
+  .leadership-grid,
+  .org-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 16px;
+  }
+
+  /* Map / regional chapters */
+  .chapters-layout,
+  .partners-layout {
+    flex-direction: column !important;
+    gap: 24px;
+  }
+
+  /* Hero title sizing */
+  .hero-title { font-size: clamp(28px, 8vw, 48px); }
+  .hero-desc { font-size: 13px; }
+}
+
+/* ── SMALL PHONES ── */
+@media (max-width: 480px) {
+  /* Navbar logo text shorten */
+  .logo-sub { display: none; }
+
+  /* Hero */
+  .hero { min-height: 460px; }
+  .hero-cta-overlay { bottom: 100px; }
+
+  /* Stats → 2 per row */
+  .stat-item { flex: 0 0 40%; }
+
+  /* Grids → 1 col */
+  .stats-grid,
+  .counters-grid,
+  .leadership-grid,
+  .org-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Font sizes */
+  .section-title { font-size: clamp(20px, 7vw, 28px) !important; }
+
+  /* Buttons full-width */
+  .btn-primary, .btn-outline, .btn-prog {
+    width: 100%;
+    justify-content: center;
+  }
+
+  /* Journal / article cards */
+  .journal-card, .article-card, .body-card {
+    padding: 20px 16px !important;
+  }
+
+  /* Form inputs */
+  input, select, textarea {
+    font-size: 16px !important; /* prevent iOS zoom */
+  }
+
+  /* Footer bottom */
+  .footer-bottom p {
+    font-size: 11px;
+    text-align: center;
+    line-height: 1.6;
+  }
+}
+
+/* ── NAVBAR BANK CARD — hide on mobile (show in footer instead) ── */
+@media (max-width: 900px) {
+  /* Bank card in hero hidden on mobile */
+  [style*="position: absolute"][style*="top: 0px"] {
+    display: none !important;
+  }
+}
+
