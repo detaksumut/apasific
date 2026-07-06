@@ -8,10 +8,42 @@ export default function Home() {
   <!-- ═══════════════════════════════════════════
        HERO SECTION
   ═══════════════════════════════════════════ -->
+  <style>
+    @media (max-width: 768px) {
+      #hero-bg-img {
+        object-fit: contain !important;
+        height: auto !important;
+        min-height: 250px;
+        background: #000;
+      }
+      .hero-logo-img {
+        width: 100px !important;
+        height: 100px !important;
+      }
+      .hero-logo-overlay {
+        top: 50% !important;
+        left: 50% !important;
+        transform: translate(-50%, -50%) !important;
+      }
+      .hero-cta-overlay {
+        bottom: 100px !important;
+        flex-direction: column !important;
+        width: 100%;
+        align-items: center;
+        gap: 10px !important;
+      }
+      .hero-cta-overlay a {
+        font-size: 0.8rem !important;
+        padding: 8px 15px !important;
+        width: 80% !important;
+        justify-content: center;
+      }
+    }
+  </style>
   <section class="hero" id="home">
     <!-- Full-width background image — all content is inside the banner -->
     <div class="hero-bg-image">
-      <img src="/banner-apasific.png" alt="ASIA – Association of Asia Pacific Academician" id="hero-bg-img" />
+      <img src="/banner-apasific.png" alt="ASIA – Association of Asia Pacific Academician" id="hero-bg-img" style="width: 100%; object-fit: cover;" />
     </div>
     <!-- Logo overlay: di sebelah kanan teks ASSOCIATION di banner -->
     <div class="hero-logo-overlay">
