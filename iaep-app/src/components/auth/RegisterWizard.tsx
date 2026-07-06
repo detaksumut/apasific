@@ -185,11 +185,11 @@ export default function RegisterWizard({ availableRoles, defaultRole, forcedRole
         )}
         <form onSubmit={step === 1 ? nextStep : step === 2 ? handleStep2Submit : submitForm}>
           {step === 1 && (
-            <div className="space-y-4">
+            <div className="space-y-6">
               
               {/* Apasific Royalty Message (Hidden for dedicated Members) */}
               {formData.role !== 'member' && (
-                <div className="bg-[#c9a84c]/10 border-l-4 border-[#c9a84c] p-4 mb-6 rounded-r-lg">
+                <div className="bg-[#c9a84c]/10 border-l-4 border-[#c9a84c] p-4 rounded-r-lg">
                   <p className="text-sm text-[#e8c97a] font-semibold flex items-start gap-2">
                     <svg className="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -203,8 +203,8 @@ export default function RegisterWizard({ availableRoles, defaultRole, forcedRole
 
               {availableRoles.length > 1 && !forcedRole && (
                 <div>
-                  <label className="block text-[#e8e8f0] text-sm font-semibold mb-2">Select Role</label>
-                  <select name="role" value={formData.role} onChange={handleChange} className="w-full bg-[#0d0d1a] border border-[#333] text-[#e8e8f0] rounded-lg p-3 focus:outline-none focus:border-[#c9a84c] transition-colors" required>
+                  <label className="block text-gray-300 text-xs tracking-wider uppercase font-semibold mb-2">Select Role</label>
+                  <select name="role" value={formData.role} onChange={handleChange} className="w-full bg-[#05050a]/50 border border-gray-700 text-white rounded-xl px-4 py-3.5 focus:outline-none focus:border-[#c9a84c] focus:ring-1 focus:ring-[#c9a84c] transition-all appearance-none" required>
                     {availableRoles.map(r => (
                       <option key={r.value} value={r.value}>{r.label}</option>
                     ))}
@@ -213,28 +213,28 @@ export default function RegisterWizard({ availableRoles, defaultRole, forcedRole
               )}
               
               <div>
-                <label className="block text-[#e8e8f0] text-sm font-semibold mb-2">Full Name (with Titles)</label>
-                <input type="text" name="fullName" value={formData.fullName} onChange={handleChange} className="w-full bg-[#0d0d1a] border border-[#333] text-[#e8e8f0] rounded-lg p-3 focus:outline-none focus:border-[#c9a84c]" required />
+                <label className="block text-gray-300 text-xs tracking-wider uppercase font-semibold mb-2">Full Name (with Titles)</label>
+                <input type="text" name="fullName" value={formData.fullName} onChange={handleChange} className="w-full bg-[#05050a]/50 border border-gray-700 text-white rounded-xl px-4 py-3.5 focus:outline-none focus:border-[#c9a84c] focus:ring-1 focus:ring-[#c9a84c] transition-all" required />
               </div>
               
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-6">
                 <div>
-                  <label className="block text-[#e8e8f0] text-sm font-semibold mb-2">Email Address</label>
-                  <input type="email" name="email" value={formData.email} onChange={handleChange} className="w-full bg-[#0d0d1a] border border-[#333] text-[#e8e8f0] rounded-lg p-3 focus:outline-none focus:border-[#c9a84c]" required />
+                  <label className="block text-gray-300 text-xs tracking-wider uppercase font-semibold mb-2">Email Address</label>
+                  <input type="email" name="email" value={formData.email} onChange={handleChange} className="w-full bg-[#05050a]/50 border border-gray-700 text-white rounded-xl px-4 py-3.5 focus:outline-none focus:border-[#c9a84c] focus:ring-1 focus:ring-[#c9a84c] transition-all" required />
                 </div>
                 <div>
-                  <label className="block text-[#e8e8f0] text-sm font-semibold mb-2">Phone / WhatsApp</label>
-                  <input type="tel" name="phone" value={formData.phone} onChange={handleChange} className="w-full bg-[#0d0d1a] border border-[#333] text-[#e8e8f0] rounded-lg p-3 focus:outline-none focus:border-[#c9a84c]" required />
+                  <label className="block text-gray-300 text-xs tracking-wider uppercase font-semibold mb-2">Phone / WhatsApp</label>
+                  <input type="tel" name="phone" value={formData.phone} onChange={handleChange} className="w-full bg-[#05050a]/50 border border-gray-700 text-white rounded-xl px-4 py-3.5 focus:outline-none focus:border-[#c9a84c] focus:ring-1 focus:ring-[#c9a84c] transition-all" required />
                 </div>
               </div>
 
               <div>
-                <label className="block text-[#e8e8f0] text-sm font-semibold mb-2">Password</label>
-                <input type="password" name="password" value={formData.password} onChange={handleChange} className="w-full bg-[#0d0d1a] border border-[#333] text-[#e8e8f0] rounded-lg p-3 focus:outline-none focus:border-[#c9a84c]" required minLength={6} />
+                <label className="block text-gray-300 text-xs tracking-wider uppercase font-semibold mb-2">Password</label>
+                <input type="password" name="password" value={formData.password} onChange={handleChange} className="w-full bg-[#05050a]/50 border border-gray-700 text-white rounded-xl px-4 py-3.5 focus:outline-none focus:border-[#c9a84c] focus:ring-1 focus:ring-[#c9a84c] transition-all" required minLength={6} />
               </div>
 
-              <div className="pt-4">
-                <button type="submit" className="w-full bg-[#c9a84c] text-black font-bold py-3 rounded-lg hover:bg-[#e8c97a] transition-colors">
+              <div className="pt-6">
+                <button type="submit" className="w-full bg-gradient-to-r from-[#c9a84c] to-[#e8c97a] hover:from-[#e8c97a] hover:to-[#c9a84c] text-black font-bold tracking-wide uppercase text-sm py-4 rounded-xl shadow-[0_0_20px_rgba(201,168,76,0.3)] transition-all transform hover:-translate-y-0.5">
                   Next Step: Academic Profile ➔
                 </button>
               </div>
@@ -242,20 +242,20 @@ export default function RegisterWizard({ availableRoles, defaultRole, forcedRole
           )}
 
           {step === 2 && (
-            <div className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-6">
                 <div>
-                  <label className="block text-[#e8e8f0] text-sm font-semibold mb-2">University / Institution</label>
-                  <input type="text" name="university" value={formData.university} onChange={handleChange} className="w-full bg-[#0d0d1a] border border-[#333] text-[#e8e8f0] rounded-lg p-3 focus:outline-none focus:border-[#c9a84c]" required />
+                  <label className="block text-gray-300 text-xs tracking-wider uppercase font-semibold mb-2">University / Institution</label>
+                  <input type="text" name="university" value={formData.university} onChange={handleChange} className="w-full bg-[#05050a]/50 border border-gray-700 text-white rounded-xl px-4 py-3.5 focus:outline-none focus:border-[#c9a84c] focus:ring-1 focus:ring-[#c9a84c] transition-all" required />
                 </div>
                 <div>
-                  <label className="block text-[#e8e8f0] text-sm font-semibold mb-2">Country</label>
-                  <input type="text" name="country" value={formData.country} onChange={handleChange} className="w-full bg-[#0d0d1a] border border-[#333] text-[#e8e8f0] rounded-lg p-3 focus:outline-none focus:border-[#c9a84c]" required />
+                  <label className="block text-gray-300 text-xs tracking-wider uppercase font-semibold mb-2">Country</label>
+                  <input type="text" name="country" value={formData.country} onChange={handleChange} className="w-full bg-[#05050a]/50 border border-gray-700 text-white rounded-xl px-4 py-3.5 focus:outline-none focus:border-[#c9a84c] focus:ring-1 focus:ring-[#c9a84c] transition-all" required />
                 </div>
                 <div className="md:col-span-2">
-                  <label className="block text-[#e8e8f0] text-sm font-semibold mb-2">Status Akademik Saat Ini (Current Academic Status)</label>
-                  <p className="text-xs text-[#8888aa] mb-2 italic">Data ini wajib diisi untuk menentukan klasifikasi publikasi artikel Anda.</p>
-                  <select name="academicLevel" value={formData.academicLevel} onChange={handleChange} className="w-full bg-[#0d0d1a] border border-[#333] text-[#e8e8f0] rounded-lg p-3 focus:outline-none focus:border-[#c9a84c]" required>
+                  <label className="block text-gray-300 text-xs tracking-wider uppercase font-semibold mb-1">Status Akademik Saat Ini (Current Academic Status)</label>
+                  <p className="text-xs text-[#8888aa] mb-3 italic">Data ini wajib diisi untuk menentukan klasifikasi publikasi artikel Anda.</p>
+                  <select name="academicLevel" value={formData.academicLevel} onChange={handleChange} className="w-full bg-[#05050a]/50 border border-gray-700 text-white rounded-xl px-4 py-3.5 focus:outline-none focus:border-[#c9a84c] focus:ring-1 focus:ring-[#c9a84c] transition-all appearance-none" required>
                     <option value="Mahasiswa">Mahasiswa (Belum Lulus S1)</option>
                     <option value="S1">S1 (Sarjana / Menulis untuk S2)</option>
                     <option value="S2">S2 (Magister / Menulis untuk S3)</option>
@@ -265,44 +265,44 @@ export default function RegisterWizard({ availableRoles, defaultRole, forcedRole
                   </select>
                 </div>
                 <div className="md:col-span-2">
-                  <label className="block text-[#e8e8f0] text-sm font-semibold mb-2">Nomor Rekening & Nama Bank (Bank Account for Royalties)</label>
-                  <p className="text-xs text-[#8888aa] mb-2 italic">Digunakan untuk mentransfer royalti setiap kali artikel Anda diunduh oleh pembaca.</p>
-                  <input type="text" name="bankAccount" value={formData.bankAccount} onChange={handleChange} placeholder="Contoh: BCA 1234567890 a/n Budi Santoso" className="w-full bg-[#0d0d1a] border border-green-500/50 text-[#e8e8f0] rounded-lg p-3 focus:outline-none focus:border-green-400 placeholder-gray-700" required />
+                  <label className="block text-gray-300 text-xs tracking-wider uppercase font-semibold mb-1">Nomor Rekening & Nama Bank (Bank Account for Royalties)</label>
+                  <p className="text-xs text-[#8888aa] mb-3 italic">Digunakan untuk mentransfer royalti setiap kali artikel Anda diunduh oleh pembaca.</p>
+                  <input type="text" name="bankAccount" value={formData.bankAccount} onChange={handleChange} placeholder="Contoh: BCA 1234567890 a/n Budi Santoso" className="w-full bg-[#05050a]/50 border border-gray-700 text-white rounded-xl px-4 py-3.5 focus:outline-none focus:border-[#c9a84c] focus:ring-1 focus:ring-[#c9a84c] transition-all" required />
                 </div>
               </div>
 
-              <div className="pt-4 border-t border-[#333]">
-                <h3 className="text-[#c9a84c] font-semibold mb-4">Academic IDs</h3>
+              <div className="pt-6 border-t border-gray-800">
+                <h3 className="text-gray-300 text-xs tracking-wider uppercase font-semibold mb-4">Academic IDs</h3>
                 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
                   <div>
-                    <label className="block text-[#8888aa] text-xs mb-1">ORCID iD</label>
-                    <input type="text" name="orcid" value={formData.orcid} onChange={handleChange} placeholder="0000-0000-0000-0000" className="w-full bg-[#0d0d1a] border border-[#333] text-[#e8e8f0] rounded-lg p-2 focus:outline-none focus:border-[#c9a84c]" />
+                    <label className="block text-[#8888aa] text-[10px] uppercase tracking-wider mb-1">ORCID iD</label>
+                    <input type="text" name="orcid" value={formData.orcid} onChange={handleChange} placeholder="0000-0000-0000-0000" className="w-full bg-[#05050a]/50 border border-gray-700 text-white rounded-lg px-4 py-2.5 focus:outline-none focus:border-[#c9a84c] focus:ring-1 focus:ring-[#c9a84c] transition-all text-sm" />
                   </div>
                   <div>
-                    <label className="block text-[#8888aa] text-xs mb-1">Google Scholar ID</label>
-                    <input type="text" name="googleScholar" value={formData.googleScholar} onChange={handleChange} className="w-full bg-[#0d0d1a] border border-[#333] text-[#e8e8f0] rounded-lg p-2 focus:outline-none focus:border-[#c9a84c]" />
+                    <label className="block text-[#8888aa] text-[10px] uppercase tracking-wider mb-1">Google Scholar ID</label>
+                    <input type="text" name="googleScholar" value={formData.googleScholar} onChange={handleChange} className="w-full bg-[#05050a]/50 border border-gray-700 text-white rounded-lg px-4 py-2.5 focus:outline-none focus:border-[#c9a84c] focus:ring-1 focus:ring-[#c9a84c] transition-all text-sm" />
                   </div>
                   <div>
-                    <label className="block text-[#8888aa] text-xs mb-1">Scopus ID</label>
-                    <input type="text" name="scopus" value={formData.scopus} onChange={handleChange} className="w-full bg-[#0d0d1a] border border-[#333] text-[#e8e8f0] rounded-lg p-2 focus:outline-none focus:border-[#c9a84c]" />
+                    <label className="block text-[#8888aa] text-[10px] uppercase tracking-wider mb-1">Scopus ID</label>
+                    <input type="text" name="scopus" value={formData.scopus} onChange={handleChange} className="w-full bg-[#05050a]/50 border border-gray-700 text-white rounded-lg px-4 py-2.5 focus:outline-none focus:border-[#c9a84c] focus:ring-1 focus:ring-[#c9a84c] transition-all text-sm" />
                   </div>
                   <div>
-                    <label className="block text-[#8888aa] text-xs mb-1">Web of Science (WoS) ID</label>
-                    <input type="text" name="wos" value={formData.wos} onChange={handleChange} className="w-full bg-[#0d0d1a] border border-[#333] text-[#e8e8f0] rounded-lg p-2 focus:outline-none focus:border-[#c9a84c]" />
+                    <label className="block text-[#8888aa] text-[10px] uppercase tracking-wider mb-1">Web of Science (WoS) ID</label>
+                    <input type="text" name="wos" value={formData.wos} onChange={handleChange} className="w-full bg-[#05050a]/50 border border-gray-700 text-white rounded-lg px-4 py-2.5 focus:outline-none focus:border-[#c9a84c] focus:ring-1 focus:ring-[#c9a84c] transition-all text-sm" />
                   </div>
                   <div className="md:col-span-2">
-                    <label className="block text-[#8888aa] text-xs mb-1">SINTA ID (Indonesia)</label>
-                    <input type="text" name="sinta" value={formData.sinta} onChange={handleChange} className="w-full bg-[#0d0d1a] border border-[#333] text-[#e8e8f0] rounded-lg p-2 focus:outline-none focus:border-[#c9a84c]" />
+                    <label className="block text-[#8888aa] text-[10px] uppercase tracking-wider mb-1">SINTA ID (Indonesia)</label>
+                    <input type="text" name="sinta" value={formData.sinta} onChange={handleChange} className="w-full bg-[#05050a]/50 border border-gray-700 text-white rounded-lg px-4 py-2.5 focus:outline-none focus:border-[#c9a84c] focus:ring-1 focus:ring-[#c9a84c] transition-all text-sm" />
                   </div>
                 </div>
               </div>
 
-              <div className="pt-6 flex gap-4">
-                <button type="button" onClick={() => setStep(1)} className="w-1/3 bg-transparent border border-[#333] text-[#8888aa] font-bold py-3 rounded-lg hover:text-white transition-colors" disabled={isPending}>
+              <div className="pt-8 flex gap-4">
+                <button type="button" onClick={() => setStep(1)} className="w-1/3 bg-transparent border border-gray-700 text-gray-400 font-bold uppercase tracking-wide text-sm py-4 rounded-xl hover:text-white hover:bg-white/5 transition-all" disabled={isPending}>
                   Back
                 </button>
-                <button type="submit" className="w-2/3 bg-[#c9a84c] text-black font-bold py-3 rounded-lg hover:bg-[#e8c97a] transition-colors disabled:opacity-50 disabled:cursor-not-allowed" disabled={isPending}>
+                <button type="submit" className="w-2/3 bg-gradient-to-r from-[#c9a84c] to-[#e8c97a] hover:from-[#e8c97a] hover:to-[#c9a84c] text-black font-bold tracking-wide uppercase text-sm py-4 rounded-xl shadow-[0_0_20px_rgba(201,168,76,0.3)] transition-all transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed" disabled={isPending}>
                   {formData.role === 'member' ? "Next Step: Membership Plan ➔" : (isPending ? "Processing..." : "Complete Registration ✔")}
                 </button>
               </div>
