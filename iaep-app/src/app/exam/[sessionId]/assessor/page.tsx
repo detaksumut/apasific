@@ -250,7 +250,17 @@ export default function AssessorPage() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
             <h2 className="text-xl font-bold text-white" style={{ marginBottom: '8px' }}>Menunggu Peserta</h2>
-            <p className="text-gray-400">Soal telah dirilis. Peserta saat ini bisa mengerjakan ujian. Anda akan menerima notifikasi jika peserta telah mensubmit jawabannya.</p>
+            <p className="text-gray-400" style={{ marginBottom: '32px' }}>Soal telah dirilis. Peserta saat ini bisa mengerjakan ujian. Anda akan menerima notifikasi jika peserta telah mensubmit jawabannya.</p>
+
+            {sessionData.exam_data?.interviewLink && (
+              <div className="bg-[#1a1510] border border-[#c9a84c] rounded-xl text-left" style={{ padding: '24px', maxWidth: '600px', margin: '0 auto' }}>
+                <h3 className="font-bold text-[#c9a84c] mb-2">Jadwal Wawancara Anda</h3>
+                <p className="text-gray-300 mb-4">Waktu: <span className="font-bold text-white">{sessionData.exam_data.interviewTime}</span></p>
+                <a href={sessionData.exam_data.interviewLink} target="_blank" rel="noopener noreferrer" className="block w-full text-center bg-[#c9a84c] hover:bg-[#e8c97a] text-black font-bold rounded" style={{ padding: '12px' }}>
+                  Masuk Ruang Google Meet (Sebagai Asesor)
+                </a>
+              </div>
+            )}
           </div>
         )}
 
@@ -258,6 +268,16 @@ export default function AssessorPage() {
           <div className="bg-[#0d0d1a] border border-blue-900/50 rounded-xl shadow-[0_0_30px_rgba(0,100,255,0.1)]" style={{ padding: '24px' }}>
             <h2 className="text-xl font-bold text-white" style={{ marginBottom: '24px' }}>Tahap 3: Periksa & Berikan Nilai</h2>
             
+            {sessionData.exam_data?.interviewLink && (
+              <div className="bg-[#1a1510] border border-[#c9a84c]/50 rounded-xl mb-8" style={{ padding: '16px' }}>
+                <h3 className="font-bold text-[#c9a84c] mb-2 text-sm">Wawancara Online</h3>
+                <p className="text-gray-300 text-sm mb-4">Waktu: <span className="font-bold text-white">{sessionData.exam_data.interviewTime}</span></p>
+                <a href={sessionData.exam_data.interviewLink} target="_blank" rel="noopener noreferrer" className="inline-block bg-gray-800 hover:bg-gray-700 text-white font-bold rounded text-sm" style={{ padding: '8px 16px' }}>
+                  Masuk Google Meet (Sebagai Asesor)
+                </a>
+              </div>
+            )}
+
             {/* Display MCQs Submitted */}
             <div style={{ marginBottom: '32px' }}>
               <h3 className="font-semibold text-[#e8c97a] text-lg border-b border-gray-800" style={{ marginBottom: '16px', paddingBottom: '8px' }}>Bagian I: Pilihan Ganda</h3>
@@ -317,10 +337,20 @@ export default function AssessorPage() {
             </svg>
             <h2 className="text-2xl font-bold text-white" style={{ marginBottom: '8px' }}>Penilaian Selesai</h2>
             <p className="text-gray-400" style={{ marginBottom: '24px' }}>Anda telah memberikan nilai akhir untuk peserta ini.</p>
-            <div className="inline-block bg-green-900/30 border border-green-900 rounded-2xl" style={{ padding: '24px' }}>
+            <div className="inline-block bg-green-900/30 border border-green-900 rounded-2xl" style={{ padding: '24px', marginBottom: '32px' }}>
               <div className="text-sm text-green-500 uppercase tracking-widest font-bold" style={{ marginBottom: '4px' }}>Skor Akhir</div>
               <div className="text-5xl font-bold text-white">{sessionData.score}</div>
             </div>
+
+            {sessionData.exam_data?.interviewLink && (
+              <div className="bg-[#1a1510] border border-[#c9a84c]/30 rounded-xl text-left" style={{ padding: '24px', maxWidth: '600px', margin: '0 auto' }}>
+                <h3 className="font-bold text-[#c9a84c] mb-2 text-sm">Wawancara Online</h3>
+                <p className="text-gray-300 text-sm mb-4">Waktu: <span className="font-bold text-white">{sessionData.exam_data.interviewTime}</span></p>
+                <a href={sessionData.exam_data.interviewLink} target="_blank" rel="noopener noreferrer" className="block w-full text-center bg-gray-800 hover:bg-gray-700 text-white font-bold rounded" style={{ padding: '12px' }}>
+                  Masuk Google Meet (Sebagai Asesor)
+                </a>
+              </div>
+            )}
           </div>
         )}
       </div>

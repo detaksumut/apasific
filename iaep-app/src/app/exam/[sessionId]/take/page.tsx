@@ -114,32 +114,32 @@ export default function CandidateTakeExam() {
           </div>
         </div>
 
+        {/* Global Interview Notification Banner */}
+        {sessionData.exam_data?.interviewLink && (
+          <div className="bg-[#1a1510] border border-[#c9a84c] rounded-xl flex flex-col md:flex-row items-start md:items-center justify-between" style={{ padding: '24px', marginBottom: '32px' }}>
+            <div className="flex items-start" style={{ gap: '16px', marginBottom: '16px' }}>
+              <div className="bg-[#c9a84c]/20 p-3 rounded-full text-[#c9a84c]">
+                <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                </svg>
+              </div>
+              <div>
+                <h3 className="text-xl font-bold text-[#c9a84c]" style={{ marginBottom: '4px' }}>Wawancara Online Dijadwalkan</h3>
+                <p className="text-gray-300">Waktu: <span className="font-bold text-white">{sessionData.exam_data.interviewTime || 'Belum ditentukan'}</span></p>
+                <p className="text-sm text-gray-500 mt-1">Harap standby di ruang wawancara pada waktu yang ditentukan.</p>
+              </div>
+            </div>
+            <div>
+              <a href={sessionData.exam_data.interviewLink} target="_blank" rel="noopener noreferrer" className="bg-[#c9a84c] hover:bg-[#e8c97a] text-black font-bold rounded-lg shadow-lg w-full md:w-auto text-center" style={{ padding: '12px 24px', display: 'inline-block' }}>
+                Masuk Ruang Google Meet
+              </a>
+            </div>
+          </div>
+        )}
+
         {sessionData.status === 'READY' && sessionData.exam_data && (
           <div className="bg-[#0d0d1a] border border-gray-800 rounded-xl shadow-xl" style={{ padding: '24px' }}>
             
-            {/* Interview Notification Banner */}
-            {sessionData.exam_data.interviewLink && (
-              <div className="bg-[#1a1510] border border-[#c9a84c] rounded-xl flex items-center justify-between" style={{ padding: '24px', marginBottom: '32px' }}>
-                <div className="flex items-start" style={{ gap: '16px' }}>
-                  <div className="bg-[#c9a84c]/20 p-3 rounded-full text-[#c9a84c]">
-                    <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                    </svg>
-                  </div>
-                  <div>
-                    <h3 className="text-xl font-bold text-[#c9a84c]" style={{ marginBottom: '4px' }}>Wawancara Online Dijadwalkan</h3>
-                    <p className="text-gray-300">Waktu: <span className="font-bold text-white">{sessionData.exam_data.interviewTime || 'Belum ditentukan'}</span></p>
-                    <p className="text-sm text-gray-500 mt-1">Harap standby di ruang wawancara pada waktu yang ditentukan.</p>
-                  </div>
-                </div>
-                <div>
-                  <a href={sessionData.exam_data.interviewLink} target="_blank" rel="noopener noreferrer" className="bg-[#c9a84c] hover:bg-[#e8c97a] text-black font-bold rounded-lg shadow-lg" style={{ padding: '12px 24px', display: 'inline-block' }}>
-                    Masuk Ruang Google Meet
-                  </a>
-                </div>
-              </div>
-            )}
-
             <div className="bg-red-900/20 text-red-400 rounded-lg border border-red-900/50 flex items-start" style={{ padding: '16px', marginBottom: '32px', gap: '16px' }}>
               <svg className="w-6 h-6 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
