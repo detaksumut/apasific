@@ -191,58 +191,58 @@ export default function MajesticMembershipPage() {
           </div>
 
           {/* Right Column: Live Member Card */}
-          <div className="lg:col-span-2 flex flex-col items-center justify-start sticky top-24">
-            <h3 className="text-gray-400 font-semibold mb-4 text-center tracking-widest uppercase text-sm">Real-Time Card Preview</h3>
+          <div className="lg:col-span-2 flex flex-col items-center justify-start sticky top-[96px]">
+            <h3 className="text-gray-400 font-semibold mb-[16px] text-center tracking-widest uppercase text-sm">Real-Time Card Preview</h3>
             
             {/* The Card */}
             <div 
-              className="w-full max-w-sm aspect-[1.586/1] rounded-2xl p-6 relative overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.8)] border border-[#c9a84c]/40 group transition-all duration-500 hover:shadow-[0_20px_60px_rgba(201,168,76,0.2)] bg-cover bg-center"
+              className="w-full max-w-sm aspect-[1.586/1] rounded-[16px] p-[24px] relative overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.8)] border border-[#c9a84c]/40 group transition-all duration-500 hover:shadow-[0_20px_60px_rgba(201,168,76,0.2)] bg-cover bg-center"
               style={{ backgroundImage: 'url(/card-bg.png)' }}
             >
               {/* Card Dark Overlay so text is readable */}
               <div className="absolute inset-0 bg-gradient-to-br from-[#1a1a2e]/60 to-[#0a0810]/80 z-0"></div>
 
               {/* Card Background Ornaments */}
-              <div className="absolute -right-16 -top-16 w-48 h-48 bg-[#c9a84c] rounded-full mix-blend-overlay filter blur-[64px] opacity-40 z-0"></div>
-              <div className="absolute -left-16 -bottom-16 w-48 h-48 bg-[#c9a84c] rounded-full mix-blend-overlay filter blur-[64px] opacity-30 z-0"></div>
+              <div className="absolute -right-[64px] -top-[64px] w-[192px] h-[192px] bg-[#c9a84c] rounded-full mix-blend-overlay filter blur-[64px] opacity-40 z-0"></div>
+              <div className="absolute -left-[64px] -bottom-[64px] w-[192px] h-[192px] bg-[#c9a84c] rounded-full mix-blend-overlay filter blur-[64px] opacity-30 z-0"></div>
               
               {/* Fake Chip */}
-              <div className="absolute left-6 top-24 w-12 h-9 rounded bg-gradient-to-br from-[#e8c97a] to-[#9a7a30] opacity-90 flex items-center justify-center z-10 shadow-inner">
-                <div className="w-8 h-5 border border-black/20 rounded-sm"></div>
+              <div className="absolute left-[24px] top-[96px] w-[48px] h-[36px] rounded-[4px] bg-gradient-to-br from-[#e8c97a] to-[#9a7a30] opacity-90 flex items-center justify-center z-10 shadow-inner">
+                <div className="w-[32px] h-[20px] border border-black/20 rounded-[2px]"></div>
               </div>
 
               <div className="relative z-10 h-full flex flex-col justify-between">
                 {/* Header */}
                 <div className="flex justify-between items-start">
                   <div>
-                    <h4 className="text-[#c9a84c] font-bold text-sm tracking-widest uppercase" style={{ fontFamily: 'Cinzel, serif' }}>ASIA</h4>
+                    <h4 className="text-[#c9a84c] font-bold text-[14px] tracking-widest uppercase" style={{ fontFamily: 'Cinzel, serif' }}>ASIA</h4>
                     <p className="text-[8px] text-gray-400 uppercase tracking-wider max-w-[120px]">Association of Asia Pacific Academician</p>
                   </div>
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src="/logo-apasific.png" alt="Logo" className="w-12 h-12 object-contain" />
+                  <img src="/logo-apasific.png" alt="Logo" className="w-[48px] h-[48px] object-contain" />
                 </div>
 
                 {/* Body / User Info */}
-                <div className="mt-auto pb-2">
-                  <p className="text-[10px] text-[#c9a84c] uppercase tracking-wider mb-1">Official Member</p>
-                  <h2 className="text-xl font-bold text-white uppercase tracking-wider truncate drop-shadow-md">
+                <div className="mt-auto pb-[8px]">
+                  <p className="text-[10px] text-[#c9a84c] uppercase tracking-wider mb-[4px]">Official Member</p>
+                  <h2 className="text-[20px] font-bold text-white uppercase tracking-wider truncate drop-shadow-md">
                     {formData.fullName || "YOUR NAME HERE"}
                   </h2>
-                  <div className="flex gap-4 mt-2 text-gray-300">
+                  <div className="flex gap-[16px] mt-[8px] text-gray-300">
                     <div>
                       <p className="text-[8px] uppercase text-gray-500">Academic ID</p>
-                      <p className="text-xs font-mono tracking-widest">{formData.internationalId || "XXXX-XXXX-XXXX"}</p>
+                      <p className="text-[12px] font-mono tracking-widest">{formData.internationalId || "XXXX-XXXX-XXXX"}</p>
                     </div>
                     <div>
                       <p className="text-[8px] uppercase text-gray-500">Level</p>
-                      <p className="text-xs font-mono tracking-widest">{formData.academicLevel}</p>
+                      <p className="text-[12px] font-mono tracking-widest">{formData.academicLevel}</p>
                     </div>
                   </div>
                 </div>
               </div>
 
               {/* QR Code */}
-              <div className="absolute right-6 bottom-6 opacity-90 p-1.5 bg-white/10 rounded-lg backdrop-blur-sm border border-white/20 shadow-[0_0_10px_rgba(255,255,255,0.1)]">
+              <div className="absolute right-[24px] bottom-[24px] opacity-90 p-[6px] bg-white/10 rounded-[8px] backdrop-blur-sm border border-white/20 shadow-[0_0_10px_rgba(255,255,255,0.1)]">
                 <QRCode
                   value={formData.fullName ? formData.fullName : "ASIA MEMBER"}
                   size={36}
