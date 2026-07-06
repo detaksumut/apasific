@@ -19,16 +19,16 @@ export default function Home() {
     </div>
 
     <!-- Bank Account Overlay (Inline styles to bypass cache) -->
-    <div style="position: absolute; top: 20px; left: max(20px, calc((100vw - 1440px) / 2 + 20px)); z-index: 10; background: rgba(10, 10, 15, 0.85); border: 1px solid rgba(201, 168, 76, 0.4); border-radius: 8px; padding: 10px 14px; backdrop-filter: blur(12px); color: #fff; min-width: 240px; box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);">
-      <div style="display: flex; align-items: center; gap: 6px; color: #c9a84c; font-weight: 700; font-size: 0.7rem; margin-bottom: 8px; border-bottom: 1px solid rgba(201, 168, 76, 0.2); padding-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px;">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+    <div style="position: absolute; top: 0px; left: max(20px, calc((100vw - 1440px) / 2 + 20px)); z-index: 10; background: rgba(10, 10, 15, 0.85); border: 1px solid rgba(201, 168, 76, 0.4); border-radius: 12px; padding: 16px 20px; backdrop-filter: blur(12px); color: #fff; min-width: 320px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);">
+      <div style="display: flex; align-items: center; gap: 8px; color: #c9a84c; font-weight: 700; font-size: 0.95rem; margin-bottom: 12px; border-bottom: 1px solid rgba(201, 168, 76, 0.2); padding-bottom: 8px; text-transform: uppercase; letter-spacing: 1px;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
         Official Bank Account
       </div>
       <div>
-        <p style="color: #fff; font-size: 0.7rem; font-weight: bold; margin: 0 0 4px 0;">Association of Asia Pacific Academician</p>
-        <p style="margin: 2px 0; font-size: 0.65rem; color: #d1d5db; line-height: 1.3;">Bank: Bank Negara Indonesia (BNI)</p>
-        <p style="margin: 2px 0; font-size: 0.65rem; color: #d1d5db; line-height: 1.3;">A/C No: <span style="color: #c9a84c; font-family: monospace; font-size: 0.75rem; font-weight: bold; letter-spacing: 0.5px;">7006002218</span></p>
-        <p style="margin: 2px 0; font-size: 0.65rem; color: #d1d5db; line-height: 1.3;">Swift Code: BNINIDJA</p>
+        <p style="color: #fff; font-size: 0.95rem; font-weight: bold; margin: 0 0 6px 0;">Association of Asia Pacific Academician</p>
+        <p style="margin: 4px 0; font-size: 0.85rem; color: #d1d5db; line-height: 1.4;">Bank: Bank Negara Indonesia (BNI)</p>
+        <p style="margin: 4px 0; font-size: 0.85rem; color: #d1d5db; line-height: 1.4;">A/C No: <span style="color: #c9a84c; font-family: monospace; font-size: 1.1rem; font-weight: bold; letter-spacing: 1px;">7006002218</span></p>
+        <p style="margin: 4px 0; font-size: 0.85rem; color: #d1d5db; line-height: 1.4;">Swift Code: BNINIDJA</p>
       </div>
     </div>
 
