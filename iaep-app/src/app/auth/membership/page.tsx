@@ -249,7 +249,7 @@ export default function MajesticMembershipPage() {
           </div>
         </div>
       </div>
-    </main>
+    </div>
   );
 }
 
