@@ -17,6 +17,21 @@ export default function Home() {
            class="hero-logo-img"
            onerror="this.style.display='none'" />
     </div>
+
+    <!-- Bank Account Overlay -->
+    <div class="hero-bank-overlay">
+      <div class="bank-title">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+        Official Bank Account
+      </div>
+      <div class="bank-details">
+        <p><strong>Association of Asia Pacific Academician</strong></p>
+        <p>Bank: Bank Negara Indonesia (BNI)</p>
+        <p>A/C No: <span class="bank-acc">7006002218</span></p>
+        <p>Swift Code: BNINIDJA</p>
+      </div>
+    </div>
+
     <!-- CTA Button Overlay -->
     <div class="hero-cta-overlay">
       <a href="/auth/membership" class="btn-primary" id="hero-become-member">

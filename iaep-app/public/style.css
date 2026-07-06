@@ -310,6 +310,54 @@ img { max-width: 100%; display: block; }
 }
 
 /* Custom Overlays */
+.hero-bank-overlay {
+  position: absolute;
+  top: 10%;
+  left: max(24px, calc((100vw - 1240px) / 2 + 24px));
+  z-index: 10;
+  background: rgba(10, 10, 15, 0.85);
+  border: 1px solid rgba(201, 168, 76, 0.4);
+  border-radius: 12px;
+  padding: 16px 20px;
+  backdrop-filter: blur(12px);
+  color: #fff;
+  min-width: 320px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  animation: fadeInDown 0.8s ease-out;
+}
+.hero-bank-overlay .bank-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #c9a84c;
+  font-weight: 700;
+  font-size: 0.95rem;
+  margin-bottom: 12px;
+  border-bottom: 1px solid rgba(201, 168, 76, 0.2);
+  padding-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+.hero-bank-overlay .bank-details p {
+  margin: 4px 0;
+  font-size: 0.85rem;
+  color: #d1d5db;
+  line-height: 1.4;
+}
+.hero-bank-overlay .bank-details strong {
+  color: #fff;
+  font-size: 0.95rem;
+  display: block;
+  margin-bottom: 6px;
+}
+.hero-bank-overlay .bank-acc {
+  color: #c9a84c;
+  font-family: monospace;
+  font-size: 1.1rem;
+  font-weight: bold;
+  letter-spacing: 1px;
+}
+
 .hero-cta-overlay {
   position: absolute;
   bottom: 108px;
