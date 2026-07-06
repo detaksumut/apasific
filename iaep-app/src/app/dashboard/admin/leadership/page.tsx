@@ -45,10 +45,10 @@ export default function LeadershipManagementPage() {
       fetch(`/api/leadership?body=${encodeURIComponent(HOME_BODY)}`)
         .then(res => res.json())
         .then(data => {
-          if (data.members && Array.isArray(data.members) && data.members.length > 0) {
+          if (data.members && Array.isArray(data.members)) {
             setHomeMembers(data.members);
           } else {
-            setHomeMembers(DEFAULT_HOME_MEMBERS.map(m => ({ ...m })));
+            setHomeMembers([]);
           }
         })
         .catch(() => {
@@ -99,29 +99,68 @@ export default function LeadershipManagementPage() {
     "ASIA Awards & Recognition Council (ASIA-ARC)",
   ];
 
-  const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>, side: "ketua" | "sek") => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => {
-      if (side === "ketua") setKetuaPhoto(reader.result as string);
-      else setSekretarisPhoto(reader.result as string);
-    };
-    reader.readAsDataURL(file);
+  const compressImage = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = (event) => {
+        const img = new Image();
+        img.src = event.target?.result as string;
+        img.onload = () => {
+          const canvas = document.createElement("canvas");
+          const MAX_WIDTH = 400;
+          const MAX_HEIGHT = 500;
+          let width = img.width;
+          let height = img.height;
+
+          if (width > height) {
+            if (width > MAX_WIDTH) {
+              height *= MAX_WIDTH / width;
+              width = MAX_WIDTH;
+            }
+          } else {
+            if (height > MAX_HEIGHT) {
+              width *= MAX_HEIGHT / height;
+              height = MAX_HEIGHT;
+            }
+          }
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext("2d");
+          ctx?.drawImage(img, 0, 0, width, height);
+          resolve(canvas.toDataURL("image/jpeg", 0.7)); // Kompres jadi JPEG 70%
+        };
+        img.onerror = (err) => reject(err);
+      };
+      reader.onerror = (err) => reject(err);
+    });
   };
 
-  const handleHomeFotoChange = (e: React.ChangeEvent<HTMLInputElement>, index: number) => {
+  const handlePhotoChange = async (e: React.ChangeEvent<HTMLInputElement>, side: "ketua" | "sek") => {
     const file = e.target.files?.[0];
     if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => {
+    try {
+      const compressed = await compressImage(file);
+      if (side === "ketua") setKetuaPhoto(compressed);
+      else setSekretarisPhoto(compressed);
+    } catch (err) {
+      alert("Gagal memproses foto");
+    }
+  };
+
+  const handleHomeFotoChange = async (e: React.ChangeEvent<HTMLInputElement>, index: number) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      const compressed = await compressImage(file);
       setHomeMembers(prev => {
         const next = [...prev];
-        next[index] = { ...next[index], foto: reader.result as string };
+        next[index] = { ...next[index], foto: compressed };
         return next;
       });
-    };
-    reader.readAsDataURL(file);
+    } catch (err) {
+      alert("Gagal memproses foto");
+    }
   };
 
   const updateHomeMember = (index: number, field: string, value: string) => {

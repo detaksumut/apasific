@@ -31,12 +31,7 @@ export default function OrgStructure() {
       .then(res => res.json())
       .then(data => {
         if (data.members && Array.isArray(data.members)) {
-          // Jika database kosong, gunakan DEFAULT_MEMBERS
-          if (data.members.length === 0) {
-            setMembers(DEFAULT_MEMBERS);
-          } else {
-            setMembers(data.members);
-          }
+          setMembers(data.members);
         }
       })
       .catch(() => {
@@ -70,10 +65,11 @@ export default function OrgStructure() {
               />
             ) : (
               <div style={{
-                width: "100%", height: "100%",
+                width: "100%", height: "100%", minHeight: "100px",
                 background: "rgba(201,168,76,0.1)",
                 display: "flex", alignItems: "center", justifyContent: "center",
                 borderRadius: "50%",
+                aspectRatio: "1/1",
               }}>
                 <svg width="40" height="40" fill="none" stroke="rgba(201,168,76,0.4)" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
