@@ -75,69 +75,69 @@ export default function MajesticMembershipPage() {
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-12 items-start">
           
           {/* Left Column: Form */}
-          <div className="lg:col-span-3 bg-gradient-to-br from-[#12121f]/90 to-[#05050a]/90 p-10 rounded-3xl border border-[#c9a84c]/30 shadow-[0_0_40px_rgba(201,168,76,0.15)] backdrop-blur-xl relative overflow-hidden">
+          <div className="lg:col-span-3 bg-gradient-to-br from-[#12121f]/90 to-[#05050a]/90 p-[40px] rounded-[24px] border border-[#c9a84c]/30 shadow-[0_0_40px_rgba(201,168,76,0.15)] backdrop-blur-xl relative overflow-hidden">
             {/* Decorative Glow inside form */}
-            <div className="absolute -top-20 -right-20 w-64 h-64 bg-[#c9a84c] rounded-full mix-blend-screen filter blur-[80px] opacity-10 pointer-events-none"></div>
+            <div className="absolute -top-[80px] -right-[80px] w-[256px] h-[256px] bg-[#c9a84c] rounded-full mix-blend-screen filter blur-[80px] opacity-10 pointer-events-none"></div>
             
-            <h2 className="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-[#c9a84c] to-white mb-8 border-b border-[#c9a84c]/20 pb-4">Membership Application Form</h2>
+            <h2 className="text-[30px] font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-[#c9a84c] to-white mb-[32px] border-b border-[#c9a84c]/20 pb-[16px]">Membership Application Form</h2>
             
-            <form onSubmit={handleSubmit} className="mt-4 relative z-10">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-8">
+            <form onSubmit={handleSubmit} className="mt-[16px] relative z-10">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-x-[32px] gap-y-[32px]">
                 <div className="group">
-                  <label className="block text-[#e8c97a] text-xs tracking-[0.2em] uppercase font-bold mb-3 drop-shadow-sm">Full Name (with Titles)</label>
-                  <input type="text" name="fullName" value={formData.fullName} onChange={handleChange} placeholder="e.g. Prof. Dr. Budi Santoso, M.Sc." className="w-full bg-white/5 border border-white/10 text-white rounded-2xl px-5 py-4 focus:outline-none focus:border-[#c9a84c] focus:bg-white/10 focus:ring-4 focus:ring-[#c9a84c]/20 transition-all duration-300 backdrop-blur-sm group-hover:border-white/20" required />
+                  <label className="block text-[#e8c97a] text-[12px] tracking-[0.2em] uppercase font-bold mb-[12px] drop-shadow-sm">Full Name (with Titles)</label>
+                  <input type="text" name="fullName" value={formData.fullName} onChange={handleChange} placeholder="e.g. Prof. Dr. Budi Santoso, M.Sc." className="w-full bg-white/5 border border-white/10 text-white rounded-[16px] px-[20px] py-[16px] focus:outline-none focus:border-[#c9a84c] focus:bg-white/10 focus:ring-4 focus:ring-[#c9a84c]/20 transition-all duration-300 backdrop-blur-sm group-hover:border-white/20" required />
                 </div>
                 <div className="group">
-                  <label className="block text-[#e8c97a] text-xs tracking-[0.2em] uppercase font-bold mb-3 drop-shadow-sm">International Academic ID</label>
-                  <input type="text" name="internationalId" value={formData.internationalId} onChange={handleChange} placeholder="e.g. ORCID, Scopus ID, WOS" className="w-full bg-white/5 border border-white/10 text-white rounded-2xl px-5 py-4 focus:outline-none focus:border-[#c9a84c] focus:bg-white/10 focus:ring-4 focus:ring-[#c9a84c]/20 transition-all duration-300 backdrop-blur-sm group-hover:border-white/20" required />
+                  <label className="block text-[#e8c97a] text-[12px] tracking-[0.2em] uppercase font-bold mb-[12px] drop-shadow-sm">International Academic ID</label>
+                  <input type="text" name="internationalId" value={formData.internationalId} onChange={handleChange} placeholder="e.g. ORCID, Scopus ID, WOS" className="w-full bg-white/5 border border-white/10 text-white rounded-[16px] px-[20px] py-[16px] focus:outline-none focus:border-[#c9a84c] focus:bg-white/10 focus:ring-4 focus:ring-[#c9a84c]/20 transition-all duration-300 backdrop-blur-sm group-hover:border-white/20" required />
                 </div>
 
                 <div className="group">
-                  <label className="block text-[#e8c97a] text-xs tracking-[0.2em] uppercase font-bold mb-3 drop-shadow-sm">Email Address</label>
-                  <input type="email" name="email" value={formData.email} onChange={handleChange} placeholder="name@university.edu" className="w-full bg-white/5 border border-white/10 text-white rounded-2xl px-5 py-4 focus:outline-none focus:border-[#c9a84c] focus:bg-white/10 focus:ring-4 focus:ring-[#c9a84c]/20 transition-all duration-300 backdrop-blur-sm group-hover:border-white/20" required />
+                  <label className="block text-[#e8c97a] text-[12px] tracking-[0.2em] uppercase font-bold mb-[12px] drop-shadow-sm">Email Address</label>
+                  <input type="email" name="email" value={formData.email} onChange={handleChange} placeholder="name@university.edu" className="w-full bg-white/5 border border-white/10 text-white rounded-[16px] px-[20px] py-[16px] focus:outline-none focus:border-[#c9a84c] focus:bg-white/10 focus:ring-4 focus:ring-[#c9a84c]/20 transition-all duration-300 backdrop-blur-sm group-hover:border-white/20" required />
                 </div>
                 <div className="group">
-                  <label className="block text-[#e8c97a] text-xs tracking-[0.2em] uppercase font-bold mb-3 drop-shadow-sm">Phone / WhatsApp</label>
-                  <input type="tel" name="phone" value={formData.phone} onChange={handleChange} placeholder="+62 812-3456-7890" className="w-full bg-white/5 border border-white/10 text-white rounded-2xl px-5 py-4 focus:outline-none focus:border-[#c9a84c] focus:bg-white/10 focus:ring-4 focus:ring-[#c9a84c]/20 transition-all duration-300 backdrop-blur-sm group-hover:border-white/20" required />
+                  <label className="block text-[#e8c97a] text-[12px] tracking-[0.2em] uppercase font-bold mb-[12px] drop-shadow-sm">Phone / WhatsApp</label>
+                  <input type="tel" name="phone" value={formData.phone} onChange={handleChange} placeholder="+62 812-3456-7890" className="w-full bg-white/5 border border-white/10 text-white rounded-[16px] px-[20px] py-[16px] focus:outline-none focus:border-[#c9a84c] focus:bg-white/10 focus:ring-4 focus:ring-[#c9a84c]/20 transition-all duration-300 backdrop-blur-sm group-hover:border-white/20" required />
                 </div>
 
                 <div className="group">
-                  <label className="block text-[#e8c97a] text-xs tracking-[0.2em] uppercase font-bold mb-3 drop-shadow-sm">Country of Origin</label>
+                  <label className="block text-[#e8c97a] text-[12px] tracking-[0.2em] uppercase font-bold mb-[12px] drop-shadow-sm">Country of Origin</label>
                   <div className="relative">
-                    <select name="country" value={formData.country} onChange={handleChange} className="w-full bg-white/5 border border-white/10 text-white rounded-2xl px-5 py-4 focus:outline-none focus:border-[#c9a84c] focus:bg-white/10 focus:ring-4 focus:ring-[#c9a84c]/20 transition-all duration-300 backdrop-blur-sm group-hover:border-white/20 appearance-none cursor-pointer" required>
+                    <select name="country" value={formData.country} onChange={handleChange} className="w-full bg-white/5 border border-white/10 text-white rounded-[16px] px-[20px] py-[16px] focus:outline-none focus:border-[#c9a84c] focus:bg-white/10 focus:ring-4 focus:ring-[#c9a84c]/20 transition-all duration-300 backdrop-blur-sm group-hover:border-white/20 appearance-none cursor-pointer" required>
                       <option value="" disabled className="bg-[#12121f]">Select Country</option>
                       {countries.map(c => <option key={c} value={c} className="bg-[#12121f]">{c}</option>)}
                     </select>
-                    <div className="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400 group-hover:text-[#c9a84c] transition-colors">▼</div>
+                    <div className="absolute right-[20px] top-1/2 -translate-y-1/2 pointer-events-none text-gray-400 group-hover:text-[#c9a84c] transition-colors">▼</div>
                   </div>
                 </div>
                 <div className="group">
-                  <label className="block text-[#e8c97a] text-xs tracking-[0.2em] uppercase font-bold mb-3 drop-shadow-sm">Graduate Level</label>
+                  <label className="block text-[#e8c97a] text-[12px] tracking-[0.2em] uppercase font-bold mb-[12px] drop-shadow-sm">Graduate Level</label>
                   <div className="relative">
-                    <select name="academicLevel" value={formData.academicLevel} onChange={handleChange} className="w-full bg-white/5 border border-white/10 text-white rounded-2xl px-5 py-4 focus:outline-none focus:border-[#c9a84c] focus:bg-white/10 focus:ring-4 focus:ring-[#c9a84c]/20 transition-all duration-300 backdrop-blur-sm group-hover:border-white/20 appearance-none cursor-pointer" required>
+                    <select name="academicLevel" value={formData.academicLevel} onChange={handleChange} className="w-full bg-white/5 border border-white/10 text-white rounded-[16px] px-[20px] py-[16px] focus:outline-none focus:border-[#c9a84c] focus:bg-white/10 focus:ring-4 focus:ring-[#c9a84c]/20 transition-all duration-300 backdrop-blur-sm group-hover:border-white/20 appearance-none cursor-pointer" required>
                       <option value="S2" className="bg-[#12121f]">S2 (Magister)</option>
                       <option value="S3" className="bg-[#12121f]">S3 (Doctorate)</option>
                       <option value="Profesor" className="bg-[#12121f]">Profesor</option>
                       <option value="Praktisi" className="bg-[#12121f]">Praktisi (Professional)</option>
                       <option value="Institusi" className="bg-[#12121f]">Institusi (Organization)</option>
                     </select>
-                    <div className="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400 group-hover:text-[#c9a84c] transition-colors">▼</div>
+                    <div className="absolute right-[20px] top-1/2 -translate-y-1/2 pointer-events-none text-gray-400 group-hover:text-[#c9a84c] transition-colors">▼</div>
                   </div>
                 </div>
 
                 <div className="group md:col-span-2">
-                  <label className="block text-[#e8c97a] text-xs tracking-[0.2em] uppercase font-bold mb-3 drop-shadow-sm">University / Institution</label>
-                  <input type="text" name="university" value={formData.university} onChange={handleChange} placeholder="e.g. National University" className="w-full bg-white/5 border border-white/10 text-white rounded-2xl px-5 py-4 focus:outline-none focus:border-[#c9a84c] focus:bg-white/10 focus:ring-4 focus:ring-[#c9a84c]/20 transition-all duration-300 backdrop-blur-sm group-hover:border-white/20" required />
+                  <label className="block text-[#e8c97a] text-[12px] tracking-[0.2em] uppercase font-bold mb-[12px] drop-shadow-sm">University / Institution</label>
+                  <input type="text" name="university" value={formData.university} onChange={handleChange} placeholder="e.g. National University" className="w-full bg-white/5 border border-white/10 text-white rounded-[16px] px-[20px] py-[16px] focus:outline-none focus:border-[#c9a84c] focus:bg-white/10 focus:ring-4 focus:ring-[#c9a84c]/20 transition-all duration-300 backdrop-blur-sm group-hover:border-white/20" required />
                 </div>
                 <div className="group md:col-span-2">
-                  <label className="block text-[#e8c97a] text-xs tracking-[0.2em] uppercase font-bold mb-3 drop-shadow-sm">Password</label>
-                  <input type="password" name="password" value={formData.password} onChange={handleChange} placeholder="Min. 6 characters" className="w-full bg-white/5 border border-white/10 text-white rounded-2xl px-5 py-4 focus:outline-none focus:border-[#c9a84c] focus:bg-white/10 focus:ring-4 focus:ring-[#c9a84c]/20 transition-all duration-300 backdrop-blur-sm group-hover:border-white/20" required minLength={6} />
+                  <label className="block text-[#e8c97a] text-[12px] tracking-[0.2em] uppercase font-bold mb-[12px] drop-shadow-sm">Password</label>
+                  <input type="password" name="password" value={formData.password} onChange={handleChange} placeholder="Min. 6 characters" className="w-full bg-white/5 border border-white/10 text-white rounded-[16px] px-[20px] py-[16px] focus:outline-none focus:border-[#c9a84c] focus:bg-white/10 focus:ring-4 focus:ring-[#c9a84c]/20 transition-all duration-300 backdrop-blur-sm group-hover:border-white/20" required minLength={6} />
                 </div>
               </div>
 
-              <div className="pt-10">
+              <div className="pt-[40px]">
                 {!showPayment ? (
-                  <button type="submit" className="w-full relative group overflow-hidden bg-[#1a1a1a] text-[#c9a84c] font-extrabold tracking-[0.2em] uppercase text-sm py-5 rounded-2xl border border-[#c9a84c]/50 hover:text-black hover:border-transparent transition-all duration-300">
+                  <button type="submit" className="w-full relative group overflow-hidden bg-[#1a1a1a] text-[#c9a84c] font-extrabold tracking-[0.2em] uppercase text-[14px] py-[20px] rounded-[16px] border border-[#c9a84c]/50 hover:text-black hover:border-transparent transition-all duration-300">
                     <span className="absolute inset-0 w-full h-full bg-gradient-to-r from-[#c9a84c] via-[#e8c97a] to-[#c9a84c] opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
                     <span className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/40 to-transparent -translate-x-[150%] group-hover:translate-x-[150%] transition-transform duration-1000 ease-in-out"></span>
                     <span className="relative z-10 drop-shadow-md">Submit & Generate Card</span>
