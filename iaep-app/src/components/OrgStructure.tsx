@@ -23,20 +23,37 @@ interface Member {
 }
 
 export default function OrgStructure() {
-  const [members, setMembers] = useState<Member[]>(DEFAULT_MEMBERS);
+  const [members, setMembers] = useState<Member[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     fetch(`/api/leadership?body=${encodeURIComponent(HOME_BODY)}`)
       .then(res => res.json())
       .then(data => {
-        if (data.members && Array.isArray(data.members) && data.members.length > 0) {
-          setMembers(data.members);
+        if (data.members && Array.isArray(data.members)) {
+          // Jika database kosong, gunakan DEFAULT_MEMBERS
+          if (data.members.length === 0) {
+            setMembers(DEFAULT_MEMBERS);
+          } else {
+            setMembers(data.members);
+          }
         }
       })
       .catch(() => {
-        // fallback to defaults on error
+        setMembers(DEFAULT_MEMBERS);
+      })
+      .finally(() => {
+        setIsLoading(false);
       });
   }, []);
+
+  if (isLoading) {
+    return (
+      <div style={{ textAlign: "center", padding: "40px", color: "#c9a84c" }}>
+        Loading organizational structure...
+      </div>
+    );
+  }
 
   return (
     <div className="leadership-grid">
