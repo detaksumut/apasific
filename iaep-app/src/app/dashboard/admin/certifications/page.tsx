@@ -76,6 +76,20 @@ export default function CertificationsAdmin() {
     }
   };
 
+  const handleGenerateDummy = async () => {
+    try {
+      const res = await fetch("/api/certifications/candidates/dummy", { method: "POST" });
+      if (res.ok) {
+        alert("Berhasil membuat peserta percobaan!");
+        fetchData();
+      } else {
+        alert("Gagal membuat peserta. Pastikan database Anda siap.");
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
   if (loading) {
     return <div className="p-8 text-white">Loading data...</div>;
   }
@@ -104,7 +118,12 @@ export default function CertificationsAdmin() {
             <tbody>
               {candidates.length === 0 ? (
                 <tr>
-                  <td colSpan={4} className="p-8 text-center text-gray-500">Belum ada pendaftar sertifikasi.</td>
+                  <td colSpan={4} className="p-12 text-center text-gray-500">
+                    <p className="mb-4">Belum ada pendaftar sertifikasi.</p>
+                    <button onClick={handleGenerateDummy} className="bg-gray-800 hover:bg-gray-700 text-white px-4 py-2 rounded-lg transition-colors border border-gray-700">
+                      + Buat Pendaftar Percobaan (Dummy)
+                    </button>
+                  </td>
                 </tr>
               ) : (
                 candidates.map(cand => {
