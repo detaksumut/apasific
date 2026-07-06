@@ -199,10 +199,18 @@ export default function LeadershipManagementPage() {
         };
       }
 
+      const payloadString = JSON.stringify(payload);
+      const sizeMB = (new Blob([payloadString]).size / (1024 * 1024)).toFixed(2);
+
+      if (parseFloat(sizeMB) > 3.5) {
+        alert(`Data Anda terlalu besar (${sizeMB} MB). Server Vercel membatasi maksimal 4 MB.\n\nIni biasanya terjadi jika Anda tidak sengaja menyimpan foto raksasa SEBELUM fitur kompresi aktif. Tolong klik 'Ganti Foto' pada anggota yang fotonya besar agar dikompres ulang!`);
+        return;
+      }
+
       const response = await fetch("/api/leadership", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
+        body: payloadString,
       });
 
       const resData = await response.json();
