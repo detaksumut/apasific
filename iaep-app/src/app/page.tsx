@@ -313,32 +313,33 @@ export default function Home() {
     </div>
 
     <div dangerouslySetInnerHTML={{ __html: `
-
-      <!-- Regional Chapters -->
-      <div class="subsection" id="regional-chapters">
-        <h3 class="subsection-title">Regional Chapters</h3>
-        <div class="chapters-grid">
-          <div class="chapter-badge"><img src="https://flagcdn.com/w40/my.png" alt="" /> Malaysia</div>
-          <div class="chapter-badge" style="animation-delay:0.05s"><img src="https://flagcdn.com/w40/id.png" alt="" /> Indonesia</div>
-          <div class="chapter-badge" style="animation-delay:0.1s"><img src="https://flagcdn.com/w40/ph.png" alt="" /> Philippines</div>
-          <div class="chapter-badge" style="animation-delay:0.15s"><img src="https://flagcdn.com/w40/th.png" alt="" /> Thailand</div>
-          <div class="chapter-badge" style="animation-delay:0.2s"><img src="https://flagcdn.com/w40/bd.png" alt="" /> Bangladesh</div>
-          <div class="chapter-badge" style="animation-delay:0.25s"><img src="https://flagcdn.com/w40/pk.png" alt="" /> Pakistan</div>
-          <div class="chapter-badge" style="animation-delay:0.3s"><img src="https://flagcdn.com/w40/in.png" alt="" /> India</div>
-          <div class="chapter-badge" style="animation-delay:0.35s"><img src="https://flagcdn.com/w40/cn.png" alt="" /> China</div>
-          <div class="chapter-badge" style="animation-delay:0.4s"><img src="https://flagcdn.com/w40/jp.png" alt="" /> Japan</div>
-          <div class="chapter-badge" style="animation-delay:0.45s"><img src="https://flagcdn.com/w40/kr.png" alt="" /> Korea</div>
-          <div class="chapter-badge" style="animation-delay:0.5s"><img src="https://flagcdn.com/w40/sg.png" alt="" /> Singapore</div>
-          <div class="chapter-badge" style="animation-delay:0.55s"><img src="https://flagcdn.com/w40/vn.png" alt="" /> Vietnam</div>
-          <div class="chapter-badge" style="animation-delay:0.6s"><img src="https://flagcdn.com/w40/ng.png" alt="" /> Nigeria</div>
-          <div class="chapter-badge" style="animation-delay:0.65s"><img src="https://flagcdn.com/w40/tr.png" alt="" /> Turkey</div>
-          <div class="chapter-badge" style="animation-delay:0.7s"><img src="https://flagcdn.com/w40/au.png" alt="" /> Australia</div>
-          <div class="chapter-badge" style="animation-delay:0.75s"><img src="https://flagcdn.com/w40/bn.png" alt="" /> Brunei</div>
-          <div class="chapter-badge" style="animation-delay:0.8s"><img src="https://flagcdn.com/w40/nz.png" alt="" /> New Zealand</div>
-          <div class="chapter-badge" style="animation-delay:0.85s"><img src="https://flagcdn.com/w40/ca.png" alt="" /> Canada</div>
-          <div class="chapter-badge" style="animation-delay:0.9s"><img src="https://flagcdn.com/w40/mn.png" alt="" /> Mongolia</div>
-          <div class="chapter-badge" style="animation-delay:0.95s"><img src="https://flagcdn.com/w40/fj.png" alt="" /> Fiji</div>
-          <div class="chapter-badge" style="animation-delay:1.0s"><img src="https://flagcdn.com/w40/cl.png" alt="" /> Chile</div>
+      <div class="container">
+        <!-- Regional Chapters -->
+        <div class="subsection" id="regional-chapters">
+          <h3 class="subsection-title">Regional Chapters</h3>
+          <div class="chapters-grid">
+            <div class="chapter-badge"><img src="https://flagcdn.com/w40/my.png" alt="" /> Malaysia</div>
+            <div class="chapter-badge" style="animation-delay:0.05s"><img src="https://flagcdn.com/w40/id.png" alt="" /> Indonesia</div>
+            <div class="chapter-badge" style="animation-delay:0.1s"><img src="https://flagcdn.com/w40/ph.png" alt="" /> Philippines</div>
+            <div class="chapter-badge" style="animation-delay:0.15s"><img src="https://flagcdn.com/w40/th.png" alt="" /> Thailand</div>
+            <div class="chapter-badge" style="animation-delay:0.2s"><img src="https://flagcdn.com/w40/bd.png" alt="" /> Bangladesh</div>
+            <div class="chapter-badge" style="animation-delay:0.25s"><img src="https://flagcdn.com/w40/pk.png" alt="" /> Pakistan</div>
+            <div class="chapter-badge" style="animation-delay:0.3s"><img src="https://flagcdn.com/w40/in.png" alt="" /> India</div>
+            <div class="chapter-badge" style="animation-delay:0.35s"><img src="https://flagcdn.com/w40/cn.png" alt="" /> China</div>
+            <div class="chapter-badge" style="animation-delay:0.4s"><img src="https://flagcdn.com/w40/jp.png" alt="" /> Japan</div>
+            <div class="chapter-badge" style="animation-delay:0.45s"><img src="https://flagcdn.com/w40/kr.png" alt="" /> Korea</div>
+            <div class="chapter-badge" style="animation-delay:0.5s"><img src="https://flagcdn.com/w40/sg.png" alt="" /> Singapore</div>
+            <div class="chapter-badge" style="animation-delay:0.55s"><img src="https://flagcdn.com/w40/vn.png" alt="" /> Vietnam</div>
+            <div class="chapter-badge" style="animation-delay:0.6s"><img src="https://flagcdn.com/w40/ng.png" alt="" /> Nigeria</div>
+            <div class="chapter-badge" style="animation-delay:0.65s"><img src="https://flagcdn.com/w40/tr.png" alt="" /> Turkey</div>
+            <div class="chapter-badge" style="animation-delay:0.7s"><img src="https://flagcdn.com/w40/au.png" alt="" /> Australia</div>
+            <div class="chapter-badge" style="animation-delay:0.75s"><img src="https://flagcdn.com/w40/bn.png" alt="" /> Brunei</div>
+            <div class="chapter-badge" style="animation-delay:0.8s"><img src="https://flagcdn.com/w40/nz.png" alt="" /> New Zealand</div>
+            <div class="chapter-badge" style="animation-delay:0.85s"><img src="https://flagcdn.com/w40/ca.png" alt="" /> Canada</div>
+            <div class="chapter-badge" style="animation-delay:0.9s"><img src="https://flagcdn.com/w40/mn.png" alt="" /> Mongolia</div>
+            <div class="chapter-badge" style="animation-delay:0.95s"><img src="https://flagcdn.com/w40/fj.png" alt="" /> Fiji</div>
+            <div class="chapter-badge" style="animation-delay:1.0s"><img src="https://flagcdn.com/w40/cl.png" alt="" /> Chile</div>
+          </div>
         </div>
       </div>
     </div>
