@@ -1,3 +1,5 @@
+import OrgStructure from "@/components/OrgStructure";
+
 export default function Home() {
   return (
     <main dangerouslySetInnerHTML={{ __html: `
@@ -297,111 +299,19 @@ export default function Home() {
         </div>
       </div>
 
-      <!-- Leadership -->
-      <!-- Leadership / Organizational Structure -->
+      <!-- Leadership / Organizational Structure (Dynamic) -->
       <div class="subsection" id="leadership" style="scroll-margin-top: 100px;">
         <a id="org-structure" style="position: relative; top: -100px; display: block; visibility: hidden;"></a>
         <h3 class="subsection-title">Organizational Structure</h3>
-        <div class="leadership-grid">
-          
-          <!-- Founding Father -->
-          <div class="leader-card" data-aos="fade-up">
-            <div class="leader-avatar">
-              <img src="arfan.png" alt="DR. ARFAN IKHSAN LUBIS" />
-            </div>
-            <div class="leader-info">
-              <h4>Founding Father</h4>
-              <p class="leader-name">DR. ARFAN IKHSAN LUBIS., SE., M.Si., CATr</p>
-              <p class="leader-affil">Association of Asia Pacific Academician</p>
-            </div>
-          </div>
+      </div>`}}
+    />
 
-          <!-- Advisor -->
-          <div class="leader-card" data-aos="fade-up" style="animation-delay:0.05s">
-            <div class="leader-avatar">
-              <img src="indra.jpg" alt="PROF. DR. INDRA MAIPITA" />
-            </div>
-            <div class="leader-info">
-              <h4>Advisor</h4>
-              <p class="leader-name">PROF. DR. INDRA MAIPITA., M.Si</p>
-              <p class="leader-affil">Asia Pacific Academic Advisory Board</p>
-            </div>
-          </div>
+    {/* Dynamic org structure — loaded from admin dashboard */}
+    <div className="container" style={{ marginBottom: '0', paddingBottom: '0' }}>
+      <OrgStructure />
+    </div>
 
-          <!-- President -->
-          <div class="leader-card" data-aos="fade-up" style="animation-delay:0.1s">
-            <div class="leader-avatar">
-              <img src="arfan.png" alt="DR. ARFAN IKHSAN LUBIS" />
-            </div>
-            <div class="leader-info">
-              <h4>President</h4>
-              <p class="leader-name">DR. ARFAN IKHSAN LUBIS., SE., M.Si., CATr</p>
-              <p class="leader-affil">Asia Pacific Academic Leadership</p>
-            </div>
-          </div>
-
-          <!-- Vice President 1 -->
-          <div class="leader-card" data-aos="fade-up" style="animation-delay:0.15s">
-            <div class="leader-avatar">
-              <img src="yamin.jpg" alt="DR. MUHAMMAD YAMIN NOCH" />
-            </div>
-            <div class="leader-info">
-              <h4>Vice President</h4>
-              <p class="leader-name">DR. MUHAMMAD YAMIN NOCH., SE., MSA</p>
-              <p class="leader-affil">Academic Affairs &amp; Institutional Development</p>
-            </div>
-          </div>
-
-          <!-- Vice President 2 -->
-          <div class="leader-card" data-aos="fade-up" style="animation-delay:0.2s">
-            <div class="leader-avatar">
-              <img src="istianingsih.jpg" alt="PROF. DR. ISTIANINGSIH SASTRODIHARJO" />
-            </div>
-            <div class="leader-info">
-              <h4>Vice President</h4>
-              <p class="leader-name">PROF. DR. ISTIANINGSIH SASTRODIHARJO., SE., M.Si</p>
-              <p class="leader-affil">Research &amp; International Cooperation</p>
-            </div>
-          </div>
-
-          <!-- Secretary General -->
-          <div class="leader-card" data-aos="fade-up" style="animation-delay:0.25s">
-            <div class="leader-avatar">
-              <img src="ngatemin.jpg" alt="DR. NGATEMIN" />
-            </div>
-            <div class="leader-info">
-              <h4>Secretary General</h4>
-              <p class="leader-name">DR. NGATEMIN., M.Si</p>
-              <p class="leader-affil">Strategic Operations &amp; Governance</p>
-            </div>
-          </div>
-
-          <!-- Treasurer -->
-          <div class="leader-card" data-aos="fade-up" style="animation-delay:0.3s">
-            <div class="leader-avatar">
-              <img src="tridessy.jpg" alt="TRI DESSY FADILLAH" />
-            </div>
-            <div class="leader-info">
-              <h4>Treasurer</h4>
-              <p class="leader-name">TRI DESSY FADILLAH., SE., M.Ak</p>
-              <p class="leader-affil">Finance &amp; Resource Management</p>
-            </div>
-          </div>
-
-          <!-- Information Technology -->
-          <div class="leader-card" data-aos="fade-up" style="animation-delay:0.35s">
-            <div class="leader-avatar">
-              <img src="rahman.jpg" alt="M. A. RAHMAN" />
-            </div>
-            <div class="leader-info">
-              <h4>Information Technology</h4>
-              <p class="leader-name">M. A. RAHMAN</p>
-              <p class="leader-affil">Digital Platform &amp; System Integration</p>
-            </div>
-          </div>
-
-        </div>
-      </div>
+    <div dangerouslySetInnerHTML={{ __html: `
 
       <!-- Regional Chapters -->
       <div class="subsection" id="regional-chapters">

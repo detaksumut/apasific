@@ -1,0 +1,76 @@
+"use client";
+
+import { useState, useEffect } from "react";
+
+const HOME_BODY = "Struktur Organisasi ASIA (Home)";
+
+const DEFAULT_MEMBERS = [
+  { jabatan: "Founding Father", nama: "DR. ARFAN IKHSAN LUBIS., SE., M.Si., CATr", afiliasi: "Association of Asia Pacific Academician", foto: "/arfan.png" },
+  { jabatan: "Advisor",         nama: "PROF. DR. INDRA MAIPITA., M.Si",            afiliasi: "Asia Pacific Academic Advisory Board",    foto: "/indra.jpg" },
+  { jabatan: "President",       nama: "DR. ARFAN IKHSAN LUBIS., SE., M.Si., CATr", afiliasi: "Asia Pacific Academic Leadership",         foto: "/arfan.png" },
+  { jabatan: "Vice President",  nama: "DR. MUHAMMAD YAMIN NOCH., SE., MSA",         afiliasi: "Academic Affairs & Institutional Development", foto: "/yamin.jpg" },
+  { jabatan: "Vice President",  nama: "PROF. DR. ISTIANINGSIH SASTRODIHARJO., SE., M.Si", afiliasi: "Research & International Cooperation", foto: "/istianingsih.jpg" },
+  { jabatan: "Secretary General", nama: "DR. NGATEMIN., M.Si",                     afiliasi: "Strategic Operations & Governance",      foto: "/ngatemin.jpg" },
+  { jabatan: "Treasurer",       nama: "TRI DESSY FADILLAH., SE., M.Ak",            afiliasi: "Finance & Resource Management",           foto: "/tridessy.jpg" },
+  { jabatan: "Information Technology", nama: "M. A. RAHMAN",                       afiliasi: "Digital Platform & System Integration",   foto: "/rahman.jpg" },
+];
+
+interface Member {
+  jabatan: string;
+  nama: string;
+  afiliasi: string;
+  foto: string;
+}
+
+export default function OrgStructure() {
+  const [members, setMembers] = useState<Member[]>(DEFAULT_MEMBERS);
+
+  useEffect(() => {
+    fetch(`/api/leadership?body=${encodeURIComponent(HOME_BODY)}`)
+      .then(res => res.json())
+      .then(data => {
+        if (data.members && Array.isArray(data.members) && data.members.length > 0) {
+          setMembers(data.members);
+        }
+      })
+      .catch(() => {
+        // fallback to defaults on error
+      });
+  }, []);
+
+  return (
+    <div className="leadership-grid">
+      {members.map((m, idx) => (
+        <div key={idx} className="leader-card" data-aos="fade-up" style={{ animationDelay: `${idx * 0.05}s` }}>
+          <div className="leader-avatar">
+            {m.foto ? (
+              <img
+                src={m.foto}
+                alt={m.nama}
+                onError={(e) => {
+                  (e.target as HTMLImageElement).style.display = "none";
+                }}
+              />
+            ) : (
+              <div style={{
+                width: "100%", height: "100%",
+                background: "rgba(201,168,76,0.1)",
+                display: "flex", alignItems: "center", justifyContent: "center",
+                borderRadius: "50%",
+              }}>
+                <svg width="40" height="40" fill="none" stroke="rgba(201,168,76,0.4)" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+              </div>
+            )}
+          </div>
+          <div className="leader-info">
+            <h4>{m.jabatan}</h4>
+            <p className="leader-name">{m.nama}</p>
+            <p className="leader-affil">{m.afiliasi}</p>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
