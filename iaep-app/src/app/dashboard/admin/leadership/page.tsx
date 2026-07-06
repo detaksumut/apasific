@@ -108,8 +108,8 @@ export default function LeadershipManagementPage() {
         img.src = event.target?.result as string;
         img.onload = () => {
           const canvas = document.createElement("canvas");
-          const MAX_WIDTH = 400;
-          const MAX_HEIGHT = 500;
+          const MAX_WIDTH = 300;
+          const MAX_HEIGHT = 300;
           let width = img.width;
           let height = img.height;
 
@@ -128,7 +128,7 @@ export default function LeadershipManagementPage() {
           canvas.height = height;
           const ctx = canvas.getContext("2d");
           ctx?.drawImage(img, 0, 0, width, height);
-          resolve(canvas.toDataURL("image/jpeg", 0.7)); // Kompres jadi JPEG 70%
+          resolve(canvas.toDataURL("image/jpeg", 0.6)); // Kompres jadi JPEG 60%
         };
         img.onerror = (err) => reject(err);
       };
