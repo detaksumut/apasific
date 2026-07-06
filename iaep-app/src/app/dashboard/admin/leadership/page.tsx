@@ -154,8 +154,8 @@ export default function LeadershipManagementPage() {
       } else {
         payload = {
           bodyName: selectedBody,
-          ketuaNama, ketuaJabatan: form.ketuaJabatan, ketuaNegara: form.ketuaNegara, ketuaId: form.ketuaId, ketuaPhoto,
-          sekNama: form.sekNama, sekJabatan: form.sekJabatan, sekNegara: form.sekNegara, sekId: form.sekId, sekretarisPhoto,
+          ketuaPhoto,
+          sekretarisPhoto,
           ...form,
         };
       }
