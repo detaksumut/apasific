@@ -249,6 +249,8 @@ export default function MajesticMembershipPage() {
           </div>
         </div>
       </div>
-    </div>
+    </main>
   );
 }
+
+// Force rebuild - 2026-07-06
