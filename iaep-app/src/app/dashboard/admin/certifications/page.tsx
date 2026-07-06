@@ -103,6 +103,11 @@ export default function CertificationsAdmin() {
             <h1 className="text-3xl font-bold font-serif text-[#c9a84c]">Certification Enrollments</h1>
             <p className="text-gray-400 mt-2">Kelola pendaftaran sertifikasi dan generate Ruang Ujian Online</p>
           </div>
+          <div>
+            <button onClick={handleGenerateDummy} className="bg-gray-800 hover:bg-gray-700 text-white px-4 py-2 text-sm rounded-lg transition-colors border border-gray-700 shadow-lg">
+              + Buat Pendaftar Percobaan (Dummy)
+            </button>
+          </div>
         </div>
 
         <div className="bg-[#0d0d1a] border border-gray-800 rounded-xl overflow-hidden">
@@ -119,10 +124,7 @@ export default function CertificationsAdmin() {
               {candidates.length === 0 ? (
                 <tr>
                   <td colSpan={4} className="p-12 text-center text-gray-500">
-                    <p className="mb-4">Belum ada pendaftar sertifikasi.</p>
-                    <button onClick={handleGenerateDummy} className="bg-gray-800 hover:bg-gray-700 text-white px-4 py-2 rounded-lg transition-colors border border-gray-700">
-                      + Buat Pendaftar Percobaan (Dummy)
-                    </button>
+                    Belum ada pendaftar sertifikasi.
                   </td>
                 </tr>
               ) : (
