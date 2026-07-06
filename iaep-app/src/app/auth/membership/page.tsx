@@ -72,14 +72,14 @@ export default function MajesticMembershipPage() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-5 items-start" style={{ display: 'grid', gridTemplateColumns: 'repeat(5, minmax(0, 1fr))', gap: '48px' }}>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '48px', alignItems: 'flex-start' }}>
           
           {/* Left Column: Form */}
-          <div className="lg:col-span-3 bg-[#0d0d1a]/80 border border-[#c9a84c]/20 shadow-2xl backdrop-blur-md" style={{ gridColumn: 'span 3 / span 3', padding: '32px', borderRadius: '16px' }}>
+          <div className="bg-[#0d0d1a]/80 border border-[#c9a84c]/20 shadow-2xl backdrop-blur-md" style={{ flex: '1 1 55%', minWidth: '320px', padding: '32px', borderRadius: '16px' }}>
             <h2 className="font-bold text-[#c9a84c] border-b border-gray-800" style={{ fontSize: '24px', marginBottom: '24px', paddingBottom: '16px' }}>Membership Application Form</h2>
             
             <form onSubmit={handleSubmit} style={{ marginTop: '16px' }}>
-              <div className="grid grid-cols-1 md:grid-cols-2" style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: '24px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '24px' }}>
                 <div>
                   <label className="block text-gray-300 tracking-wider uppercase font-semibold" style={{ fontSize: '12px', marginBottom: '8px' }}>Full Name (with Titles)</label>
                   <input type="text" name="fullName" value={formData.fullName} onChange={handleChange} placeholder="e.g. Prof. Dr. Budi Santoso, M.Sc." className="w-full bg-[#05050a]/50 border border-gray-700 text-white focus:outline-none focus:border-[#c9a84c] focus:ring-1 focus:ring-[#c9a84c] transition-all" style={{ width: '100%', borderRadius: '12px', padding: '14px 16px' }} required />
@@ -180,7 +180,7 @@ export default function MajesticMembershipPage() {
           </div>
 
           {/* Right Column: Live Member Card */}
-          <div className="lg:col-span-2 flex flex-col items-center justify-start sticky" style={{ gridColumn: 'span 2 / span 2', top: '96px' }}>
+          <div className="flex flex-col items-center justify-start sticky" style={{ flex: '1 1 35%', minWidth: '320px', top: '96px' }}>
             <h3 className="text-gray-400 font-semibold text-center tracking-widest uppercase" style={{ marginBottom: '16px', fontSize: '14px' }}>Real-Time Card Preview</h3>
             
             {/* The Card */}
