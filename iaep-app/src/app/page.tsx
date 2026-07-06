@@ -130,8 +130,8 @@ export default function Home() {
       <!-- Launch Banner -->
       <div class="index-launch-banner" data-aos="fade-up">
         <div class="launch-year-box">
-          <span class="launch-year">2026</span>
-          <span class="launch-year-label">Established</span>
+          <span class="launch-year" style="font-size: 1.2rem;">APASIFIC</span>
+          <span class="launch-year-label" style="font-size: 1rem; letter-spacing: 2px;">INDEX</span>
         </div>
         <div class="launch-divider"></div>
         <div class="launch-progress-info">
