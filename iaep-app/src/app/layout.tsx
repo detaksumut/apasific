@@ -207,6 +207,16 @@ export default function RootLayout({
               <li><a href="#policy-briefs">Policy Briefs</a></li>
             </ul>
           </div>
+          <div class="footer-links-col" style="background: rgba(20,20,30,0.5); padding: 20px; border-radius: 12px; border: 1px solid rgba(201,168,76,0.3);">
+            <h4 style="color: #c9a84c; display: flex; align-items: center; gap: 8px;">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+              Official Bank Account
+            </h4>
+            <p style="color: #fff; font-weight: bold; margin-bottom: 8px; font-size: 13px;">Association of Asia Pacific Academician</p>
+            <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">Bank: Bank Negara Indonesia (BNI)</p>
+            <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">A/C No: <span style="color: #c9a84c; font-family: monospace; font-size: 15px; font-weight: bold;">7006002218</span></p>
+            <p style="font-size: 13px; color: var(--text-muted);">Swift Code: BNINIDJA</p>
+          </div>
         </div>
       </div>
     </div>
