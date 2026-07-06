@@ -45,6 +45,12 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Missing required candidate info" }, { status: 400 });
     }
 
+    // Parse schedule: if not a valid date, fallback to 1 year from now
+    const parsedDate = new Date(schedule);
+    const scheduleISO = isNaN(parsedDate.getTime())
+      ? new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString()
+      : parsedDate.toISOString();
+
     const dbPayload: any = {
       name,
       email,
@@ -52,7 +58,7 @@ export async function POST(request: NextRequest) {
       academic_field: academicField || null,
       cert,
       method,
-      schedule: new Date(schedule).toISOString(),
+      schedule: scheduleISO,
       status: status || "Awaiting Zoom Link",
       zoom_link: zoomLink || null
     };
