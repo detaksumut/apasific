@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/utils/supabase/server";
 
+const HOME_BODY = "Struktur Organisasi ASIA (Home)";
+
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const body = searchParams.get("body");
@@ -18,13 +20,25 @@ export async function GET(request: NextRequest) {
 
   if (error) {
     if (error.code === "PGRST116") {
-      // Record not found, return empty structure
+      // Record not found — return empty
+      if (body === HOME_BODY) {
+        return NextResponse.json({ members: [] });
+      }
       return NextResponse.json({
         ketuaNama: "", ketuaJabatan: "", ketuaNegara: "", ketuaId: "", ketuaPhoto: null,
         sekNama: "", sekJabatan: "", sekNegara: "", sekId: "", sekretarisPhoto: null
       });
     }
     return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+
+  // Home org structure — return members array
+  if (body === HOME_BODY) {
+    let members = [];
+    try {
+      members = data.members_json ? JSON.parse(data.members_json) : [];
+    } catch { members = []; }
+    return NextResponse.json({ members });
   }
 
   // Map database columns to the frontend state structure
@@ -45,27 +59,30 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const supabase = await createClient();
-    const { data: { user } } = await supabase.auth.getUser();
-
-    if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
 
     const payload = await request.json();
-    const {
-      bodyName,
-      ketuaNama, ketuaJabatan, ketuaNegara, ketuaId, ketuaPhoto,
-      sekNama, sekJabatan, sekNegara, sekId, sekretarisPhoto
-    } = payload;
+    const { bodyName, members } = payload;
 
     if (!bodyName) {
       return NextResponse.json({ error: "Missing bodyName" }, { status: 400 });
     }
 
-    const { error } = await supabase
-      .from("leadership")
-      .upsert({
-        body_name: bodyName,
+    let upsertPayload: any = {
+      body_name: bodyName,
+      updated_at: new Date().toISOString()
+    };
+
+    if (bodyName === HOME_BODY) {
+      // Home org structure — save as JSON
+      upsertPayload.members_json = JSON.stringify(members || []);
+    } else {
+      const {
+        ketuaNama, ketuaJabatan, ketuaNegara, ketuaId, ketuaPhoto,
+        sekNama, sekJabatan, sekNegara, sekId, sekretarisPhoto
+      } = payload;
+
+      upsertPayload = {
+        ...upsertPayload,
         ketua_name: ketuaNama,
         ketua_jabatan: ketuaJabatan,
         ketua_negara: ketuaNegara,
@@ -76,10 +93,12 @@ export async function POST(request: NextRequest) {
         sek_negara: sekNegara,
         sek_id: sekId,
         sek_photo: sekretarisPhoto,
-        updated_at: new Date().toISOString()
-      }, {
-        onConflict: "body_name"
-      });
+      };
+    }
+
+    const { error } = await supabase
+      .from("leadership")
+      .upsert(upsertPayload, { onConflict: "body_name" });
 
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 });
