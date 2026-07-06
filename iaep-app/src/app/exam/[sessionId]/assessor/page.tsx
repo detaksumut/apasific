@@ -95,9 +95,12 @@ export default function AssessorPage() {
         const data = await res.json();
         setSessionData(data);
         alert("Soal berhasil dirilis! Peserta sekarang dapat mengerjakannya.");
+      } else {
+        const errData = await res.json();
+        alert("Server Error: " + (errData.error || "Gagal menyimpan soal."));
       }
-    } catch (e) {
-      alert("Gagal merilis soal.");
+    } catch (e: any) {
+      alert("Gagal merilis soal (Koneksi Terputus).");
     }
   };
 
@@ -115,9 +118,12 @@ export default function AssessorPage() {
         const data = await res.json();
         setSessionData(data);
         alert("Penilaian selesai dan disimpan!");
+      } else {
+        const errData = await res.json();
+        alert("Server Error: " + (errData.error || "Gagal menyimpan nilai."));
       }
-    } catch (e) {
-      alert("Gagal menyimpan nilai.");
+    } catch (e: any) {
+      alert("Gagal menyimpan nilai (Koneksi Terputus).");
     }
   };
 

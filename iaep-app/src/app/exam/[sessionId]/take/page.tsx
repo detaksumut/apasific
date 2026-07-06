@@ -81,9 +81,12 @@ export default function CandidateTakeExam() {
         const data = await res.json();
         setSessionData(data);
         alert("Jawaban berhasil dikirim! Asesor akan segera memeriksanya.");
+      } else {
+        const errData = await res.json();
+        alert("Server Error: " + (errData.error || "Gagal menyimpan ke database."));
       }
-    } catch (e) {
-      alert("Gagal mengirim jawaban.");
+    } catch (e: any) {
+      alert("Gagal mengirim jawaban (Koneksi Terputus).");
     } finally {
       setIsSubmitting(false);
     }
