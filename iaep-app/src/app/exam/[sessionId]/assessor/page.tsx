@@ -9,9 +9,9 @@ export default function AssessorPage() {
   const [sessionData, setSessionData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
-  // States for DRAFT
-  const [mcq1, setMcq1] = useState({ q: "", a: "", b: "", c: "", d: "", correct: "A" });
-  const [essay1, setEssay1] = useState("");
+  // Dynamic States for DRAFT
+  const [mcqs, setMcqs] = useState<any[]>([]);
+  const [essays, setEssays] = useState<any[]>([]);
 
   // States for Grading
   const [score, setScore] = useState<number>(0);
@@ -38,9 +38,13 @@ export default function AssessorPage() {
           const data = await res.json();
           setSessionData(data);
           
-          if (data.exam_data && data.exam_data.mcq1) {
-            setMcq1(data.exam_data.mcq1);
-            setEssay1(data.exam_data.essay1);
+          if (data.exam_data) {
+            setMcqs(data.exam_data.mcqs || []);
+            setEssays(data.exam_data.essays || []);
+          } else {
+            // Default empty state
+            setMcqs([{ id: Date.now().toString(), q: "", a: "", b: "", c: "", d: "", correct: "A" }]);
+            setEssays([{ id: (Date.now()+1).toString(), q: "" }]);
           }
         }
       } catch (e) {
@@ -52,6 +56,31 @@ export default function AssessorPage() {
     fetchSession();
   }, [sessionId, router]);
 
+  // Dynamic Handlers
+  const addMcq = () => {
+    setMcqs([...mcqs, { id: Date.now().toString(), q: "", a: "", b: "", c: "", d: "", correct: "A" }]);
+  };
+
+  const removeMcq = (id: string) => {
+    setMcqs(mcqs.filter(m => m.id !== id));
+  };
+
+  const updateMcq = (id: string, field: string, value: string) => {
+    setMcqs(mcqs.map(m => m.id === id ? { ...m, [field]: value } : m));
+  };
+
+  const addEssay = () => {
+    setEssays([...essays, { id: Date.now().toString(), q: "" }]);
+  };
+
+  const removeEssay = (id: string) => {
+    setEssays(essays.filter(e => e.id !== id));
+  };
+
+  const updateEssay = (id: string, value: string) => {
+    setEssays(essays.map(e => e.id === id ? { ...e, q: value } : e));
+  };
+
   const handleReleaseExam = async () => {
     try {
       const res = await fetch(`/api/certifications/exam/sessions/${sessionId}/data`, {
@@ -59,7 +88,7 @@ export default function AssessorPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           status: 'READY',
-          exam_data: { mcq1, essay1 }
+          exam_data: { mcqs, essays }
         })
       });
       if (res.ok) {
@@ -122,32 +151,63 @@ export default function AssessorPage() {
           <div className="bg-[#0d0d1a] border border-gray-800 rounded-xl shadow-xl" style={{ padding: '24px' }}>
             <h2 className="text-xl font-bold text-white" style={{ marginBottom: '24px' }}>Tahap 1: Buat Soal Ujian</h2>
             
-            <div className="border border-gray-800 rounded bg-[#151522]" style={{ padding: '16px', marginBottom: '32px' }}>
-              <h3 className="font-semibold text-[#e8c97a]" style={{ marginBottom: '16px' }}>Soal Multiple Choice</h3>
-              <div className="flex flex-col" style={{ gap: '16px' }}>
-                <input type="text" placeholder="Pertanyaan..." value={mcq1.q} onChange={e => setMcq1({...mcq1, q: e.target.value})} className="w-full bg-[#05050a] border border-gray-700 rounded text-white" style={{ padding: '12px' }} />
-                <div className="grid grid-cols-2" style={{ gap: '16px' }}>
-                  <input type="text" placeholder="Opsi A" value={mcq1.a} onChange={e => setMcq1({...mcq1, a: e.target.value})} className="bg-[#05050a] border border-gray-700 rounded text-sm text-white" style={{ padding: '8px' }} />
-                  <input type="text" placeholder="Opsi B" value={mcq1.b} onChange={e => setMcq1({...mcq1, b: e.target.value})} className="bg-[#05050a] border border-gray-700 rounded text-sm text-white" style={{ padding: '8px' }} />
-                  <input type="text" placeholder="Opsi C" value={mcq1.c} onChange={e => setMcq1({...mcq1, c: e.target.value})} className="bg-[#05050a] border border-gray-700 rounded text-sm text-white" style={{ padding: '8px' }} />
-                  <input type="text" placeholder="Opsi D" value={mcq1.d} onChange={e => setMcq1({...mcq1, d: e.target.value})} className="bg-[#05050a] border border-gray-700 rounded text-sm text-white" style={{ padding: '8px' }} />
-                </div>
-                <div>
-                  <label className="text-sm text-gray-400" style={{ marginRight: '8px' }}>Jawaban Benar:</label>
-                  <select value={mcq1.correct} onChange={e => setMcq1({...mcq1, correct: e.target.value})} className="bg-[#05050a] border border-gray-700 rounded text-white text-sm" style={{ padding: '8px' }}>
-                    <option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option>
-                  </select>
-                </div>
+            {/* Multiple Choice Section */}
+            <div style={{ marginBottom: '40px' }}>
+              <div className="flex justify-between items-center" style={{ marginBottom: '16px' }}>
+                <h3 className="font-semibold text-lg text-[#e8c97a]">Bagian I: Pilihan Ganda</h3>
+                <button onClick={addMcq} className="bg-gray-800 hover:bg-gray-700 text-white text-xs font-bold rounded" style={{ padding: '6px 12px' }}>+ Tambah Soal Pilihan Ganda</button>
               </div>
+
+              {mcqs.length === 0 && <p className="text-gray-500 text-sm italic" style={{ marginBottom: '16px' }}>Belum ada soal pilihan ganda.</p>}
+
+              {mcqs.map((mcq, index) => (
+                <div key={mcq.id} className="border border-gray-800 rounded bg-[#151522] relative" style={{ padding: '16px', marginBottom: '16px' }}>
+                  <div className="flex justify-between items-center" style={{ marginBottom: '12px' }}>
+                    <span className="text-gray-400 font-bold text-sm">Soal PG #{index + 1}</span>
+                    <button onClick={() => removeMcq(mcq.id)} className="text-red-500 hover:text-red-400 text-sm font-bold">Hapus</button>
+                  </div>
+                  
+                  <div className="flex flex-col" style={{ gap: '16px' }}>
+                    <textarea placeholder="Tulis pertanyaan di sini..." value={mcq.q} onChange={e => updateMcq(mcq.id, 'q', e.target.value)} rows={2} className="w-full bg-[#05050a] border border-gray-700 rounded text-white" style={{ padding: '12px' }} />
+                    <div className="grid grid-cols-2" style={{ gap: '16px' }}>
+                      <input type="text" placeholder="Opsi A" value={mcq.a} onChange={e => updateMcq(mcq.id, 'a', e.target.value)} className="bg-[#05050a] border border-gray-700 rounded text-sm text-white" style={{ padding: '8px' }} />
+                      <input type="text" placeholder="Opsi B" value={mcq.b} onChange={e => updateMcq(mcq.id, 'b', e.target.value)} className="bg-[#05050a] border border-gray-700 rounded text-sm text-white" style={{ padding: '8px' }} />
+                      <input type="text" placeholder="Opsi C" value={mcq.c} onChange={e => updateMcq(mcq.id, 'c', e.target.value)} className="bg-[#05050a] border border-gray-700 rounded text-sm text-white" style={{ padding: '8px' }} />
+                      <input type="text" placeholder="Opsi D" value={mcq.d} onChange={e => updateMcq(mcq.id, 'd', e.target.value)} className="bg-[#05050a] border border-gray-700 rounded text-sm text-white" style={{ padding: '8px' }} />
+                    </div>
+                    <div>
+                      <label className="text-sm text-gray-400" style={{ marginRight: '8px' }}>Kunci Jawaban Benar:</label>
+                      <select value={mcq.correct} onChange={e => updateMcq(mcq.id, 'correct', e.target.value)} className="bg-[#05050a] border border-[#c9a84c] text-[#c9a84c] rounded text-sm font-bold" style={{ padding: '6px 12px' }}>
+                        <option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              ))}
             </div>
 
-            <div className="border border-gray-800 rounded bg-[#151522]" style={{ padding: '16px', marginBottom: '32px' }}>
-              <h3 className="font-semibold text-[#e8c97a]" style={{ marginBottom: '16px' }}>Soal Essay / Kasus</h3>
-              <textarea placeholder="Tulis studi kasus atau soal essay di sini..." value={essay1} onChange={e => setEssay1(e.target.value)} rows={5} className="w-full bg-[#05050a] border border-gray-700 rounded text-white" style={{ padding: '12px' }}></textarea>
+            {/* Essay Section */}
+            <div style={{ marginBottom: '40px' }}>
+              <div className="flex justify-between items-center" style={{ marginBottom: '16px' }}>
+                <h3 className="font-semibold text-lg text-[#e8c97a]">Bagian II: Essay / Kasus</h3>
+                <button onClick={addEssay} className="bg-gray-800 hover:bg-gray-700 text-white text-xs font-bold rounded" style={{ padding: '6px 12px' }}>+ Tambah Soal Essay</button>
+              </div>
+              
+              {essays.length === 0 && <p className="text-gray-500 text-sm italic" style={{ marginBottom: '16px' }}>Belum ada soal essay.</p>}
+
+              {essays.map((essay, index) => (
+                <div key={essay.id} className="border border-gray-800 rounded bg-[#151522]" style={{ padding: '16px', marginBottom: '16px' }}>
+                  <div className="flex justify-between items-center" style={{ marginBottom: '12px' }}>
+                    <span className="text-gray-400 font-bold text-sm">Soal Essay #{index + 1}</span>
+                    <button onClick={() => removeEssay(essay.id)} className="text-red-500 hover:text-red-400 text-sm font-bold">Hapus</button>
+                  </div>
+                  <textarea placeholder="Ketik kasus atau pertanyaan essay di sini..." value={essay.q} onChange={e => updateEssay(essay.id, e.target.value)} rows={4} className="w-full bg-[#05050a] border border-gray-700 rounded text-white" style={{ padding: '12px' }}></textarea>
+                </div>
+              ))}
             </div>
 
-            <button onClick={handleReleaseExam} className="w-full bg-[#c9a84c] hover:bg-[#e8c97a] text-black font-bold rounded-lg shadow-[0_0_15px_rgba(201,168,76,0.3)]" style={{ padding: '12px' }}>
-              Simpan & Rilis Soal Ujian
+            <button onClick={handleReleaseExam} className="w-full bg-[#c9a84c] hover:bg-[#e8c97a] text-black font-bold rounded-lg shadow-[0_0_15px_rgba(201,168,76,0.3)]" style={{ padding: '16px' }}>
+              SIMPAN & RILIS SEMUA SOAL UJIAN
             </button>
           </div>
         )}
@@ -166,28 +226,54 @@ export default function AssessorPage() {
           <div className="bg-[#0d0d1a] border border-blue-900/50 rounded-xl shadow-[0_0_30px_rgba(0,100,255,0.1)]" style={{ padding: '24px' }}>
             <h2 className="text-xl font-bold text-white" style={{ marginBottom: '24px' }}>Tahap 3: Periksa & Berikan Nilai</h2>
             
-            <div className="border border-gray-800 rounded bg-[#151522]" style={{ padding: '16px', marginBottom: '24px' }}>
-              <h3 className="font-semibold text-gray-400 text-sm" style={{ marginBottom: '8px' }}>Jawaban Multiple Choice</h3>
-              <p className="text-white">Soal: {sessionData.exam_data?.mcq1?.q}</p>
-              <p className="text-[#e8c97a]" style={{ marginTop: '8px' }}>Jawaban Benar Asesor: {sessionData.exam_data?.mcq1?.correct}</p>
-              <p className="font-bold text-blue-400" style={{ marginTop: '4px' }}>Jawaban Peserta: {sessionData.answer_data?.mcq1_answer}</p>
+            {/* Display MCQs Submitted */}
+            <div style={{ marginBottom: '32px' }}>
+              <h3 className="font-semibold text-[#e8c97a] text-lg border-b border-gray-800" style={{ marginBottom: '16px', paddingBottom: '8px' }}>Bagian I: Pilihan Ganda</h3>
+              {sessionData.exam_data?.mcqs?.map((mcq: any, index: number) => (
+                <div key={mcq.id} className="border border-gray-800 rounded bg-[#151522]" style={{ padding: '16px', marginBottom: '16px' }}>
+                  <span className="text-gray-500 font-bold text-xs" style={{ marginBottom: '8px', display: 'block' }}>Soal PG #{index + 1}</span>
+                  <p className="text-white" style={{ marginBottom: '12px' }}>{mcq.q}</p>
+                  
+                  <div className="flex flex-col" style={{ gap: '8px' }}>
+                    <div className="flex justify-between items-center bg-[#05050a] border border-green-900/50 rounded" style={{ padding: '8px 12px' }}>
+                      <span className="text-gray-400 text-sm">Kunci Jawaban Asesor:</span>
+                      <span className="text-green-500 font-bold">{mcq.correct} ({mcq[mcq.correct.toLowerCase()]})</span>
+                    </div>
+                    
+                    <div className={`flex justify-between items-center bg-[#05050a] border rounded ${sessionData.answer_data?.mcqs?.[mcq.id] === mcq.correct ? 'border-green-900/50' : 'border-red-900/50'}`} style={{ padding: '8px 12px' }}>
+                      <span className="text-gray-400 text-sm">Jawaban Peserta:</span>
+                      <span className={`font-bold ${sessionData.answer_data?.mcqs?.[mcq.id] === mcq.correct ? 'text-green-400' : 'text-red-400'}`}>
+                        {sessionData.answer_data?.mcqs?.[mcq.id] || "Tidak Dijawab"}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              ))}
             </div>
 
-            <div className="border border-gray-800 rounded bg-[#151522]" style={{ padding: '16px', marginBottom: '24px' }}>
-              <h3 className="font-semibold text-gray-400 text-sm" style={{ marginBottom: '8px' }}>Jawaban Essay</h3>
-              <p className="text-white italic" style={{ marginBottom: '16px' }}>Soal: {sessionData.exam_data?.essay1}</p>
-              <div className="bg-[#05050a] rounded border border-gray-700 text-gray-200" style={{ padding: '16px' }}>
-                {sessionData.answer_data?.essay1_answer || "Tidak ada jawaban"}
-              </div>
+            {/* Display Essays Submitted */}
+            <div style={{ marginBottom: '40px' }}>
+              <h3 className="font-semibold text-[#e8c97a] text-lg border-b border-gray-800" style={{ marginBottom: '16px', paddingBottom: '8px' }}>Bagian II: Essay / Kasus</h3>
+              {sessionData.exam_data?.essays?.map((essay: any, index: number) => (
+                <div key={essay.id} className="border border-gray-800 rounded bg-[#151522]" style={{ padding: '16px', marginBottom: '16px' }}>
+                  <span className="text-gray-500 font-bold text-xs" style={{ marginBottom: '8px', display: 'block' }}>Soal Essay #{index + 1}</span>
+                  <p className="text-white italic" style={{ marginBottom: '16px' }}>{essay.q}</p>
+                  
+                  <h4 className="text-sm text-blue-400 font-semibold" style={{ marginBottom: '8px' }}>Jawaban Tulis Peserta:</h4>
+                  <div className="bg-[#05050a] rounded border border-gray-700 text-gray-200 whitespace-pre-wrap" style={{ padding: '16px', minHeight: '100px' }}>
+                    {sessionData.answer_data?.essays?.[essay.id] || "Tidak ada jawaban"}
+                  </div>
+                </div>
+              ))}
             </div>
 
             <div className="flex items-center" style={{ gap: '16px', marginBottom: '24px' }}>
-              <label className="text-white font-bold">Beri Nilai Total (0-100):</label>
-              <input type="number" min="0" max="100" value={score} onChange={e => setScore(Number(e.target.value))} className="bg-[#05050a] border border-[#c9a84c] text-[#c9a84c] rounded font-bold text-center w-24 text-xl" style={{ padding: '8px' }} />
+              <label className="text-white font-bold text-lg">Beri Nilai Total Akhir (0-100):</label>
+              <input type="number" min="0" max="100" value={score} onChange={e => setScore(Number(e.target.value))} className="bg-[#05050a] border border-[#c9a84c] text-[#c9a84c] rounded font-bold text-center w-32 text-2xl" style={{ padding: '12px' }} />
             </div>
 
-            <button onClick={handleSubmitGrade} className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-lg shadow-[0_0_15px_rgba(0,100,255,0.3)]" style={{ padding: '12px' }}>
-              Selesai Pemeriksaan & Simpan Nilai
+            <button onClick={handleSubmitGrade} className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-lg shadow-[0_0_15px_rgba(0,100,255,0.3)]" style={{ padding: '16px' }}>
+              SELESAI PEMERIKSAAN & SIMPAN NILAI
             </button>
           </div>
         )}

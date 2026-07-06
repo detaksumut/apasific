@@ -9,9 +9,9 @@ export default function CandidateTakeExam() {
   const [sessionData, setSessionData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
-  // States for answers
-  const [mcqAnswer, setMcqAnswer] = useState<string>("");
-  const [essayAnswer, setEssayAnswer] = useState<string>("");
+  // Dynamic States for answers
+  const [mcqAnswers, setMcqAnswers] = useState<Record<string, string>>({});
+  const [essayAnswers, setEssayAnswers] = useState<Record<string, string>>({});
   
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -37,9 +37,9 @@ export default function CandidateTakeExam() {
           const data = await res.json();
           setSessionData(data);
           
-          if (data.answer_data && data.answer_data.mcq1_answer) {
-            setMcqAnswer(data.answer_data.mcq1_answer);
-            setEssayAnswer(data.answer_data.essay1_answer);
+          if (data.answer_data) {
+            setMcqAnswers(data.answer_data.mcqs || {});
+            setEssayAnswers(data.answer_data.essays || {});
           }
         }
       } catch (e) {
@@ -51,13 +51,16 @@ export default function CandidateTakeExam() {
     fetchSession();
   }, [sessionId, router]);
 
-  const handleSubmitAnswers = async () => {
-    if (!mcqAnswer || !essayAnswer.trim()) {
-      alert("Harap jawab semua soal sebelum submit.");
-      return;
-    }
+  const updateMcqAnswer = (id: string, value: string) => {
+    setMcqAnswers(prev => ({ ...prev, [id]: value }));
+  };
 
-    if (!confirm("Apakah Anda yakin ingin submit? Jawaban tidak bisa diubah lagi!")) {
+  const updateEssayAnswer = (id: string, value: string) => {
+    setEssayAnswers(prev => ({ ...prev, [id]: value }));
+  };
+
+  const handleSubmitAnswers = async () => {
+    if (!confirm("Apakah Anda yakin ingin submit? Jawaban tidak bisa diubah lagi! Pastikan semua soal telah terjawab.")) {
       return;
     }
 
@@ -69,8 +72,8 @@ export default function CandidateTakeExam() {
         body: JSON.stringify({
           status: 'SUBMITTED',
           answer_data: { 
-            mcq1_answer: mcqAnswer, 
-            essay1_answer: essayAnswer 
+            mcqs: mcqAnswers, 
+            essays: essayAnswers 
           }
         })
       });
@@ -123,45 +126,69 @@ export default function CandidateTakeExam() {
               </div>
             </div>
 
-            <div style={{ marginBottom: '32px' }}>
-              <h3 className="font-bold text-lg text-white border-b border-gray-800" style={{ marginBottom: '16px', paddingBottom: '8px' }}>Soal 1: Multiple Choice</h3>
-              <p className="text-gray-300 text-lg" style={{ marginBottom: '16px' }}>{sessionData.exam_data.mcq1.q}</p>
-              
-              <div className="flex flex-col" style={{ gap: '12px' }}>
-                {['a', 'b', 'c', 'd'].map(opt => (
-                  <label key={opt} className={`flex items-center rounded-lg border cursor-pointer transition-colors ${
-                    mcqAnswer === opt.toUpperCase() 
-                    ? 'border-[#c9a84c] bg-[#c9a84c]/10' 
-                    : 'border-gray-800 bg-[#151522] hover:border-gray-600'
-                  }`} style={{ padding: '16px' }}>
-                    <input 
-                      type="radio" 
-                      name="mcq" 
-                      value={opt.toUpperCase()}
-                      checked={mcqAnswer === opt.toUpperCase()}
-                      onChange={(e) => setMcqAnswer(e.target.value)}
-                      className="w-5 h-5 text-[#c9a84c] border-gray-600 focus:ring-[#c9a84c] focus:ring-offset-[#151522]"
-                    />
-                    <span className="font-semibold text-[#c9a84c] uppercase w-6" style={{ marginLeft: '12px' }}>{opt}.</span>
-                    <span className="text-gray-300">{sessionData.exam_data.mcq1[opt]}</span>
-                  </label>
+            {/* MCQ List */}
+            {sessionData.exam_data.mcqs && sessionData.exam_data.mcqs.length > 0 && (
+              <div style={{ marginBottom: '40px' }}>
+                <h3 className="font-bold text-xl text-[#e8c97a] border-b border-gray-800" style={{ marginBottom: '24px', paddingBottom: '8px' }}>Bagian I: Pilihan Ganda</h3>
+                
+                {sessionData.exam_data.mcqs.map((mcq: any, index: number) => (
+                  <div key={mcq.id} style={{ marginBottom: '32px' }}>
+                    <div className="flex items-start" style={{ gap: '12px', marginBottom: '16px' }}>
+                      <span className="font-bold text-gray-500">{index + 1}.</span>
+                      <p className="text-gray-200 text-lg">{mcq.q}</p>
+                    </div>
+                    
+                    <div className="flex flex-col pl-6" style={{ gap: '12px' }}>
+                      {['a', 'b', 'c', 'd'].map(opt => (
+                        <label key={opt} className={`flex items-center rounded-lg border cursor-pointer transition-colors ${
+                          mcqAnswers[mcq.id] === opt.toUpperCase() 
+                          ? 'border-[#c9a84c] bg-[#c9a84c]/10' 
+                          : 'border-gray-800 bg-[#151522] hover:border-gray-600'
+                        }`} style={{ padding: '16px' }}>
+                          <input 
+                            type="radio" 
+                            name={`mcq_${mcq.id}`} 
+                            value={opt.toUpperCase()}
+                            checked={mcqAnswers[mcq.id] === opt.toUpperCase()}
+                            onChange={(e) => updateMcqAnswer(mcq.id, e.target.value)}
+                            className="w-5 h-5 text-[#c9a84c] border-gray-600 focus:ring-[#c9a84c] focus:ring-offset-[#151522]"
+                          />
+                          <span className="font-semibold text-[#c9a84c] uppercase w-6" style={{ marginLeft: '12px' }}>{opt}.</span>
+                          <span className="text-gray-300">{mcq[opt]}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
                 ))}
               </div>
-            </div>
+            )}
 
-            <div style={{ marginBottom: '32px' }}>
-              <h3 className="font-bold text-lg text-white border-b border-gray-800" style={{ marginBottom: '16px', paddingBottom: '8px' }}>Soal 2: Essay / Kasus</h3>
-              <p className="text-gray-300 text-lg italic leading-relaxed" style={{ marginBottom: '16px' }}>{sessionData.exam_data.essay1}</p>
-              
-              <textarea 
-                rows={8}
-                placeholder="Ketik jawaban lengkap Anda di sini..."
-                value={essayAnswer}
-                onChange={(e) => setEssayAnswer(e.target.value)}
-                className="w-full bg-[#05050a] border border-gray-700 rounded-lg text-white leading-relaxed focus:outline-none focus:border-[#c9a84c] focus:ring-1 focus:ring-[#c9a84c]"
-                style={{ padding: '16px' }}
-              ></textarea>
-            </div>
+            {/* Essay List */}
+            {sessionData.exam_data.essays && sessionData.exam_data.essays.length > 0 && (
+              <div style={{ marginBottom: '40px' }}>
+                <h3 className="font-bold text-xl text-[#e8c97a] border-b border-gray-800" style={{ marginBottom: '24px', paddingBottom: '8px' }}>Bagian II: Essay / Kasus</h3>
+                
+                {sessionData.exam_data.essays.map((essay: any, index: number) => (
+                  <div key={essay.id} style={{ marginBottom: '32px' }}>
+                    <div className="flex items-start" style={{ gap: '12px', marginBottom: '16px' }}>
+                      <span className="font-bold text-gray-500">{index + 1}.</span>
+                      <p className="text-gray-300 text-lg italic leading-relaxed">{essay.q}</p>
+                    </div>
+                    
+                    <div className="pl-6">
+                      <textarea 
+                        rows={6}
+                        placeholder="Ketik jawaban lengkap Anda di sini..."
+                        value={essayAnswers[essay.id] || ""}
+                        onChange={(e) => updateEssayAnswer(essay.id, e.target.value)}
+                        className="w-full bg-[#05050a] border border-gray-700 rounded-lg text-white leading-relaxed focus:outline-none focus:border-[#c9a84c] focus:ring-1 focus:ring-[#c9a84c]"
+                        style={{ padding: '16px' }}
+                      ></textarea>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
 
             <button 
               onClick={handleSubmitAnswers} 
