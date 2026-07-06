@@ -108,8 +108,8 @@ export default function LeadershipManagementPage() {
         img.src = event.target?.result as string;
         img.onload = () => {
           const canvas = document.createElement("canvas");
-          const MAX_WIDTH = 300;
-          const MAX_HEIGHT = 300;
+          const MAX_WIDTH = 150;
+          const MAX_HEIGHT = 150;
           let width = img.width;
           let height = img.height;
 
@@ -128,7 +128,7 @@ export default function LeadershipManagementPage() {
           canvas.height = height;
           const ctx = canvas.getContext("2d");
           ctx?.drawImage(img, 0, 0, width, height);
-          resolve(canvas.toDataURL("image/jpeg", 0.6)); // Kompres jadi JPEG 60%
+          resolve(canvas.toDataURL("image/jpeg", 0.5)); // Kompres ekstrim
         };
         img.onerror = (err) => reject(err);
       };
@@ -202,8 +202,8 @@ export default function LeadershipManagementPage() {
       const payloadString = JSON.stringify(payload);
       const sizeMB = (new Blob([payloadString]).size / (1024 * 1024)).toFixed(2);
 
-      if (parseFloat(sizeMB) > 3.5) {
-        alert(`Data Anda terlalu besar (${sizeMB} MB). Server Vercel membatasi maksimal 4 MB.\n\nIni biasanya terjadi jika Anda tidak sengaja menyimpan foto raksasa SEBELUM fitur kompresi aktif. Tolong klik 'Ganti Foto' pada anggota yang fotonya besar agar dikompres ulang!`);
+      if (parseFloat(sizeMB) > 0.9) {
+        alert(`Data Anda masih ${sizeMB} MB. Server membatasi maksimal 1 MB! Tolong ganti foto (upload ulang) anggota yang fotonya paling besar agar dikompres secara otomatis.`);
         return;
       }
 
