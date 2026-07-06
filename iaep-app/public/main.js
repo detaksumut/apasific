@@ -1031,13 +1031,7 @@ function initAsiacertHubForm() {
           </div>
         </div>
 
-        <div class="cert-group">
-          <label class="cert-label">Select Exam Schedule (Min 14 Days In Advance)</label>
-          <input type="datetime-local" class="cert-input" id="certSchedule" min="${minDateTimeStr}" required />
-          <span style="font-size: 10px; color: rgba(255,255,255,0.4); margin-top: 2px;">
-            * Note: Dates prior to ${new Date(minDate).toLocaleDateString('id-ID', { dateStyle: 'medium' })} are disabled.
-          </span>
-        </div>
+
 
         <button type="submit" class="cert-submit" id="certSubmitBtn">Submit Exam Registration</button>
       </form>
@@ -1152,7 +1146,6 @@ function initAsiacertHubForm() {
   const fieldSelect = container.querySelector('#hubField');
   const levelSelect = container.querySelector('#hubLevel');
   const nameInput = container.querySelector('#certName');
-  const dateInput = container.querySelector('#certSchedule');
 
   function updatePreviews() {
     const nameVal = nameInput.value.trim() || "Prof. Dr. M A Rahman";
@@ -1227,19 +1220,8 @@ function initAsiacertHubForm() {
     const fieldKey = fieldSelect.value;
     const cert = levelSelect.value;
     const univ = container.querySelector('#certUniv').value;
-    const scheduleRaw = dateInput.value;
-
-    // Validate 14 days logic in JS just in case
-    const chosenDate = new Date(scheduleRaw);
-    const minAllowedDate = new Date();
-    minAllowedDate.setDate(minAllowedDate.getDate() + 14);
-    
-    if (chosenDate < minAllowedDate) {
-      alert("Validation Error: Exam schedule must be at least 14 days from today.");
-      return;
-    }
-
-    const scheduleFormatted = chosenDate.toLocaleString('id-ID', { dateStyle: 'long', timeStyle: 'short' });
+    const scheduleRaw = "TBD by Management";
+    const scheduleFormatted = "TBD by Management";
     const submitBtn = container.querySelector('#certSubmitBtn');
 
     submitBtn.innerText = "Submitting...";
@@ -1847,10 +1829,7 @@ function initCertificationExamForm() {
           </div>
         </div>
 
-        <div class="cert-group">
-          <label class="cert-label">Select Exam Schedule</label>
-          <input type="datetime-local" class="cert-input" id="certSchedule" required />
-        </div>
+
 
         <div class="cert-group">
           <label class="cert-label">Exam Method / Metode Ujian</label>
@@ -2256,8 +2235,8 @@ function initCertificationExamForm() {
     const cert = container.querySelector('#certLevel').value;
     const academicField = container.querySelector('#certAcademicField').value;
     const univ = container.querySelector('#certUniv').value;
-    const scheduleRaw = container.querySelector('#certSchedule').value;
-    const scheduleFormatted = new Date(scheduleRaw).toLocaleString('id-ID', { dateStyle: 'long', timeStyle: 'short' });
+    const scheduleRaw = "TBD by Management";
+    const scheduleFormatted = "TBD by Management";
     const submitBtn = container.querySelector('#certSubmitBtn');
 
     submitBtn.innerText = "Submitting...";
