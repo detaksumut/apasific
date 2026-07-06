@@ -185,8 +185,8 @@ export default function MajesticMembershipPage() {
             
             {/* The Card */}
             <div 
-              className="w-full max-w-sm relative overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.8)] border border-[#c9a84c]/40 group transition-all duration-500 hover:shadow-[0_20px_60px_rgba(201,168,76,0.2)] bg-cover bg-center"
-              style={{ backgroundImage: 'url(/card-bg.png)', borderRadius: '16px', padding: '24px', aspectRatio: '1.586/1' }}
+              className="w-full max-w-sm relative overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.8)] border border-[#c9a84c]/40 group transition-all duration-500 hover:shadow-[0_20px_60px_rgba(201,168,76,0.2)] bg-[#0a0810]"
+              style={{ borderRadius: '16px', padding: '24px', aspectRatio: '1.586/1' }}
             >
               {/* Card Dark Overlay so text is readable */}
               <div className="absolute inset-0 bg-gradient-to-br from-[#1a1a2e]/60 to-[#0a0810]/80 z-0"></div>
