@@ -3,7 +3,7 @@
 import { useState } from "react";
 
 export default function UserManagement() {
-  const [users] = useState([
+  const [users, setUsers] = useState([
     { id: 1, name: "M. A. Rahman", email: "marahman2169@gmail.com", role: "Editor", journal: "RJRAKP, APASIFIC IAEP", joined: "Oct 2024", status: "Active" },
     { id: 2, name: "Kadin Medan", email: "kadinmedan1@gmail.com", role: "Reviewer", journal: "RJRAKP", joined: "Nov 2024", status: "Active" },
     { id: 3, name: "Kad Sumut", email: "kadsumut@gmail.com", role: "Author", journal: "APASIFIC IAEP", joined: "Dec 2024", status: "Active" },
@@ -32,6 +32,12 @@ export default function UserManagement() {
 
   const handleRevoke = (name: string) => {
     showToast(`Access revoked for ${name}. (Demo)`);
+  };
+
+  const handleDelete = (id: number, name: string) => {
+    if (!confirm(`Apakah Anda yakin ingin menghapus user ${name}?`)) return;
+    setUsers(users.filter(u => u.id !== id));
+    showToast(`User ${name} berhasil dihapus.`);
   };
 
   return (
@@ -116,9 +122,18 @@ export default function UserManagement() {
                     </button>
                     <button 
                       onClick={() => handleRevoke(user.name)}
-                      className="text-red-400 hover:text-red-300 px-3 py-1 bg-red-900/20 hover:bg-red-900/40 rounded transition-colors"
+                      className="text-red-400 hover:text-red-300 px-3 py-1 bg-red-900/20 hover:bg-red-900/40 rounded transition-colors mr-2"
                     >
                       Revoke
+                    </button>
+                    <button 
+                      onClick={() => handleDelete(user.id, user.name)}
+                      className="text-gray-400 hover:text-red-500 p-1.5 bg-gray-800 hover:bg-red-900/50 rounded-full transition-colors inline-flex items-center justify-center align-middle"
+                      title="Delete User"
+                    >
+                      <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                      </svg>
                     </button>
                   </td>
                 </tr>
