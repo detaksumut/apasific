@@ -452,6 +452,11 @@ async function initDynamicLeadership() {
 
   if (!bodyName) return;
 
+  // Dihapus sementara untuk ASIACERT dan BOC sesuai permintaan agar fotonya hilang
+  if (bodyName === 'ASIACERT' || bodyName === 'ASIA Board of Certification (BOC)') {
+    return;
+  }
+
   try {
     // Attempt to load from API (database)
     const response = await fetch(`/api/leadership?body=${encodeURIComponent(bodyName)}`);
