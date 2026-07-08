@@ -431,6 +431,17 @@ function verifyCertificate() {
 
 /* ── Dynamic Leadership Section for Subpages ── */
 async function initDynamicLeadership() {
+  if (!document.getElementById('dynamic-card-styles')) {
+    const style = document.createElement('style');
+    style.id = 'dynamic-card-styles';
+    style.innerHTML = `
+      @keyframes card-fade-in-up {
+        0% { opacity: 0; transform: translateY(30px); }
+        100% { opacity: 1; transform: translateY(0); }
+      }
+    `;
+    document.head.appendChild(style);
+  }
   const pageToBodyMap = {
     'asiacert': 'ASIACERT',
     'boc': 'ASIA Board of Certification (BOC)',
@@ -479,8 +490,8 @@ async function initDynamicLeadership() {
       ketuaContainer.innerHTML = '';
       const ketuaCard = document.createElement('div');
       ketuaCard.className = 'hero-leader-card ketua';
-      ketuaCard.style.cssText = 'background: rgba(255,255,255,0.02); border: 1px solid rgba(201,168,76,0.3); border-radius: 12px; padding: 12px; text-align: center; width: 220px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);';
-      ketuaCard.setAttribute('data-aos', 'fade-right');
+      ketuaCard.style.cssText = 'background: rgba(255,255,255,0.02); border: 1px solid rgba(201,168,76,0.3); border-radius: 12px; padding: 12px; text-align: center; width: 220px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); animation: card-fade-in-up 1s ease-out forwards;';
+      
       
       const photoUrl = data.ketuaPhoto || 'logo-apasific.png';
       ketuaCard.innerHTML = `
@@ -498,8 +509,8 @@ async function initDynamicLeadership() {
       sekContainer.innerHTML = '';
       const sekCard = document.createElement('div');
       sekCard.className = 'hero-leader-card sek';
-      sekCard.style.cssText = 'background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.2); border-radius: 12px; padding: 12px; text-align: center; width: 220px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);';
-      sekCard.setAttribute('data-aos', 'fade-left');
+      sekCard.style.cssText = 'background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.2); border-radius: 12px; padding: 12px; text-align: center; width: 220px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); animation: card-fade-in-up 1.2s ease-out forwards;';
+      
       
       const sekPhotoUrl = data.sekretarisPhoto || data.sekPhoto || 'logo-apasific.png';
       sekCard.innerHTML = `
