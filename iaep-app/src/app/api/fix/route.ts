@@ -25,29 +25,29 @@ export async function GET() {
       }
 
       if (html.includes('class="boc-hero-logo"')) {
-        html = html.replace(/<div class="boc-hero-logo">\s*<img([^>]+)>\s*<\/div>/, (match, imgAttrs) => {
-          return \`
+        html = html.replace(/<div class="boc-hero-logo">\\s*<img([^>]+)>\\s*<\\/div>/, (match, imgAttrs) => {
+          return `
         <div class="hero-leaders-row">
           <div class="hero-ketua-container" id="hero-ketua-container"></div>
           <div style="text-align: center; margin: 0;">
-            <img \${imgAttrs} style="width: 250px; height: auto; animation: pulse-glow 4s infinite;" />
+            <img ${imgAttrs} style="width: 250px; height: auto; animation: pulse-glow 4s infinite;" />
           </div>
           <div class="hero-sek-container" id="hero-sek-container"></div>
-        </div>\`;
+        </div>`;
         });
         fs.writeFileSync(filePath, html, 'utf-8');
         log.push(file + ' updated BOC logo');
       } else if (html.includes('class="page-hero-logo"')) {
         html = html.replace(/<img([^>]+)class="page-hero-logo"([^>]+)>/, (match, before, after) => {
-          let cleanMatch = match.replace(/margin-bottom:\s*\\d+px;?/g, 'margin-bottom: 0;');
-          return \`
+          let cleanMatch = match.replace(/margin-bottom:\\s*\\\\d+px;?/g, 'margin-bottom: 0;');
+          return `
         <div class="hero-leaders-row">
           <div class="hero-ketua-container" id="hero-ketua-container"></div>
           <div style="text-align: center; margin: 0;">
-            \${cleanMatch}
+            ${cleanMatch}
           </div>
           <div class="hero-sek-container" id="hero-sek-container"></div>
-        </div>\`;
+        </div>`;
         });
         fs.writeFileSync(filePath, html, 'utf-8');
         log.push(file + ' updated standard logo');
