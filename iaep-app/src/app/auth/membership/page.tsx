@@ -18,7 +18,9 @@ export default function MajesticMembershipPage() {
   });
 
   const [showPayment, setShowPayment] = useState(false);
-  const [paymentAmount, setPaymentAmount] = useState(0);
+  const [paymentAmount, setPaymentAmount] = useState(300000);
+  const [buktiTransfer, setBuktiTransfer] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   const countries = [
     "Indonesia", "Malaysia", "Singapore", "Thailand", "Vietnam", 
@@ -29,20 +31,55 @@ export default function MajesticMembershipPage() {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setBuktiTransfer(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    let amount = 0;
-    if (formData.academicLevel === 'S2' || formData.academicLevel === 'Praktisi') amount = 250000;
-    if (formData.academicLevel === 'S3' || formData.academicLevel === 'Profesor') amount = 500000;
-    
-    setPaymentAmount(amount);
+    if (formData.academicLevel === 'Institusi') {
+      setShowPayment(true);
+      return;
+    }
+    setPaymentAmount(300000);
     setShowPayment(true);
   };
 
-  const handlePay = () => {
-    alert("Payment Successful! Welcome to ASIA.");
-    document.cookie = "mock_user=member; path=/";
-    window.location.href = '/dashboard';
+  const handlePay = async () => {
+    if (!buktiTransfer) {
+      alert("Harap upload bukti transfer terlebih dahulu.");
+      return;
+    }
+    setIsLoading(true);
+    try {
+      const payload = {
+        ...formData,
+        buktiTransfer,
+      };
+      const res = await fetch("/api/membership", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      if (!res.ok) throw new Error("Gagal mendaftar");
+
+      alert("Pendaftaran Berhasil! Admin akan segera memverifikasi bukti transfer Anda.");
+      document.cookie = "mock_user=member; path=/";
+      window.location.href = '/dashboard';
+    } catch (err) {
+      console.error(err);
+      alert("Terjadi kesalahan sistem, silakan coba lagi nanti.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -156,16 +193,29 @@ export default function MajesticMembershipPage() {
                           Silakan transfer Biaya Administrasi Member untuk level <b>{formData.academicLevel}</b> ke rekening berikut untuk mengaktifkan Kartu Member Anda:
                         </p>
                         <div className="bg-black/50 border border-gray-700 inline-block text-left w-full max-w-sm" style={{ padding: '16px', borderRadius: '8px', marginBottom: '16px' }}>
-                          <p className="text-gray-500 uppercase tracking-wider" style={{ fontSize: '12px', marginBottom: '4px' }}>Bank Mandiri - ASIA Official</p>
-                          <p className="font-mono text-white" style={{ fontSize: '18px', marginBottom: '12px' }}>123-456-789-0123</p>
-                          <div className="flex justify-between items-center border-t border-gray-800" style={{ paddingTop: '12px' }}>
+                          <p className="text-gray-500 uppercase tracking-wider" style={{ fontSize: '12px', marginBottom: '4px' }}>Bank Negara Indonesia (BNI) - Association of Asia Pacific Academician</p>
+                          <p className="font-mono text-white" style={{ fontSize: '18px', marginBottom: '12px' }}>7006002218</p>
+                          <div className="flex justify-between items-center border-t border-gray-800" style={{ paddingTop: '12px', paddingBottom: '12px' }}>
                             <span className="text-gray-400" style={{ fontSize: '14px' }}>Total Tagihan:</span>
                             <span className="font-bold text-[#c9a84c]" style={{ fontSize: '20px' }}>Rp {paymentAmount.toLocaleString()}</span>
                           </div>
+                          
+                          <div className="mt-2 text-left">
+                            <label className="block text-gray-300 tracking-wider uppercase font-semibold mb-2" style={{ fontSize: '11px' }}>
+                              Upload Bukti Transfer (Wajib)
+                            </label>
+                            <input 
+                              type="file" 
+                              accept="image/*,.pdf" 
+                              onChange={handleFileChange}
+                              className="w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-[#c9a84c]/10 file:text-[#c9a84c] hover:file:bg-[#c9a84c]/20"
+                            />
+                            {buktiTransfer && <p className="text-green-400 mt-2 text-xs">✓ Bukti telah dipilih</p>}
+                          </div>
                         </div>
                         <div className="flex flex-col" style={{ gap: '8px' }}>
-                          <button type="button" onClick={handlePay} className="w-full bg-[#c9a84c] hover:bg-[#e8c97a] text-black font-bold shadow-[0_0_15px_rgba(201,168,76,0.3)] transition-colors" style={{ padding: '12px', borderRadius: '8px' }}>
-                            Konfirmasi Pembayaran
+                          <button type="button" onClick={handlePay} disabled={isLoading} className="w-full bg-[#c9a84c] hover:bg-[#e8c97a] disabled:opacity-50 text-black font-bold shadow-[0_0_15px_rgba(201,168,76,0.3)] transition-colors" style={{ padding: '12px', borderRadius: '8px' }}>
+                            {isLoading ? "Memproses..." : "Konfirmasi & Upload"}
                           </button>
                           <button type="button" onClick={() => setShowPayment(false)} className="text-gray-500 hover:text-gray-300 transition-colors" style={{ fontSize: '14px', padding: '8px' }}>
                             Batal
