@@ -511,6 +511,11 @@ async function initDynamicLeadership() {
       sekContainer.appendChild(sekCard);
     }
     localStorage.setItem(`leadership_${bodyName}`, JSON.stringify(data));
+    
+    // Refresh AOS so the dynamically injected cards appear immediately
+    if (typeof AOS !== 'undefined') {
+      setTimeout(() => AOS.refresh(), 100);
+    }
   } catch (e) {
     console.error('Error rendering dynamic leadership', e);
   }
