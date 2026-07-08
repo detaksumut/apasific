@@ -37,6 +37,24 @@ export default function AdminMembersPage() {
     }
   };
 
+  const handleDeleteMember = async (id: string) => {
+    if (!confirm("Apakah Anda yakin ingin menghapus data member ini secara permanen?")) return;
+
+    try {
+      const res = await fetch(`/api/membership?id=${id}`, {
+        method: "DELETE"
+      });
+      if (res.ok) {
+        fetchMembers();
+      } else {
+        alert("Gagal menghapus data");
+      }
+    } catch (e: any) {
+      console.error(e);
+      alert("Terjadi kesalahan");
+    }
+  };
+
   return (
     <div className="p-6 text-white min-h-screen">
       <div className="flex justify-between items-center mb-6 border-b border-gray-800 pb-4">
@@ -130,6 +148,15 @@ export default function AdminMembersPage() {
                             Tolak
                           </button>
                         )}
+                        <button 
+                          onClick={() => handleDeleteMember(member.id)}
+                          className="text-xs bg-gray-800 text-gray-400 hover:bg-red-900/50 hover:text-red-500 px-2 py-1.5 rounded transition-colors ml-2"
+                          title="Hapus Data"
+                        >
+                          <svg className="w-3.5 h-3.5 inline-block" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                          </svg>
+                        </button>
                       </td>
                     </tr>
                   ))

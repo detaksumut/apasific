@@ -46,6 +46,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Missing required candidate info" }, { status: 400 });
     }
 
+    console.log("RECEIVED PAYLOAD FOR:", name);
+    console.log("BUKTI TRANSFER LENGTH:", buktiTransfer ? buktiTransfer.length : "NO BUKTI TRANSFER");
+
     // Parse schedule: if not a valid date, fallback to 1 year from now
     const parsedDate = new Date(schedule);
     const scheduleISO = isNaN(parsedDate.getTime())
@@ -87,6 +90,31 @@ export async function POST(request: NextRequest) {
     }
 
     return NextResponse.json({ success: true, data });
+  } catch (err: any) {
+    return NextResponse.json({ error: err.message }, { status: 500 });
+  }
+}
+
+export async function DELETE(request: NextRequest) {
+  try {
+    const supabase = await createClient();
+    const url = new URL(request.url);
+    const id = url.searchParams.get("id");
+
+    if (!id) {
+      return NextResponse.json({ error: "Candidate ID is required" }, { status: 400 });
+    }
+
+    const { error } = await supabase
+      .from("certification_candidates")
+      .delete()
+      .eq("id", id);
+
+    if (error) {
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+
+    return NextResponse.json({ success: true });
   } catch (err: any) {
     return NextResponse.json({ error: err.message }, { status: 500 });
   }

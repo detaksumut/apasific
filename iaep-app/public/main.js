@@ -1250,11 +1250,25 @@ function initAsiacertHubForm() {
     const scheduleRaw = "TBD by Management";
     const scheduleFormatted = "TBD by Management";
     const submitBtn = container.querySelector('#certSubmitBtn');
+    const fileInput = container.querySelector('#certPaymentReceipt');
+
+    if (!fileInput || !fileInput.files || !fileInput.files[0]) {
+      alert('Harap upload bukti transfer pembayaran!');
+      return;
+    }
 
     submitBtn.innerText = "Submitting...";
     submitBtn.disabled = true;
 
     try {
+      const file = fileInput.files[0];
+      const reader = new FileReader();
+      
+      const base64String = await new Promise((resolve, reject) => {
+        reader.onloadend = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
       const response = await fetch('/api/certifications/candidates', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -1265,7 +1279,8 @@ function initAsiacertHubForm() {
           cert: `${cert} — ${certSchemeMap[fieldKey]?.name || fieldKey}`,
           method: "Central Registration",
           schedule: scheduleRaw,
-          status: "Awaiting Verification"
+          status: "Awaiting Verification",
+          buktiTransfer: base64String
         })
       });
 

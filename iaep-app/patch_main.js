@@ -1,39 +1,66 @@
 const fs = require('fs');
-const path = require('path');
+const filePath = 'd:\\Users\\apasific\\iaep-app\\public\\main.js';
+let content = fs.readFileSync(filePath, 'utf8');
 
-const mainJsPath = path.join(__dirname, 'public', 'main.js');
-let mainJs = fs.readFileSync(mainJsPath, 'utf-8');
+const target1 = `    const submitBtn = container.querySelector('#certSubmitBtn');
 
-// Remove data-aos="fade-right" and data-aos="fade-left"
-mainJs = mainJs.replace(/ketuaCard\.setAttribute\('data-aos',\s*'fade-right'\);/, '');
-mainJs = mainJs.replace(/sekCard\.setAttribute\('data-aos',\s*'fade-left'\);/, '');
+    submitBtn.innerText = "Submitting...";
+    submitBtn.disabled = true;
 
-// Inject custom CSS animation instead
-mainJs = mainJs.replace(
-  /ketuaCard\.style\.cssText = '(.*?)';/, 
-  "ketuaCard.style.cssText = '$1 animation: card-fade-in-up 1s ease-out forwards;';"
-);
-mainJs = mainJs.replace(
-  /sekCard\.style\.cssText = '(.*?)';/, 
-  "sekCard.style.cssText = '$1 animation: card-fade-in-up 1.2s ease-out forwards;';"
-);
+    try {`;
 
-// Add the keyframes at the top of the function
-mainJs = mainJs.replace(
-  'function initDynamicLeadership() {',
-  `function initDynamicLeadership() {
-  if (!document.getElementById('dynamic-card-styles')) {
-    const style = document.createElement('style');
-    style.id = 'dynamic-card-styles';
-    style.innerHTML = \`
-      @keyframes card-fade-in-up {
-        0% { opacity: 0; transform: translateY(30px); }
-        100% { opacity: 1; transform: translateY(0); }
-      }
-    \`;
-    document.head.appendChild(style);
-  }`
-);
+const replacement1 = `    const submitBtn = container.querySelector('#certSubmitBtn');
+    const fileInput = container.querySelector('#certPaymentReceipt');
 
-fs.writeFileSync(mainJsPath, mainJs, 'utf-8');
-console.log('Successfully patched main.js without using AOS!');
+    if (!fileInput || !fileInput.files || !fileInput.files[0]) {
+      alert('Harap upload bukti transfer pembayaran!');
+      return;
+    }
+
+    submitBtn.innerText = "Submitting...";
+    submitBtn.disabled = true;
+
+    try {
+      const file = fileInput.files[0];
+      const reader = new FileReader();
+      
+      const base64String = await new Promise((resolve, reject) => {
+        reader.onloadend = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });`;
+
+const target2 = `        body: JSON.stringify({
+          name,
+          email,
+          phone,
+          cert: \`\${cert} — \${certSchemeMap[fieldKey]?.name || fieldKey}\`,
+          method: "Central Registration",
+          schedule: scheduleRaw,
+          status: "Awaiting Verification"
+        })
+      });`;
+
+const replacement2 = `        body: JSON.stringify({
+          name,
+          email,
+          phone,
+          cert: \`\${cert} — \${certSchemeMap[fieldKey]?.name || fieldKey}\`,
+          method: "Central Registration",
+          schedule: scheduleRaw,
+          status: "Awaiting Verification",
+          buktiTransfer: base64String
+        })
+      });`;
+
+// Normalize line endings to avoid matching issues
+content = content.replace(/\r\n/g, '\n');
+
+if (content.includes(target1) && content.includes(target2)) {
+  let newContent = content.replace(target1, replacement1);
+  newContent = newContent.replace(target2, replacement2);
+  fs.writeFileSync(filePath, newContent);
+  console.log("SUCCESS: Patched main.js");
+} else {
+  console.log("ERROR: Could not find target strings to patch.");
+}
