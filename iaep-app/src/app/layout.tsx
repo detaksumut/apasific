@@ -217,10 +217,17 @@ export default function RootLayout({
                       currentFlag.src = 'https://flagcdn.com/w20/' + flag;
                     }
 
+                    // Set cookies manually to ensure it persists
+                    document.cookie = 'googtrans=/auto/' + lang + '; path=/';
+                    document.cookie = 'googtrans=/auto/' + lang + '; path=/; domain=' + window.location.hostname;
+
                     const select = document.querySelector('.goog-te-combo');
                     if(select) {
                       select.value = lang;
-                      select.dispatchEvent(new Event('change'));
+                      select.dispatchEvent(new Event('change', { bubbles: true }));
+                    } else {
+                      // Fallback if widget hasn't loaded
+                      window.location.reload();
                     }
                   });
                 });

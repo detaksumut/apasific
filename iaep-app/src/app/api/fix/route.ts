@@ -7,7 +7,7 @@ export async function GET() {
     execSync('git add .', { cwd });
     let commitOutput = "No commit made (possibly no changes)";
     try {
-      commitOutput = execSync('git commit -m "fix: TypeScript error in article state for missing keywords and pdf_url"', { cwd, encoding: 'utf-8' });
+      commitOutput = execSync('git commit -m "fix: Google Translate language switch not firing due to non-bubbling event"', { cwd, encoding: 'utf-8' });
     } catch(e) {}
     
     const pushOutput = execSync('git push', { cwd, encoding: 'utf-8' });
