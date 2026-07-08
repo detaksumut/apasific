@@ -26,11 +26,13 @@ export default function ArticlePaywall() {
     journal: "Rumah Jurnal Riset, Analisis dan Keadilan Publik (RJRAKP)",
     date: "July 2026",
     abstract: "This paper examines the transformative effects of Artificial Intelligence (AI) integration within the economic sectors of ASEAN member states...",
+    keywords: ["Artificial Intelligence", "ASEAN Economy", "Economic Policy"],
     price: 50000,
     orcid: "",
     doi: "",
     views: 0,
-    downloads: 0
+    downloads: 0,
+    pdf_url: ""
   });
 
   useEffect(() => {
