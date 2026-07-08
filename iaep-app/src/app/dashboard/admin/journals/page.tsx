@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useState, useEffect } from "react";
 
 export default function JournalManagement() {
-  const [journals] = useState([
+  const [journals, setJournals] = useState([
     { id: 1, code: "RJ", title: "RJRAKP", fullname: "Riau Journal of Review Audit & Knowledge...", color: "from-[#c9a84c] to-[#9a7a30]", users: 215, status: "Active", lastUpdated: "2 days ago" },
     { id: 2, code: "IA", title: "APASIFIC IAEP", fullname: "Impact of Artificial Intelligence on Educ...", color: "from-blue-600 to-indigo-800", users: 1033, status: "Active", lastUpdated: "5 hours ago" },
     { id: 3, code: "MJ", title: "Med J", fullname: "Medical Journal of APASIFIC (Draft)", color: "from-gray-600 to-gray-800", users: 0, status: "Setup", lastUpdated: "Just now" },
@@ -17,6 +17,11 @@ export default function JournalManagement() {
   // Custom Toast State
   const [toastMessage, setToastMessage] = useState("");
 
+  // Form State
+  const [newTitle, setNewTitle] = useState("");
+  const [newCode, setNewCode] = useState("");
+  const [newColor, setNewColor] = useState("from-[#c9a84c] to-[#9a7a30]");
+
   const handleSettingsClick = (journal: any) => {
     setSelectedJournal(journal);
     setIsSettingsOpen(true);
@@ -28,13 +33,34 @@ export default function JournalManagement() {
   };
 
   const handleCreateSubmit = () => {
+    if (!newTitle || !newCode) {
+      showToast("Please fill in the title and code!");
+      return;
+    }
+
+    const newJournal = {
+      id: journals.length + 1,
+      code: newCode.toUpperCase(),
+      title: newTitle,
+      fullname: newTitle + " (Newly created instance)",
+      color: newColor,
+      users: 0,
+      status: "Setup",
+      lastUpdated: "Just now"
+    };
+
+    setJournals([...journals, newJournal]);
     setIsCreateOpen(false);
-    showToast("Journal instance successfully created! (Demo)");
+    showToast("Journal instance successfully created!");
+    
+    // Reset form
+    setNewTitle("");
+    setNewCode("");
   };
 
   const handleSettingsSubmit = () => {
     setIsSettingsOpen(false);
-    showToast("Settings successfully saved! (Demo)");
+    showToast("Settings successfully saved!");
   };
 
   return (
@@ -124,19 +150,36 @@ export default function JournalManagement() {
             <div className="p-6 space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-400 mb-1">Journal Title</label>
-                <input type="text" className="w-full bg-[#0a0a14] border border-gray-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-[#c9a84c]" placeholder="e.g. APASIFIC IT Journal" />
+                <input 
+                  type="text" 
+                  value={newTitle}
+                  onChange={(e) => setNewTitle(e.target.value)}
+                  className="w-full bg-[#0a0a14] border border-gray-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-[#c9a84c]" 
+                  placeholder="e.g. APASIFIC IT Journal" 
+                />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-400 mb-1">Journal Code (Max 3 letters)</label>
-                <input type="text" maxLength={3} className="w-full bg-[#0a0a14] border border-gray-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-[#c9a84c]" placeholder="e.g. AIT" />
+                <input 
+                  type="text" 
+                  maxLength={3} 
+                  value={newCode}
+                  onChange={(e) => setNewCode(e.target.value)}
+                  className="w-full bg-[#0a0a14] border border-gray-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-[#c9a84c]" 
+                  placeholder="e.g. AIT" 
+                />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-400 mb-1">Theme Color</label>
-                <select className="w-full bg-[#0a0a14] border border-gray-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-[#c9a84c]">
-                  <option>Gold (Default)</option>
-                  <option>Blue</option>
-                  <option>Crimson</option>
-                  <option>Emerald</option>
+                <select 
+                  value={newColor}
+                  onChange={(e) => setNewColor(e.target.value)}
+                  className="w-full bg-[#0a0a14] border border-gray-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-[#c9a84c]"
+                >
+                  <option value="from-[#c9a84c] to-[#9a7a30]">Gold (Default)</option>
+                  <option value="from-blue-600 to-indigo-800">Blue</option>
+                  <option value="from-red-600 to-red-900">Crimson</option>
+                  <option value="from-emerald-500 to-teal-700">Emerald</option>
                 </select>
               </div>
               <div className="pt-4">
