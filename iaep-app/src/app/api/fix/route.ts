@@ -11,13 +11,15 @@ export async function GET() {
       'quality.html', 'academy.html', 'young.html', 'awards.html'
     ];
 
-    let log = [];
+    let log: string[] = [];
+    let updatedCount = 0;
 
     files.forEach(file => {
       const filePath = path.join(publicDir, file);
       if (!fs.existsSync(filePath)) return;
 
       let html = fs.readFileSync(filePath, 'utf-8');
+      let original = html;
 
       if (html.includes('hero-leaders-row')) {
         log.push(file + ' already processed');
@@ -25,7 +27,8 @@ export async function GET() {
       }
 
       if (html.includes('class="boc-hero-logo"')) {
-        html = html.replace(/<div class="boc-hero-logo">\\s*<img([^>]+)>\\s*<\\/div>/, (match, imgAttrs) => {
+        const regex = new RegExp('<div class="boc-hero-logo">\\\\s*<img([^>]+)>\\\\s*</div>');
+        html = html.replace(regex, (match, imgAttrs) => {
           return `
         <div class="hero-leaders-row">
           <div class="hero-ketua-container" id="hero-ketua-container"></div>
@@ -35,11 +38,10 @@ export async function GET() {
           <div class="hero-sek-container" id="hero-sek-container"></div>
         </div>`;
         });
-        fs.writeFileSync(filePath, html, 'utf-8');
-        log.push(file + ' updated BOC logo');
       } else if (html.includes('class="page-hero-logo"')) {
-        html = html.replace(/<img([^>]+)class="page-hero-logo"([^>]+)>/, (match, before, after) => {
-          let cleanMatch = match.replace(/margin-bottom:\\s*\\\\d+px;?/g, 'margin-bottom: 0;');
+        const regex = new RegExp('<img([^>]+)class="page-hero-logo"([^>]+)>');
+        html = html.replace(regex, (match, before, after) => {
+          let cleanMatch = match.replace(new RegExp('margin-bottom:\\\\s*\\\\d+px;?', 'g'), 'margin-bottom: 0;');
           return `
         <div class="hero-leaders-row">
           <div class="hero-ketua-container" id="hero-ketua-container"></div>
@@ -49,12 +51,16 @@ export async function GET() {
           <div class="hero-sek-container" id="hero-sek-container"></div>
         </div>`;
         });
+      }
+
+      if (html !== original) {
         fs.writeFileSync(filePath, html, 'utf-8');
-        log.push(file + ' updated standard logo');
+        log.push(file + ' updated');
+        updatedCount++;
       }
     });
 
-    return NextResponse.json({ success: true, log });
+    return NextResponse.json({ success: true, log, updatedCount });
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
