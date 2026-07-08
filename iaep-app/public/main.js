@@ -453,8 +453,6 @@ async function initDynamicLeadership() {
 
   if (!bodyName) return;
 
-  if (!bodyName) return;
-
   try {
     // Attempt to load from API (database)
     const response = await fetch(`/api/leadership?body=${encodeURIComponent(bodyName)}`);
