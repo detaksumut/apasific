@@ -6,7 +6,7 @@ export async function GET() {
   try {
     const publicDir = path.join(process.cwd(), 'public');
     const files = fs.readdirSync(publicDir).filter(f => f.endsWith('.html'));
-    const fixedFiles = [];
+    const fixedFiles: string[] = [];
 
     files.forEach(file => {
       const filePath = path.join(publicDir, file);
