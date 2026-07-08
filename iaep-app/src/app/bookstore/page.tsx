@@ -11,7 +11,7 @@ const MOCK_BOOKS = [
     year: "2025",
     category: "Monograph",
     price: "Rp 150.000",
-    image: "https://via.placeholder.com/400x600/18182e/c9a84c?text=AI+in+Economics",
+    image: "https://dummyimage.com/400x600/18182e/c9a84c.png&text=AI+in+Economics",
     description: "An in-depth analysis of how AI is reshaping global economic policies.",
   },
   {
@@ -21,7 +21,7 @@ const MOCK_BOOKS = [
     year: "2026",
     category: "Academic Book",
     price: "Rp 200.000",
-    image: "https://via.placeholder.com/400x600/18182e/c9a84c?text=Sustainable+Business",
+    image: "https://dummyimage.com/400x600/18182e/c9a84c.png&text=Sustainable+Business",
     description: "Exploring eco-friendly corporate strategies across Southeast Asia.",
   },
   {
@@ -31,7 +31,7 @@ const MOCK_BOOKS = [
     year: "2026",
     category: "Journal",
     price: "Rp 75.000",
-    image: "https://via.placeholder.com/400x600/18182e/c9a84c?text=Digital+Transformation",
+    image: "https://dummyimage.com/400x600/18182e/c9a84c.png&text=Digital+Transformation",
     description: "A compilation of peer-reviewed articles on digital trends.",
   },
   {
@@ -41,7 +41,7 @@ const MOCK_BOOKS = [
     year: "2024",
     category: "Proceedings",
     price: "Free",
-    image: "https://via.placeholder.com/400x600/18182e/c9a84c?text=Islamic+Finance+Proc.",
+    image: "https://dummyimage.com/400x600/18182e/c9a84c.png&text=Islamic+Finance+Proc.",
     description: "Proceedings from the annual ASIA Islamic Finance conference.",
   },
   {
@@ -51,7 +51,7 @@ const MOCK_BOOKS = [
     year: "2025",
     category: "Policy Brief",
     price: "Rp 50.000",
-    image: "https://via.placeholder.com/400x600/18182e/c9a84c?text=Public+Health",
+    image: "https://dummyimage.com/400x600/18182e/c9a84c.png&text=Public+Health",
     description: "A concise brief on emerging public health challenges.",
   },
   {
@@ -61,7 +61,7 @@ const MOCK_BOOKS = [
     year: "2026",
     category: "Monograph",
     price: "Rp 180.000",
-    image: "https://via.placeholder.com/400x600/18182e/c9a84c?text=Future+Tourism",
+    image: "https://dummyimage.com/400x600/18182e/c9a84c.png&text=Future+Tourism",
     description: "Insights into the post-modern tourism industry dynamics.",
   }
 ];
@@ -312,6 +312,7 @@ export default function BookstorePage() {
           width: auto;
           height: 100%;
           max-width: 100%;
+          aspect-ratio: 2/3;
           object-fit: contain;
           box-shadow: 0 10px 25px rgba(0,0,0,0.5);
           transition: transform 0.5s ease;
