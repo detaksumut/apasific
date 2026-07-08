@@ -13,6 +13,7 @@ const statusConfig: Record<string, { label: string; color: string; bg: string; b
 export default function MySubmissions() {
   const [submissions, setSubmissions] = useState<any[]>([]);
   const [filter, setFilter] = useState("All");
+  const [selectedSub, setSelectedSub] = useState<any>(null);
 
   useEffect(() => {
     const defaultSubs = [
@@ -28,6 +29,13 @@ export default function MySubmissions() {
       setSubmissions(defaultSubs);
     }
   }, []);
+
+  const handleDelete = (id: string) => {
+    if (!confirm("Apakah Anda yakin ingin menghapus data naskah ini?")) return;
+    const newSubs = submissions.filter(s => s.id !== id);
+    setSubmissions(newSubs);
+    localStorage.setItem("mock_submissions", JSON.stringify(newSubs));
+  };
 
   const filters = ["All", "Under Review", "Awaiting Assignment", "Published", "Rejected"];
   const filtered = filter === "All" ? submissions : submissions.filter(s => s.status === filter);
@@ -140,8 +148,17 @@ export default function MySubmissions() {
                         {statusCfg.label}
                       </span>
                     </td>
-                    <td style={{ textAlign: "right" }}>
-                      <button className="subs-view-btn">View Details</button>
+                    <td style={{ textAlign: "right", whiteSpace: "nowrap" }}>
+                      <button onClick={() => setSelectedSub(sub)} className="subs-view-btn mr-2">View Details</button>
+                      <button 
+                        onClick={() => handleDelete(sub.id)}
+                        className="text-gray-400 hover:text-red-500 p-1.5 bg-gray-800 hover:bg-red-900/50 rounded-full transition-colors inline-flex items-center justify-center align-middle border border-gray-700 hover:border-red-500/50"
+                        title="Delete Submission"
+                      >
+                        <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                      </button>
                     </td>
                   </tr>
                 );
@@ -150,6 +167,57 @@ export default function MySubmissions() {
           </table>
         )}
       </div>
+
+      {/* Details Modal */}
+      {selectedSub && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-[#111120] border border-gray-800 rounded-2xl shadow-2xl max-w-lg w-full overflow-hidden">
+            <div className="p-6 border-b border-gray-800 flex justify-between items-center bg-[#18182e]">
+              <h2 className="text-xl font-bold text-white">Submission Details</h2>
+              <button onClick={() => setSelectedSub(null)} className="text-gray-400 hover:text-white">
+                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"/></svg>
+              </button>
+            </div>
+            <div className="p-6 space-y-4 text-gray-300 text-sm">
+              <div>
+                <div className="text-gray-500 font-semibold mb-1">ID</div>
+                <div className="text-white">#{selectedSub.id}</div>
+              </div>
+              <div>
+                <div className="text-gray-500 font-semibold mb-1">Manuscript Title</div>
+                <div className="text-white font-medium">{selectedSub.title}</div>
+              </div>
+              <div>
+                <div className="text-gray-500 font-semibold mb-1">Target Journal</div>
+                <div className="text-[#c9a84c] font-semibold">{selectedSub.journal}</div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <div className="text-gray-500 font-semibold mb-1">Date Submitted</div>
+                  <div className="text-white">{selectedSub.date}</div>
+                </div>
+                <div>
+                  <div className="text-gray-500 font-semibold mb-1">Current Status</div>
+                  <div>
+                    <span className="px-2 py-1 rounded bg-gray-800 border border-gray-700 text-xs font-bold text-white">
+                      {selectedSub.status}
+                    </span>
+                  </div>
+                </div>
+              </div>
+              <div>
+                <div className="text-gray-500 font-semibold mb-1">Latest Action</div>
+                <div className="text-white">{selectedSub.lastAction}</div>
+              </div>
+            </div>
+            <div className="p-6 border-t border-gray-800 bg-[#0d0d1a] flex justify-end">
+              <button onClick={() => setSelectedSub(null)} className="px-6 py-2 bg-gray-800 hover:bg-gray-700 text-white rounded-lg font-semibold transition-colors">
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <style jsx>{`
         .subs-enterprise {
