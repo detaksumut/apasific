@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export default function JournalManagement() {
   const [journals] = useState([
@@ -13,14 +13,40 @@ export default function JournalManagement() {
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [selectedJournal, setSelectedJournal] = useState<any>(null);
+  
+  // Custom Toast State
+  const [toastMessage, setToastMessage] = useState("");
 
   const handleSettingsClick = (journal: any) => {
     setSelectedJournal(journal);
     setIsSettingsOpen(true);
   };
 
+  const showToast = (msg: string) => {
+    setToastMessage(msg);
+    setTimeout(() => setToastMessage(""), 3000);
+  };
+
+  const handleCreateSubmit = () => {
+    setIsCreateOpen(false);
+    showToast("Journal instance successfully created! (Demo)");
+  };
+
+  const handleSettingsSubmit = () => {
+    setIsSettingsOpen(false);
+    showToast("Settings successfully saved! (Demo)");
+  };
+
   return (
     <div className="max-w-6xl mx-auto space-y-8 pb-12 relative">
+      {/* TOAST NOTIFICATION */}
+      {toastMessage && (
+        <div className="fixed top-24 left-1/2 transform -translate-x-1/2 z-[100] bg-green-500/90 text-white px-6 py-3 rounded-full font-semibold shadow-lg shadow-green-500/20 animate-fade-in-down border border-green-400 backdrop-blur-sm flex items-center gap-3">
+          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"/></svg>
+          {toastMessage}
+        </div>
+      )}
+
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
           <h1 className="text-3xl font-bold text-white font-['Cinzel'] mb-1">Journal Management</h1>
@@ -114,7 +140,7 @@ export default function JournalManagement() {
                 </select>
               </div>
               <div className="pt-4">
-                <button onClick={() => { alert('Journal creation submitted! (Demo)'); setIsCreateOpen(false); }} className="w-full bg-[#c9a84c] hover:bg-[#b0923d] text-black font-bold py-3 rounded-lg transition-colors">
+                <button onClick={handleCreateSubmit} className="w-full bg-[#c9a84c] hover:bg-[#b0923d] text-black font-bold py-3 rounded-lg transition-colors">
                   Create Instance
                 </button>
               </div>
@@ -150,7 +176,7 @@ export default function JournalManagement() {
                 <button onClick={() => setIsSettingsOpen(false)} className="flex-1 bg-transparent border border-gray-700 hover:bg-gray-800 text-white font-semibold py-3 rounded-lg transition-colors">
                   Cancel
                 </button>
-                <button onClick={() => { alert('Settings saved! (Demo)'); setIsSettingsOpen(false); }} className="flex-1 bg-[#c9a84c] hover:bg-[#b0923d] text-black font-bold py-3 rounded-lg transition-colors">
+                <button onClick={handleSettingsSubmit} className="flex-1 bg-[#c9a84c] hover:bg-[#b0923d] text-black font-bold py-3 rounded-lg transition-colors">
                   Save Changes
                 </button>
               </div>
