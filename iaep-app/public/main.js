@@ -1096,66 +1096,8 @@ function initAsiacertHubForm() {
       <h4 class="cert-preview-heading">Sample Credentials Preview</h4>
       <p class="cert-preview-subheading">Upon passing the assessment, candidates will receive the official digital credentials signed by board directors, verifiable via QR code.</p>
       
-      <div class="cert-preview-grid">
-        <!-- Certificate 1 -->
-        <div class="certificate-card">
-          <div class="certificate-inner">
-            <div class="cert-card-header">
-              <span class="cert-org">ASIACERT & BOC Board Certification</span>
-              <span class="cert-id" id="previewId1">ID: AC-SELECT-0842</span>
-            </div>
-            <div class="cert-card-main-title">BOARD CERTIFICATE</div>
-            <div class="cert-card-to">This is to certify that</div>
-            <div class="cert-card-name" id="previewName1">Prof. Ahmad Fauzi, Ph.D.</div>
-            <div class="cert-card-text">has successfully completed the prescribed course of study and examination, meeting all board standards, and is hereby awarded the designation of</div>
-            <div class="cert-card-award" id="previewLevel1">Associate Level</div>
-            <div class="cert-card-scheme" id="previewScheme1">Select Strategic Field</div>
-            
-            <div class="cert-card-footer">
-              <div class="cert-sig">
-                <div class="sig-line">Dr. Arfan Ikhsan</div>
-                <div class="sig-title">President ASIACERT</div>
-              </div>
-              <div class="cert-qr">
-                <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://apasific.org" alt="QR Code" />
-              </div>
-              <div class="cert-sig">
-                <div class="sig-line">Dr. Sazili Zainal Abidin</div>
-                <div class="sig-title">Chairman BOC</div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Certificate 2 -->
-        <div class="certificate-card">
-          <div class="certificate-inner">
-            <div class="cert-card-header">
-              <span class="cert-org">ASIACERT & BOC Board Certification</span>
-              <span class="cert-id" id="previewId2">ID: AC-SELECT-0843</span>
-            </div>
-            <div class="cert-card-main-title">BOARD CERTIFICATE</div>
-            <div class="cert-card-to">This is to certify that</div>
-            <div class="cert-card-name" id="previewName2">Prof. Ahmad Fauzi, Ph.D.</div>
-            <div class="cert-card-text">has successfully completed the prescribed course of study and examination, meeting all board standards, and is hereby awarded the designation of</div>
-            <div class="cert-card-award" id="previewLevel2">Professional Level</div>
-            <div class="cert-card-scheme" id="previewScheme2">Select Strategic Field</div>
-            
-            <div class="cert-card-footer">
-              <div class="cert-sig">
-                <div class="sig-line">Dr. Arfan Ikhsan</div>
-                <div class="sig-title">President ASIACERT</div>
-              </div>
-              <div class="cert-qr">
-                <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://apasific.org" alt="QR Code" />
-              </div>
-              <div class="cert-sig">
-                <div class="sig-line">Dr. Sazili Zainal Abidin</div>
-                <div class="sig-title">Chairman BOC</div>
-              </div>
-            </div>
-          </div>
-        </div>
+      <div class="cert-preview-grid" style="display: flex; justify-content: center;">
+        <img src="/certspesimen.jpeg" alt="Sample Credentials Preview" style="max-width: 100%; border-radius: 8px; margin: 0 auto; display: block; box-shadow: 0 10px 30px rgba(0,0,0,0.5);" />
       </div>
     </div>
   `;
@@ -1175,32 +1117,7 @@ function initAsiacertHubForm() {
   const nameInput = container.querySelector('#certName');
 
   function updatePreviews() {
-    const nameVal = nameInput.value.trim() || "Prof. Dr. M A Rahman";
-    container.querySelector('#previewName1').innerText = nameVal;
-    container.querySelector('#previewName2').innerText = nameVal;
-
-    const fieldKey = fieldSelect.value;
-    const levelVal = levelSelect.value;
-
-    if (fieldKey && certSchemeMap[fieldKey]) {
-      const scheme = certSchemeMap[fieldKey];
-      const certNameOnly = scheme.cert.replace(/\s*\([^)]*\)\s*$/, '');
-      
-      container.querySelector('#previewScheme1').innerText = certNameOnly;
-      container.querySelector('#previewScheme2').innerText = certNameOnly;
-      container.querySelector('#previewLevel1').innerText = levelVal || scheme.levels[0];
-      container.querySelector('#previewLevel2').innerText = scheme.levels[1] || scheme.levels[0];
-      
-      container.querySelector('#previewId1').innerText = 'ID: AC-' + fieldKey.toUpperCase() + '-0842';
-      container.querySelector('#previewId2').innerText = 'ID: AC-' + fieldKey.toUpperCase() + '-0843';
-    } else {
-      container.querySelector('#previewScheme1').innerText = "Select Strategic Field";
-      container.querySelector('#previewScheme2').innerText = "Select Strategic Field";
-      container.querySelector('#previewLevel1').innerText = "Associate Level";
-      container.querySelector('#previewLevel2').innerText = "Professional Level";
-      container.querySelector('#previewId1').innerText = "ID: AC-SELECT-0842";
-      container.querySelector('#previewId2').innerText = "ID: AC-SELECT-0843";
-    }
+    // Certificate preview is now a static image (certspesimen.jpeg), no dynamic text needed.
   }
 
   fieldSelect.addEventListener('change', () => {
@@ -1976,66 +1893,8 @@ function initCertificationExamForm() {
       <h4 class="cert-preview-heading">Sample Credentials Preview</h4>
       <p class="cert-preview-subheading">Upon passing the assessment, candidates will receive the official digital credentials signed by board directors, verifiable via QR code.</p>
       
-      <div class="cert-preview-grid">
-        <!-- Certificate 1: Level 1 -->
-        <div class="certificate-card">
-          <div class="certificate-inner">
-            <div class="cert-card-header">
-              <span class="cert-org">ASIACERT & BOC Board Certification</span>
-              <span class="cert-id">ID: AC-${key.toUpperCase()}-0842</span>
-            </div>
-            <div class="cert-card-main-title">BOARD CERTIFICATE</div>
-            <div class="cert-card-to">This is to certify that</div>
-            <div class="cert-card-name">Prof. Ahmad Fauzi, Ph.D.</div>
-            <div class="cert-card-text">has successfully completed the prescribed course of study and examination, meeting all board standards, and is hereby awarded the designation of</div>
-            <div class="cert-card-award">${level1}</div>
-            <div class="cert-card-scheme">${certNameOnly}</div>
-            
-            <div class="cert-card-footer">
-              <div class="cert-sig">
-                <div class="sig-line">Dr. Arfan Ikhsan</div>
-                <div class="sig-title">President ASIACERT</div>
-              </div>
-              <div class="cert-qr">
-                <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://apasific.org" alt="QR Code" />
-              </div>
-              <div class="cert-sig">
-                <div class="sig-line">Dr. Sazili Zainal Abidin</div>
-                <div class="sig-title">Chairman BOC</div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Certificate 2: Level 2 -->
-        <div class="certificate-card">
-          <div class="certificate-inner">
-            <div class="cert-card-header">
-              <span class="cert-org">ASIACERT & BOC Board Certification</span>
-              <span class="cert-id">ID: AC-${key.toUpperCase()}-0843</span>
-            </div>
-            <div class="cert-card-main-title">BOARD CERTIFICATE</div>
-            <div class="cert-card-to">This is to certify that</div>
-            <div class="cert-card-name">Dr. Sarah Jenkins, M.B.A.</div>
-            <div class="cert-card-text">has successfully completed the prescribed course of study and examination, meeting all board standards, and is hereby awarded the designation of</div>
-            <div class="cert-card-award">${level2}</div>
-            <div class="cert-card-scheme">${certNameOnly}</div>
-            
-            <div class="cert-card-footer">
-              <div class="cert-sig">
-                <div class="sig-line">Dr. Arfan Ikhsan</div>
-                <div class="sig-title">President ASIACERT</div>
-              </div>
-              <div class="cert-qr">
-                <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://apasific.org" alt="QR Code" />
-              </div>
-              <div class="cert-sig">
-                <div class="sig-line">Dr. Sazili Zainal Abidin</div>
-                <div class="sig-title">Chairman BOC</div>
-              </div>
-            </div>
-          </div>
-        </div>
+      <div class="cert-preview-grid" style="display: flex; justify-content: center;">
+        <img src="/certspesimen.jpeg" alt="Sample Credentials Preview" style="max-width: 100%; border-radius: 8px; margin: 0 auto; display: block; box-shadow: 0 10px 30px rgba(0,0,0,0.5);" />
       </div>
     </div>
   `;
