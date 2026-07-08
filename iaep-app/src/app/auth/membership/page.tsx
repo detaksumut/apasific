@@ -17,7 +17,6 @@ export default function MajesticMembershipPage() {
     university: "",
   });
 
-  const [showPayment, setShowPayment] = useState(false);
   const [paymentAmount, setPaymentAmount] = useState(300000);
   const [buktiTransfer, setBuktiTransfer] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -42,17 +41,13 @@ export default function MajesticMembershipPage() {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (formData.academicLevel === 'Institusi') {
-      setShowPayment(true);
+      alert('Institutions must establish an MoU with ASIA. Redirecting to Admin contact...');
       return;
     }
-    setPaymentAmount(300000);
-    setShowPayment(true);
-  };
-
-  const handlePay = async () => {
+    
     if (!buktiTransfer) {
       alert("Harap upload bukti transfer terlebih dahulu.");
       return;
@@ -164,65 +159,57 @@ export default function MajesticMembershipPage() {
               </div>
 
               <div style={{ paddingTop: '32px' }}>
-                {!showPayment ? (
-                  <button type="submit" className="w-full bg-gradient-to-r from-[#c9a84c] to-[#e8c97a] hover:from-[#e8c97a] hover:to-[#c9a84c] text-black font-bold tracking-wide uppercase shadow-[0_0_20px_rgba(201,168,76,0.3)] transition-all transform hover:-translate-y-0.5" style={{ width: '100%', padding: '16px', borderRadius: '12px', fontSize: '14px' }}>
-                    Submit & Generate Card
-                  </button>
+                {formData.academicLevel === 'Institusi' ? (
+                  <div className="bg-[#05050a]/80 border border-[#c9a84c]/40 text-center animate-fade-in shadow-[0_0_30px_rgba(201,168,76,0.15)]" style={{ borderRadius: '12px', padding: '24px' }}>
+                    <div className="bg-yellow-900/50 text-yellow-500 flex items-center justify-center mx-auto border border-yellow-500/30" style={{ width: '48px', height: '48px', borderRadius: '50%', marginBottom: '12px' }}>
+                      <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" style={{ width: '24px', height: '24px' }}>
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                      </svg>
+                    </div>
+                    <h3 className="font-bold text-white" style={{ fontSize: '20px', marginBottom: '8px' }}>MoU Required</h3>
+                    <p className="text-gray-400" style={{ fontSize: '14px', marginBottom: '16px' }}>
+                      Institutions must establish a Memorandum of Understanding (MoU) with ASIA before registering multiple members.
+                    </p>
+                    <div className="flex justify-center" style={{ gap: '12px' }}>
+                      <button type="button" onClick={() => alert('Redirecting to Contact Page...')} className="bg-[#c9a84c] hover:bg-[#e8c97a] text-black font-semibold transition-colors" style={{ padding: '8px 16px', borderRadius: '4px', fontSize: '14px' }}>Hubungi Admin</button>
+                    </div>
+                  </div>
                 ) : (
-                  <div className="bg-[#05050a]/80 border border-[#c9a84c]/40 text-center animate-fade-in shadow-[0_0_30px_rgba(201,168,76,0.15)]" style={{ marginTop: '24px', borderRadius: '12px', padding: '24px' }}>
-                    {formData.academicLevel === 'Institusi' ? (
-                      <div>
-                        <div className="bg-yellow-900/50 text-yellow-500 flex items-center justify-center mx-auto border border-yellow-500/30" style={{ width: '48px', height: '48px', borderRadius: '50%', marginBottom: '12px' }}>
-                          <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" style={{ width: '24px', height: '24px' }}>
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                          </svg>
-                        </div>
-                        <h3 className="font-bold text-white" style={{ fontSize: '20px', marginBottom: '8px' }}>MoU Required</h3>
-                        <p className="text-gray-400" style={{ fontSize: '14px', marginBottom: '16px' }}>
-                          Institutions must establish a Memorandum of Understanding (MoU) with ASIA before registering multiple members.
-                        </p>
-                        <div className="flex justify-center" style={{ gap: '12px' }}>
-                          <button type="button" onClick={() => setShowPayment(false)} className="bg-gray-800 hover:bg-gray-700 text-white font-semibold transition-colors" style={{ padding: '8px 16px', borderRadius: '4px', fontSize: '14px' }}>Kembali</button>
-                          <button type="button" onClick={() => alert('Redirecting to Contact Page...')} className="bg-[#c9a84c] hover:bg-[#e8c97a] text-black font-semibold transition-colors" style={{ padding: '8px 16px', borderRadius: '4px', fontSize: '14px' }}>Hubungi Admin</button>
-                        </div>
+                  <div className="bg-[#05050a]/80 border border-[#c9a84c]/40 text-center animate-fade-in shadow-[0_0_30px_rgba(201,168,76,0.15)]" style={{ borderRadius: '12px', padding: '24px' }}>
+                    <h3 className="font-bold text-[#c9a84c]" style={{ fontSize: '16px', marginBottom: '12px' }}>INSTRUKSI PEMBAYARAN & AKTIVASI</h3>
+                    <p className="text-gray-300" style={{ fontSize: '13px', marginBottom: '16px' }}>
+                      Biaya Administrasi Ujian Sertifikasi / Membership sebesar <b>Rp {paymentAmount.toLocaleString()}</b> ditransfer ke rekening:
+                    </p>
+                    
+                    <div className="bg-black/50 border border-gray-700 inline-block text-left w-full max-w-sm" style={{ padding: '16px', borderRadius: '8px', marginBottom: '24px' }}>
+                      <p className="text-gray-400 font-semibold" style={{ fontSize: '12px', marginBottom: '4px' }}>Association of Asia Pacific Academician</p>
+                      <p className="text-gray-300 uppercase tracking-wider" style={{ fontSize: '12px', marginBottom: '4px' }}>Bank Negara Indonesia (BNI)</p>
+                      <p className="font-mono text-[#4ade80]" style={{ fontSize: '18px', marginBottom: '4px', letterSpacing: '1px' }}>7006002218</p>
+                      <p className="text-gray-500 uppercase tracking-wider" style={{ fontSize: '10px', marginBottom: '12px' }}>Swift Code: BNINIDJA</p>
+                      
+                      <div className="flex justify-between items-center border-t border-gray-800" style={{ paddingTop: '12px', paddingBottom: '12px' }}>
+                        <span className="text-gray-400" style={{ fontSize: '14px' }}>Total Tagihan:</span>
+                        <span className="font-bold text-[#c9a84c]" style={{ fontSize: '20px' }}>Rp {paymentAmount.toLocaleString()}</span>
                       </div>
-                    ) : (
-                      <div>
-                        <h3 className="font-bold text-[#e8c97a]" style={{ fontSize: '20px', marginBottom: '8px' }}>Registration Submitted!</h3>
-                        <p className="text-gray-300" style={{ fontSize: '14px', marginBottom: '16px' }}>
-                          Silakan transfer Biaya Administrasi Member untuk level <b>{formData.academicLevel}</b> ke rekening berikut untuk mengaktifkan Kartu Member Anda:
-                        </p>
-                        <div className="bg-black/50 border border-gray-700 inline-block text-left w-full max-w-sm" style={{ padding: '16px', borderRadius: '8px', marginBottom: '16px' }}>
-                          <p className="text-gray-500 uppercase tracking-wider" style={{ fontSize: '12px', marginBottom: '4px' }}>Bank Negara Indonesia (BNI) - Association of Asia Pacific Academician</p>
-                          <p className="font-mono text-white" style={{ fontSize: '18px', marginBottom: '12px' }}>7006002218</p>
-                          <div className="flex justify-between items-center border-t border-gray-800" style={{ paddingTop: '12px', paddingBottom: '12px' }}>
-                            <span className="text-gray-400" style={{ fontSize: '14px' }}>Total Tagihan:</span>
-                            <span className="font-bold text-[#c9a84c]" style={{ fontSize: '20px' }}>Rp {paymentAmount.toLocaleString()}</span>
-                          </div>
-                          
-                          <div className="mt-2 text-left">
-                            <label className="block text-gray-300 tracking-wider uppercase font-semibold mb-2" style={{ fontSize: '11px' }}>
-                              Upload Bukti Transfer (Wajib)
-                            </label>
-                            <input 
-                              type="file" 
-                              accept="image/*,.pdf" 
-                              onChange={handleFileChange}
-                              className="w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-[#c9a84c]/10 file:text-[#c9a84c] hover:file:bg-[#c9a84c]/20"
-                            />
-                            {buktiTransfer && <p className="text-green-400 mt-2 text-xs">✓ Bukti telah dipilih</p>}
-                          </div>
-                        </div>
-                        <div className="flex flex-col" style={{ gap: '8px' }}>
-                          <button type="button" onClick={handlePay} disabled={isLoading} className="w-full bg-[#c9a84c] hover:bg-[#e8c97a] disabled:opacity-50 text-black font-bold shadow-[0_0_15px_rgba(201,168,76,0.3)] transition-colors" style={{ padding: '12px', borderRadius: '8px' }}>
-                            {isLoading ? "Memproses..." : "Konfirmasi & Upload"}
-                          </button>
-                          <button type="button" onClick={() => setShowPayment(false)} className="text-gray-500 hover:text-gray-300 transition-colors" style={{ fontSize: '14px', padding: '8px' }}>
-                            Batal
-                          </button>
-                        </div>
+                      
+                      <div className="mt-2 text-left">
+                        <label className="block text-gray-300 tracking-wider uppercase font-semibold mb-2" style={{ fontSize: '11px' }}>
+                          Upload Bukti Transfer (Wajib)
+                        </label>
+                        <input 
+                          type="file" 
+                          accept="image/*,.pdf" 
+                          onChange={handleFileChange}
+                          required
+                          className="w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-[#c9a84c]/10 file:text-[#c9a84c] hover:file:bg-[#c9a84c]/20"
+                        />
+                        {buktiTransfer && <p className="text-green-400 mt-2 text-xs">✓ Bukti telah dipilih</p>}
                       </div>
-                    )}
+                    </div>
+                    
+                    <button type="submit" disabled={isLoading} className="w-full bg-gradient-to-r from-[#c9a84c] to-[#e8c97a] hover:from-[#e8c97a] hover:to-[#c9a84c] text-black font-bold tracking-wide uppercase shadow-[0_0_20px_rgba(201,168,76,0.3)] transition-all transform hover:-translate-y-0.5 disabled:opacity-50" style={{ width: '100%', padding: '16px', borderRadius: '12px', fontSize: '14px' }}>
+                      {isLoading ? "Memproses..." : "Submit & Generate Card"}
+                    </button>
                   </div>
                 )}
               </div>
