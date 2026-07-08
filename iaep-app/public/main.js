@@ -409,7 +409,71 @@ function filterSchemes() {
 }
 
 /* Dummy Verification Result */
-function ver    // 1. KETUA CARD
+function verifyCertificate() {
+  const input = document.getElementById('verifyInput').value.trim();
+  const resultDiv = document.getElementById('verifyResult');
+  
+  if (!input) {
+    resultDiv.style.display = 'none';
+    return;
+  }
+  
+  // Fake validation
+  resultDiv.style.display = 'flex';
+  resultDiv.innerHTML = `
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+    <div>
+      <strong>Verified Certificate Found</strong><br>
+      <span style="font-size: 13px; color: var(--text);">Status: Active | Issued by ASIA BOC</span>
+    </div>
+  `;
+}
+
+/* ── Dynamic Leadership Section for Subpages ── */
+async function initDynamicLeadership() {
+  const pageToBodyMap = {
+    'asiacert': 'ASIACERT',
+    'boc': 'ASIA Board of Certification (BOC)',
+    'research': 'ASIA Research & Innovation Council (ASIA-RIC)',
+    'conference': 'ASIA Conference & Academic Forum (ASIA-CAF)',
+    'publication': 'ASIA Publication & Knowledge Center (ASIA-PKC)',
+    'mobility': 'ASIA Academic Mobility Center (ASIA-AMC)',
+    'competition': 'ASIA Competition Center (ASIA-CC)',
+    'community': 'ASIA Community Engagement & SDGs Center (ASIA-CES)',
+    'quality': 'ASIA Quality Assurance & Accreditation Board (ASIA-QAAB)',
+    'academy': 'ASIA Digital Academy & AI Center (ASIA-DAC)',
+    'young': 'ASIA Young Academician Network (ASIA-YAN)',
+    'awards': 'ASIA Awards & Recognition Council (ASIA-ARC)'
+  };
+
+  const path = window.location.pathname;
+  let page = path.substring(path.lastIndexOf('/') + 1) || 'index';
+  page = page.replace('.html', ''); // Remove .html for Vercel clean URLs
+  const bodyName = pageToBodyMap[page];
+
+  if (!bodyName) return;
+
+  try {
+    // Attempt to load from API (database)
+    const response = await fetch(`/api/leadership?body=${encodeURIComponent(bodyName)}`);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    const data = await response.json();
+    
+    // Check if we have at least Ketua or Sekretaris data
+    if (!data.ketuaNama && !data.sekNama) {
+      // Fallback: check localStorage
+      const savedLocal = localStorage.getItem(`leadership_${bodyName}`);
+      if (savedLocal) {
+        Object.assign(data, JSON.parse(savedLocal));
+      } else {
+        return; // No data found
+      }
+    }
+
+
+    // 1. KETUA CARD
     const ketuaContainer = document.getElementById('hero-ketua-container');
     if (data.ketuaNama && ketuaContainer) {
       ketuaContainer.innerHTML = '';
@@ -447,54 +511,6 @@ function ver    // 1. KETUA CARD
       sekContainer.appendChild(sekCard);
     }
 
-    // Save to localStorage
-    localStorage.setItem(\`leadership_\${bodyName}\`, JSON.stringify(data));
-  } catch (e) {
-    console.error('Error rendering dynamic leadership', e);
-  }
-}9a84c; font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 4px;">${data.ketuaJabatan || 'HEAD'}</div>
-        <div style="color: rgba(255,255,255,0.4); font-size: 10px;">${data.ketuaNegara || ''}</div>
-      `;
-      ketuaContainer.appendChild(ketuaCard);
-    }
-
-    const logoWrapper = document.createElement('div');
-    logoWrapper.style.textAlign = 'center';
-    const originalParent = logo.parentNode;
-
-    // The right container
-    const sekContainer = document.createElement('div');
-    sekContainer.className = 'hero-sek-container';
-
-    // Create Sekretaris Card (Right)
-    if (data.sekNama) {
-      const sekCard = document.createElement('div');
-      sekCard.className = 'hero-leader-card sek';
-      sekCard.style.cssText = 'background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.2); border-radius: 12px; padding: 12px; text-align: center; width: 220px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);';
-      sekCard.setAttribute('data-aos', 'fade-left');
-      
-      const sekPhotoUrl = data.sekretarisPhoto || data.sekPhoto || 'logo-apasific.png';
-      sekCard.innerHTML = `
-        <img src="${sekPhotoUrl}" style="width: 100%; height: 230px; object-fit: cover; border-radius: 8px; border: 1.5px solid rgba(255,255,255,0.3); margin-bottom: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.3);" />
-        <div style="color: #fff; font-family: 'Cinzel', serif; font-size: 13px; font-weight: 800; letter-spacing: 0.5px; margin-bottom: 6px; line-height: 1.3;">${data.sekNama}</div>
-        <div style="color: rgba(255,255,255,0.6); font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 4px;">${data.sekJabatan || 'SECRETARY'}</div>
-        <div style="color: rgba(255,255,255,0.4); font-size: 10px;">${data.sekNegara || ''}</div>
-      `;
-      sekContainer.appendChild(sekCard);
-    }
-    
-    // Smoothly assemble and inject without breaking original logo's node
-    row.appendChild(ketuaContainer);
-    logo.style.marginBottom = '0';
-    logoWrapper.appendChild(logo); 
-    row.appendChild(logoWrapper);
-    row.appendChild(sekContainer);
-
-    if (originalParent) {
-      originalParent.insertBefore(row, originalParent.firstChild);
-    }
-
-    // Save to localStorage
     localStorage.setItem(\`leadership_\${bodyName}\`, JSON.stringify(data));
   } catch (e) {
     console.error('Error rendering dynamic leadership', e);
