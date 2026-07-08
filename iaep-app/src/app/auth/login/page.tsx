@@ -3,8 +3,8 @@ import Link from "next/link";
 import { useState } from "react";
 
 export default function Login() {
-  const [email, setEmail] = useState("detaksumut@gmail.com");
-  const [password, setPassword] = useState("Mikr@210669Mpi");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleLogin = (e: React.FormEvent) => {
@@ -343,15 +343,12 @@ export default function Login() {
               </div>
 
               <button 
-                type="button" 
-                onClick={() => {
-                  document.cookie = "mock_user=admin; path=/; max-age=2592000";
-                  document.cookie = "mock_user_name=Super Admin; path=/; max-age=2592000";
-                  window.location.href = "/dashboard/admin";
-                }}
+                type="submit" 
+                onClick={handleLogin}
                 className="btn-login"
+                disabled={loading}
               >
-                Masuk Paksa (Admin)
+                {loading ? "Memproses..." : "Masuk ke Sistem"}
               </button>
             </form>
 
