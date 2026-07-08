@@ -511,13 +511,13 @@ async function initDynamicLeadership() {
     // Create Sekretaris Card (Right)
     if (data.sekNama) {
       const sekCard = document.createElement('div');
-      sekCard.className = 'hero-leader-card sekretaris';
+      sekCard.className = 'hero-leader-card sek';
       sekCard.style.cssText = 'background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.2); border-radius: 12px; padding: 12px; text-align: center; width: 220px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);';
       sekCard.setAttribute('data-aos', 'fade-left');
       
-      const photoUrl = data.sekretarisPhoto || data.sekPhoto || 'logo-apasific.png';
+      const sekPhotoUrl = data.sekretarisPhoto || data.sekPhoto || 'logo-apasific.png';
       sekCard.innerHTML = `
-        <img src="${photoUrl}" style="width: 100%; height: 230px; object-fit: cover; border-radius: 8px; border: 1.5px solid rgba(255,255,255,0.3); margin-bottom: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.3);" />
+        <img src="${sekPhotoUrl}" style="width: 100%; height: 230px; object-fit: cover; border-radius: 8px; border: 1.5px solid rgba(255,255,255,0.3); margin-bottom: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.3);" />
         <div style="color: #fff; font-family: 'Cinzel', serif; font-size: 13px; font-weight: 800; letter-spacing: 0.5px; margin-bottom: 6px; line-height: 1.3;">${data.sekNama}</div>
         <div style="color: rgba(255,255,255,0.6); font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 4px;">${data.sekJabatan || 'SECRETARY'}</div>
         <div style="color: rgba(255,255,255,0.4); font-size: 10px;">${data.sekNegara || ''}</div>
@@ -525,17 +525,19 @@ async function initDynamicLeadership() {
       sekContainer.appendChild(sekCard);
     }
     
+    // Smoothly assemble and inject without breaking original logo's node
     row.appendChild(ketuaContainer);
     logo.style.marginBottom = '0';
-    logoWrapper.appendChild(logo);
+    logoWrapper.appendChild(logo); 
     row.appendChild(logoWrapper);
     row.appendChild(sekContainer);
 
-    // If the original page already has a hero-leaders-container, we don't want to insert this
-    // but we will insert it anyway, since we are cleaning up the HTML files.
-    originalParent.insertBefore(row, originalParent.firstChild);
+    if (originalParent) {
+      originalParent.insertBefore(row, originalParent.firstChild);
+    }
 
-
+    // Save to localStorage
+    localStorage.setItem(\`leadership_\${bodyName}\`, JSON.stringify(data));
   } catch (e) {
     console.error('Error rendering dynamic leadership', e);
   }
