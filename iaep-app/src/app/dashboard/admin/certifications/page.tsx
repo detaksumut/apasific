@@ -29,6 +29,12 @@ export default function CertificationsAdmin() {
   const [candidates, setCandidates] = useState<Candidate[]>([]);
   const [sessions, setSessions] = useState<ExamSession[]>([]);
   const [loading, setLoading] = useState(true);
+  const [toastMessage, setToastMessage] = useState("");
+
+  const showToast = (msg: string) => {
+    setToastMessage(msg);
+    setTimeout(() => setToastMessage(""), 3000);
+  };
 
   const fetchData = async () => {
     setLoading(true);
@@ -65,14 +71,14 @@ export default function CertificationsAdmin() {
         })
       });
       if (res.ok) {
-        alert("Ruang Ujian Berhasil Dibuat!");
+        showToast("Ruang Ujian Berhasil Dibuat!");
         fetchData();
       } else {
-        alert("Gagal membuat ruang ujian.");
+        showToast("Gagal membuat ruang ujian.");
       }
     } catch (e) {
       console.error(e);
-      alert("Error generating exam.");
+      showToast("Error generating exam.");
     }
   };
 
@@ -80,10 +86,10 @@ export default function CertificationsAdmin() {
     try {
       const res = await fetch("/api/certifications/candidates/dummy", { method: "POST" });
       if (res.ok) {
-        alert("Berhasil membuat peserta percobaan!");
+        showToast("Berhasil membuat peserta percobaan!");
         fetchData();
       } else {
-        alert("Gagal membuat peserta. Pastikan database Anda siap.");
+        showToast("Gagal membuat peserta. Pastikan database Anda siap.");
       }
     } catch (e) {
       console.error(e);
@@ -95,7 +101,15 @@ export default function CertificationsAdmin() {
   }
 
   return (
-    <div className="p-8 min-h-screen bg-[#05050a] text-gray-200">
+    <div className="p-8 min-h-screen bg-[#05050a] text-gray-200 relative">
+      {/* TOAST NOTIFICATION */}
+      {toastMessage && (
+        <div className="fixed top-24 left-1/2 transform -translate-x-1/2 z-[100] bg-green-500/90 text-white px-6 py-3 rounded-full font-semibold shadow-lg shadow-green-500/20 animate-fade-in-down border border-green-400 backdrop-blur-sm flex items-center gap-3">
+          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"/></svg>
+          {toastMessage}
+        </div>
+      )}
+
       <div className="max-w-7xl mx-auto">
         
         <div className="flex justify-between items-center mb-8 border-b border-gray-800 pb-4">

@@ -4,6 +4,7 @@ import { useState } from "react";
 
 export default function RatesSettings() {
   const [isSaving, setIsSaving] = useState(false);
+  const [toastMessage, setToastMessage] = useState("");
 
   const [membershipRates, setMembershipRates] = useState({
     mahasiswa: 0,
@@ -35,16 +36,29 @@ export default function RatesSettings() {
     publish: 500000,
   });
 
+  const showToast = (msg: string) => {
+    setToastMessage(msg);
+    setTimeout(() => setToastMessage(""), 3000);
+  };
+
   const handleSave = (section: string) => {
     setIsSaving(true);
     setTimeout(() => {
       setIsSaving(false);
-      alert(`Success! ${section} have been updated and will be applied to all new transactions.`);
+      showToast(`Success! ${section} have been updated and will be applied to all new transactions.`);
     }, 1000);
   };
 
   return (
-    <div className="max-w-4xl mx-auto space-y-10 pb-20">
+    <div className="max-w-4xl mx-auto space-y-10 pb-20 relative">
+      {/* TOAST NOTIFICATION */}
+      {toastMessage && (
+        <div className="fixed top-24 left-1/2 transform -translate-x-1/2 z-[100] bg-green-500/90 text-white px-6 py-3 rounded-full font-semibold shadow-lg shadow-green-500/20 animate-fade-in-down border border-green-400 backdrop-blur-sm flex items-center gap-3">
+          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"/></svg>
+          {toastMessage}
+        </div>
+      )}
+
       <div className="border-b border-gray-800 pb-6">
         <h1 className="text-3xl font-bold text-white mb-2">Rates & Honorariums Settings</h1>
         <p className="text-gray-400">Master Control: Dynamically adjust membership tariffs and academic stipends.</p>

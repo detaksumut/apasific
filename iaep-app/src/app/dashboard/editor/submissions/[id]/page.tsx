@@ -9,6 +9,12 @@ export default function SubmissionControlPanel() {
   const [decision, setDecision] = useState("");
   const [emailText, setEmailText] = useState("Dear Jane Doe,\n\nWe have reached a decision regarding your submission to APASIFIC IAEP: The Impact of Artificial Intelligence on Southeast Asian Higher Education.\n\nOur decision is: ");
   const [authorPhone, setAuthorPhone] = useState("+6281370062009");
+  const [toastMessage, setToastMessage] = useState("");
+
+  const showToast = (msg: string) => {
+    setToastMessage(msg);
+    setTimeout(() => setToastMessage(""), 3000);
+  };
 
   // Dummy submission data
   const submission = {
@@ -30,7 +36,15 @@ export default function SubmissionControlPanel() {
   };
 
   return (
-    <div className="max-w-6xl mx-auto space-y-6 pb-20">
+    <div className="max-w-6xl mx-auto space-y-6 pb-20 relative">
+      {/* TOAST NOTIFICATION */}
+      {toastMessage && (
+        <div className="fixed top-24 left-1/2 transform -translate-x-1/2 z-[100] bg-green-500/90 text-white px-6 py-3 rounded-full font-semibold shadow-lg shadow-green-500/20 animate-fade-in-down border border-green-400 backdrop-blur-sm flex items-center gap-3">
+          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"/></svg>
+          {toastMessage}
+        </div>
+      )}
+
       <div className="flex items-center space-x-2 text-sm text-gray-500 mb-4">
         <Link href="/dashboard/editor" className="hover:text-[#c9a84c]">Editorial Board</Link>
         <span>/</span>
@@ -272,14 +286,14 @@ export default function SubmissionControlPanel() {
 
             <div className="p-6 border-t border-gray-200 flex justify-end space-x-3 bg-gray-50 items-center">
               <button onClick={() => setDecisionModalOpen(false)} className="px-6 py-2 border border-gray-300 text-gray-700 rounded font-semibold hover:bg-gray-100">Cancel</button>
-              <button disabled={!decision} onClick={() => { alert('Decision Recorded & Email Sent!'); setDecisionModalOpen(false); }} className="px-6 py-2 bg-blue-600 text-white rounded font-bold disabled:opacity-50 hover:bg-blue-700">
+              <button disabled={!decision} onClick={() => { showToast('Decision Recorded & Email Sent!'); setDecisionModalOpen(false); }} className="px-6 py-2 bg-blue-600 text-white rounded font-bold disabled:opacity-50 hover:bg-blue-700">
                 Record & Send Email
               </button>
               <a 
                 href={decision ? `https://wa.me/${authorPhone.replace(/[^0-9]/g, "").replace(/^0/, "62")}?text=${encodeURIComponent(emailText)}` : '#'}
                 target="_blank"
                 rel="noopener noreferrer"
-                onClick={() => { if (decision) { alert('Decision Recorded & WhatsApp Window Opened!'); setDecisionModalOpen(false); } }}
+                onClick={() => { if (decision) { showToast('Decision Recorded & WhatsApp Window Opened!'); setDecisionModalOpen(false); } }}
                 className={`px-6 py-2 bg-[#25D366] hover:bg-[#22c35e] text-black font-bold rounded flex items-center justify-center gap-1 transition-all ${!decision ? 'opacity-50 pointer-events-none' : ''}`}
                 style={{ textDecoration: 'none' }}
               >

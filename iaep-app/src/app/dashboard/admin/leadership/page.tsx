@@ -20,6 +20,12 @@ export default function LeadershipManagementPage() {
   const [ketuaPhoto, setKetuaPhoto]     = useState<string | null>(null);
   const [sekretarisPhoto, setSekretarisPhoto] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
+  const [toastMessage, setToastMessage] = useState("");
+
+  const showToast = (msg: string) => {
+    setToastMessage(msg);
+    setTimeout(() => setToastMessage(""), 3000);
+  };
 
   // Home org structure state — 8 members
   const [homeMembers, setHomeMembers] = useState(DEFAULT_HOME_MEMBERS.map(m => ({ ...m })));
@@ -144,7 +150,7 @@ export default function LeadershipManagementPage() {
       if (side === "ketua") setKetuaPhoto(compressed);
       else setSekretarisPhoto(compressed);
     } catch (err) {
-      alert("Gagal memproses foto");
+      showToast("Gagal memproses foto");
     }
   };
 
@@ -159,7 +165,7 @@ export default function LeadershipManagementPage() {
         return next;
       });
     } catch (err) {
-      alert("Gagal memproses foto");
+      showToast("Gagal memproses foto");
     }
   };
 
@@ -180,7 +186,7 @@ export default function LeadershipManagementPage() {
   };
 
   const handleSave = async () => {
-    if (!selectedBody) { alert("Pilih badan terlebih dahulu."); return; }
+    if (!selectedBody) { showToast("Pilih badan terlebih dahulu."); return; }
 
     try {
       let payload: any;
@@ -203,7 +209,7 @@ export default function LeadershipManagementPage() {
       const sizeMB = (new Blob([payloadString]).size / (1024 * 1024)).toFixed(2);
 
       if (parseFloat(sizeMB) > 0.9) {
-        alert(`Data Anda masih ${sizeMB} MB. Server membatasi maksimal 1 MB! Tolong ganti foto (upload ulang) anggota yang fotonya paling besar agar dikompres secara otomatis.`);
+        showToast(`Data Anda masih ${sizeMB} MB. Server membatasi maksimal 1 MB! Tolong ganti foto (upload ulang) anggota yang fotonya paling besar agar dikompres secara otomatis.`);
         return;
       }
 
@@ -219,9 +225,10 @@ export default function LeadershipManagementPage() {
       }
 
       setSaved(true);
+      showToast("Data Pimpinan berhasil disimpan!");
       setTimeout(() => setSaved(false), 3000);
     } catch (err: any) {
-      alert(`Gagal menyimpan data: ${err.message}`);
+      showToast(`Gagal menyimpan data: ${err.message}`);
     }
   };
 
@@ -288,7 +295,14 @@ export default function LeadershipManagementPage() {
   );
 
   return (
-    <div style={{ maxWidth: 960 }}>
+    <div style={{ maxWidth: 960, position: "relative" }}>
+      {/* TOAST NOTIFICATION */}
+      {toastMessage && (
+        <div className="fixed top-24 left-1/2 transform -translate-x-1/2 z-[100] bg-green-500/90 text-white px-6 py-3 rounded-full font-semibold shadow-lg shadow-green-500/20 animate-fade-in-down border border-green-400 backdrop-blur-sm flex items-center gap-3">
+          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"/></svg>
+          {toastMessage}
+        </div>
+      )}
 
       {/* Header */}
       <div style={{ marginBottom: 24, paddingBottom: 18, borderBottom: "1px solid rgba(255,255,255,0.07)" }}>

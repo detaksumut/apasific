@@ -599,7 +599,7 @@ export default function Home() {
           <h3>Academic Journals</h3>
           <p>Peer-reviewed journals covering all 14 academic divisions, indexed in leading global databases.</p>
           <div class="pub-meta"><span>Quarterly</span><span>ISI / Scopus Indexed</span></div>
-          <a href="publication.html" class="pub-link">Browse Journals →</a>
+          <a href="#journal-indexing" class="pub-link">View Journal Status →</a>
         </div>
         <div class="pub-card" id="proceedings" style="animation-delay:0.1s">
           <div class="pub-icon-wrap">
@@ -608,7 +608,7 @@ export default function Home() {
           <h3>Proceedings</h3>
           <p>Official conference proceedings capturing breakthrough research and scholarly presentations.</p>
           <div class="pub-meta"><span>Per Conference</span><span>ISBN Registered</span></div>
-          <a href="publication.html" class="pub-link">Browse Proceedings →</a>
+          <a href="javascript:void(0)" onclick="alert('Proceedings catalog is currently under development.')" class="pub-link">Coming Soon →</a>
         </div>
         <div class="pub-card" id="books" style="animation-delay:0.2s">
           <div class="pub-icon-wrap">
@@ -617,7 +617,7 @@ export default function Home() {
           <h3>Academic Books</h3>
           <p>Scholarly books authored and edited by ASIA members, covering theory, practice, and case studies.</p>
           <div class="pub-meta"><span>Annual</span><span>DOI Registered</span></div>
-          <a href="publication.html" class="pub-link">Browse Books →</a>
+          <a href="javascript:void(0)" onclick="alert('Books catalog is currently under development.')" class="pub-link">Coming Soon →</a>
         </div>
         <div class="pub-card" id="monographs" style="animation-delay:0.3s">
           <div class="pub-icon-wrap">
@@ -626,7 +626,7 @@ export default function Home() {
           <h3>Monographs</h3>
           <p>In-depth single-topic scholarly works advancing specialized knowledge in key academic fields.</p>
           <div class="pub-meta"><span>Bi-annual</span><span>Open Access</span></div>
-          <a href="publication.html" class="pub-link">Browse Monographs →</a>
+          <a href="javascript:void(0)" onclick="alert('Monographs catalog is currently under development.')" class="pub-link">Coming Soon →</a>
         </div>
         <div class="pub-card" id="policy-briefs" style="animation-delay:0.4s">
           <div class="pub-icon-wrap">
@@ -635,7 +635,7 @@ export default function Home() {
           <h3>Policy Briefs</h3>
           <p>Evidence-based policy recommendations addressing real-world challenges for regional policymakers.</p>
           <div class="pub-meta"><span>Ongoing</span><span>Free Download</span></div>
-          <a href="publication.html" class="pub-link">Browse Policy Briefs →</a>
+          <a href="javascript:void(0)" onclick="alert('Policy Briefs catalog is currently under development.')" class="pub-link">Coming Soon →</a>
         </div>
       </div>
     </div>
