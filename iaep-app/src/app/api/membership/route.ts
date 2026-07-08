@@ -41,13 +41,13 @@ export async function POST(request: Request) {
 
     if (error) {
       console.error("Supabase insert error:", error);
-      return NextResponse.json({ error: error.message }, { status: 500 });
+      return NextResponse.json({ error: error.message || "Failed to insert into database. Did you run the SQL script?" }, { status: 500 });
     }
 
     return NextResponse.json({ success: true, data: insertedData });
   } catch (err: any) {
     console.error("API Error:", err);
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    return NextResponse.json({ error: err.message || "Internal Server Error" }, { status: 500 });
   }
 }
 

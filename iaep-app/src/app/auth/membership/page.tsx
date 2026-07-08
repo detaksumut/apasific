@@ -64,14 +64,18 @@ export default function MajesticMembershipPage() {
         body: JSON.stringify(payload),
       });
 
-      if (!res.ok) throw new Error("Gagal mendaftar");
+      const result = await res.json();
+
+      if (!res.ok) {
+        throw new Error(result.error || "Gagal mendaftar");
+      }
 
       alert("Pendaftaran Berhasil! Admin akan segera memverifikasi bukti transfer Anda.");
       document.cookie = "mock_user=member; path=/";
       window.location.href = '/dashboard';
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      alert("Terjadi kesalahan sistem, silakan coba lagi nanti.");
+      alert("Error: " + err.message);
     } finally {
       setIsLoading(false);
     }

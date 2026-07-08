@@ -26,7 +26,8 @@ export async function GET(request: NextRequest) {
       status: c.status,
       zoomLink: c.zoom_link,
       assessorAccessCode: c.assessor_access_code || "",
-      examScore: c.exam_score
+      examScore: c.exam_score,
+      buktiTransferUrl: c.bukti_transfer_url || ""
     }));
 
     return NextResponse.json(mapped);
@@ -39,7 +40,7 @@ export async function POST(request: NextRequest) {
   try {
     const supabase = await createClient();
     const payload = await request.json();
-    const { id, name, email, phone, academicField, cert, method, schedule, status, zoomLink, assessorAccessCode } = payload;
+    const { id, name, email, phone, academicField, cert, method, schedule, status, zoomLink, assessorAccessCode, buktiTransfer } = payload;
 
     if (!name || !email || !cert) {
       return NextResponse.json({ error: "Missing required candidate info" }, { status: 400 });
@@ -60,7 +61,8 @@ export async function POST(request: NextRequest) {
       method,
       schedule: scheduleISO,
       status: status || "Awaiting Zoom Link",
-      zoom_link: zoomLink || null
+      zoom_link: zoomLink || null,
+      bukti_transfer_url: buktiTransfer || null
     };
 
     if (id) {
