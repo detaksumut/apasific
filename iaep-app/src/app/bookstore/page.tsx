@@ -302,15 +302,18 @@ export default function BookstorePage() {
           position: relative;
           height: 250px;
           overflow: hidden;
-          background: #18182e;
+          background: linear-gradient(135deg, #e8c97a 0%, #c9a84c 50%, #9a7a30 100%);
           display: flex;
           align-items: center;
           justify-content: center;
+          padding: 20px;
         }
         .bs-card-img {
-          width: 100%;
+          width: auto;
           height: 100%;
-          object-fit: cover;
+          max-width: 100%;
+          object-fit: contain;
+          box-shadow: 0 10px 25px rgba(0,0,0,0.5);
           transition: transform 0.5s ease;
         }
         .bs-card:hover .bs-card-img {
