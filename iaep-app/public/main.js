@@ -1043,6 +1043,22 @@ function initAsiacertHubForm() {
         </div>
 
 
+        <div class="cert-payment-box" style="background: rgba(201,168,76,0.05); border: 1px dashed rgba(201,168,76,0.4); padding: 20px; border-radius: 10px; margin-bottom: 25px; text-align: center;">
+          <h4 style="color: #c9a84c; margin: 0 0 10px; font-size: 15px; font-weight: 700;">PAYMENT INSTRUCTION</h4>
+          <p style="color: rgba(255,255,255,0.7); font-size: 13px; margin: 0 0 5px; line-height: 1.5;">
+            Biaya administrasi ujian sertifikasi <strong style="color: #c9a84c;">Rp 500.000</strong> ditransfer ke rekening:<br>
+            <strong style="font-size: 14px; color: #fff;">Association of Asia Pacific Academician</strong>
+          </p>
+          <div style="background: rgba(0,0,0,0.3); display: inline-block; padding: 12px 24px; border-radius: 8px; margin: 12px 0; border: 1px solid rgba(255,255,255,0.05);">
+            <p style="margin: 0; color: #fff; font-size: 14px;">Bank: <strong>Bank Negara Indonesia (BNI)</strong></p>
+            <p style="margin: 6px 0; color: #fff; font-size: 14px;">A/C No: <strong style="color: #4ade80; font-size: 18px; letter-spacing: 1.5px; display: block; margin-top: 4px;">7006002218</strong></p>
+            <p style="margin: 0; color: rgba(255,255,255,0.5); font-size: 12px;">Swift Code: BNINIDJA</p>
+          </div>
+          <div class="cert-group" style="text-align: left; margin-top: 15px;">
+            <label class="cert-label">Upload Bukti Transfer / Payment Receipt (Image/PDF)</label>
+            <input type="file" class="cert-input" id="certPaymentReceipt" accept="image/*,.pdf" required style="padding: 10px; background: rgba(0,0,0,0.2); cursor: pointer;" />
+          </div>
+        </div>
 
         <button type="submit" class="cert-submit" id="certSubmitBtn">Submit Exam Registration</button>
       </form>
