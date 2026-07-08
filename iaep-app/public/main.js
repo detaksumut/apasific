@@ -432,22 +432,23 @@ function verifyCertificate() {
 /* ── Dynamic Leadership Section for Subpages ── */
 async function initDynamicLeadership() {
   const pageToBodyMap = {
-    'asiacert.html': 'ASIACERT',
-    'boc.html': 'ASIA Board of Certification (BOC)',
-    'research.html': 'ASIA Research & Innovation Council (ASIA-RIC)',
-    'conference.html': 'ASIA Conference & Academic Forum (ASIA-CAF)',
-    'publication.html': 'ASIA Publication & Knowledge Center (ASIA-PKC)',
-    'mobility.html': 'ASIA Academic Mobility Center (ASIA-AMC)',
-    'competition.html': 'ASIA Competition Center (ASIA-CC)',
-    'community.html': 'ASIA Community Engagement & SDGs Center (ASIA-CES)',
-    'quality.html': 'ASIA Quality Assurance & Accreditation Board (ASIA-QAAB)',
-    'academy.html': 'ASIA Digital Academy & AI Center (ASIA-DAC)',
-    'young.html': 'ASIA Young Academician Network (ASIA-YAN)',
-    'awards.html': 'ASIA Awards & Recognition Council (ASIA-ARC)'
+    'asiacert': 'ASIACERT',
+    'boc': 'ASIA Board of Certification (BOC)',
+    'research': 'ASIA Research & Innovation Council (ASIA-RIC)',
+    'conference': 'ASIA Conference & Academic Forum (ASIA-CAF)',
+    'publication': 'ASIA Publication & Knowledge Center (ASIA-PKC)',
+    'mobility': 'ASIA Academic Mobility Center (ASIA-AMC)',
+    'competition': 'ASIA Competition Center (ASIA-CC)',
+    'community': 'ASIA Community Engagement & SDGs Center (ASIA-CES)',
+    'quality': 'ASIA Quality Assurance & Accreditation Board (ASIA-QAAB)',
+    'academy': 'ASIA Digital Academy & AI Center (ASIA-DAC)',
+    'young': 'ASIA Young Academician Network (ASIA-YAN)',
+    'awards': 'ASIA Awards & Recognition Council (ASIA-ARC)'
   };
 
   const path = window.location.pathname;
-  const page = path.substring(path.lastIndexOf('/') + 1) || 'index.html';
+  let page = path.substring(path.lastIndexOf('/') + 1) || 'index';
+  page = page.replace('.html', ''); // Remove .html for Vercel clean URLs
   const bodyName = pageToBodyMap[page];
 
   if (!bodyName) return;
