@@ -11,17 +11,22 @@ interface Member {
 export default function JournalPage() {
   const [members, setMembers] = useState<Member[]>([]);
   const [loading, setLoading] = useState(true);
+  const [debugInfo, setDebugInfo] = useState<any>(null);
 
   useEffect(() => {
     const fetchBoard = async () => {
       try {
-        const res = await fetch("/api/leadership?body=Editorial Board - AJSSH");
+        const res = await fetch(`/api/leadership?body=${encodeURIComponent("Editorial Board - AJSSH - ASIA Journal of Social Sciences & Humanities")}`, { cache: "no-store", headers: { "Cache-Control": "no-cache" } });
+        const data = await res.json();
+        
         if (res.ok) {
-          const data = await res.json();
           setMembers(data.members || []);
+          setDebugInfo({ debug_data: data.debug_data, debug_error: data.debug_error });
+        } else {
+          setDebugInfo({ api_failed: true, status: res.status, error_data: data });
         }
-      } catch (err) {
-        console.error("Failed to load editorial board", err);
+      } catch (err: any) {
+        setDebugInfo({ network_error: err.message });
       } finally {
         setLoading(false);
       }
@@ -55,7 +60,16 @@ export default function JournalPage() {
           <div style={{ textAlign: "center", color: "#c9a84c", padding: "50px" }}>Loading Editorial Board...</div>
         ) : members.length === 0 ? (
           <div style={{ textAlign: "center", color: "rgba(255,255,255,0.3)", padding: "50px", fontStyle: "italic" }}>
-            Belum ada anggota dewan editorial yang ditambahkan.
+            <p>Belum ada anggota dewan editorial yang ditambahkan.</p>
+            {debugInfo && (
+              <div style={{ marginTop: "20px", padding: "15px", background: "#111", border: "1px solid red", textAlign: "left", fontSize: "12px", fontFamily: "monospace", color: "#ff6b6b" }}>
+                <p><strong>DEBUG INFO:</strong> Tolong kirim screenshot / copy teks kotak merah ini ke asisten AI Anda:</p>
+                <pre style={{ whiteSpace: "pre-wrap" }}>
+                  DATA: {JSON.stringify(debugInfo.debug_data, null, 2)}
+                  ERROR: {JSON.stringify(debugInfo.debug_error, null, 2)}
+                </pre>
+              </div>
+            )}
           </div>
         ) : (
           <div style={{

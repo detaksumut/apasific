@@ -43,9 +43,16 @@ export async function GET(request: NextRequest) {
   if (body === HOME_BODY || body.startsWith("Editorial Board -")) {
     let members = [];
     try {
-      members = data.members_json ? JSON.parse(data.members_json) : [];
-    } catch { members = []; }
-    return NextResponse.json({ members });
+      if (typeof data.members_json === 'string') {
+        members = JSON.parse(data.members_json);
+      } else if (data.members_json) {
+        members = data.members_json;
+      }
+    } catch (e) { 
+      console.error("Error parsing members_json:", e);
+      members = []; 
+    }
+    return NextResponse.json({ members, debug_data: data, debug_error: error });
   }
 
   // Map database columns to the frontend state structure
