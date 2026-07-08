@@ -510,8 +510,7 @@ async function initDynamicLeadership() {
       `;
       sekContainer.appendChild(sekCard);
     }
-
-    localStorage.setItem(\`leadership_\${bodyName}\`, JSON.stringify(data));
+    localStorage.setItem(`leadership_${bodyName}`, JSON.stringify(data));
   } catch (e) {
     console.error('Error rendering dynamic leadership', e);
   }
