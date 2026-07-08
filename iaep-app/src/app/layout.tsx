@@ -125,6 +125,7 @@ export default function RootLayout({
         </li>
 
         <li><a href="https://apasific.org" class="nav-link" id="nav-bookstore" target="_blank">BOOK STORE</a></li>
+        <li><a href="https://apasific.org" class="nav-link" id="nav-bookstore" target="_blank">BOOK STORE</a></li>
         <li class="has-dropdown">
           <a href="/#programs" class="nav-link" id="nav-programs">PROGRAMS <span class="chevron">▾</span></a>
           <div class="dropdown">
