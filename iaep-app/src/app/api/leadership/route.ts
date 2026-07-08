@@ -12,6 +12,13 @@ export async function GET(request: NextRequest) {
   }
 
   const supabase = await createClient();
+
+  if (body === "all") {
+    const { data, error } = await supabase.from("leadership").select("*");
+    if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json(data);
+  }
+
   const { data, error } = await supabase
     .from("leadership")
     .select("*")
@@ -21,7 +28,7 @@ export async function GET(request: NextRequest) {
   if (error) {
     if (error.code === "PGRST116") {
       // Record not found — return empty
-      if (body === HOME_BODY) {
+      if (body === HOME_BODY || body.startsWith("Editorial Board -")) {
         return NextResponse.json({ members: [] });
       }
       return NextResponse.json({
@@ -32,8 +39,8 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
-  // Home org structure — return members array
-  if (body === HOME_BODY) {
+  // Home org structure & Editorial Boards — return members array
+  if (body === HOME_BODY || body.startsWith("Editorial Board -")) {
     let members = [];
     try {
       members = data.members_json ? JSON.parse(data.members_json) : [];
@@ -72,8 +79,8 @@ export async function POST(request: NextRequest) {
       updated_at: new Date().toISOString()
     };
 
-    if (bodyName === HOME_BODY) {
-      // Home org structure — save as JSON
+    if (bodyName === HOME_BODY || bodyName.startsWith("Editorial Board -")) {
+      // Save as JSON
       upsertPayload.members_json = JSON.stringify(members || []);
     } else {
       const {

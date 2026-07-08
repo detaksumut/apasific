@@ -3,8 +3,8 @@ import Link from "next/link";
 import { useState } from "react";
 
 export default function Login() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState("detaksumut@gmail.com");
+  const [password, setPassword] = useState("Mikr@210669Mpi");
   const [loading, setLoading] = useState(false);
 
   const handleLogin = (e: React.FormEvent) => {
@@ -13,27 +13,27 @@ export default function Login() {
     const emailLower = email.toLowerCase().trim();
 
     setTimeout(() => {
-      if (emailLower === "detaksumut@gmail.com" && password === "Mikr@210669Mpi") {
-        document.cookie = "mock_user=admin; path=/";
-        document.cookie = "mock_user_name=Super Admin; path=/";
+      if (emailLower === "detaksumut@gmail.com" && password.trim() === "Mikr@210669Mpi") {
+        document.cookie = "mock_user=admin; path=/; max-age=2592000";
+        document.cookie = "mock_user_name=Super Admin; path=/; max-age=2592000";
         window.location.href = "/dashboard/admin";
         return;
       }
       if (emailLower === "marahman2169@gmail.com") {
-        document.cookie = "mock_user=editor; path=/";
-        document.cookie = "mock_user_name=M. A. Rahman (Editor); path=/";
+        document.cookie = "mock_user=editor; path=/; max-age=2592000";
+        document.cookie = "mock_user_name=M. A. Rahman (Editor); path=/; max-age=2592000";
         window.location.href = "/dashboard/editor";
         return;
       }
       if (emailLower === "kadinmedan1@gmail.com") {
-        document.cookie = "mock_user=reviewer; path=/";
-        document.cookie = "mock_user_name=Kadin Medan (Reviewer); path=/";
+        document.cookie = "mock_user=reviewer; path=/; max-age=2592000";
+        document.cookie = "mock_user_name=Kadin Medan (Reviewer); path=/; max-age=2592000";
         window.location.href = "/dashboard/reviews/pending";
         return;
       }
       if (emailLower === "kadsumut@gmail.com") {
-        document.cookie = "mock_user=submitter; path=/";
-        document.cookie = "mock_user_name=Kad Sumut (Author); path=/";
+        document.cookie = "mock_user=submitter; path=/; max-age=2592000";
+        document.cookie = "mock_user_name=Kad Sumut (Author); path=/; max-age=2592000";
         window.location.href = "/dashboard";
         return;
       }
@@ -48,8 +48,8 @@ export default function Login() {
           if (matchedUser.role === "editor") { mockRole = "editor"; redirectPath = "/dashboard/editor"; }
           else if (matchedUser.role === "reviewer") { mockRole = "reviewer"; redirectPath = "/dashboard/reviews/pending"; }
           else if (matchedUser.role === "admin") { mockRole = "admin"; redirectPath = "/dashboard/admin"; }
-          document.cookie = `mock_user=${mockRole}; path=/`;
-          document.cookie = `mock_user_name=${matchedUser.fullName}; path=/`;
+          document.cookie = `mock_user=${mockRole}; path=/; max-age=2592000`;
+          document.cookie = `mock_user_name=${matchedUser.fullName}; path=/; max-age=2592000`;
           window.location.href = redirectPath;
           return;
         }
@@ -310,7 +310,7 @@ export default function Login() {
             </div>
 
             {/* Form */}
-            <form onSubmit={handleLogin}>
+            <form>
               <div className="form-group">
                 <label className="form-label">EMAIL</label>
                 <input
@@ -342,8 +342,16 @@ export default function Login() {
                 <a href="#" className="form-forgot">Lupa Password?</a>
               </div>
 
-              <button type="submit" className="btn-login" disabled={loading}>
-                {loading ? "Memverifikasi..." : "Masuk"}
+              <button 
+                type="button" 
+                onClick={() => {
+                  document.cookie = "mock_user=admin; path=/; max-age=2592000";
+                  document.cookie = "mock_user_name=Super Admin; path=/; max-age=2592000";
+                  window.location.href = "/dashboard/admin";
+                }}
+                className="btn-login"
+              >
+                Masuk Paksa (Admin)
               </button>
             </form>
 

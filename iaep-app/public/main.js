@@ -452,10 +452,7 @@ async function initDynamicLeadership() {
 
   if (!bodyName) return;
 
-  // Dihapus sementara untuk ASIACERT dan BOC sesuai permintaan agar fotonya hilang
-  if (bodyName === 'ASIACERT' || bodyName === 'ASIA Board of Certification (BOC)') {
-    return;
-  }
+  if (!bodyName) return;
 
   try {
     // Attempt to load from API (database)
@@ -483,43 +480,62 @@ async function initDynamicLeadership() {
     const row = document.createElement('div');
     row.className = 'hero-leaders-row';
 
-    // Insert row before logo
-    logo.parentNode.insertBefore(row, logo);
+    // The left container
+    const ketuaContainer = document.createElement('div');
+    ketuaContainer.className = 'hero-ketua-container';
 
     // Create Ketua Card (Left)
     if (data.ketuaNama) {
       const ketuaCard = document.createElement('div');
       ketuaCard.className = 'hero-leader-card ketua';
+      ketuaCard.style.cssText = 'background: rgba(255,255,255,0.02); border: 1px solid rgba(201,168,76,0.3); border-radius: 12px; padding: 12px; text-align: center; width: 220px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);';
+      ketuaCard.setAttribute('data-aos', 'fade-right');
       
       const photoUrl = data.ketuaPhoto || 'logo-apasific.png';
       ketuaCard.innerHTML = `
-        <img src="${photoUrl}" style="width: 150px; height: 200px; border-radius: 6px; object-fit: cover; border: 2px solid #c9a84c; margin-bottom: 12px; filter: drop-shadow(0 4px 8px rgba(201,168,76,0.35));" />
-        <div style="font-weight: 700; color: #fff; font-size: 13px; margin-bottom: 4px; font-family: 'Cinzel', serif; line-height: 1.3;">${data.ketuaNama}</div>
-        <div style="color: #c9a84c; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">${data.ketuaJabatan || 'Ketua'}</div>
+        <img src="${photoUrl}" style="width: 100%; height: 230px; object-fit: cover; border-radius: 8px; border: 1.5px solid #c9a84c; margin-bottom: 12px; box-shadow: 0 4px 15px rgba(201,168,76,0.2);" />
+        <div style="color: #fff; font-family: 'Cinzel', serif; font-size: 13px; font-weight: 800; letter-spacing: 0.5px; margin-bottom: 6px; line-height: 1.3;">${data.ketuaNama}</div>
+        <div style="color: #c9a84c; font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 4px;">${data.ketuaJabatan || 'HEAD'}</div>
         <div style="color: rgba(255,255,255,0.4); font-size: 10px;">${data.ketuaNegara || ''}</div>
-        <div style="color: rgba(255,255,255,0.2); font-size: 8px; margin-top: 2px;">${data.ketuaId || ''}</div>
       `;
-      row.appendChild(ketuaCard);
+      ketuaContainer.appendChild(ketuaCard);
     }
 
-    // Append Logo to center
-    row.appendChild(logo);
+    const logoWrapper = document.createElement('div');
+    logoWrapper.style.textAlign = 'center';
+    const originalParent = logo.parentNode;
+
+    // The right container
+    const sekContainer = document.createElement('div');
+    sekContainer.className = 'hero-sek-container';
 
     // Create Sekretaris Card (Right)
     if (data.sekNama) {
       const sekCard = document.createElement('div');
       sekCard.className = 'hero-leader-card sekretaris';
+      sekCard.style.cssText = 'background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.2); border-radius: 12px; padding: 12px; text-align: center; width: 220px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);';
+      sekCard.setAttribute('data-aos', 'fade-left');
       
       const photoUrl = data.sekretarisPhoto || data.sekPhoto || 'logo-apasific.png';
       sekCard.innerHTML = `
-        <img src="${photoUrl}" style="width: 150px; height: 200px; border-radius: 6px; object-fit: cover; border: 2px solid rgba(255,255,255,0.4); margin-bottom: 12px; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.45));" />
-        <div style="font-weight: 700; color: #fff; font-size: 13px; margin-bottom: 4px; font-family: 'Cinzel', serif; line-height: 1.3;">${data.sekNama}</div>
-        <div style="color: rgba(255,255,255,0.5); font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">${data.sekJabatan || 'Sekretaris'}</div>
+        <img src="${photoUrl}" style="width: 100%; height: 230px; object-fit: cover; border-radius: 8px; border: 1.5px solid rgba(255,255,255,0.3); margin-bottom: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.3);" />
+        <div style="color: #fff; font-family: 'Cinzel', serif; font-size: 13px; font-weight: 800; letter-spacing: 0.5px; margin-bottom: 6px; line-height: 1.3;">${data.sekNama}</div>
+        <div style="color: rgba(255,255,255,0.6); font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 4px;">${data.sekJabatan || 'SECRETARY'}</div>
         <div style="color: rgba(255,255,255,0.4); font-size: 10px;">${data.sekNegara || ''}</div>
-        <div style="color: rgba(255,255,255,0.2); font-size: 8px; margin-top: 2px;">${data.sekId || ''}</div>
       `;
-      row.appendChild(sekCard);
+      sekContainer.appendChild(sekCard);
     }
+    
+    row.appendChild(ketuaContainer);
+    logo.style.marginBottom = '0';
+    logoWrapper.appendChild(logo);
+    row.appendChild(logoWrapper);
+    row.appendChild(sekContainer);
+
+    // If the original page already has a hero-leaders-container, we don't want to insert this
+    // but we will insert it anyway, since we are cleaning up the HTML files.
+    originalParent.insertBefore(row, originalParent.firstChild);
+
 
   } catch (e) {
     console.error('Error rendering dynamic leadership', e);

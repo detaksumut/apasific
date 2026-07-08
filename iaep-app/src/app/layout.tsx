@@ -15,8 +15,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body className="bg-[#05050a]">
+    <html lang="en" suppressHydrationWarning>
+      <body className="bg-[#05050a]" suppressHydrationWarning>
         {/* Global Lively Background - Premium Dark Gold Glow */}
         <div className="fixed inset-0 z-[-1] bg-[#05050a]">
           <div className="absolute inset-0 bg-gradient-to-b from-[#05050a] via-[#0d0d1a] to-[#05050a]"></div>
@@ -66,8 +66,8 @@ export default function RootLayout({
             <a href="/vision-mission.html"><span class="dd-icon">◈</span> Vision &amp; Mission</a>
             <a href="/#leadership"><span class="dd-icon">◈</span> Leadership</a>
             <a href="/#org-structure"><span class="dd-icon">◈</span> Organizational Structure</a>
-            <a href="/#regional-chapters"><span class="dd-icon">◈</span> Regional Chapters</a>
-            <a href="/#strategic-partners"><span class="dd-icon">◈</span> Strategic Partners</a>
+            <a href="/certification"><span class="dd-icon">◈</span> Certification Structure</a>
+            <a href="/journal"><span class="dd-icon">◈</span> Journal Structure</a>
           </div>
         </li>
 
@@ -182,8 +182,8 @@ export default function RootLayout({
               <li><a href="/vision-mission.html">Vision &amp; Mission</a></li>
               <li><a href="#leadership">Leadership</a></li>
               <li><a href="#org-structure">Organizational Structure</a></li>
-              <li><a href="#regional-chapters">Regional Chapters</a></li>
-              <li><a href="#strategic-partners">Strategic Partners</a></li>
+              <li><a href="/certification">Certification Structure</a></li>
+              <li><a href="/journal">Journal Structure</a></li>
             </ul>
           </div>
           <div class="footer-links-col">
