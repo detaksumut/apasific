@@ -4,12 +4,10 @@ import { execSync } from 'child_process';
 export async function GET() {
   try {
     const cwd = process.cwd();
-    
-    // Add, Commit, Push
     execSync('git add .', { cwd });
     let commitOutput = "No commit made (possibly no changes)";
     try {
-      commitOutput = execSync('git commit -m "feat: enhance article view with ORCID, DOI, real metrics; add flag-based multi-language support"', { cwd, encoding: 'utf-8' });
+      commitOutput = execSync('git commit -m "fix: TypeScript error in article page for data.journals"', { cwd, encoding: 'utf-8' });
     } catch(e) {}
     
     const pushOutput = execSync('git push', { cwd, encoding: 'utf-8' });

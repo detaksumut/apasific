@@ -69,7 +69,7 @@ export default function ArticlePaywall() {
           setArticle({
             title: data.title || "",
             author: authors || "Unknown Author",
-            journal: data.journals?.name || "Rumah Jurnal Riset, Analisis dan Keadilan Publik (RJRAKP)",
+            journal: (Array.isArray(data.journals) ? data.journals[0]?.name : (data.journals as any)?.name) || "Rumah Jurnal Riset, Analisis dan Keadilan Publik (RJRAKP)",
             date: pubDate ? new Date(pubDate).toLocaleDateString('id-ID') : "Baru saja dipublikasi",
             abstract: data.abstract || "Abstrak tidak tersedia.",
             keywords: data.keywords ? data.keywords.split(',') : [],
