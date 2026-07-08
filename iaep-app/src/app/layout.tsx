@@ -116,7 +116,7 @@ export default function RootLayout({
         <li class="has-dropdown">
           <a href="/#publications" class="nav-link" id="nav-publications">PUBLICATIONS <span class="chevron">▾</span></a>
           <div class="dropdown">
-            <a href="/#journals"><span class="dd-icon">◈</span> Academic Journals</a>
+            <a href="/journals"><span class="dd-icon">◈</span> Academic Journals</a>
             <a href="/#proceedings"><span class="dd-icon">◈</span> Proceedings</a>
             <a href="/#books"><span class="dd-icon">◈</span> Academic Books</a>
             <a href="/#monographs"><span class="dd-icon">◈</span> Monographs</a>
@@ -136,10 +136,30 @@ export default function RootLayout({
             <a href="/#awards-prog"><span class="dd-icon">◈</span> Awards</a>
           </div>
         </li>
-      </ul>
-
-      <div style={{ display: 'flex', gap: '10px' }}>
-        <a href="/auth/login" className="btn-join" id="btn-login-nav">LOGIN / DAFTAR</a>
+      <div style="display: flex; gap: 10px; align-items: center;">
+        <div id="google_translate_element"></div>
+        <div class="custom-lang-selector" id="custom-lang-selector">
+          <div class="lang-btn" id="lang-btn">
+            <img src="https://flagcdn.com/w20/id.png" alt="ID" id="current-lang-flag">
+            <span class="chevron" style="margin-left:4px; font-size:10px;">▾</span>
+          </div>
+          <div class="lang-dropdown" id="lang-dropdown">
+            <div class="lang-option" data-lang="id" data-flag="id.png"><img src="https://flagcdn.com/w20/id.png" alt="ID"> Indonesia</div>
+            <div class="lang-option" data-lang="en" data-flag="gb.png"><img src="https://flagcdn.com/w20/gb.png" alt="EN"> English</div>
+            <div class="lang-option" data-lang="ar" data-flag="sa.png"><img src="https://flagcdn.com/w20/sa.png" alt="AR"> العربية</div>
+            <div class="lang-option" data-lang="zh-CN" data-flag="cn.png"><img src="https://flagcdn.com/w20/cn.png" alt="ZH"> 中文</div>
+            <div class="lang-option" data-lang="ja" data-flag="jp.png"><img src="https://flagcdn.com/w20/jp.png" alt="JA"> 日本語</div>
+            <div class="lang-option" data-lang="de" data-flag="de.png"><img src="https://flagcdn.com/w20/de.png" alt="DE"> Deutsch</div>
+            <div class="lang-option" data-lang="fr" data-flag="fr.png"><img src="https://flagcdn.com/w20/fr.png" alt="FR"> Français</div>
+            <div class="lang-option" data-lang="ko" data-flag="kr.png"><img src="https://flagcdn.com/w20/kr.png" alt="KO"> 한국어</div>
+            <div class="lang-option" data-lang="th" data-flag="th.png"><img src="https://flagcdn.com/w20/th.png" alt="TH"> ไทย</div>
+            <div class="lang-option" data-lang="vi" data-flag="vn.png"><img src="https://flagcdn.com/w20/vn.png" alt="VI"> Tiếng Việt</div>
+            <div class="lang-option" data-lang="ru" data-flag="ru.png"><img src="https://flagcdn.com/w20/ru.png" alt="RU"> Русский</div>
+            <div class="lang-option" data-lang="fa" data-flag="ir.png"><img src="https://flagcdn.com/w20/ir.png" alt="FA"> فارسی</div>
+            <div class="lang-option" data-lang="ms" data-flag="my.png"><img src="https://flagcdn.com/w20/my.png" alt="MS"> Melayu</div>
+          </div>
+        </div>
+        <a href="/auth/login" class="btn-join" id="btn-login-nav">LOGIN / DAFTAR</a>
       </div>
       <button class="hamburger" id="hamburger" aria-label="Open menu">
         <span></span><span></span><span></span>
@@ -147,6 +167,80 @@ export default function RootLayout({
     </div>
   </nav>` }} />
         
+        <Script src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit" strategy="afterInteractive" />
+        <Script id="google-translate-init" strategy="afterInteractive">
+          {`
+            function googleTranslateElementInit() {
+              new google.translate.TranslateElement({
+                pageLanguage: 'id',
+                includedLanguages: 'id,en,ar,zh-CN,ja,de,fr,ko,th,vi,ru,fa,ms',
+                layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
+                autoDisplay: false
+              }, 'google_translate_element');
+            }
+
+            // Custom Language Switcher Logic
+            (function initLangSwitcher() {
+              if (typeof window === 'undefined') return;
+
+              const setup = () => {
+                const langBtn = document.getElementById('lang-btn');
+                const langDropdown = document.getElementById('lang-dropdown');
+                const options = document.querySelectorAll('.lang-option');
+                const currentFlag = document.getElementById('current-lang-flag');
+
+                if (!langBtn || !langDropdown) {
+                  // Retry if DOM not ready
+                  setTimeout(setup, 100);
+                  return;
+                }
+
+                // Prevent multiple bindings
+                if (langBtn.dataset.bound) return;
+                langBtn.dataset.bound = "true";
+
+                langBtn.addEventListener('click', (e) => {
+                  e.stopPropagation();
+                  langDropdown.classList.toggle('show');
+                });
+
+                document.addEventListener('click', () => {
+                  langDropdown.classList.remove('show');
+                });
+
+                options.forEach(opt => {
+                  opt.addEventListener('click', () => {
+                    const lang = opt.getAttribute('data-lang');
+                    const flag = opt.getAttribute('data-flag');
+                    
+                    if(currentFlag) {
+                      currentFlag.src = 'https://flagcdn.com/w20/' + flag;
+                    }
+
+                    const select = document.querySelector('.goog-te-combo');
+                    if(select) {
+                      select.value = lang;
+                      select.dispatchEvent(new Event('change'));
+                    }
+                  });
+                });
+
+                // Check active language on load
+                const match = document.cookie.match(/googtrans=\\/auto\\/([^;]+)/) || document.cookie.match(/googtrans=\\/[^\\/]+\\/([^;]+)/);
+                if (match && match[1]) {
+                  const activeLang = match[1];
+                  const activeOpt = document.querySelector('.lang-option[data-lang="' + activeLang + '"]');
+                  if(activeOpt && currentFlag) {
+                    currentFlag.src = 'https://flagcdn.com/w20/' + activeOpt.getAttribute('data-flag');
+                  }
+                }
+              };
+              
+              setup();
+            })();
+          `}
+        </Script>
+
         {children}
 
         {/* Footer */}

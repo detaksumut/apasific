@@ -17,13 +17,19 @@ export default function MySubmissions() {
 
   useEffect(() => {
     const defaultSubs = [
-      { id: "1045", title: "The Impact of Artificial Intelligence on Southeast Asian Higher Education", journal: "APASIFIC IAEP", date: "July 01, 2026", status: "Under Review", lastAction: "Sent to Reviewers on July 03, 2026" },
-      { id: "1022", title: "Analyzing Regional Economic Policies Post-Pandemic in ASEAN", journal: "RJRAKP", date: "May 15, 2026", status: "Published", lastAction: "Published in Vol. 4 No. 2 (2026)" },
-      { id: "1056", title: "Blockchain Integration in Academic Credential Verification", journal: "APASIFIC IAEP", date: "July 04, 2026", status: "Awaiting Assignment", lastAction: "Submitted successfully" },
+      { id: "1045", title: "The Impact of Artificial Intelligence on Southeast Asian Higher Education", journal: "APASIFIC IAEP", date: "July 01, 2026", status: "Under Review", lastAction: "Sent to Reviewers on July 03, 2026", downloads: 0 },
+      { id: "1022", title: "Analyzing Regional Economic Policies Post-Pandemic in ASEAN", journal: "RJRAKP", date: "May 15, 2026", status: "Published", lastAction: "Published in Vol. 4 No. 2 (2026)", downloads: 42 },
+      { id: "1056", title: "Blockchain Integration in Academic Credential Verification", journal: "APASIFIC IAEP", date: "July 04, 2026", status: "Awaiting Assignment", lastAction: "Submitted successfully", downloads: 0 },
     ];
     const stored = localStorage.getItem("mock_submissions");
     if (stored) {
-      setSubmissions(JSON.parse(stored));
+      const parsed = JSON.parse(stored);
+      // Backwards compatibility for legacy localstorage data
+      const updated = parsed.map((p: any) => ({
+        ...p,
+        downloads: p.downloads !== undefined ? p.downloads : (p.status === "Published" ? 42 : 0)
+      }));
+      setSubmissions(updated);
     } else {
       localStorage.setItem("mock_submissions", JSON.stringify(defaultSubs));
       setSubmissions(defaultSubs);
@@ -147,6 +153,14 @@ export default function MySubmissions() {
                         <span className="subs-status-dot" style={{ background: statusCfg.dot }} />
                         {statusCfg.label}
                       </span>
+                      {sub.status === "Published" && sub.downloads !== undefined && (
+                        <div className="text-[10px] text-gray-400 font-semibold mt-2 flex items-center justify-center gap-1 bg-gray-800/50 rounded py-1 px-2 w-fit mx-auto border border-gray-700/50">
+                          <svg className="w-3 h-3 text-[#c9a84c]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                          </svg>
+                          {sub.downloads} Downloads
+                        </div>
+                      )}
                     </td>
                     <td style={{ textAlign: "right", whiteSpace: "nowrap" }}>
                       <button onClick={() => setSelectedSub(sub)} className="subs-view-btn mr-2">View Details</button>
@@ -205,9 +219,17 @@ export default function MySubmissions() {
                   </div>
                 </div>
               </div>
-              <div>
-                <div className="text-gray-500 font-semibold mb-1">Latest Action</div>
-                <div className="text-white">{selectedSub.lastAction}</div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <div className="text-gray-500 font-semibold mb-1">Latest Action</div>
+                  <div className="text-white">{selectedSub.lastAction}</div>
+                </div>
+                {selectedSub.status === "Published" && selectedSub.downloads !== undefined && (
+                  <div>
+                    <div className="text-gray-500 font-semibold mb-1">Total Downloads</div>
+                    <div className="text-[#c9a84c] font-bold text-lg">{selectedSub.downloads}</div>
+                  </div>
+                )}
               </div>
             </div>
             <div className="p-6 border-t border-gray-800 bg-[#0d0d1a] flex justify-end">

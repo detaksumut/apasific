@@ -99,6 +99,16 @@ export default function Sidebar({ role }: SidebarProps) {
       ),
     },
     {
+      label: "Transfer Proofs",
+      path: "/dashboard/admin/transactions",
+      icon: (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+          <rect x="2" y="5" width="20" height="14" rx="2" /><line x1="2" y1="10" x2="22" y2="10" />
+        </svg>
+      ),
+      badge: "3",
+    },
+    {
       label: "Manajemen Jurnal",
       path: "/dashboard/admin/journals",
       icon: (
