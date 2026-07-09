@@ -82,7 +82,7 @@ export default function MajesticMembershipPage() {
   };
 
   return (
-    <div className="min-h-screen text-[#e8e8f0] flex flex-col relative overflow-hidden" style={{ padding: '40px 16px' }}>
+    <div className="min-h-screen text-[#e8e8f0] flex flex-col items-center relative overflow-hidden" style={{ padding: '40px 16px' }}>
       
       {/* Background glow effects */}
       <div className="absolute top-0 left-1/4 bg-[#c9a84c] rounded-full mix-blend-color-dodge filter blur-[128px] opacity-20 animate-blob z-0" style={{ width: '384px', height: '384px' }}></div>
