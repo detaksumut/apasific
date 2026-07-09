@@ -147,7 +147,7 @@ export default function OrgStructureAdminPage() {
             <div style={{ fontSize: "14px", color: "#4b5563" }}>{String(m.no).padStart(2, "0")}</div>
             <div>
               <img 
-                src={m.photo || \`https://ui-avatars.com/api/?name=\${encodeURIComponent(m.name || m.position)}&background=131326&color=c9a84c&bold=true\`}
+                src={m.photo || `https://ui-avatars.com/api/?name=${encodeURIComponent(m.name || m.position)}&background=131326&color=c9a84c&bold=true`}
                 alt="Photo"
                 style={{ width: "40px", height: "40px", borderRadius: "50%", objectFit: "cover", border: "1px solid rgba(201,168,76,0.3)" }}
               />
@@ -194,7 +194,7 @@ export default function OrgStructureAdminPage() {
               
               <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
                 <img 
-                  src={photoPreview || \`https://ui-avatars.com/api/?name=\${encodeURIComponent(formData.name || editingMember.position)}&background=131326&color=c9a84c&bold=true\`}
+                  src={photoPreview || `https://ui-avatars.com/api/?name=${encodeURIComponent(formData.name || editingMember.position)}&background=131326&color=c9a84c&bold=true`}
                   alt="Preview"
                   style={{ width: "64px", height: "64px", borderRadius: "50%", objectFit: "cover", border: "2px solid #c9a84c" }}
                 />

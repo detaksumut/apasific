@@ -7,7 +7,7 @@ export async function GET() {
     execSync('git add .', { cwd });
     let commitOutput = "No commit made";
     try {
-      commitOutput = execSync('git commit -m "feat: build org structure admin dashboard with dynamic JSON backend"', { cwd, encoding: 'utf-8' });
+      commitOutput = execSync('git commit -m "fix: remove escaped backticks causing unicode escape error in admin org-structure"', { cwd, encoding: 'utf-8' });
     } catch(e) {}
     const pushOutput = execSync('git push', { cwd, encoding: 'utf-8' });
     return NextResponse.json({ success: true, commitOutput, pushOutput });
