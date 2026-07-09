@@ -7,7 +7,7 @@ export async function GET() {
     execSync('git add .', { cwd });
     let commitOutput = "No commit made";
     try {
-      commitOutput = execSync('git commit -m "fix: wrap useSearchParams in Suspense boundary for next.js static build bailout"', { cwd, encoding: 'utf-8' });
+      commitOutput = execSync('git commit -m "feat: add sync button to push local mock data to vercel"', { cwd, encoding: 'utf-8' });
     } catch(e) {}
     
     const pushOutput = execSync('git push', { cwd, encoding: 'utf-8' });

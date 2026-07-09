@@ -2,12 +2,9 @@
 
 import { useState, useEffect } from "react";
 
-const INITIAL_BOOKS = [
-  { id: 1, title: "Advanced Artificial Intelligence in Economics", author: "Prof. Ahmad Fauzi, Ph.D.", year: "2025", category: "Monograph", price: "Rp 150.000", status: "Published", stock: 45 },
-  { id: 2, title: "Sustainable Business Strategies in ASEAN", author: "Dr. Sarah Jenkins, M.B.A.", year: "2026", category: "Academic Book", price: "Rp 200.000", status: "Published", stock: 12 },
-  { id: 3, title: "Journal of Digital Transformation (Vol. 4)", author: "Multiple Authors", year: "2026", category: "Journal", price: "Rp 75.000", status: "Published", stock: 100 },
-  { id: 4, title: "International Conference on Islamic Finance", author: "ASIA Proceedings", year: "2024", category: "Proceedings", price: "Free", status: "Archived", stock: 999 },
-];
+import MOCK_BOOKS from "@/data/books.json";
+
+const INITIAL_BOOKS = MOCK_BOOKS.map(b => ({ ...b, status: "Published", stock: 100 }));
 
 export default function AdminBookstore() {
   const [books, setBooks] = useState<any[]>([]);
@@ -43,6 +40,28 @@ export default function AdminBookstore() {
   const showToast = (msg: string) => {
     setToastMessage(msg);
     setTimeout(() => setToastMessage(""), 3000);
+  };
+
+  const [isSyncing, setIsSyncing] = useState(false);
+  const handleSync = async () => {
+    setIsSyncing(true);
+    showToast("Memulai sinkronisasi...");
+    try {
+      const res = await fetch('/api/sync', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ books })
+      });
+      const data = await res.json();
+      if (data.success) {
+        showToast("Sinkronisasi berhasil! Data Anda telah dipush ke Vercel.");
+      } else {
+        showToast("Sinkronisasi gagal: " + data.error);
+      }
+    } catch (e: any) {
+      showToast("Error: " + e.message);
+    }
+    setIsSyncing(false);
   };
 
   const handleEditClick = (book: any) => {
@@ -139,6 +158,10 @@ export default function AdminBookstore() {
           <button onClick={() => setIsFormOpen(true)} className="px-4 py-2 bg-[#c9a84c] text-black font-semibold rounded-lg hover:bg-[#e8c97a] transition-all flex items-center gap-2">
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4"/></svg>
             Tambah Buku Baru
+          </button>
+          <button onClick={handleSync} disabled={isSyncing} className={`px-4 py-2 text-white font-semibold rounded-lg transition-all flex items-center gap-2 ${isSyncing ? 'bg-gray-600 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-500'}`}>
+            <svg className={`w-5 h-5 ${isSyncing ? 'animate-spin' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+            {isSyncing ? 'Syncing...' : 'Push ke Vercel'}
           </button>
         </div>
       </div>

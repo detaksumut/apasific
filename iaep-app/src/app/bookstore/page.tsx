@@ -1,69 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-
-const MOCK_BOOKS = [
-  {
-    id: 1,
-    title: "Advanced Artificial Intelligence in Economics",
-    author: "Prof. Ahmad Fauzi, Ph.D.",
-    year: "2025",
-    category: "Monograph",
-    price: "Rp 150.000",
-    image: "https://dummyimage.com/400x600/18182e/c9a84c.png&text=AI+in+Economics",
-    description: "An in-depth analysis of how AI is reshaping global economic policies.",
-  },
-  {
-    id: 2,
-    title: "Sustainable Business Strategies in ASEAN",
-    author: "Dr. Sarah Jenkins, M.B.A.",
-    year: "2026",
-    category: "Academic Book",
-    price: "Rp 200.000",
-    image: "https://dummyimage.com/400x600/18182e/c9a84c.png&text=Sustainable+Business",
-    description: "Exploring eco-friendly corporate strategies across Southeast Asia.",
-  },
-  {
-    id: 3,
-    title: "Journal of Digital Transformation (Vol. 4)",
-    author: "Multiple Authors",
-    year: "2026",
-    category: "Journal",
-    price: "Rp 75.000",
-    image: "https://dummyimage.com/400x600/18182e/c9a84c.png&text=Digital+Transformation",
-    description: "A compilation of peer-reviewed articles on digital trends.",
-  },
-  {
-    id: 4,
-    title: "International Conference on Islamic Finance",
-    author: "ASIA Proceedings",
-    year: "2024",
-    category: "Proceedings",
-    price: "Free",
-    image: "https://dummyimage.com/400x600/18182e/c9a84c.png&text=Islamic+Finance+Proc.",
-    description: "Proceedings from the annual ASIA Islamic Finance conference.",
-  },
-  {
-    id: 5,
-    title: "Public Health Policies Post-Pandemic",
-    author: "Dr. Budi Santoso, M.Sc",
-    year: "2025",
-    category: "Policy Brief",
-    price: "Rp 50.000",
-    image: "https://dummyimage.com/400x600/18182e/c9a84c.png&text=Public+Health",
-    description: "A concise brief on emerging public health challenges.",
-  },
-  {
-    id: 6,
-    title: "The Future of Tourism & Hospitality",
-    author: "Prof. Elena Rossi",
-    year: "2026",
-    category: "Monograph",
-    price: "Rp 180.000",
-    image: "https://dummyimage.com/400x600/18182e/c9a84c.png&text=Future+Tourism",
-    description: "Insights into the post-modern tourism industry dynamics.",
-  }
-];
+import MOCK_BOOKS from '@/data/books.json';
 
 export default function BookstorePage() {
   const [searchTerm, setSearchTerm] = useState('');
