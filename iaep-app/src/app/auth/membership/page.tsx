@@ -99,11 +99,11 @@ export default function MajesticMembershipPage() {
           </div>
         </Link>
 
-        <div className="text-center" style={{ marginBottom: '48px' }}>
-          <h1 className="font-bold tracking-tight" style={{ fontFamily: 'Cinzel, serif', fontSize: '48px', marginBottom: '16px' }}>
+        <div className="w-full flex flex-col items-center justify-center text-center mx-auto" style={{ marginBottom: '48px', textAlign: 'center' }}>
+          <h1 className="font-bold tracking-tight text-center" style={{ fontFamily: 'Cinzel, serif', fontSize: '48px', marginBottom: '16px', textAlign: 'center' }}>
             Exclusive <span className="text-[#c9a84c]">ASIA Membership</span>
           </h1>
-          <p className="text-gray-400 mx-auto" style={{ fontSize: '18px', maxWidth: '672px' }}>
+          <p className="text-gray-400 mx-auto text-center" style={{ fontSize: '18px', maxWidth: '672px', textAlign: 'center' }}>
             Join the elite circle of Asia Pacific academicians. Fill out the form below to instantly generate your official International Academic Member Card.
           </p>
         </div>
@@ -111,7 +111,7 @@ export default function MajesticMembershipPage() {
         <div className="flex flex-col gap-12 items-center justify-center w-full">
           
           {/* Top: Form */}
-          <div className="bg-[#0d0d1a]/80 border border-[#c9a84c]/20 shadow-2xl backdrop-blur-md w-full max-w-[800px]" style={{ padding: '32px', borderRadius: '16px' }}>
+          <div className="bg-[#0d0d1a]/80 border border-[#c9a84c]/20 shadow-2xl backdrop-blur-md w-full max-w-[800px] mx-auto" style={{ padding: '32px', borderRadius: '16px' }}>
             <h2 className="font-bold text-[#c9a84c] border-b border-gray-800" style={{ fontSize: '24px', marginBottom: '24px', paddingBottom: '16px', textAlign: 'center' }}>Membership Application Form</h2>
             
             <form onSubmit={handleSubmit} style={{ marginTop: '16px' }}>
@@ -221,7 +221,7 @@ export default function MajesticMembershipPage() {
           </div>
 
           {/* Bottom: Live Member Card */}
-          <div className="flex flex-col items-center justify-start w-full max-w-[400px]">
+          <div className="flex flex-col items-center justify-start w-full max-w-[400px] mx-auto">
             <h3 className="text-gray-400 font-semibold text-center tracking-widest uppercase" style={{ marginBottom: '16px', fontSize: '14px' }}>Real-Time Card Preview</h3>
             
             {/* The Card */}
