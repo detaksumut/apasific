@@ -125,9 +125,10 @@ export default function CheckoutPage() {
                       <div className="co-bank-details">
                         <img src="https://upload.wikimedia.org/wikipedia/id/thumb/5/55/BNI_logo.svg/1200px-BNI_logo.svg.png" alt="BNI" className="co-bank-logo" />
                         <div>
-                          <div className="text-xs text-gray-400">Bank BNI</div>
-                          <div className="font-mono text-lg font-bold text-white tracking-wider my-1">8800 1234 5678 9012</div>
-                          <div className="text-sm text-[#c9a84c]">a.n. ASIA Bookstore</div>
+                          <div className="text-xs text-gray-400">Bank Negara Indonesia (BNI)</div>
+                          <div className="font-mono text-xl font-bold text-white tracking-wider my-1">700 600 2218</div>
+                          <div className="text-sm text-[#c9a84c]">a.n. Association of Asia Pacific Academician</div>
+                          <div className="text-xs text-gray-500 mt-1">Swift Code: BNINIDJA</div>
                         </div>
                       </div>
                     </div>
