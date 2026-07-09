@@ -7,11 +7,11 @@ export async function GET() {
     execSync('git add .', { cwd });
     let commitOutput = "No commit made";
     try {
-      commitOutput = execSync('git commit -m "feat: prevent downloading of organization structure image"', { cwd, encoding: 'utf-8' });
+      commitOutput = execSync('git commit -m "fix: resolve z-index stacking context for mobile navbar and fix regex literal"', { cwd, encoding: 'utf-8' });
     } catch(e) {}
     const pushOutput = execSync('git push', { cwd, encoding: 'utf-8' });
     return NextResponse.json({ success: true, commitOutput, pushOutput });
   } catch (e: any) {
-    return NextResponse.json({ success: false, error: e.message, stderr: e.stderr?.toString() });
+    return NextResponse.json({ success: false, error: e.message, stderr: e.stderr?.toString(), stdout: e.stdout?.toString() });
   }
 }

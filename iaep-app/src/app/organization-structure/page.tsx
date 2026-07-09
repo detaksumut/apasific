@@ -135,8 +135,7 @@ export default function OrganizationStructurePage() {
           borderRadius: "16px",
           overflow: "hidden",
           border: "1px solid rgba(255,255,255,0.05)",
-          boxShadow: "0 20px 40px rgba(0,0,0,0.4)",
-          position: "relative" // For pseudo-element overlay if needed
+          boxShadow: "0 20px 40px rgba(0,0,0,0.4)"
         }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img 

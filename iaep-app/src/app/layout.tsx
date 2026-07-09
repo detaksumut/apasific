@@ -29,7 +29,7 @@ export default function RootLayout({
         </div>
 
         {/* Navigation */}
-        <div dangerouslySetInnerHTML={{ __html: `<nav class="navbar" id="navbar">
+        <div style={{ position: 'relative', zIndex: 99999 }} dangerouslySetInnerHTML={{ __html: `<nav class="navbar" id="navbar">
     <div class="nav-container">
       <!-- Logo -->
       <a href="/" class="nav-logo">
@@ -162,7 +162,7 @@ export default function RootLayout({
         </div>
         <a href="/auth/login" class="btn-join" id="btn-login-nav">LOGIN / DAFTAR</a>
       </div>
-      <button class="hamburger" id="hamburger" aria-label="Open menu">
+      <button class="hamburger" id="hamburger" aria-label="Open menu" onclick="document.getElementById('nav-links').classList.toggle('open'); this.classList.toggle('active');">
         <span></span><span></span><span></span>
       </button>
     </div>
