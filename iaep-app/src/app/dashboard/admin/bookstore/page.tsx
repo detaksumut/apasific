@@ -44,7 +44,7 @@ export default function AdminBookstore() {
     // Note: Form will be populated via defaultValue on inputs
   };
 
-  const handleAddSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleAddSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     const title = formData.get('title') as string;
@@ -60,8 +60,17 @@ export default function AdminBookstore() {
       price = `Rp ${Number(priceRaw).toLocaleString('id-ID')}`;
     }
 
+    let imageBase64: string | undefined = undefined;
+    if (selectedFile) {
+      imageBase64 = await new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result as string);
+        reader.readAsDataURL(selectedFile);
+      });
+    }
+
     if (editingBookId) {
-      const updatedBooks = books.map(b => b.id === editingBookId ? { ...b, title, author, category, year, price, stock } : b);
+      const updatedBooks = books.map(b => b.id === editingBookId ? { ...b, title, author, category, year, price, stock, ...(imageBase64 ? { image: imageBase64 } : {}) } : b);
       saveBooks(updatedBooks);
       showToast(`Buku "${title}" berhasil diperbarui! (Demo)`);
     } else {
@@ -73,7 +82,8 @@ export default function AdminBookstore() {
         category,
         price,
         status: "Published",
-        stock
+        stock,
+        image: imageBase64
       };
       saveBooks([newBook, ...books]); // Append to top of list and save
       showToast(`Buku "${title}" berhasil diunggah! (Demo)`);
