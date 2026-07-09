@@ -163,11 +163,26 @@ export default function RootLayout({
         </div>
         <a href="/auth/login" class="btn-join" id="btn-login-nav">LOGIN / DAFTAR</a>
       </div>
-      <button class="hamburger" id="hamburger" aria-label="Open menu" onclick="document.getElementById('nav-links').classList.toggle('open'); this.classList.toggle('active');">
+      <button class="hamburger" id="hamburger-btn" aria-label="Open menu">
         <span></span><span></span><span></span>
       </button>
     </div>
   </nav>` }} />
+        
+        <Script id="mobile-menu-handler" strategy="afterInteractive">
+          {`
+            document.addEventListener('click', function(e) {
+              var btn = e.target.closest('#hamburger-btn');
+              if (btn) {
+                var nav = document.getElementById('nav-links');
+                if (nav) {
+                  nav.classList.toggle('open');
+                  btn.classList.toggle('active');
+                }
+              }
+            });
+          `}
+        </Script>
         
         <Script src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit" strategy="afterInteractive" />
         <Script id="google-translate-init" strategy="afterInteractive">
