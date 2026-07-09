@@ -7,7 +7,7 @@ export async function GET() {
     execSync('git add .', { cwd });
     let commitOutput = "No commit made";
     try {
-      commitOutput = execSync('git commit -m "style: adjust form grid columns to make right column smaller (3fr 2fr)"', { cwd, encoding: 'utf-8' });
+      commitOutput = execSync('git commit -m "style: change membership form to a single column layout"', { cwd, encoding: 'utf-8' });
     } catch(e) {}
     
     const pushOutput = execSync('git push', { cwd, encoding: 'utf-8' });

@@ -115,7 +115,7 @@ export default function MajesticMembershipPage() {
             <h2 className="font-bold text-[#c9a84c] border-b border-gray-800" style={{ fontSize: '24px', marginBottom: '24px', paddingBottom: '16px', textAlign: 'center' }}>Membership Application Form</h2>
             
             <form onSubmit={handleSubmit} className="mt-4">
-              <div className="grid grid-cols-1 md:grid-cols-[3fr_2fr] gap-6">
+              <div className="flex flex-col gap-6">
                 <div>
                   <label className="block text-gray-300 tracking-wider uppercase font-semibold" style={{ fontSize: '12px', marginBottom: '8px' }}>Full Name (with Titles)</label>
                   <input type="text" name="fullName" value={formData.fullName} onChange={handleChange} placeholder="e.g. Prof. Dr. Budi Santoso, M.Sc." className="w-full bg-[#05050a]/50 border border-gray-700 text-white focus:outline-none focus:border-[#c9a84c] focus:ring-1 focus:ring-[#c9a84c] transition-all" style={{ width: '100%', borderRadius: '12px', padding: '14px 16px' }} required />
