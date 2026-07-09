@@ -104,8 +104,8 @@ export default function CheckoutPage() {
                       <input type="email" required placeholder="Contoh: budi@university.ac.id" />
                     </div>
                     <div className="co-form-group">
-                      <label>Instansi / Universitas</label>
-                      <input type="text" required placeholder="Nama institusi Anda" />
+                      <label>Nomor Handphone (WhatsApp)</label>
+                      <input type="tel" required placeholder="Contoh: 081234567890" />
                     </div>
 
                     <h2 className="co-section-title mt-8">Payment Method</h2>
