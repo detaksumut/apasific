@@ -24,7 +24,7 @@ const ORG_STRUCTURE: OrgMember[] = [
   { no: 2,  level: "Executive Board", position: "Co-Founder",                     name: "",                                                  division: "Digital Platform & IT Innovation" },
   { no: 3,  level: "Executive Board", position: "Advisor",                        name: "Dr. Prihat Assih, M.Si, CSR S",                    division: "Asia Pacific Academic Advisory Board" },
   { no: 4,  level: "Executive Board", position: "Advisor",                        name: "Prof. Dr. Indra Maipita., M.Si",                   division: "Asia Pacific Academic Advisory Board" },
-  { no: 5,  level: "Executive Board", position: "President",                      name: "Dr. Arfan Ikhsan Lubis, SE, M.Si, CATr",          division: "Association of Asia Pacific Academician" },
+  { no: 5,  level: "Executive Board", position: "President AAPA",                     name: "Dr. Arfan Ikhsan Lubis, SE, M.Si, CATr",          division: "Association of Asia Pacific Academician" },
   // ── Vice Presidents ───────────────────────────────────────
   { no: 6,  level: "Vice Presidents", position: "Vice President",                 name: "Dr. Muhammad Yamin Noch, SE, MSA",                 division: "Academic Affairs & Institutional Development" },
   { no: 7,  level: "Vice Presidents", position: "Vice President",                 name: "Prof. Dr. Istianingsih Sastrodiharjo, SE, M.Si",   division: "Research & International Cooperation" },
