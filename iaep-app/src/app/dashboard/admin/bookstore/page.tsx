@@ -1,14 +1,32 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+
+const INITIAL_BOOKS = [
+  { id: 1, title: "Advanced Artificial Intelligence in Economics", author: "Prof. Ahmad Fauzi, Ph.D.", year: "2025", category: "Monograph", price: "Rp 150.000", status: "Published", stock: 45 },
+  { id: 2, title: "Sustainable Business Strategies in ASEAN", author: "Dr. Sarah Jenkins, M.B.A.", year: "2026", category: "Academic Book", price: "Rp 200.000", status: "Published", stock: 12 },
+  { id: 3, title: "Journal of Digital Transformation (Vol. 4)", author: "Multiple Authors", year: "2026", category: "Journal", price: "Rp 75.000", status: "Published", stock: 100 },
+  { id: 4, title: "International Conference on Islamic Finance", author: "ASIA Proceedings", year: "2024", category: "Proceedings", price: "Free", status: "Archived", stock: 999 },
+];
 
 export default function AdminBookstore() {
-  const [books, setBooks] = useState([
-    { id: 1, title: "Advanced Artificial Intelligence in Economics", author: "Prof. Ahmad Fauzi, Ph.D.", year: "2025", category: "Monograph", price: "Rp 150.000", status: "Published", stock: 45 },
-    { id: 2, title: "Sustainable Business Strategies in ASEAN", author: "Dr. Sarah Jenkins, M.B.A.", year: "2026", category: "Academic Book", price: "Rp 200.000", status: "Published", stock: 12 },
-    { id: 3, title: "Journal of Digital Transformation (Vol. 4)", author: "Multiple Authors", year: "2026", category: "Journal", price: "Rp 75.000", status: "Published", stock: 100 },
-    { id: 4, title: "International Conference on Islamic Finance", author: "ASIA Proceedings", year: "2024", category: "Proceedings", price: "Free", status: "Archived", stock: 999 },
-  ]);
+  const [books, setBooks] = useState<any[]>([]);
+  const [isLoaded, setIsLoaded] = useState(false);
+
+  useEffect(() => {
+    const saved = localStorage.getItem("mock_admin_books");
+    if (saved) {
+      setBooks(JSON.parse(saved));
+    } else {
+      setBooks(INITIAL_BOOKS);
+    }
+    setIsLoaded(true);
+  }, []);
+
+  const saveBooks = (newBooks: any[]) => {
+    setBooks(newBooks);
+    localStorage.setItem("mock_admin_books", JSON.stringify(newBooks));
+  };
 
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
@@ -43,7 +61,7 @@ export default function AdminBookstore() {
       stock
     };
 
-    setBooks([newBook, ...books]); // Append to top of list
+    saveBooks([newBook, ...books]); // Append to top of list and save
     setIsFormOpen(false);
     setSelectedFile(null); // Reset file
     showToast(`Buku "${title}" berhasil diunggah! (Demo)`);
@@ -51,9 +69,11 @@ export default function AdminBookstore() {
 
   const handleDelete = (id: number, title: string) => {
     if (!confirm(`Apakah Anda yakin ingin menghapus buku "${title}"?`)) return;
-    setBooks(books.filter(b => b.id !== id));
+    saveBooks(books.filter(b => b.id !== id));
     showToast(`Buku "${title}" berhasil dihapus.`);
   };
+
+  if (!isLoaded) return null; // Prevent hydration mismatch
 
   return (
     <div className="max-w-6xl mx-auto space-y-8 pb-12 relative">
