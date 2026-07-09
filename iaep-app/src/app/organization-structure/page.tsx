@@ -41,24 +41,20 @@ const ORG_STRUCTURE: OrgMember[] = [
   // ── Publication Division ──────────────────────────────────
   { no: 16, level: "Publication",     position: "VP Publication",                name: "",  division: "Academic Publication & Journals" },
   { no: 17, level: "Publication",     position: "Editor in Chief",               name: "",  division: "Journal Editorial Leadership" },
-  { no: 18, level: "Publication",     position: "Managing Editor",               name: "",  division: "Journal Operations" },
-  { no: 19, level: "Publication",     position: "Editorial Board",               name: "",  division: "Peer Review & Editorial Standards" },
-  { no: 20, level: "Publication",     position: "Reviewer Board",                name: "",  division: "Academic Peer Review" },
-  { no: 21, level: "Publication",     position: "Publication Director",          name: "",  division: "Publication Strategy & Distribution" },
   // ── ASIACERT – BOC Leadership ─────────────────────────────
-  { no: 22, level: "ASIACERT – BOC",  position: "Chairman of ASIACERT",          name: "",  division: "ASIACERT Center Leadership" },
-  { no: 23, level: "ASIACERT – BOC",  position: "Chairman of BOC",               name: "",  division: "Board of Certification Leadership" },
+  { no: 18, level: "ASIACERT – BOC",  position: "Chairman of ASIACERT",          name: "",  division: "ASIACERT Center Leadership" },
+  { no: 19, level: "ASIACERT – BOC",  position: "Chairman of BOC",               name: "",  division: "Board of Certification Leadership" },
   // ── 10 Bidang Sertifikasi ─────────────────────────────────
-  { no: 24, level: "Certification Field", position: "Chairman – Accounting & Auditing Certification",           name: "", division: "Accounting, Auditing & Taxation" },
-  { no: 25, level: "Certification Field", position: "Chairman – Business & Management Certification",           name: "", division: "Business, Management & Entrepreneurship" },
-  { no: 26, level: "Certification Field", position: "Chairman – Finance & Banking Certification",               name: "", division: "Finance, Banking & Investment" },
-  { no: 27, level: "Certification Field", position: "Chairman – Human Resources Certification",                 name: "", division: "Human Resources & Organizational Development" },
-  { no: 28, level: "Certification Field", position: "Chairman – Economics & Public Policy Certification",       name: "", division: "Economics & Public Policy" },
-  { no: 29, level: "Certification Field", position: "Chairman – Education & Research Certification",            name: "", division: "Education & Academic Development" },
-  { no: 30, level: "Certification Field", position: "Chairman – Law & Governance Certification",               name: "", division: "Law, Governance & Public Administration" },
-  { no: 31, level: "Certification Field", position: "Chairman – IT & Digital Transformation Certification",    name: "", division: "Information Technology, AI & Digital Transformation" },
-  { no: 32, level: "Certification Field", position: "Chairman – Engineering & Technology Certification",        name: "", division: "Engineering, Technology & Applied Sciences" },
-  { no: 33, level: "Certification Field", position: "Chairman – Social Sciences & Humanities Certification",   name: "", division: "Social Sciences, Humanities & Communication" },
+  { no: 20, level: "Certification Field", position: "Chairman – Accounting & Auditing Certification",           name: "", division: "Accounting, Auditing & Taxation" },
+  { no: 21, level: "Certification Field", position: "Chairman – Business & Management Certification",           name: "", division: "Business, Management & Entrepreneurship" },
+  { no: 22, level: "Certification Field", position: "Chairman – Finance & Banking Certification",               name: "", division: "Finance, Banking & Investment" },
+  { no: 23, level: "Certification Field", position: "Chairman – Human Resources Certification",                 name: "", division: "Human Resources & Organizational Development" },
+  { no: 24, level: "Certification Field", position: "Chairman – Economics & Public Policy Certification",       name: "", division: "Economics & Public Policy" },
+  { no: 25, level: "Certification Field", position: "Chairman – Education & Research Certification",            name: "", division: "Education & Academic Development" },
+  { no: 26, level: "Certification Field", position: "Chairman – Law & Governance Certification",               name: "", division: "Law, Governance & Public Administration" },
+  { no: 27, level: "Certification Field", position: "Chairman – IT & Digital Transformation Certification",    name: "", division: "Information Technology, AI & Digital Transformation" },
+  { no: 28, level: "Certification Field", position: "Chairman – Engineering & Technology Certification",        name: "", division: "Engineering, Technology & Applied Sciences" },
+  { no: 29, level: "Certification Field", position: "Chairman – Social Sciences & Humanities Certification",   name: "", division: "Social Sciences, Humanities & Communication" },
 ];
 
 const LEVEL_COLORS: Record<string, { bg: string; text: string; border: string }> = {

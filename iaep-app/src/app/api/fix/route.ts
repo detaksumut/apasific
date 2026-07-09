@@ -7,7 +7,7 @@ export async function GET() {
     execSync('git add .', { cwd });
     let commitOutput = "No commit made";
     try {
-      commitOutput = execSync('git commit -m "feat: set M. A. Rahman as Co-Founder"', { cwd, encoding: 'utf-8' });
+      commitOutput = execSync('git commit -m "feat: remove Managing Editor, Editorial Board, Reviewer Board, Publication Director"', { cwd, encoding: 'utf-8' });
     } catch(e) {}
     const pushOutput = execSync('git push', { cwd, encoding: 'utf-8' });
     return NextResponse.json({ success: true, commitOutput, pushOutput });
