@@ -1447,7 +1447,10 @@ img { max-width: 100%; display: block; }
   .leadership-grid { grid-template-columns: repeat(2, 1fr); }
   .contact-wrapper { grid-template-columns: 1fr; }
   .nav-links { display: none; }
-  .hamburger { display: flex; }
+  .nav-container { justify-content: space-between; gap: 10px; padding: 0 16px; width: 100%; }
+  .nav-logo { order: 1; flex-shrink: 0; }
+  .hamburger { display: flex; order: 2; margin: 0 auto; flex-shrink: 0; z-index: 99; }
+  .nav-actions { order: 3; flex-shrink: 0; }
   .btn-join { display: none; }
   .nav-links.open {
     display: flex;

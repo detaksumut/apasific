@@ -137,7 +137,8 @@ export default function RootLayout({
             <a href="/#awards-prog"><span class="dd-icon">◈</span> Awards</a>
           </div>
         </li>
-      <div style="display: flex; gap: 10px; align-items: center;">
+      </ul>
+      <div class="nav-actions" style="display: flex; gap: 10px; align-items: center;">
         <div id="google_translate_element"></div>
         <div class="custom-lang-selector" id="custom-lang-selector">
           <div class="lang-btn" id="lang-btn">
