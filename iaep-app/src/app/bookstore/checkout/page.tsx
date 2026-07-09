@@ -132,6 +132,30 @@ export default function CheckoutPage() {
                         </div>
                       </div>
                     </div>
+
+                    <div className="co-form-group" style={{ marginTop: '24px' }}>
+                      <label>Unggah Bukti Transfer (Wajib)</label>
+                      <div className="flex items-center justify-center w-full mt-2">
+                        <label htmlFor="receipt" className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-[#2a2a3e] rounded-lg cursor-pointer bg-[#0a0a10] hover:bg-[#12121f] transition-colors relative overflow-hidden group">
+                          <div className="flex flex-col items-center justify-center pt-5 pb-6 text-center px-4">
+                            <svg className="w-8 h-8 mb-3 text-gray-400 group-hover:text-[#c9a84c] transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                            </svg>
+                            <p className="mb-1 text-sm text-gray-400"><span className="font-semibold text-[#c9a84c]">Klik untuk mengunggah</span> atau seret file ke sini</p>
+                            <p className="text-xs text-gray-500">JPG, PNG, atau PDF (Maks. 5MB)</p>
+                          </div>
+                          <input id="receipt" type="file" required accept="image/*,.pdf" className="hidden" onChange={(e) => {
+                            const label = e.target.parentElement;
+                            if (label && e.target.files && e.target.files[0]) {
+                              label.style.borderColor = '#c9a84c';
+                              label.style.borderStyle = 'solid';
+                              const p = label.querySelector('p');
+                              if(p) p.innerHTML = `<span class="text-[#c9a84c] font-bold">✓ File terpilih:</span> ${e.target.files[0].name}`;
+                            }
+                          }} />
+                        </label>
+                      </div>
+                    </div>
                   </form>
                 </div>
 
@@ -170,7 +194,7 @@ export default function CheckoutPage() {
                       className={`co-btn co-btn-block co-btn-primary ${isProcessing ? 'processing' : ''}`}
                       disabled={isProcessing}
                     >
-                      {isProcessing ? 'Memproses...' : 'Complete Payment'}
+                      {isProcessing ? 'Memproses...' : 'Konfirmasi Pembayaran'}
                     </button>
                     
                     <p className="co-secure-badge">
