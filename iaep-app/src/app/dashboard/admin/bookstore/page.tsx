@@ -31,10 +31,17 @@ export default function AdminBookstore() {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [editingBookId, setEditingBookId] = useState<number | null>(null);
 
   const showToast = (msg: string) => {
     setToastMessage(msg);
     setTimeout(() => setToastMessage(""), 3000);
+  };
+
+  const handleEditClick = (book: any) => {
+    setEditingBookId(book.id);
+    setIsFormOpen(true);
+    // Note: Form will be populated via defaultValue on inputs
   };
 
   const handleAddSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -44,27 +51,37 @@ export default function AdminBookstore() {
     const author = formData.get('author') as string;
     const category = formData.get('category') as string;
     const year = formData.get('year') as string;
-    const priceRaw = formData.get('price') as string;
+    let priceRaw = formData.get('price') as string;
     const stock = Number(formData.get('stock'));
     
-    // Formatting price
-    const price = `Rp ${Number(priceRaw).toLocaleString('id-ID')}`;
+    // Formatting price if it's raw number, otherwise keep existing format if editing
+    let price = priceRaw;
+    if (!priceRaw.startsWith('Rp')) {
+      price = `Rp ${Number(priceRaw).toLocaleString('id-ID')}`;
+    }
 
-    const newBook = {
-      id: Date.now(), // Generate unique ID
-      title,
-      author,
-      year,
-      category,
-      price,
-      status: "Published",
-      stock
-    };
+    if (editingBookId) {
+      const updatedBooks = books.map(b => b.id === editingBookId ? { ...b, title, author, category, year, price, stock } : b);
+      saveBooks(updatedBooks);
+      showToast(`Buku "${title}" berhasil diperbarui! (Demo)`);
+    } else {
+      const newBook = {
+        id: Date.now(), // Generate unique ID
+        title,
+        author,
+        year,
+        category,
+        price,
+        status: "Published",
+        stock
+      };
+      saveBooks([newBook, ...books]); // Append to top of list and save
+      showToast(`Buku "${title}" berhasil diunggah! (Demo)`);
+    }
 
-    saveBooks([newBook, ...books]); // Append to top of list and save
     setIsFormOpen(false);
     setSelectedFile(null); // Reset file
-    showToast(`Buku "${title}" berhasil diunggah! (Demo)`);
+    setEditingBookId(null);
   };
 
   const handleDelete = (id: number, title: string) => {
@@ -134,7 +151,7 @@ export default function AdminBookstore() {
                     </span>
                   </td>
                   <td className="px-6 py-4 text-right">
-                    <button className="text-[#c9a84c] hover:text-[#e8c97a] mr-4 text-sm font-medium transition-colors">Edit</button>
+                    <button type="button" onClick={() => handleEditClick(book)} className="text-[#c9a84c] hover:text-[#e8c97a] mr-4 text-sm font-medium transition-colors cursor-pointer relative z-10">Edit</button>
                     <button type="button" onClick={() => handleDelete(book.id, book.title)} className="text-red-400 hover:text-red-300 text-sm font-medium transition-colors cursor-pointer relative z-10">Delete</button>
                   </td>
                 </tr>
@@ -149,13 +166,13 @@ export default function AdminBookstore() {
         </div>
       </div>
 
-      {/* FORM MODAL - TAMBAH BUKU */}
+      {/* FORM MODAL - TAMBAH/EDIT BUKU */}
       {isFormOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-fade-in">
           <div className="bg-[#12121f] rounded-xl border border-[#2a2a3e] w-full max-w-2xl shadow-2xl overflow-hidden animate-scale-up">
             <div className="flex justify-between items-center p-6 border-b border-[#2a2a3e] bg-[#1a1a2e]">
-              <h2 className="text-xl font-bold text-white font-['Cinzel']">Formulir Buku Baru</h2>
-              <button onClick={() => setIsFormOpen(false)} className="text-gray-400 hover:text-white transition-colors">
+              <h2 className="text-xl font-bold text-white font-['Cinzel']">{editingBookId ? 'Edit Buku' : 'Formulir Buku Baru'}</h2>
+              <button onClick={() => { setIsFormOpen(false); setEditingBookId(null); setSelectedFile(null); }} className="text-gray-400 hover:text-white transition-colors">
                 <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"/></svg>
               </button>
             </div>
@@ -163,15 +180,15 @@ export default function AdminBookstore() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                 <div>
                   <label className="block text-sm font-medium text-gray-400 mb-1.5">Judul Buku</label>
-                  <input name="title" type="text" required className="w-full bg-[#0a0a10] border border-[#2a2a3e] rounded-lg px-4 py-2.5 text-white focus:border-[#c9a84c] focus:outline-none transition-colors" placeholder="Masukkan judul..." />
+                  <input name="title" type="text" defaultValue={editingBookId ? books.find(b => b.id === editingBookId)?.title : ''} required className="w-full bg-[#0a0a10] border border-[#2a2a3e] rounded-lg px-4 py-2.5 text-white focus:border-[#c9a84c] focus:outline-none transition-colors" placeholder="Masukkan judul..." />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-400 mb-1.5">Penulis / Pengarang</label>
-                  <input name="author" type="text" required className="w-full bg-[#0a0a10] border border-[#2a2a3e] rounded-lg px-4 py-2.5 text-white focus:border-[#c9a84c] focus:outline-none transition-colors" placeholder="Nama penulis..." />
+                  <input name="author" type="text" defaultValue={editingBookId ? books.find(b => b.id === editingBookId)?.author : ''} required className="w-full bg-[#0a0a10] border border-[#2a2a3e] rounded-lg px-4 py-2.5 text-white focus:border-[#c9a84c] focus:outline-none transition-colors" placeholder="Nama penulis..." />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-400 mb-1.5">Kategori</label>
-                  <select name="category" required className="w-full bg-[#0a0a10] border border-[#2a2a3e] rounded-lg px-4 py-2.5 text-white focus:border-[#c9a84c] focus:outline-none transition-colors appearance-none">
+                  <select name="category" defaultValue={editingBookId ? books.find(b => b.id === editingBookId)?.category : ''} required className="w-full bg-[#0a0a10] border border-[#2a2a3e] rounded-lg px-4 py-2.5 text-white focus:border-[#c9a84c] focus:outline-none transition-colors appearance-none">
                     <option value="">Pilih Kategori...</option>
                     <option value="Monograph">Monograph</option>
                     <option value="Academic Book">Academic Book</option>
@@ -182,15 +199,15 @@ export default function AdminBookstore() {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-400 mb-1.5">Tahun Terbit</label>
-                  <input name="year" type="number" required className="w-full bg-[#0a0a10] border border-[#2a2a3e] rounded-lg px-4 py-2.5 text-white focus:border-[#c9a84c] focus:outline-none transition-colors" placeholder="Contoh: 2025" />
+                  <input name="year" type="number" defaultValue={editingBookId ? books.find(b => b.id === editingBookId)?.year : ''} required className="w-full bg-[#0a0a10] border border-[#2a2a3e] rounded-lg px-4 py-2.5 text-white focus:border-[#c9a84c] focus:outline-none transition-colors" placeholder="Contoh: 2025" />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-400 mb-1.5">Harga (Rp)</label>
-                  <input name="price" type="number" required className="w-full bg-[#0a0a10] border border-[#2a2a3e] rounded-lg px-4 py-2.5 text-white focus:border-[#c9a84c] focus:outline-none transition-colors" placeholder="Contoh: 150000" />
+                  <input name="price" type="text" defaultValue={editingBookId ? books.find(b => b.id === editingBookId)?.price.replace(/\D/g, '') : ''} required className="w-full bg-[#0a0a10] border border-[#2a2a3e] rounded-lg px-4 py-2.5 text-white focus:border-[#c9a84c] focus:outline-none transition-colors" placeholder="Contoh: 150000" />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-400 mb-1.5">Stok</label>
-                  <input name="stock" type="number" required className="w-full bg-[#0a0a10] border border-[#2a2a3e] rounded-lg px-4 py-2.5 text-white focus:border-[#c9a84c] focus:outline-none transition-colors" placeholder="Jumlah stok..." />
+                  <input name="stock" type="number" defaultValue={editingBookId ? books.find(b => b.id === editingBookId)?.stock : ''} required className="w-full bg-[#0a0a10] border border-[#2a2a3e] rounded-lg px-4 py-2.5 text-white focus:border-[#c9a84c] focus:outline-none transition-colors" placeholder="Jumlah stok..." />
                 </div>
               </div>
               <div>
