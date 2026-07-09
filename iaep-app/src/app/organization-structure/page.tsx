@@ -1,160 +1,78 @@
 "use client";
 
-import React from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 
-/* ── NODE BOX ──────────────────────────────────────────────────── */
-const NodeBox = ({
-  title,
-  level = "default",
-  dashed = false,
-}: {
-  title: string;
-  level?: "founder" | "cofounder" | "president" | "vp" | "default";
-  dashed?: boolean;
-}) => {
-  const sizeMap: Record<string, string> = {
-    founder: "76px",
-    cofounder: "68px",
-    president: "68px",
-    vp: "56px",
-    default: "48px",
-  };
-  const borderColorMap: Record<string, string> = {
-    founder: "#c9a84c",
-    cofounder: "rgba(100,180,255,0.8)",
-    president: "rgba(201,168,76,0.8)",
-    vp: "rgba(201,168,76,0.5)",
-    default: "rgba(201,168,76,0.3)",
-  };
-  const bgMap: Record<string, string> = {
-    founder: "rgba(201,168,76,0.08)",
-    cofounder: "rgba(100,180,255,0.06)",
-    president: "rgba(201,168,76,0.06)",
-    vp: "rgba(13,13,26,0.9)",
-    default: "rgba(13,13,26,0.85)",
-  };
-  const titleColorMap: Record<string, string> = {
-    founder: "#c9a84c",
-    cofounder: "rgba(130,200,255,0.9)",
-    president: "#c9a84c",
-    vp: "#c9a84c",
-    default: "rgba(201,168,76,0.75)",
-  };
+/* ─────────────────────────────────────────────────────────────
+   STATIC STRUCTURE TABLE
+   Pre-filled with all positions. Photos & names can later
+   be edited from the Admin Dashboard → Org Structure.
+────────────────────────────────────────────────────────────── */
 
-  const photoSize = sizeMap[level];
-  const borderColor = borderColorMap[level];
-  const bg = bgMap[level];
-  const titleColor = titleColorMap[level];
-  const borderStyle = dashed ? `2px dashed ${borderColor}` : `1px solid ${borderColor}`;
+interface OrgMember {
+  no: number;
+  level: string;         // Tier label: "Executive", "VP", "Secretariat", etc.
+  position: string;      // Job title
+  name: string;          // Person's name (empty = TBA)
+  division: string;      // Area / affiliation
+  photo?: string;        // Optional URL
+}
 
-  return (
-    <div style={{
-      display: "flex",
-      flexDirection: "column",
-      alignItems: "center",
-      gap: "10px",
-      padding: "16px 12px",
-      background: bg,
-      border: borderStyle,
-      borderRadius: "14px",
-      width: "160px",
-      backdropFilter: "blur(12px)",
-      boxShadow: "0 8px 24px rgba(0,0,0,0.45)",
-      transition: "all 0.3s ease",
-      flexShrink: 0,
-    }}>
-      {/* Photo circle */}
-      <div style={{
-        width: photoSize,
-        height: photoSize,
-        borderRadius: "50%",
-        border: `2px solid ${borderColor}`,
-        background: "#0a0a14",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        overflow: "hidden",
-        flexShrink: 0,
-      }}>
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={`${borderColor}80`} strokeWidth="1.5">
-          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-          <circle cx="12" cy="7" r="4"/>
-        </svg>
-      </div>
-      {/* Title */}
-      <div style={{
-        fontSize: "10.5px",
-        fontWeight: 700,
-        color: titleColor,
-        textTransform: "uppercase",
-        letterSpacing: "0.7px",
-        lineHeight: 1.3,
-        textAlign: "center",
-      }}>
-        {title}
-      </div>
-      {/* Name placeholder */}
-      <div style={{
-        fontSize: "11px",
-        color: "rgba(232,232,240,0.3)",
-        lineHeight: 1.3,
-        textAlign: "center",
-        fontStyle: "italic",
-      }}>
-        —
-      </div>
-    </div>
-  );
+const ORG_STRUCTURE: OrgMember[] = [
+  // ── Executive Board ───────────────────────────────────────
+  { no: 1,  level: "Executive Board", position: "Founder",                        name: "Dr. Arfan Ikhsan Lubis, SE, M.Si, CATr",          division: "Association of Asia Pacific Academician" },
+  { no: 2,  level: "Executive Board", position: "Co-Founder",                     name: "",                                                  division: "Digital Platform & IT Innovation" },
+  { no: 3,  level: "Executive Board", position: "Advisor",                        name: "Dr. Prihat Assih, M.Si, CSR S",                    division: "Asia Pacific Academic Advisory Board" },
+  { no: 4,  level: "Executive Board", position: "President",                      name: "Dr. Arfan Ikhsan Lubis, SE, M.Si, CATr",          division: "Association of Asia Pacific Academician" },
+  // ── Vice Presidents ───────────────────────────────────────
+  { no: 5,  level: "Vice Presidents", position: "Vice President",                 name: "Dr. Muhammad Yamin Noch, SE, MSA",                 division: "Academic Affairs & Institutional Development" },
+  { no: 6,  level: "Vice Presidents", position: "Vice President",                 name: "Prof. Dr. Istianingsih Sastrodiharjo, SE, M.Si",   division: "Research & International Cooperation" },
+  { no: 7,  level: "Vice Presidents", position: "VP Membership",                  name: "",                                                  division: "Member Relations & Registry" },
+  { no: 8,  level: "Vice Presidents", position: "VP Conference",                  name: "",                                                  division: "Conference & Academic Forum" },
+  { no: 9,  level: "Vice Presidents", position: "VP Finance",                     name: "",                                                  division: "Finance & Resource Management" },
+  { no: 10, level: "Vice Presidents", position: "VP Administration",              name: "",                                                  division: "Governance & Administrative Affairs" },
+  // ── Secretariat ───────────────────────────────────────────
+  { no: 11, level: "Secretariat",     position: "Secretary General",              name: "Dr. Ngatemin, M.Si",                               division: "Office of the Secretary General (OSG)" },
+  { no: 12, level: "Secretariat",     position: "Deputy Secretary General",       name: "Dr. Ellen Puspitasari, SE, M.Si",                  division: "Country Representatives" },
+  { no: 13, level: "Secretariat",     position: "Chief Administrative Officer",   name: "Dr. Ikbar Pratama",                                 division: "Head of Secretariat Office" },
+  { no: 14, level: "Secretariat",     position: "Treasurer",                      name: "Tri Dessy Fadillah, SE, M.Ak",                    division: "Finance & Resource Management" },
+  // ── Directors ─────────────────────────────────────────────
+  { no: 15, level: "Directors",       position: "Director of Information Technology", name: "M. A. Rahman",                                division: "Software Engineering, AI & Digital Innovation" },
+  { no: 16, level: "Directors",       position: "Director of Global Partnerships",    name: "Dr. Bahkrul Khair Amal, M.Si",               division: "International Relations" },
+  { no: 17, level: "Directors",       position: "General Counsel",                    name: "Dr. Robbi Shahary, MH",                      division: "Legal Affairs & Governance Office" },
+  // ── Publication Division ──────────────────────────────────
+  { no: 18, level: "Publication",     position: "VP Publication",                name: "",                                                  division: "Academic Publication & Journals" },
+  { no: 19, level: "Publication",     position: "Editor in Chief",               name: "",                                                  division: "Journal Editorial Leadership" },
+  { no: 20, level: "Publication",     position: "Managing Editor",               name: "",                                                  division: "Journal Operations" },
+  { no: 21, level: "Publication",     position: "Editorial Board",               name: "",                                                  division: "Peer Review & Editorial Standards" },
+  { no: 22, level: "Publication",     position: "Reviewer Board",                name: "",                                                  division: "Academic Peer Review" },
+  { no: 23, level: "Publication",     position: "Publication Director",          name: "",                                                  division: "Publication Strategy & Distribution" },
+  // ── Certification Division ────────────────────────────────
+  { no: 24, level: "Certification",   position: "VP Certification",              name: "",                                                  division: "Professional Certification" },
+  { no: 25, level: "Certification",   position: "Chairman of Certification",     name: "",                                                  division: "ASIACERT Leadership" },
+  { no: 26, level: "Certification",   position: "Examination Board",             name: "",                                                  division: "Certification Examination" },
+  { no: 27, level: "Certification",   position: "Interview Board",               name: "",                                                  division: "Certification Interview" },
+  { no: 28, level: "Certification",   position: "Certification Assessors",       name: "",                                                  division: "Standards & Assessment" },
+  { no: 29, level: "Certification",   position: "Certification Administration",  name: "",                                                  division: "Certification Registry & Admin" },
+];
+
+const LEVEL_COLORS: Record<string, { bg: string; text: string; border: string }> = {
+  "Executive Board": { bg: "rgba(201,168,76,0.12)", text: "#c9a84c", border: "rgba(201,168,76,0.5)" },
+  "Vice Presidents": { bg: "rgba(139,92,246,0.08)", text: "#a78bfa", border: "rgba(139,92,246,0.4)" },
+  "Secretariat":     { bg: "rgba(52,211,153,0.08)", text: "#6ee7b7", border: "rgba(52,211,153,0.4)" },
+  "Directors":       { bg: "rgba(56,189,248,0.08)", text: "#7dd3fc", border: "rgba(56,189,248,0.4)" },
+  "Publication":     { bg: "rgba(251,146,60,0.08)", text: "#fdba74", border: "rgba(251,146,60,0.4)" },
+  "Certification":   { bg: "rgba(244,114,182,0.08)", text: "#f9a8d4", border: "rgba(244,114,182,0.4)" },
 };
 
-/* ── CONNECTORS ────────────────────────────────────────────────── */
-const VLine = ({ height = 32, color = "rgba(201,168,76,0.35)", dashed = false }: {
-  height?: number; color?: string; dashed?: boolean;
-}) => (
-  <div style={{
-    width: "2px",
-    height: `${height}px`,
-    background: dashed ? "none" : color,
-    backgroundImage: dashed ? `repeating-linear-gradient(to bottom, ${color} 0, ${color} 6px, transparent 6px, transparent 12px)` : "none",
-    margin: "0 auto",
-  }} />
-);
+const LEVELS = Array.from(new Set(ORG_STRUCTURE.map(m => m.level)));
 
-const HLine = ({ width, color = "rgba(201,168,76,0.35)" }: { width: number; color?: string }) => (
-  <div style={{
-    width: `${width}px`,
-    height: "2px",
-    background: color,
-    flexShrink: 0,
-  }} />
-);
-
-/* ── MAIN PAGE ─────────────────────────────────────────────────── */
 export default function OrganizationStructurePage() {
-  const vpList = [
-    // Row 1 — VPs with sub-divisions
-    {
-      vp: "VP Publication",
-      children: ["Editor in Chief", "Managing Editor", "Editorial Board", "Reviewer Board", "Publication Director"],
-    },
-    {
-      vp: "VP Certification",
-      children: ["Chairman of Certification", "Examination Board", "Interview Board", "Certification Assessors", "Certification Admin"],
-    },
-    // "Spacer" — empty slot so row 1 only has 2 items and row 2 starts fresh
-    // Row 2 — VPs without sub-divisions
-    { vp: "VP Research",              children: [] },
-    { vp: "VP Conference",            children: [] },
-    { vp: "VP Membership",            children: [] },   // ← shifted to right column of row 2
-    // Row 3
-    { vp: "VP International Affairs", children: [] },
-    { vp: "VP Finance",               children: [] },
-    { vp: "VP Administration",        children: [] },
-  ];
+  const [activeLevel, setActiveLevel] = useState<string>("All");
 
-
-  const cofBlue = "rgba(100,180,255,0.6)";
+  const filtered = activeLevel === "All"
+    ? ORG_STRUCTURE
+    : ORG_STRUCTURE.filter(m => m.level === activeLevel);
 
   return (
     <div style={{
@@ -164,182 +82,186 @@ export default function OrganizationStructurePage() {
       paddingTop: "110px",
       paddingBottom: "80px",
       position: "relative",
-      overflowX: "hidden",
     }}>
-      {/* Background glows */}
-      <div style={{ position:"absolute", top:0, left:"20%", width:"400px", height:"400px", background:"#c9a84c", borderRadius:"50%", filter:"blur(128px)", opacity:0.07, pointerEvents:"none", zIndex:0 }} />
-      <div style={{ position:"absolute", bottom:0, right:"20%", width:"400px", height:"400px", background:"#6ab4ff", borderRadius:"50%", filter:"blur(128px)", opacity:0.05, pointerEvents:"none", zIndex:0 }} />
+      {/* BG glow */}
+      <div style={{ position:"absolute", top:0, left:"20%", width:"500px", height:"500px", background:"#c9a84c", borderRadius:"50%", filter:"blur(160px)", opacity:0.06, pointerEvents:"none" }} />
+      <div style={{ position:"absolute", bottom:0, right:"10%", width:"400px", height:"400px", background:"#7c3aed", borderRadius:"50%", filter:"blur(140px)", opacity:0.05, pointerEvents:"none" }} />
 
       <div style={{ maxWidth: "1100px", margin: "0 auto", padding: "0 24px", position: "relative", zIndex: 1 }}>
 
-        {/* Back button */}
+        {/* Back */}
         <Link href="/">
           <div style={{ display:"flex", alignItems:"center", gap:"10px", cursor:"pointer", width:"fit-content", marginBottom:"40px" }}>
-            <div style={{ width:"40px", height:"40px", borderRadius:"50%", border:"2px solid #c9a84c", display:"flex", alignItems:"center", justifyContent:"center", color:"#c9a84c" }}>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+            <div style={{ width:"38px", height:"38px", borderRadius:"50%", border:"2px solid #c9a84c", display:"flex", alignItems:"center", justifyContent:"center", color:"#c9a84c" }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
             </div>
             <span style={{ color:"#9ca3af", fontWeight:600, fontSize:"14px" }}>Back to Home</span>
           </div>
         </Link>
 
         {/* Header */}
-        <div style={{ textAlign:"center", marginBottom:"60px" }}>
-          <p style={{ color:"#c9a84c", fontSize:"13px", fontWeight:700, letterSpacing:"3px", textTransform:"uppercase", marginBottom:"12px" }}>
+        <div style={{ textAlign:"center", marginBottom:"48px" }}>
+          <p style={{ color:"#c9a84c", fontSize:"12px", fontWeight:700, letterSpacing:"4px", textTransform:"uppercase", marginBottom:"12px" }}>
             Association of Asia Pacific Academician
           </p>
-          <h1 style={{ fontSize:"clamp(28px, 4vw, 44px)", fontWeight:800, letterSpacing:"-0.5px" }}>
+          <h1 style={{ fontSize:"clamp(26px, 4vw, 42px)", fontWeight:800 }}>
             Organizational <span style={{ color:"#c9a84c" }}>Structure</span>
           </h1>
-          <div style={{ width:"80px", height:"2px", background:"linear-gradient(to right, transparent, #c9a84c, transparent)", margin:"20px auto 0" }} />
-          <p style={{ color:"#6b7280", fontSize:"13px", marginTop:"14px" }}>
-            Names and photos can be updated from Admin Dashboard → Leadership
+          <div style={{ width:"72px", height:"2px", background:"linear-gradient(to right, transparent, #c9a84c, transparent)", margin:"18px auto 0" }} />
+          <p style={{ color:"#6b7280", fontSize:"13px", marginTop:"14px", maxWidth:"560px", margin:"14px auto 0" }}>
+            Complete roster of positions in the Association of Asia Pacific Academician (ASIA). Data is managed by administrators.
           </p>
         </div>
 
-        {/* ════════════ CHART ════════════ */}
-        <div style={{ display:"flex", flexDirection:"column", alignItems:"center" }}>
-
-          {/* ── Row 1: Founder ── Co-Founder (side by side) ──────── */}
-          <div style={{ display:"flex", alignItems:"center", justifyContent:"center" }}>
-            {/* Founder (main chain) */}
-            <NodeBox title="Founder" level="founder" />
-
-            {/* Horizontal connector */}
-            <HLine width={48} />
-
-            {/* Co-Founder (IT branch — different color) */}
-            <NodeBox title="Co-Founder" level="cofounder" dashed />
-          </div>
-
-          {/* ── Row 2: two vertical drops ──────────────────────────
-              Left  → main chain (from Founder)
-              Right → IT branch (from Co-Founder)              */}
-          <div style={{ display:"flex", alignItems:"flex-start", justifyContent:"center", gap:"0" }}>
-
-            {/* ─ MAIN CHAIN (centered column) ─ */}
-            <div style={{ display:"flex", flexDirection:"column", alignItems:"center", marginRight:"80px" }}>
-              <VLine />
-              <NodeBox title="Board of Advisors" level="president" />
-              <VLine />
-
-              {/* Secretary General ─── President ─── Treasurer */}
-              <div style={{ display:"flex", alignItems:"flex-start", justifyContent:"center" }}>
-                {/* Secretary General on the left — aligned to top of President */}
-                <div style={{ display:"flex", flexDirection:"column", alignItems:"center", marginTop:"60px" }}>
-                  <NodeBox title="Secretary General" level="vp" />
-                </div>
-                <HLine width={24} />
-
-                {/* President + VLine + VP Grid in center */}
-                <div style={{ display:"flex", flexDirection:"column", alignItems:"center" }}>
-                  <NodeBox title="President" level="president" />
-                  <VLine />
-
-                  {/* ── Row A: 2 VPs with sub-divisions (side by side) */}
-                  <div style={{
-                    display: "grid",
-                    gridTemplateColumns: "repeat(2, 160px)",
-                    gap: "28px 18px",
-                    justifyContent: "center",
-                    marginBottom: "28px",
-                  }}>
-                    {vpList.filter(v => v.children.length > 0).map((item, i) => (
-                      <div key={i} style={{ display:"flex", flexDirection:"column", alignItems:"center" }}>
-                        <NodeBox title={item.vp} level="vp" />
-                        {item.children.map((child, j) => (
-                          <div key={j} style={{ display:"flex", flexDirection:"column", alignItems:"center" }}>
-                            <VLine height={14} />
-                            <NodeBox title={child} level="default" />
-                          </div>
-                        ))}
-                      </div>
-                    ))}
-                  </div>
-
-                  {/* ── Row B: flat VPs (no sub-divisions), 3 cols */}
-                  {/* Research | Conference | Membership(right) */}
-                  {/* Int. Affairs | Finance | Administration */}
-                  <div style={{
-                    display: "grid",
-                    gridTemplateColumns: "repeat(3, 160px)",
-                    gap: "18px 18px",
-                    justifyContent: "center",
-                  }}>
-                    {vpList.filter(v => v.children.length === 0).map((item, i) => (
-                      <div key={i} style={{ display:"flex", flexDirection:"column", alignItems:"center" }}>
-                        <NodeBox title={item.vp} level="vp" />
-                      </div>
-                    ))}
-                  </div>
-
-                </div>
-
-                <HLine width={24} />
-                {/* Treasurer on the right — aligned to top of President */}
-                <div style={{ display:"flex", flexDirection:"column", alignItems:"center", marginTop:"60px" }}>
-                  <NodeBox title="Treasurer" level="vp" />
-                </div>
-              </div>
+        {/* Stats row */}
+        <div style={{ display:"flex", gap:"16px", justifyContent:"center", flexWrap:"wrap", marginBottom:"36px" }}>
+          {[
+            { label: "Total Positions", value: ORG_STRUCTURE.length },
+            { label: "Filled", value: ORG_STRUCTURE.filter(m => m.name).length },
+            { label: "Vacant", value: ORG_STRUCTURE.filter(m => !m.name).length },
+            { label: "Divisions", value: LEVELS.length },
+          ].map((s, i) => (
+            <div key={i} style={{
+              padding:"14px 24px",
+              background:"rgba(201,168,76,0.05)",
+              border:"1px solid rgba(201,168,76,0.2)",
+              borderRadius:"12px",
+              textAlign:"center",
+              minWidth:"120px",
+            }}>
+              <div style={{ fontSize:"24px", fontWeight:800, color:"#c9a84c" }}>{s.value}</div>
+              <div style={{ fontSize:"11px", color:"#9ca3af", textTransform:"uppercase", letterSpacing:"1px", marginTop:"4px" }}>{s.label}</div>
             </div>
-
-
-            {/* ─ CO-FOUNDER → IT BRANCH (right column) ─ */}
-            <div style={{ display:"flex", flexDirection:"column", alignItems:"center", paddingTop:"0" }}>
-              <VLine height={40} color={cofBlue} dashed />
-              {/* Label */}
-              <div style={{
-                fontSize:"10px",
-                color: cofBlue,
-                fontWeight:700,
-                letterSpacing:"1px",
-                textTransform:"uppercase",
-                marginBottom:"8px",
-                border: `1px dashed ${cofBlue}`,
-                borderRadius:"20px",
-                padding:"3px 10px",
-                background:"rgba(100,180,255,0.05)",
-              }}>
-                Direct Line → IT
-              </div>
-              <VLine height={40} color={cofBlue} dashed />
-              <NodeBox title="VP Digital Platform" level="vp" dashed />
-            </div>
-
-          </div>
-
+          ))}
         </div>
-        {/* ════════════ END CHART ════════════ */}
 
-        {/* Legend */}
-        <div style={{ display:"flex", gap:"24px", justifyContent:"center", marginTop:"48px", flexWrap:"wrap" }}>
-          <div style={{ display:"flex", alignItems:"center", gap:"8px" }}>
-            <div style={{ width:"24px", height:"2px", background:"#c9a84c" }} />
-            <span style={{ color:"#9ca3af", fontSize:"12px" }}>Main reporting line</span>
+        {/* Filter tabs */}
+        <div style={{ display:"flex", gap:"8px", flexWrap:"wrap", marginBottom:"28px", justifyContent:"center" }}>
+          {["All", ...LEVELS].map(lvl => {
+            const active = activeLevel === lvl;
+            const colors = lvl !== "All" ? LEVEL_COLORS[lvl] : { bg: "rgba(201,168,76,0.1)", text: "#c9a84c", border: "rgba(201,168,76,0.4)" };
+            return (
+              <button key={lvl} onClick={() => setActiveLevel(lvl)} style={{
+                padding:"7px 16px",
+                borderRadius:"20px",
+                border: active ? `1.5px solid ${colors.border}` : "1px solid rgba(255,255,255,0.08)",
+                background: active ? colors.bg : "rgba(255,255,255,0.03)",
+                color: active ? colors.text : "#6b7280",
+                fontSize:"12px",
+                fontWeight: active ? 700 : 500,
+                cursor:"pointer",
+                transition:"all 0.2s",
+                letterSpacing:"0.5px",
+              }}>
+                {lvl}
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Table */}
+        <div style={{
+          background:"rgba(13,13,26,0.8)",
+          border:"1px solid rgba(201,168,76,0.15)",
+          borderRadius:"16px",
+          overflow:"hidden",
+          boxShadow:"0 20px 60px rgba(0,0,0,0.5)",
+          backdropFilter:"blur(16px)",
+        }}>
+          {/* Table header */}
+          <div style={{
+            display:"grid",
+            gridTemplateColumns:"48px 120px 1fr 1fr 1fr",
+            padding:"14px 24px",
+            borderBottom:"1px solid rgba(201,168,76,0.15)",
+            background:"rgba(201,168,76,0.06)",
+          }}>
+            {["No.", "Level", "Position / Jabatan", "Name", "Division / Bidang"].map((h, i) => (
+              <div key={i} style={{ fontSize:"11px", fontWeight:700, color:"#c9a84c", textTransform:"uppercase", letterSpacing:"1.5px" }}>
+                {h}
+              </div>
+            ))}
           </div>
-          <div style={{ display:"flex", alignItems:"center", gap:"8px" }}>
-            <div style={{ width:"24px", height:"2px", backgroundImage:"repeating-linear-gradient(to right, rgba(100,180,255,0.6) 0, rgba(100,180,255,0.6) 6px, transparent 6px, transparent 12px)" }} />
-            <span style={{ color:"#9ca3af", fontSize:"12px" }}>Co-Founder → Digital Platform (IT)</span>
-          </div>
+
+          {/* Rows */}
+          {filtered.map((m, i) => {
+            const colors = LEVEL_COLORS[m.level];
+            const isEven = i % 2 === 0;
+            return (
+              <div key={m.no} style={{
+                display:"grid",
+                gridTemplateColumns:"48px 120px 1fr 1fr 1fr",
+                padding:"14px 24px",
+                borderBottom:"1px solid rgba(255,255,255,0.04)",
+                background: isEven ? "transparent" : "rgba(255,255,255,0.015)",
+                alignItems:"center",
+                transition:"background 0.15s",
+              }}
+              onMouseEnter={e => (e.currentTarget.style.background = "rgba(201,168,76,0.04)")}
+              onMouseLeave={e => (e.currentTarget.style.background = isEven ? "transparent" : "rgba(255,255,255,0.015)")}
+              >
+                {/* No */}
+                <div style={{ fontSize:"13px", color:"#4b5563", fontWeight:600 }}>{String(m.no).padStart(2, "0")}</div>
+
+                {/* Level badge */}
+                <div>
+                  <span style={{
+                    fontSize:"10px",
+                    fontWeight:700,
+                    color: colors.text,
+                    background: colors.bg,
+                    border:`1px solid ${colors.border}`,
+                    borderRadius:"20px",
+                    padding:"3px 9px",
+                    whiteSpace:"nowrap",
+                    letterSpacing:"0.5px",
+                  }}>
+                    {m.level}
+                  </span>
+                </div>
+
+                {/* Position */}
+                <div style={{ fontSize:"13px", fontWeight:600, color:"#e8e8f0", lineHeight:1.3 }}>
+                  {m.position}
+                </div>
+
+                {/* Name */}
+                <div style={{
+                  fontSize:"13px",
+                  color: m.name ? "#e8e8f0" : "#4b5563",
+                  fontStyle: m.name ? "normal" : "italic",
+                  lineHeight:1.3,
+                }}>
+                  {m.name || "— To Be Appointed —"}
+                </div>
+
+                {/* Division */}
+                <div style={{ fontSize:"12px", color:"#6b7280", lineHeight:1.4 }}>
+                  {m.division}
+                </div>
+              </div>
+            );
+          })}
         </div>
 
         {/* Footer note */}
         <div style={{
-          marginTop:"40px",
-          padding:"18px 24px",
-          border:"1px solid rgba(201,168,76,0.2)",
+          marginTop:"32px",
+          padding:"16px 22px",
+          border:"1px solid rgba(201,168,76,0.15)",
           borderRadius:"12px",
           background:"rgba(201,168,76,0.04)",
           display:"flex",
-          alignItems:"flex-start",
+          alignItems:"center",
           gap:"12px",
-          maxWidth:"600px",
-          margin:"40px auto 0",
         }}>
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" strokeWidth="1.5" style={{ flexShrink:0, marginTop:"2px" }}>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" strokeWidth="1.5" style={{ flexShrink:0 }}>
             <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
           </svg>
-          <p style={{ color:"#9ca3af", fontSize:"13px", lineHeight:1.6, margin:0 }}>
-            This chart reflects the official structure of the <strong style={{ color:"#c9a84c" }}>Association of Asia Pacific Academician (ASIA)</strong>. Names and photos are managed by administrators and will appear once filled in the Admin Dashboard.
+          <p style={{ color:"#9ca3af", fontSize:"12px", lineHeight:1.5, margin:0 }}>
+            This table reflects the complete official structure of <strong style={{ color:"#c9a84c" }}>ASIA</strong>. 
+            Names and photos for vacant positions will be updated as appointments are finalized. 
+            Administrators can manage this data via the Admin Dashboard.
           </p>
         </div>
 
