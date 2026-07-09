@@ -179,12 +179,14 @@ export default function OrgStructureAdminPage() {
           position: "fixed", top: 0, left: 0, right: 0, bottom: 0,
           background: "rgba(0,0,0,0.8)", backdropFilter: "blur(4px)",
           display: "flex", alignItems: "center", justifyContent: "center",
-          zIndex: 99999
+          zIndex: 99999,
+          padding: "20px"
         }}>
           <div style={{
             background: "#0d0d1a", border: "1px solid rgba(201,168,76,0.3)", borderRadius: "24px",
             width: "100%", maxWidth: "500px", padding: "32px",
-            boxShadow: "0 24px 60px rgba(0,0,0,0.6)"
+            boxShadow: "0 24px 60px rgba(0,0,0,0.6)",
+            maxHeight: "90vh", overflowY: "auto"
           }}>
             <h2 style={{ fontSize: "20px", fontWeight: 700, color: "#c9a84c", marginBottom: "24px" }}>
               Edit {editingMember.level}

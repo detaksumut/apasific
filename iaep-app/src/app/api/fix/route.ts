@@ -7,7 +7,7 @@ export async function GET() {
     execSync('git add .', { cwd });
     let commitOutput = "No commit made";
     try {
-      commitOutput = execSync('git commit -m "feat: add org structure link to admin dashboard sidebar"', { cwd, encoding: 'utf-8' });
+      commitOutput = execSync('git commit -m "fix: make admin org structure edit modal scrollable on small screens"', { cwd, encoding: 'utf-8' });
     } catch(e) {}
     const pushOutput = execSync('git push', { cwd, encoding: 'utf-8' });
     return NextResponse.json({ success: true, commitOutput, pushOutput });
