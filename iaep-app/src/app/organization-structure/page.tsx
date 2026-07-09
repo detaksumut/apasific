@@ -216,37 +216,49 @@ export default function OrganizationStructurePage() {
               <VLine />
               <NodeBox title="Board of Advisors" level="president" />
               <VLine />
-              <NodeBox title="President" level="president" />
-              <VLine />
 
-              {/* Secretary General + Treasurer row */}
-              <div style={{ display:"flex", alignItems:"center" }}>
-                <NodeBox title="Secretary General" level="vp" />
-                <HLine width={32} />
-                <NodeBox title="Treasurer" level="vp" />
-              </div>
-              <VLine />
+              {/* Secretary General ─── President ─── Treasurer */}
+              <div style={{ display:"flex", alignItems:"flex-start", justifyContent:"center" }}>
+                {/* Secretary General on the left — aligned to top of President */}
+                <div style={{ display:"flex", flexDirection:"column", alignItems:"center", marginTop:"60px" }}>
+                  <NodeBox title="Secretary General" level="vp" />
+                </div>
+                <HLine width={24} />
 
-              {/* 8 VPs Grid (3 cols) */}
-              <div style={{
-                display: "grid",
-                gridTemplateColumns: "repeat(3, 160px)",
-                gap: "28px 18px",
-                justifyContent: "center",
-              }}>
-                {vpList.map((item, i) => (
-                  <div key={i} style={{ display:"flex", flexDirection:"column", alignItems:"center" }}>
-                    <NodeBox title={item.vp} level="vp" />
-                    {item.children.map((child, j) => (
-                      <div key={j} style={{ display:"flex", flexDirection:"column", alignItems:"center" }}>
-                        <VLine height={14} />
-                        <NodeBox title={child} level="default" />
+                {/* President + VLine + VP Grid in center */}
+                <div style={{ display:"flex", flexDirection:"column", alignItems:"center" }}>
+                  <NodeBox title="President" level="president" />
+                  <VLine />
+
+                  {/* 8 VPs Grid (3 cols) */}
+                  <div style={{
+                    display: "grid",
+                    gridTemplateColumns: "repeat(3, 160px)",
+                    gap: "28px 18px",
+                    justifyContent: "center",
+                  }}>
+                    {vpList.map((item, i) => (
+                      <div key={i} style={{ display:"flex", flexDirection:"column", alignItems:"center" }}>
+                        <NodeBox title={item.vp} level="vp" />
+                        {item.children.map((child, j) => (
+                          <div key={j} style={{ display:"flex", flexDirection:"column", alignItems:"center" }}>
+                            <VLine height={14} />
+                            <NodeBox title={child} level="default" />
+                          </div>
+                        ))}
                       </div>
                     ))}
                   </div>
-                ))}
+                </div>
+
+                <HLine width={24} />
+                {/* Treasurer on the right — aligned to top of President */}
+                <div style={{ display:"flex", flexDirection:"column", alignItems:"center", marginTop:"60px" }}>
+                  <NodeBox title="Treasurer" level="vp" />
+                </div>
               </div>
             </div>
+
 
             {/* ─ CO-FOUNDER → IT BRANCH (right column) ─ */}
             <div style={{ display:"flex", flexDirection:"column", alignItems:"center", paddingTop:"0" }}>
