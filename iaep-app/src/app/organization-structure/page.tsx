@@ -41,7 +41,7 @@ const ORG_STRUCTURE: OrgMember[] = [
   { no: 15, level: "Publication",     position: "Editor in Chief",               name: "",  division: "Journal Editorial Leadership" },
   // ── ASIACERT – BOC Leadership ─────────────────────────────
   { no: 16, level: "ASIACERT – BOC",  position: "Chairman of ASIACERT",          name: "Dr. Arfan Ikhsan Lubis, SE, M.Si, CATr", division: "ASIACERT Center Leadership" },
-  { no: 17, level: "ASIACERT – BOC",  position: "Chairman of BOC",               name: "Dr. Arfan Ikhsan Lubis, SE, M.Si, CATr", division: "Board of Certification Leadership" },
+  { no: 17, level: "ASIACERT – BOC",  position: "Chairman of BOC",               name: "Dr. Sazali Zainal Abidin", division: "Board of Certification Leadership" },
   { no: 18, level: "ASIACERT – BOC",  position: "Secretary of BOC",              name: "Dr. Amni Suhailah",                      division: "Board of Certification Leadership" },
   { no: 19, level: "ASIACERT – BOC",  position: "Chief of Membership",           name: "",                                       division: "Member Relations & Registry" },
   // ── Strategic Bodies ──────────────────────────────────────
