@@ -127,6 +127,24 @@ export default function OrganizationStructurePage() {
           </p>
         </div>
 
+        {/* Organization Chart Image */}
+        <div style={{
+          width: "100%",
+          maxWidth: "1000px",
+          margin: "0 auto 48px",
+          borderRadius: "16px",
+          overflow: "hidden",
+          border: "1px solid rgba(255,255,255,0.05)",
+          boxShadow: "0 20px 40px rgba(0,0,0,0.4)"
+        }}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img 
+            src="/APASIFIC.jpg" 
+            alt="Organization Structure Chart" 
+            style={{ width: "100%", height: "auto", display: "block" }} 
+          />
+        </div>
+
         {/* Stats row */}
         <div style={{ display:"flex", gap:"16px", justifyContent:"center", flexWrap:"wrap", marginBottom:"36px" }}>
           {[
