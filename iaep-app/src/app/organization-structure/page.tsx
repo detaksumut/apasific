@@ -65,17 +65,6 @@ const ORG_STRUCTURE: OrgMember[] = [
   { no: 37, level: "Strategic Bodies", position: "Secretary – Young Academician Network",           name: "Ikbar Pratama, SE, MAcc, PhD",            division: "Young Academician Network" },
   { no: 38, level: "Strategic Bodies", position: "Chairman – Awards & Recognition Council",         name: "Prof. Dr. Ram Al Jafri bin Saad",         division: "Awards & Recognition Council" },
   { no: 39, level: "Strategic Bodies", position: "Secretary – Awards & Recognition Council",        name: "Dr. Ellen Puspitasasi, SE, M.Si",         division: "Awards & Recognition Council" },
-  // ── 10 Bidang Sertifikasi ─────────────────────────────────
-  { no: 40, level: "Certification Field", position: "Chairman – Accounting & Auditing Certification",        name: "", division: "Accounting, Auditing & Taxation" },
-  { no: 41, level: "Certification Field", position: "Chairman – Business & Management Certification",        name: "", division: "Business, Management & Entrepreneurship" },
-  { no: 42, level: "Certification Field", position: "Chairman – Finance & Banking Certification",            name: "", division: "Finance, Banking & Investment" },
-  { no: 43, level: "Certification Field", position: "Chairman – Human Resources Certification",              name: "", division: "Human Resources & Organizational Development" },
-  { no: 44, level: "Certification Field", position: "Chairman – Economics & Public Policy Certification",    name: "", division: "Economics & Public Policy" },
-  { no: 45, level: "Certification Field", position: "Chairman – Education & Research Certification",         name: "", division: "Education & Academic Development" },
-  { no: 46, level: "Certification Field", position: "Chairman – Law & Governance Certification",            name: "", division: "Law, Governance & Public Administration" },
-  { no: 47, level: "Certification Field", position: "Chairman – IT & Digital Transformation Certification",  name: "", division: "Information Technology, AI & Digital Transformation" },
-  { no: 48, level: "Certification Field", position: "Chairman – Engineering & Technology Certification",     name: "", division: "Engineering, Technology & Applied Sciences" },
-  { no: 49, level: "Certification Field", position: "Chairman – Social Sciences & Humanities Certification", name: "", division: "Social Sciences, Humanities & Communication" },
 ];
 
 const LEVEL_COLORS: Record<string, { bg: string; text: string; border: string }> = {
