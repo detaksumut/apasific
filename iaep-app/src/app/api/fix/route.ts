@@ -7,7 +7,7 @@ export async function GET() {
     execSync('git add .', { cwd });
     let commitOutput = "No commit made";
     try {
-      commitOutput = execSync('git commit -m "chore: ensure all recent changes are pushed"', { cwd, encoding: 'utf-8' });
+      commitOutput = execSync('git commit -m "fix: resolve hydration error on homepage by closing dangerouslySetInnerHTML tags properly around OrgStructure component"', { cwd, encoding: 'utf-8' });
     } catch(e) {}
     
     const pushOutput = execSync('git push', { cwd, encoding: 'utf-8' });

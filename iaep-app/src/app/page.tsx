@@ -299,8 +299,11 @@ export default function Home() {
 <!-- ═══════════════════════════════════════════
        ABOUT ASIA
   ═══════════════════════════════════════════ -->
-  <section class="section about-section" id="about">
-    <div class="container">
+`}} />
+
+  <section className="section about-section" id="about">
+    <div className="container">
+      <div dangerouslySetInnerHTML={{ __html: `
       <div class="section-header">
         <p class="section-eyebrow">WHO WE ARE</p>
         <h2 class="section-title">About <span class="gold">ASIA</span></h2>
@@ -336,16 +339,15 @@ export default function Home() {
       <div class="subsection" id="leadership" style="scroll-margin-top: 100px;">
         <a id="org-structure" style="position: relative; top: -100px; display: block; visibility: hidden;"></a>
         <h3 class="subsection-title">Organizational Structure</h3>
-      </div>`}}
-    />
+      </div>
+      `}} />
 
-    {/* Dynamic org structure — loaded from admin dashboard */}
-    <div className="container" style={{ marginBottom: '0', paddingBottom: '0' }}>
-      <OrgStructure />
-    </div>
+      {/* Dynamic org structure — loaded from admin dashboard */}
+      <div style={{ marginBottom: '0', paddingBottom: '0' }}>
+        <OrgStructure />
+      </div>
 
-    <div dangerouslySetInnerHTML={{ __html: `
-      <div class="container">
+      <div dangerouslySetInnerHTML={{ __html: `
         <!-- Regional Chapters -->
         <div class="subsection" id="regional-chapters">
           <h3 class="subsection-title">Regional Chapters</h3>
@@ -373,10 +375,11 @@ export default function Home() {
             <div class="chapter-badge" style="animation-delay:1.0s"><img src="https://flagcdn.com/w40/cl.png" alt="" /> Chile</div>
           </div>
         </div>
-      </div>
+      `}} />
     </div>
   </section>
 
+  <div dangerouslySetInnerHTML={{ __html: `
   <!-- ═══════════════════════════════════════════
        ACADEMIC DIVISIONS
   ═══════════════════════════════════════════ -->
