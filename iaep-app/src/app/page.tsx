@@ -19,8 +19,11 @@ export default function Home() {
       @media (max-width: 768px) {
         .hero-logo-overlay { left: 75% !important; top: 19% !important; transform: translate(-50%, -50%) !important; }
         .hero-logo-img { width: 120px !important; height: 120px !important; }
-        .hero-cta-overlay { bottom: auto !important; top: 36% !important; transform: translateX(-50%) scale(0.64) !important; transform-origin: center top !important; }
+        .hero-cta-overlay { bottom: auto !important; top: 36% !important; transform: translateX(-50%) !important; flex-direction: row !important; flex-wrap: nowrap !important; width: 100% !important; padding: 0 10px !important; gap: 8px !important; }
+        .hero-cta-overlay a { flex: 1 !important; padding: 8px 4px !important; font-size: 8.5px !important; height: auto !important; min-height: 44px !important; display: flex !important; flex-direction: column !important; align-items: center !important; justify-content: center !important; text-align: center !important; white-space: normal !important; gap: 4px !important; line-height: 1.2 !important; }
+        .hero-cta-overlay a svg { width: 14px !important; height: 14px !important; margin: 0 !important; }
         .hero-stats { margin-top: -220px !important; }
+        .hide-on-mobile { display: none !important; }
       }
       @media (min-width: 769px) {
         .hero-logo-img { width: 520px !important; height: 520px !important; }
@@ -55,7 +58,7 @@ export default function Home() {
       </a>
       <a href="/asiamou.docx" class="btn-primary" id="hero-mou" download style="background: #c9a84c; color: #000;">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-        ASIA MoU
+        <span class="hide-on-mobile">ASIA </span>MoU
       </a>
       <a href="#programs" class="btn-outline" id="hero-explore">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
