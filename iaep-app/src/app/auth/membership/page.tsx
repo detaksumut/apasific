@@ -108,10 +108,10 @@ export default function MajesticMembershipPage() {
           </p>
         </div>
 
-        <div className="flex flex-col lg:flex-row gap-12 items-center lg:items-start justify-center w-full">
+        <div className="flex flex-col lg:flex-row gap-12 items-center justify-center w-full">
           
           {/* Top: Form */}
-          <div className="bg-[#0d0d1a]/80 border border-[#c9a84c]/20 shadow-2xl backdrop-blur-md w-full" style={{ maxWidth: '800px', padding: '32px', borderRadius: '16px' }}>
+          <div className="bg-[#0d0d1a]/80 border border-[#c9a84c]/20 shadow-2xl backdrop-blur-md w-full" style={{ maxWidth: '650px', padding: '32px', borderRadius: '16px' }}>
             <h2 className="font-bold text-[#c9a84c] border-b border-gray-800" style={{ fontSize: '24px', marginBottom: '24px', paddingBottom: '16px', textAlign: 'center' }}>Membership Application Form</h2>
             
             <form onSubmit={handleSubmit} style={{ marginTop: '16px' }}>
