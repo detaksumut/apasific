@@ -218,7 +218,7 @@ export default function OrganizationStructurePage() {
             borderBottom:"1px solid rgba(201,168,76,0.15)",
             background:"rgba(201,168,76,0.06)",
           }}>
-            {["No.", "Level", "Position / Jabatan", "Name", "Division / Bidang"].map((h, i) => (
+            {["No.", "Photo", "Position / Jabatan", "Name", "Division / Bidang"].map((h, i) => (
               <div key={i} style={{ fontSize:"11px", fontWeight:700, color:"#c9a84c", textTransform:"uppercase", letterSpacing:"1.5px" }}>
                 {h}
               </div>
@@ -245,21 +245,19 @@ export default function OrganizationStructurePage() {
                 {/* No */}
                 <div style={{ fontSize:"13px", color:"#4b5563", fontWeight:600 }}>{String(m.no).padStart(2, "0")}</div>
 
-                {/* Level badge */}
-                <div>
-                  <span style={{
-                    fontSize:"10px",
-                    fontWeight:700,
-                    color: colors.text,
-                    background: colors.bg,
-                    border:`1px solid ${colors.border}`,
-                    borderRadius:"20px",
-                    padding:"3px 9px",
-                    whiteSpace:"nowrap",
-                    letterSpacing:"0.5px",
-                  }}>
-                    {m.level}
-                  </span>
+                {/* Photo */}
+                <div style={{ display: "flex", alignItems: "center" }}>
+                  <img
+                    src={(m as any).photo || `https://ui-avatars.com/api/?name=${encodeURIComponent(m.name || m.position)}&background=131326&color=c9a84c&bold=true`}
+                    alt={m.name || "TBA"}
+                    style={{
+                      width: "36px",
+                      height: "36px",
+                      borderRadius: "50%",
+                      objectFit: "cover",
+                      border: "1px solid rgba(201,168,76,0.3)"
+                    }}
+                  />
                 </div>
 
                 {/* Position */}
