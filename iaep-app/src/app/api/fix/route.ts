@@ -8,7 +8,7 @@ export async function GET() {
     execSync('git add .', { cwd });
     let commitOutput = "No commit made";
     try {
-      commitOutput = execSync('git commit -m "chore: push all latest changes and finalize bookstore integration"', { cwd, encoding: 'utf-8' });
+      commitOutput = execSync('git commit -m "fix: remove next/head usage in app router components causing build error"', { cwd, encoding: 'utf-8' });
     } catch(e) {}
     
     const pushOutput = execSync('git push', { cwd, encoding: 'utf-8' });

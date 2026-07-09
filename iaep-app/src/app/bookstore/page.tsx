@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState } from 'react';
-import Head from 'next/head';
 
 const MOCK_BOOKS = [
   {
@@ -106,10 +105,8 @@ export default function BookstorePage() {
 
   return (
     <>
-      <Head>
-        <title>Book Store | ASIA</title>
-        <meta name="description" content="Explore premium academic books, journals, monographs, and proceedings published by the Association of Asia Pacific Academician." />
-      </Head>
+      <title>Book Store | ASIA</title>
+      <meta name="description" content="Explore premium academic books, journals, monographs, and proceedings published by the Association of Asia Pacific Academician." />
 
       {/* TOAST NOTIFICATION */}
       {toastMessage && (

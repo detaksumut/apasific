@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import Head from 'next/head';
 import { useSearchParams } from 'next/navigation';
 
 export default function CheckoutPage() {
@@ -80,9 +79,7 @@ export default function CheckoutPage() {
 
   return (
     <>
-      <Head>
-        <title>Checkout | ASIA Book Store</title>
-      </Head>
+      <title>Checkout | ASIA Book Store</title>
 
       <div className="co-page">
         <div className="container">
