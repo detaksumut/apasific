@@ -12,6 +12,7 @@ export default function CheckoutPage() {
   const [isLoaded, setIsLoaded] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [orderId, setOrderId] = useState("");
 
   useEffect(() => {
     const saved = localStorage.getItem("mock_admin_books");
@@ -28,9 +29,46 @@ export default function CheckoutPage() {
     setIsLoaded(true);
   }, [bookId]);
 
-  const handlePayment = (e: React.FormEvent) => {
+  const handlePayment = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsProcessing(true);
+
+    const formData = new FormData(e.currentTarget);
+    const buyerName = formData.get('buyerName') as string;
+    const buyerEmail = formData.get('buyerEmail') as string;
+    const buyerPhone = formData.get('buyerPhone') as string;
+    const receiptFile = document.getElementById('receipt') as HTMLInputElement;
+
+    let receiptBase64 = "";
+    if (receiptFile?.files?.[0]) {
+      receiptBase64 = await new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result as string);
+        reader.readAsDataURL(receiptFile.files![0]);
+      });
+    }
+
+    const newOrderId = `ASIA-${Date.now().toString().slice(-6)}`;
+    setOrderId(newOrderId);
+
+    const orderData = {
+      orderId: newOrderId,
+      date: new Date().toISOString(),
+      buyerName,
+      buyerEmail,
+      buyerPhone,
+      bookId: book.id,
+      bookTitle: book.title,
+      totalAmount: book.price,
+      receiptImage: receiptBase64,
+      status: 'Menunggu Verifikasi'
+    };
+
+    const savedOrders = localStorage.getItem("mock_admin_orders");
+    const orders = savedOrders ? JSON.parse(savedOrders) : [];
+    orders.unshift(orderData);
+    localStorage.setItem("mock_admin_orders", JSON.stringify(orders));
+
     // Simulate payment processing delay
     setTimeout(() => {
       setIsProcessing(false);
@@ -60,7 +98,7 @@ export default function CheckoutPage() {
                 <div className="co-receipt">
                   <div className="co-receipt-item">
                     <span>Order ID</span>
-                    <strong>#ASIA-{Date.now().toString().slice(-6)}</strong>
+                    <strong>#{orderId}</strong>
                   </div>
                   <div className="co-receipt-item">
                     <span>Item</span>
@@ -97,15 +135,15 @@ export default function CheckoutPage() {
                   <form id="checkout-form" onSubmit={handlePayment} className="co-form">
                     <div className="co-form-group">
                       <label>Nama Lengkap</label>
-                      <input type="text" required placeholder="Contoh: Budi Santoso" />
+                      <input type="text" name="buyerName" required placeholder="Contoh: Budi Santoso" />
                     </div>
                     <div className="co-form-group">
                       <label>Alamat Email</label>
-                      <input type="email" required placeholder="Contoh: budi@university.ac.id" />
+                      <input type="email" name="buyerEmail" required placeholder="Contoh: budi@university.ac.id" />
                     </div>
                     <div className="co-form-group">
                       <label>Nomor Handphone (WhatsApp)</label>
-                      <input type="tel" required placeholder="Contoh: 081234567890" />
+                      <input type="tel" name="buyerPhone" required placeholder="Contoh: 081234567890" />
                     </div>
 
                     <h2 className="co-section-title mt-8">Payment Method</h2>

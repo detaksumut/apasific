@@ -11,7 +11,10 @@ const INITIAL_BOOKS = [
 
 export default function AdminBookstore() {
   const [books, setBooks] = useState<any[]>([]);
+  const [orders, setOrders] = useState<any[]>([]);
+  const [activeTab, setActiveTab] = useState<'books' | 'orders'>('books');
   const [isLoaded, setIsLoaded] = useState(false);
+  const [receiptImage, setReceiptImage] = useState<string | null>(null);
 
   useEffect(() => {
     const saved = localStorage.getItem("mock_admin_books");
@@ -19,6 +22,10 @@ export default function AdminBookstore() {
       setBooks(JSON.parse(saved));
     } else {
       setBooks(INITIAL_BOOKS);
+    }
+    const savedOrders = localStorage.getItem("mock_admin_orders");
+    if (savedOrders) {
+      setOrders(JSON.parse(savedOrders));
     }
     setIsLoaded(true);
   }, []);
@@ -129,6 +136,22 @@ export default function AdminBookstore() {
         </div>
       </div>
 
+      <div className="flex gap-4 border-b border-[#2a2a3e] mb-6">
+        <button 
+          onClick={() => setActiveTab('books')}
+          className={`pb-3 px-2 text-sm font-semibold transition-colors ${activeTab === 'books' ? 'text-[#c9a84c] border-b-2 border-[#c9a84c]' : 'text-gray-500 hover:text-gray-300'}`}
+        >
+          Daftar Buku
+        </button>
+        <button 
+          onClick={() => setActiveTab('orders')}
+          className={`pb-3 px-2 text-sm font-semibold transition-colors ${activeTab === 'orders' ? 'text-[#c9a84c] border-b-2 border-[#c9a84c]' : 'text-gray-500 hover:text-gray-300'}`}
+        >
+          Daftar Pesanan ({orders.length})
+        </button>
+      </div>
+
+      {activeTab === 'books' && (
       <div className="bg-[#12121f] rounded-xl border border-[#2a2a3e] overflow-hidden shadow-lg shadow-black/50">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-sm text-gray-300">
@@ -175,6 +198,62 @@ export default function AdminBookstore() {
           </table>
         </div>
       </div>
+      )}
+
+      {activeTab === 'orders' && (
+        <div className="bg-[#12121f] rounded-xl border border-[#2a2a3e] overflow-hidden shadow-lg shadow-black/50">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-sm text-gray-300">
+              <thead className="bg-[#1a1a2e] text-gray-400 border-b border-[#2a2a3e]">
+                <tr>
+                  <th className="px-6 py-4 font-semibold uppercase tracking-wider text-xs">ID & Waktu</th>
+                  <th className="px-6 py-4 font-semibold uppercase tracking-wider text-xs">Pembeli</th>
+                  <th className="px-6 py-4 font-semibold uppercase tracking-wider text-xs">Buku</th>
+                  <th className="px-6 py-4 font-semibold uppercase tracking-wider text-xs">Total</th>
+                  <th className="px-6 py-4 font-semibold uppercase tracking-wider text-xs">Bukti</th>
+                  <th className="px-6 py-4 font-semibold uppercase tracking-wider text-xs text-right">Status</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-[#2a2a3e]">
+                {orders.map((order: any, idx: number) => (
+                  <tr key={idx} className="hover:bg-[#18182a] transition-colors">
+                    <td className="px-6 py-4">
+                      <div className="font-semibold text-[#c9a84c] mb-0.5">{order.orderId}</div>
+                      <div className="text-xs text-gray-500">{new Date(order.date).toLocaleString('id-ID')}</div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="font-semibold text-white mb-0.5">{order.buyerName}</div>
+                      <div className="text-xs text-gray-500">{order.buyerPhone}</div>
+                      <div className="text-xs text-gray-500">{order.buyerEmail}</div>
+                    </td>
+                    <td className="px-6 py-4"><span className="text-sm">{order.bookTitle}</span></td>
+                    <td className="px-6 py-4 font-mono">{order.totalAmount}</td>
+                    <td className="px-6 py-4">
+                      {order.receiptImage ? (
+                        <button onClick={() => setReceiptImage(order.receiptImage)} className="px-3 py-1 bg-blue-500/10 text-blue-400 hover:bg-blue-500/20 rounded border border-blue-500/30 text-xs transition-colors">
+                          Lihat Bukti
+                        </button>
+                      ) : (
+                        <span className="text-xs text-gray-600 italic">Tidak ada</span>
+                      )}
+                    </td>
+                    <td className="px-6 py-4 text-right">
+                      <span className="px-2.5 py-1 bg-yellow-500/10 text-yellow-500 border border-yellow-500/20 rounded-md text-xs">
+                        {order.status}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+                {orders.length === 0 && (
+                  <tr>
+                    <td colSpan={6} className="px-6 py-8 text-center text-gray-500 italic">Belum ada pesanan masuk.</td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
 
       {/* FORM MODAL - TAMBAH/EDIT BUKU */}
       {isFormOpen && (
@@ -256,6 +335,24 @@ export default function AdminBookstore() {
                 <button type="submit" className="px-5 py-2.5 rounded-lg bg-[#c9a84c] text-black font-semibold hover:bg-[#e8c97a] transition-all shadow-[0_0_15px_rgba(201,168,76,0.2)]">Simpan & Unggah</button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* RECEIPT PREVIEW MODAL */}
+      {receiptImage && (
+        <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fade-in" onClick={() => setReceiptImage(null)}>
+          <div className="relative max-w-3xl max-h-[90vh] w-full" onClick={e => e.stopPropagation()}>
+            <button onClick={() => setReceiptImage(null)} className="absolute -top-12 right-0 text-white hover:text-[#c9a84c] bg-black/50 rounded-full p-2 transition-colors">
+              <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
+            {receiptImage.startsWith('data:image') ? (
+              <img src={receiptImage} alt="Bukti Transfer" className="w-full h-auto max-h-[90vh] object-contain rounded-lg border border-[#2a2a3e] shadow-2xl" />
+            ) : receiptImage.startsWith('data:application/pdf') ? (
+              <iframe src={receiptImage} className="w-full h-[80vh] rounded-lg border border-[#2a2a3e] bg-white" />
+            ) : (
+              <div className="w-full p-12 text-center bg-[#12121f] text-white rounded-lg border border-[#2a2a3e]">Format file tidak didukung untuk pratinjau.</div>
+            )}
           </div>
         </div>
       )}
