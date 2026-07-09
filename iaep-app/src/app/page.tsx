@@ -18,7 +18,7 @@ export default function Home() {
     <style>
       @media (max-width: 768px) {
         .hero-logo-overlay { left: 75% !important; top: 19% !important; transform: translate(-50%, -50%) !important; }
-        .hero-logo-img { width: 100px !important; height: 100px !important; }
+        .hero-logo-img { width: 120px !important; height: 120px !important; }
         .hero-cta-overlay { bottom: auto !important; top: 36% !important; transform: translateX(-50%) scale(0.64) !important; transform-origin: center top !important; }
         .hero-stats { margin-top: -220px !important; }
       }
