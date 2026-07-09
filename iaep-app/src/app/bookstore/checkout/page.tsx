@@ -1,9 +1,9 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 
-export default function CheckoutPage() {
+function CheckoutContent() {
   const searchParams = useSearchParams();
   const bookId = searchParams.get('bookId');
   
@@ -607,5 +607,13 @@ export default function CheckoutPage() {
         .my-1 { margin-top: 4px; margin-bottom: 4px; }
       `}} />
     </>
+  );
+}
+
+export default function CheckoutPage() {
+  return (
+    <Suspense fallback={<div style={{color: 'white', padding: '100px', textAlign: 'center'}}>Loading checkout...</div>}>
+      <CheckoutContent />
+    </Suspense>
   );
 }

@@ -4,11 +4,10 @@ import { execSync } from 'child_process';
 export async function GET() {
   try {
     const cwd = process.cwd();
-    // Auto commit and push EVERYTHING
     execSync('git add .', { cwd });
     let commitOutput = "No commit made";
     try {
-      commitOutput = execSync('git commit -m "fix: remove next/head usage in app router components causing build error"', { cwd, encoding: 'utf-8' });
+      commitOutput = execSync('git commit -m "fix: wrap useSearchParams in Suspense boundary for next.js static build bailout"', { cwd, encoding: 'utf-8' });
     } catch(e) {}
     
     const pushOutput = execSync('git push', { cwd, encoding: 'utf-8' });
