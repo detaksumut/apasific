@@ -181,7 +181,7 @@ export default function BookstorePage() {
                     <p className="bs-book-desc">{book.description}</p>
                     <div className="bs-card-footer">
                       <span className="bs-price">{book.price}</span>
-                      <button className="bs-buy-btn" onClick={() => showToast(`"${book.title}" added to cart!`)}>Buy Now</button>
+                      <button className="bs-buy-btn" onClick={() => window.location.href = `/bookstore/checkout?bookId=${book.id}`}>Buy Now</button>
                     </div>
                   </div>
                 </div>
