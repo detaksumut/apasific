@@ -17,7 +17,7 @@ export default function MajesticMembershipPage() {
     university: "",
   });
 
-  const [paymentAmount, setPaymentAmount] = useState(300000);
+  const [paymentAmount, setPaymentAmount] = useState(500000);
   const [buktiTransfer, setBuktiTransfer] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
@@ -182,7 +182,7 @@ export default function MajesticMembershipPage() {
                   <div className="bg-[#05050a]/80 border border-[#c9a84c]/40 text-center animate-fade-in shadow-[0_0_30px_rgba(201,168,76,0.15)]" style={{ borderRadius: '12px', padding: '24px' }}>
                     <h3 className="font-bold text-[#c9a84c]" style={{ fontSize: '16px', marginBottom: '12px' }}>INSTRUKSI PEMBAYARAN & AKTIVASI</h3>
                     <p className="text-gray-300" style={{ fontSize: '13px', marginBottom: '16px' }}>
-                      Biaya Administrasi Ujian Sertifikasi / Membership sebesar <b>Rp {paymentAmount.toLocaleString()}</b> ditransfer ke rekening:
+                      Biaya Administrasi Ujian Sertifikasi / Membership sebesar <b>Rp {paymentAmount.toLocaleString()}</b> (berlaku 3 tahun) ditransfer ke rekening:
                     </p>
                     
                     <div className="bg-black/50 border border-gray-700 inline-block text-left w-full max-w-sm" style={{ padding: '16px', borderRadius: '8px', marginBottom: '24px' }}>
