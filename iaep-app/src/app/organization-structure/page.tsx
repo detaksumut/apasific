@@ -124,9 +124,9 @@ export default function OrganizationStructurePage() {
         {/* Stats row */}
         <div style={{ display:"flex", gap:"16px", justifyContent:"center", flexWrap:"wrap", marginBottom:"36px" }}>
           {[
-            { label: "Total Positions", value: ORG_STRUCTURE.length },
-            { label: "Filled", value: ORG_STRUCTURE.filter(m => m.name).length },
-            { label: "Vacant", value: ORG_STRUCTURE.filter(m => !m.name).length },
+            { label: "Total Positions", value: orgStructure.length },
+            { label: "Filled", value: orgStructure.filter(m => m.name).length },
+            { label: "Vacant", value: orgStructure.filter(m => !m.name).length },
             { label: "Divisions", value: LEVELS.length },
           ].map((s, i) => (
             <div key={i} style={{
