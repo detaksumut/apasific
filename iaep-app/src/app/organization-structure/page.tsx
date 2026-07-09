@@ -28,32 +28,31 @@ const ORG_STRUCTURE: OrgMember[] = [
   // ── Vice Presidents ───────────────────────────────────────
   { no: 6,  level: "Vice Presidents", position: "Vice President",                 name: "Dr. Muhammad Yamin Noch, SE, MSA",                 division: "Academic Affairs & Institutional Development" },
   { no: 7,  level: "Vice Presidents", position: "Vice President",                 name: "Prof. Dr. Istianingsih Sastrodiharjo, SE, M.Si",   division: "Research & International Cooperation" },
-  { no: 8,  level: "Vice Presidents", position: "VP Membership",                  name: "",                                                  division: "Member Relations & Registry" },
   // ── Secretariat ───────────────────────────────────────────
-  { no: 9,  level: "Secretariat",     position: "Secretary General",              name: "Dr. Ngatemin, M.Si",                               division: "Office of the Secretary General (OSG)" },
-  { no: 10, level: "Secretariat",     position: "Deputy Secretary General",       name: "Dr. Ellen Puspitasari, SE, M.Si",                  division: "Country Representatives" },
-  { no: 11, level: "Secretariat",     position: "Chief Administrative Officer",   name: "Dr. Ikbar Pratama",                                 division: "Head of Secretariat Office" },
-  { no: 12, level: "Secretariat",     position: "Treasurer",                      name: "Tri Dessy Fadillah, SE, M.Ak",                    division: "Finance & Resource Management" },
+  { no: 8,  level: "Secretariat",     position: "Secretary General",              name: "Dr. Ngatemin, M.Si",                               division: "Office of the Secretary General (OSG)" },
+  { no: 9,  level: "Secretariat",     position: "Deputy Secretary General",       name: "Dr. Ellen Puspitasari, SE, M.Si",                  division: "Country Representatives" },
+  { no: 10, level: "Secretariat",     position: "Chief Administrative Officer",   name: "Dr. Ikbar Pratama",                                 division: "Head of Secretariat Office" },
+  { no: 11, level: "Secretariat",     position: "Treasurer",                      name: "Tri Dessy Fadillah, SE, M.Ak",                    division: "Finance & Resource Management" },
   // ── Directors ─────────────────────────────────────────────
-  { no: 13, level: "Directors",       position: "Director of Information Technology", name: "M. A. Rahman",                                division: "Software Engineering, AI & Digital Innovation" },
-  { no: 14, level: "Directors",       position: "Director of Global Partnerships",    name: "Dr. Bahkrul Khair Amal, M.Si",               division: "International Relations" },
-  { no: 15, level: "Directors",       position: "General Counsel",                    name: "Dr. Robbi Shahary, MH",                      division: "Legal Affairs & Governance Office" },
+  { no: 12, level: "Directors",       position: "Director of Information Technology", name: "M. A. Rahman",                                division: "Software Engineering, AI & Digital Innovation" },
+  { no: 13, level: "Directors",       position: "Director of Global Partnerships",    name: "Dr. Bahkrul Khair Amal, M.Si",               division: "International Relations" },
+  { no: 14, level: "Directors",       position: "General Counsel",                    name: "Dr. Robbi Shahary, MH",                      division: "Legal Affairs & Governance Office" },
   // ── Publication Division ──────────────────────────────────
-  { no: 16, level: "Publication",     position: "Editor in Chief",               name: "",  division: "Journal Editorial Leadership" },
+  { no: 15, level: "Publication",     position: "Editor in Chief",               name: "",  division: "Journal Editorial Leadership" },
   // ── ASIACERT – BOC Leadership ─────────────────────────────
-  { no: 17, level: "ASIACERT – BOC",  position: "Chairman of ASIACERT",          name: "",  division: "ASIACERT Center Leadership" },
-  { no: 18, level: "ASIACERT – BOC",  position: "Chairman of BOC",               name: "",  division: "Board of Certification Leadership" },
+  { no: 16, level: "ASIACERT – BOC",  position: "Chairman of ASIACERT",          name: "",  division: "ASIACERT Center Leadership" },
+  { no: 17, level: "ASIACERT – BOC",  position: "Chairman of BOC",               name: "",  division: "Board of Certification Leadership" },
   // ── 10 Bidang Sertifikasi ─────────────────────────────────
-  { no: 19, level: "Certification Field", position: "Chairman – Accounting & Auditing Certification",           name: "", division: "Accounting, Auditing & Taxation" },
-  { no: 20, level: "Certification Field", position: "Chairman – Business & Management Certification",           name: "", division: "Business, Management & Entrepreneurship" },
-  { no: 21, level: "Certification Field", position: "Chairman – Finance & Banking Certification",               name: "", division: "Finance, Banking & Investment" },
-  { no: 22, level: "Certification Field", position: "Chairman – Human Resources Certification",                 name: "", division: "Human Resources & Organizational Development" },
-  { no: 23, level: "Certification Field", position: "Chairman – Economics & Public Policy Certification",       name: "", division: "Economics & Public Policy" },
-  { no: 24, level: "Certification Field", position: "Chairman – Education & Research Certification",            name: "", division: "Education & Academic Development" },
-  { no: 25, level: "Certification Field", position: "Chairman – Law & Governance Certification",               name: "", division: "Law, Governance & Public Administration" },
-  { no: 26, level: "Certification Field", position: "Chairman – IT & Digital Transformation Certification",    name: "", division: "Information Technology, AI & Digital Transformation" },
-  { no: 27, level: "Certification Field", position: "Chairman – Engineering & Technology Certification",        name: "", division: "Engineering, Technology & Applied Sciences" },
-  { no: 28, level: "Certification Field", position: "Chairman – Social Sciences & Humanities Certification",   name: "", division: "Social Sciences, Humanities & Communication" },
+  { no: 18, level: "Certification Field", position: "Chairman – Accounting & Auditing Certification",           name: "", division: "Accounting, Auditing & Taxation" },
+  { no: 19, level: "Certification Field", position: "Chairman – Business & Management Certification",           name: "", division: "Business, Management & Entrepreneurship" },
+  { no: 20, level: "Certification Field", position: "Chairman – Finance & Banking Certification",               name: "", division: "Finance, Banking & Investment" },
+  { no: 21, level: "Certification Field", position: "Chairman – Human Resources Certification",                 name: "", division: "Human Resources & Organizational Development" },
+  { no: 22, level: "Certification Field", position: "Chairman – Economics & Public Policy Certification",       name: "", division: "Economics & Public Policy" },
+  { no: 23, level: "Certification Field", position: "Chairman – Education & Research Certification",            name: "", division: "Education & Academic Development" },
+  { no: 24, level: "Certification Field", position: "Chairman – Law & Governance Certification",               name: "", division: "Law, Governance & Public Administration" },
+  { no: 25, level: "Certification Field", position: "Chairman – IT & Digital Transformation Certification",    name: "", division: "Information Technology, AI & Digital Transformation" },
+  { no: 26, level: "Certification Field", position: "Chairman – Engineering & Technology Certification",        name: "", division: "Engineering, Technology & Applied Sciences" },
+  { no: 27, level: "Certification Field", position: "Chairman – Social Sciences & Humanities Certification",   name: "", division: "Social Sciences, Humanities & Communication" },
 ];
 
 const LEVEL_COLORS: Record<string, { bg: string; text: string; border: string }> = {
