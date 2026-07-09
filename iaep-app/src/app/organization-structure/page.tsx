@@ -18,55 +18,6 @@ interface OrgMember {
   photo?: string;        // Optional URL
 }
 
-const ORG_STRUCTURE: OrgMember[] = [
-  // ── Executive Board ───────────────────────────────────────
-  { no: 1,  level: "Executive Board", position: "Founder",                        name: "Dr. Arfan Ikhsan Lubis, SE, M.Si, CATr",          division: "Association of Asia Pacific Academician" },
-  { no: 2,  level: "Executive Board", position: "Co-Founder",                     name: "M. A. Rahman",                                     division: "Digital Platform & IT Innovation" },
-  { no: 3,  level: "Executive Board", position: "Advisor",                        name: "Dr. Prihat Assih, M.Si, CSR S",                    division: "Asia Pacific Academic Advisory Board" },
-  { no: 4,  level: "Executive Board", position: "Advisor",                        name: "Prof. Dr. Indra Maipita., M.Si",                   division: "Asia Pacific Academic Advisory Board" },
-  { no: 5,  level: "Executive Board", position: "President AAPA",                     name: "Dr. Arfan Ikhsan Lubis, SE, M.Si, CATr",          division: "Association of Asia Pacific Academician" },
-  // ── Vice Presidents ───────────────────────────────────────
-  { no: 6,  level: "Vice Presidents", position: "Vice President",                 name: "Dr. Muhammad Yamin Noch, SE, MSA",                 division: "Academic Affairs & Institutional Development" },
-  { no: 7,  level: "Vice Presidents", position: "Vice President",                 name: "Prof. Dr. Istianingsih Sastrodiharjo, SE, M.Si",   division: "Research & International Cooperation" },
-  // ── Secretariat ───────────────────────────────────────────
-  { no: 8,  level: "Secretariat",     position: "Secretary General",              name: "Dr. Ngatemin, M.Si",                               division: "Office of the Secretary General (OSG)" },
-  { no: 9,  level: "Secretariat",     position: "Deputy Secretary General",       name: "Dr. Ellen Puspitasari, SE, M.Si",                  division: "Country Representatives" },
-  { no: 10, level: "Secretariat",     position: "Chief Administrative Officer",   name: "Dr. Ikbar Pratama",                                 division: "Head of Secretariat Office" },
-  { no: 11, level: "Secretariat",     position: "Treasurer",                      name: "Tri Dessy Fadillah, SE, M.Ak",                    division: "Finance & Resource Management" },
-  // ── Directors ─────────────────────────────────────────────
-  { no: 12, level: "Directors",       position: "Director of Information Technology", name: "M. A. Rahman",                                division: "Software Engineering, AI & Digital Innovation" },
-  { no: 13, level: "Directors",       position: "Director of Global Partnerships",    name: "Dr. Bahkrul Khair Amal, M.Si",               division: "International Relations" },
-  { no: 14, level: "Directors",       position: "General Counsel",                    name: "Dr. Robbi Shahary, MH",                      division: "Legal Affairs & Governance Office" },
-  // ── Publication Division ──────────────────────────────────
-  { no: 15, level: "Publication",     position: "Editor in Chief",               name: "Dr. Bahkrul Khair Alam, M.Si",  division: "Journal Editorial Leadership" },
-  // ── ASIACERT ──────────────────────────────────────────────
-  { no: 16, level: "ASIACERT",        position: "Chairman of ASIACERT",          name: "Dr. Arfan Ikhsan Lubis, SE, M.Si, CATr", division: "ASIACERT Center Leadership" },
-  { no: 17, level: "ASIACERT",        position: "Chairman of BOC",               name: "Dr. Sazali Zainal Abidin", division: "Board of Certification Leadership" },
-  { no: 18, level: "ASIACERT",        position: "Secretary of BOC",              name: "Dr. Amni Suhailah",                      division: "Board of Certification Leadership" },
-  { no: 19, level: "Membership",      position: "Chief of Membership",           name: "",                                       division: "Member Relations & Registry" },
-  // ── Strategic Bodies ──────────────────────────────────────
-  { no: 20, level: "ASIACERT", position: "Chairman – Research & Innovation Council",        name: "Dr. Prattana Arisuk",                     division: "Research & Innovation Council" },
-  { no: 21, level: "ASIACERT", position: "Secretary – Research & Innovation Council",       name: "Dr. Prattana Srisuk",                     division: "Research & Innovation Council" },
-  { no: 22, level: "ASIACERT", position: "Chairman – Conference & Academic Forum",          name: "Cliff Cheng",                             division: "Conference & Academic Forum" },
-  { no: 23, level: "ASIACERT", position: "Secretary – Conference & Academic Forum",         name: "Dr. Ha Thuy",                             division: "Conference & Academic Forum" },
-  { no: 24, level: "ASIACERT", position: "Chairman – Publication & Knowledge Center",       name: "Dr. Hakan Aslan",                         division: "Publication & Knowledge Center" },
-  { no: 25, level: "ASIACERT", position: "Secretary – Publication & Knowledge Center",      name: "Dr. Wahida",                              division: "Publication & Knowledge Center" },
-  { no: 26, level: "ASIACERT", position: "Chairman – Academic Mobility Center",             name: "Dr. Muhammad Hashim",                     division: "Academic Mobility Center" },
-  { no: 27, level: "ASIACERT", position: "Secretary – Academic Mobility Center",            name: "Dr. Raja Haslinda",                       division: "Academic Mobility Center" },
-  { no: 28, level: "ASIACERT", position: "Chairman – Competition Center",                   name: "Dr. Nifaosan",                            division: "Competition Center" },
-  { no: 29, level: "ASIACERT", position: "Secretary – Competition Center",                  name: "Dr. Ryan",                                division: "Competition Center" },
-  { no: 30, level: "ASIACERT", position: "Chairman – Community Engagement & SDGs Center",   name: "Prof. Dr. Indra Devi",                    division: "Community Engagement & SDGs Center" },
-  { no: 31, level: "ASIACERT", position: "Secretary – Community Engagement & SDGs Center",  name: "Dr. Intan Fatimah Anwar",                 division: "Community Engagement & SDGs Center" },
-  { no: 32, level: "ASIACERT", position: "Chairman – Quality Assurance & Accreditation Board", name: "Dr. Majo George",                     division: "Quality Assurance & Accreditation Board" },
-  { no: 33, level: "ASIACERT", position: "Secretary – Quality Assurance & Accreditation Board", name: "DR. Mohammad Sahabuddin",             division: "Quality Assurance & Accreditation Board" },
-  { no: 34, level: "ASIACERT", position: "Chairman – Digital Academy & AI Center",          name: "DR. Eko Cahyo Mayndarto, SE, M.Si, Ak",   division: "Digital Academy & AI Center" },
-  { no: 35, level: "ASIACERT", position: "Secretary – Digital Academy & AI Center",         name: "Dr. Anwar Masatip, MMPAR",                division: "Digital Academy & AI Center" },
-  { no: 36, level: "ASIACERT", position: "Chairman – Young Academician Network",            name: "Dr. Enos Julvirta, MMPAR",                division: "Young Academician Network" },
-  { no: 37, level: "ASIACERT", position: "Secretary – Young Academician Network",           name: "Ikbar Pratama, SE, MAcc, PhD",            division: "Young Academician Network" },
-  { no: 38, level: "ASIACERT", position: "Chairman – Awards & Recognition Council",         name: "Prof. Dr. Ram Al Jafri bin Saad",         division: "Awards & Recognition Council" },
-  { no: 39, level: "ASIACERT", position: "Secretary – Awards & Recognition Council",        name: "Dr. Ellen Puspitasasi, SE, M.Si",         division: "Awards & Recognition Council" },
-];
-
 const LEVEL_COLORS: Record<string, { bg: string; text: string; border: string }> = {
   "Executive Board":    { bg: "rgba(201,168,76,0.12)", text: "#c9a84c",  border: "rgba(201,168,76,0.5)" },
   "Vice Presidents":    { bg: "rgba(139,92,246,0.08)", text: "#a78bfa",  border: "rgba(139,92,246,0.4)" },
@@ -79,14 +30,29 @@ const LEVEL_COLORS: Record<string, { bg: string; text: string; border: string }>
   "Certification Field":{ bg: "rgba(167,139,250,0.08)", text: "#c4b5fd", border: "rgba(167,139,250,0.4)" },
 };
 
-const LEVELS = Array.from(new Set(ORG_STRUCTURE.map(m => m.level)));
-
 export default function OrganizationStructurePage() {
+  const [orgStructure, setOrgStructure] = useState<OrgMember[]>([]);
+  const [loading, setLoading] = useState(true);
   const [activeLevel, setActiveLevel] = useState<string>("All");
 
+  React.useEffect(() => {
+    fetch('/api/org-structure')
+      .then(res => res.json())
+      .then(data => {
+        setOrgStructure(Array.isArray(data) ? data : []);
+        setLoading(false);
+      })
+      .catch(err => {
+        console.error("Error fetching org structure", err);
+        setLoading(false);
+      });
+  }, []);
+
+  const LEVELS = Array.from(new Set(orgStructure.map(m => m.level)));
+
   const filtered = activeLevel === "All"
-    ? ORG_STRUCTURE
-    : ORG_STRUCTURE.filter(m => m.level === activeLevel);
+    ? orgStructure
+    : orgStructure.filter(m => m.level === activeLevel);
 
   return (
     <div style={{
