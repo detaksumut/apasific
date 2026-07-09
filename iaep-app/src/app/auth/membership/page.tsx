@@ -108,7 +108,7 @@ export default function MajesticMembershipPage() {
           </p>
         </div>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '48px', alignItems: 'center' }}>
+        <div className="flex flex-col lg:flex-row gap-12 items-center lg:items-start justify-center w-full">
           
           {/* Top: Form */}
           <div className="bg-[#0d0d1a]/80 border border-[#c9a84c]/20 shadow-2xl backdrop-blur-md w-full" style={{ maxWidth: '800px', padding: '32px', borderRadius: '16px' }}>
