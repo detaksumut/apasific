@@ -19,10 +19,34 @@ export default function AdminBookstore() {
     setTimeout(() => setToastMessage(""), 3000);
   };
 
-  const handleAddSubmit = (e: React.FormEvent) => {
+  const handleAddSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    const title = formData.get('title') as string;
+    const author = formData.get('author') as string;
+    const category = formData.get('category') as string;
+    const year = formData.get('year') as string;
+    const priceRaw = formData.get('price') as string;
+    const stock = Number(formData.get('stock'));
+    
+    // Formatting price
+    const price = `Rp ${Number(priceRaw).toLocaleString('id-ID')}`;
+
+    const newBook = {
+      id: Date.now(), // Generate unique ID
+      title,
+      author,
+      year,
+      category,
+      price,
+      status: "Published",
+      stock
+    };
+
+    setBooks([newBook, ...books]); // Append to top of list
     setIsFormOpen(false);
-    showToast("Buku baru berhasil diunggah! (Demo)");
+    setSelectedFile(null); // Reset file
+    showToast(`Buku "${title}" berhasil diunggah! (Demo)`);
   };
 
   const handleDelete = (id: number, title: string) => {
@@ -91,7 +115,7 @@ export default function AdminBookstore() {
                   </td>
                   <td className="px-6 py-4 text-right">
                     <button className="text-[#c9a84c] hover:text-[#e8c97a] mr-4 text-sm font-medium transition-colors">Edit</button>
-                    <button onClick={() => handleDelete(book.id, book.title)} className="text-red-400 hover:text-red-300 text-sm font-medium transition-colors">Delete</button>
+                    <button type="button" onClick={() => handleDelete(book.id, book.title)} className="text-red-400 hover:text-red-300 text-sm font-medium transition-colors cursor-pointer relative z-10">Delete</button>
                   </td>
                 </tr>
               ))}
@@ -119,15 +143,15 @@ export default function AdminBookstore() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                 <div>
                   <label className="block text-sm font-medium text-gray-400 mb-1.5">Judul Buku</label>
-                  <input type="text" required className="w-full bg-[#0a0a10] border border-[#2a2a3e] rounded-lg px-4 py-2.5 text-white focus:border-[#c9a84c] focus:outline-none transition-colors" placeholder="Masukkan judul..." />
+                  <input name="title" type="text" required className="w-full bg-[#0a0a10] border border-[#2a2a3e] rounded-lg px-4 py-2.5 text-white focus:border-[#c9a84c] focus:outline-none transition-colors" placeholder="Masukkan judul..." />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-400 mb-1.5">Penulis / Pengarang</label>
-                  <input type="text" required className="w-full bg-[#0a0a10] border border-[#2a2a3e] rounded-lg px-4 py-2.5 text-white focus:border-[#c9a84c] focus:outline-none transition-colors" placeholder="Nama penulis..." />
+                  <input name="author" type="text" required className="w-full bg-[#0a0a10] border border-[#2a2a3e] rounded-lg px-4 py-2.5 text-white focus:border-[#c9a84c] focus:outline-none transition-colors" placeholder="Nama penulis..." />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-400 mb-1.5">Kategori</label>
-                  <select required className="w-full bg-[#0a0a10] border border-[#2a2a3e] rounded-lg px-4 py-2.5 text-white focus:border-[#c9a84c] focus:outline-none transition-colors appearance-none">
+                  <select name="category" required className="w-full bg-[#0a0a10] border border-[#2a2a3e] rounded-lg px-4 py-2.5 text-white focus:border-[#c9a84c] focus:outline-none transition-colors appearance-none">
                     <option value="">Pilih Kategori...</option>
                     <option value="Monograph">Monograph</option>
                     <option value="Academic Book">Academic Book</option>
@@ -138,15 +162,15 @@ export default function AdminBookstore() {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-400 mb-1.5">Tahun Terbit</label>
-                  <input type="number" required className="w-full bg-[#0a0a10] border border-[#2a2a3e] rounded-lg px-4 py-2.5 text-white focus:border-[#c9a84c] focus:outline-none transition-colors" placeholder="Contoh: 2025" />
+                  <input name="year" type="number" required className="w-full bg-[#0a0a10] border border-[#2a2a3e] rounded-lg px-4 py-2.5 text-white focus:border-[#c9a84c] focus:outline-none transition-colors" placeholder="Contoh: 2025" />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-400 mb-1.5">Harga (Rp)</label>
-                  <input type="number" required className="w-full bg-[#0a0a10] border border-[#2a2a3e] rounded-lg px-4 py-2.5 text-white focus:border-[#c9a84c] focus:outline-none transition-colors" placeholder="Contoh: 150000" />
+                  <input name="price" type="number" required className="w-full bg-[#0a0a10] border border-[#2a2a3e] rounded-lg px-4 py-2.5 text-white focus:border-[#c9a84c] focus:outline-none transition-colors" placeholder="Contoh: 150000" />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-400 mb-1.5">Stok</label>
-                  <input type="number" required className="w-full bg-[#0a0a10] border border-[#2a2a3e] rounded-lg px-4 py-2.5 text-white focus:border-[#c9a84c] focus:outline-none transition-colors" placeholder="Jumlah stok..." />
+                  <input name="stock" type="number" required className="w-full bg-[#0a0a10] border border-[#2a2a3e] rounded-lg px-4 py-2.5 text-white focus:border-[#c9a84c] focus:outline-none transition-colors" placeholder="Jumlah stok..." />
                 </div>
               </div>
               <div>
