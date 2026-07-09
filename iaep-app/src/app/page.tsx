@@ -26,7 +26,9 @@ export default function Home() {
         .hide-on-mobile { display: none !important; }
       }
       @media (min-width: 769px) {
-        .hero-logo-img { width: 520px !important; height: 520px !important; }
+        .hero-logo-overlay { position: absolute !important; right: 5% !important; top: 10% !important; z-index: 5 !important; pointer-events: none !important; transform: scale(1.1) !important; transform-origin: center !important; }
+        .hero-logo-img { width: 572px !important; height: 572px !important; }
+        .hero-cta-overlay { bottom: 188px !important; }
       }
     </style>
     <div class="hero-logo-overlay">
