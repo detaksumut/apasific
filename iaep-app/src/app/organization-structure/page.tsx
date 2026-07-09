@@ -38,7 +38,7 @@ const ORG_STRUCTURE: OrgMember[] = [
   { no: 13, level: "Directors",       position: "Director of Global Partnerships",    name: "Dr. Bahkrul Khair Amal, M.Si",               division: "International Relations" },
   { no: 14, level: "Directors",       position: "General Counsel",                    name: "Dr. Robbi Shahary, MH",                      division: "Legal Affairs & Governance Office" },
   // ── Publication Division ──────────────────────────────────
-  { no: 15, level: "Publication",     position: "Editor in Chief",               name: "",  division: "Journal Editorial Leadership" },
+  { no: 15, level: "Publication",     position: "Editor in Chief",               name: "Dr. Bahkrul Khair Alam, M.Si",  division: "Journal Editorial Leadership" },
   // ── ASIACERT ──────────────────────────────────────────────
   { no: 16, level: "ASIACERT",        position: "Chairman of ASIACERT",          name: "Dr. Arfan Ikhsan Lubis, SE, M.Si, CATr", division: "ASIACERT Center Leadership" },
   { no: 17, level: "ASIACERT",        position: "Chairman of BOC",               name: "Dr. Sazali Zainal Abidin", division: "Board of Certification Leadership" },
