@@ -69,15 +69,34 @@ const MOCK_BOOKS = [
 export default function BookstorePage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('All');
+  const [books, setBooks] = useState(MOCK_BOOKS);
+  const [isLoaded, setIsLoaded] = useState(false);
 
-  const categories = ['All', ...Array.from(new Set(MOCK_BOOKS.map(b => b.category)))];
+  React.useEffect(() => {
+    const saved = localStorage.getItem("mock_admin_books");
+    if (saved) {
+      // Need to format the data for frontend if necessary, 
+      // but they should be compatible as they have title, author, year, category, price, image (we can use dummy image for newly added)
+      const parsed = JSON.parse(saved);
+      const mapped = parsed.map((p: any) => ({
+        ...p,
+        image: p.image || `https://dummyimage.com/400x600/18182e/c9a84c.png&text=${encodeURIComponent(p.title.split(' ').slice(0, 2).join('+'))}`
+      }));
+      setBooks(mapped);
+    }
+    setIsLoaded(true);
+  }, []);
 
-  const filteredBooks = MOCK_BOOKS.filter(book => {
+  const categories = ['All', ...Array.from(new Set(books.map(b => b.category)))];
+
+  const filteredBooks = books.filter(book => {
     const matchesSearch = book.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
                           book.author.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = categoryFilter === 'All' || book.category === categoryFilter;
     return matchesSearch && matchesCategory;
   });
+
+  if (!isLoaded) return null;
 
   return (
     <>
