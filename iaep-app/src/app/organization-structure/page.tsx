@@ -135,13 +135,24 @@ export default function OrganizationStructurePage() {
           borderRadius: "16px",
           overflow: "hidden",
           border: "1px solid rgba(255,255,255,0.05)",
-          boxShadow: "0 20px 40px rgba(0,0,0,0.4)"
+          boxShadow: "0 20px 40px rgba(0,0,0,0.4)",
+          position: "relative" // For pseudo-element overlay if needed
         }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img 
             src="/APASIFIC.jpg" 
             alt="Organization Structure Chart" 
-            style={{ width: "100%", height: "auto", display: "block" }} 
+            draggable={false}
+            onContextMenu={(e) => e.preventDefault()}
+            style={{ 
+              width: "100%", 
+              height: "auto", 
+              display: "block",
+              pointerEvents: "none", // Prevents click-and-drag and most right clicks
+              userSelect: "none",
+              WebkitUserSelect: "none",
+              WebkitTouchCallout: "none" // Prevents long press on iOS
+            }} 
           />
         </div>
 
