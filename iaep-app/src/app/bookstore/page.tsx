@@ -6,7 +6,7 @@ import MOCK_BOOKS from '@/data/books.json';
 export default function BookstorePage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('All');
-  const [books, setBooks] = useState(MOCK_BOOKS);
+  const [books, setBooks] = useState<any[]>(MOCK_BOOKS);
   const [isLoaded, setIsLoaded] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
 
