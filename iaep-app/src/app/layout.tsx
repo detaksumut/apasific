@@ -137,7 +137,16 @@ export default function RootLayout({
             <a href="/#awards-prog"><span class="dd-icon">◈</span> Awards</a>
           </div>
         </li>
+        <li class="mobile-login-item">
+          <a href="/auth/login" class="nav-link" style="color: #c9a84c; font-weight: bold;">LOGIN / DAFTAR</a>
+        </li>
       </ul>
+      <style>
+        .mobile-login-item { display: none; }
+        @media (max-width: 768px) {
+          .mobile-login-item { display: block; margin-top: 10px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 10px; }
+        }
+      </style>
       <div class="nav-actions" style="display: flex; gap: 10px; align-items: center;">
         <div id="google_translate_element"></div>
         <div class="custom-lang-selector" id="custom-lang-selector">
