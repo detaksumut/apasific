@@ -7,7 +7,7 @@ export async function GET() {
     execSync('git add .', { cwd });
     let commitOutput = "No commit made";
     try {
-      commitOutput = execSync('git commit -m "feat: change Chairman of BOC name to Dr. Sazali Zainal Abidin"', { cwd, encoding: 'utf-8' });
+      commitOutput = execSync('git commit -m "feat: rename ASIACERT-BOC to ASIACERT and create Membership level"', { cwd, encoding: 'utf-8' });
     } catch(e) {}
     const pushOutput = execSync('git push', { cwd, encoding: 'utf-8' });
     return NextResponse.json({ success: true, commitOutput, pushOutput });

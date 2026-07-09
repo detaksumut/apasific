@@ -39,11 +39,11 @@ const ORG_STRUCTURE: OrgMember[] = [
   { no: 14, level: "Directors",       position: "General Counsel",                    name: "Dr. Robbi Shahary, MH",                      division: "Legal Affairs & Governance Office" },
   // ── Publication Division ──────────────────────────────────
   { no: 15, level: "Publication",     position: "Editor in Chief",               name: "",  division: "Journal Editorial Leadership" },
-  // ── ASIACERT – BOC Leadership ─────────────────────────────
-  { no: 16, level: "ASIACERT – BOC",  position: "Chairman of ASIACERT",          name: "Dr. Arfan Ikhsan Lubis, SE, M.Si, CATr", division: "ASIACERT Center Leadership" },
-  { no: 17, level: "ASIACERT – BOC",  position: "Chairman of BOC",               name: "Dr. Sazali Zainal Abidin", division: "Board of Certification Leadership" },
-  { no: 18, level: "ASIACERT – BOC",  position: "Secretary of BOC",              name: "Dr. Amni Suhailah",                      division: "Board of Certification Leadership" },
-  { no: 19, level: "ASIACERT – BOC",  position: "Chief of Membership",           name: "",                                       division: "Member Relations & Registry" },
+  // ── ASIACERT ──────────────────────────────────────────────
+  { no: 16, level: "ASIACERT",        position: "Chairman of ASIACERT",          name: "Dr. Arfan Ikhsan Lubis, SE, M.Si, CATr", division: "ASIACERT Center Leadership" },
+  { no: 17, level: "ASIACERT",        position: "Chairman of BOC",               name: "Dr. Sazali Zainal Abidin", division: "Board of Certification Leadership" },
+  { no: 18, level: "ASIACERT",        position: "Secretary of BOC",              name: "Dr. Amni Suhailah",                      division: "Board of Certification Leadership" },
+  { no: 19, level: "Membership",      position: "Chief of Membership",           name: "",                                       division: "Member Relations & Registry" },
   // ── Strategic Bodies ──────────────────────────────────────
   { no: 20, level: "Strategic Bodies", position: "Chairman – Research & Innovation Council",        name: "Dr. Prattana Arisuk",                     division: "Research & Innovation Council" },
   { no: 21, level: "Strategic Bodies", position: "Secretary – Research & Innovation Council",       name: "Dr. Prattana Srisuk",                     division: "Research & Innovation Council" },
@@ -73,7 +73,8 @@ const LEVEL_COLORS: Record<string, { bg: string; text: string; border: string }>
   "Secretariat":        { bg: "rgba(52,211,153,0.08)", text: "#6ee7b7",  border: "rgba(52,211,153,0.4)" },
   "Directors":          { bg: "rgba(56,189,248,0.08)", text: "#7dd3fc",  border: "rgba(56,189,248,0.4)" },
   "Publication":        { bg: "rgba(251,146,60,0.08)", text: "#fdba74",  border: "rgba(251,146,60,0.4)" },
-  "ASIACERT – BOC":     { bg: "rgba(244,114,182,0.10)", text: "#f9a8d4", border: "rgba(244,114,182,0.5)" },
+  "ASIACERT":           { bg: "rgba(244,114,182,0.10)", text: "#f9a8d4", border: "rgba(244,114,182,0.5)" },
+  "Membership":         { bg: "rgba(99,102,241,0.08)",  text: "#818cf8", border: "rgba(99,102,241,0.4)" },
   "Strategic Bodies":   { bg: "rgba(20,184,166,0.08)",  text: "#5eead4", border: "rgba(20,184,166,0.4)" },
   "Certification Field":{ bg: "rgba(167,139,250,0.08)", text: "#c4b5fd", border: "rgba(167,139,250,0.4)" },
 };
