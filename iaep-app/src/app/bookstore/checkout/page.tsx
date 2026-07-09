@@ -123,7 +123,7 @@ export default function CheckoutPage() {
                     <div className="co-payment-instruction">
                       <p className="mb-2 text-sm text-gray-400">Silakan transfer sesuai nominal pesanan ke rekening berikut:</p>
                       <div className="co-bank-details">
-                        <img src="https://upload.wikimedia.org/wikipedia/id/thumb/5/55/BNI_logo.svg/1200px-BNI_logo.svg.png" alt="BNI" className="co-bank-logo" />
+                        <img src="/logobni.png" alt="BNI" className="co-bank-logo" />
                         <div>
                           <div className="text-xs text-gray-400">Bank Negara Indonesia (BNI)</div>
                           <div className="font-mono text-xl font-bold text-white tracking-wider my-1">700 600 2218</div>
