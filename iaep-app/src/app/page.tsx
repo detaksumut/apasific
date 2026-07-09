@@ -10,33 +10,63 @@ export default function Home() {
   ═══════════════════════════════════════════ -->
   <style>
     @media (max-width: 768px) {
+      .hero {
+        min-height: auto !important;
+        display: flex;
+        flex-direction: column;
+      }
+      .hero-bg-image {
+        position: relative !important;
+        height: auto !important;
+        display: block;
+      }
       #hero-bg-img {
         object-fit: contain !important;
         height: auto !important;
-        min-height: 250px;
+        width: 100% !important;
         background: #000;
+        display: block;
       }
       .hero-logo-img {
         width: 100px !important;
         height: 100px !important;
+        min-height: auto !important;
+        object-fit: contain !important;
       }
       .hero-logo-overlay {
+        position: absolute !important;
         top: 50% !important;
         left: 50% !important;
         transform: translate(-50%, -50%) !important;
+        margin: 0 !important;
       }
       .hero-cta-overlay {
-        bottom: 100px !important;
-        flex-direction: column !important;
-        width: 100%;
-        align-items: center;
+        position: relative !important;
+        bottom: auto !important;
+        left: auto !important;
+        transform: none !important;
+        display: flex !important;
+        flex-direction: row !important;
+        flex-wrap: wrap !important;
+        justify-content: center !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        padding: 15px 15px !important;
         gap: 10px !important;
       }
       .hero-cta-overlay a {
-        font-size: 0.8rem !important;
-        padding: 8px 15px !important;
-        width: 80% !important;
+        font-size: 0.75rem !important;
+        padding: 10px !important;
+        width: calc(50% - 5px) !important;
         justify-content: center;
+      }
+      .hero-cta-overlay a:nth-child(3) {
+        width: 100% !important;
+      }
+      .hero-stats {
+        position: relative !important;
+        bottom: auto !important;
+        margin-top: 10px;
       }
     }
   </style>
@@ -44,13 +74,13 @@ export default function Home() {
     <!-- Full-width background image — all content is inside the banner -->
     <div class="hero-bg-image">
       <img src="/banner-apasific.png" alt="ASIA – Association of Asia Pacific Academician" id="hero-bg-img" style="width: 100%; object-fit: cover;" />
-    </div>
-    <!-- Logo overlay: di sebelah kanan teks ASSOCIATION di banner -->
-    <div class="hero-logo-overlay">
-      <img src="/logo-apasific.png"
-           alt="ASIA Logo"
-           class="hero-logo-img"
-           onerror="this.style.display='none'" />
+      <!-- Logo overlay: di sebelah kanan teks ASSOCIATION di banner -->
+      <div class="hero-logo-overlay">
+        <img src="/logo-apasific.png"
+             alt="ASIA Logo"
+             class="hero-logo-img"
+             onerror="this.style.display='none'" />
+      </div>
     </div>
 
     <!-- Bank Account Overlay (Inline styles to bypass cache) -->

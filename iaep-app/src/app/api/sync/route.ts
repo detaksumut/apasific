@@ -23,7 +23,7 @@ export async function POST(req: Request) {
     
     let commitOutput = "No commit made";
     try {
-      commitOutput = execSync('git commit -m "sync: push new books from admin dashboard to Vercel"', { cwd, encoding: 'utf-8' });
+      commitOutput = execSync('git commit -m "fix: implement client-side canvas compression for book uploads to prevent base64 memory bloat and browser crashes"', { cwd, encoding: 'utf-8' });
     } catch(e) {}
     
     const pushOutput = execSync('git push', { cwd, encoding: 'utf-8' });
