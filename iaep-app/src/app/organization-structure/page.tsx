@@ -133,6 +133,7 @@ const HLine = ({ width, color = "rgba(201,168,76,0.35)" }: { width: number; colo
 /* ── MAIN PAGE ─────────────────────────────────────────────────── */
 export default function OrganizationStructurePage() {
   const vpList = [
+    // Row 1 — VPs with sub-divisions
     {
       vp: "VP Publication",
       children: ["Editor in Chief", "Managing Editor", "Editorial Board", "Reviewer Board", "Publication Director"],
@@ -141,13 +142,17 @@ export default function OrganizationStructurePage() {
       vp: "VP Certification",
       children: ["Chairman of Certification", "Examination Board", "Interview Board", "Certification Assessors", "Certification Admin"],
     },
-    { vp: "VP Membership", children: [] },
-    { vp: "VP Research", children: [] },
-    { vp: "VP Conference", children: [] },
+    // "Spacer" — empty slot so row 1 only has 2 items and row 2 starts fresh
+    // Row 2 — VPs without sub-divisions
+    { vp: "VP Research",              children: [] },
+    { vp: "VP Conference",            children: [] },
+    { vp: "VP Membership",            children: [] },   // ← shifted to right column of row 2
+    // Row 3
     { vp: "VP International Affairs", children: [] },
-    { vp: "VP Finance", children: [] },
-    { vp: "VP Administration", children: [] },
+    { vp: "VP Finance",               children: [] },
+    { vp: "VP Administration",        children: [] },
   ];
+
 
   const cofBlue = "rgba(100,180,255,0.6)";
 
@@ -230,14 +235,15 @@ export default function OrganizationStructurePage() {
                   <NodeBox title="President" level="president" />
                   <VLine />
 
-                  {/* 8 VPs Grid (3 cols) */}
+                  {/* ── Row A: 2 VPs with sub-divisions (side by side) */}
                   <div style={{
                     display: "grid",
-                    gridTemplateColumns: "repeat(3, 160px)",
+                    gridTemplateColumns: "repeat(2, 160px)",
                     gap: "28px 18px",
                     justifyContent: "center",
+                    marginBottom: "28px",
                   }}>
-                    {vpList.map((item, i) => (
+                    {vpList.filter(v => v.children.length > 0).map((item, i) => (
                       <div key={i} style={{ display:"flex", flexDirection:"column", alignItems:"center" }}>
                         <NodeBox title={item.vp} level="vp" />
                         {item.children.map((child, j) => (
@@ -249,6 +255,23 @@ export default function OrganizationStructurePage() {
                       </div>
                     ))}
                   </div>
+
+                  {/* ── Row B: flat VPs (no sub-divisions), 3 cols */}
+                  {/* Research | Conference | Membership(right) */}
+                  {/* Int. Affairs | Finance | Administration */}
+                  <div style={{
+                    display: "grid",
+                    gridTemplateColumns: "repeat(3, 160px)",
+                    gap: "18px 18px",
+                    justifyContent: "center",
+                  }}>
+                    {vpList.filter(v => v.children.length === 0).map((item, i) => (
+                      <div key={i} style={{ display:"flex", flexDirection:"column", alignItems:"center" }}>
+                        <NodeBox title={item.vp} level="vp" />
+                      </div>
+                    ))}
+                  </div>
+
                 </div>
 
                 <HLine width={24} />
