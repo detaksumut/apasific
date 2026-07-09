@@ -107,6 +107,13 @@ export default function AdminBookstore() {
     showToast(`Buku "${title}" berhasil dihapus.`);
   };
 
+  const handleOrderStatusChange = (orderId: string, newStatus: string) => {
+    const updatedOrders = orders.map(o => o.orderId === orderId ? { ...o, status: newStatus } : o);
+    setOrders(updatedOrders);
+    localStorage.setItem("mock_admin_orders", JSON.stringify(updatedOrders));
+    showToast(`Status pesanan ${orderId} diperbarui menjadi ${newStatus}`);
+  };
+
   if (!isLoaded) return null; // Prevent hydration mismatch
 
   return (
@@ -238,9 +245,22 @@ export default function AdminBookstore() {
                       )}
                     </td>
                     <td className="px-6 py-4 text-right">
-                      <span className="px-2.5 py-1 bg-yellow-500/10 text-yellow-500 border border-yellow-500/20 rounded-md text-xs">
-                        {order.status}
-                      </span>
+                      <select 
+                        value={order.status}
+                        onChange={(e) => handleOrderStatusChange(order.orderId, e.target.value)}
+                        className={`px-2.5 py-1 rounded-md text-xs border bg-transparent font-medium focus:outline-none focus:border-[#c9a84c] cursor-pointer ${
+                          order.status === 'Menunggu Verifikasi' ? 'text-yellow-500 border-yellow-500/30' :
+                          order.status === 'Lunas / Terverifikasi' ? 'text-green-400 border-green-500/30' :
+                          order.status === 'Dibatalkan' ? 'text-red-400 border-red-500/30' :
+                          'text-gray-400 border-[#2a2a3e]'
+                        }`}
+                      >
+                        <option value="Menunggu Verifikasi" className="bg-[#1a1a2e] text-white">Menunggu Verifikasi</option>
+                        <option value="Lunas / Terverifikasi" className="bg-[#1a1a2e] text-white">Lunas / Terverifikasi</option>
+                        <option value="Dikirim" className="bg-[#1a1a2e] text-white">Dikirim</option>
+                        <option value="Selesai" className="bg-[#1a1a2e] text-white">Selesai</option>
+                        <option value="Dibatalkan" className="bg-[#1a1a2e] text-white">Dibatalkan</option>
+                      </select>
                     </td>
                   </tr>
                 ))}
