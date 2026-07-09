@@ -7,7 +7,7 @@ export async function GET() {
     execSync('git add .', { cwd });
     let commitOutput = "No commit made";
     try {
-      commitOutput = execSync('git commit -m "style: fix mobile navbar layout to ensure hamburger menu is visible and centered"', { cwd, encoding: 'utf-8' });
+      commitOutput = execSync('git commit -m "fix: add position relative and z-index to make mobile hamburger menu clickable"', { cwd, encoding: 'utf-8' });
     } catch(e) {}
     const pushOutput = execSync('git push', { cwd, encoding: 'utf-8' });
     return NextResponse.json({ success: true, commitOutput, pushOutput });

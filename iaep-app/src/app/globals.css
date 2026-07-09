@@ -1448,8 +1448,8 @@ img { max-width: 100%; display: block; }
   .contact-wrapper { grid-template-columns: 1fr; }
   .nav-links { display: none; }
   .nav-container { justify-content: space-between; gap: 10px; padding: 0 16px; width: 100%; }
-  .nav-logo { order: 1; flex-shrink: 0; }
-  .hamburger { display: flex; order: 2; margin: 0 auto; flex-shrink: 0; z-index: 99; }
+  .hamburger { display: flex; order: 1; margin: 0; flex-shrink: 0; position: relative; z-index: 999; padding: 10px; margin-left: -10px; }
+  .nav-logo { order: 2; margin: 0 auto; flex-shrink: 0; }
   .nav-actions { order: 3; flex-shrink: 0; }
   .btn-join { display: none; }
   .nav-links.open {
