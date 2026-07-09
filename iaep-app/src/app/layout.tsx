@@ -168,6 +168,7 @@ export default function RootLayout({
             <div class="lang-option" data-lang="ru" data-flag="ru.png"><img src="https://flagcdn.com/w20/ru.png" alt="RU"> Русский</div>
             <div class="lang-option" data-lang="fa" data-flag="ir.png"><img src="https://flagcdn.com/w20/ir.png" alt="FA"> فارسی</div>
             <div class="lang-option" data-lang="ms" data-flag="my.png"><img src="https://flagcdn.com/w20/my.png" alt="MS"> Melayu</div>
+            <div class="lang-option" data-lang="hi" data-flag="in.png"><img src="https://flagcdn.com/w20/in.png" alt="HI"> हिन्दी</div>
           </div>
         </div>
         <a href="/auth/login" class="btn-join" id="btn-login-nav">LOGIN / DAFTAR</a>
@@ -199,7 +200,7 @@ export default function RootLayout({
             function googleTranslateElementInit() {
               new google.translate.TranslateElement({
                 pageLanguage: 'id',
-                includedLanguages: 'id,en,ar,zh-CN,ja,de,fr,ko,th,vi,ru,fa,ms',
+                includedLanguages: 'id,en,ar,zh-CN,ja,de,fr,ko,th,vi,ru,fa,ms,hi',
                 layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
                 autoDisplay: false
               }, 'google_translate_element');
