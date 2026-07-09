@@ -8,79 +8,29 @@ export default function Home() {
   <!-- ═══════════════════════════════════════════
        HERO SECTION
   ═══════════════════════════════════════════ -->
-  <style>
-    @media (max-width: 768px) {
-      .hero {
-        min-height: auto !important;
-        display: flex;
-        flex-direction: column;
+  <section class="hero" id="home" style="height: auto !important; min-height: unset !important;">
+    <!-- Full-width background image — width 100% to touch left and right edges -->
+    <div class="hero-bg-image" style="height: auto; width: 100%; overflow: hidden; margin-top: -15px;">
+      <img src="/banner-apasific.png" alt="ASIA – Association of Asia Pacific Academician" id="hero-bg-img" style="width: 100%; height: auto; object-fit: contain; object-position: top center; display: block;" />
+    </div>
+
+    <!-- Logo overlay: di sebelah kanan teks ASSOCIATION di banner -->
+    <style>
+      @media (max-width: 768px) {
+        .hero-logo-overlay { left: 75% !important; top: 19% !important; transform: translate(-50%, -50%) !important; }
+        .hero-logo-img { width: 100px !important; height: 100px !important; }
+        .hero-cta-overlay { bottom: auto !important; top: 36% !important; transform: translateX(-50%) scale(0.64) !important; transform-origin: center top !important; }
+        .hero-stats { margin-top: -220px !important; }
       }
-      .hero-bg-image {
-        position: relative !important;
-        height: auto !important;
-        display: block;
+      @media (min-width: 769px) {
+        .hero-logo-img { width: 520px !important; height: 520px !important; }
       }
-      #hero-bg-img {
-        object-fit: contain !important;
-        height: auto !important;
-        width: 100% !important;
-        background: #000;
-        display: block;
-      }
-      .hero-logo-img {
-        width: 100px !important;
-        height: 100px !important;
-        min-height: auto !important;
-        object-fit: contain !important;
-      }
-      .hero-logo-overlay {
-        position: absolute !important;
-        top: 50% !important;
-        left: 50% !important;
-        transform: translate(-50%, -50%) !important;
-        margin: 0 !important;
-      }
-      .hero-cta-overlay {
-        position: relative !important;
-        bottom: auto !important;
-        left: auto !important;
-        transform: none !important;
-        display: flex !important;
-        flex-direction: row !important;
-        flex-wrap: wrap !important;
-        justify-content: center !important;
-        width: 100% !important;
-        max-width: 100% !important;
-        padding: 15px 15px !important;
-        gap: 10px !important;
-      }
-      .hero-cta-overlay a {
-        font-size: 0.75rem !important;
-        padding: 10px !important;
-        width: calc(50% - 5px) !important;
-        justify-content: center;
-      }
-      .hero-cta-overlay a:nth-child(3) {
-        width: 100% !important;
-      }
-      .hero-stats {
-        position: relative !important;
-        bottom: auto !important;
-        margin-top: 10px;
-      }
-    }
-  </style>
-  <section class="hero" id="home">
-    <!-- Full-width background image — all content is inside the banner -->
-    <div class="hero-bg-image">
-      <img src="/banner-apasific.png" alt="ASIA – Association of Asia Pacific Academician" id="hero-bg-img" style="width: 100%; object-fit: cover;" />
-      <!-- Logo overlay: di sebelah kanan teks ASSOCIATION di banner -->
-      <div class="hero-logo-overlay">
-        <img src="/logo-apasific.png"
-             alt="ASIA Logo"
-             class="hero-logo-img"
-             onerror="this.style.display='none'" />
-      </div>
+    </style>
+    <div class="hero-logo-overlay">
+      <img src="/logo-apasific.png"
+           alt="ASIA Logo"
+           class="hero-logo-img"
+           onerror="this.style.display='none'" />
     </div>
 
     <!-- Bank Account Overlay (Inline styles to bypass cache) -->
@@ -98,7 +48,7 @@ export default function Home() {
     </div>
 
     <!-- CTA Button Overlay -->
-    <div class="hero-cta-overlay">
+    <div class="hero-cta-overlay" style="transform: scale(0.8); transform-origin: left center;">
       <a href="/auth/membership" class="btn-primary" id="hero-become-member">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
         BECOME A MEMBER
