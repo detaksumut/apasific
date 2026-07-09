@@ -48,22 +48,35 @@ const ORG_STRUCTURE: OrgMember[] = [
   { no: 22, level: "Publication",     position: "Editorial Board",               name: "",                                                  division: "Peer Review & Editorial Standards" },
   { no: 23, level: "Publication",     position: "Reviewer Board",                name: "",                                                  division: "Academic Peer Review" },
   { no: 24, level: "Publication",     position: "Publication Director",          name: "",                                                  division: "Publication Strategy & Distribution" },
-  // ── Certification Division ────────────────────────────────
-  { no: 25, level: "Certification",   position: "VP Certification",              name: "",                                                  division: "Professional Certification" },
-  { no: 26, level: "Certification",   position: "Chairman of Certification",     name: "",                                                  division: "ASIACERT Leadership" },
-  { no: 27, level: "Certification",   position: "Examination Board",             name: "",                                                  division: "Certification Examination" },
-  { no: 28, level: "Certification",   position: "Interview Board",               name: "",                                                  division: "Certification Interview" },
-  { no: 29, level: "Certification",   position: "Certification Assessors",       name: "",                                                  division: "Standards & Assessment" },
-  { no: 30, level: "Certification",   position: "Certification Administration",  name: "",                                                  division: "Certification Registry & Admin" },
+  // ── ASIACERT – BOC Leadership ─────────────────────────────
+  { no: 25, level: "ASIACERT – BOC",  position: "VP Certification",                    name: "",  division: "Professional Certification Oversight" },
+  { no: 26, level: "ASIACERT – BOC",  position: "Chairman of ASIACERT",               name: "",  division: "ASIACERT Center Leadership" },
+  { no: 27, level: "ASIACERT – BOC",  position: "Chairman of BOC",                    name: "",  division: "Board of Certification Leadership" },
+  { no: 28, level: "ASIACERT – BOC",  position: "Examination Board",                  name: "",  division: "Certification Examination Management" },
+  { no: 29, level: "ASIACERT – BOC",  position: "Interview Board",                    name: "",  division: "Certification Interview Management" },
+  { no: 30, level: "ASIACERT – BOC",  position: "Certification Assessors",            name: "",  division: "Standards & Assessment" },
+  { no: 31, level: "ASIACERT – BOC",  position: "Certification Administration",       name: "",  division: "Certification Registry & Admin" },
+  // ── 10 Bidang Sertifikasi ─────────────────────────────────
+  { no: 32, level: "Certification Field", position: "Chairman – Accounting & Auditing Certification",           name: "", division: "Accounting, Auditing & Taxation" },
+  { no: 33, level: "Certification Field", position: "Chairman – Business & Management Certification",           name: "", division: "Business, Management & Entrepreneurship" },
+  { no: 34, level: "Certification Field", position: "Chairman – Finance & Banking Certification",               name: "", division: "Finance, Banking & Investment" },
+  { no: 35, level: "Certification Field", position: "Chairman – Human Resources Certification",                 name: "", division: "Human Resources & Organizational Development" },
+  { no: 36, level: "Certification Field", position: "Chairman – Economics & Public Policy Certification",       name: "", division: "Economics & Public Policy" },
+  { no: 37, level: "Certification Field", position: "Chairman – Education & Research Certification",            name: "", division: "Education & Academic Development" },
+  { no: 38, level: "Certification Field", position: "Chairman – Law & Governance Certification",               name: "", division: "Law, Governance & Public Administration" },
+  { no: 39, level: "Certification Field", position: "Chairman – IT & Digital Transformation Certification",    name: "", division: "Information Technology, AI & Digital Transformation" },
+  { no: 40, level: "Certification Field", position: "Chairman – Engineering & Technology Certification",        name: "", division: "Engineering, Technology & Applied Sciences" },
+  { no: 41, level: "Certification Field", position: "Chairman – Social Sciences & Humanities Certification",   name: "", division: "Social Sciences, Humanities & Communication" },
 ];
 
 const LEVEL_COLORS: Record<string, { bg: string; text: string; border: string }> = {
-  "Executive Board": { bg: "rgba(201,168,76,0.12)", text: "#c9a84c", border: "rgba(201,168,76,0.5)" },
-  "Vice Presidents": { bg: "rgba(139,92,246,0.08)", text: "#a78bfa", border: "rgba(139,92,246,0.4)" },
-  "Secretariat":     { bg: "rgba(52,211,153,0.08)", text: "#6ee7b7", border: "rgba(52,211,153,0.4)" },
-  "Directors":       { bg: "rgba(56,189,248,0.08)", text: "#7dd3fc", border: "rgba(56,189,248,0.4)" },
-  "Publication":     { bg: "rgba(251,146,60,0.08)", text: "#fdba74", border: "rgba(251,146,60,0.4)" },
-  "Certification":   { bg: "rgba(244,114,182,0.08)", text: "#f9a8d4", border: "rgba(244,114,182,0.4)" },
+  "Executive Board":    { bg: "rgba(201,168,76,0.12)", text: "#c9a84c",  border: "rgba(201,168,76,0.5)" },
+  "Vice Presidents":    { bg: "rgba(139,92,246,0.08)", text: "#a78bfa",  border: "rgba(139,92,246,0.4)" },
+  "Secretariat":        { bg: "rgba(52,211,153,0.08)", text: "#6ee7b7",  border: "rgba(52,211,153,0.4)" },
+  "Directors":          { bg: "rgba(56,189,248,0.08)", text: "#7dd3fc",  border: "rgba(56,189,248,0.4)" },
+  "Publication":        { bg: "rgba(251,146,60,0.08)", text: "#fdba74",  border: "rgba(251,146,60,0.4)" },
+  "ASIACERT – BOC":     { bg: "rgba(244,114,182,0.10)", text: "#f9a8d4", border: "rgba(244,114,182,0.5)" },
+  "Certification Field":{ bg: "rgba(167,139,250,0.08)", text: "#c4b5fd", border: "rgba(167,139,250,0.4)" },
 };
 
 const LEVELS = Array.from(new Set(ORG_STRUCTURE.map(m => m.level)));
