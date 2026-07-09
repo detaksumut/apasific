@@ -71,6 +71,12 @@ export default function BookstorePage() {
   const [categoryFilter, setCategoryFilter] = useState('All');
   const [books, setBooks] = useState(MOCK_BOOKS);
   const [isLoaded, setIsLoaded] = useState(false);
+  const [toastMessage, setToastMessage] = useState("");
+
+  const showToast = (msg: string) => {
+    setToastMessage(msg);
+    setTimeout(() => setToastMessage(""), 3000);
+  };
 
   React.useEffect(() => {
     const saved = localStorage.getItem("mock_admin_books");
@@ -104,6 +110,19 @@ export default function BookstorePage() {
         <title>Book Store | ASIA</title>
         <meta name="description" content="Explore premium academic books, journals, monographs, and proceedings published by the Association of Asia Pacific Academician." />
       </Head>
+
+      {/* TOAST NOTIFICATION */}
+      {toastMessage && (
+        <div style={{
+          position: 'fixed', top: '24px', left: '50%', transform: 'translateX(-50%)', zIndex: 100,
+          background: 'rgba(201, 168, 76, 0.95)', color: '#000', padding: '12px 24px', borderRadius: '50px',
+          fontWeight: 'bold', boxShadow: '0 4px 20px rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)',
+          display: 'flex', alignItems: 'center', gap: '8px', animation: 'fadeInDown 0.3s ease-out forwards'
+        }}>
+          <svg style={{width: '20px', height: '20px'}} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+          {toastMessage}
+        </div>
+      )}
 
       {/* Hero Section */}
       <section className="bs-hero">
@@ -162,7 +181,7 @@ export default function BookstorePage() {
                     <p className="bs-book-desc">{book.description}</p>
                     <div className="bs-card-footer">
                       <span className="bs-price">{book.price}</span>
-                      <button className="bs-buy-btn">Buy Now</button>
+                      <button className="bs-buy-btn" onClick={() => showToast(`"${book.title}" added to cart!`)}>Buy Now</button>
                     </div>
                   </div>
                 </div>
@@ -179,6 +198,10 @@ export default function BookstorePage() {
 
       {/* Custom Styles */}
       <style dangerouslySetInnerHTML={{__html: `
+        @keyframes fadeInDown {
+          from { opacity: 0; transform: translate(-50%, -20px); }
+          to { opacity: 1; transform: translate(-50%, 0); }
+        }
         .bs-hero {
           background: linear-gradient(135deg, var(--bg-3) 0%, var(--bg) 100%);
           padding: 100px 0 60px;
