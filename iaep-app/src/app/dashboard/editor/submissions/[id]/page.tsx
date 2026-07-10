@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { publishArticleToZenodo, ZenodoMetadata } from "@/utils/zenodo";
 
 export default function SubmissionControlPanel() {
   const [activeTab, setActiveTab] = useState("submission");
@@ -10,6 +11,8 @@ export default function SubmissionControlPanel() {
   const [emailText, setEmailText] = useState("Dear Jane Doe,\n\nWe have reached a decision regarding your submission to APASIFIC IAEP: The Impact of Artificial Intelligence on Southeast Asian Higher Education.\n\nOur decision is: ");
   const [authorPhone, setAuthorPhone] = useState("+6281370062009");
   const [toastMessage, setToastMessage] = useState("");
+  const [isPublishingZenodo, setIsPublishingZenodo] = useState(false);
+  const [generatedDoi, setGeneratedDoi] = useState("");
 
   const showToast = (msg: string) => {
     setToastMessage(msg);
@@ -33,6 +36,43 @@ export default function SubmissionControlPanel() {
                          val === 'revisions' ? 'Revisions Required' : 
                          val === 'decline' ? 'Decline Submission' : '';
     setEmailText(prev => prev.split('Our decision is:')[0] + 'Our decision is: ' + decisionText + '\n\nEditor-in-Chief');
+  };
+
+  const handlePublishToZenodo = async () => {
+    setIsPublishingZenodo(true);
+    showToast("Publishing to Zenodo... Please wait.");
+    
+    try {
+      const metadata: ZenodoMetadata = {
+        title: submission.title,
+        description: submission.abstract,
+        upload_type: 'publication',
+        publication_type: 'article',
+        creators: [{ name: submission.author }],
+        communities: [{ identifier: 'rjrakp' }],
+        access_right: 'open',
+        keywords: ['Artificial Intelligence', 'Education']
+      };
+
+      // We'll skip fileUrl for this mockup because it's dummy data
+      const fileUrl = ""; 
+      const fileName = `Manuscript_${submission.id}.pdf`;
+
+      const result = await publishArticleToZenodo(metadata, fileUrl, fileName);
+
+      if (!result.success) {
+        throw new Error(result.error);
+      }
+
+      setGeneratedDoi(result.doi);
+      showToast(`Successfully published to Zenodo! DOI: ${result.doi}`);
+      
+    } catch (err: any) {
+      console.error(err);
+      showToast('Failed to publish to Zenodo: ' + err.message);
+    } finally {
+      setIsPublishingZenodo(false);
+    }
   };
 
   return (
@@ -223,11 +263,84 @@ export default function SubmissionControlPanel() {
             </div>
           )}
           
-          {(activeTab === 'copyediting' || activeTab === 'production') && (
+          {activeTab === 'copyediting' && (
             <div className="py-12 text-center text-gray-500">
               <div className="text-4xl mb-4">🛠️</div>
               <h2 className="text-xl font-bold text-gray-700 mb-2">Stage Locked</h2>
               <p>An editorial decision must be made in the Review stage before moving to {activeTab}.</p>
+            </div>
+          )}
+
+          {activeTab === 'production' && (
+            <div className="py-8 space-y-8">
+              <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
+                <h3 className="text-xl font-bold text-gray-800 border-b pb-2 mb-4">Publishing & Export</h3>
+                <p className="text-sm text-gray-600 mb-6">Distribute this manuscript to external indexing services and assign persistent identifiers.</p>
+                
+                <div className="pt-4 border-t border-gray-200 space-y-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <h4 className="text-xs font-bold text-gray-500 uppercase tracking-widest">Integrasi Sistem Publikasi</h4>
+                    {generatedDoi ? (
+                      <span className="bg-green-100 text-green-700 px-2 py-1 rounded text-[10px] font-bold">LIVE</span>
+                    ) : (
+                      <span className="bg-gray-200 text-gray-500 px-2 py-1 rounded text-[10px] font-bold">OFFLINE</span>
+                    )}
+                  </div>
+                  
+                  <div className="flex flex-col sm:flex-row gap-4">
+                    <button 
+                      disabled={!generatedDoi}
+                      className={`flex-1 font-bold py-3 px-4 rounded transition-colors flex justify-center items-center gap-2 ${
+                        generatedDoi 
+                          ? 'bg-amber-50 text-amber-700 hover:bg-amber-100 border border-amber-200' 
+                          : 'bg-gray-50 text-gray-400 border border-gray-200 cursor-not-allowed'
+                      }`}
+                    >
+                      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                      Download XML Crossref
+                    </button>
+
+                    <button 
+                      onClick={handlePublishToZenodo}
+                      disabled={isPublishingZenodo || !!generatedDoi}
+                      className={`flex-1 font-bold py-3 px-4 rounded transition-colors flex justify-center items-center gap-2 ${
+                        !generatedDoi
+                          ? 'bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200'
+                          : 'bg-gray-50 text-gray-400 border border-gray-200 cursor-not-allowed'
+                      }`}
+                    >
+                      {isPublishingZenodo ? (
+                        <svg className="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                      ) : (
+                        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
+                      )}
+                      {isPublishingZenodo ? 'Sending to Zenodo...' : (generatedDoi ? 'Telah Diterbitkan (DOI Active)' : 'Terbitkan ke Zenodo (Auto-DOI)')}
+                    </button>
+                  </div>
+                  
+                  {/* Tracking Indicators */}
+                  <div className="flex gap-3 pt-3">
+                    <div className={`flex-1 flex flex-col items-center justify-center p-3 rounded-lg border transition-all ${generatedDoi ? 'bg-[#A6CE39]/10 border-[#A6CE39]/30 text-[#7ca221]' : 'bg-gray-50 border-gray-200 text-gray-400'}`}>
+                      <span className="text-xs font-black uppercase tracking-wider">ORCID</span>
+                      <span className="text-[10px] font-medium mt-1">{generatedDoi ? 'Tracking' : 'Pasif'}</span>
+                    </div>
+                    <div className={`flex-1 flex flex-col items-center justify-center p-3 rounded-lg border transition-all ${generatedDoi ? 'bg-orange-50 border-orange-200 text-orange-700' : 'bg-gray-50 border-gray-200 text-gray-400'}`}>
+                      <span className="text-xs font-black uppercase tracking-wider">Scopus</span>
+                      <span className="text-[10px] font-medium mt-1">{generatedDoi ? 'Tracking' : 'Pasif'}</span>
+                    </div>
+                    <div className={`flex-1 flex flex-col items-center justify-center p-3 rounded-lg border transition-all ${generatedDoi ? 'bg-purple-50 border-purple-200 text-purple-700' : 'bg-gray-50 border-gray-200 text-gray-400'}`}>
+                      <span className="text-xs font-black uppercase tracking-wider">WoS</span>
+                      <span className="text-[10px] font-medium mt-1">{generatedDoi ? 'Tracking' : 'Pasif'}</span>
+                    </div>
+                  </div>
+                </div>
+                
+                {generatedDoi && (
+                  <div className="mt-6 p-4 bg-green-50 border border-green-200 rounded text-green-800 text-sm font-semibold">
+                    ✅ Generated DOI: {generatedDoi}
+                  </div>
+                )}
+              </div>
             </div>
           )}
 

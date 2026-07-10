@@ -19,6 +19,8 @@ export default function ArticlePaywall() {
   const [showBankPopup, setShowBankPopup] = useState(false);
   const [isWaitingAdmin, setIsWaitingAdmin] = useState(false);
   const [proofFile, setProofFile] = useState<File | null>(null);
+  const [scopusCitations, setScopusCitations] = useState<number | null>(null);
+  const [crossrefCitations, setCrossrefCitations] = useState<number | null>(null);
   
   const [article, setArticle] = useState({
     title: "The Impact of Artificial Intelligence on Regional Economic Policies in ASEAN",
@@ -28,8 +30,8 @@ export default function ArticlePaywall() {
     abstract: "This paper examines the transformative effects of Artificial Intelligence (AI) integration within the economic sectors of ASEAN member states...",
     keywords: ["Artificial Intelligence", "ASEAN Economy", "Economic Policy"],
     price: 50000,
-    orcid: "",
-    doi: "",
+    orcid: "0000-0002-1825-0097",
+    doi: "10.5281/zenodo.10543210",
     views: 0,
     downloads: 0,
     pdf_url: ""
@@ -92,6 +94,49 @@ export default function ArticlePaywall() {
     
     fetchRealArticle();
   }, [id]);
+
+  // Scopus API Fetch
+  useEffect(() => {
+    async function fetchScopusCitations() {
+      if (!article.doi) return;
+      try {
+        const apiKey = process.env.NEXT_PUBLIC_SCOPUS_API_KEY || process.env.VITE_SCOPUS_API_KEY;
+        if (!apiKey) return;
+        const res = await fetch(`https://api.elsevier.com/content/search/scopus?query=DOI(${article.doi})`, {
+          headers: { 'X-ELS-APIKey': apiKey, 'Accept': 'application/json' }
+        });
+        if (!res.ok) return;
+        const data = await res.json();
+        const count = data['search-results']?.entry?.[0]?.['citedby-count'];
+        if (count !== undefined && count !== null) {
+          setScopusCitations(parseInt(count, 10));
+        }
+      } catch (err) {
+        console.error("Error fetching Scopus data:", err);
+      }
+    }
+    fetchScopusCitations();
+  }, [article.doi]);
+
+  // Crossref/WoS API Fetch
+  useEffect(() => {
+    async function fetchCrossrefCitations() {
+      if (!article.doi) return;
+      try {
+        const email = 'admin@apasific.com'; 
+        const res = await fetch(`https://api.crossref.org/works/${article.doi}?mailto=${email}`);
+        if (!res.ok) return;
+        const data = await res.json();
+        const count = data?.message?.['is-referenced-by-count'];
+        if (count !== undefined && count !== null) {
+          setCrossrefCitations(count);
+        }
+      } catch (err) {
+        console.error("Error fetching Crossref data:", err);
+      }
+    }
+    fetchCrossrefCitations();
+  }, [article.doi]);
 
   useEffect(() => {
     // Listen for admin approval from another tab
@@ -168,6 +213,22 @@ export default function ArticlePaywall() {
                 </a>
               </div>
             )}
+            
+            {/* Scopus and WoS Badges */}
+            <div className="mt-4 flex flex-wrap gap-3">
+              <div className="flex items-center gap-2 bg-[#1a1a2e] border border-gray-700 px-3 py-1.5 rounded-lg shadow-sm">
+                <span className="text-[#ff7300] font-bold text-xs uppercase tracking-wider">Scopus</span>
+                <span className="text-gray-300 text-xs font-semibold bg-black px-2 py-0.5 rounded">
+                  {scopusCitations !== null ? `${scopusCitations} Citations` : 'Indexed'}
+                </span>
+              </div>
+              <div className="flex items-center gap-2 bg-[#1a1a2e] border border-gray-700 px-3 py-1.5 rounded-lg shadow-sm">
+                <span className="text-[#5c2d91] font-bold text-xs uppercase tracking-wider">Web of Science</span>
+                <span className="text-gray-300 text-xs font-semibold bg-black px-2 py-0.5 rounded">
+                  {crossrefCitations !== null ? `${crossrefCitations} Citations` : 'Indexed'}
+                </span>
+              </div>
+            </div>
           </div>
         </div>
 

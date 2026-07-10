@@ -99,6 +99,17 @@ export default function Home() {
     </div>
   </section>
 
+  <!-- ═══════════════════════════════════════════
+       PROMO VIDEO SECTION
+  ═══════════════════════════════════════════ -->
+  <section class="section promo-section" style="padding: 60px 0 20px 0; background: var(--bg-color); position: relative; z-index: 10;">
+    <div class="container" style="max-width: 900px; margin: 0 auto; text-align: center;">
+      <video width="100%" controls autoplay loop muted playsinline style="border-radius: 16px; box-shadow: 0 15px 40px rgba(0,0,0,0.6); border: 1px solid rgba(201,168,76,0.4);">
+        <source src="/promo2.mp4" type="video/mp4">
+        Your browser does not support the video tag.
+      </video>
+    </div>
+  </section>
 
     <!-- ═══════════════════════════════════════════
        JOURNAL INDEXING STATUS
