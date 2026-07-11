@@ -100,7 +100,7 @@ export default function SubmissionControlPanel() {
       const supabase = createClient();
       const { error: updateErr } = await supabase
         .from('submissions')
-        .update({ doi: result.doi, zenodo_id: result.zenodo_id })
+        .update({ doi: result.doi, zenodo_id: result.deposition?.id })
         .eq('id', submission.id);
 
       if (updateErr) throw updateErr;
