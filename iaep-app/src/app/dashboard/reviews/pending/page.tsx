@@ -3,38 +3,7 @@
 import Link from "next/link";
 
 export default function PendingReviews() {
-  const assignments = [
-    {
-      id: 1,
-      submissionId: 1045,
-      title: "The Impact of Artificial Intelligence on Southeast Asian Higher Education",
-      journal: "APASIFIC IAEP",
-      round: 1,
-      dateAssigned: "2026-07-02",
-      dateDue: "2026-07-30",
-      status: "pending",
-    },
-    {
-      id: 2,
-      submissionId: 1089,
-      title: "Sustainable Development Goals in Pacific Island Nations: A Policy Analysis",
-      journal: "RJRAKP",
-      round: 2,
-      dateAssigned: "2026-07-04",
-      dateDue: "2026-08-01",
-      status: "pending",
-    },
-    {
-      id: 3,
-      submissionId: 1103,
-      title: "Digital Transformation in ASEAN Public Healthcare Systems Post-COVID",
-      journal: "APASIFIC IAEP",
-      round: 1,
-      dateAssigned: "2026-07-05",
-      dateDue: "2026-08-10",
-      status: "pending",
-    },
-  ];
+  const assignments: any[] = [];
 
   const daysLeft = (due: string) => {
     return Math.ceil((new Date(due).getTime() - Date.now()) / 86400000);
