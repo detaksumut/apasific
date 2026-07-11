@@ -1,14 +1,46 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export default function UserManagement() {
   const [users, setUsers] = useState([
     { id: 1, name: "M. A. Rahman", email: "marahman2169@gmail.com", role: "Editor", journal: "RJRAKP, APASIFIC IAEP", joined: "Oct 2024", status: "Active" },
     { id: 2, name: "Kadin Medan", email: "kadinmedan1@gmail.com", role: "Reviewer", journal: "RJRAKP", joined: "Nov 2024", status: "Active" },
-    { id: 3, name: "Kad Sumut", email: "kadsumut@gmail.com", role: "Author", journal: "APASIFIC IAEP", joined: "Dec 2024", status: "Active" },
-    { id: 4, name: "Jane Doe", email: "jane.doe@university.edu", role: "Author", journal: "RJRAKP", joined: "Jan 2025", status: "Pending" },
+    { id: 3, name: "Kad Sumut", email: "kadsumut@gmail.com", role: "Author", journal: "APASIFIC IAEP", joined: "Dec 2024", status: "Active" }
   ]);
+
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const res = await fetch('/api/users/list');
+        const data = await res.json();
+        
+        if (data.success && data.users && data.users.length > 0) {
+          const mappedUsers = data.users.map((u: any) => ({
+            id: u.id,
+            name: u.full_name,
+            email: u.email,
+            role: u.role === "author" ? "Author" : u.role === "reviewer" ? "Reviewer" : "Editor",
+            journal: u.role === "reviewer" ? "APASIFIC IAEP" : "RJRAKP", 
+            joined: new Date(u.joined || Date.now()).toLocaleDateString(),
+            status: u.status || "Pending"
+          }));
+          
+          setUsers(prev => {
+            // Keep hardcoded ones that don't match IDs, or just replace entirely?
+            // Let's replace the hardcoded ones entirely with the REAL users.
+            // Wait, to keep demo users, we can just prepend real users to dummy users.
+            const existingIds = new Set(prev.map(p => p.id));
+            const newUsers = mappedUsers.filter((mu: any) => !existingIds.has(mu.id));
+            return [...newUsers, ...prev];
+          });
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    };
+    fetchUsers();
+  }, []);
 
   const [isInviteOpen, setIsInviteOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
@@ -30,14 +62,35 @@ export default function UserManagement() {
     showToast("User role successfully updated! (Demo)");
   };
 
-  const handleRevoke = (name: string) => {
-    showToast(`Access revoked for ${name}. (Demo)`);
+  const handleRevoke = async (id: number | string, name: string) => {
+    setUsers(users.map(u => u.id === id ? { ...u, status: "Revoked" } : u));
+    showToast(`Access revoked for ${name}.`);
+    try {
+      await fetch('/api/users/list', { method: 'POST', body: JSON.stringify({ action: 'revoke', userId: id }) });
+    } catch (e) {
+      console.error(e);
+    }
   };
 
-  const handleDelete = (id: number, name: string) => {
+  const handleDelete = async (id: number | string, name: string) => {
     if (!confirm(`Apakah Anda yakin ingin menghapus user ${name}?`)) return;
     setUsers(users.filter(u => u.id !== id));
     showToast(`User ${name} berhasil dihapus.`);
+    try {
+      await fetch('/api/users/list', { method: 'POST', body: JSON.stringify({ action: 'delete', userId: id }) });
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const handleApprove = async (id: number | string, name: string) => {
+    setUsers(users.map(u => u.id === id ? { ...u, status: "Active" } : u));
+    showToast(`User ${name} berhasil disetujui (Approved).`);
+    try {
+      await fetch('/api/users/list', { method: 'POST', body: JSON.stringify({ action: 'approve', userId: id }) });
+    } catch (e) {
+      console.error(e);
+    }
   };
 
   return (
@@ -114,6 +167,14 @@ export default function UserManagement() {
                     </div>
                   </td>
                   <td className="p-5 text-right">
+                    {user.status === "Pending" && (
+                      <button 
+                        onClick={() => handleApprove(user.id, user.name)}
+                        className="text-green-400 hover:text-green-300 px-3 py-1 bg-green-900/20 hover:bg-green-900/40 rounded transition-colors mr-2 font-bold"
+                      >
+                        Terima
+                      </button>
+                    )}
                     <button 
                       onClick={() => { setSelectedUser(user); setIsEditOpen(true); }}
                       className="text-gray-400 hover:text-white px-3 py-1 bg-gray-800 hover:bg-gray-700 rounded transition-colors mr-2"
@@ -121,7 +182,7 @@ export default function UserManagement() {
                       Edit
                     </button>
                     <button 
-                      onClick={() => handleRevoke(user.name)}
+                      onClick={() => handleRevoke(user.id, user.name)}
                       className="text-red-400 hover:text-red-300 px-3 py-1 bg-red-900/20 hover:bg-red-900/40 rounded transition-colors mr-2"
                     >
                       Revoke

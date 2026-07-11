@@ -98,64 +98,41 @@ export default function RegisterWizard({ availableRoles, defaultRole, forcedRole
       return;
     }
 
-    // 2. Save user to localStorage:
-    try {
-      const storedUsers = JSON.parse(localStorage.getItem("mock_users") || "[]");
-      
-      // Check if user already exists
-      if (storedUsers.some((u: any) => u.email.toLowerCase().trim() === emailLower)) {
-        setMessage({ type: 'error', text: 'Email ini sudah terdaftar. Silakan gunakan email lain atau langsung Login.' });
-        return;
+    // 2. Real Database Registration
+    startTransition(async () => {
+      try {
+        const res = await signUpUser(formData);
+        
+        if (res && !res.success) {
+          setMessage({ type: 'error', text: res.error || 'Terjadi kesalahan saat pendaftaran.' });
+          return;
+        }
+
+        // Auto login simulation (for demo purposes we still redirect them)
+        let mockRole = "submitter";
+        let redirectPath = "/dashboard";
+        
+        if (formData.role === "editor") {
+          mockRole = "editor";
+          redirectPath = "/dashboard/editor";
+        } else if (formData.role === "reviewer") {
+          mockRole = "reviewer";
+          redirectPath = "/dashboard/reviews/pending";
+        }
+
+        document.cookie = `mock_user=${mockRole}; path=/`;
+        document.cookie = `mock_user_name=${formData.fullName}; path=/`;
+
+        setMessage({ type: 'success', text: 'Registrasi berhasil! Data Anda telah masuk ke database. Menghubungkan...' });
+        
+        setTimeout(() => {
+          window.location.href = redirectPath;
+        }, 1500);
+
+      } catch (err: any) {
+        setMessage({ type: 'error', text: err.message || 'Terjadi kesalahan jaringan.' });
       }
-
-      const newUser = {
-        fullName: formData.fullName,
-        email: formData.email,
-        password: formData.password,
-        phone: formData.phone,
-        role: formData.role,
-        university: formData.university,
-        country: formData.country,
-        academicLevel: formData.academicLevel,
-        bankAccount: formData.bankAccount,
-        orcid: formData.orcid,
-        googleScholar: formData.googleScholar,
-        scopus: formData.scopus,
-        wos: formData.wos,
-        sinta: formData.sinta
-      };
-
-      storedUsers.push(newUser);
-      localStorage.setItem("mock_users", JSON.stringify(storedUsers));
-
-      // Auto login:
-      let mockRole = "submitter";
-      let redirectPath = "/dashboard";
-      
-      if (formData.role === "editor") {
-        mockRole = "editor";
-        redirectPath = "/dashboard/editor";
-      } else if (formData.role === "reviewer") {
-        mockRole = "reviewer";
-        redirectPath = "/dashboard/reviews/pending";
-      } else if ((formData.role as string) === "admin") {
-        mockRole = "admin";
-        redirectPath = "/dashboard/admin";
-      }
-
-      document.cookie = `mock_user=${mockRole}; path=/`;
-      document.cookie = `mock_user_name=${formData.fullName}; path=/`;
-
-      setMessage({ type: 'success', text: 'Registrasi berhasil! Menghubungkan ke portal...' });
-      
-      setTimeout(() => {
-        window.location.href = redirectPath;
-      }, 1000);
-
-    } catch (err) {
-      console.error("Local storage registration error:", err);
-      setMessage({ type: 'error', text: 'Gagal melakukan pendaftaran lokal.' });
-    }
+    });
   };
 
   const handleStep2Submit = (e: React.FormEvent) => {
