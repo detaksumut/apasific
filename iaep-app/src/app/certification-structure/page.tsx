@@ -178,23 +178,19 @@ export default function CertificationPage() {
           <div style={{ textAlign: "center", color: "#c9a84c", padding: "40px" }}>Memuat struktur...</div>
         ) : (
           bodies.map((b, idx) => {
-            const rawData = allData.find(d => d.body_name === b.api);
-            let mappedData = null;
-            
-            if (rawData && (rawData.ketua_name || rawData.sek_name)) {
-              mappedData = {
-                ketuaNama: rawData.ketua_name || "",
-                ketuaJabatan: rawData.ketua_jabatan || "",
-                ketuaNegara: rawData.ketua_negara || "",
-                ketuaId: rawData.ketua_id || "",
-                ketuaPhoto: rawData.ketua_photo || null,
-                sekNama: rawData.sek_name || "",
-                sekJabatan: rawData.sek_jabatan || "",
-                sekNegara: rawData.sek_negara || "",
-                sekId: rawData.sek_id || "",
-                sekretarisPhoto: rawData.sek_photo || null
-              };
-            }
+            const rawData = allData.find(d => d.body_name === b.api) || {};
+            const mappedData = {
+              ketuaNama: rawData.ketua_name || "TBA",
+              ketuaJabatan: rawData.ketua_jabatan || "",
+              ketuaNegara: rawData.ketua_negara || "",
+              ketuaId: rawData.ketua_id || "",
+              ketuaPhoto: rawData.ketua_photo || null,
+              sekNama: rawData.sek_name || "",
+              sekJabatan: rawData.sek_jabatan || "",
+              sekNegara: rawData.sek_negara || "",
+              sekId: rawData.sek_id || "",
+              sekretarisPhoto: rawData.sek_photo || null
+            };
 
             return <BodySection key={idx} title={b.title} bodyName={b.api} customRoleHead={b.customRole} data={mappedData} />;
           })

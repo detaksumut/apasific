@@ -26,7 +26,7 @@ export default function JournalPage() {
         if (res.ok) {
           // data is an array of all rows in the leadership table
           const editorialBoards = data
-            .filter((row: any) => row.body_name && row.body_name.startsWith("Editorial Board - "))
+            .filter((row: any) => row.body_name && row.body_name.startsWith("Editorial Board - ") && !row.body_name.includes("RJRAKP") && !row.body_name.includes("APASIFIC"))
             .map((row: any) => {
               let parsedMembers = [];
               try {

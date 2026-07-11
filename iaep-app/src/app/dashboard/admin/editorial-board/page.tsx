@@ -39,7 +39,7 @@ export default function EditorialBoardManagement() {
     }
 
     const bodyName = `Editorial Board - ${selectedJournal}`;
-    fetch(`/api/leadership?body=${encodeURIComponent(bodyName)}`)
+    fetch(`/api/leadership?body=${encodeURIComponent(bodyName)}`, { cache: "no-store" })
       .then(res => res.json())
       .then(data => {
         if (data.members && Array.isArray(data.members)) {

@@ -64,10 +64,10 @@ export default function RootLayout({
           <a href="/#about" class="nav-link" id="nav-about">ABOUT ASIA <span class="chevron">▾</span></a>
           <div class="dropdown">
             <a href="/#vision-mission"><span class="dd-icon">◈</span> Vision &amp; Mission</a>
-            <a href="/leadership"><span class="dd-icon">◈</span> Leadership</a>
+            <a href="/#leadership"><span class="dd-icon">◈</span> Leadership</a>
             <a href="/organization-structure"><span class="dd-icon">◈</span> Organizational Structure</a>
             <a href="/certification-structure"><span class="dd-icon">◈</span> Certification Structure</a>
-            <a href="/journal-structure"><span class="dd-icon">◈</span> Journal Structure</a>
+            <a href="/journal"><span class="dd-icon">◈</span> Journal Structure</a>
           </div>
         </li>
 
