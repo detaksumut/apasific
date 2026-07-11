@@ -17,6 +17,11 @@ export default function RootLayout({
   return (
     <html lang="id" suppressHydrationWarning>
       <body className="bg-[#05050a]" suppressHydrationWarning>
+        <style dangerouslySetInnerHTML={{ __html: `
+          *, *::before, *::after, body, html {
+            font-family: Arial, Helvetica, sans-serif !important;
+          }
+        `}} />
         {/* Global Lively Background - Premium Dark Gold Glow */}
         <div className="fixed inset-0 z-[-1] bg-[#05050a]">
           <div className="absolute inset-0 bg-gradient-to-b from-[#05050a] via-[#0d0d1a] to-[#05050a]"></div>

@@ -51,18 +51,55 @@ export default function Sidebar({ role }: SidebarProps) {
         </svg>
       ),
     },
+    {
+      label: "Acceptance Letter",
+      path: "/dashboard/loa",
+      icon: (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline>
+        </svg>
+      ),
+    },
+    {
+      label: "Sertifikat Publikasi",
+      path: "/dashboard/certificates",
+      icon: (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+          <circle cx="12" cy="8" r="7"></circle><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline>
+        </svg>
+      ),
+    },
   ];
 
   const reviewerLinks = [
     {
-      label: "Review Pending",
-      path: "/dashboard/reviews/pending",
+      label: "Dashboard",
+      path: "/dashboard/reviews",
       icon: (
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
-          <circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" />
+          <rect x="3" y="3" width="7" height="7" rx="1.5" /><rect x="14" y="3" width="7" height="7" rx="1.5" />
+          <rect x="3" y="14" width="7" height="7" rx="1.5" /><rect x="14" y="14" width="7" height="7" rx="1.5" />
         </svg>
       ),
-      badge: "3",
+    },
+    {
+      label: "Artikel Ditugaskan",
+      path: "/dashboard/reviews/assignments",
+      icon: (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" /><polyline points="14 2 14 8 20 8" />
+        </svg>
+      ),
+      badge: "Baru",
+    },
+    {
+      label: "Review Saya",
+      path: "/dashboard/reviews/my-reviews",
+      icon: (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M12 20h9" /><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z" />
+        </svg>
+      ),
     },
     {
       label: "Riwayat Review",
@@ -270,11 +307,14 @@ export default function Sidebar({ role }: SidebarProps) {
         </div>
       </div>
 
-      {/* Role Badge */}
-      <div className="sidebar-role-badge" style={{ "--role-color": roleColorMap[role] || "#c9a84c" } as React.CSSProperties}>
+      {/* Role Badge (Clickable to switch roles) */}
+      <Link href="/auth/select-role" className="sidebar-role-badge" title="Klik untuk berganti Portal (Penulis/Reviewer/Editor)" style={{ "--role-color": roleColorMap[role] || "#c9a84c", cursor: "pointer", textDecoration: "none" } as React.CSSProperties}>
         <div className="sidebar-role-dot" />
-        <span>{roleLabelMap[role] || role} Portal</span>
-      </div>
+        <span style={{ flex: 1 }}>{roleLabelMap[role] || role} Portal</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ width: 14, height: 14, opacity: 0.5 }}>
+          <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z" />
+        </svg>
+      </Link>
 
       {/* Nav */}
       <nav className="sidebar-nav">
@@ -282,7 +322,7 @@ export default function Sidebar({ role }: SidebarProps) {
         {commonLinks.map(link => <NavLink key={link.path} link={link} />)}
 
         <div className="sidebar-section-label" style={{ marginTop: 24 }}>
-          {roleLabelMap[role] || role}
+          Menu {roleLabelMap[role] || role}
         </div>
         {getRoleLinks().map(link => <NavLink key={link.path} link={link} />)}
       </nav>
@@ -352,6 +392,11 @@ export default function Sidebar({ role }: SidebarProps) {
           font-weight: 600;
           color: var(--role-color, #c9a84c);
           letter-spacing: 0.5px;
+          transition: all 0.2s ease;
+        }
+        .sidebar-role-badge:hover {
+          background: rgba(255,255,255,0.06);
+          border-color: rgba(255,255,255,0.15);
         }
         .sidebar-role-dot {
           width: 6px;

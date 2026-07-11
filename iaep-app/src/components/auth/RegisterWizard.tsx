@@ -40,30 +40,6 @@ export default function RegisterWizard({ availableRoles, defaultRole, forcedRole
   const nextStep = (e: React.FormEvent) => {
     e.preventDefault();
     
-    // --- SIMULASI MOCK LOGIN (Bypass Supabase) ---
-    const email = formData.email.toLowerCase().trim();
-    if (email === 'marahman2169@gmail.com') {
-      document.cookie = "mock_user=editor; path=/";
-      window.location.href = '/dashboard/editor';
-      return;
-    }
-    if (email === 'kadinmedan1@gmail.com') {
-      document.cookie = "mock_user=reviewer; path=/";
-      window.location.href = '/dashboard/reviews/pending';
-      return;
-    }
-    if (email === 'kadsumut@gmail.com') {
-      document.cookie = "mock_user=submitter; path=/";
-      window.location.href = '/dashboard';
-      return;
-    }
-    if (email === 'detaksumut@gmail.com' && formData.password === 'Mikr@210669Mpi') {
-      document.cookie = "mock_user=admin; path=/";
-      window.location.href = '/dashboard/admin';
-      return;
-    }
-    // ---------------------------------------------
-    
     setStep(2);
   };
 
@@ -72,33 +48,7 @@ export default function RegisterWizard({ availableRoles, defaultRole, forcedRole
     
     const emailLower = formData.email.toLowerCase().trim();
     
-    // 1. Check default test accounts:
-    if (emailLower === 'marahman2169@gmail.com') {
-      document.cookie = "mock_user=editor; path=/";
-      document.cookie = "mock_user_name=M. A. Rahman (Editor); path=/";
-      window.location.href = '/dashboard/editor';
-      return;
-    }
-    if (emailLower === 'kadinmedan1@gmail.com') {
-      document.cookie = "mock_user=reviewer; path=/";
-      document.cookie = "mock_user_name=Kadin Medan (Reviewer); path=/";
-      window.location.href = '/dashboard/reviews/pending';
-      return;
-    }
-    if (emailLower === 'kadsumut@gmail.com') {
-      document.cookie = "mock_user=submitter; path=/";
-      document.cookie = "mock_user_name=Kad Sumut (Author); path=/";
-      window.location.href = '/dashboard';
-      return;
-    }
-    if (emailLower === 'detaksumut@gmail.com' && formData.password === 'Mikr@210669Mpi') {
-      document.cookie = "mock_user=admin; path=/";
-      document.cookie = "mock_user_name=Super Admin; path=/";
-      window.location.href = '/dashboard/admin';
-      return;
-    }
-
-    // 2. Real Database Registration
+    // 1. Real Database Registration
     startTransition(async () => {
       try {
         const res = await signUpUser(formData);
@@ -242,9 +192,9 @@ export default function RegisterWizard({ availableRoles, defaultRole, forcedRole
                   </select>
                 </div>
                 <div className="md:col-span-2">
-                  <label className="block text-gray-300 text-xs tracking-wider uppercase font-semibold mb-1">Nomor Rekening & Nama Bank (Bank Account for Royalties)</label>
-                  <p className="text-xs text-[#8888aa] mb-3 italic">Digunakan untuk mentransfer royalti setiap kali artikel Anda diunduh oleh pembaca.</p>
-                  <input type="text" name="bankAccount" value={formData.bankAccount} onChange={handleChange} placeholder="Contoh: BCA 1234567890 a/n Budi Santoso" className="w-full bg-[#05050a]/50 border border-gray-700 text-white rounded-xl px-4 py-3.5 focus:outline-none focus:border-[#c9a84c] focus:ring-1 focus:ring-[#c9a84c] transition-all" required />
+                  <label className="block text-gray-300 text-xs tracking-wider uppercase font-semibold mb-1">Nomor Rekening & Nama Bank <span className="text-gray-500 normal-case font-normal">(Opsional)</span></label>
+                  <p className="text-xs text-[#8888aa] mb-3 italic">Digunakan untuk mentransfer royalti jika ada pembagian keuntungan (bisa diisi nanti).</p>
+                  <input type="text" name="bankAccount" value={formData.bankAccount} onChange={handleChange} placeholder="Contoh: BCA 1234567890 a/n Budi Santoso" className="w-full bg-[#05050a]/50 border border-gray-700 text-white rounded-xl px-4 py-3.5 focus:outline-none focus:border-[#c9a84c] focus:ring-1 focus:ring-[#c9a84c] transition-all" />
                 </div>
               </div>
 

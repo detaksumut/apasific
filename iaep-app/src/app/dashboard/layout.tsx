@@ -35,6 +35,26 @@ export default async function DashboardLayout({ children }: { children: ReactNod
         }
       }
     }
+
+    // Override UI role if user selected a different portal
+    const activePortalRole = cookieStore.get('active_portal_role')?.value;
+    if (activePortalRole && ['author', 'reviewer', 'editor', 'admin'].includes(activePortalRole)) {
+      // Validate that they don't escalate privileges.
+      // (admin can be anything, editor can be reviewer/author, reviewer can be author)
+      const allowedRolesForAdmin = ['admin', 'editor', 'reviewer', 'author'];
+      const allowedRolesForEditor = ['editor', 'reviewer', 'author'];
+      const allowedRolesForReviewer = ['reviewer', 'author'];
+
+      let isAllowed = false;
+      if (userRole === 'admin' && allowedRolesForAdmin.includes(activePortalRole)) isAllowed = true;
+      if (userRole === 'editor' && allowedRolesForEditor.includes(activePortalRole)) isAllowed = true;
+      if (userRole === 'reviewer' && allowedRolesForReviewer.includes(activePortalRole)) isAllowed = true;
+      if (userRole === activePortalRole) isAllowed = true;
+
+      if (isAllowed) {
+        userRole = activePortalRole;
+      }
+    }
   } catch {
     console.log("Using fallback dashboard data");
   }

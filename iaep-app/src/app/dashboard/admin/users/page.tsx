@@ -3,11 +3,7 @@
 import { useState, useEffect } from "react";
 
 export default function UserManagement() {
-  const [users, setUsers] = useState([
-    { id: 1, name: "M. A. Rahman", email: "marahman2169@gmail.com", role: "Editor", journal: "RJRAKP, APASIFIC IAEP", joined: "Oct 2024", status: "Active" },
-    { id: 2, name: "Kadin Medan", email: "kadinmedan1@gmail.com", role: "Reviewer", journal: "RJRAKP", joined: "Nov 2024", status: "Active" },
-    { id: 3, name: "Kad Sumut", email: "kadsumut@gmail.com", role: "Author", journal: "APASIFIC IAEP", joined: "Dec 2024", status: "Active" }
-  ]);
+  const [users, setUsers] = useState<any[]>([]);
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -18,22 +14,15 @@ export default function UserManagement() {
         if (data.success && data.users && data.users.length > 0) {
           const mappedUsers = data.users.map((u: any) => ({
             id: u.id,
-            name: u.full_name,
+            name: u.full_name || u.name,
             email: u.email,
-            role: u.role === "author" ? "Author" : u.role === "reviewer" ? "Reviewer" : "Editor",
-            journal: u.role === "reviewer" ? "APASIFIC IAEP" : "RJRAKP", 
-            joined: new Date(u.joined || Date.now()).toLocaleDateString(),
+            role: u.role === "author" ? "Author" : u.role === "reviewer" ? "Reviewer" : u.role === "admin" ? "Admin" : u.role || "Author",
+            journal: u.role === "reviewer" ? "APASIFIC IAEP" : u.journal || "RJRAKP", 
+            joined: u.joined ? new Date(u.joined).toLocaleDateString() : "Oct 2024",
             status: u.status || "Pending"
           }));
           
-          setUsers(prev => {
-            // Keep hardcoded ones that don't match IDs, or just replace entirely?
-            // Let's replace the hardcoded ones entirely with the REAL users.
-            // Wait, to keep demo users, we can just prepend real users to dummy users.
-            const existingIds = new Set(prev.map(p => p.id));
-            const newUsers = mappedUsers.filter((mu: any) => !existingIds.has(mu.id));
-            return [...newUsers, ...prev];
-          });
+          setUsers(mappedUsers);
         }
       } catch (e) {
         console.error(e);
@@ -45,6 +34,7 @@ export default function UserManagement() {
   const [isInviteOpen, setIsInviteOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<any>(null);
+  const [editFormData, setEditFormData] = useState<any>({});
   const [toastMessage, setToastMessage] = useState("");
 
   const showToast = (msg: string) => {
@@ -57,9 +47,19 @@ export default function UserManagement() {
     showToast("Invitation email successfully sent! (Demo)");
   };
 
-  const handleEditSubmit = () => {
+  const handleEditSubmit = async () => {
+    try {
+      await fetch('/api/users/list', { 
+        method: 'POST', 
+        body: JSON.stringify({ action: 'edit', user: editFormData }) 
+      });
+      // Update local state for demo
+      setUsers(users.map(u => u.id === editFormData.id ? editFormData : u));
+    } catch (e) {
+      console.error(e);
+    }
     setIsEditOpen(false);
-    showToast("User role successfully updated! (Demo)");
+    showToast("User details successfully updated!");
   };
 
   const handleRevoke = async (id: number | string, name: string) => {
@@ -176,7 +176,7 @@ export default function UserManagement() {
                       </button>
                     )}
                     <button 
-                      onClick={() => { setSelectedUser(user); setIsEditOpen(true); }}
+                      onClick={() => { setSelectedUser(user); setEditFormData({...user}); setIsEditOpen(true); }}
                       className="text-gray-400 hover:text-white px-3 py-1 bg-gray-800 hover:bg-gray-700 rounded transition-colors mr-2"
                     >
                       Edit
@@ -248,22 +248,66 @@ export default function UserManagement() {
                 <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"/></svg>
               </button>
             </div>
-            <div className="p-6 space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-400 mb-1">Change Role</label>
-                <select defaultValue={selectedUser.role} className="w-full bg-[#0a0a14] border border-gray-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-[#c9a84c]">
-                  <option value="Author">Author</option>
-                  <option value="Reviewer">Reviewer</option>
-                  <option value="Editor">Editor</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-400 mb-1">Account Status</label>
-                <select defaultValue={selectedUser.status} className="w-full bg-[#0a0a14] border border-gray-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-[#c9a84c]">
-                  <option value="Active">Active</option>
-                  <option value="Pending">Pending</option>
-                  <option value="Suspended">Suspended</option>
-                </select>
+            <div className="p-6 space-y-4 max-h-[70vh] overflow-y-auto custom-scrollbar">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-400 mb-1">Nama Lengkap</label>
+                  <input value={editFormData.name || ''} onChange={e => setEditFormData({...editFormData, name: e.target.value})} className="w-full bg-[#0a0a14] border border-gray-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-[#c9a84c]" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-400 mb-1">Email</label>
+                  <input value={editFormData.email || ''} onChange={e => setEditFormData({...editFormData, email: e.target.value})} className="w-full bg-[#0a0a14] border border-gray-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-[#c9a84c]" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-400 mb-1">No. HP/WhatsApp</label>
+                  <input value={editFormData.phone || ''} onChange={e => setEditFormData({...editFormData, phone: e.target.value})} className="w-full bg-[#0a0a14] border border-gray-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-[#c9a84c]" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-400 mb-1">Negara</label>
+                  <input value={editFormData.country || ''} onChange={e => setEditFormData({...editFormData, country: e.target.value})} className="w-full bg-[#0a0a14] border border-gray-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-[#c9a84c]" />
+                </div>
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-gray-400 mb-1">Institusi/Universitas</label>
+                  <input value={editFormData.university || ''} onChange={e => setEditFormData({...editFormData, university: e.target.value})} className="w-full bg-[#0a0a14] border border-gray-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-[#c9a84c]" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-400 mb-1">ID Akademik</label>
+                  <input value={editFormData.orcid || ''} onChange={e => setEditFormData({...editFormData, orcid: e.target.value})} className="w-full bg-[#0a0a14] border border-gray-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-[#c9a84c]" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-400 mb-1">Google Scholar</label>
+                  <input value={editFormData.googleScholar || ''} onChange={e => setEditFormData({...editFormData, googleScholar: e.target.value})} className="w-full bg-[#0a0a14] border border-gray-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-[#c9a84c]" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-400 mb-1">Scopus</label>
+                  <input value={editFormData.scopus || ''} onChange={e => setEditFormData({...editFormData, scopus: e.target.value})} className="w-full bg-[#0a0a14] border border-gray-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-[#c9a84c]" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-400 mb-1">Web of Science (WoS)</label>
+                  <input value={editFormData.wos || ''} onChange={e => setEditFormData({...editFormData, wos: e.target.value})} className="w-full bg-[#0a0a14] border border-gray-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-[#c9a84c]" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-400 mb-1">SINTA</label>
+                  <input value={editFormData.sinta || ''} onChange={e => setEditFormData({...editFormData, sinta: e.target.value})} className="w-full bg-[#0a0a14] border border-gray-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-[#c9a84c]" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-400 mb-1">Change Role</label>
+                  <select value={editFormData.role || 'Author'} onChange={e => setEditFormData({...editFormData, role: e.target.value})} className="w-full bg-[#0a0a14] border border-gray-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-[#c9a84c]">
+                    <option value="Author">Author</option>
+                    <option value="Reviewer">Reviewer</option>
+                    <option value="Editor">Editor</option>
+                    <option value="Admin">Admin</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-400 mb-1">Account Status</label>
+                  <select value={editFormData.status || 'Active'} onChange={e => setEditFormData({...editFormData, status: e.target.value})} className="w-full bg-[#0a0a14] border border-gray-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-[#c9a84c]">
+                    <option value="Active">Active</option>
+                    <option value="Pending">Pending</option>
+                    <option value="Suspended">Suspended</option>
+                    <option value="Revoked">Revoked</option>
+                  </select>
+                </div>
               </div>
               <div className="pt-4 flex gap-3">
                 <button onClick={() => setIsEditOpen(false)} className="flex-1 bg-transparent border border-gray-700 hover:bg-gray-800 text-white font-semibold py-3 rounded-lg transition-colors">

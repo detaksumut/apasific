@@ -2,20 +2,27 @@ import { createClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { FileText, Clock, CheckCircle, ArrowRight, Plus } from "lucide-react";
+import { cookies } from "next/headers";
 
 export default async function AuthorDashboard() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
+  const cookieStore = await cookies();
+  const mockUserCookie = cookieStore.get("mock_user");
+  const mockUserName = cookieStore.get("mock_user_name");
 
-  if (!user) {
+  if (!user && !mockUserCookie) {
     redirect("/auth/login");
   }
+
+  const userId = user?.id || "demo-user-id";
+  const userName = user?.user_metadata?.full_name || mockUserName?.value || 'Author';
 
   // Fetch author's submissions
   const { data: submissions, error } = await supabase
     .from("submissions")
     .select("*, journals(name)")
-    .eq("submitter_id", user.id)
+    .eq("submitter_id", userId)
     .order("created_at", { ascending: false });
 
   const articles = submissions || [];
@@ -25,77 +32,90 @@ export default async function AuthorDashboard() {
   const acceptedArticles = articles.filter(a => a.status === 'accepted').length;
 
   return (
-    <div className="max-w-6xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div className="max-w-7xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+      
+      {/* Header Section */}
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-6 border-b border-zinc-800">
         <div>
-          <h1 className="text-3xl font-serif text-amber-500 font-bold tracking-wide">Author Dashboard</h1>
-          <p className="text-zinc-400 mt-2">Welcome back, {user.user_metadata?.full_name || 'Author'}. Here is the overview of your manuscripts.</p>
+          <h1 className="text-3xl font-bold text-white tracking-tight">Author Dashboard</h1>
+          <p className="text-zinc-400 mt-2 text-sm">Welcome back, <span className="font-semibold text-zinc-300">{userName}</span>. Here is the overview of your manuscripts.</p>
         </div>
         <Link 
           href="/dashboard/submit" 
-          className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-amber-600 to-yellow-500 text-black font-semibold rounded-lg hover:from-amber-500 hover:to-yellow-400 transition-all shadow-[0_0_15px_rgba(245,158,11,0.2)]"
+          className="inline-flex items-center gap-2 px-6 py-2.5 bg-emerald-600 text-white font-medium text-sm rounded-md hover:bg-emerald-500 transition-colors shadow-sm ring-1 ring-emerald-500/50"
         >
-          <Plus className="w-5 h-5" />
+          <Plus className="w-4 h-4" />
           Submit New Article
         </Link>
       </div>
 
+      {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {/* Total Articles */}
-        <div className="bg-black/40 border border-amber-500/20 p-6 rounded-xl shadow-lg backdrop-blur-sm relative overflow-hidden group">
-          <div className="absolute inset-0 bg-gradient-to-br from-amber-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-          <div className="flex justify-between items-start mb-4 relative z-10">
-            <h3 className="text-zinc-400 text-xs font-bold uppercase tracking-widest">Total Articles</h3>
-            <FileText className="w-5 h-5 text-amber-500" />
+        <div className="bg-zinc-900/50 border border-zinc-800/80 p-6 rounded-xl hover:border-emerald-500/30 transition-colors relative group">
+          <div className="flex justify-between items-start mb-4">
+            <h3 className="text-zinc-400 text-xs font-semibold uppercase tracking-wider">Total Articles</h3>
+            <div className="p-2 bg-zinc-800/50 rounded-lg group-hover:bg-emerald-500/10 transition-colors">
+              <FileText className="w-4 h-4 text-zinc-400 group-hover:text-emerald-500 transition-colors" />
+            </div>
           </div>
-          <p className="text-4xl font-bold font-serif text-white relative z-10">{totalArticles}</p>
+          <p className="text-4xl font-light text-white">{totalArticles}</p>
         </div>
 
         {/* Pending Articles */}
-        <div className="bg-black/40 border border-amber-500/20 p-6 rounded-xl shadow-lg backdrop-blur-sm relative overflow-hidden group">
-          <div className="absolute inset-0 bg-gradient-to-br from-amber-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-          <div className="flex justify-between items-start mb-4 relative z-10">
-            <h3 className="text-zinc-400 text-xs font-bold uppercase tracking-widest">In Review</h3>
-            <Clock className="w-5 h-5 text-amber-500" />
+        <div className="bg-zinc-900/50 border border-zinc-800/80 p-6 rounded-xl hover:border-emerald-500/30 transition-colors relative group">
+          <div className="flex justify-between items-start mb-4">
+            <h3 className="text-zinc-400 text-xs font-semibold uppercase tracking-wider">In Review</h3>
+            <div className="p-2 bg-zinc-800/50 rounded-lg group-hover:bg-emerald-500/10 transition-colors">
+              <Clock className="w-4 h-4 text-zinc-400 group-hover:text-emerald-500 transition-colors" />
+            </div>
           </div>
-          <p className="text-4xl font-bold font-serif text-white relative z-10">{pendingArticles}</p>
+          <p className="text-4xl font-light text-white">{pendingArticles}</p>
         </div>
 
         {/* Accepted Articles */}
-        <div className="bg-black/40 border border-amber-500/20 p-6 rounded-xl shadow-lg backdrop-blur-sm relative overflow-hidden group">
-          <div className="absolute inset-0 bg-gradient-to-br from-amber-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-          <div className="flex justify-between items-start mb-4 relative z-10">
-            <h3 className="text-zinc-400 text-xs font-bold uppercase tracking-widest">Accepted</h3>
-            <CheckCircle className="w-5 h-5 text-amber-500" />
+        <div className="bg-zinc-900/50 border border-zinc-800/80 p-6 rounded-xl hover:border-emerald-500/30 transition-colors relative group">
+          <div className="flex justify-between items-start mb-4">
+            <h3 className="text-zinc-400 text-xs font-semibold uppercase tracking-wider">Accepted</h3>
+            <div className="p-2 bg-zinc-800/50 rounded-lg group-hover:bg-emerald-500/10 transition-colors">
+              <CheckCircle className="w-4 h-4 text-zinc-400 group-hover:text-emerald-500 transition-colors" />
+            </div>
           </div>
-          <p className="text-4xl font-bold font-serif text-white relative z-10">{acceptedArticles}</p>
+          <p className="text-4xl font-light text-white">{acceptedArticles}</p>
         </div>
       </div>
 
-      <div className="bg-black/40 border border-amber-500/20 rounded-xl shadow-lg backdrop-blur-sm overflow-hidden">
-        <div className="px-6 py-4 border-b border-amber-500/20 bg-black/60 flex justify-between items-center">
-          <h3 className="font-bold text-amber-500 text-sm uppercase tracking-wider">Recent Submissions</h3>
+      {/* Recent Submissions List */}
+      <div className="bg-zinc-900/30 border border-zinc-800/80 rounded-xl overflow-hidden">
+        <div className="px-6 py-4 border-b border-zinc-800/80 bg-zinc-900/50 flex justify-between items-center">
+          <h3 className="font-semibold text-white text-sm">Recent Submissions</h3>
         </div>
         <div className="divide-y divide-zinc-800/50">
           {articles.length === 0 ? (
-            <div className="p-8 text-center">
-              <p className="text-zinc-500 text-sm mb-4">You haven't submitted any articles yet.</p>
+            <div className="p-12 text-center flex flex-col items-center">
+              <FileText className="w-10 h-10 text-zinc-700 mb-4" />
+              <p className="text-zinc-500 text-sm">You haven't submitted any articles yet.</p>
+              <Link href="/dashboard/submit" className="text-emerald-500 hover:text-emerald-400 text-sm mt-2 font-medium">Create your first submission &rarr;</Link>
             </div>
           ) : (
             articles.slice(0, 5).map((article) => (
-              <div key={article.submission_id} className="p-6 hover:bg-white/5 transition-colors group">
-                <div className="flex justify-between items-start gap-4">
-                  <div>
-                    <h4 className="font-bold text-zinc-200 group-hover:text-amber-400 transition-colors">{article.title}</h4>
-                    <div className="text-xs text-zinc-500 mt-2 flex gap-3 items-center">
-                       <span className="bg-zinc-900 px-2 py-1 rounded text-zinc-400 border border-zinc-800">{article.journals?.name || 'Unknown Journal'}</span>
-                       <span>•</span>
-                       <span className="uppercase text-amber-600 font-bold tracking-wider text-[10px] bg-amber-500/10 px-2 py-1 rounded-full border border-amber-500/20">{article.status}</span>
-                       <span>•</span>
-                       <span>{new Date(article.created_at).toLocaleDateString()}</span>
+              <div key={article.submission_id} className="p-6 hover:bg-zinc-800/30 transition-colors group">
+                <div className="flex justify-between items-center gap-6">
+                  <div className="flex-1">
+                    <Link href={`/dashboard/submissions/${article.submission_id}`}>
+                      <h4 className="font-medium text-zinc-200 group-hover:text-emerald-400 transition-colors text-base line-clamp-1">{article.title}</h4>
+                    </Link>
+                    <div className="text-xs text-zinc-500 mt-2.5 flex flex-wrap gap-x-4 gap-y-2 items-center">
+                       <span className="text-zinc-400 font-medium">{article.journals?.name || 'Unknown Journal'}</span>
+                       <span className="text-zinc-700">•</span>
+                       <span className={`uppercase font-semibold tracking-wider text-[10px] px-2 py-0.5 rounded-full border ${article.status === 'accepted' ? 'text-emerald-400 border-emerald-500/30 bg-emerald-500/10' : 'text-amber-500 border-amber-500/30 bg-amber-500/10'}`}>
+                         {article.status.replace('_', ' ')}
+                       </span>
+                       <span className="text-zinc-700">•</span>
+                       <span>{new Date(article.created_at).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
                     </div>
                   </div>
-                  <Link href={`/dashboard/submissions/${article.submission_id}`} className="text-zinc-500 hover:text-amber-500 transition-colors p-2 bg-black/40 rounded-full border border-transparent hover:border-amber-500/30">
+                  <Link href={`/dashboard/submissions/${article.submission_id}`} className="text-zinc-500 hover:text-emerald-500 transition-colors p-2 rounded-lg hover:bg-emerald-500/10 flex-shrink-0">
                     <ArrowRight className="w-4 h-4" />
                   </Link>
                 </div>

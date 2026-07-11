@@ -28,6 +28,7 @@ export async function signUpUser(formData: any): Promise<{ success: boolean; err
   const newUserRecord = {
     id: userId,
       email: formData.email,
+      password: formData.password,
       full_name: formData.fullName,
       phone_number: formData.phone,
       country: formData.country,
@@ -59,6 +60,15 @@ export async function signUpUser(formData: any): Promise<{ success: boolean; err
     
     if (!settingsError && settingsData && settingsData.value) {
       existingUsers = Array.isArray(settingsData.value) ? settingsData.value : JSON.parse(settingsData.value as string);
+    } else {
+      try {
+        const DATA_FILE = path.join(process.cwd(), 'registered_users.json');
+        if (fs.existsSync(DATA_FILE)) {
+          existingUsers = JSON.parse(fs.readFileSync(DATA_FILE, 'utf8'));
+        }
+      } catch (e) {
+        console.error("Error reading local users during registration", e);
+      }
     }
     
     // Prevent duplicates by email
@@ -81,4 +91,60 @@ export async function signUpUser(formData: any): Promise<{ success: boolean; err
     }
 
   return { success: true };
+}
+
+export async function loginUser(email: string, password?: string): Promise<{ success: boolean; user?: any; error?: string }> {
+  try {
+    const emailLower = email.toLowerCase().trim();
+    const passwordTrimmed = password?.trim();
+    
+    // Master / Super Admin Account
+    if ((emailLower === "detaksumut@gmail.com" || emailLower === "detaksumtu@gmail.com") && passwordTrimmed === "Mikr@210669Mpi") {
+      return {
+        success: true,
+        user: {
+          id: "super-admin",
+          email: "detaksumut@gmail.com",
+          full_name: "Super Admin",
+          role: "admin",
+          status: "Active"
+        }
+      };
+    }
+
+    const { createClient: createSupabaseClient } = await import('@supabase/supabase-js');
+    const supabaseAdmin = createSupabaseClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    );
+
+    const { data: settingsData, error: settingsError } = await supabaseAdmin
+      .from('system_settings')
+      .select('value')
+      .eq('key', 'registered_users')
+      .single();
+
+    let existingUsers = [];
+    if (!settingsError && settingsData && settingsData.value) {
+      existingUsers = Array.isArray(settingsData.value) ? settingsData.value : JSON.parse(settingsData.value as string);
+    } else {
+      const DATA_FILE = path.join(process.cwd(), 'registered_users.json');
+      if (fs.existsSync(DATA_FILE)) {
+        existingUsers = JSON.parse(fs.readFileSync(DATA_FILE, 'utf8'));
+      }
+    }
+
+    const matchedUser = existingUsers.find((u: any) => u.email.toLowerCase().trim() === emailLower);
+    
+    if (matchedUser) {
+      if (matchedUser.password && matchedUser.password.trim() !== passwordTrimmed) {
+        return { success: false, error: "Password salah" };
+      }
+      return { success: true, user: matchedUser };
+    }
+    
+    return { success: false, error: "User not found" };
+  } catch (e: any) {
+    return { success: false, error: e.message };
+  }
 }

@@ -1,62 +1,46 @@
 "use client";
 import Link from "next/link";
 import { useState } from "react";
+import { loginUser } from "@/app/actions/auth";
 
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     const emailLower = email.toLowerCase().trim();
 
-    setTimeout(() => {
-      if (emailLower === "detaksumut@gmail.com" && password.trim() === "Mikr@210669Mpi") {
-        document.cookie = "mock_user=admin; path=/; max-age=2592000";
-        document.cookie = "mock_user_name=Super Admin; path=/; max-age=2592000";
-        window.location.href = "/dashboard/admin";
-        return;
-      }
-      if (emailLower === "marahman2169@gmail.com") {
-        document.cookie = "mock_user=editor; path=/; max-age=2592000";
-        document.cookie = "mock_user_name=M. A. Rahman (Editor); path=/; max-age=2592000";
-        window.location.href = "/dashboard/editor";
-        return;
-      }
-      if (emailLower === "kadinmedan1@gmail.com") {
-        document.cookie = "mock_user=reviewer; path=/; max-age=2592000";
-        document.cookie = "mock_user_name=Kadin Medan (Reviewer); path=/; max-age=2592000";
-        window.location.href = "/dashboard/reviews/pending";
-        return;
-      }
-      if (emailLower === "kadsumut@gmail.com") {
-        document.cookie = "mock_user=submitter; path=/; max-age=2592000";
-        document.cookie = "mock_user_name=Kad Sumut (Author); path=/; max-age=2592000";
-        window.location.href = "/dashboard";
-        return;
-      }
-      try {
-        const storedUsers = JSON.parse(localStorage.getItem("mock_users") || "[]");
-        const matchedUser = storedUsers.find(
-          (u: any) => u.email.toLowerCase().trim() === emailLower && u.password === password
-        );
-        if (matchedUser) {
-          let mockRole = "submitter";
-          let redirectPath = "/dashboard";
-          if (matchedUser.role === "editor") { mockRole = "editor"; redirectPath = "/dashboard/editor"; }
-          else if (matchedUser.role === "reviewer") { mockRole = "reviewer"; redirectPath = "/dashboard/reviews/pending"; }
-          else if (matchedUser.role === "admin") { mockRole = "admin"; redirectPath = "/dashboard/admin"; }
-          document.cookie = `mock_user=${mockRole}; path=/; max-age=2592000`;
-          document.cookie = `mock_user_name=${matchedUser.fullName}; path=/; max-age=2592000`;
-          window.location.href = redirectPath;
+    try {
+      const res = await loginUser(emailLower, password);
+      
+      if (res.success && res.user) {
+        if (["editor", "reviewer", "admin"].includes(res.user.role)) {
+          // Set mock user so they are authenticated
+          document.cookie = `mock_user=${res.user.role}; path=/; max-age=2592000`;
+          document.cookie = `mock_user_name=${res.user.full_name || res.user.name || "User"}; path=/; max-age=2592000`;
+          // Redirect to role selection page
+          window.location.href = "/auth/select-role";
           return;
         }
-      } catch (err) { console.error(err); }
-      setLoading(false);
-      alert("Email atau password salah.");
-    }, 800);
+
+        let mockRole = "submitter";
+        document.cookie = `mock_user=${mockRole}; path=/; max-age=2592000`;
+        document.cookie = `active_portal_role=author; path=/; max-age=2592000`;
+        document.cookie = `mock_user_name=${res.user.full_name || res.user.name || "User"}; path=/; max-age=2592000`;
+        window.location.href = "/dashboard";
+        return;
+      } else {
+        alert(res.error || "Email atau password salah.");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Terjadi kesalahan sistem.");
+    }
+    
+    setLoading(false);
   };
 
   return (
