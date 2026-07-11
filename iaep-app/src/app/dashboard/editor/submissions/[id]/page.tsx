@@ -505,6 +505,8 @@ export default function SubmissionControlPanel() {
           </div>
         </div>
       )}
+      </>
+      )}
     </div>
   );
 }
