@@ -148,9 +148,12 @@ export default function MajesticMembershipPage() {
         throw new Error(result.error || "Gagal mendaftar");
       }
 
-      alert("Pendaftaran Berhasil! Admin akan segera memverifikasi bukti transfer Anda.");
+      const textMessage = `New Member\nNama: ${formData.fullName}\nEmail: ${formData.email}\nNo. HP: ${formData.phone}\nAsal Negara: ${formData.country}\nInstitusi: ${formData.university}\nTingkat: ${formData.academicLevel}\n\nMohon verifikasi pendaftaran saya.\n*(Harap lampirkan foto/file bukti transfer Anda di chat ini)*`;
+      const waUrl = `https://wa.me/62811665212?text=${encodeURIComponent(textMessage)}`;
+      
+      alert("Pendaftaran Berhasil! Anda akan diarahkan ke WhatsApp Admin untuk konfirmasi.");
       document.cookie = "mock_user=member; path=/";
-      window.location.href = '/dashboard';
+      window.location.href = waUrl;
     } catch (err: any) {
       console.error(err);
       alert("Error: " + err.message);
