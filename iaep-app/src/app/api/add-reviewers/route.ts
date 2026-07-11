@@ -73,7 +73,7 @@ export async function GET() {
          });
       });
 
-      r.id = authData?.user?.id || `demo-user-${Date.now()}-${Math.random()}`;
+      (r as any).id = authData?.user?.id || `demo-user-${Date.now()}-${Math.random()}`;
       (r as any).password = password;
       
       // 2. Insert into profiles
