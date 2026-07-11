@@ -21,7 +21,7 @@ export default async function ReviewHistoryPage() {
     const { data } = await supabase
       .from("review_assignments")
       .select("*, submissions(*, journals(name))")
-      .eq("reviewer_id", user.id)
+      .eq("reviewer_id", userId)
       .eq("status", "completed")
       .order("completed_at", { ascending: false });
     if (data) assignments = data;
