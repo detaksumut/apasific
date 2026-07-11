@@ -4,7 +4,7 @@ import { createClient } from "@/utils/supabase/server";
 import fs from 'fs';
 import path from 'path';
 
-export async function signUpUser(formData: any) {
+export async function signUpUser(formData: any): Promise<{ success: boolean; error?: string }> {
   const supabase = await createClient();
 
   // 1. Sign Up user to Supabase Auth
