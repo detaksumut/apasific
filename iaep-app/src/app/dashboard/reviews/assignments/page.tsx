@@ -20,7 +20,7 @@ export default async function AssignmentsPage() {
     const { data } = await supabase
       .from("review_assignments")
       .select("*, submissions(*, journals(name))")
-      .eq("reviewer_id", user.id)
+      .eq("reviewer_id", userId)
       .eq("status", "pending")
       .order("assigned_at", { ascending: false });
     if (data) assignments = data;
