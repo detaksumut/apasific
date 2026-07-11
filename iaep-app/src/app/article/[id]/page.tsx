@@ -3,11 +3,7 @@
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
-import { createClient } from "@supabase/supabase-js";
-
-const rjrakpDbUrl = 'https://abmjieqcumlskannfkdl.supabase.co';
-const rjrakpDbKey = 'sb_publishable_Zvx-3Ezgb1jnAZsDGXyUOg_96PqXzRN';
-const supabase = createClient(rjrakpDbUrl, rjrakpDbKey);
+import { createClient } from "@/utils/supabase/client";
 
 export default function ArticlePaywall() {
   const params = useParams();
@@ -45,44 +41,44 @@ export default function ArticlePaywall() {
 
     async function fetchRealArticle() {
       try {
+        const supabase = createClient();
         const { data, error } = await supabase
-          .from('articles')
+          .from('submissions')
           .select(`
             id,
             title,
             abstract,
             keywords,
-            view_count,
-            download_count,
+            doi,
+            file_url,
+            created_at,
             article_authors ( full_name, orcid ),
-            journals ( name ),
-            publications ( publication_date, pdf_url, doi )
+            journals ( name )
           `)
           .eq('id', id)
           .single();
 
         if (data && !error) {
-          const authors = data.article_authors?.map((a: any) => a.full_name).join(", ");
+          const authors = data.article_authors?.length 
+            ? data.article_authors.map((a: any) => a.full_name).join(", ") 
+            : "Penulis Tidak Diketahui";
+          
           const orcids = data.article_authors?.map((a: any) => a.orcid).filter(Boolean);
           const firstOrcid = orcids && orcids.length > 0 ? orcids[0] : "";
           
-          const pubDate = data.publications?.[0]?.publication_date;
-          const pdfUrl = data.publications?.[0]?.pdf_url;
-          const doi = data.publications?.[0]?.doi;
-          
           setArticle({
             title: data.title || "",
-            author: authors || "Unknown Author",
-            journal: (Array.isArray(data.journals) ? data.journals[0]?.name : (data.journals as any)?.name) || "Rumah Jurnal Riset, Analisis dan Keadilan Publik (RJRAKP)",
-            date: pubDate ? new Date(pubDate).toLocaleDateString('id-ID') : "Baru saja dipublikasi",
+            author: authors,
+            journal: (Array.isArray(data.journals) ? data.journals[0]?.name : (data.journals as any)?.name) || "APASIFIC IAEP",
+            date: data.created_at ? new Date(data.created_at).toLocaleDateString('id-ID') : "Baru saja dipublikasi",
             abstract: data.abstract || "Abstrak tidak tersedia.",
             keywords: data.keywords ? data.keywords.split(',') : [],
             price: 50000,
-            pdf_url: pdfUrl,
+            pdf_url: data.file_url || "",
             orcid: firstOrcid,
-            doi: doi || "",
-            views: data.view_count || 0,
-            downloads: data.download_count || 0
+            doi: data.doi || "",
+            views: 0,
+            downloads: 0
           });
         }
       } catch (e) {
@@ -192,7 +188,7 @@ export default function ArticlePaywall() {
               <svg className="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
               </svg>
-              Rumah Jurnal Riset Analisis dan Keadilan Publik, Indonesia
+              APASIFIC IAEP, Indonesia
             </span>
             {article.orcid && (
               <a href={`https://orcid.org/${article.orcid}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-sm text-[#A6CE39] hover:underline mt-1 w-fit">
@@ -219,13 +215,13 @@ export default function ArticlePaywall() {
               <div className="flex items-center gap-2 bg-[#1a1a2e] border border-gray-700 px-3 py-1.5 rounded-lg shadow-sm">
                 <span className="text-[#ff7300] font-bold text-xs uppercase tracking-wider">Scopus</span>
                 <span className="text-gray-300 text-xs font-semibold bg-black px-2 py-0.5 rounded">
-                  {scopusCitations !== null ? `${scopusCitations} Citations` : 'Indexed'}
+                  {scopusCitations !== null ? `${scopusCitations} Kutipan` : 'Terindeks'}
                 </span>
               </div>
               <div className="flex items-center gap-2 bg-[#1a1a2e] border border-gray-700 px-3 py-1.5 rounded-lg shadow-sm">
                 <span className="text-[#5c2d91] font-bold text-xs uppercase tracking-wider">Web of Science</span>
                 <span className="text-gray-300 text-xs font-semibold bg-black px-2 py-0.5 rounded">
-                  {crossrefCitations !== null ? `${crossrefCitations} Citations` : 'Indexed'}
+                  {crossrefCitations !== null ? `${crossrefCitations} Kutipan` : 'Terindeks'}
                 </span>
               </div>
             </div>
@@ -238,14 +234,14 @@ export default function ArticlePaywall() {
           {/* Left Column: Abstract */}
           <div className="lg:col-span-2 space-y-8">
             <section className="bg-[#0d0d1a] rounded-2xl p-8 border border-gray-800 shadow-xl">
-              <h2 className="text-2xl font-bold text-[#c9a84c] mb-4">Abstract</h2>
+              <h2 className="text-2xl font-bold text-[#c9a84c] mb-4">Abstrak</h2>
               <p className="text-gray-300 leading-relaxed text-lg text-justify">
                 {article.abstract}
               </p>
               
               {article.keywords && article.keywords.length > 0 && (
                 <div className="mt-8">
-                  <h3 className="text-sm font-bold text-gray-500 uppercase tracking-wider mb-3">Keywords</h3>
+                  <h3 className="text-sm font-bold text-gray-500 uppercase tracking-wider mb-3">Kata Kunci</h3>
                   <div className="flex flex-wrap gap-2">
                     {article.keywords.map((kw, idx) => (
                       <span key={idx} className="px-3 py-1 bg-[#1a1a2e] text-gray-300 text-sm rounded border border-gray-700">
@@ -260,9 +256,9 @@ export default function ArticlePaywall() {
             {/* Blurred Content Teaser */}
             <section className="relative rounded-2xl p-8 border border-gray-800 overflow-hidden bg-[#0d0d1a]">
               <div className="blur-sm opacity-50 select-none">
-                <h2 className="text-xl font-bold mb-4">1. Introduction</h2>
-                <p className="mb-4">The rapid advancement of artificial intelligence technologies has fundamentally altered the landscape of global economics. In the context of the Association of Southeast Asian Nations (ASEAN)...</p>
-                <p>Furthermore, early adopters of AI-driven analytics have reported significant gains in operational efficiency. This paper seeks to quantify these gains across multiple sectors...</p>
+                <h2 className="text-xl font-bold mb-4">1. Pendahuluan</h2>
+                <p className="mb-4">Kemajuan pesat teknologi kecerdasan buatan telah secara mendasar mengubah lanskap ekonomi global. Dalam konteks Perhimpunan Bangsa-Bangsa Asia Tenggara (ASEAN)...</p>
+                <p>Lebih lanjut, pengadopsi awal analitik berbasis AI telah melaporkan peningkatan signifikan dalam efisiensi operasional. Makalah ini berusaha untuk mengukur peningkatan ini di berbagai sektor...</p>
               </div>
               
               {/* Waiting for Admin Overlay */}
@@ -290,9 +286,9 @@ export default function ArticlePaywall() {
                     <svg className="w-12 h-12 text-[#c9a84c] mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                     </svg>
-                    <h3 className="text-xl font-bold text-white mb-2">Read Full Article</h3>
+                    <h3 className="text-xl font-bold text-white mb-2">Baca Artikel Lengkap</h3>
                     <p className="text-gray-400 text-sm mb-6">
-                      Purchase this article to unlock the full text PDF. The revenue directly supports the author and APASIFIC.
+                      Beli artikel ini untuk membuka PDF teks lengkap. Pendapatan secara langsung mendukung penulis dan APASIFIC.
                     </p>
                     <button 
                       onClick={handlePayment}
@@ -300,16 +296,16 @@ export default function ArticlePaywall() {
                       className="w-full bg-[#c9a84c] text-black font-bold py-3 rounded-lg hover:bg-[#e8c97a] transition-all transform hover:scale-105 disabled:opacity-50 disabled:scale-100 flex items-center justify-center"
                     >
                       {isProcessing ? (
-                        "Processing Secure Payment..."
+                        "Memproses Pembayaran Aman..."
                       ) : (
-                        `Purchase Article (Rp ${article.price.toLocaleString('id-ID')})`
+                        `Beli Artikel (Rp ${article.price.toLocaleString('id-ID')})`
                       )}
                     </button>
                     <div className="mt-4 flex items-center justify-center gap-2 text-xs text-gray-500">
                       <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                       </svg>
-                      Secure APASIFIC Gateway
+                      Gerbang Aman APASIFIC
                     </div>
                   </div>
                 </div>
@@ -321,9 +317,9 @@ export default function ArticlePaywall() {
                     <svg className="w-16 h-16 text-green-400 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
-                    <h3 className="text-2xl font-bold text-white mb-2">Access Granted</h3>
+                    <h3 className="text-2xl font-bold text-white mb-2">Akses Diberikan</h3>
                     <p className="text-green-200 text-sm mb-6">
-                      Thank you for your purchase. The author has been credited.
+                      Terima kasih atas pembelian Anda. Penulis telah dikreditkan.
                     </p>
                     <button 
                       onClick={() => {
@@ -338,7 +334,7 @@ export default function ArticlePaywall() {
                       <svg className="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                       </svg>
-                      Download Full PDF
+                      Unduh PDF Lengkap
                     </button>
                   </div>
                 </div>
@@ -371,12 +367,12 @@ export default function ArticlePaywall() {
                 <svg className="w-5 h-5 text-[#c9a84c]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
                 </svg>
-                Author Royalty Program
+                Program Royalti Penulis
               </h3>
               <p className="text-sm text-gray-300 leading-relaxed mb-4">
-                APASIFIC directly rewards authors for their scholarly contributions. A percentage of every purchase goes straight to the author's designated bank account.
+                APASIFIC secara langsung memberikan penghargaan kepada penulis atas kontribusi ilmiah mereka. Persentase dari setiap pembelian langsung masuk ke rekening bank yang ditunjuk penulis.
               </p>
-              <div className="text-xs font-bold text-[#c9a84c] uppercase tracking-wide">Support Academic Excellence</div>
+              <div className="text-xs font-bold text-[#c9a84c] uppercase tracking-wide">Dukung Keunggulan Akademik</div>
             </div>
           </div>
         </div>

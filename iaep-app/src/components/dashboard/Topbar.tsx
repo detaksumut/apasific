@@ -8,8 +8,8 @@ export default function Topbar({ userName, role }: { userName: string; role: str
     admin: "Administrator",
     editor: "Editor",
     reviewer: "Reviewer",
-    author: "Author",
-    member: "Member",
+    author: "Penulis",
+    member: "Anggota",
   };
 
   const roleColor: Record<string, string> = {
@@ -24,9 +24,9 @@ export default function Topbar({ userName, role }: { userName: string; role: str
   const color = roleColor[role] || "#c9a84c";
 
   const notifications = [
-    { id: 1, text: "Your manuscript #1045 has been sent to reviewers.", time: "2h ago", unread: true },
-    { id: 2, text: "New comment on your submission #1022.", time: "1d ago", unread: true },
-    { id: 3, text: "System maintenance scheduled for July 10, 2026.", time: "2d ago", unread: false },
+    { id: 1, text: "Naskah Anda #1045 telah dikirim ke reviewer.", time: "2j yang lalu", unread: true },
+    { id: 2, text: "Komentar baru pada submisi Anda #1022.", time: "1h yang lalu", unread: true },
+    { id: 3, text: "Pemeliharaan sistem dijadwalkan pada 10 Juli 2026.", time: "2h yang lalu", unread: false },
   ];
   const unreadCount = notifications.filter(n => n.unread).length;
 
@@ -38,7 +38,7 @@ export default function Topbar({ userName, role }: { userName: string; role: str
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
             <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
           </svg>
-          <input type="text" placeholder="Search submissions, journals..." />
+          <input type="text" placeholder="Cari submisi, jurnal..." />
         </div>
       </div>
 
@@ -59,8 +59,8 @@ export default function Topbar({ userName, role }: { userName: string; role: str
           {showNotif && (
             <div className="topbar-notif-dropdown">
               <div className="notif-header">
-                <span>Notifications</span>
-                <span className="notif-count">{unreadCount} new</span>
+                <span>Notifikasi</span>
+                <span className="notif-count">{unreadCount} baru</span>
               </div>
               {notifications.map(n => (
                 <div key={n.id} className={`notif-item ${n.unread ? "unread" : ""}`}>
@@ -71,7 +71,7 @@ export default function Topbar({ userName, role }: { userName: string; role: str
                   </div>
                 </div>
               ))}
-              <div className="notif-footer">View all notifications</div>
+              <div className="notif-footer">Lihat semua notifikasi</div>
             </div>
           )}
         </div>

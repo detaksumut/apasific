@@ -8,33 +8,33 @@ const mockJournals = [
     title: "Rumah Jurnal Riset, Analisis dan Keadilan Publik (RJRAKP)",
     issn: "e-ISSN : 2987-1234 | p-ISSN : 2987-5678",
     publisher: "Association of Asia Pacific Academician",
-    description: "RJRAKP focuses on multidisciplinary research, promoting academic mobility, and providing a platform for critical scholarly discourse across the Asia Pacific region.",
+    description: "RJRAKP berfokus pada penelitian multidisiplin, mempromosikan mobilitas akademik, dan menyediakan platform untuk wacana ilmiah kritis di seluruh wilayah Asia Pasifik.",
     impact: "1.25",
     hIndex: "5",
     citations: "142",
     quartile: "Q3",
-    subject: "Multidisciplinary",
+    subject: "Multidisiplin",
   },
   {
     id: "iaep",
     title: "APASIFIC International Academic Exchange Program Journal (IAEP)",
     issn: "e-ISSN : 2891-9876 | p-ISSN : 2891-5432",
     publisher: "Association of Asia Pacific Academician",
-    description: "IAEP publishes high-quality peer-reviewed articles covering international education, academic exchange programs, cross-cultural studies, and global educational policies.",
+    description: "IAEP menerbitkan artikel tinjauan sejawat berkualitas tinggi yang mencakup pendidikan internasional, program pertukaran akademik, studi lintas budaya, dan kebijakan pendidikan global.",
     impact: "2.10",
     hIndex: "8",
     citations: "310",
     quartile: "Q2",
-    subject: "Education",
+    subject: "Pendidikan",
   }
 ];
 
 export default function JournalsRepository() {
   const [searchTerm, setSearchTerm] = useState("");
-  const [filter, setFilter] = useState("All");
+  const [filter, setFilter] = useState("Semua");
 
   const filteredJournals = mockJournals.filter(j => 
-    (filter === "All" || j.subject === filter) && 
+    (filter === "Semua" || j.subject === filter) && 
     (j.title.toLowerCase().includes(searchTerm.toLowerCase()) || j.publisher.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
@@ -43,13 +43,13 @@ export default function JournalsRepository() {
       {/* Hero Search Section */}
       <section className="hero-section">
         <div className="container">
-          <h1 className="hero-title">ASIA <span className="gold">Journals Repository</span></h1>
-          <p className="hero-subtitle">Discover, read, and cite high-impact scholarly journals indexed in the ASIA Academic Database.</p>
+          <h1 className="hero-title">Repositori <span className="gold">Jurnal ASIA</span></h1>
+          <p className="hero-subtitle">Temukan, baca, dan kutip jurnal ilmiah berdampak tinggi yang terindeks dalam Database Akademik ASIA.</p>
           
           <div className="search-box">
             <input 
               type="text" 
-              placeholder="Search by Journal Title, ISSN, or Publisher..." 
+              placeholder="Cari berdasarkan Judul Jurnal, ISSN, atau Penerbit..." 
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="search-input"
@@ -58,7 +58,7 @@ export default function JournalsRepository() {
               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
-              Search
+              Cari
             </button>
           </div>
         </div>
@@ -71,28 +71,28 @@ export default function JournalsRepository() {
           {/* Sidebar Filters */}
           <aside className="sidebar">
             <div className="filter-widget">
-              <h3 className="widget-title">Subject Area</h3>
+              <h3 className="widget-title">Bidang Ilmu</h3>
               <ul className="filter-list">
                 <li>
-                  <button className={`filter-item ${filter === "All" ? "active" : ""}`} onClick={() => setFilter("All")}>
-                    All Subjects <span className="count">2</span>
+                  <button className={`filter-item ${filter === "Semua" ? "active" : ""}`} onClick={() => setFilter("Semua")}>
+                    Semua Bidang <span className="count">2</span>
                   </button>
                 </li>
                 <li>
-                  <button className={`filter-item ${filter === "Multidisciplinary" ? "active" : ""}`} onClick={() => setFilter("Multidisciplinary")}>
-                    Multidisciplinary <span className="count">1</span>
+                  <button className={`filter-item ${filter === "Multidisiplin" ? "active" : ""}`} onClick={() => setFilter("Multidisiplin")}>
+                    Multidisiplin <span className="count">1</span>
                   </button>
                 </li>
                 <li>
-                  <button className={`filter-item ${filter === "Education" ? "active" : ""}`} onClick={() => setFilter("Education")}>
-                    Education <span className="count">1</span>
+                  <button className={`filter-item ${filter === "Pendidikan" ? "active" : ""}`} onClick={() => setFilter("Pendidikan")}>
+                    Pendidikan <span className="count">1</span>
                   </button>
                 </li>
               </ul>
             </div>
             
             <div className="filter-widget mt-6">
-              <h3 className="widget-title">Quartile Tier</h3>
+              <h3 className="widget-title">Tingkat Kuartil</h3>
               <div className="tier-grid">
                 <div className="tier-box">Q1</div>
                 <div className="tier-box active">Q2</div>
@@ -105,12 +105,12 @@ export default function JournalsRepository() {
           {/* Journal List */}
           <main className="journal-list">
             <div className="list-header">
-              <div className="results-count">Showing {filteredJournals.length} Journals</div>
+              <div className="results-count">Menampilkan {filteredJournals.length} Jurnal</div>
               <div className="sort-box">
-                Sort by: 
+                Urutkan: 
                 <select className="sort-select">
-                  <option>Impact Factor</option>
-                  <option>Total Citations</option>
+                  <option>Faktor Dampak</option>
+                  <option>Total Kutipan</option>
                   <option>A-Z</option>
                 </select>
               </div>
@@ -126,33 +126,33 @@ export default function JournalsRepository() {
                 <div className="jc-body">
                   <h2 className="jc-title">{journal.title}</h2>
                   <div className="jc-meta">
-                    <span className="publisher">Publisher: {journal.publisher}</span>
+                    <span className="publisher">Penerbit: {journal.publisher}</span>
                     <span className="issn">{journal.issn}</span>
                   </div>
                   <p className="jc-desc">{journal.description}</p>
                   
                   <div className="jc-metrics">
                     <div className="metric-pill">
-                      <span className="m-label">Impact</span>
+                      <span className="m-label">Dampak</span>
                       <span className="m-value">{journal.impact}</span>
                     </div>
                     <div className="metric-pill">
-                      <span className="m-label">H-Index</span>
+                      <span className="m-label">Indeks-H</span>
                       <span className="m-value">{journal.hIndex}</span>
                     </div>
                     <div className="metric-pill">
-                      <span className="m-label">Citations</span>
+                      <span className="m-label">Kutipan</span>
                       <span className="m-value">{journal.citations}</span>
                     </div>
                     <div className="metric-pill tier">
-                      <span className="m-label">Tier</span>
+                      <span className="m-label">Tingkat</span>
                       <span className="m-value">{journal.quartile}</span>
                     </div>
                   </div>
                 </div>
                 <div className="jc-right">
-                  <button className="view-btn" onClick={() => window.location.href = "/journals/rjrakp"}>View Articles</button>
-                  <button className="submit-btn" onClick={() => window.location.href = "/dashboard/submit"}>Submit Paper</button>
+                  <button className="view-btn" onClick={() => window.location.href = "/journals/rjrakp"}>Lihat Artikel</button>
+                  <button className="submit-btn" onClick={() => window.location.href = "/dashboard/submit"}>Kirim Naskah</button>
                 </div>
               </div>
             ))}

@@ -21,6 +21,41 @@ export async function POST(request: Request) {
       university,
       buktiTransfer
     } = data;
+    // Auto-generate International ID if not provided
+    let finalInternationalId = internationalId;
+    if (!finalInternationalId || finalInternationalId.trim() === "") {
+      const getCountryCode = (c: string) => {
+        const map: Record<string, string> = {
+          "Indonesia": "ID", "Malaysia": "MY", "Singapore": "SG", "Thailand": "TH", 
+          "Vietnam": "VN", "Philippines": "PH", "Japan": "JP", "South Korea": "KR", 
+          "China": "CN", "India": "IN", "Australia": "AU"
+        };
+        return map[c] || "XX";
+      };
+      
+      const getLevelCode = (lvl: string) => {
+        if (lvl === "Institusi") return "INS";
+        return lvl || "XX";
+      };
+
+      const currentYear = new Date().getFullYear().toString().slice(2);
+      const cCode = getCountryCode(country || "Indonesia");
+      const lCode = getLevelCode(academicLevel || "S2");
+
+      // Count existing rows to generate sequence number
+      const { count, error: countError } = await supabase
+        .from("membership_applications")
+        .select('*', { count: 'exact', head: true });
+        
+      if (countError) {
+        console.error("Failed to count members:", countError);
+        throw countError;
+      }
+      
+      // Calculate sequence number (e.g. 001, 002)
+      const sequenceNum = ((count || 0) + 1).toString().padStart(3, '0');
+      finalInternationalId = `ASIA-${cCode}${currentYear}-${lCode}${sequenceNum}`;
+    }
 
     const { data: insertedData, error } = await supabase
       .from("membership_applications")
@@ -31,7 +66,7 @@ export async function POST(request: Request) {
           phone: phone,
           country: country,
           academic_level: academicLevel,
-          international_id: internationalId,
+          international_id: finalInternationalId,
           university: university,
           bukti_transfer_url: buktiTransfer, // Base64 string
           status: 'Pending'

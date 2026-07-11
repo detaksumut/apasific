@@ -77,7 +77,7 @@ const BodySection = ({ title, bodyName, customRoleHead, data }: { title: string,
               {data.ketuaNama}
             </div>
             <div style={{ color: "#c9a84c", fontSize: "10px", fontWeight: "700", letterSpacing: "1px", textTransform: "uppercase", marginBottom: "4px" }}>
-              {customRoleHead || data.ketuaJabatan || "HEAD"}
+              {customRoleHead || data.ketuaJabatan || "KETUA"}
             </div>
             {data.ketuaNegara && (
               <div style={{ color: "rgba(255,255,255,0.4)", fontSize: "10px" }}>📍 {data.ketuaNegara}</div>
@@ -116,7 +116,7 @@ const BodySection = ({ title, bodyName, customRoleHead, data }: { title: string,
               {data.sekNama}
             </div>
             <div style={{ color: "rgba(255,255,255,0.6)", fontSize: "10px", fontWeight: "700", letterSpacing: "1px", textTransform: "uppercase", marginBottom: "4px" }}>
-              {data.sekJabatan || "SECRETARY"}
+              {data.sekJabatan || "SEKRETARIS"}
             </div>
             {data.sekNegara && (
               <div style={{ color: "rgba(255,255,255,0.4)", fontSize: "10px" }}>📍 {data.sekNegara}</div>
@@ -147,18 +147,18 @@ export default function CertificationPage() {
   }, []);
 
   const bodies = [
-    { title: "ASIACERT", api: "ASIACERT", customRole: "FOUNDER" },
-    { title: "ASIA Board of Certification (BOC)", api: "ASIA Board of Certification (BOC)" },
-    { title: "Research & Innovation Council", api: "ASIA Research & Innovation Council (ASIA-RIC)" },
-    { title: "Conference & Academic Forum", api: "ASIA Conference & Academic Forum (ASIA-CAF)" },
-    { title: "Publication & Knowledge Center", api: "ASIA Publication & Knowledge Center (ASIA-PKC)" },
-    { title: "Academic Mobility Center", api: "ASIA Academic Mobility Center (ASIA-AMC)" },
-    { title: "Competition Center", api: "ASIA Competition Center (ASIA-CC)" },
-    { title: "Community Engagement & SDGs Center", api: "ASIA Community Engagement & SDGs Center (ASIA-CES)" },
-    { title: "Quality Assurance & Accreditation Board", api: "ASIA Quality Assurance & Accreditation Board (ASIA-QAAB)" },
-    { title: "Digital Academy & AI Center", api: "ASIA Digital Academy & AI Center (ASIA-DAC)" },
-    { title: "Young Academician Network", api: "ASIA Young Academician Network (ASIA-YAN)" },
-    { title: "Awards & Recognition Council", api: "ASIA Awards & Recognition Council (ASIA-ARC)" }
+    { title: "ASIACERT", api: "ASIACERT", customRole: "PENDIRI" },
+    { title: "Dewan Sertifikasi ASIA (BOC)", api: "ASIA Board of Certification (BOC)" },
+    { title: "Dewan Riset & Inovasi", api: "ASIA Research & Innovation Council (ASIA-RIC)" },
+    { title: "Konferensi & Forum Akademik", api: "ASIA Conference & Academic Forum (ASIA-CAF)" },
+    { title: "Pusat Publikasi & Pengetahuan", api: "ASIA Publication & Knowledge Center (ASIA-PKC)" },
+    { title: "Pusat Mobilitas Akademik", api: "ASIA Academic Mobility Center (ASIA-AMC)" },
+    { title: "Pusat Kompetisi", api: "ASIA Competition Center (ASIA-CC)" },
+    { title: "Pusat Keterlibatan Masyarakat & SDGs", api: "ASIA Community Engagement & SDGs Center (ASIA-CES)" },
+    { title: "Dewan Penjaminan Mutu & Akreditasi", api: "ASIA Quality Assurance & Accreditation Board (ASIA-QAAB)" },
+    { title: "Akademi Digital & Pusat AI", api: "ASIA Digital Academy & AI Center (ASIA-DAC)" },
+    { title: "Jaringan Akademisi Muda", api: "ASIA Young Academician Network (ASIA-YAN)" },
+    { title: "Dewan Penghargaan & Pengakuan", api: "ASIA Awards & Recognition Council (ASIA-ARC)" }
   ];
 
   return (
@@ -167,15 +167,15 @@ export default function CertificationPage() {
         
         <div style={{ textAlign: "center", marginBottom: "40px" }}>
           <h1 style={{ color: "#c9a84c", fontSize: "32px", fontWeight: "bold", textTransform: "uppercase", margin: "0 0 10px", letterSpacing: "2px" }}>
-            ASIACERT ORGANIZATIONAL STRUCTURE
+            STRUKTUR ORGANISASI ASIACERT
           </h1>
           <p style={{ color: "rgba(255,255,255,0.6)", fontSize: "16px", margin: 0 }}>
-            Strategic Bodies of Association of Asia Pacific Academician
+            Badan Strategis Association of Asia Pacific Academician
           </p>
         </div>
 
         {isLoading ? (
-          <div style={{ textAlign: "center", color: "#c9a84c", padding: "40px" }}>Loading structure...</div>
+          <div style={{ textAlign: "center", color: "#c9a84c", padding: "40px" }}>Memuat struktur...</div>
         ) : (
           bodies.map((b, idx) => {
             const rawData = allData.find(d => d.body_name === b.api);

@@ -50,10 +50,10 @@ export default function AssessorPortal() {
           setTimeLimit(data.candidate.exam_time_limit);
         }
       } else {
-        setError(data.error || "Invalid Access Code.");
+        setError(data.error || "Kode Akses Tidak Valid.");
       }
     } catch (err) {
-      setError("An error occurred while logging in.");
+      setError("Terjadi kesalahan saat masuk.");
     } finally {
       setLoading(false);
     }
@@ -89,7 +89,7 @@ export default function AssessorPortal() {
 
   const handleSubmitExam = async () => {
     if (questions.length === 0) {
-      setError("Please add at least one question.");
+      setError("Harap tambahkan setidaknya satu pertanyaan.");
       return;
     }
 
@@ -111,10 +111,10 @@ export default function AssessorPortal() {
       if (res.ok) {
         setSuccess(true);
       } else {
-        setError(data.error || "Failed to submit exam.");
+        setError(data.error || "Gagal mengirim ujian.");
       }
     } catch (err) {
-      setError("An error occurred while submitting.");
+      setError("Terjadi kesalahan saat mengirim.");
     } finally {
       setSubmitting(false);
     }
@@ -124,10 +124,10 @@ export default function AssessorPortal() {
     return (
       <div className="assessor-wrap">
         <div className="assessor-card success-card">
-          <h1>✅ Exam Generated Successfully</h1>
-          <p>The exam questions and time limit have been securely saved for candidate <strong>{candidate?.name}</strong>.</p>
-          <p>The candidate's status is now "Token Emailed". They can take the exam on the certification page using their Candidate ID and Email.</p>
-          <button onClick={() => window.location.reload()} className="btn-primary">Generate Another Exam</button>
+          <h1>✅ Ujian Berhasil Dibuat</h1>
+          <p>Pertanyaan ujian dan batas waktu telah disimpan dengan aman untuk kandidat <strong>{candidate?.name}</strong>.</p>
+          <p>Status kandidat sekarang "Token Diemail". Mereka dapat mengikuti ujian di halaman sertifikasi menggunakan ID Kandidat dan Email mereka.</p>
+          <button onClick={() => window.location.reload()} className="btn-primary">Buat Ujian Lainnya</button>
         </div>
       </div>
     );
@@ -139,12 +139,12 @@ export default function AssessorPortal() {
         <div className="assessor-card login-card">
           <div className="card-header">
             <div className="logo-box">A</div>
-            <h2>Assessor Portal</h2>
-            <p>Enter your system-generated Access Code to configure a candidate's exam.</p>
+            <h2>Portal Asesor</h2>
+            <p>Masukkan Kode Akses yang dihasilkan sistem Anda untuk mengonfigurasi ujian kandidat.</p>
           </div>
           <form onSubmit={handleLogin} className="assessor-form">
             <div className="form-group">
-              <label>Access Code</label>
+              <label>Kode Akses</label>
               <input 
                 type="text" 
                 placeholder="e.g. AX-1234" 
@@ -155,7 +155,7 @@ export default function AssessorPortal() {
             </div>
             {error && <div className="error-msg">{error}</div>}
             <button type="submit" disabled={loading} className="btn-primary">
-              {loading ? "Authenticating..." : "Access Portal"}
+              {loading ? "Mengautentikasi..." : "Akses Portal"}
             </button>
           </form>
         </div>
@@ -163,13 +163,13 @@ export default function AssessorPortal() {
         <div className="assessor-dashboard">
           <div className="dashboard-header">
             <div>
-              <h2>Exam Configuration Studio</h2>
-              <p>Designing Multiple Choice Exam for:</p>
+              <h2>Studio Konfigurasi Ujian</h2>
+              <p>Merancang Ujian Pilihan Ganda untuk:</p>
               <h3 style={{ color: "#c9a84c", margin: "4px 0" }}>{candidate.name} ({candidate.id})</h3>
-              <p style={{ opacity: 0.7 }}>Scheme: {candidate.cert}</p>
+              <p style={{ opacity: 0.7 }}>Skema: {candidate.cert}</p>
             </div>
             <div className="timer-config">
-              <label>Time Limit (Minutes)</label>
+              <label>Batas Waktu (Menit)</label>
               <input 
                 type="number" 
                 value={timeLimit} 
@@ -181,65 +181,65 @@ export default function AssessorPortal() {
 
           <div className="dashboard-body">
             <div className="editor-panel">
-              <h3>📝 Draft New Question</h3>
+              <h3>📝 Draf Pertanyaan Baru</h3>
               <form onSubmit={addQuestion} className="question-form">
                 <div className="form-group">
-                  <label>Question Text</label>
+                  <label>Teks Pertanyaan</label>
                   <textarea 
                     rows={3} 
                     value={qText} 
                     onChange={e => setQText(e.target.value)} 
-                    placeholder="Type the question here..." 
+                    placeholder="Ketik pertanyaan di sini..." 
                     required 
                   />
                 </div>
                 
                 <div className="options-grid">
                   <div className="form-group">
-                    <label>Option A</label>
+                    <label>Pilihan A</label>
                     <input type="text" value={optA} onChange={e => setOptA(e.target.value)} required />
                   </div>
                   <div className="form-group">
-                    <label>Option B</label>
+                    <label>Pilihan B</label>
                     <input type="text" value={optB} onChange={e => setOptB(e.target.value)} required />
                   </div>
                   <div className="form-group">
-                    <label>Option C</label>
+                    <label>Pilihan C</label>
                     <input type="text" value={optC} onChange={e => setOptC(e.target.value)} required />
                   </div>
                   <div className="form-group">
-                    <label>Option D</label>
+                    <label>Pilihan D</label>
                     <input type="text" value={optD} onChange={e => setOptD(e.target.value)} required />
                   </div>
                 </div>
 
                 <div className="answer-row">
                   <div className="form-group">
-                    <label>Correct Answer</label>
+                    <label>Jawaban Benar</label>
                     <select value={correctAns} onChange={e => setCorrectAns(e.target.value as any)}>
-                      <option value="A">Option A</option>
-                      <option value="B">Option B</option>
-                      <option value="C">Option C</option>
-                      <option value="D">Option D</option>
+                      <option value="A">Pilihan A</option>
+                      <option value="B">Pilihan B</option>
+                      <option value="C">Pilihan C</option>
+                      <option value="D">Pilihan D</option>
                     </select>
                   </div>
                   <div className="form-group">
-                    <label>Score (Points)</label>
+                    <label>Skor (Poin)</label>
                     <input type="number" value={score} onChange={e => setScore(Number(e.target.value))} min={1} required />
                   </div>
                 </div>
 
-                <button type="submit" className="btn-secondary">+ Add Question to Exam</button>
+                <button type="submit" className="btn-secondary">+ Tambahkan Pertanyaan ke Ujian</button>
               </form>
             </div>
 
             <div className="preview-panel">
-              <h3>📋 Exam Paper Preview</h3>
-              <p style={{ opacity: 0.7, marginBottom: "16px", fontSize: "14px" }}>Total Questions: {questions.length} | Max Score: {questions.reduce((a, b) => a + b.score, 0)}</p>
+              <h3>📋 Pratinjau Kertas Ujian</h3>
+              <p style={{ opacity: 0.7, marginBottom: "16px", fontSize: "14px" }}>Total Pertanyaan: {questions.length} | Skor Maksimal: {questions.reduce((a, b) => a + b.score, 0)}</p>
               
               <div className="q-list">
                 {questions.length === 0 ? (
-                  <div className="empty-state">No questions added yet.</div>
+                  <div className="empty-state">Belum ada pertanyaan yang ditambahkan.</div>
                 ) : (
                   questions.map((q, idx) => (
                     <div key={q.id} className="q-card">
@@ -253,7 +253,7 @@ export default function AssessorPortal() {
                         <div className={q.correctAnswer === "C" ? "correct" : ""}>C. {q.options.C}</div>
                         <div className={q.correctAnswer === "D" ? "correct" : ""}>D. {q.options.D}</div>
                       </div>
-                      <div className="q-footer">Points: {q.score}</div>
+                      <div className="q-footer">Poin: {q.score}</div>
                     </div>
                   ))
                 )}
@@ -266,7 +266,7 @@ export default function AssessorPortal() {
                 onClick={handleSubmitExam}
                 disabled={submitting || questions.length === 0}
               >
-                {submitting ? "Saving Exam..." : "Finalize & Generate Exam"}
+                {submitting ? "Menyimpan Ujian..." : "Selesaikan & Buat Ujian"}
               </button>
             </div>
           </div>

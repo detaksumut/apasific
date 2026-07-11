@@ -39,7 +39,7 @@ export default function SuperAdminOverview() {
     { label: "Total Jurnal",      value: "3",              delta: "+1 bulan ini",  color: "#c9a84c", icon: "📚" },
     { label: "Pengguna Aktif",    value: "1,248",          delta: "+12%",          color: "#34a853", icon: "👥" },
     { label: "Total Submission",  value: String(submissionCount), delta: "+8%",   color: "#4285f4", icon: "📄" },
-    { label: "System Health",     value: "99.9%",          delta: "Stabil",        color: "#a3c94c", icon: "✅" },
+    { label: "Kesehatan Sistem",     value: "99.9%",          delta: "Stabil",        color: "#a3c94c", icon: "✅" },
   ];
 
   const statusColor: Record<string, string> = {
@@ -182,7 +182,7 @@ export default function SuperAdminOverview() {
       <div>
         {/* ── Header ── */}
         <div className="dash-header">
-          <h1>Super Admin <span>Overview</span></h1>
+          <h1>Super Admin <span>Ringkasan</span></h1>
           <p>Pengawasan global jaringan penerbitan akademik APASIFIC.</p>
         </div>
 

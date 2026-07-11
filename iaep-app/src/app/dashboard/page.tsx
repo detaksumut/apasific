@@ -34,17 +34,17 @@ export default async function DashboardHome() {
   }
 
   const stats = [
-    { label: "Total Submissions", value: "3", change: "+1 this month", icon: "M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z", color: "#c9a84c" },
-    { label: "Under Review", value: "1", change: "Expected Aug 2026", icon: "M15 12a3 3 0 11-6 0 3 3 0 016 0zM2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z", color: "#60a5fa" },
-    { label: "Published", value: "1", change: "Vol. 4 No. 2 (2026)", icon: "M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z", color: "#34d399" },
-    { label: "Royalties Earned", value: "Rp 2.1M", change: "42 downloads", icon: "M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z", color: "#a78bfa" },
+    { label: "Total Submisi", value: "3", change: "+1 bulan ini", icon: "M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z", color: "#c9a84c" },
+    { label: "Sedang Ditinjau", value: "1", change: "Diharapkan Agu 2026", icon: "M15 12a3 3 0 11-6 0 3 3 0 016 0zM2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z", color: "#60a5fa" },
+    { label: "Diterbitkan", value: "1", change: "Vol. 4 No. 2 (2026)", icon: "M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z", color: "#34d399" },
+    { label: "Royalti Diperoleh", value: "Rp 2.1M", change: "42 unduhan", icon: "M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z", color: "#a78bfa" },
   ];
 
   const recentActivity = [
-    { icon: "✓", text: "Manuscript #1045 sent to reviewers", time: "2 hours ago", type: "success" },
-    { icon: "📋", text: "Profile updated successfully", time: "1 day ago", type: "info" },
-    { icon: "🚀", text: "Manuscript #1022 published in Vol. 4", time: "3 days ago", type: "success" },
-    { icon: "📤", text: "New manuscript #1056 submitted", time: "5 days ago", type: "info" },
+    { icon: "✓", text: "Naskah #1045 dikirim ke reviewer", time: "2 jam yang lalu", type: "success" },
+    { icon: "📋", text: "Profil berhasil diperbarui", time: "1 hari yang lalu", type: "info" },
+    { icon: "🚀", text: "Naskah #1022 diterbitkan di Vol. 4", time: "3 hari yang lalu", type: "success" },
+    { icon: "📤", text: "Naskah baru #1056 disubmit", time: "5 hari yang lalu", type: "info" },
   ];
 
   return (
@@ -52,14 +52,14 @@ export default async function DashboardHome() {
       {/* Page Header */}
       <div className="ent-page-header">
         <div>
-          <h1 className="ent-page-title">Good morning, {profile.fullName.split(" ")[0]} 👋</h1>
-          <p className="ent-page-subtitle">Here's what's happening with your academic portfolio today.</p>
+          <h1 className="ent-page-title">Selamat pagi, {profile.fullName.split(" ")[0]} 👋</h1>
+          <p className="ent-page-subtitle">Berikut ini yang terjadi dengan portofolio akademik Anda hari ini.</p>
         </div>
         <Link href="/dashboard/submit" className="ent-primary-btn">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M12 5v14M5 12h14" />
           </svg>
-          Submit Manuscript
+          Submit Naskah
         </Link>
       </div>
 
@@ -84,8 +84,8 @@ export default async function DashboardHome() {
         {/* Academic Profile Card */}
         <div className="ent-card ent-card-profile">
           <div className="ent-card-header">
-            <h2 className="ent-card-title">Academic Profile</h2>
-            <Link href="/dashboard/profile" className="ent-card-action">Edit Profile →</Link>
+            <h2 className="ent-card-title">Profil Akademik</h2>
+            <Link href="/dashboard/profile" className="ent-card-action">Edit Profil →</Link>
           </div>
 
           <div className="ent-profile-avatar-row">
@@ -101,8 +101,8 @@ export default async function DashboardHome() {
 
           <div className="ent-profile-fields">
             {[
-              { label: "Institution", value: profile.university },
-              { label: "Country", value: profile.country },
+              { label: "Institusi", value: profile.university },
+              { label: "Negara", value: profile.country },
               { label: "ORCID ID", value: profile.orcid, mono: true },
               { label: "SINTA ID", value: profile.sinta, mono: true },
             ].map(field => (
@@ -119,23 +119,23 @@ export default async function DashboardHome() {
           {/* Platform Status */}
           <div className="ent-card">
             <div className="ent-card-header">
-              <h2 className="ent-card-title">Platform Status</h2>
+              <h2 className="ent-card-title">Status Platform</h2>
               <div className="ent-status-live">
                 <span className="ent-status-dot" />
-                All Systems Operational
+                Semua Sistem Operasional
               </div>
             </div>
             <div className="ent-status-rows">
               <div className="ent-status-row">
-                <span>Membership</span>
-                <span className="ent-badge ent-badge-green">Active</span>
+                <span>Keanggotaan</span>
+                <span className="ent-badge ent-badge-green">Aktif</span>
               </div>
               <div className="ent-status-row">
-                <span>Review System</span>
+                <span>Sistem Review</span>
                 <span className="ent-badge ent-badge-green">Online</span>
               </div>
               <div className="ent-status-row">
-                <span>Role</span>
+                <span>Peran</span>
                 <span className="ent-badge ent-badge-gold">{profile.role}</span>
               </div>
             </div>
@@ -147,16 +147,16 @@ export default async function DashboardHome() {
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                 <line x1="12" y1="1" x2="12" y2="23" /><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6" />
               </svg>
-              <span>Royalties & Earnings</span>
+              <span>Royalti & Pendapatan</span>
             </div>
             <div className="ent-royalties-amount">Rp 2.100.000</div>
-            <div className="ent-royalties-sub">from 42 article downloads</div>
+            <div className="ent-royalties-sub">dari 42 unduhan artikel</div>
             <div className="ent-royalties-bar">
               <div className="ent-royalties-fill" style={{ width: "67%" }} />
             </div>
-            <div className="ent-royalties-meta">67% of monthly target</div>
+            <div className="ent-royalties-meta">67% dari target bulanan</div>
             <button className="ent-withdraw-btn">
-              Withdraw Funds
+              Tarik Dana
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M5 12h14M12 5l7 7-7 7" />
               </svg>
@@ -168,8 +168,8 @@ export default async function DashboardHome() {
       {/* Recent Activity */}
       <div className="ent-card" style={{ marginTop: 24 }}>
         <div className="ent-card-header">
-          <h2 className="ent-card-title">Recent Activity</h2>
-          <Link href="/dashboard/submissions" className="ent-card-action">View all →</Link>
+          <h2 className="ent-card-title">Aktivitas Terbaru</h2>
+          <Link href="/dashboard/submissions" className="ent-card-action">Lihat semua →</Link>
         </div>
         <div className="ent-activity-list">
           {recentActivity.map((item, i) => (

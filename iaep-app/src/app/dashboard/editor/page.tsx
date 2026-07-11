@@ -13,10 +13,10 @@ export default function EditorDashboard() {
   ];
 
   const tabs = [
-    { id: "unassigned",  label: "Unassigned",  count: 1 },
-    { id: "in_review",   label: "In Review",   count: 1 },
-    { id: "copyediting", label: "Copyediting", count: 1 },
-    { id: "production",  label: "Production",  count: 0 },
+    { id: "unassigned",  label: "Belum Ditugaskan",  count: 1 },
+    { id: "in_review",   label: "Dalam Tinjauan",   count: 1 },
+    { id: "copyediting", label: "Penyuntingan Naskah", count: 1 },
+    { id: "production",  label: "Produksi",  count: 0 },
   ];
 
   const filtered = manuscripts.filter(m => m.stage === activeTab);

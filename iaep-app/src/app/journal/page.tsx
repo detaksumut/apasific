@@ -16,7 +16,6 @@ interface BoardData {
 export default function JournalPage() {
   const [boards, setBoards] = useState<BoardData[]>([]);
   const [loading, setLoading] = useState(true);
-  const [debugInfo, setDebugInfo] = useState<any>(null);
 
   useEffect(() => {
     const fetchAllBoards = async () => {
@@ -46,12 +45,11 @@ export default function JournalPage() {
             });
             
           setBoards(editorialBoards);
-          setDebugInfo({ debug_data: data.debug_data || data, debug_error: data.debug_error });
         } else {
-          setDebugInfo({ api_failed: true, status: res.status, error_data: data });
+          console.error("API failed:", res.status, data);
         }
       } catch (err: any) {
-        setDebugInfo({ network_error: err.message });
+        console.error("Network error:", err.message);
       } finally {
         setLoading(false);
       }
@@ -86,15 +84,6 @@ export default function JournalPage() {
         ) : boards.length === 0 ? (
           <div style={{ textAlign: "center", color: "rgba(255,255,255,0.3)", padding: "50px", fontStyle: "italic" }}>
             <p>Belum ada dewan editorial jurnal yang ditambahkan ke sistem.</p>
-            {debugInfo && (
-              <div style={{ marginTop: "20px", padding: "15px", background: "#111", border: "1px solid red", textAlign: "left", fontSize: "12px", fontFamily: "monospace", color: "#ff6b6b" }}>
-                <p><strong>DEBUG INFO:</strong> Tolong kirim screenshot / copy teks kotak merah ini ke asisten AI Anda:</p>
-                <pre style={{ whiteSpace: "pre-wrap" }}>
-                  DATA: {JSON.stringify(debugInfo.debug_data, null, 2)}
-                  ERROR: {JSON.stringify(debugInfo.debug_error, null, 2)}
-                </pre>
-              </div>
-            )}
           </div>
         ) : (
           <div>

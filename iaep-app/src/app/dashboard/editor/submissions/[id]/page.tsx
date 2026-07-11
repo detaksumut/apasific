@@ -1,10 +1,17 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
+import { useParams } from "next/navigation";
 import { publishArticleToZenodo, ZenodoMetadata } from "@/utils/zenodo";
+import { createClient } from "@/utils/supabase/client";
 
 export default function SubmissionControlPanel() {
+  const params = useParams();
+  const submissionId = params.id as string;
+  
+  const [submission, setSubmission] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("submission");
   const [decisionModalOpen, setDecisionModalOpen] = useState(false);
   const [decision, setDecision] = useState("");
@@ -19,15 +26,41 @@ export default function SubmissionControlPanel() {
     setTimeout(() => setToastMessage(""), 3000);
   };
 
-  // Dummy submission data
-  const submission = {
-    id: 1045,
-    title: "The Impact of Artificial Intelligence on Southeast Asian Higher Education",
-    author: "Jane Doe",
-    abstract: "This paper explores the transformative effects of AI technologies on university curricula...",
-    stage: "Review",
-    status: "Awaiting Reviewers"
-  };
+  useEffect(() => {
+    const fetchSubmission = async () => {
+      const supabase = createClient();
+      const { data, error } = await supabase
+        .from('submissions')
+        .select('*, profiles:author_id(full_name)')
+        .eq('id', submissionId)
+        .single();
+        
+      if (data) {
+        setSubmission({
+          id: data.id,
+          title: data.title,
+          author: data.profiles?.full_name || 'Unknown',
+          abstract: data.abstract,
+          file_url: data.file_url,
+          stage: data.stage || 'Review',
+          status: data.status || 'Awaiting Reviewers',
+          doi: data.doi,
+          zenodo_id: data.zenodo_id
+        });
+        if (data.doi) setGeneratedDoi(data.doi);
+        
+        // Auto set active tab based on stage
+        if (data.stage === 'Review') setActiveTab('review');
+        else if (data.stage === 'Copyediting') setActiveTab('copyediting');
+        else if (data.stage === 'Production' || data.stage === 'Published') setActiveTab('production');
+      } else {
+        console.error("Error fetching submission:", error);
+      }
+      setLoading(false);
+    };
+    
+    if (submissionId) fetchSubmission();
+  }, [submissionId]);
 
   const handleDecisionChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const val = e.target.value;
@@ -54,15 +87,23 @@ export default function SubmissionControlPanel() {
         keywords: ['Artificial Intelligence', 'Education']
       };
 
-      // We'll skip fileUrl for this mockup because it's dummy data
-      const fileUrl = ""; 
-      const fileName = `Manuscript_${submission.id}.pdf`;
+      const fileUrl = submission.file_url || ""; 
+      const fileName = fileUrl ? fileUrl.split('/').pop()?.split('?')[0] : `Manuscript_${submission.id}.pdf`;
 
       const result = await publishArticleToZenodo(metadata, fileUrl, fileName);
 
       if (!result.success) {
         throw new Error(result.error);
       }
+
+      // Update Supabase with the new DOI
+      const supabase = createClient();
+      const { error: updateErr } = await supabase
+        .from('submissions')
+        .update({ doi: result.doi, zenodo_id: result.zenodo_id })
+        .eq('id', submission.id);
+
+      if (updateErr) throw updateErr;
 
       setGeneratedDoi(result.doi);
       showToast(`Successfully published to Zenodo! DOI: ${result.doi}`);
@@ -75,8 +116,54 @@ export default function SubmissionControlPanel() {
     }
   };
 
+  const handleRecordDecision = async (isWa: boolean) => {
+    if (!decision) return;
+    
+    let newStage = submission.stage;
+    let newStatus = submission.status;
+    
+    if (decision === 'accept') {
+      newStage = 'Copyediting';
+      newStatus = 'Accepted';
+    } else if (decision === 'revisions') {
+      newStatus = 'Needs Revision';
+    } else if (decision === 'decline') {
+      newStatus = 'Declined';
+    }
+
+    try {
+      const supabase = createClient();
+      const { error } = await supabase
+        .from('submissions')
+        .update({ stage: newStage, status: newStatus })
+        .eq('id', submission.id);
+        
+      if (error) throw error;
+      
+      setSubmission({ ...submission, stage: newStage, status: newStatus });
+      
+      if (newStage === 'Copyediting') setActiveTab('copyediting');
+      
+      showToast(`Decision Recorded & ${isWa ? 'WhatsApp Window Opened!' : 'Email Sent!'}`);
+    } catch (err: any) {
+      console.error(err);
+      showToast('Failed to record decision: ' + err.message);
+    } finally {
+      setDecisionModalOpen(false);
+    }
+  };
+
   return (
     <div className="max-w-6xl mx-auto space-y-6 pb-20 relative">
+      {loading && (
+        <div className="absolute inset-0 z-50 flex items-center justify-center bg-white/80 backdrop-blur-sm">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#c9a84c]"></div>
+        </div>
+      )}
+      {!loading && !submission && (
+        <div className="text-center py-20 text-gray-500 font-bold">Submission not found.</div>
+      )}
+      
       {/* TOAST NOTIFICATION */}
       {toastMessage && (
         <div className="fixed top-24 left-1/2 transform -translate-x-1/2 z-[100] bg-green-500/90 text-white px-6 py-3 rounded-full font-semibold shadow-lg shadow-green-500/20 animate-fade-in-down border border-green-400 backdrop-blur-sm flex items-center gap-3">
@@ -85,11 +172,13 @@ export default function SubmissionControlPanel() {
         </div>
       )}
 
-      <div className="flex items-center space-x-2 text-sm text-gray-500 mb-4">
-        <Link href="/dashboard/editor" className="hover:text-[#c9a84c]">Editorial Board</Link>
-        <span>/</span>
-        <span className="text-gray-900 font-medium">Submission #{submission.id}</span>
-      </div>
+      {submission && (
+        <>
+          <div className="flex items-center space-x-2 text-sm text-gray-500 mb-4">
+            <Link href="/dashboard/editor" className="hover:text-[#c9a84c]">Editorial Board</Link>
+            <span>/</span>
+            <span className="text-gray-900 font-medium truncate w-64">Submission #{submission.id.substring(0, 8)}</span>
+          </div>
 
       <div className="bg-white shadow-sm border border-gray-200 rounded-xl overflow-hidden">
         {/* Header */}
@@ -399,14 +488,14 @@ export default function SubmissionControlPanel() {
 
             <div className="p-6 border-t border-gray-200 flex justify-end space-x-3 bg-gray-50 items-center">
               <button onClick={() => setDecisionModalOpen(false)} className="px-6 py-2 border border-gray-300 text-gray-700 rounded font-semibold hover:bg-gray-100">Cancel</button>
-              <button disabled={!decision} onClick={() => { showToast('Decision Recorded & Email Sent!'); setDecisionModalOpen(false); }} className="px-6 py-2 bg-blue-600 text-white rounded font-bold disabled:opacity-50 hover:bg-blue-700">
+              <button disabled={!decision} onClick={() => handleRecordDecision(false)} className="px-6 py-2 bg-blue-600 text-white rounded font-bold disabled:opacity-50 hover:bg-blue-700">
                 Record & Send Email
               </button>
               <a 
                 href={decision ? `https://wa.me/${authorPhone.replace(/[^0-9]/g, "").replace(/^0/, "62")}?text=${encodeURIComponent(emailText)}` : '#'}
                 target="_blank"
                 rel="noopener noreferrer"
-                onClick={() => { if (decision) { showToast('Decision Recorded & WhatsApp Window Opened!'); setDecisionModalOpen(false); } }}
+                onClick={() => handleRecordDecision(true)}
                 className={`px-6 py-2 bg-[#25D366] hover:bg-[#22c35e] text-black font-bold rounded flex items-center justify-center gap-1 transition-all ${!decision ? 'opacity-50 pointer-events-none' : ''}`}
                 style={{ textDecoration: 'none' }}
               >
@@ -415,6 +504,7 @@ export default function SubmissionControlPanel() {
             </div>
           </div>
         </div>
+        </>
       )}
     </div>
   );

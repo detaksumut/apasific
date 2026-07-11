@@ -5,14 +5,14 @@ import { useState, useEffect } from "react";
 const HOME_BODY = "Struktur Organisasi ASIA (Home)";
 
 const DEFAULT_MEMBERS = [
-  { jabatan: "Founding Father", nama: "DR. ARFAN IKHSAN LUBIS., SE., M.Si., CATr", afiliasi: "Association of Asia Pacific Academician", foto: "/arfan.png" },
-  { jabatan: "Advisor",         nama: "PROF. DR. INDRA MAIPITA., M.Si",            afiliasi: "Asia Pacific Academic Advisory Board",    foto: "/indra.jpg" },
-  { jabatan: "President",       nama: "DR. ARFAN IKHSAN LUBIS., SE., M.Si., CATr", afiliasi: "Asia Pacific Academic Leadership",         foto: "/arfan.png" },
-  { jabatan: "Vice President",  nama: "DR. MUHAMMAD YAMIN NOCH., SE., MSA",         afiliasi: "Academic Affairs & Institutional Development", foto: "/yamin.jpg" },
-  { jabatan: "Vice President",  nama: "PROF. DR. ISTIANINGSIH SASTRODIHARJO., SE., M.Si", afiliasi: "Research & International Cooperation", foto: "/istianingsih.jpg" },
-  { jabatan: "Secretary General", nama: "DR. NGATEMIN., M.Si",                     afiliasi: "Strategic Operations & Governance",      foto: "/ngatemin.jpg" },
-  { jabatan: "Treasurer",       nama: "TRI DESSY FADILLAH., SE., M.Ak",            afiliasi: "Finance & Resource Management",           foto: "/tridessy.jpg" },
-  { jabatan: "Information Technology", nama: "M. A. RAHMAN",                       afiliasi: "Digital Platform & System Integration",   foto: "/rahman.jpg" },
+  { jabatan: "Bapak Pendiri", nama: "DR. ARFAN IKHSAN LUBIS., SE., M.Si., CATr", afiliasi: "Association of Asia Pacific Academician", foto: "/arfan.png" },
+  { jabatan: "Penasihat",         nama: "PROF. DR. INDRA MAIPITA., M.Si",            afiliasi: "Asia Pacific Academic Advisory Board",    foto: "/indra.jpg" },
+  { jabatan: "Presiden",       nama: "DR. ARFAN IKHSAN LUBIS., SE., M.Si., CATr", afiliasi: "Kepemimpinan Akademik Asia Pasifik",         foto: "/arfan.png" },
+  { jabatan: "Wakil Presiden",  nama: "DR. MUHAMMAD YAMIN NOCH., SE., MSA",         afiliasi: "Urusan Akademik & Pengembangan Institusi", foto: "/yamin.jpg" },
+  { jabatan: "Wakil Presiden",  nama: "PROF. DR. ISTIANINGSIH SASTRODIHARJO., SE., M.Si", afiliasi: "Riset & Kerjasama Internasional", foto: "/istianingsih.jpg" },
+  { jabatan: "Sekretaris Jenderal", nama: "DR. NGATEMIN., M.Si",                     afiliasi: "Operasi Strategis & Tata Kelola",      foto: "/ngatemin.jpg" },
+  { jabatan: "Bendahara",       nama: "TRI DESSY FADILLAH., SE., M.Ak",            afiliasi: "Manajemen Keuangan & Sumber Daya",           foto: "/tridessy.jpg" },
+  { jabatan: "Teknologi Informasi", nama: "M. A. RAHMAN",                       afiliasi: "Platform Digital & Integrasi Sistem",   foto: "/rahman.jpg" },
 ];
 
 interface Member {
@@ -20,6 +20,11 @@ interface Member {
   nama: string;
   afiliasi: string;
   foto: string;
+}
+
+function toTitleCase(str: any) {
+  if (!str || typeof str !== 'string') return str;
+  return str.toLowerCase().replace(/\b\w/g, s => s.toUpperCase());
 }
 
 export default function OrgStructure() {
@@ -45,7 +50,7 @@ export default function OrgStructure() {
   if (isLoading) {
     return (
       <div style={{ textAlign: "center", padding: "40px", color: "#c9a84c" }}>
-        Loading organizational structure...
+        Memuat struktur organisasi...
       </div>
     );
   }
@@ -78,9 +83,9 @@ export default function OrgStructure() {
             )}
           </div>
           <div className="leader-info">
-            <h4>{m.jabatan}</h4>
+            <h4>{toTitleCase(m.jabatan)}</h4>
             <p className="leader-name">{m.nama}</p>
-            <p className="leader-affil">{m.afiliasi}</p>
+            <p className="leader-affil">{toTitleCase(m.afiliasi)}</p>
           </div>
         </div>
       ))}

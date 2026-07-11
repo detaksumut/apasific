@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { createClient } from "@/utils/supabase/client";
 
 export default function SubmitManuscript() {
   const [step, setStep] = useState(1);
@@ -24,39 +25,71 @@ export default function SubmitManuscript() {
     setIsSubmitting(true);
     setMessage(null);
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1200));
-      const newId = String(Math.floor(1000 + Math.random() * 9000));
-      const newSub = {
-        id: newId,
-        title: formData.title || "Untitled Manuscript",
-        journal: formData.journalId === "1" ? "APASIFIC IAEP" : "RJRAKP",
-        date: new Date().toLocaleDateString("en-US", { month: "long", day: "2-digit", year: "numeric" }),
-        status: "Awaiting Assignment",
-        lastAction: "Submitted successfully",
-      };
-      const defaultSubs = [
-        { id: "1045", title: "The Impact of Artificial Intelligence on Southeast Asian Higher Education", journal: "APASIFIC IAEP", date: "July 01, 2026", status: "Under Review", lastAction: "Sent to Reviewers on July 03, 2026" },
-        { id: "1022", title: "Analyzing Regional Economic Policies Post-Pandemic in ASEAN", journal: "RJRAKP", date: "May 15, 2026", status: "Published", lastAction: "Published in Vol. 4 No. 2 (2026)" },
-      ];
-      const stored = localStorage.getItem("mock_submissions");
-      const currentList = stored ? JSON.parse(stored) : defaultSubs;
-      currentList.unshift(newSub);
-      localStorage.setItem("mock_submissions", JSON.stringify(currentList));
+      const supabase = createClient();
+      
+      const { data: { user }, error: authError } = await supabase.auth.getUser();
+      if (authError || !user) throw new Error("Please log in to submit a manuscript.");
+
+      let fileUrl = "";
+      
+      if (formData.file) {
+        const fileExt = formData.file.name.split('.').pop();
+        const fileName = `${user.id}_${Date.now()}.${fileExt}`;
+        
+        // Ensure manuscripts bucket exists (might fail if not created, but we proceed)
+        const { error: uploadError } = await supabase.storage
+          .from('manuscripts')
+          .upload(fileName, formData.file);
+          
+        if (uploadError) {
+          console.warn("Storage upload failed (bucket might not exist):", uploadError);
+        } else {
+          const { data } = supabase.storage.from('manuscripts').getPublicUrl(fileName);
+          fileUrl = data.publicUrl;
+        }
+      }
+
+      // Get Journal ID
+      const slug = formData.journalId === "1" ? "iaep" : "rjrakp";
+      const { data: journalData } = await supabase
+        .from('journals')
+        .select('id')
+        .eq('slug', slug)
+        .single();
+
+      if (!journalData) throw new Error("Journal not found in database.");
+
+      // Insert submission
+      const { error: insertError } = await supabase
+        .from('submissions')
+        .insert({
+          author_id: user.id,
+          journal_id: journalData.id,
+          title: formData.title || "Untitled Manuscript",
+          abstract: formData.abstract,
+          file_url: fileUrl,
+          stage: 'Review',
+          status: 'Awaiting Reviewers'
+        });
+        
+      if (insertError) throw insertError;
+
       setStep(5);
-    } catch (error: unknown) {
-      const err = error as { message?: string };
-      setMessage({ type: "error", text: err.message || "Gagal mengirimkan manuskrip." });
+    } catch (error: any) {
+      console.error(error);
+      setMessage({ type: "error", text: error.message || "Failed to submit manuscript." });
+    } finally {
+      setIsSubmitting(false);
     }
-    setIsSubmitting(false);
   };
 
-  const steps = ["Start", "Upload Files", "Metadata", "Confirm", "Done"];
+  const steps = ["Mulai", "Unggah File", "Metadata", "Konfirmasi", "Selesai"];
   const stepDescriptions = [
-    "Review requirements and select submission type",
-    "Upload your manuscript documents",
-    "Enter article title and abstract",
-    "Review and finalize your submission",
-    "Submission complete",
+    "Tinjau persyaratan dan pilih jenis submisi",
+    "Unggah dokumen naskah Anda",
+    "Masukkan judul dan abstrak artikel",
+    "Tinjau dan selesaikan submisi Anda",
+    "Submisi selesai",
   ];
 
   return (
@@ -64,8 +97,8 @@ export default function SubmitManuscript() {
       {/* Page Header */}
       <div className="submit-header">
         <div>
-          <h1 className="submit-page-title">Submit Article</h1>
-          <p className="submit-page-subtitle">APASIFIC Double-Blind Peer Review System</p>
+          <h1 className="submit-page-title">Submit Artikel</h1>
+          <p className="submit-page-subtitle">Sistem Double-Blind Peer Review APASIFIC</p>
         </div>
         <div className="submit-journal-badge">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
@@ -111,15 +144,15 @@ export default function SubmitManuscript() {
         {step === 1 && (
           <div className="submit-step-content">
             <div className="submit-field-group">
-              <label className="submit-label">Submission Type</label>
+              <label className="submit-label">Jenis Submisi</label>
               <select
                 value={formData.journalId}
                 onChange={(e) => setFormData({ ...formData, journalId: e.target.value })}
                 className="submit-select"
               >
-                <option value="1">Articles — Original research paper</option>
-                <option value="2">Reviews — Literature review article</option>
-                <option value="3">Editorials — Editorial commentary</option>
+                <option value="1">Artikel — Makalah penelitian orisinal</option>
+                <option value="2">Review — Artikel tinjauan literatur</option>
+                <option value="3">Editorial — Komentar editorial</option>
               </select>
             </div>
 
@@ -132,10 +165,10 @@ export default function SubmitManuscript() {
               </div>
               <ul className="submit-req-list">
                 {[
-                  "The submission has not been previously published.",
-                  "The manuscript is in OpenOffice, Microsoft Word, or RTF format.",
-                  "Where available, URLs for the references have been provided.",
-                  "The text adheres to the stylistic and bibliographic requirements.",
+                  "Submisi ini belum pernah diterbitkan sebelumnya.",
+                  "Naskah dalam format OpenOffice, Microsoft Word, atau RTF.",
+                  "Jika tersedia, URL untuk referensi telah disediakan.",
+                  "Teks mematuhi persyaratan gaya dan bibliografi.",
                 ].map((req, i) => (
                   <li key={i} className="submit-req-item">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -155,12 +188,12 @@ export default function SubmitManuscript() {
                   </svg>
                 )}
               </div>
-              <span>I agree to the terms of the <span style={{ color: "#c9a84c" }}>copyright statement</span> and confirm this manuscript has not been published elsewhere.</span>
+              <span>Saya setuju dengan ketentuan <span style={{ color: "#c9a84c" }}>pernyataan hak cipta</span> dan mengonfirmasi bahwa naskah ini belum pernah diterbitkan di tempat lain.</span>
             </label>
 
             <div className="submit-actions-end">
               <button onClick={handleNext} disabled={!formData.agreeTerms} className="submit-btn-primary">
-                Continue
+                Lanjutkan
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M5 12h14M12 5l7 7-7 7" />
                 </svg>
@@ -177,15 +210,15 @@ export default function SubmitManuscript() {
                 <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
               </svg>
               <div>
-                <strong>Double-Blind Review Policy</strong>
-                <p>You must upload two files: a complete manuscript (with author details) and an anonymised version (without author names) for fair peer review.</p>
+                <strong>Kebijakan Tinjauan Double-Blind</strong>
+                <p>Anda harus mengunggah dua file: naskah lengkap (dengan detail penulis) dan versi anonim (tanpa nama penulis) untuk tinjauan sejawat yang adil.</p>
               </div>
             </div>
 
             <div className="submit-upload-grid">
               {[
-                { key: "file" as const, label: "Complete Manuscript", sub: "Word / PDF · Include author names & affiliations", icon: "📄", accept: undefined },
-                { key: "anonFile" as const, label: "Anonymous Manuscript", sub: "PDF only · Remove all author identifiers", icon: "🔒", accept: ".pdf" },
+                { key: "file" as const, label: "Naskah Lengkap", sub: "Word / PDF · Sertakan nama penulis & afiliasi", icon: "📄", accept: undefined },
+                { key: "anonFile" as const, label: "Naskah Anonim", sub: "Hanya PDF · Hapus semua pengidentifikasi penulis", icon: "🔒", accept: ".pdf" },
               ].map((slot) => (
                 <div key={slot.key} className={`submit-upload-zone ${formData[slot.key] ? "uploaded" : ""}`}>
                   <div className="submit-upload-icon">{slot.icon}</div>
@@ -199,7 +232,7 @@ export default function SubmitManuscript() {
                     onChange={(e) => setFormData({ ...formData, [slot.key]: e.target.files?.[0] || null })}
                   />
                   <label htmlFor={`file-${slot.key}`} className={`submit-upload-btn ${formData[slot.key] ? "uploaded" : ""}`}>
-                    {formData[slot.key] ? "✓ Change File" : "Choose File"}
+                    {formData[slot.key] ? "✓ Ubah File" : "Pilih File"}
                   </label>
                   {formData[slot.key] && (
                     <div className="submit-file-name">
@@ -211,9 +244,9 @@ export default function SubmitManuscript() {
             </div>
 
             <div className="submit-actions-between">
-              <button onClick={handlePrev} className="submit-btn-ghost">← Back</button>
+              <button onClick={handlePrev} className="submit-btn-ghost">← Kembali</button>
               <button onClick={handleNext} disabled={!formData.file || !formData.anonFile} className="submit-btn-primary">
-                Continue →
+                Lanjutkan →
               </button>
             </div>
           </div>
@@ -223,20 +256,20 @@ export default function SubmitManuscript() {
         {step === 3 && (
           <div className="submit-step-content">
             <div className="submit-field-group">
-              <label className="submit-label">Article Title <span style={{ color: "#c9a84c" }}>*</span></label>
+              <label className="submit-label">Judul Artikel <span style={{ color: "#c9a84c" }}>*</span></label>
               <input
                 type="text"
                 value={formData.title}
                 onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                placeholder="Enter the full title of your manuscript..."
+                placeholder="Masukkan judul lengkap naskah Anda..."
                 className="submit-input"
               />
-              <div className="submit-field-hint">{formData.title.length} characters · Recommended: 10–150 characters</div>
+              <div className="submit-field-hint">{formData.title.length} karakter · Direkomendasikan: 10–150 karakter</div>
             </div>
 
             <div className="submit-abstract-grid">
               <div className="submit-field-group">
-                <label className="submit-label">Abstract (Indonesian) <span style={{ color: "#c9a84c" }}>*</span></label>
+                <label className="submit-label">Abstrak (Bahasa Indonesia) <span style={{ color: "#c9a84c" }}>*</span></label>
                 <textarea
                   rows={9}
                   value={formData.abstract}
@@ -244,41 +277,41 @@ export default function SubmitManuscript() {
                   placeholder="Masukkan abstrak dalam bahasa Indonesia (150–300 kata)..."
                   className="submit-textarea"
                 />
-                <div className="submit-field-hint">{formData.abstract.split(/\s+/).filter(Boolean).length} words</div>
+                <div className="submit-field-hint">{formData.abstract.split(/\s+/).filter(Boolean).length} kata</div>
               </div>
 
               <div className="submit-field-group">
                 <div className="submit-label-row">
-                  <label className="submit-label" style={{ color: "#c9a84c" }}>Abstract (English) <span>*</span></label>
+                  <label className="submit-label" style={{ color: "#c9a84c" }}>Abstrak (Bahasa Inggris) <span>*</span></label>
                   <button
                     type="button"
                     className="submit-translate-btn"
                     onClick={() => {
                       if (!formData.abstract) return;
-                      setFormData({ ...formData, abstractEn: "AI Translation in progress...\n\n" + formData.abstract + "\n\n(Translated via APASIFIC Neural Engine)" });
+                      setFormData({ ...formData, abstractEn: "Terjemahan AI sedang berlangsung...\n\n" + formData.abstract + "\n\n(Diterjemahkan melalui APASIFIC Neural Engine)" });
                     }}
                   >
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                       <path d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129" />
                     </svg>
-                    Auto-Translate
+                    Terjemahan Otomatis
                   </button>
                 </div>
                 <textarea
                   rows={9}
                   value={formData.abstractEn}
                   onChange={(e) => setFormData({ ...formData, abstractEn: e.target.value })}
-                  placeholder="English abstract will appear here after translation..."
+                  placeholder="Abstrak bahasa Inggris akan muncul di sini setelah diterjemahkan..."
                   className="submit-textarea gold-focus"
                 />
-                <div className="submit-field-hint">{formData.abstractEn.split(/\s+/).filter(Boolean).length} words</div>
+                <div className="submit-field-hint">{formData.abstractEn.split(/\s+/).filter(Boolean).length} kata</div>
               </div>
             </div>
 
             <div className="submit-actions-between">
-              <button onClick={handlePrev} className="submit-btn-ghost">← Back</button>
+              <button onClick={handlePrev} className="submit-btn-ghost">← Kembali</button>
               <button onClick={handleNext} disabled={!formData.title || !formData.abstract || !formData.abstractEn} className="submit-btn-primary">
-                Continue →
+                Lanjutkan →
               </button>
             </div>
           </div>
@@ -288,49 +321,49 @@ export default function SubmitManuscript() {
         {step === 4 && (
           <div className="submit-step-content">
             <div className="submit-confirm-box">
-              <div className="submit-confirm-header">Submission Summary</div>
+              <div className="submit-confirm-header">Ringkasan Submisi</div>
               <div className="submit-confirm-rows">
                 <div className="submit-confirm-row">
-                  <span>Title</span>
+                  <span>Judul</span>
                   <strong>{formData.title}</strong>
                 </div>
                 <div className="submit-confirm-row">
-                  <span>Journal</span>
+                  <span>Jurnal</span>
                   <strong>{formData.journalId === "1" ? "APASIFIC IAEP" : "RJRAKP"}</strong>
                 </div>
                 <div className="submit-confirm-row">
-                  <span>Manuscript</span>
+                  <span>Naskah</span>
                   <strong>{formData.file?.name}</strong>
                 </div>
                 <div className="submit-confirm-row">
-                  <span>Anonymous File</span>
+                  <span>File Anonim</span>
                   <strong>{formData.anonFile?.name}</strong>
                 </div>
                 <div className="submit-confirm-row">
-                  <span>Abstract (ID)</span>
+                  <span>Abstrak (ID)</span>
                   <strong className="submit-confirm-abstract">{formData.abstract.slice(0, 120)}...</strong>
                 </div>
               </div>
             </div>
 
             <div className="submit-confirm-note">
-              By clicking "Finish Submission", you confirm all details above are accurate and you agree to the journal's publication terms.
+              Dengan mengklik "Selesaikan Submisi", Anda mengonfirmasi semua detail di atas akurat dan Anda setuju dengan ketentuan publikasi jurnal.
             </div>
 
             <div className="submit-actions-between">
-              <button onClick={handlePrev} disabled={isSubmitting} className="submit-btn-ghost">← Back</button>
+              <button onClick={handlePrev} disabled={isSubmitting} className="submit-btn-ghost">← Kembali</button>
               <button onClick={handleSubmit} disabled={isSubmitting} className="submit-btn-success">
                 {isSubmitting ? (
                   <>
                     <div className="submit-spinner" />
-                    Submitting...
+                    Mengirim...
                   </>
                 ) : (
                   <>
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                       <polyline points="20 6 9 17 4 12" />
                     </svg>
-                    Finish Submission
+                    Selesaikan Submisi
                   </>
                 )}
               </button>
@@ -346,17 +379,17 @@ export default function SubmitManuscript() {
                 <polyline points="20 6 9 17 4 12" />
               </svg>
             </div>
-            <h2 className="submit-success-title">Submission Complete!</h2>
+            <h2 className="submit-success-title">Submisi Selesai!</h2>
             <p className="submit-success-desc">
-              Thank you for submitting to APASIFIC IAEP. The editorial team has been notified. 
-              You will receive a confirmation email with your manuscript ID and next steps.
+              Terima kasih telah mengirim ke APASIFIC IAEP. Tim editorial telah diberitahu. 
+              Anda akan menerima email konfirmasi dengan ID naskah Anda dan langkah selanjutnya.
             </p>
             <div className="submit-success-actions">
               <a href="/dashboard/submissions" className="submit-btn-primary" style={{ textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 8 }}>
-                View My Submissions →
+                Lihat Submisi Saya →
               </a>
               <a href="/dashboard" className="submit-btn-ghost" style={{ textDecoration: "none" }}>
-                Return to Dashboard
+                Kembali ke Dasbor
               </a>
             </div>
           </div>

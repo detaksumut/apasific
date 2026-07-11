@@ -19,21 +19,26 @@ interface OrgMember {
 }
 
 const LEVEL_COLORS: Record<string, { bg: string; text: string; border: string }> = {
-  "Executive Board":    { bg: "rgba(201,168,76,0.12)", text: "#c9a84c",  border: "rgba(201,168,76,0.5)" },
-  "Vice Presidents":    { bg: "rgba(139,92,246,0.08)", text: "#a78bfa",  border: "rgba(139,92,246,0.4)" },
-  "Secretariat":        { bg: "rgba(52,211,153,0.08)", text: "#6ee7b7",  border: "rgba(52,211,153,0.4)" },
-  "Directors":          { bg: "rgba(56,189,248,0.08)", text: "#7dd3fc",  border: "rgba(56,189,248,0.4)" },
-  "Publication":        { bg: "rgba(251,146,60,0.08)", text: "#fdba74",  border: "rgba(251,146,60,0.4)" },
+  "Dewan Eksekutif":    { bg: "rgba(201,168,76,0.12)", text: "#c9a84c",  border: "rgba(201,168,76,0.5)" },
+  "Wakil Presiden":    { bg: "rgba(139,92,246,0.08)", text: "#a78bfa",  border: "rgba(139,92,246,0.4)" },
+  "Sekretariat":        { bg: "rgba(52,211,153,0.08)", text: "#6ee7b7",  border: "rgba(52,211,153,0.4)" },
+  "Direktur":          { bg: "rgba(56,189,248,0.08)", text: "#7dd3fc",  border: "rgba(56,189,248,0.4)" },
+  "Publikasi":        { bg: "rgba(251,146,60,0.08)", text: "#fdba74",  border: "rgba(251,146,60,0.4)" },
   "ASIACERT":           { bg: "rgba(244,114,182,0.10)", text: "#f9a8d4", border: "rgba(244,114,182,0.5)" },
-  "Membership":         { bg: "rgba(99,102,241,0.08)",  text: "#818cf8", border: "rgba(99,102,241,0.4)" },
-  "Strategic Bodies":   { bg: "rgba(20,184,166,0.08)",  text: "#5eead4", border: "rgba(20,184,166,0.4)" },
-  "Certification Field":{ bg: "rgba(167,139,250,0.08)", text: "#c4b5fd", border: "rgba(167,139,250,0.4)" },
+  "Keanggotaan":         { bg: "rgba(99,102,241,0.08)",  text: "#818cf8", border: "rgba(99,102,241,0.4)" },
+  "Badan Strategis":   { bg: "rgba(20,184,166,0.08)",  text: "#5eead4", border: "rgba(20,184,166,0.4)" },
+  "Bidang Sertifikasi":{ bg: "rgba(167,139,250,0.08)", text: "#c4b5fd", border: "rgba(167,139,250,0.4)" },
 };
+
+function toTitleCase(str: any) {
+  if (!str || typeof str !== 'string') return str;
+  return str.toLowerCase().replace(/\b\w/g, s => s.toUpperCase());
+}
 
 export default function OrganizationStructurePage() {
   const [orgStructure, setOrgStructure] = useState<OrgMember[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeLevel, setActiveLevel] = useState<string>("All");
+  const [activeLevel, setActiveLevel] = useState<string>("Semua");
 
   React.useEffect(() => {
     fetch('/api/org-structure')
@@ -50,7 +55,7 @@ export default function OrganizationStructurePage() {
 
   const LEVELS = Array.from(new Set(orgStructure.map(m => m.level)));
 
-  const filtered = activeLevel === "All"
+  const filtered = activeLevel === "Semua"
     ? orgStructure
     : orgStructure.filter(m => m.level === activeLevel);
 
@@ -75,7 +80,7 @@ export default function OrganizationStructurePage() {
             <div style={{ width:"38px", height:"38px", borderRadius:"50%", border:"2px solid #c9a84c", display:"flex", alignItems:"center", justifyContent:"center", color:"#c9a84c" }}>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
             </div>
-            <span style={{ color:"#9ca3af", fontWeight:600, fontSize:"14px" }}>Back to Home</span>
+            <span style={{ color:"#9ca3af", fontWeight:600, fontSize:"14px" }}>Kembali ke Beranda</span>
           </div>
         </Link>
 
@@ -85,11 +90,11 @@ export default function OrganizationStructurePage() {
             Association of Asia Pacific Academician
           </p>
           <h1 style={{ fontSize:"clamp(26px, 4vw, 42px)", fontWeight:800 }}>
-            Organizational <span style={{ color:"#c9a84c" }}>Structure</span>
+            Struktur <span style={{ color:"#c9a84c" }}>Organisasi</span>
           </h1>
           <div style={{ width:"72px", height:"2px", background:"linear-gradient(to right, transparent, #c9a84c, transparent)", margin:"18px auto 0" }} />
           <p style={{ color:"#6b7280", fontSize:"13px", marginTop:"14px", maxWidth:"560px", margin:"14px auto 0" }}>
-            Complete roster of positions in the Association of Asia Pacific Academician (ASIA). Data is managed by administrators.
+            Daftar lengkap posisi di Association of Asia Pacific Academician (ASIA). Data dikelola oleh administrator.
           </p>
         </div>
 
@@ -124,10 +129,10 @@ export default function OrganizationStructurePage() {
         {/* Stats row */}
         <div style={{ display:"flex", gap:"16px", justifyContent:"center", flexWrap:"wrap", marginBottom:"36px" }}>
           {[
-            { label: "Total Positions", value: orgStructure.length },
-            { label: "Filled", value: orgStructure.filter(m => m.name).length },
-            { label: "Vacant", value: orgStructure.filter(m => !m.name).length },
-            { label: "Divisions", value: LEVELS.length },
+            { label: "Total Posisi", value: orgStructure.length },
+            { label: "Terisi", value: orgStructure.filter(m => m.name).length },
+            { label: "Kosong", value: orgStructure.filter(m => !m.name).length },
+            { label: "Divisi", value: LEVELS.length },
           ].map((s, i) => (
             <div key={i} style={{
               padding:"14px 24px",
@@ -145,9 +150,9 @@ export default function OrganizationStructurePage() {
 
         {/* Filter tabs */}
         <div style={{ display:"flex", gap:"8px", flexWrap:"wrap", marginBottom:"28px", justifyContent:"center" }}>
-          {["All", ...LEVELS].map(lvl => {
+          {["Semua", ...LEVELS].map(lvl => {
             const active = activeLevel === lvl;
-            const colors = lvl !== "All" ? LEVEL_COLORS[lvl] : { bg: "rgba(201,168,76,0.1)", text: "#c9a84c", border: "rgba(201,168,76,0.4)" };
+            const colors = lvl !== "Semua" ? LEVEL_COLORS[lvl] : { bg: "rgba(201,168,76,0.1)", text: "#c9a84c", border: "rgba(201,168,76,0.4)" };
             return (
               <button key={lvl} onClick={() => setActiveLevel(lvl)} style={{
                 padding:"7px 16px",
@@ -184,7 +189,7 @@ export default function OrganizationStructurePage() {
             borderBottom:"1px solid rgba(201,168,76,0.15)",
             background:"rgba(201,168,76,0.06)",
           }}>
-            {["No.", "Photo", "Position / Jabatan", "Name", "Division / Bidang"].map((h, i) => (
+            {["No.", "Foto", "Posisi / Jabatan", "Nama", "Divisi / Bidang"].map((h, i) => (
               <div key={i} style={{ fontSize:"11px", fontWeight:700, color:"#c9a84c", textTransform:"uppercase", letterSpacing:"1.5px" }}>
                 {h}
               </div>
@@ -227,24 +232,35 @@ export default function OrganizationStructurePage() {
                 </div>
 
                 {/* Position */}
-                <div style={{ fontSize:"13px", fontWeight:600, color:"#e8e8f0", lineHeight:1.3 }}>
-                  {m.position}
-                </div>
+                <h3 style={{
+                  fontSize: "12px",
+                  textTransform: "uppercase",
+                  letterSpacing: "0.05em",
+                  fontWeight: 700,
+                  color: colors.text,
+                  marginBottom: "6px"
+                }}>
+                  {toTitleCase(m.position)}
+                </h3>
 
                 {/* Name */}
-                <div style={{
-                  fontSize:"13px",
-                  color: m.name ? "#e8e8f0" : "#4b5563",
-                  fontStyle: m.name ? "normal" : "italic",
-                  lineHeight:1.3,
+                <p style={{
+                  fontSize: "15px",
+                  fontWeight: 600,
+                  marginBottom: "4px",
+                  color: m.name ? "#f3f4f6" : "#6b7280",
+                  fontStyle: m.name ? "normal" : "italic"
                 }}>
-                  {m.name || "— To Be Appointed —"}
-                </div>
+                  {m.name || "TBA"}
+                </p>
 
                 {/* Division */}
-                <div style={{ fontSize:"12px", color:"#6b7280", lineHeight:1.4 }}>
-                  {m.division}
-                </div>
+                <p style={{
+                  fontSize: "12px",
+                  color: "#9ca3af"
+                }}>
+                  {toTitleCase(m.division)}
+                </p>
               </div>
             );
           })}
@@ -265,9 +281,9 @@ export default function OrganizationStructurePage() {
             <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
           </svg>
           <p style={{ color:"#9ca3af", fontSize:"12px", lineHeight:1.5, margin:0 }}>
-            This table reflects the complete official structure of <strong style={{ color:"#c9a84c" }}>ASIA</strong>. 
-            Names and photos for vacant positions will be updated as appointments are finalized. 
-            Administrators can manage this data via the Admin Dashboard.
+            Tabel ini mencerminkan struktur resmi lengkap dari <strong style={{ color:"#c9a84c" }}>ASIA</strong>. 
+            Nama dan foto untuk posisi yang kosong akan diperbarui setelah penunjukan diselesaikan. 
+            Administrator dapat mengelola data ini melalui Dasbor Admin.
           </p>
         </div>
 

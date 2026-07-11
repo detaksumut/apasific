@@ -47,8 +47,8 @@ export default function ProfilePage() {
 
       <div className="bg-[#18182e] shadow-xl border border-gray-800 rounded-xl overflow-hidden">
         <div className="bg-[#111120] px-8 py-6 border-b border-gray-800">
-          <h1 className="text-2xl font-bold text-white font-['Cinzel']">My Profile</h1>
-          <p className="text-[#8888aa] mt-1">Manage your personal information and account settings</p>
+          <h1 className="text-2xl font-bold text-white font-['Cinzel']">Profil Saya</h1>
+          <p className="text-[#8888aa] mt-1">Kelola informasi pribadi dan pengaturan akun Anda</p>
         </div>
         
         <div className="p-8">
@@ -60,10 +60,10 @@ export default function ProfilePage() {
                 {userName.charAt(0)}
               </div>
               <button 
-                onClick={() => showToast("Picture upload dialog opened! (Demo)")}
+                onClick={() => showToast("Dialog unggah gambar dibuka! (Demo)")}
                 className="text-sm font-semibold text-[#c9a84c] hover:text-white transition-colors"
               >
-                Change Picture
+                Ubah Gambar
               </button>
             </div>
 
@@ -71,34 +71,34 @@ export default function ProfilePage() {
             <div className="flex-1 w-full space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-sm font-semibold text-gray-400 mb-1">Full Name</label>
+                  <label className="block text-sm font-semibold text-gray-400 mb-1">Nama Lengkap</label>
                   <input type="text" value={userName} readOnly className="w-full border border-gray-700 bg-[#0a0a14] rounded-lg p-2.5 text-gray-300 focus:outline-none cursor-not-allowed" />
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-gray-400 mb-1">Email Address</label>
+                  <label className="block text-sm font-semibold text-gray-400 mb-1">Alamat Email</label>
                   <input type="email" value={email} readOnly className="w-full border border-gray-700 bg-[#0a0a14] rounded-lg p-2.5 text-gray-300 focus:outline-none cursor-not-allowed" />
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-gray-400 mb-1">Current Role</label>
+                  <label className="block text-sm font-semibold text-gray-400 mb-1">Peran Saat Ini</label>
                   <input type="text" value={userRole} readOnly className="w-full border border-[#c9a84c]/50 bg-[#0a0a14] rounded-lg p-2.5 font-bold text-[#c9a84c] focus:outline-none cursor-not-allowed" />
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-gray-400 mb-1">Affiliation / Institution</label>
+                  <label className="block text-sm font-semibold text-gray-400 mb-1">Afiliasi / Institusi</label>
                   <input type="text" defaultValue="APASIFIC Network" className="w-full border border-gray-700 bg-[#111120] rounded-lg p-2.5 text-white focus:border-[#c9a84c] focus:outline-none transition-colors" />
                 </div>
               </div>
 
               <div className="border-t border-gray-800 pt-6 mt-6">
-                <h3 className="text-lg font-bold text-white mb-4">Biography</h3>
-                <textarea rows={4} className="w-full border border-gray-700 bg-[#111120] rounded-lg p-3 text-white focus:border-[#c9a84c] focus:outline-none transition-colors" placeholder="Write a short biography about your academic background..."></textarea>
+                <h3 className="text-lg font-bold text-white mb-4">Biografi</h3>
+                <textarea rows={4} className="w-full border border-gray-700 bg-[#111120] rounded-lg p-3 text-white focus:border-[#c9a84c] focus:outline-none transition-colors" placeholder="Tulis biografi singkat tentang latar belakang akademik Anda..."></textarea>
               </div>
 
               <div className="flex justify-end pt-4">
                 <button 
-                  onClick={() => showToast("Profile settings successfully saved! (Demo)")}
+                  onClick={() => showToast("Pengaturan profil berhasil disimpan! (Demo)")}
                   className="bg-[#c9a84c] hover:bg-[#b0923d] text-black font-bold py-2.5 px-8 rounded-lg shadow-lg shadow-[#c9a84c]/20 transition-all"
                 >
-                  Save Profile
+                  Simpan Profil
                 </button>
               </div>
             </div>

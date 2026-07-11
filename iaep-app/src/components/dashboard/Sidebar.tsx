@@ -11,7 +11,7 @@ export default function Sidebar({ role }: SidebarProps) {
 
   const commonLinks = [
     {
-      label: "Overview",
+      label: "Ringkasan",
       path: "/dashboard",
       icon: (
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
@@ -40,7 +40,7 @@ export default function Sidebar({ role }: SidebarProps) {
           <path d="M12 5v14M5 12h14" />
         </svg>
       ),
-      badge: "New",
+      badge: "Baru",
     },
     {
       label: "Submission Saya",
@@ -90,7 +90,7 @@ export default function Sidebar({ role }: SidebarProps) {
 
   const adminLinks = [
     {
-      label: "System Overview",
+      label: "Ringkasan Sistem",
       path: "/dashboard/admin",
       icon: (
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
@@ -99,7 +99,7 @@ export default function Sidebar({ role }: SidebarProps) {
       ),
     },
     {
-      label: "Transfer Proofs",
+      label: "Bukti Transfer",
       path: "/dashboard/admin/transactions",
       icon: (
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
@@ -224,10 +224,10 @@ export default function Sidebar({ role }: SidebarProps) {
   };
 
   const roleLabelMap: Record<string, string> = {
-    admin:    "Administration",
+    admin:    "Administrasi",
     editor:   "Editorial",
     reviewer: "Reviewer",
-    author:   "Author",
+    author:   "Penulis",
   };
 
   const roleColorMap: Record<string, string> = {
@@ -278,7 +278,7 @@ export default function Sidebar({ role }: SidebarProps) {
 
       {/* Nav */}
       <nav className="sidebar-nav">
-        <div className="sidebar-section-label">Main</div>
+        <div className="sidebar-section-label">Utama</div>
         {commonLinks.map(link => <NavLink key={link.path} link={link} />)}
 
         <div className="sidebar-section-label" style={{ marginTop: 24 }}>

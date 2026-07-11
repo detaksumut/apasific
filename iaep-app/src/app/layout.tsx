@@ -15,7 +15,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="id" suppressHydrationWarning>
       <body className="bg-[#05050a]" suppressHydrationWarning>
         {/* Global Lively Background - Premium Dark Gold Glow */}
         <div className="fixed inset-0 z-[-1] bg-[#05050a]">
@@ -58,83 +58,83 @@ export default function RootLayout({
 
       <!-- Nav Links -->
       <ul class="nav-links" id="nav-links">
-        <li><a href="/" class="nav-link active" id="nav-home">HOME</a></li>
+        <li><a href="/" class="nav-link active" id="nav-home">BERANDA</a></li>
 
         <li class="has-dropdown">
           <a href="/#about" class="nav-link" id="nav-about">ABOUT ASIA <span class="chevron">▾</span></a>
           <div class="dropdown">
-            <a href="/vision-mission.html"><span class="dd-icon">◈</span> Vision &amp; Mission</a>
-            <a href="/#leadership"><span class="dd-icon">◈</span> Leadership</a>
+            <a href="/#vision-mission"><span class="dd-icon">◈</span> Vision &amp; Mission</a>
+            <a href="/leadership"><span class="dd-icon">◈</span> Leadership</a>
             <a href="/organization-structure"><span class="dd-icon">◈</span> Organizational Structure</a>
-            <a href="/certification"><span class="dd-icon">◈</span> Certification Structure</a>
-            <a href="/journal"><span class="dd-icon">◈</span> Journal Structure</a>
+            <a href="/certification-structure"><span class="dd-icon">◈</span> Certification Structure</a>
+            <a href="/journal-structure"><span class="dd-icon">◈</span> Journal Structure</a>
           </div>
         </li>
 
         <li class="has-dropdown">
-          <a href="/#academic-divisions" class="nav-link" id="nav-divisions">ACADEMIC DIVISIONS <span class="chevron">▾</span></a>
+          <a href="/#academic-divisions" class="nav-link" id="nav-divisions">DIVISI AKADEMIK <span class="chevron">▾</span></a>
           <div class="dropdown dropdown-wide">
             <div class="dd-grid">
-              <a href="accounting.html"><span class="dd-icon">◈</span> Accounting, Auditing &amp; Taxation</a>
-              <a href="business.html"><span class="dd-icon">◈</span> Business, Management &amp; Entrepreneurship</a>
-              <a href="finance.html"><span class="dd-icon">◈</span> Finance, Banking &amp; Investment</a>
-              <a href="hr.html"><span class="dd-icon">◈</span> Human Resources &amp; Organizational Development</a>
-              <a href="economics.html"><span class="dd-icon">◈</span> Economics &amp; Public Policy</a>
-              <a href="education.html"><span class="dd-icon">◈</span> Education &amp; Academic Development</a>
-              <a href="law.html"><span class="dd-icon">◈</span> Law, Governance &amp; Public Administration</a>
-              <a href="it.html"><span class="dd-icon">◈</span> IT, AI &amp; Digital Transformation</a>
-              <a href="engineering.html"><span class="dd-icon">◈</span> Engineering, Technology &amp; Applied Sciences</a>
-              <a href="social.html"><span class="dd-icon">◈</span> Social Sciences, Humanities &amp; Communication</a>
-              <a href="tourism.html"><span class="dd-icon">◈</span> Tourism, Hospitality &amp; Creative Economy</a>
-              <a href="health.html"><span class="dd-icon">◈</span> Health, Public Health &amp; Well-Being</a>
-              <a href="agriculture.html"><span class="dd-icon">◈</span> Agriculture, Environment &amp; Sustainability</a>
-              <a href="islamic.html"><span class="dd-icon">◈</span> Islamic Studies, Ethics &amp; Spirituality</a>
+              <a href="/accounting.html"><span class="dd-icon">◈</span> Akuntansi, Audit &amp; Perpajakan</a>
+              <a href="/business.html"><span class="dd-icon">◈</span> Administrasi &amp; Manajemen Bisnis</a>
+              <a href="/economics.html"><span class="dd-icon">◈</span> Ekonomi Pembangunan &amp; Keuangan</a>
+              <a href="/law.html"><span class="dd-icon">◈</span> Ilmu Hukum &amp; Hak Asasi Manusia</a>
+              <a href="/education.html"><span class="dd-icon">◈</span> Pendidikan Dasar, Menengah &amp; Tinggi</a>
+              <a href="/medical.html"><span class="dd-icon">◈</span> Kedokteran, Kesehatan Masyarakat &amp; Keperawatan</a>
+              <a href="/engineering.html"><span class="dd-icon">◈</span> Teknik Sipil, Mesin &amp; Elektro</a>
+              <a href="/computer.html"><span class="dd-icon">◈</span> Ilmu Komputer &amp; Teknologi Informasi</a>
+              <a href="/agriculture.html"><span class="dd-icon">◈</span> Pertanian, Kehutanan &amp; Perikanan</a>
+              <a href="/social.html"><span class="dd-icon">◈</span> Sosiologi &amp; Ilmu Pengetahuan Budaya</a>
+              <a href="/arts.html"><span class="dd-icon">◈</span> Seni, Desain &amp; Media Kreatif</a>
+              <a href="/environmental.html"><span class="dd-icon">◈</span> Ilmu Lingkungan &amp; Keberlanjutan</a>
+              <a href="/political.html"><span class="dd-icon">◈</span> Ilmu Politik &amp; Hubungan Internasional</a>
+              <a href="/tourism.html"><span class="dd-icon">◈</span> Pariwisata &amp; Manajemen Perhotelan</a>
             </div>
           </div>
         </li>
 
         <li class="has-dropdown">
-          <a href="/#strategic-bodies" class="nav-link" id="nav-bodies">STRATEGIC BODIES <span class="chevron">▾</span></a>
+          <a href="/#strategic-bodies" class="nav-link" id="nav-bodies">BADAN STRATEGIS <span class="chevron">▾</span></a>
           <div class="dropdown dropdown-wide">
             <div class="dd-grid">
               <a href="/asiacert.html" target="_blank"><span class="dd-icon">◈</span> ASIACERT</a>
-              <a href="/boc.html" target="_blank"><span class="dd-icon">◈</span> ASIA Board of Certification (BOC)</a>
-              <a href="/research.html" target="_blank"><span class="dd-icon">◈</span> Research &amp; Innovation Council</a>
-              <a href="/conference.html" target="_blank"><span class="dd-icon">◈</span> Conference &amp; Academic Forum</a>
-              <a href="/publication.html" target="_blank"><span class="dd-icon">◈</span> Publication &amp; Knowledge Center</a>
-              <a href="/mobility.html" target="_blank"><span class="dd-icon">◈</span> Academic Mobility Center</a>
-              <a href="/competition.html" target="_blank"><span class="dd-icon">◈</span> Competition Center</a>
-              <a href="/community.html" target="_blank"><span class="dd-icon">◈</span> Community Engagement &amp; SDGs Center</a>
-              <a href="/quality.html" target="_blank"><span class="dd-icon">◈</span> Quality Assurance &amp; Accreditation Board</a>
-              <a href="/academy.html" target="_blank"><span class="dd-icon">◈</span> Digital Academy &amp; AI Center</a>
-              <a href="/young.html" target="_blank"><span class="dd-icon">◈</span> Young Academician Network</a>
-              <a href="/awards.html" target="_blank"><span class="dd-icon">◈</span> Awards &amp; Recognition Council</a>
+              <a href="/boc.html" target="_blank"><span class="dd-icon">◈</span> Dewan Sertifikasi (BOC) ASIA</a>
+              <a href="/research.html" target="_blank"><span class="dd-icon">◈</span> Dewan Riset &amp; Inovasi</a>
+              <a href="/conference.html" target="_blank"><span class="dd-icon">◈</span> Konferensi &amp; Forum Akademik</a>
+              <a href="/publication.html" target="_blank"><span class="dd-icon">◈</span> Pusat Publikasi &amp; Pengetahuan</a>
+              <a href="/mobility.html" target="_blank"><span class="dd-icon">◈</span> Pusat Mobilitas Akademik</a>
+              <a href="/competition.html" target="_blank"><span class="dd-icon">◈</span> Pusat Kompetisi</a>
+              <a href="/community.html" target="_blank"><span class="dd-icon">◈</span> Keterlibatan Komunitas &amp; Pusat SDGs</a>
+              <a href="/quality.html" target="_blank"><span class="dd-icon">◈</span> Dewan Penjaminan Mutu &amp; Akreditasi</a>
+              <a href="/academy.html" target="_blank"><span class="dd-icon">◈</span> Akademi Digital &amp; Pusat AI</a>
+              <a href="/young.html" target="_blank"><span class="dd-icon">◈</span> Jaringan Akademisi Muda</a>
+              <a href="/awards.html" target="_blank"><span class="dd-icon">◈</span> Dewan Penghargaan &amp; Rekognisi</a>
             </div>
           </div>
         </li>
 
         <li class="has-dropdown">
-          <a href="/#publications" class="nav-link" id="nav-publications">PUBLICATIONS <span class="chevron">▾</span></a>
+          <a href="/#publications" class="nav-link" id="nav-publications">PUBLIKASI <span class="chevron">▾</span></a>
           <div class="dropdown">
-            <a href="/journals"><span class="dd-icon">◈</span> Academic Journals</a>
-            <a href="/#proceedings"><span class="dd-icon">◈</span> Proceedings</a>
-            <a href="/#books"><span class="dd-icon">◈</span> Academic Books</a>
-            <a href="/#monographs"><span class="dd-icon">◈</span> Monographs</a>
-            <a href="/#policy-briefs"><span class="dd-icon">◈</span> Policy Briefs</a>
+            <a href="/journals"><span class="dd-icon">◈</span> Jurnal Akademik</a>
+            <a href="/#proceedings"><span class="dd-icon">◈</span> Prosiding</a>
+            <a href="/#books"><span class="dd-icon">◈</span> Buku Akademik</a>
+            <a href="/#monographs"><span class="dd-icon">◈</span> Monograf</a>
+            <a href="/#policy-briefs"><span class="dd-icon">◈</span> Ringkasan Kebijakan</a>
           </div>
         </li>
 
-        <li><a href="/bookstore" class="nav-link" id="nav-bookstore">BOOK STORE</a></li>
+        <li><a href="/bookstore" class="nav-link" id="nav-bookstore">TOKO BUKU</a></li>
         <li class="has-dropdown">
-          <a href="/#programs" class="nav-link" id="nav-programs">PROGRAMS <span class="chevron">▾</span></a>
+          <a href="/#programs" class="nav-link" id="nav-programs">PROGRAM <span class="chevron">▾</span></a>
           <div class="dropdown">
-            <a href="/#certification"><span class="dd-icon">◈</span> Certification</a>
-            <a href="/#conferences"><span class="dd-icon">◈</span> Conferences</a>
-            <a href="/#competitions"><span class="dd-icon">◈</span> Competitions</a>
-            <a href="/#training"><span class="dd-icon">◈</span> Training</a>
-            <a href="/#mobility"><span class="dd-icon">◈</span> Mobility</a>
-            <a href="/#research-grants"><span class="dd-icon">◈</span> Research Grants</a>
-            <a href="/#awards-prog"><span class="dd-icon">◈</span> Awards</a>
+            <a href="/#certification"><span class="dd-icon">◈</span> Sertifikasi</a>
+            <a href="/#conferences"><span class="dd-icon">◈</span> Konferensi</a>
+            <a href="/#competitions"><span class="dd-icon">◈</span> Kompetisi</a>
+            <a href="/#training"><span class="dd-icon">◈</span> Pelatihan</a>
+            <a href="/#mobility"><span class="dd-icon">◈</span> Mobilitas</a>
+            <a href="/#research-grants"><span class="dd-icon">◈</span> Hibah Penelitian</a>
+            <a href="/#awards-prog"><span class="dd-icon">◈</span> Penghargaan</a>
           </div>
         </li>
         <li class="mobile-login-item">
@@ -295,8 +295,8 @@ export default function RootLayout({
                 <p class="footer-logo-sub">Association of Asia Pacific Academician</p>
               </div>
             </div>
-            <p class="footer-desc">Uniting scholars, researchers, and professionals across Asia Pacific to advance knowledge, foster collaboration, and shape a better future.</p>
-            <p class="footer-motto">✦ Excellence and Competent and Dedicated is Our Tradition ✦</p>
+            <p class="footer-desc">Menyatukan para cendekiawan, peneliti, dan profesional di seluruh Asia Pasifik untuk memajukan pengetahuan, mendorong kolaborasi, dan membentuk masa depan yang lebih baik.</p>
+            <p class="footer-motto">✦ Keunggulan, Kompeten, dan Berdedikasi adalah Tradisi Kami ✦</p>
             <div class="footer-contact" style="margin-top: 24px;">
               <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 8px; line-height: 1.6;"><strong>Alamat:</strong> Jalan Perjuangan No. 80 B, Kelurahan Sei Kera Hilir, Kec. Medan Perjuangan, Medan – Sumatera Utara, Indonesia</p>
               <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 8px;"><strong>Email:</strong> <a href="mailto:admin@apasific.org" style="color: var(--gold); transition: color var(--transition);">admin@apasific.org</a></p>
@@ -305,34 +305,34 @@ export default function RootLayout({
           </div>
 
           <div class="footer-links-col">
-            <h4>About ASIA</h4>
+            <h4>Tentang ASIA</h4>
             <ul>
-              <li><a href="/vision-mission.html">Vision &amp; Mission</a></li>
-              <li><a href="#leadership">Leadership</a></li>
-              <li><a href="#org-structure">Organizational Structure</a></li>
-              <li><a href="/certification">Certification Structure</a></li>
-              <li><a href="/journal">Journal Structure</a></li>
+              <li><a href="/vision-mission.html">Visi &amp; Misi</a></li>
+              <li><a href="#leadership">Kepemimpinan</a></li>
+              <li><a href="/organization-structure">Struktur Organisasi</a></li>
+              <li><a href="/certification">Struktur Sertifikasi</a></li>
+              <li><a href="/journal">Struktur Jurnal</a></li>
             </ul>
           </div>
           <div class="footer-links-col">
-            <h4>Programs</h4>
+            <h4>Program Kami</h4>
             <ul>
-              <li><a href="#certification">Certification</a></li>
-              <li><a href="#conferences">Conferences</a></li>
-              <li><a href="#competitions">Competitions</a></li>
-              <li><a href="#training">Training</a></li>
-              <li><a href="#research-grants">Research Grants</a></li>
-              <li><a href="#awards-prog">Awards</a></li>
+              <li><a href="#certification">Sertifikasi</a></li>
+              <li><a href="#conferences">Konferensi</a></li>
+              <li><a href="#competitions">Kompetisi</a></li>
+              <li><a href="#training">Pelatihan</a></li>
+              <li><a href="#research-grants">Hibah Penelitian</a></li>
+              <li><a href="#awards-prog">Penghargaan</a></li>
             </ul>
           </div>
           <div class="footer-links-col">
-            <h4>Publications</h4>
+            <h4>Publikasi</h4>
             <ul>
-              <li><a href="#journals">Academic Journals</a></li>
-              <li><a href="#proceedings">Proceedings</a></li>
-              <li><a href="#books">Academic Books</a></li>
-              <li><a href="#monographs">Monographs</a></li>
-              <li><a href="#policy-briefs">Policy Briefs</a></li>
+              <li><a href="/journals">Jurnal Akademik</a></li>
+              <li><a href="#proceedings">Prosiding</a></li>
+              <li><a href="#books">Buku Akademik</a></li>
+              <li><a href="#monographs">Monograf</a></li>
+              <li><a href="#policy-briefs">Ringkasan Kebijakan</a></li>
             </ul>
           </div>
         </div>
@@ -340,11 +340,11 @@ export default function RootLayout({
     </div>
     <div class="footer-bottom">
       <div class="container">
-        <p>© 2025 Association of Asia Pacific Academician (ASIA). All rights reserved. | Developed by PT. Bernas Sumut Jaya • Dilindungi Hak Cipta.</p>
+        <p>© 2025 Association of Asia Pacific Academician (ASIA). Seluruh Hak Cipta Dilindungi Undang-Undang. | Developed by PT. Bernas Sumut Jaya</p>
         <div class="footer-bottom-links">
-          <a href="#">Privacy Policy</a>
-          <a href="#">Terms of Use</a>
-          <a href="#">Sitemap</a>
+          <a href="#">Kebijakan Privasi</a>
+          <a href="#">Syarat Penggunaan</a>
+          <a href="#">Peta Situs</a>
         </div>
       </div>
     </div>
