@@ -46,7 +46,7 @@ export async function GET() {
     const { data: boards } = await supabase.from("leadership").select("body_name");
 
     const results = [];
-    for (const board of boards) {
+    for (const board of boards || []) {
       if (board.body_name && board.body_name.startsWith("Editorial Board -")) {
         const { error } = await supabase
           .from("leadership")
