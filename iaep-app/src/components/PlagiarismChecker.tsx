@@ -91,14 +91,14 @@ export const PlagiarismChecker: React.FC<PlagiarismCheckerProps> = ({ initialTex
   };
 
   return (
-    <div className="bg-black/40 border border-amber-500/20 p-6 rounded-xl shadow-lg backdrop-blur-sm max-w-4xl mx-auto my-8">
-      <h2 className="text-2xl font-serif font-bold mb-4 text-amber-500">Cek Plagiarisme Artikel</h2>
+    <div className="bg-black/40 border border-emerald-500/20 p-6 rounded-xl shadow-lg backdrop-blur-sm max-w-4xl mx-auto my-8">
+      <h2 className="text-2xl font-serif font-bold mb-4 text-emerald-500">Cek Plagiarisme Artikel</h2>
       <p className="text-zinc-400 mb-4 text-sm">
         Sistem akan memotong bagian Daftar Pustaka dan mengecek artikel secara per paragraf secara cerdas.
       </p>
 
       <textarea
-        className="w-full p-4 bg-zinc-900 border border-amber-500/30 text-white rounded-md focus:ring-2 focus:ring-amber-500 focus:outline-none mb-4 min-h-[200px]"
+        className="w-full p-4 bg-zinc-900 border border-emerald-500/30 text-white rounded-md focus:ring-2 focus:ring-emerald-500 focus:outline-none mb-4 min-h-[200px]"
         placeholder="Tempelkan teks artikel Anda di sini..."
         value={text}
         onChange={(e) => setText(e.target.value)}
@@ -108,7 +108,7 @@ export const PlagiarismChecker: React.FC<PlagiarismCheckerProps> = ({ initialTex
       <button
         onClick={handleCheck}
         disabled={isChecking || !text.trim()}
-        className="bg-gradient-to-r from-amber-600 to-yellow-500 text-black font-bold py-2 px-6 rounded-md transition-all disabled:opacity-50 hover:from-amber-500 hover:to-yellow-400"
+        className="bg-gradient-to-r from-emerald-600 to-emerald-400 text-black font-bold py-2 px-6 rounded-md transition-all disabled:opacity-50 hover:from-emerald-500 hover:to-emerald-300"
       >
         {isChecking ? 'Sedang Mengecek...' : 'Mulai Pengecekan'}
       </button>
@@ -117,25 +117,25 @@ export const PlagiarismChecker: React.FC<PlagiarismCheckerProps> = ({ initialTex
         <div className="mt-6">
           <div className="w-full bg-zinc-800 rounded-full h-2.5 overflow-hidden">
             <div 
-              className="bg-amber-500 h-2.5 rounded-full transition-all duration-300 shadow-[0_0_10px_rgba(245,158,11,0.5)]" 
+              className="bg-emerald-500 h-2.5 rounded-full transition-all duration-300 shadow-[0_0_10px_rgba(16,185,129,0.5)]" 
               style={{ width: `${progress}%` }}
             ></div>
           </div>
-          <p className="text-sm text-amber-500 mt-2 text-center">Progres: {progress}%</p>
+          <p className="text-sm text-emerald-500 mt-2 text-center">Progres: {progress}%</p>
         </div>
       )}
 
       {report && (
-        <div className="mt-8 border-t border-amber-500/20 pt-6">
-          <h3 className="text-xl font-semibold mb-4 text-amber-400">Hasil Pengecekan</h3>
+        <div className="mt-8 border-t border-emerald-500/20 pt-6">
+          <h3 className="text-xl font-semibold mb-4 text-emerald-400">Hasil Pengecekan</h3>
           
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
             <div className="bg-black/60 p-4 rounded-md border border-zinc-800 text-center">
               <p className="text-zinc-400 text-sm">Total Paragraf</p>
               <p className="text-2xl font-bold text-white">{report.totalParagraphs}</p>
             </div>
-            <div className="bg-amber-900/20 p-4 rounded-md border border-amber-500/20 text-center">
-              <p className="text-amber-500 text-sm">Paragraf Diperiksa</p>
+            <div className="bg-emerald-900/20 p-4 rounded-md border border-emerald-500/20 text-center">
+              <p className="text-emerald-500 text-sm">Paragraf Diperiksa</p>
               <p className="text-2xl font-bold text-white">{report.checkedParagraphs}</p>
             </div>
             <div className="bg-red-900/20 p-4 rounded-md border border-red-500/20 text-center">
@@ -158,7 +158,7 @@ export const PlagiarismChecker: React.FC<PlagiarismCheckerProps> = ({ initialTex
                   <li key={idx} className={`p-4 rounded-md border text-sm ${result.isPlagiarized ? 'border-red-500/30 bg-red-900/10 text-zinc-300' : 'border-green-500/30 bg-green-900/10 text-zinc-300'}`}>
                     <p className="mb-2 text-zinc-400">{result.sentence}</p>
                     <div className="flex justify-between items-center text-xs">
-                      <span className="font-medium text-amber-500/70">
+                      <span className="font-medium text-emerald-500/70">
                         {result.wordCount} kata
                       </span>
                       {result.isPlagiarized ? (

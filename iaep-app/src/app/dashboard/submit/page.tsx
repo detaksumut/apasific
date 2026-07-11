@@ -237,7 +237,7 @@ export default function AuthorSubmit() {
           <p className="text-zinc-400 text-lg mb-10 leading-relaxed">Naskah Anda beserta data metadata penulis lengkap telah berhasil dikirimkan ke tim editorial APASIFIC.</p>
           <button 
             onClick={() => window.location.reload()}
-            className="px-8 py-4 bg-gradient-to-r from-amber-600 to-yellow-500 text-black font-bold text-lg rounded-xl hover:from-amber-500 hover:to-yellow-400 transition-colors"
+            className="px-8 py-4 bg-gradient-to-r from-emerald-600 to-emerald-400 text-black font-bold text-lg rounded-xl hover:from-emerald-500 hover:to-emerald-300 transition-colors"
           >
             Submit Artikel Lainnya
           </button>
@@ -249,15 +249,15 @@ export default function AuthorSubmit() {
   return (
     <div className="max-w-7xl mx-auto space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-700 pb-20">
       <div className="mb-12">
-        <h1 className="text-4xl font-serif text-amber-500 font-bold tracking-wide mb-3">Submit Artikel Baru</h1>
+        <h1 className="text-4xl font-serif text-emerald-500 font-bold tracking-wide mb-3">Submit Artikel Baru</h1>
         <p className="text-zinc-400 text-lg">Lengkapi formulir metadata di bawah ini dengan seksama untuk memastikan kelancaran proses publikasi Anda.</p>
       </div>
 
-      <div className="bg-black/60 border border-amber-500/20 rounded-2xl overflow-hidden shadow-xl mb-12">
-        <div className="bg-amber-900/30 px-8 py-5 border-b border-amber-500/30 flex items-center gap-3">
-          <FileText className="w-6 h-6 text-amber-500" />
+      <div className="bg-black/60 border border-emerald-500/20 rounded-2xl overflow-hidden shadow-xl mb-12">
+        <div className="bg-emerald-900/30 px-8 py-5 border-b border-emerald-500/30 flex items-center gap-3">
+          <FileText className="w-6 h-6 text-emerald-500" />
           <div>
-            <h3 className="font-bold text-amber-500 text-lg">Alat Cek Plagiarisme (Pra-Submit)</h3>
+            <h3 className="font-bold text-emerald-500 text-lg">Alat Cek Plagiarisme (Pra-Submit)</h3>
             <p className="text-sm text-zinc-400 mt-1">Gunakan alat ini untuk memastikan artikel Anda bebas plagiarisme sebelum disubmit secara resmi ke tim editorial.</p>
           </div>
         </div>
@@ -266,12 +266,12 @@ export default function AuthorSubmit() {
         </div>
       </div>
 
-      <form onSubmit={handleSubmit} className="bg-black/60 border border-amber-500/30 rounded-2xl shadow-2xl divide-y divide-zinc-800/80">
+      <form onSubmit={handleSubmit} className="bg-black/60 border border-emerald-500/30 rounded-2xl shadow-2xl divide-y divide-zinc-800/80">
         
         {/* SECTION 1: METADATA */}
         <div className="p-8 lg:p-12">
           <div className="flex items-center gap-4 mb-10">
-            <div className="w-10 h-10 rounded-full bg-amber-500/10 text-amber-500 flex items-center justify-center font-bold text-xl border border-amber-500/40">1</div>
+            <div className="w-10 h-10 rounded-full bg-emerald-500/10 text-emerald-500 flex items-center justify-center font-bold text-xl border border-emerald-500/40">1</div>
             <h2 className="text-2xl font-serif font-bold text-white tracking-wide">Metadata Artikel</h2>
           </div>
 
@@ -284,14 +284,14 @@ export default function AuthorSubmit() {
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-10">
             <div className="space-y-3">
-              <label className="block text-base font-bold text-amber-500">Pilih Jurnal Tujuan <span className="text-red-500">*</span></label>
+              <label className="block text-base font-bold text-emerald-500">Pilih Jurnal Tujuan <span className="text-red-500">*</span></label>
               <select 
                 name="journal_id" value={formData.journal_id} 
                 onChange={(e) => {
                   handleChange(e);
                   setFormData(prev => ({ ...prev, selectedScope: '', customScope: '' }));
                 }} required
-                className="w-full bg-zinc-900/80 border border-zinc-700/80 rounded-xl px-5 py-4 text-white text-base focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-colors cursor-pointer"
+                className="w-full bg-zinc-900/80 border border-zinc-700/80 rounded-xl px-5 py-4 text-white text-base focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-colors cursor-pointer"
               >
                 <option value="" disabled>-- Pilih Jurnal --</option>
                 {JOURNALS.map(j => <option key={j.id} value={j.id}>{j.name}</option>)}
@@ -299,10 +299,10 @@ export default function AuthorSubmit() {
             </div>
             
             <div className="space-y-3">
-              <label className="block text-base font-bold text-amber-500">Pilih Scope Jurnal <span className="text-red-500">*</span></label>
+              <label className="block text-base font-bold text-emerald-500">Pilih Scope Jurnal <span className="text-red-500">*</span></label>
               <select 
                 name="selectedScope" value={formData.selectedScope} onChange={handleChange} required
-                className="w-full bg-zinc-900/80 border border-zinc-700/80 rounded-xl px-5 py-4 text-white text-base focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-colors cursor-pointer"
+                className="w-full bg-zinc-900/80 border border-zinc-700/80 rounded-xl px-5 py-4 text-white text-base focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-colors cursor-pointer"
               >
                 <option value="" disabled>-- Pilih Scope --</option>
                 {JOURNALS.find(j => j.id === formData.journal_id)?.scopes.map(s => <option key={s} value={s}>{s}</option>)}
@@ -312,7 +312,7 @@ export default function AuthorSubmit() {
                 <div className="mt-4 animate-in fade-in slide-in-from-top-2">
                   <input 
                     type="text" name="customScope" value={formData.customScope} onChange={handleChange} required
-                    className="w-full bg-zinc-900/80 border border-amber-500/50 rounded-xl px-5 py-4 text-white text-base focus:border-amber-400 focus:ring-1 focus:ring-amber-400 shadow-[0_0_15px_rgba(245,158,11,0.1)]"
+                    className="w-full bg-zinc-900/80 border border-emerald-500/50 rounded-xl px-5 py-4 text-white text-base focus:border-emerald-400 focus:ring-1 focus:ring-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.1)]"
                     placeholder="Ketikkan scope/bidang spesifik Anda..."
                   />
                 </div>
@@ -321,10 +321,10 @@ export default function AuthorSubmit() {
           </div>
 
           <div className="space-y-3 mb-10">
-            <label className="block text-base font-bold text-amber-500">Pilih Paket Publikasi <span className="text-red-500">*</span></label>
+            <label className="block text-base font-bold text-emerald-500">Pilih Paket Publikasi <span className="text-red-500">*</span></label>
             <select 
               name="publicationType" value={formData.publicationType} onChange={handleChange} required
-              className="w-full bg-zinc-900/80 border border-zinc-700/80 rounded-xl px-5 py-4 text-white text-base focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-colors cursor-pointer"
+              className="w-full bg-zinc-900/80 border border-zinc-700/80 rounded-xl px-5 py-4 text-white text-base focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-colors cursor-pointer"
             >
               <option value="international">Publikasi Jurnal Internasional (Non SINTA)</option>
               <option value="jurnal_kuliah">Jurnal Perkuliahan (Non SINTA)</option>
@@ -339,46 +339,46 @@ export default function AuthorSubmit() {
           </div>
 
           <div className="space-y-3 mb-10">
-            <label className="block text-base font-bold text-amber-500">Judul Artikel <span className="text-red-500">*</span></label>
+            <label className="block text-base font-bold text-emerald-500">Judul Artikel <span className="text-red-500">*</span></label>
             <input
               type="text" name="title" required value={formData.title} onChange={handleChange}
-              className="w-full bg-zinc-900/80 border border-zinc-700/80 rounded-xl px-5 py-4 text-white text-lg font-medium focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-colors"
+              className="w-full bg-zinc-900/80 border border-zinc-700/80 rounded-xl px-5 py-4 text-white text-lg font-medium focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-colors"
               placeholder="Ketik judul lengkap naskah Anda di sini..."
             />
           </div>
 
           <div className="grid grid-cols-1 xl:grid-cols-2 gap-8 mb-10">
             <div className="space-y-3">
-              <label className="block text-base font-bold text-amber-500">Abstrak (Bahasa Indonesia) <span className="text-red-500">*</span></label>
+              <label className="block text-base font-bold text-emerald-500">Abstrak (Bahasa Indonesia) <span className="text-red-500">*</span></label>
               <textarea 
                 name="abstract" required value={formData.abstract} onChange={handleChange} rows={8} 
-                className="w-full bg-zinc-900/80 border border-zinc-700/80 rounded-xl px-5 py-4 text-white text-base leading-relaxed focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-colors resize-none" 
+                className="w-full bg-zinc-900/80 border border-zinc-700/80 rounded-xl px-5 py-4 text-white text-base leading-relaxed focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-colors resize-none" 
                 placeholder="Tuliskan isi dari Abstrak naskah Anda berbahasa Indonesia..."
               />
             </div>
             <div className="space-y-3">
               <div className="flex justify-between items-center">
-                <label className="block text-base font-bold text-amber-500">Abstract (English) <span className="text-red-500">*</span></label>
+                <label className="block text-base font-bold text-emerald-500">Abstract (English) <span className="text-red-500">*</span></label>
                 <button 
                   type="button" onClick={handleAutoTranslate} disabled={isTranslating || !formData.abstract}
-                  className="text-sm bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border border-amber-500/30 px-4 py-2 rounded-lg flex items-center gap-2 transition-all disabled:opacity-50 font-medium"
+                  className="text-sm bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-4 py-2 rounded-lg flex items-center gap-2 transition-all disabled:opacity-50 font-medium"
                 >
                   <Languages className="w-4 h-4" /> {isTranslating ? 'Menerjemahkan...' : 'Auto Translate'}
                 </button>
               </div>
               <textarea 
                 name="abstract_en" required value={formData.abstract_en} onChange={handleChange} rows={8} 
-                className="w-full bg-zinc-900/80 border border-zinc-700/80 rounded-xl px-5 py-4 text-white text-base leading-relaxed focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-colors resize-none" 
+                className="w-full bg-zinc-900/80 border border-zinc-700/80 rounded-xl px-5 py-4 text-white text-base leading-relaxed focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-colors resize-none" 
                 placeholder="Write your translated English abstract here..."
               />
             </div>
           </div>
 
           <div className="space-y-3">
-            <label className="block text-base font-bold text-amber-500">Kata Kunci (Keywords) <span className="text-red-500">*</span></label>
+            <label className="block text-base font-bold text-emerald-500">Kata Kunci (Keywords) <span className="text-red-500">*</span></label>
             <input 
               type="text" name="keywords" required value={formData.keywords} onChange={handleChange} 
-              className="w-full bg-zinc-900/80 border border-zinc-700/80 rounded-xl px-5 py-4 text-white text-base focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-colors" 
+              className="w-full bg-zinc-900/80 border border-zinc-700/80 rounded-xl px-5 py-4 text-white text-base focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-colors" 
               placeholder="Contoh: kecerdasan buatan, ekonomi digital, kebijakan fiskal (pisahkan dengan koma)" 
             />
           </div>
@@ -387,48 +387,48 @@ export default function AuthorSubmit() {
         {/* SECTION 2: AUTHORS */}
         <div className="p-8 lg:p-12">
           <div className="flex items-center gap-4 mb-10">
-            <div className="w-10 h-10 rounded-full bg-amber-500/10 text-amber-500 flex items-center justify-center font-bold text-xl border border-amber-500/40">2</div>
+            <div className="w-10 h-10 rounded-full bg-emerald-500/10 text-emerald-500 flex items-center justify-center font-bold text-xl border border-emerald-500/40">2</div>
             <h2 className="text-2xl font-serif font-bold text-white tracking-wide">Daftar Penulis</h2>
           </div>
           
           <div className="space-y-8">
             {authors.map((author, index) => (
-              <div key={author.id} className="p-6 md:p-8 bg-zinc-900/50 border border-zinc-700/80 rounded-2xl relative group hover:border-amber-500/40 transition-colors">
+              <div key={author.id} className="p-6 md:p-8 bg-zinc-900/50 border border-zinc-700/80 rounded-2xl relative group hover:border-emerald-500/40 transition-colors">
                 <div className="absolute right-6 top-6 flex gap-2 opacity-80 group-hover:opacity-100 transition-opacity">
-                  <button type="button" onClick={() => moveAuthor(index, 'up')} disabled={index === 0} className="p-2 text-zinc-400 bg-black/40 rounded hover:text-amber-500 hover:bg-black/60 disabled:opacity-30 transition-all"><ChevronUp className="w-5 h-5" /></button>
-                  <button type="button" onClick={() => moveAuthor(index, 'down')} disabled={index === authors.length - 1} className="p-2 text-zinc-400 bg-black/40 rounded hover:text-amber-500 hover:bg-black/60 disabled:opacity-30 transition-all"><ChevronDown className="w-5 h-5" /></button>
+                  <button type="button" onClick={() => moveAuthor(index, 'up')} disabled={index === 0} className="p-2 text-zinc-400 bg-black/40 rounded hover:text-emerald-500 hover:bg-black/60 disabled:opacity-30 transition-all"><ChevronUp className="w-5 h-5" /></button>
+                  <button type="button" onClick={() => moveAuthor(index, 'down')} disabled={index === authors.length - 1} className="p-2 text-zinc-400 bg-black/40 rounded hover:text-emerald-500 hover:bg-black/60 disabled:opacity-30 transition-all"><ChevronDown className="w-5 h-5" /></button>
                   <div className="w-px h-8 bg-zinc-700 mx-1"></div>
                   <button type="button" onClick={() => removeAuthor(index)} disabled={authors.length === 1} className="p-2 text-zinc-400 bg-black/40 rounded hover:text-red-500 hover:bg-red-500/10 disabled:opacity-30 transition-all"><Trash2 className="w-5 h-5" /></button>
                 </div>
                 
-                <h4 className="font-bold text-amber-500 text-lg mb-6 flex items-center gap-3">
-                  <div className="w-2 h-2 bg-amber-500 rounded-full"></div>
+                <h4 className="font-bold text-emerald-500 text-lg mb-6 flex items-center gap-3">
+                  <div className="w-2 h-2 bg-emerald-500 rounded-full"></div>
                   {index === 0 ? "Penulis Pertama (Koresponden)" : `Penulis Ke-${index + 1}`}
                 </h4>
                 
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   <div className="space-y-2">
                     <label className="block text-sm font-bold text-zinc-300">Nama Lengkap <span className="text-red-500">*</span></label>
-                    <input type="text" required value={author.full_name} onChange={e => handleAuthorChange(index, 'full_name', e.target.value)} className="w-full bg-black/60 border border-zinc-700 rounded-xl px-4 py-3 text-white focus:border-amber-500 outline-none transition-colors" placeholder="Gelar dan nama lengkap" />
+                    <input type="text" required value={author.full_name} onChange={e => handleAuthorChange(index, 'full_name', e.target.value)} className="w-full bg-black/60 border border-zinc-700 rounded-xl px-4 py-3 text-white focus:border-emerald-500 outline-none transition-colors" placeholder="Gelar dan nama lengkap" />
                   </div>
                   <div className="space-y-2">
                     <label className="block text-sm font-bold text-zinc-300">Alamat Email <span className="text-red-500">*</span></label>
-                    <input type="email" required value={author.email} onChange={e => handleAuthorChange(index, 'email', e.target.value)} className="w-full bg-black/60 border border-zinc-700 rounded-xl px-4 py-3 text-white focus:border-amber-500 outline-none transition-colors" placeholder="email@institusi.edu" />
+                    <input type="email" required value={author.email} onChange={e => handleAuthorChange(index, 'email', e.target.value)} className="w-full bg-black/60 border border-zinc-700 rounded-xl px-4 py-3 text-white focus:border-emerald-500 outline-none transition-colors" placeholder="email@institusi.edu" />
                   </div>
                   <div className="space-y-2">
                     <label className="block text-sm font-bold text-zinc-300">Afiliasi / Institusi <span className="text-red-500">*</span></label>
-                    <input type="text" required value={author.affiliation} onChange={e => handleAuthorChange(index, 'affiliation', e.target.value)} className="w-full bg-black/60 border border-zinc-700 rounded-xl px-4 py-3 text-white focus:border-amber-500 outline-none transition-colors" placeholder="Nama universitas atau lembaga" />
+                    <input type="text" required value={author.affiliation} onChange={e => handleAuthorChange(index, 'affiliation', e.target.value)} className="w-full bg-black/60 border border-zinc-700 rounded-xl px-4 py-3 text-white focus:border-emerald-500 outline-none transition-colors" placeholder="Nama universitas atau lembaga" />
                   </div>
                   <div className="space-y-2">
                     <label className="block text-sm font-bold text-zinc-300">ID ORCID <span className="text-zinc-500 font-normal">(Opsional)</span></label>
-                    <input type="text" value={author.orcid} onChange={e => handleAuthorChange(index, 'orcid', e.target.value)} placeholder="0000-0000-0000-0000" className="w-full bg-black/60 border border-zinc-700 rounded-xl px-4 py-3 text-white focus:border-amber-500 outline-none transition-colors" />
+                    <input type="text" value={author.orcid} onChange={e => handleAuthorChange(index, 'orcid', e.target.value)} placeholder="0000-0000-0000-0000" className="w-full bg-black/60 border border-zinc-700 rounded-xl px-4 py-3 text-white focus:border-emerald-500 outline-none transition-colors" />
                   </div>
                 </div>
               </div>
             ))}
             
-            <button type="button" onClick={addAuthor} className="w-full py-5 mt-2 border-2 border-dashed border-amber-500/40 rounded-2xl text-amber-500 text-lg font-bold hover:bg-amber-500/10 flex items-center justify-center gap-3 transition-all hover:border-amber-500 group">
-              <Plus className="w-6 h-6 group-hover:scale-110 transition-transform" /> Tambah Penulis Lainnya <span className="text-sm font-normal text-amber-500/70 ml-1">(Jika penulis lebih dari satu orang)</span>
+            <button type="button" onClick={addAuthor} className="w-full py-5 mt-2 border-2 border-dashed border-emerald-500/40 rounded-2xl text-emerald-500 text-lg font-bold hover:bg-emerald-500/10 flex items-center justify-center gap-3 transition-all hover:border-emerald-500 group">
+              <Plus className="w-6 h-6 group-hover:scale-110 transition-transform" /> Tambah Penulis Lainnya <span className="text-sm font-normal text-emerald-500/70 ml-1">(Jika penulis lebih dari satu orang)</span>
             </button>
           </div>
         </div>
@@ -436,34 +436,34 @@ export default function AuthorSubmit() {
         {/* SECTION 3: OTHER DETAILS */}
         <div className="p-8 lg:p-12">
           <div className="flex items-center gap-4 mb-10">
-            <div className="w-10 h-10 rounded-full bg-amber-500/10 text-amber-500 flex items-center justify-center font-bold text-xl border border-amber-500/40">3</div>
+            <div className="w-10 h-10 rounded-full bg-emerald-500/10 text-emerald-500 flex items-center justify-center font-bold text-xl border border-emerald-500/40">3</div>
             <h2 className="text-2xl font-serif font-bold text-white tracking-wide">Detail Tambahan</h2>
           </div>
 
           <div className="space-y-3 mb-10">
-            <label className="block text-base font-bold text-amber-500">Daftar Pustaka (Bibliography) <span className="text-red-500">*</span></label>
+            <label className="block text-base font-bold text-emerald-500">Daftar Pustaka (Bibliography) <span className="text-red-500">*</span></label>
             <textarea 
               name="bibliography" required value={formData.bibliography} onChange={handleChange} rows={6}
-              className="w-full bg-zinc-900/80 border border-zinc-700/80 rounded-xl px-5 py-4 text-white text-base leading-relaxed focus:border-amber-500 focus:ring-1 focus:ring-amber-500 outline-none transition-colors"
+              className="w-full bg-zinc-900/80 border border-zinc-700/80 rounded-xl px-5 py-4 text-white text-base leading-relaxed focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none transition-colors"
               placeholder="Paste seluruh daftar referensi, sitasi, dan pustaka dari naskah Anda di sini (Format APA/IEEE disarankan)..."
             />
           </div>
 
           <div className="space-y-3 mb-10">
-            <label className="block text-base font-bold text-amber-500">Surat Pengantar untuk Editor (Cover Letter) <span className="text-zinc-500 font-normal">(Opsional)</span></label>
+            <label className="block text-base font-bold text-emerald-500">Surat Pengantar untuk Editor (Cover Letter) <span className="text-zinc-500 font-normal">(Opsional)</span></label>
             <textarea 
               name="cover_letter" value={formData.cover_letter} onChange={handleChange} rows={4}
-              className="w-full bg-zinc-900/80 border border-zinc-700/80 rounded-xl px-5 py-4 text-white text-base leading-relaxed focus:border-amber-500 focus:ring-1 focus:ring-amber-500 outline-none transition-colors"
+              className="w-full bg-zinc-900/80 border border-zinc-700/80 rounded-xl px-5 py-4 text-white text-base leading-relaxed focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none transition-colors"
               placeholder="Jelaskan secara singkat apa temuan utama dari riset Anda dan mengapa cocok untuk jurnal ini..."
             />
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-10">
             <div className="space-y-3">
-              <label className="block text-base font-bold text-amber-500">Deklarasi Penggunaan AI</label>
+              <label className="block text-base font-bold text-emerald-500">Deklarasi Penggunaan AI</label>
               <select 
                 name="ai_disclosure_type" value={formData.ai_disclosure_type} onChange={handleChange} 
-                className="w-full bg-zinc-900/80 border border-zinc-700/80 rounded-xl px-5 py-4 text-white text-base focus:border-amber-500 outline-none transition-colors"
+                className="w-full bg-zinc-900/80 border border-zinc-700/80 rounded-xl px-5 py-4 text-white text-base focus:border-emerald-500 outline-none transition-colors"
               >
                 <option value="none">Tidak menggunakan AI</option>
                 <option value="grammar">Hanya untuk perbaikan tata bahasa & ejaan</option>
@@ -472,22 +472,22 @@ export default function AuthorSubmit() {
               </select>
             </div>
             <div className="space-y-3">
-              <label className="block text-base font-bold text-amber-500">Sumber Pendanaan <span className="text-zinc-500 font-normal">(Opsional)</span></label>
+              <label className="block text-base font-bold text-emerald-500">Sumber Pendanaan <span className="text-zinc-500 font-normal">(Opsional)</span></label>
               <input 
                 type="text" name="funding_source" value={formData.funding_source} onChange={handleChange} 
-                className="w-full bg-zinc-900/80 border border-zinc-700/80 rounded-xl px-5 py-4 text-white text-base focus:border-amber-500 outline-none transition-colors"
+                className="w-full bg-zinc-900/80 border border-zinc-700/80 rounded-xl px-5 py-4 text-white text-base focus:border-emerald-500 outline-none transition-colors"
                 placeholder="Contoh: Hibah Penelitian Kemdikbudristek 2024..."
               />
             </div>
           </div>
           
           <div>
-            <label className="flex items-start gap-5 p-6 bg-amber-900/10 border border-amber-500/30 rounded-xl cursor-pointer hover:bg-amber-900/20 transition-colors group">
+            <label className="flex items-start gap-5 p-6 bg-emerald-900/10 border border-emerald-500/30 rounded-xl cursor-pointer hover:bg-emerald-900/20 transition-colors group">
               <div className="mt-1 flex-shrink-0">
-                <input type="checkbox" name="conflict_of_interest" checked={formData.conflict_of_interest} onChange={handleChange} className="w-5 h-5 accent-amber-500 rounded focus:ring-amber-500" />
+                <input type="checkbox" name="conflict_of_interest" checked={formData.conflict_of_interest} onChange={handleChange} className="w-5 h-5 accent-emerald-500 rounded focus:ring-emerald-500" />
               </div>
               <div>
-                <strong className="text-amber-500 block text-lg mb-1 group-hover:text-amber-400 transition-colors">Deklarasi Bebas Konflik Kepentingan</strong>
+                <strong className="text-emerald-500 block text-lg mb-1 group-hover:text-emerald-400 transition-colors">Deklarasi Bebas Konflik Kepentingan</strong>
                 <p className="text-base text-zinc-400 leading-relaxed">
                   Dengan mencentang kotak ini, saya selaku penulis menjamin dan menyatakan bahwa tidak ada benturan atau konflik kepentingan finansial, personal, maupun profesional yang dapat mempengaruhi objektivitas penelitian dari naskah yang disubmit ini.
                 </p>
@@ -499,23 +499,23 @@ export default function AuthorSubmit() {
         {/* SECTION 4: FILE UPLOAD */}
         <div className="p-8 lg:p-12">
           <div className="flex items-center gap-4 mb-10">
-            <div className="w-10 h-10 rounded-full bg-amber-500/10 text-amber-500 flex items-center justify-center font-bold text-xl border border-amber-500/40">4</div>
+            <div className="w-10 h-10 rounded-full bg-emerald-500/10 text-emerald-500 flex items-center justify-center font-bold text-xl border border-emerald-500/40">4</div>
             <h2 className="text-2xl font-serif font-bold text-white tracking-wide">Unggah Berkas Naskah</h2>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="relative overflow-hidden group border-2 border-dashed border-zinc-600 bg-zinc-900/50 rounded-2xl p-8 text-center hover:border-amber-500/80 hover:bg-amber-900/10 transition-all">
-              <Upload className="w-10 h-10 text-amber-500 mx-auto mb-4 group-hover:-translate-y-1 transition-transform" />
+            <div className="relative overflow-hidden group border-2 border-dashed border-zinc-600 bg-zinc-900/50 rounded-2xl p-8 text-center hover:border-emerald-500/80 hover:bg-emerald-900/10 transition-all">
+              <Upload className="w-10 h-10 text-emerald-500 mx-auto mb-4 group-hover:-translate-y-1 transition-transform" />
               <label className="block text-lg font-bold text-white mb-2">Title Page <span className="text-red-500">*</span></label>
-              <p className="text-sm text-zinc-400 mb-6">Berkas naskah utuh yang <strong className="text-amber-500">mencantumkan</strong> nama dan afiliasi seluruh penulis.</p>
-              <input type="file" required onChange={e => setFiles({...files, titlePage: e.target.files?.[0] || null})} className="w-full text-sm text-zinc-300 file:mr-4 file:py-2.5 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-amber-500 file:text-black hover:file:bg-amber-400 file:cursor-pointer cursor-pointer" />
+              <p className="text-sm text-zinc-400 mb-6">Berkas naskah utuh yang <strong className="text-emerald-500">mencantumkan</strong> nama dan afiliasi seluruh penulis.</p>
+              <input type="file" required onChange={e => setFiles({...files, titlePage: e.target.files?.[0] || null})} className="w-full text-sm text-zinc-300 file:mr-4 file:py-2.5 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-emerald-500 file:text-black hover:file:bg-emerald-400 file:cursor-pointer cursor-pointer" />
             </div>
 
-            <div className="relative overflow-hidden group border-2 border-dashed border-zinc-600 bg-zinc-900/50 rounded-2xl p-8 text-center hover:border-amber-500/80 hover:bg-amber-900/10 transition-all">
-              <Upload className="w-10 h-10 text-amber-500 mx-auto mb-4 group-hover:-translate-y-1 transition-transform" />
+            <div className="relative overflow-hidden group border-2 border-dashed border-zinc-600 bg-zinc-900/50 rounded-2xl p-8 text-center hover:border-emerald-500/80 hover:bg-emerald-900/10 transition-all">
+              <Upload className="w-10 h-10 text-emerald-500 mx-auto mb-4 group-hover:-translate-y-1 transition-transform" />
               <label className="block text-lg font-bold text-white mb-2">Naskah Anonim <span className="text-red-500">*</span></label>
-              <p className="text-sm text-zinc-400 mb-6">Berkas naskah yang <strong className="text-amber-500">telah dihapus</strong> nama dan afiliasinya (untuk Blind Review).</p>
-              <input type="file" required onChange={e => setFiles({...files, anonymous: e.target.files?.[0] || null})} className="w-full text-sm text-zinc-300 file:mr-4 file:py-2.5 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-amber-500 file:text-black hover:file:bg-amber-400 file:cursor-pointer cursor-pointer" />
+              <p className="text-sm text-zinc-400 mb-6">Berkas naskah yang <strong className="text-emerald-500">telah dihapus</strong> nama dan afiliasinya (untuk Blind Review).</p>
+              <input type="file" required onChange={e => setFiles({...files, anonymous: e.target.files?.[0] || null})} className="w-full text-sm text-zinc-300 file:mr-4 file:py-2.5 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-emerald-500 file:text-black hover:file:bg-emerald-400 file:cursor-pointer cursor-pointer" />
             </div>
 
             <div className="relative overflow-hidden group border-2 border-dashed border-zinc-700 bg-zinc-900/30 rounded-2xl p-8 text-center hover:border-zinc-500 hover:bg-zinc-800/50 transition-all">
@@ -531,7 +531,7 @@ export default function AuthorSubmit() {
         <div className="p-8 lg:p-12 bg-black/80">
           <button 
             type="submit" disabled={loading}
-            className="w-full flex justify-center items-center gap-3 bg-gradient-to-r from-amber-600 via-amber-500 to-yellow-500 text-black font-extrabold py-5 px-8 rounded-xl hover:from-amber-500 hover:to-yellow-400 transition-all disabled:opacity-50 shadow-[0_0_30px_rgba(245,158,11,0.25)] hover:shadow-[0_0_40px_rgba(245,158,11,0.4)] text-xl"
+            className="w-full flex justify-center items-center gap-3 bg-gradient-to-r from-emerald-600 via-emerald-500 to-emerald-400 text-black font-extrabold py-5 px-8 rounded-xl hover:from-emerald-500 hover:to-emerald-300 transition-all disabled:opacity-50 shadow-[0_0_30px_rgba(16,185,129,0.25)] hover:shadow-[0_0_40px_rgba(16,185,129,0.4)] text-xl"
           >
             {loading ? (
               <span className="flex items-center gap-3">
