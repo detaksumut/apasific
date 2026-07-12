@@ -386,7 +386,7 @@ export default function MajesticMembershipPage() {
                 {/* FRONT SIDE */}
                 <div 
                   className="absolute inset-0 w-full h-full overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.8)] border border-white/20 bg-cover bg-center"
-                  style={{ backgroundImage: 'url(/card-bg1.png)', borderRadius: '16px', backfaceVisibility: 'hidden' }}
+                  style={{ backgroundImage: 'url(/member-card.png)', borderRadius: '16px', backfaceVisibility: 'hidden' }}
                 >
                   {/* Logo and Title */}
                   <div className="absolute flex items-center gap-3" style={{ top: '6%', left: '4%' }}>
@@ -435,7 +435,7 @@ export default function MajesticMembershipPage() {
                 {/* BACK SIDE */}
                 <div 
                   className="absolute inset-0 w-full h-full overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.8)] border border-white/20 bg-cover bg-center"
-                  style={{ backgroundImage: 'url(/card-bg1.png)', borderRadius: '16px', backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}
+                  style={{ backgroundImage: 'url(/member-card.png)', borderRadius: '16px', backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}
                 >
                   {/* BIG ASIA WATERMARK (Removed as it is already in the background image) */}
 
