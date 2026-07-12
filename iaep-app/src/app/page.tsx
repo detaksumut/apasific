@@ -1,4 +1,5 @@
 import OrgStructure from "@/components/OrgStructure";
+import AsiaIndexWidget from "@/components/AsiaIndexWidget";
 
 export default function Home() {
   return (
@@ -144,6 +145,9 @@ export default function Home() {
 
         <!-- Database Status Grid -->
         <div class="db-status-grid" data-aos="fade-up">
+
+          <!-- ASIA Index placeholder - widget injected via React below -->
+          <div id="asia-index-widget-slot" style="grid-column: 1 / -1; margin-bottom: 8px;"></div>
 
           <div class="db-status-card">
             <div class="db-icon-wrap gs-color">
@@ -765,6 +769,7 @@ export default function Home() {
        FOOTER
   ═══════════════════════════════════════════ -->
   ` }} />
+      <AsiaIndexWidget />
     </>
   );
 }
