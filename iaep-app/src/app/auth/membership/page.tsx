@@ -440,37 +440,42 @@ export default function MajesticMembershipPage() {
                   className="absolute inset-0 w-full h-full overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.8)] border border-white/20 bg-cover bg-center"
                   style={{ backgroundImage: 'url(/card-bg1.png)', borderRadius: '16px', backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}
                 >
+                  {/* BIG ASIA WATERMARK (Background of back side) */}
+                  <div className="absolute text-white font-extrabold tracking-tighter opacity-80" style={{ bottom: '-5%', left: '4%', fontSize: '72px', lineHeight: '1', textShadow: '2px 2px 4px rgba(0,0,0,0.5)' }}>
+                    ASIA
+                  </div>
+
                   {/* Magnetic Stripe */}
-                  <div className="absolute w-full bg-[#1a1a1a]/95 shadow-inner" style={{ top: '18%', height: '22%' }}></div>
+                  <div className="absolute w-full bg-[#1c1c1c] shadow-lg" style={{ top: '15%', height: '22%' }}></div>
                   
-                  {/* Text Information */}
-                  <div className="absolute flex flex-col gap-1 text-white font-bold uppercase drop-shadow-md tracking-wider whitespace-nowrap" style={{ top: '48%', left: '8%', fontSize: '14px' }}>
-                    <div className="flex">
-                      <div className="w-28">NAME</div>
-                      <div className="mr-2">:</div>
+                  {/* Text Information (Perfectly Aligned) */}
+                  <div className="absolute flex flex-col gap-[6px] text-white font-bold uppercase drop-shadow-md tracking-wider whitespace-nowrap" style={{ top: '46%', left: '6%', fontSize: '12px' }}>
+                    <div className="flex items-center">
+                      <div className="w-[110px] text-left">NAME</div>
+                      <div className="mr-1">:</div>
                       <div>{formData.fullName || "ARFAN IKHSAN LUBIS"}</div>
                     </div>
-                    <div className="flex">
-                      <div className="w-28">CITIZENSHIP</div>
-                      <div className="mr-2">:</div>
+                    <div className="flex items-center">
+                      <div className="w-[110px] text-left">CITIZENSHIP</div>
+                      <div className="mr-1">:</div>
                       <div>{formData.country || "INDONESIA"}</div>
                     </div>
-                    <div className="flex">
-                      <div className="w-28">VALID THRU</div>
-                      <div className="mr-2">:</div>
+                    <div className="flex items-center">
+                      <div className="w-[110px] text-left">VALID THRU</div>
+                      <div className="mr-1">:</div>
                       <div>241130</div>
                     </div>
                   </div>
 
                   {/* QR Code */}
-                  <div className="absolute bg-white p-1 rounded-sm shadow-md flex items-center justify-center" style={{ bottom: '12%', right: '5%', width: '18%', aspectRatio: '1/1' }}>
+                  <div className="absolute bg-white p-1 rounded-md shadow-xl flex items-center justify-center" style={{ bottom: '10%', right: '4%', width: '22%', aspectRatio: '1/1' }}>
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={`https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=ApasificMember_${formData.internationalId || '0000001'}`} alt="QR Code" className="w-full h-full object-contain" />
+                    <img src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=ApasificMember_${formData.internationalId || '0000001'}`} alt="QR Code" className="w-full h-full object-contain" />
                   </div>
 
                   {/* Footer Vision */}
-                  <div className="absolute text-center text-white/90" style={{ bottom: '4%', left: '4%', right: '4%', fontSize: '7px', letterSpacing: '0.2px' }}>
-                    ASIA VISION : &quot;Leaders in the Development of Knowledge, Expertise, Sprituality, Solidariy, Responsibility and Professionalism of Academicion in the World&quot;
+                  <div className="absolute text-center text-white/90 drop-shadow-md" style={{ bottom: '3%', left: '2%', right: '2%', fontSize: '6.5px', letterSpacing: '0.1px' }}>
+                    ASIA VISION : &quot;Leaders in the Development of Knowledge, Expertise, Spirituality, Solidarity, Responsibility and Professionalism of Academician in the World&quot;
                   </div>
                 </div>
 
