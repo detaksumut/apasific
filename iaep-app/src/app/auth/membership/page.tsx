@@ -342,60 +342,33 @@ export default function MajesticMembershipPage() {
             
             {/* The Card */}
             <div 
-              className="w-full max-w-sm relative overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.8)] border border-[#c9a84c]/40 group transition-all duration-500 hover:shadow-[0_20px_60px_rgba(201,168,76,0.2)] bg-cover bg-center"
-              style={{ backgroundImage: 'url(/card-bg.png)', borderRadius: '16px', padding: '24px', aspectRatio: '1.586/1' }}
+              className="w-full max-w-sm relative overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.8)] border border-white/20 transition-all duration-500 bg-cover bg-center"
+              style={{ backgroundImage: 'url(/card-bg1.png)', borderRadius: '16px', aspectRatio: '1.586/1' }}
             >
-              {/* Card Dark Overlay so text is readable */}
-              <div className="absolute inset-0 bg-gradient-to-br from-[#1a1a2e]/60 to-[#0a0810]/80 z-0"></div>
-
-              {/* Card Background Ornaments */}
-              <div className="absolute bg-[#c9a84c] rounded-full mix-blend-overlay filter blur-[64px] opacity-40 z-0" style={{ right: '-64px', top: '-64px', width: '192px', height: '192px' }}></div>
-              <div className="absolute bg-[#c9a84c] rounded-full mix-blend-overlay filter blur-[64px] opacity-30 z-0" style={{ left: '-64px', bottom: '-64px', width: '192px', height: '192px' }}></div>
+              {/* Dynamic Text Placements */}
+              {/* MEMBER SINCE DATE */}
+              <div className="absolute text-white font-bold tracking-widest text-right" style={{ top: '16%', right: '8%', fontSize: '12px' }}>
+                241125
+              </div>
               
-              {/* Fake Chip */}
-              <div className="absolute rounded bg-gradient-to-br from-[#e8c97a] to-[#9a7a30] opacity-90 flex items-center justify-center z-10 shadow-inner" style={{ left: '24px', top: '96px', width: '48px', height: '36px' }}>
-                <div className="border border-black/20 rounded-sm" style={{ width: '32px', height: '20px' }}></div>
+              {/* VALID THRU DATE */}
+              <div className="absolute text-white font-bold tracking-widest text-right" style={{ top: '27%', right: '8%', fontSize: '12px' }}>
+                241130
               </div>
 
-              <div className="relative z-10 h-full flex flex-col justify-between">
-                {/* Header */}
-                <div className="flex justify-between items-start">
-                  <div>
-                    <h4 className="text-[#c9a84c] font-bold tracking-widest uppercase" style={{ fontFamily: 'Cinzel, serif', fontSize: '14px' }}>ASIA</h4>
-                    <p className="text-gray-400 uppercase tracking-wider max-w-[120px]" style={{ fontSize: '8px' }}>Association of Asia Pacific Academician</p>
-                  </div>
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src="/logo-apasific.png" alt="Logo" className="object-contain drop-shadow-md" style={{ width: '52px', height: '52px' }} />
-                </div>
-
-                {/* Body / User Info */}
-                <div className="mt-auto" style={{ paddingBottom: '8px' }}>
-                  <p className="text-[#c9a84c] uppercase tracking-wider" style={{ fontSize: '10px', marginBottom: '4px' }}>Anggota Resmi</p>
-                  <h2 className="font-bold text-white uppercase tracking-wide line-clamp-2 leading-snug drop-shadow-md" style={{ fontSize: '13px', minHeight: '32px', paddingRight: '12px' }}>
-                    {formData.fullName || "NAMA ANDA DI SINI"}
-                  </h2>
-                  <div className="flex text-gray-300" style={{ gap: '16px', marginTop: '8px' }}>
-                    <div>
-                      <p className="uppercase text-gray-500" style={{ fontSize: '8px' }}>ID Akademik</p>
-                      <p className="font-mono tracking-widest" style={{ fontSize: '12px' }}>{formData.internationalId || previewId}</p>
-                    </div>
-                    <div>
-                      <p className="uppercase text-gray-500" style={{ fontSize: '8px' }}>Tingkat</p>
-                      <p className="font-mono tracking-widest" style={{ fontSize: '12px' }}>{formData.academicLevel}</p>
-                    </div>
-                  </div>
-                </div>
+              {/* NAME */}
+              <div className="absolute text-white font-bold uppercase tracking-wide drop-shadow-md whitespace-nowrap" style={{ top: '44%', left: '33%', fontSize: '14px' }}>
+                {formData.fullName || "NAMA ANDA DI SINI"}
               </div>
 
-              {/* QR Code */}
-              <div className="absolute opacity-90 bg-white/10 backdrop-blur-sm border border-white/20 shadow-[0_0_10px_rgba(255,255,255,0.1)]" style={{ right: '24px', bottom: '24px', padding: '6px', borderRadius: '8px' }}>
-                <QRCode
-                  value="https://www.apasific.org"
-                  size={36}
-                  bgColor="transparent"
-                  fgColor="#ffffff"
-                  level="L"
-                />
+              {/* CITIZENSHIP */}
+              <div className="absolute text-white font-bold uppercase tracking-wide drop-shadow-md whitespace-nowrap" style={{ top: '53%', left: '33%', fontSize: '14px' }}>
+                {formData.country || "INDONESIA"}
+              </div>
+
+              {/* ID NUMBER */}
+              <div className="absolute text-white font-bold tracking-widest drop-shadow-md text-right" style={{ bottom: '12%', right: '10%', fontSize: '14px' }}>
+                {formData.internationalId || previewId}
               </div>
             </div>
 
@@ -520,45 +493,30 @@ export default function MajesticMembershipPage() {
             <div id="print-card-area" className="flex flex-col gap-4 items-center print:gap-8" style={{ width: '100%', maxWidth: '384px' }}>
               
               {/* Front Card */}
-              <div id="print-card-front" className="w-full relative overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.8)] print:shadow-none border border-[#c9a84c]/40 print:border-none bg-cover bg-center" style={{ backgroundImage: 'url(/card-bg.png)', borderRadius: '16px', padding: '24px', aspectRatio: '1.586/1' }}>
-                <div className="absolute inset-0 bg-gradient-to-br from-[#1a1a2e]/60 to-[#0a0810]/80 z-0"></div>
-                <div className="absolute bg-[#c9a84c] rounded-full mix-blend-overlay filter blur-[64px] opacity-40 z-0" style={{ right: '-64px', top: '-64px', width: '192px', height: '192px' }}></div>
-                <div className="absolute bg-[#c9a84c] rounded-full mix-blend-overlay filter blur-[64px] opacity-30 z-0" style={{ left: '-64px', bottom: '-64px', width: '192px', height: '192px' }}></div>
+              <div id="print-card-front" className="w-full relative overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.8)] print:shadow-none border border-[#c9a84c]/40 print:border-none bg-cover bg-center" style={{ backgroundImage: 'url(/card-bg1.png)', borderRadius: '16px', aspectRatio: '1.586/1' }}>
+                {/* MEMBER SINCE DATE */}
+                <div className="absolute text-white font-bold tracking-widest text-right" style={{ top: '16%', right: '8%', fontSize: '12px' }}>
+                  241125
+                </div>
                 
-                <div className="absolute rounded bg-gradient-to-br from-[#e8c97a] to-[#9a7a30] opacity-90 flex items-center justify-center z-10 shadow-inner" style={{ left: '24px', top: '96px', width: '48px', height: '36px' }}>
-                  <div className="border border-black/20 rounded-sm" style={{ width: '32px', height: '20px' }}></div>
+                {/* VALID THRU DATE */}
+                <div className="absolute text-white font-bold tracking-widest text-right" style={{ top: '27%', right: '8%', fontSize: '12px' }}>
+                  241130
                 </div>
 
-                <div className="relative z-10 h-full flex flex-col justify-between">
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <h4 className="text-[#c9a84c] font-bold tracking-widest uppercase" style={{ fontFamily: 'Cinzel, serif', fontSize: '14px' }}>ASIA</h4>
-                      <p className="text-gray-400 uppercase tracking-wider max-w-[120px]" style={{ fontSize: '8px' }}>Association of Asia Pacific Academician</p>
-                    </div>
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src="/logo-apasific.png" alt="Logo" className="object-contain drop-shadow-md" style={{ width: '52px', height: '52px' }} />
-                  </div>
-
-                  <div className="mt-auto" style={{ paddingBottom: '8px' }}>
-                    <p className="text-[#c9a84c] uppercase tracking-wider" style={{ fontSize: '10px', marginBottom: '4px' }}>Anggota Resmi</p>
-                    <h2 className="font-bold text-white uppercase tracking-wide line-clamp-2 leading-snug drop-shadow-md" style={{ fontSize: '13px', minHeight: '32px', paddingRight: '12px' }}>
-                      {selectedMemberCard.full_name}
-                    </h2>
-                    <div className="flex text-gray-300" style={{ gap: '16px', marginTop: '8px' }}>
-                      <div>
-                        <p className="uppercase text-gray-500" style={{ fontSize: '8px' }}>ID Akademik</p>
-                        <p className="font-mono tracking-widest" style={{ fontSize: '12px' }}>{selectedMemberCard.international_id || selectedMemberCard.id.split('-')[0]}</p>
-                      </div>
-                      <div>
-                        <p className="uppercase text-gray-500" style={{ fontSize: '8px' }}>Tingkat</p>
-                        <p className="font-mono tracking-widest" style={{ fontSize: '12px' }}>{selectedMemberCard.academic_level}</p>
-                      </div>
-                    </div>
-                  </div>
+                {/* NAME */}
+                <div className="absolute text-white font-bold uppercase tracking-wide drop-shadow-md whitespace-nowrap" style={{ top: '44%', left: '33%', fontSize: '14px' }}>
+                  {selectedMemberCard.full_name}
                 </div>
 
-                <div className="absolute opacity-90 bg-white/10 backdrop-blur-sm border border-white/20 shadow-[0_0_10px_rgba(255,255,255,0.1)]" style={{ right: '24px', bottom: '24px', padding: '6px', borderRadius: '8px' }}>
-                  <QRCode value="https://www.apasific.org" size={36} bgColor="transparent" fgColor="#ffffff" level="L" />
+                {/* CITIZENSHIP */}
+                <div className="absolute text-white font-bold uppercase tracking-wide drop-shadow-md whitespace-nowrap" style={{ top: '53%', left: '33%', fontSize: '14px' }}>
+                  {selectedMemberCard.country}
+                </div>
+
+                {/* ID NUMBER */}
+                <div className="absolute text-white font-bold tracking-widest drop-shadow-md text-right" style={{ bottom: '12%', right: '10%', fontSize: '14px' }}>
+                  {selectedMemberCard.international_id || selectedMemberCard.id.split('-')[0]}
                 </div>
               </div>
 
