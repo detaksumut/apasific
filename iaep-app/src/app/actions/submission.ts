@@ -87,6 +87,120 @@ export async function submitManuscript(formData: FormData) {
       throw uploadError;
     }
 
+    // 3. Cross-sync to RJRAKP
+    try {
+      const rjrakpUrl = process.env.RJRAKP_SUPABASE_URL;
+      const rjrakpKey = process.env.RJRAKP_SUPABASE_SERVICE_ROLE_KEY;
+      
+      if (rjrakpUrl && rjrakpKey) {
+        const { createClient: createSupabaseClient } = require('@supabase/supabase-js');
+        const rjrakpSupabase = createSupabaseClient(rjrakpUrl, rjrakpKey);
+        
+        let richPayload: any = {};
+        try {
+          richPayload = JSON.parse(abstract);
+        } catch(e) {}
+
+        const { data: rjrakpArticle, error: rjrakpError } = await rjrakpSupabase
+          .from('articles')
+          .insert({
+            title: title,
+            abstract: richPayload.abstract_en || abstract,
+            keywords: richPayload.keywords || '',
+            status: 'submitted'
+          })
+          .select()
+          .single();
+          
+        if (rjrakpError) {
+          console.error("Failed to sync to RJRAKP DB:", rjrakpError);
+        } else if (richPayload.authors && richPayload.authors.length > 0) {
+           const authorsToInsert = richPayload.authors.map((a: any, idx: number) => ({
+             article_id: rjrakpArticle.id,
+             full_name: a.full_name,
+             email: a.email,
+             affiliation: a.affiliation,
+             country: a.country,
+             orcid: a.orcid,
+             is_corresponding: idx === 0,
+             author_order: idx + 1
+           }));
+           await rjrakpSupabase.from('article_authors').insert(authorsToInsert);
+        }
+
+        // Trigger WhatsApp Notification
+        const userPhone = user.user_metadata?.phone;
+        if (userPhone) {
+          const publicationType = richPayload.publicationType || '';
+          const isSinta = publicationType.startsWith('sinta_');
+          const pkgName = isSinta ? 'Publikasi Jurnal SINTA' : 'Jurnal Internasional';
+          
+          const waMessage = isSinta 
+            ? `Terima kasih telah melakukan submit artikel Anda melalui sistem Asia Index & Metric (Association Asia Pacific Academicians).
+
+Detail Pengajuan:
+
+Judul Artikel:
+${title}
+
+Target Indeksasi & Metrik:
+${pkgName}
+
+Fasilitas yang diperoleh:
+
+✓ Review dan standardisasi naskah
+✓ Penyuntingan berbasis metrik sitasi
+✓ Penyesuaian template jurnal mitra
+✓ Pendampingan submit artikel
+✓ Pendampingan revisi reviewer
+✓ Monitoring proses publikasi hingga terbit
+✓ Depositori dan jejak digital Zenodo
+✓ Integrasi metrik OpenAIRE (Europe Base Index)
+✓ Integrasi profil ORCID Author
+✓ Indeksasi Google Scholar
+✓ Pendampingan metadata publikasi
+
+Khusus paket publikasi SINTA, Asia Index & Metric akan melakukan pemantauan dan pengelolaan agar artikel Anda memenuhi standar kualitas publikasi pada jurnal yang terindeks SINTA sesuai kategori yang dipilih.
+
+Catatan:
+Proses evaluasi dan publikasi dilaksanakan sesuai standar kualitas ilmiah dan kebijakan jurnal mitra.
+
+Asia Index & Metric
+Association Asia Pacific Academicians
+https://apasific.org`
+            : `Terima kasih telah melakukan submit artikel Anda melalui sistem Asia Index & Metric (Association Asia Pacific Academicians).
+
+Detail Pengajuan:
+
+Judul Artikel:
+${title}
+
+Target Indeksasi & Metrik:
+Jurnal Internasional
+
+Fasilitas yang diperoleh:
+✓ Penerbitan di Jurnal Internasional mitra
+✓ Indeksasi Google Scholar & Zenodo
+✓ Integrasi profil ORCID
+✓ Indeksasi metadata OpenAIRE (Europe Base Index)
+✓ Penerbitan sertifikat dan jejak DOI
+
+Asia Index & Metric
+Association Asia Pacific Academicians
+https://apasific.org`;
+
+          await rjrakpSupabase.functions.invoke('send-wa', {
+            body: {
+              target: userPhone,
+              message: waMessage
+            }
+          });
+        }
+      }
+    } catch (crossSyncError) {
+      console.error("Cross-sync to RJRAKP failed:", crossSyncError);
+    }
+
     return { success: true, submissionId: submission.submission_id };
   } catch (error: any) {
     console.error("Submission error:", error);

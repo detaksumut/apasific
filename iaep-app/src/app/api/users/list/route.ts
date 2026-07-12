@@ -39,11 +39,17 @@ export async function GET() {
       .single();
 
     let users = [];
-    if (!error && data && data.value) {
+    let useLocalOnly = false;
+    
+    // Check if we have a locally updated file first!
+    const localUsers = getLocalUsers();
+    if (localUsers && localUsers.length > 0) {
+      users = localUsers;
+      useLocalOnly = true;
+    } else if (!error && data && data.value) {
       users = Array.isArray(data.value) ? data.value : JSON.parse(data.value as string);
     } else {
-      // Fallback to local file if Supabase fails (e.g. RLS or missing service key)
-      users = getLocalUsers();
+      users = localUsers;
     }
 
     // Merge new reviewers data from file
@@ -92,15 +98,43 @@ export async function GET() {
         .single();
   
       let users = [];
-      let useLocal = false;
+      let useLocalOnly = false;
       
-      if (!error && data && data.value) {
+      const localUsers = getLocalUsers();
+      if (localUsers && localUsers.length > 0) {
+        users = localUsers;
+        useLocalOnly = true;
+      } else if (!error && data && data.value) {
         users = Array.isArray(data.value) ? data.value : JSON.parse(data.value as string);
       } else {
-        users = getLocalUsers();
-        useLocal = true;
+        users = localUsers;
       }
-  
+
+      // Merge new reviewers data from file before updating
+      try {
+        const reviewersFile = path.join(process.cwd(), 'src/app/api/users/list/reviewers_data.json');
+        if (fs.existsSync(reviewersFile)) {
+          const reviewersData = JSON.parse(fs.readFileSync(reviewersFile, 'utf8'));
+          for (let newR of reviewersData) {
+            const exists = users.find((u: any) => u.email.toLowerCase() === newR.email.toLowerCase());
+            if (!exists) {
+              users.push({
+                id: `demo-user-${Date.now()}-${Math.random()}`,
+                full_name: newR.full_name,
+                email: newR.email,
+                role: newR.role,
+                journal: "APASIFIC IAEP",
+                university: newR.university,
+                country: newR.country,
+                status: newR.status,
+                joined: newR.date,
+                password: "ReviewerPassword123!"
+              });
+            }
+          }
+        }
+      } catch (err) {}
+
       if (action === "edit" && editData) {
         users = users.map((u: any) => u.id === editData.id ? { 
           ...u, 
@@ -130,7 +164,7 @@ export async function GET() {
       .from('system_settings')
       .upsert({ key: 'registered_users', value: JSON.stringify(users) });
 
-    if (upsertError || useLocal) {
+    if (upsertError || useLocalOnly) {
       saveLocalUsers(users);
     }
 

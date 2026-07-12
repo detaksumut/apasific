@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 
 export default function UserManagement() {
   const [users, setUsers] = useState<any[]>([]);
+  const [activeTab, setActiveTab] = useState('All');
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -122,7 +123,35 @@ export default function UserManagement() {
         </div>
       </div>
 
-      <div className="bg-[#18182e] rounded-2xl shadow-xl border border-gray-800 overflow-hidden">
+      {/* TABS FOR FILTERING */}
+      <div className="flex gap-4 border-b border-gray-800 pb-0">
+        <button 
+          onClick={() => setActiveTab('All')}
+          className={`px-4 py-3 font-bold transition-colors ${activeTab === 'All' ? 'text-[#c9a84c] border-b-2 border-[#c9a84c]' : 'text-gray-400 hover:text-white border-b-2 border-transparent'}`}
+        >
+          All Users
+        </button>
+        <button 
+          onClick={() => setActiveTab('Reviewer')}
+          className={`px-4 py-3 font-bold transition-colors ${activeTab === 'Reviewer' ? 'text-[#c9a84c] border-b-2 border-[#c9a84c]' : 'text-gray-400 hover:text-white border-b-2 border-transparent'}`}
+        >
+          Reviewers
+        </button>
+        <button 
+          onClick={() => setActiveTab('Author')}
+          className={`px-4 py-3 font-bold transition-colors ${activeTab === 'Author' ? 'text-[#c9a84c] border-b-2 border-[#c9a84c]' : 'text-gray-400 hover:text-white border-b-2 border-transparent'}`}
+        >
+          Authors
+        </button>
+        <button 
+          onClick={() => setActiveTab('Editor')}
+          className={`px-4 py-3 font-bold transition-colors ${activeTab === 'Editor' ? 'text-[#c9a84c] border-b-2 border-[#c9a84c]' : 'text-gray-400 hover:text-white border-b-2 border-transparent'}`}
+        >
+          Editors & Admins
+        </button>
+      </div>
+
+      <div className="bg-[#18182e] rounded-2xl shadow-xl border border-gray-800 overflow-hidden mt-4">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
@@ -135,7 +164,11 @@ export default function UserManagement() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-800">
-              {users.map((user) => (
+              {users.filter(u => {
+                if (activeTab === 'All') return true;
+                if (activeTab === 'Editor') return u.role.toLowerCase() === 'editor' || u.role.toLowerCase() === 'admin';
+                return u.role.toLowerCase() === activeTab.toLowerCase();
+              }).map((user) => (
                 <tr key={user.id} className="hover:bg-[#1a1a2e] transition-colors">
                   <td className="p-5">
                     <div className="flex items-center space-x-3">

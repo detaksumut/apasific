@@ -32,7 +32,7 @@ const JOURNALS = [
   {
     id: '3',
     name: 'Jurnal Ekonomi dan Bisnis',
-    scopes: ['Manajemen Bisnis', 'Akuntansi', 'Ilmu Ekonomi', 'Keuangan', 'Ekonomi Syariah', 'Pemasaran', 'Ekonomi Internasional', 'Ekonomi Regional', 'Keuangan dan Perbankan']
+    scopes: ['Manajemen Bisnis', 'Akuntansi', 'Akuntansi Syariah', 'Ilmu Ekonomi', 'Keuangan', 'Ekonomi Syariah', 'Pemasaran', 'Ekonomi Internasional', 'Ekonomi Regional', 'Keuangan dan Perbankan']
   },
   {
     id: '4',
