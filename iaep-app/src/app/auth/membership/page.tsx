@@ -576,88 +576,69 @@ export default function MajesticMembershipPage() {
             <div id="print-card-area" className="flex flex-col gap-4 items-center print:gap-8" style={{ width: '100%', maxWidth: '384px' }}>
               
               {/* Front Card */}
-              <div id="print-card-front" className="w-full relative overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.8)] print:shadow-none border border-[#c9a84c]/40 print:border-none bg-cover bg-center" style={{ backgroundImage: 'url(/card-bg1.png)', borderRadius: '16px', aspectRatio: '1.586/1' }}>
+              <div id="print-card-front" className="w-full relative overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.8)] print:shadow-none border border-[#c9a84c]/40 print:border-none bg-cover bg-center" style={{ backgroundImage: 'url(/cardmember.png)', borderRadius: '16px', aspectRatio: '1.586/1' }}>
                 
-                {/* Logo and Title */}
-                <div className="absolute flex items-center gap-3" style={{ top: '6%', left: '4%' }}>
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src="/logo-apasific.png" alt="Logo" className="object-contain" style={{ width: '42px', height: '42px' }} />
-                  <div className="flex flex-col justify-center">
-                    <span className="text-white font-serif uppercase tracking-wider" style={{ fontSize: '11px', lineHeight: '1.2' }}>ASSOCIATION OF ASIA PACIFIC</span>
-                    <span className="text-white font-serif uppercase tracking-wider" style={{ fontSize: '11px', lineHeight: '1.2' }}>ACADEMICIAN</span>
-                  </div>
-                </div>
-
                 {/* DATES */}
-                <div className="absolute flex flex-col gap-2 text-white font-bold text-right drop-shadow-md" style={{ top: '8%', right: '5%', fontSize: '10px' }}>
-                  <div className="flex items-center justify-between gap-4 w-28">
+                <div className="absolute flex flex-col gap-1 text-white font-bold text-right drop-shadow-md" style={{ top: '8%', right: '5%', fontSize: '8px' }}>
+                  <div className="flex items-center justify-between gap-3 w-24">
                     <span className="uppercase text-left leading-tight tracking-widest">MEMBER<br/>SINCE</span>
-                    <span className="text-sm">241125</span>
+                    <span style={{ fontSize: '10px' }}>241125</span>
                   </div>
-                  <div className="flex items-center justify-between gap-4 w-28">
+                  <div className="flex items-center justify-between gap-3 w-24">
                     <span className="uppercase text-left leading-tight tracking-widest">VALID<br/>THRU</span>
-                    <span className="text-sm">241130</span>
+                    <span style={{ fontSize: '10px' }}>241130</span>
                   </div>
                 </div>
 
                 {/* NAME & CITIZENSHIP */}
-                <div className="absolute flex flex-col gap-1 text-white font-bold uppercase drop-shadow-md tracking-wider whitespace-nowrap" style={{ top: '45%', left: '8%', fontSize: '13px' }}>
-                  <div className="flex">
-                    <div className="w-28">NAME</div>
+                <div className="absolute flex flex-col gap-1 text-white font-bold uppercase drop-shadow-md tracking-wider whitespace-nowrap" style={{ top: '45%', left: '8%', fontSize: '11px' }}>
+                  <div className="flex items-center">
+                    <div className="w-24">NAME</div>
                     <div className="mr-2">:</div>
-                    <div>{selectedMemberCard.full_name}</div>
+                    <div>{selectedMemberCard.full_name || "NAMA ANDA DI SINI"}</div>
                   </div>
-                  <div className="flex">
-                    <div className="w-28">CITIZENSHIP</div>
+                  <div className="flex items-center">
+                    <div className="w-24">CITIZENSHIP</div>
                     <div className="mr-2">:</div>
-                    <div>{selectedMemberCard.country}</div>
+                    <div>{selectedMemberCard.country || "INDONESIA"}</div>
                   </div>
                 </div>
 
                 {/* ID NUMBER */}
-                <div className="absolute text-white font-bold tracking-widest drop-shadow-md text-right" style={{ bottom: '8%', right: '5%', fontSize: '14px' }}>
+                <div className="absolute text-white font-bold tracking-widest drop-shadow-md text-right" style={{ bottom: '8%', right: '5%', fontSize: '12px' }}>
                   ID. {selectedMemberCard.international_id || "0000001"}
                 </div>
               </div>
 
               {/* Back Card */}
-              <div id="print-card-back" className="w-full relative overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.8)] print:shadow-none border border-[#c9a84c]/40 print:border-none bg-cover bg-center" style={{ backgroundImage: 'url(/card-bg.png)', borderRadius: '16px', padding: '20px', aspectRatio: '1.586/1' }}>
-                 <div className="absolute inset-0 bg-[#05050a]/95 z-0"></div>
-                 <div className="relative z-10 h-full flex flex-col justify-between">
-                    <div>
-                      <h4 className="text-[#c9a84c] font-bold tracking-widest uppercase mb-2 border-b border-[#c9a84c]/30 pb-1" style={{ fontSize: '11px' }}>Terms &amp; Conditions</h4>
-                      <ol className="text-gray-300 list-decimal pl-3 space-y-1 font-serif" style={{ fontSize: '8px', lineHeight: '1.4' }}>
-                        <li>Kartu ini diterbitkan oleh Association of Asia Pacific Academician (ASIA) dan tidak dapat dipindahtangankan.</li>
-                        <li>Pemegang kartu ini adalah anggota resmi yang terikat dengan kode etik akademik, visi, dan misi ASIA.</li>
-                        <li>Kartu ini sah digunakan sebagai tanda pengenal eksklusif untuk mengakses layanan, fasilitas, dan jurnal ASIA.</li>
-                        <li>Jika kartu ini hilang atau disalahgunakan, harap segera melaporkan ke sekretariat ASIA di <span className="text-[#c9a84c]">info@apasific.org</span>.</li>
-                      </ol>
-                    </div>
-                    <div className="flex justify-between items-end w-full px-2 mt-auto relative">
-                      {/* Stamp Logo */}
-                      <div className="absolute left-1/2 bottom-[20px] pointer-events-none opacity-80 z-0 flex items-center justify-center mix-blend-screen" style={{ width: '80px', height: '80px', transform: 'translateX(-50%) rotate(-15deg)' }}>
-                        <img src="/logo-apasific.png" alt="Stamp" className="w-full h-full object-contain" style={{ filter: 'grayscale(100%) sepia(100%) hue-rotate(230deg) saturate(300%) brightness(1.2) contrast(1.5)' }} />
-                      </div>
+              <div id="print-card-back" className="w-full relative overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.8)] print:shadow-none border border-[#c9a84c]/40 print:border-none bg-cover bg-center" style={{ backgroundImage: 'url(/cardmember.png)', borderRadius: '16px', aspectRatio: '1.586/1' }}>
+                {/* Magnetic Stripe */}
+                <div className="absolute w-full bg-[#1c1c1c] shadow-lg" style={{ top: '24%', height: '18%' }}></div>
+                
+                {/* Text Information (Perfectly Aligned) */}
+                <div className="absolute flex flex-col gap-[4px] text-white font-bold uppercase drop-shadow-md tracking-wider whitespace-nowrap" style={{ top: '46%', left: '6%', fontSize: '9px' }}>
+                  <div className="flex items-center">
+                    <div className="w-[75px] text-left">NAME</div>
+                    <div className="mr-1">:</div>
+                    <div>{selectedMemberCard.full_name || "ARFAN IKHSAN LUBIS"}</div>
+                  </div>
+                  <div className="flex items-center">
+                    <div className="w-[75px] text-left">CITIZENSHIP</div>
+                    <div className="mr-1">:</div>
+                    <div>{selectedMemberCard.country || "INDONESIA"}</div>
+                  </div>
+                  <div className="flex items-center">
+                    <div className="w-[75px] text-left">VALID THRU</div>
+                    <div className="mr-1">:</div>
+                    <div>241130</div>
+                  </div>
+                </div>
 
-                      <div className="text-center w-[160px] relative z-10">
-                         <div style={{ minHeight: '36px' }} className="flex items-end justify-center pb-1">
-                           <span className="text-white font-bold leading-tight" style={{ fontSize: '7px', fontFamily: 'Arial, sans-serif' }}>DR. ARFAN IKHSAN LUBIS., SE., M.Si., CATr</span>
-                         </div>
-                         <div className="border-t border-[#c9a84c] pt-1 mt-1">
-                           <p className="text-[#c9a84c] font-bold uppercase tracking-wider" style={{ fontSize: '7px', fontFamily: 'Arial, sans-serif' }}>President of ASIA</p>
-                         </div>
-                      </div>
-                      
-                      <div className="text-center w-[160px]">
-                         <div style={{ minHeight: '36px' }} className="flex items-end justify-center pb-1">
-                           <span className="text-white font-bold leading-tight" style={{ fontSize: '8px', fontFamily: 'Arial, sans-serif' }}>Dr. Ngatimin, M.Si</span>
-                         </div>
-                         <div className="border-t border-[#c9a84c] pt-1 mt-1">
-                           <p className="text-[#c9a84c] font-bold uppercase tracking-wider" style={{ fontSize: '7px', fontFamily: 'Arial, sans-serif' }}>General Secretary</p>
-                         </div>
-                      </div>
-                    </div>
-                 </div>
+                {/* QR Code */}
+                <div className="absolute bg-white p-1 rounded-md shadow-xl flex items-center justify-center" style={{ bottom: '10%', right: '4%', width: '16%', aspectRatio: '1/1' }}>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=ApasificMember_${selectedMemberCard.international_id || '0000001'}`} alt="QR Code" className="w-full h-full object-contain" />
+                </div>
               </div>
 
             </div>
