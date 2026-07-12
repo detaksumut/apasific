@@ -388,16 +388,6 @@ export default function MajesticMembershipPage() {
                   className="absolute inset-0 w-full h-full overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.8)] border border-white/20 bg-cover bg-center"
                   style={{ backgroundImage: 'url(/cardmember.png)', borderRadius: '16px', backfaceVisibility: 'hidden' }}
                 >
-                  {/* Logo and Title */}
-                  <div className="absolute flex items-center gap-2" style={{ top: '6%', left: '4%' }}>
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src="/logo-apasific.png" alt="Logo" className="object-contain" style={{ width: '36px', height: '36px' }} />
-                    <div className="flex flex-col justify-center">
-                      <span className="text-white font-serif uppercase tracking-wider" style={{ fontSize: '9px', lineHeight: '1.2' }}>ASSOCIATION OF ASIA PACIFIC</span>
-                      <span className="text-white font-serif uppercase tracking-wider" style={{ fontSize: '9px', lineHeight: '1.2' }}>ACADEMICIAN</span>
-                    </div>
-                  </div>
-
                   {/* DATES */}
                   <div className="absolute flex flex-col gap-1 text-white font-bold text-right drop-shadow-md" style={{ top: '8%', right: '5%', fontSize: '8px' }}>
                     <div className="flex items-center justify-between gap-3 w-24">
