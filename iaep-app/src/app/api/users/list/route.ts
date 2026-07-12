@@ -46,6 +46,34 @@ export async function GET() {
       users = getLocalUsers();
     }
 
+    // Merge new reviewers data from file
+    try {
+      const reviewersFile = path.join(process.cwd(), 'src/app/api/users/list/reviewers_data.json');
+      if (fs.existsSync(reviewersFile)) {
+        const reviewersData = JSON.parse(fs.readFileSync(reviewersFile, 'utf8'));
+        
+        for (let newR of reviewersData) {
+          const exists = users.find((u: any) => u.email.toLowerCase() === newR.email.toLowerCase());
+          if (!exists) {
+            users.push({
+              id: `demo-user-${Date.now()}-${Math.random()}`,
+              full_name: newR.full_name,
+              email: newR.email,
+              role: newR.role,
+              journal: "APASIFIC IAEP",
+              university: newR.university,
+              country: newR.country,
+              status: newR.status,
+              joined: newR.date,
+              password: "ReviewerPassword123!"
+            });
+          }
+        }
+      }
+    } catch (err) {
+      console.error("Error merging reviewers data", err);
+    }
+
     return NextResponse.json({ success: true, users });
   } catch (error: any) {
     return NextResponse.json({ success: true, users: getLocalUsers() }); 
