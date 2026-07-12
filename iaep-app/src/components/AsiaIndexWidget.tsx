@@ -28,7 +28,7 @@ function AsiaSearch() {
             ⭐ ASIA Index — Pengindeks Resmi APASIFIC
           </h4>
           <p style={{ color: '#b0b8d0', fontSize: '0.78rem', margin: '3px 0 0' }}>
-            Cari artikel ilmiah terverifikasi · Scopus · Zenodo · ORCID · Crossref
+            Cari artikel ilmiah terverifikasi · Scopus · Zenodo · DataCite · ORCID · Crossref
           </p>
         </div>
         <span style={{

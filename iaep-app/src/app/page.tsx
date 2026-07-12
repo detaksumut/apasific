@@ -1,5 +1,4 @@
 import OrgStructure from "@/components/OrgStructure";
-import AsiaIndexWidget from "@/components/AsiaIndexWidget";
 
 export default function Home() {
   return (
@@ -12,7 +11,7 @@ export default function Home() {
   <section class="hero" id="home" style="height: auto !important; min-height: unset !important;">
     <!-- Full-width background image — width 100% to touch left and right edges -->
     <div class="hero-bg-image" style="height: auto; width: 100%; overflow: hidden; margin-top: -15px;">
-      <img src="/banner-apasific.png" alt="ASIA – Association of Asia Pacific Academician" id="hero-bg-img" style="width: 100%; height: auto; object-fit: contain; object-position: top center; display: block;" />
+      <img src="http://localhost:5173/banner-apasific.png" alt="ASIA – Association of Asia Pacific Academician" id="hero-bg-img" style="width: 100%; height: auto; object-fit: contain; object-position: top center; display: block;" />
     </div>
 
     <!-- Logo overlay: di sebelah kanan teks ASSOCIATION di banner -->
@@ -145,9 +144,6 @@ export default function Home() {
 
         <!-- Database Status Grid -->
         <div class="db-status-grid" data-aos="fade-up">
-
-          <!-- ASIA Index placeholder - widget injected via React below -->
-          <div id="asia-index-widget-slot" style="grid-column: 1 / -1; margin-bottom: 8px;"></div>
 
           <div class="db-status-card">
             <div class="db-icon-wrap gs-color">
@@ -769,7 +765,6 @@ export default function Home() {
        FOOTER
   ═══════════════════════════════════════════ -->
   ` }} />
-      <AsiaIndexWidget />
     </>
   );
 }
