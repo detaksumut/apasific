@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import Link from 'react-link';
+import Link from 'next/link';
 import { createClient } from '@/utils/supabase/client';
 import { Printer, Plus, FileText, CheckCircle } from 'lucide-react';
 
