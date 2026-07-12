@@ -39,6 +39,11 @@ export default function MajesticMembershipPage() {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      if (file.size > 1.5 * 1024 * 1024) {
+        alert("Ukuran file foto/bukti transfer terlalu besar! Maksimal 1.5MB. Silakan kompres foto Anda terlebih dahulu.");
+        e.target.value = '';
+        return;
+      }
       const reader = new FileReader();
       reader.onloadend = () => {
         setBuktiTransfer(reader.result as string);
@@ -142,10 +147,18 @@ export default function MajesticMembershipPage() {
         body: JSON.stringify(payload),
       });
 
-      const result = await res.json();
+      let result;
+      try {
+        result = await res.json();
+      } catch (jsonErr) {
+        if (res.status === 413) {
+          throw new Error("Ukuran file bukti transfer terlalu besar. Mohon kompres file Anda.");
+        }
+        throw new Error("Terjadi kesalahan sistem (Server Error). Silakan coba beberapa saat lagi.");
+      }
 
       if (!res.ok) {
-        throw new Error(result.error || "Gagal mendaftar");
+        throw new Error(result?.error || "Gagal mendaftar");
       }
 
       const textMessage = `New Member\nNama: ${formData.fullName}\nEmail: ${formData.email}\nNo. HP: ${formData.phone}\nAsal Negara: ${formData.country}\nInstitusi: ${formData.university}\nTingkat: ${formData.academicLevel}\n\nMohon verifikasi pendaftaran saya.\n*(Harap lampirkan foto/file bukti transfer Anda di chat ini)*`;
