@@ -52,9 +52,9 @@ export default function Profile() {
           <form onSubmit={handleBankSubmit} style={{ padding: '2rem' }}>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1.5rem', marginBottom: '2rem' }}>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                <label className="block text-sm font-medium text-gray-400">Nama Bank <span className="text-red-500">*</span></label>
+                <label className="block text-sm font-medium text-gray-400">Nama Bank <span className="text-gray-600 font-normal">(Opsional)</span></label>
                 <input 
-                  type="text" required
+                  type="text"
                   value={bankData.bankName}
                   onChange={(e) => setBankData({...bankData, bankName: e.target.value})}
                   className="w-full bg-[#0a0a14] border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-[#c9a84c] transition-colors" 
@@ -62,9 +62,9 @@ export default function Profile() {
                 />
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                <label className="block text-sm font-medium text-gray-400">Nomor Rekening <span className="text-red-500">*</span></label>
+                <label className="block text-sm font-medium text-gray-400">Nomor Rekening <span className="text-gray-600 font-normal">(Opsional)</span></label>
                 <input 
-                  type="text" required
+                  type="text"
                   value={bankData.accountNumber}
                   onChange={(e) => setBankData({...bankData, accountNumber: e.target.value})}
                   className="w-full bg-[#0a0a14] border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-[#c9a84c] transition-colors" 
@@ -72,9 +72,9 @@ export default function Profile() {
                 />
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                <label className="block text-sm font-medium text-gray-400">Nama Pemilik Rekening <span className="text-gray-600 font-normal">(Sesuai Buku Tabungan)</span> <span className="text-red-500">*</span></label>
+                <label className="block text-sm font-medium text-gray-400">Nama Pemilik Rekening <span className="text-gray-600 font-normal">(Sesuai Buku Tabungan - Opsional)</span></label>
                 <input 
-                  type="text" required
+                  type="text"
                   value={bankData.accountName}
                   onChange={(e) => setBankData({...bankData, accountName: e.target.value})}
                   className="w-full bg-[#0a0a14] border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-[#c9a84c] transition-colors" 
@@ -95,7 +95,7 @@ export default function Profile() {
 
             <div style={{ marginBottom: '2rem', padding: '1.25rem', backgroundColor: '#18182e', border: '1px solid #1f2937', borderRadius: '0.75rem' }}>
               <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem', fontSize: '0.875rem', fontWeight: 500, color: '#9ca3af' }}>
-                Apakah Anda memiliki Rujukan Mitra? <span className="text-red-500">*</span>
+                Apakah Anda memiliki Rujukan Mitra? <span className="text-gray-600 font-normal">(Opsional)</span>
                 <div className="group relative cursor-help">
                   <HelpCircle className="w-4 h-4 text-gray-500" />
                   <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-64 p-3 bg-gray-900 text-xs text-gray-300 rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-10 pointer-events-none border border-gray-700">

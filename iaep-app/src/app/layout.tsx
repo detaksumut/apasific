@@ -2,8 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import "./landing.css";
 import Script from "next/script";
-
-
+import LiveChatWidget from "@/components/LiveChatWidget";
 export const metadata: Metadata = {
   title: "ASIA – Association of Asia Pacific Academician",
   description: "Uniting scholars, researchers, and professionals across Asia Pacific.",
@@ -303,7 +302,6 @@ export default function RootLayout({
             <p class="footer-desc">Menyatukan para cendekiawan, peneliti, dan profesional di seluruh Asia Pasifik untuk memajukan pengetahuan, mendorong kolaborasi, dan membentuk masa depan yang lebih baik.</p>
             <p class="footer-motto">✦ Keunggulan, Kompeten, dan Berdedikasi adalah Tradisi Kami ✦</p>
             <div class="footer-contact" style="margin-top: 24px;">
-              <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 8px; line-height: 1.6;"><strong>Alamat:</strong> Jalan Perjuangan No. 80 B, Kelurahan Sei Kera Hilir, Kec. Medan Perjuangan, Medan – Sumatera Utara, Indonesia</p>
               <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 8px;"><strong>Email:</strong> <a href="mailto:admin@apasific.org" style="color: var(--gold); transition: color var(--transition);">admin@apasific.org</a></p>
               <p style="font-size: 12px; color: var(--text-muted);"><strong>Phone / WA:</strong> <a href="https://wa.me/6281370062009" target="_blank" style="color: var(--gold); transition: color var(--transition);">+62 813-7006-2009</a></p>
             </div>
@@ -341,6 +339,30 @@ export default function RootLayout({
             </ul>
           </div>
         </div>
+        
+        <div class="footer-addresses-wide" style="margin-top: 50px; padding-top: 30px; border-top: 1px solid rgba(255, 255, 255, 0.1); display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 32px;">
+          <div>
+            <p style="font-size: 12px; color: var(--gold); font-weight: bold; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid rgba(255, 255, 255, 0.1);">Kantor Pusat & Perwakilan Dalam Negeri (Indonesia)</p>
+            <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 16px;"><strong>Akta Pendirian ASIA Kemenkumham No. C-1615.Ht.03.01-Th.2022</strong></p>
+            <ul style="padding-left: 0; list-style: none; font-size: 12px; color: var(--text-muted); line-height: 1.6;">
+              <li style="margin-bottom: 8px;"><strong>1. Medan (Pusat):</strong> TOWER ASIA, Jl. Perjuangan No. 80 B, Kel. Sei Kera Hilir, Kec. Medan Perjuangan, Medan – Sumatera Utara 20222</li>
+              <li style="margin-bottom: 8px;"><strong>2. Jakarta Raya:</strong><br/>- Jl. Raya Pondok Cabe Blok B.5 No. 6 KAV.77, Pondok Cabe Udik, Pamulang, Tangerang Selatan, Banten.<br/>- Jl. Duta Harapan VI, Blok AF 14 No. 2, RT 04/RW 10, Kel. Harapan Baru, Kec. Bekasi Utara, Kota Bekasi, Jawa Barat.</li>
+              <li style="margin-bottom: 8px;"><strong>3. Jawa Timur:</strong> Jl. Ranu Klakah No. 432, Klakah, Kab. Lumajang, Jatim.</li>
+              <li style="margin-bottom: 8px;"><strong>4. Papua:</strong> Jl. Dr. Sam Ratulangi No. 11. Trikora, Kec. Jayapura Utara, Kota Jayapura, Papua 9913.</li>
+            </ul>
+          </div>
+          <div>
+            <p style="font-size: 12px; color: var(--gold); font-weight: bold; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid rgba(255, 255, 255, 0.1);">Perwakilan Luar Negeri</p>
+            <ul style="padding-left: 0; list-style: none; font-size: 12px; color: var(--text-muted); line-height: 1.6;">
+              <li style="margin-bottom: 8px;"><strong>New Zealand:</strong> 230 Lowes Road Rolleston 7614 Canterbury, New Zealand.</li>
+              <li style="margin-bottom: 8px;"><strong>Malaysia:</strong> Dt2972 Jalan Kenari Jaya Utama, Taman Kenari Jaya, 76100 Durian Tunggal, Melaka.</li>
+              <li style="margin-bottom: 8px;"><strong>Thailand:</strong> TGBC 99553 8 Srinagarindra Rd, Bang Muaeng Mai, Muaeng, Samut Prakan District, Samut Prakan 10270, Thailand.</li>
+              <li style="margin-bottom: 8px;"><strong>Pakistan:</strong> Directorate General Commerce Education and Management Sciences, Rano Ghari, Chamkani Mor, Peshawar, Pakistan.</li>
+              <li style="margin-bottom: 8px;"><strong>Sri Lanka:</strong> Kirankulam- Centre, Kirankulam, Batticaloa, Sri Lanka.</li>
+            </ul>
+            <p style="margin-top: 16px; font-size: 12px; font-style: italic; color: #a1a1aa;">Standar Publikasi Internasional: Elsevier & Thomson Reuters</p>
+          </div>
+        </div>
       </div>
     </div>
     <div class="footer-bottom">
@@ -354,6 +376,7 @@ export default function RootLayout({
       </div>
     </div>
   </footer>` }} />
+        <LiveChatWidget />
         <Script src="/main.js" strategy="afterInteractive" />
       </body>
     </html>
