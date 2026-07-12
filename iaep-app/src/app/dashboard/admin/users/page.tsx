@@ -5,6 +5,8 @@ import { useState, useEffect } from "react";
 export default function UserManagement() {
   const [users, setUsers] = useState<any[]>([]);
   const [activeTab, setActiveTab] = useState('All');
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -126,25 +128,25 @@ export default function UserManagement() {
       {/* TABS FOR FILTERING */}
       <div className="flex gap-4 border-b border-gray-800 pb-0">
         <button 
-          onClick={() => setActiveTab('All')}
+          onClick={() => { setActiveTab('All'); setCurrentPage(1); }}
           className={`px-4 py-3 font-bold transition-colors ${activeTab === 'All' ? 'text-[#c9a84c] border-b-2 border-[#c9a84c]' : 'text-gray-400 hover:text-white border-b-2 border-transparent'}`}
         >
           All Users
         </button>
         <button 
-          onClick={() => setActiveTab('Reviewer')}
+          onClick={() => { setActiveTab('Reviewer'); setCurrentPage(1); }}
           className={`px-4 py-3 font-bold transition-colors ${activeTab === 'Reviewer' ? 'text-[#c9a84c] border-b-2 border-[#c9a84c]' : 'text-gray-400 hover:text-white border-b-2 border-transparent'}`}
         >
           Reviewers
         </button>
         <button 
-          onClick={() => setActiveTab('Author')}
+          onClick={() => { setActiveTab('Author'); setCurrentPage(1); }}
           className={`px-4 py-3 font-bold transition-colors ${activeTab === 'Author' ? 'text-[#c9a84c] border-b-2 border-[#c9a84c]' : 'text-gray-400 hover:text-white border-b-2 border-transparent'}`}
         >
           Authors
         </button>
         <button 
-          onClick={() => setActiveTab('Editor')}
+          onClick={() => { setActiveTab('Editor'); setCurrentPage(1); }}
           className={`px-4 py-3 font-bold transition-colors ${activeTab === 'Editor' ? 'text-[#c9a84c] border-b-2 border-[#c9a84c]' : 'text-gray-400 hover:text-white border-b-2 border-transparent'}`}
         >
           Editors & Admins
@@ -164,11 +166,17 @@ export default function UserManagement() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-800">
-              {users.filter(u => {
-                if (activeTab === 'All') return true;
-                if (activeTab === 'Editor') return u.role.toLowerCase() === 'editor' || u.role.toLowerCase() === 'admin';
-                return u.role.toLowerCase() === activeTab.toLowerCase();
-              }).map((user) => (
+              {(() => {
+                const filteredUsers = users.filter(u => {
+                  if (activeTab === 'All') return true;
+                  if (activeTab === 'Editor') return u.role.toLowerCase() === 'editor' || u.role.toLowerCase() === 'admin';
+                  return u.role.toLowerCase() === activeTab.toLowerCase();
+                });
+                
+                const totalPages = Math.ceil(filteredUsers.length / itemsPerPage) || 1;
+                const paginatedUsers = filteredUsers.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+
+                return paginatedUsers.map((user) => (
                 <tr key={user.id} className="hover:bg-[#1a1a2e] transition-colors">
                   <td className="p-5">
                     <div className="flex items-center space-x-3">
@@ -231,10 +239,59 @@ export default function UserManagement() {
                     </button>
                   </td>
                 </tr>
-              ))}
+                ));
+              })()}
             </tbody>
           </table>
         </div>
+        
+        {/* Pagination Controls */}
+        {users.length > 0 && (
+          <div className="px-5 py-4 border-t border-gray-800 bg-[#111120] flex items-center justify-between">
+            {(() => {
+              const filteredUsers = users.filter(u => {
+                if (activeTab === 'All') return true;
+                if (activeTab === 'Editor') return u.role.toLowerCase() === 'editor' || u.role.toLowerCase() === 'admin';
+                return u.role.toLowerCase() === activeTab.toLowerCase();
+              });
+              const totalPages = Math.ceil(filteredUsers.length / itemsPerPage) || 1;
+              return (
+                <>
+                  <span className="text-sm text-gray-400">
+                    Showing <span className="font-bold text-white">{(currentPage - 1) * itemsPerPage + 1}</span> - <span className="font-bold text-white">{Math.min(currentPage * itemsPerPage, filteredUsers.length)}</span> of <span className="font-bold text-white">{filteredUsers.length}</span> users
+                  </span>
+                  <div className="flex gap-2">
+                    <button 
+                      onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                      disabled={currentPage === 1}
+                      className="px-3 py-1.5 text-sm font-bold bg-[#18182e] border border-gray-700 text-white rounded hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    >
+                      Previous
+                    </button>
+                    <div className="flex items-center gap-1">
+                      {Array.from({ length: totalPages }).map((_, i) => (
+                        <button
+                          key={i}
+                          onClick={() => setCurrentPage(i + 1)}
+                          className={`w-8 h-8 flex items-center justify-center text-sm font-bold rounded border transition-colors ${currentPage === i + 1 ? 'bg-[#c9a84c] text-black border-[#c9a84c]' : 'bg-[#18182e] text-gray-400 border-gray-700 hover:bg-gray-800 hover:text-white'}`}
+                        >
+                          {i + 1}
+                        </button>
+                      ))}
+                    </div>
+                    <button 
+                      onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                      disabled={currentPage === totalPages}
+                      className="px-3 py-1.5 text-sm font-bold bg-[#18182e] border border-gray-700 text-white rounded hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    >
+                      Next
+                    </button>
+                  </div>
+                </>
+              );
+            })()}
+          </div>
+        )}
       </div>
 
       {/* INVITE MODAL */}

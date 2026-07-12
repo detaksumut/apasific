@@ -134,6 +134,29 @@ export async function loginUser(email: string, password?: string): Promise<{ suc
       }
     }
 
+    // Merge bulk reviewers so they can log in!
+    try {
+      const reviewersFile = path.join(process.cwd(), 'src/app/api/users/list/reviewers_data.json');
+      if (fs.existsSync(reviewersFile)) {
+        const reviewersData = JSON.parse(fs.readFileSync(reviewersFile, 'utf8'));
+        for (let newR of reviewersData) {
+          const exists = existingUsers.find((u: any) => u.email.toLowerCase() === newR.email.toLowerCase());
+          if (!exists) {
+            existingUsers.push({
+              id: `reviewer-${newR.email}`,
+              full_name: newR.full_name,
+              email: newR.email,
+              role: newR.role || 'reviewer',
+              status: newR.status || 'Active',
+              password: 'ReviewerPassword123!'
+            });
+          }
+        }
+      }
+    } catch(err) {
+      console.error("Failed to load reviewers for login", err);
+    }
+
     const matchedUser = existingUsers.find((u: any) => u.email.toLowerCase().trim() === emailLower);
     
     if (matchedUser) {

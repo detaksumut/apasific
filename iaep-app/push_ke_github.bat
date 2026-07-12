@@ -8,7 +8,7 @@ git add .
 
 echo.
 echo Membuat commit...
-git commit -m "update: input journal structure and certificate structure data"
+git commit -m "feat: add pagination to user management dashboard and reviewers sync tools"
 
 echo.
 echo Mengirim ke GitHub (push)...
