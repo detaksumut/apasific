@@ -425,35 +425,30 @@ export default function MajesticMembershipPage() {
                   className="absolute inset-0 w-full h-full overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.8)] border border-white/20 bg-cover bg-center"
                   style={{ backgroundImage: 'url(/cardmember.png)', borderRadius: '16px', backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}
                 >
-                  {/* BIG ASIA WATERMARK (Background of back side) */}
-                  <div className="absolute text-white font-extrabold tracking-tighter opacity-80" style={{ bottom: '-5%', left: '4%', fontSize: '64px', lineHeight: '1', textShadow: '2px 2px 4px rgba(0,0,0,0.5)' }}>
-                    ASIA
-                  </div>
-
                   {/* Magnetic Stripe */}
                   <div className="absolute w-full bg-[#1c1c1c] shadow-lg" style={{ top: '24%', height: '18%' }}></div>
                   
                   {/* Text Information (Perfectly Aligned) */}
-                  <div className="absolute flex flex-col gap-[4px] text-white font-bold uppercase drop-shadow-md tracking-wider whitespace-nowrap" style={{ top: '46%', left: '6%', fontSize: '10px' }}>
+                  <div className="absolute flex flex-col gap-[4px] text-white font-bold uppercase drop-shadow-md tracking-wider whitespace-nowrap" style={{ top: '46%', left: '6%', fontSize: '9px' }}>
                     <div className="flex items-center">
-                      <div className="w-[90px] text-left">NAME</div>
+                      <div className="w-[75px] text-left">NAME</div>
                       <div className="mr-1">:</div>
                       <div>{formData.fullName || "ARFAN IKHSAN LUBIS"}</div>
                     </div>
                     <div className="flex items-center">
-                      <div className="w-[90px] text-left">CITIZENSHIP</div>
+                      <div className="w-[75px] text-left">CITIZENSHIP</div>
                       <div className="mr-1">:</div>
                       <div>{formData.country || "INDONESIA"}</div>
                     </div>
                     <div className="flex items-center">
-                      <div className="w-[90px] text-left">VALID THRU</div>
+                      <div className="w-[75px] text-left">VALID THRU</div>
                       <div className="mr-1">:</div>
                       <div>241130</div>
                     </div>
                   </div>
 
                   {/* QR Code */}
-                  <div className="absolute bg-white p-1 rounded-md shadow-xl flex items-center justify-center" style={{ bottom: '10%', right: '4%', width: '22%', aspectRatio: '1/1' }}>
+                  <div className="absolute bg-white p-1 rounded-md shadow-xl flex items-center justify-center" style={{ bottom: '10%', right: '4%', width: '16%', aspectRatio: '1/1' }}>
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=ApasificMember_${formData.internationalId || '0000001'}`} alt="QR Code" className="w-full h-full object-contain" />
                   </div>
