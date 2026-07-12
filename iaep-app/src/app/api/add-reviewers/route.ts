@@ -91,7 +91,7 @@ export async function GET() {
     const { data: settingsData } = await supabaseAdmin
       .from('system_settings')
       .select('value')
-      .eq('key', 'registered_users')
+      .eq('key', 'apasific_registered_users')
       .single();
 
     let existingUsers = [];
@@ -108,7 +108,7 @@ export async function GET() {
 
     await supabaseAdmin
       .from('system_settings')
-      .upsert({ key: 'registered_users', value: JSON.stringify(existingUsers) });
+      .upsert({ key: 'apasific_registered_users', value: JSON.stringify(existingUsers) });
 
     return NextResponse.json({ success: true, message: "Reviewers successfully added!", data: newReviewers });
   } catch (error: any) {

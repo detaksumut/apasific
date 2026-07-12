@@ -10,7 +10,7 @@ const supabaseAdmin = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 );
 
-const DATA_FILE = path.join(process.cwd(), 'registered_users.json');
+const DATA_FILE = path.join(process.cwd(), 'apasific_registered_users.json');
 
 function getLocalUsers() {
   try {
@@ -46,7 +46,7 @@ export async function GET() {
     const { data, error } = await supabaseAdmin
       .from('system_settings')
       .select('value')
-      .eq('key', 'registered_users')
+      .eq('key', 'apasific_registered_users')
       .single();
 
     let users: any[] = [];
@@ -102,7 +102,7 @@ export async function GET() {
       let { data, error } = await supabaseAdmin
         .from('system_settings')
         .select('value')
-        .eq('key', 'registered_users')
+        .eq('key', 'apasific_registered_users')
         .single();
   
       let users: any[] = [];
@@ -171,7 +171,7 @@ export async function GET() {
     // Save to supabase
     const { error: upsertError } = await supabaseAdmin
       .from('system_settings')
-      .upsert({ key: 'registered_users', value: JSON.stringify(users) });
+      .upsert({ key: 'apasific_registered_users', value: JSON.stringify(users) });
       
     if (upsertError) {
       console.warn("Supabase upsert failed, using memory cache instead:", upsertError.message);

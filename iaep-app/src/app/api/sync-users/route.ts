@@ -35,11 +35,11 @@ export async function GET() {
     });
 
     // Update system_settings
-    const { error: upsertError } = await supabaseAdmin
+    const { error: settingsError } = await supabaseAdmin
       .from('system_settings')
-      .upsert({ key: 'registered_users', value: JSON.stringify(syncedUsers) });
+      .upsert({ key: 'apasific_registered_users', value: JSON.stringify(syncedUsers) });
 
-    if (upsertError) throw upsertError;
+    if (settingsError) throw settingsError;
 
     return NextResponse.json({ success: true, message: `Successfully synced ${syncedUsers.length} users into system_settings!`, users: syncedUsers });
   } catch (error: any) {

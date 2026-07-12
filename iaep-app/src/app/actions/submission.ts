@@ -89,8 +89,9 @@ export async function submitManuscript(formData: FormData) {
 
     // 3. Cross-sync to RJRAKP
     try {
-      const rjrakpUrl = process.env.RJRAKP_SUPABASE_URL;
-      const rjrakpKey = process.env.RJRAKP_SUPABASE_SERVICE_ROLE_KEY;
+      // Use RJRAKP variables if they exist, otherwise fallback to the main shared database
+      const rjrakpUrl = process.env.RJRAKP_SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL;
+      const rjrakpKey = process.env.RJRAKP_SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
       
       if (rjrakpUrl && rjrakpKey) {
         const { createClient: createSupabaseClient } = require('@supabase/supabase-js');

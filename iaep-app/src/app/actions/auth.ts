@@ -53,7 +53,7 @@ export async function signUpUser(formData: any): Promise<{ success: boolean; err
     const { data: settingsData, error: settingsError } = await supabaseAdmin
       .from('system_settings')
       .select('value')
-      .eq('key', 'registered_users')
+      .eq('key', 'apasific_registered_users')
       .single();
 
     let existingUsers = [];
@@ -62,7 +62,7 @@ export async function signUpUser(formData: any): Promise<{ success: boolean; err
       existingUsers = Array.isArray(settingsData.value) ? settingsData.value : JSON.parse(settingsData.value as string);
     } else {
       try {
-        const DATA_FILE = path.join(process.cwd(), 'registered_users.json');
+        const DATA_FILE = path.join(process.cwd(), 'apasific_registered_users.json');
         if (fs.existsSync(DATA_FILE)) {
           existingUsers = JSON.parse(fs.readFileSync(DATA_FILE, 'utf8'));
         }
@@ -77,13 +77,13 @@ export async function signUpUser(formData: any): Promise<{ success: boolean; err
 
     const { error: upsertError } = await supabaseAdmin
       .from('system_settings')
-      .upsert({ key: 'registered_users', value: JSON.stringify(existingUsers) });
+      .upsert({ key: 'apasific_registered_users', value: JSON.stringify(existingUsers) });
       
     if (upsertError) {
       console.error("Failed to save to Supabase:", upsertError);
       // Fallback to local file for demo purposes so it always works
       try {
-        const DATA_FILE = path.join(process.cwd(), 'registered_users.json');
+        const DATA_FILE = path.join(process.cwd(), 'apasific_registered_users.json');
         fs.writeFileSync(DATA_FILE, JSON.stringify(existingUsers, null, 2));
       } catch (e) {
         console.error(e);
@@ -121,14 +121,14 @@ export async function loginUser(email: string, password?: string): Promise<{ suc
     const { data: settingsData, error: settingsError } = await supabaseAdmin
       .from('system_settings')
       .select('value')
-      .eq('key', 'registered_users')
+      .eq('key', 'apasific_registered_users')
       .single();
 
     let existingUsers = [];
     if (!settingsError && settingsData && settingsData.value) {
       existingUsers = Array.isArray(settingsData.value) ? settingsData.value : JSON.parse(settingsData.value as string);
     } else {
-      const DATA_FILE = path.join(process.cwd(), 'registered_users.json');
+      const DATA_FILE = path.join(process.cwd(), 'apasific_registered_users.json');
       if (fs.existsSync(DATA_FILE)) {
         existingUsers = JSON.parse(fs.readFileSync(DATA_FILE, 'utf8'));
       }
