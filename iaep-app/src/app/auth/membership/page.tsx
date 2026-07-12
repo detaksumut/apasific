@@ -39,14 +39,38 @@ export default function MajesticMembershipPage() {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      if (file.size > 1.5 * 1024 * 1024) {
-        alert("Ukuran file foto/bukti transfer terlalu besar! Maksimal 1.5MB. Silakan kompres foto Anda terlebih dahulu.");
-        e.target.value = '';
-        return;
-      }
       const reader = new FileReader();
       reader.onloadend = () => {
-        setBuktiTransfer(reader.result as string);
+        const img = new window.Image();
+        img.src = reader.result as string;
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          const MAX_WIDTH = 1200;
+          const MAX_HEIGHT = 1200;
+          let width = img.width;
+          let height = img.height;
+
+          if (width > height) {
+            if (width > MAX_WIDTH) {
+              height *= MAX_WIDTH / width;
+              width = MAX_WIDTH;
+            }
+          } else {
+            if (height > MAX_HEIGHT) {
+              width *= MAX_HEIGHT / height;
+              height = MAX_HEIGHT;
+            }
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx?.drawImage(img, 0, 0, width, height);
+
+          // Compress to JPEG with 0.6 quality to ensure it stays well under limits
+          const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.6);
+          setBuktiTransfer(compressedDataUrl);
+        };
       };
       reader.readAsDataURL(file);
     }
@@ -141,23 +165,27 @@ export default function MajesticMembershipPage() {
         ...formData,
         buktiTransfer,
       };
-      const res = await fetch("/api/membership", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+      
+      const response = await fetch('/api/membership', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
         body: JSON.stringify(payload),
       });
 
       let result;
+      const textResponse = await response.text();
       try {
-        result = await res.json();
-      } catch (jsonErr) {
-        if (res.status === 413) {
-          throw new Error("Ukuran file bukti transfer terlalu besar. Mohon kompres file Anda.");
+        result = JSON.parse(textResponse);
+      } catch (err) {
+        if (response.status === 413) {
+          throw new Error("File Bukti Transfer terlalu besar. Mohon perkecil ukuran foto di bawah 2MB.");
         }
-        throw new Error("Terjadi kesalahan sistem (Server Error). Silakan coba beberapa saat lagi.");
+        throw new Error("Terjadi kesalahan pada server (Error 500/413). Mohon perkecil ukuran foto/dokumen Anda dan coba lagi.");
       }
 
-      if (!res.ok) {
+      if (!response.ok) {
         throw new Error(result?.error || "Gagal mendaftar");
       }
 
