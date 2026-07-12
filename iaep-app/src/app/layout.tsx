@@ -93,6 +93,7 @@ export default function RootLayout({
               <a href="/environmental.html"><span class="dd-icon">◈</span> Ilmu Lingkungan &amp; Keberlanjutan</a>
               <a href="/political.html"><span class="dd-icon">◈</span> Ilmu Politik &amp; Hubungan Internasional</a>
               <a href="/tourism.html"><span class="dd-icon">◈</span> Pariwisata &amp; Manajemen Perhotelan</a>
+              <a href="/pkm.html"><span class="dd-icon">◈</span> Pengabdian Kepada Masyarakat (PKM)</a>
             </div>
           </div>
         </li>

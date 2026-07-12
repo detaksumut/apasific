@@ -88,36 +88,6 @@ export default function JournalsRepository() {
                     Pendidikan <span className="count">1</span>
                   </button>
                 </li>
-                <li>
-                  <button className={`filter-item ${filter === "Sosial & Humaniora" ? "active" : ""}`} onClick={() => setFilter("Sosial & Humaniora")}>
-                    Sosial & Humaniora <span className="count">0</span>
-                  </button>
-                </li>
-                <li>
-                  <button className={`filter-item ${filter === "Teknik & Rekayasa" ? "active" : ""}`} onClick={() => setFilter("Teknik & Rekayasa")}>
-                    Teknik & Rekayasa <span className="count">0</span>
-                  </button>
-                </li>
-                <li>
-                  <button className={`filter-item ${filter === "Kesehatan" ? "active" : ""}`} onClick={() => setFilter("Kesehatan")}>
-                    Kesehatan <span className="count">0</span>
-                  </button>
-                </li>
-                <li>
-                  <button className={`filter-item ${filter === "Ekonomi & Bisnis" ? "active" : ""}`} onClick={() => setFilter("Ekonomi & Bisnis")}>
-                    Ekonomi & Bisnis <span className="count">0</span>
-                  </button>
-                </li>
-                <li>
-                  <button className={`filter-item ${filter === "Pertanian" ? "active" : ""}`} onClick={() => setFilter("Pertanian")}>
-                    Pertanian <span className="count">0</span>
-                  </button>
-                </li>
-                <li>
-                  <button className={`filter-item ${filter === "Komunikasi" ? "active" : ""}`} onClick={() => setFilter("Komunikasi")}>
-                    Komunikasi <span className="count">0</span>
-                  </button>
-                </li>
               </ul>
             </div>
             
