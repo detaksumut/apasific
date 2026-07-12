@@ -112,8 +112,9 @@ export default function MajesticMembershipPage() {
         const res = await fetch('/api/membership');
         const data = await res.json();
         if (data.applications) {
-          // We can show all members or only approved. We show all by default for now.
-          setMembers(data.applications);
+          // Only show approved members in this public list
+          const approvedMembers = data.applications.filter((member: any) => member.status === 'Approved');
+          setMembers(approvedMembers);
         }
       } catch (err) {
         console.error("Failed to fetch members:", err);
