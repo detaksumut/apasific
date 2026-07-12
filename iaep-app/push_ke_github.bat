@@ -8,7 +8,7 @@ git add .
 
 echo.
 echo Membuat commit...
-git commit -m "fix: correct reviewer name Wisang and ensure local json persistence"
+git commit -m "feat: add template naskah button and file"
 
 echo.
 echo Mengirim ke GitHub (push)...
