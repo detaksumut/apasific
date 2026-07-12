@@ -58,16 +58,13 @@ export default function RegisterWizard({ availableRoles, defaultRole, forcedRole
           return;
         }
 
-        // Auto login simulation (for demo purposes we still redirect them)
-        let mockRole = "submitter";
-        let redirectPath = "/dashboard";
+        // All registration roles (author, reviewer, editor) should go to pending approval
+        let mockRole = formData.role || "author";
+        let redirectPath = "/auth/pending-approval";
         
-        if (formData.role === "editor") {
-          mockRole = "editor";
-          redirectPath = "/dashboard/editor";
-        } else if (formData.role === "reviewer") {
-          mockRole = "reviewer";
-          redirectPath = "/dashboard/reviews/pending";
+        // Members might still go to membership payment page if there is one?
+        if (formData.role === 'member') {
+          redirectPath = "/auth/membership"; // or wherever members go
         }
 
         document.cookie = `mock_user=${mockRole}; path=/`;

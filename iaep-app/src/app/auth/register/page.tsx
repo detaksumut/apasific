@@ -6,8 +6,8 @@ export default function RegisterSelection() {
       id: "author",
       title: "Penulis (Author)",
       desc: "Daftar untuk mengirimkan manuskrip jurnal umum, Tugas Jurnal, atau opini akademik.",
-      badge: "Akses Langsung Disetujui",
-      badgeColor: "text-green-500 bg-green-500/10",
+      badge: "Menunggu Verifikasi Admin",
+      badgeColor: "text-yellow-500 bg-yellow-500/10",
       icon: <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v15H6.5a2.5 2.5 0 0 0-2.5 2.5z" />,
       link: "/auth/publication?role=author"
     },
