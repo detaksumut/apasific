@@ -45,7 +45,7 @@ export async function signUpUser(formData: any): Promise<{ success: boolean; err
 
     const { createClient: createSupabaseClient } = await import('@supabase/supabase-js');
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL || "https://aroasmlrlpjbjokvxlgo.supabase.co";
-    const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFibWppZXFjdW1sc2thbm5ma2RsIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4MDQyMjEyNywiZXhwIjoyMDk1OTk4MTI3fQ.imJyFIR09I6EZtUHiBN3KaPz3tzxmQkGjbMUGqphR5U";
+    const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFibWppZXFjdW1sc2thbm5ma2RsIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4MDQyMjEyNywiZXhwIjoyMDk1OTk4MTI3fQ.imJyFIR09I6EZtUHiBN3KaPz3tzxmQkGjbMUGqphR5U";
     
     const supabaseAdmin = createSupabaseClient(supabaseUrl, supabaseKey);
 
@@ -94,7 +94,7 @@ export async function signUpUser(formData: any): Promise<{ success: boolean; err
     try {
       // Use RJRAKP variables if they exist, otherwise fallback to the main shared database
       const rjrakpUrl = process.env.RJRAKP_SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL;
-      const rjrakpKey = process.env.RJRAKP_SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+      const rjrakpKey = process.env.RJRAKP_SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFibWppZXFjdW1sc2thbm5ma2RsIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4MDQyMjEyNywiZXhwIjoyMDk1OTk4MTI3fQ.imJyFIR09I6EZtUHiBN3KaPz3tzxmQkGjbMUGqphR5U";
       
       if (rjrakpUrl && rjrakpKey) {
         const { createClient: createRjrakpClient } = require('@supabase/supabase-js');
