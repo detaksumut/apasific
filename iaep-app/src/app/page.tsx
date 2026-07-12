@@ -8,10 +8,10 @@ export default function Home() {
   <!-- ═══════════════════════════════════════════
        HERO SECTION
   ═══════════════════════════════════════════ -->
-  <section class="hero" id="home" style="height: auto !important; min-height: unset !important;">
+  <section class="hero" id="home" style="height: auto !important; min-height: unset !important; position: relative;">
     <!-- Full-width background image — width 100% to touch left and right edges -->
     <div class="hero-bg-image" style="height: auto; width: 100%; overflow: hidden; margin-top: -15px;">
-      <img src="http://localhost:5173/banner-apasific.png" alt="ASIA – Association of Asia Pacific Academician" id="hero-bg-img" style="width: 100%; height: auto; object-fit: contain; object-position: top center; display: block;" />
+      <img src="/banner-apasific.png" alt="ASIA – Association of Asia Pacific Academician" id="hero-bg-img" style="width: 100%; height: auto; object-fit: contain; object-position: top center; display: block;" />
     </div>
 
     <!-- Logo overlay: di sebelah kanan teks ASSOCIATION di banner -->
@@ -39,7 +39,7 @@ export default function Home() {
     </div>
 
     <!-- Bank Account Overlay (Inline styles to bypass cache) -->
-    <div style="position: absolute; top: 0px; left: max(20px, calc((100vw - 1440px) / 2 + 20px)); z-index: 10; background: rgba(10, 10, 15, 0.85); border: 1px solid rgba(201, 168, 76, 0.4); border-radius: 6px; padding: 6px 10px; backdrop-filter: blur(12px); color: #fff; min-width: 180px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);">
+    <div style="position: absolute; top: 15px; left: max(20px, calc((100vw - 1440px) / 2 + 20px)); z-index: 10; background: rgba(10, 10, 15, 0.85); border: 1px solid rgba(201, 168, 76, 0.4); border-radius: 6px; padding: 6px 10px; backdrop-filter: blur(12px); color: #fff; min-width: 180px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);">
       <div style="display: flex; align-items: center; gap: 4px; color: #c9a84c; font-weight: 700; font-size: 0.55rem; margin-bottom: 6px; border-bottom: 1px solid rgba(201, 168, 76, 0.2); padding-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px;">
         <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
         Rekening Bank Resmi
@@ -102,9 +102,9 @@ export default function Home() {
   <!-- ═══════════════════════════════════════════
        PROMO VIDEO SECTION
   ═══════════════════════════════════════════ -->
-  <section class="section promo-section" style="padding: 60px 0 20px 0; background: var(--bg-color); position: relative; z-index: 10;">
+  <section class="section promo-section" style="padding: 40px 0 20px 0; background: var(--bg-color); position: relative; z-index: 10; margin-top: 150px;">
     <div class="container" style="max-width: 900px; margin: 0 auto; text-align: center;">
-      <video width="100%" controls autoplay loop muted playsinline style="border-radius: 16px; box-shadow: 0 15px 40px rgba(0,0,0,0.6); border: 1px solid rgba(201,168,76,0.4);">
+      <video width="100%" controls autoplay loop muted playsinline style="border-radius: 16px; box-shadow: 0 15px 40px rgba(0,0,0,0.6); border: 1px solid rgba(201,168,76,0.4); display: block;">
         <source src="/promo2.mp4" type="video/mp4">
         Your browser does not support the video tag.
       </video>
