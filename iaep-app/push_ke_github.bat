@@ -8,7 +8,7 @@ git add .
 
 echo.
 echo Membuat commit...
-git commit -m "feat: add pagination to user management dashboard and reviewers sync tools"
+git commit -m "fix: correct reviewer name Wisang and ensure local json persistence"
 
 echo.
 echo Mengirim ke GitHub (push)...

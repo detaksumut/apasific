@@ -54,6 +54,7 @@ export default function UserManagement() {
     try {
       await fetch('/api/users/list', { 
         method: 'POST', 
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action: 'edit', user: editFormData }) 
       });
       // Update local state for demo

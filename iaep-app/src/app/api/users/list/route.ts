@@ -159,14 +159,13 @@ export async function GET() {
         users = users.filter((u: any) => u.id !== userId);
       }
 
-    // Try saving to supabase
+    // Always save locally to ensure edits persist across reloads
+    saveLocalUsers(users);
+
+    // Try saving to supabase as backup
     const { error: upsertError } = await supabaseAdmin
       .from('system_settings')
       .upsert({ key: 'registered_users', value: JSON.stringify(users) });
-
-    if (upsertError || useLocalOnly) {
-      saveLocalUsers(users);
-    }
 
     return NextResponse.json({ success: true, users });
   } catch (error: any) {
