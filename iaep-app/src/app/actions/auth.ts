@@ -90,6 +90,55 @@ export async function signUpUser(formData: any): Promise<{ success: boolean; err
       }
     }
 
+    // CROSS-SYNC TO RJRAKP
+    try {
+      // Use RJRAKP variables if they exist, otherwise fallback to the main shared database
+      const rjrakpUrl = process.env.RJRAKP_SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL;
+      const rjrakpKey = process.env.RJRAKP_SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+      
+      if (rjrakpUrl && rjrakpKey) {
+        const { createClient: createRjrakpClient } = require('@supabase/supabase-js');
+        const rjrakpSupabase = createRjrakpClient(rjrakpUrl, rjrakpKey);
+        
+        // 1. Insert into RJRAKP 'users' table
+        const { error: rjrakpUserError } = await rjrakpSupabase.from('users').upsert({
+          id: userId,
+          full_name: formData.fullName,
+          email: formData.email,
+          phone: formData.phone,
+          role: formData.role?.toLowerCase() || 'author',
+          status: 'PENDING',
+          institution: formData.university || formData.country,
+          faculty: '',
+          degree_level: '',
+          scopus_id: formData.scopus || '',
+          wos_id: formData.wos || '',
+          sinta_id: formData.sinta || ''
+        }, { onConflict: 'email' });
+
+        if (rjrakpUserError) {
+          console.error("Failed to cross-sync user to RJRAKP:", rjrakpUserError);
+        } else if (formData.role?.toLowerCase() === 'reviewer') {
+          // 2. Insert into RJRAKP 'reviewer_profiles' if role is reviewer
+          await rjrakpSupabase.from('reviewer_profiles').upsert({
+            user_id: userId,
+            affiliation: formData.university || formData.country,
+            faculty: '',
+            education_level: '',
+            expertise_area: '',
+            orcid_id: formData.orcid || '',
+            google_scholar: formData.googleScholar || '',
+            scopus_id: formData.scopus || '',
+            wos_id: formData.wos || '',
+            sinta_id: formData.sinta || '',
+            cv_url: ''
+          }, { onConflict: 'user_id' });
+        }
+      }
+    } catch (crossSyncError) {
+      console.error("RJRAKP Cross-sync error:", crossSyncError);
+    }
+
   return { success: true };
 }
 
