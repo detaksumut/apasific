@@ -7,6 +7,7 @@ for (let line of envConfig) {
   }
 }
 const { createClient } = require('@supabase/supabase-js');
+global.WebSocket = require('ws'); // Polyfill for Node.js < 22
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
