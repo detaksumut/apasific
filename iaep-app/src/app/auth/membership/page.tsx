@@ -461,9 +461,6 @@ export default function MajesticMembershipPage() {
                       <div>241130</div>
                     </div>
                   </div>
-                      <div>241130</div>
-                    </div>
-                  </div>
 
                   {/* QR Code */}
                   <div className="absolute bg-white p-1 rounded-md shadow-xl flex items-center justify-center" style={{ bottom: '10%', right: '4%', width: '22%', aspectRatio: '1/1' }}>
