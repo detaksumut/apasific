@@ -388,8 +388,8 @@ export default function MajesticMembershipPage() {
                   className="absolute inset-0 w-full h-full overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.8)] border border-white/20 bg-cover bg-center"
                   style={{ backgroundImage: 'url(/member-card.png)', borderRadius: '16px', backfaceVisibility: 'hidden' }}
                 >
-                  {/* Logo and Title */}
-                  <div className="absolute flex items-center gap-3" style={{ top: '6%', left: '4%' }}>
+                  {/* Logo and Title (Hidden with opacity-0 because it's baked in the image, but kept for layout) */}
+                  <div className="absolute flex items-center gap-3 opacity-0" style={{ top: '6%', left: '4%' }}>
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img src="/logo-apasific.png" alt="Logo" className="object-contain" style={{ width: '42px', height: '42px' }} />
                     <div className="flex flex-col justify-center">
@@ -401,11 +401,11 @@ export default function MajesticMembershipPage() {
                   {/* DATES */}
                   <div className="absolute flex flex-col gap-2 text-white font-bold text-right drop-shadow-md" style={{ top: '8%', right: '5%', fontSize: '10px' }}>
                     <div className="flex items-center justify-between gap-4 w-28">
-                      <span className="uppercase text-left leading-tight tracking-widest">MEMBER<br/>SINCE</span>
+                      <span className="uppercase text-left leading-tight tracking-widest opacity-0">MEMBER<br/>SINCE</span>
                       <span className="text-sm">241125</span>
                     </div>
                     <div className="flex items-center justify-between gap-4 w-28">
-                      <span className="uppercase text-left leading-tight tracking-widest">VALID<br/>THRU</span>
+                      <span className="uppercase text-left leading-tight tracking-widest opacity-0">VALID<br/>THRU</span>
                       <span className="text-sm">241130</span>
                     </div>
                   </div>
@@ -413,13 +413,13 @@ export default function MajesticMembershipPage() {
                   {/* NAME & CITIZENSHIP */}
                   <div className="absolute flex flex-col gap-1 text-white font-bold uppercase drop-shadow-md tracking-wider whitespace-nowrap" style={{ top: '45%', left: '8%', fontSize: '13px' }}>
                     <div className="flex">
-                      <div className="w-28">NAME</div>
-                      <div className="mr-2">:</div>
+                      <div className="w-28 opacity-0">NAME</div>
+                      <div className="mr-2 opacity-0">:</div>
                       <div>{formData.fullName || "NAMA ANDA DI SINI"}</div>
                     </div>
                     <div className="flex">
-                      <div className="w-28">CITIZENSHIP</div>
-                      <div className="mr-2">:</div>
+                      <div className="w-28 opacity-0">CITIZENSHIP</div>
+                      <div className="mr-2 opacity-0">:</div>
                       <div>{formData.country || "INDONESIA"}</div>
                     </div>
                   </div>
@@ -442,21 +442,21 @@ export default function MajesticMembershipPage() {
                   {/* Magnetic Stripe */}
                   <div className="absolute w-full bg-[#1c1c1c] shadow-lg" style={{ top: '15%', height: '22%' }}></div>
                   
-                  {/* Text Information (Perfectly Aligned) */}
+                  {/* Text Information (Perfectly Aligned, static labels hidden to prevent double text) */}
                   <div className="absolute flex flex-col gap-[6px] text-white font-bold uppercase drop-shadow-md tracking-wider whitespace-nowrap" style={{ top: '46%', left: '6%', fontSize: '12px' }}>
                     <div className="flex items-center">
-                      <div className="w-[110px] text-left">NAME</div>
-                      <div className="mr-1">:</div>
+                      <div className="w-[110px] text-left opacity-0">NAME</div>
+                      <div className="mr-1 opacity-0">:</div>
                       <div>{formData.fullName || "ARFAN IKHSAN LUBIS"}</div>
                     </div>
                     <div className="flex items-center">
-                      <div className="w-[110px] text-left">CITIZENSHIP</div>
-                      <div className="mr-1">:</div>
+                      <div className="w-[110px] text-left opacity-0">CITIZENSHIP</div>
+                      <div className="mr-1 opacity-0">:</div>
                       <div>{formData.country || "INDONESIA"}</div>
                     </div>
                     <div className="flex items-center">
-                      <div className="w-[110px] text-left">VALID THRU</div>
-                      <div className="mr-1">:</div>
+                      <div className="w-[110px] text-left opacity-0">VALID THRU</div>
+                      <div className="mr-1 opacity-0">:</div>
                       <div>241130</div>
                     </div>
                   </div>
