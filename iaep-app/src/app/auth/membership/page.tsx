@@ -424,10 +424,7 @@ export default function MajesticMembershipPage() {
                     </div>
                   </div>
 
-                  {/* BIG ASIA TEXT (Added to Front to match typical cards) */}
-                  <div className="absolute text-white font-bold tracking-tighter drop-shadow-lg opacity-90" style={{ bottom: '2%', left: '6%', fontSize: '56px', lineHeight: '1' }}>
-                    ASIA
-                  </div>
+                  {/* BIG ASIA TEXT (Removed as it is already in the background image) */}
 
                   {/* ID NUMBER */}
                   <div className="absolute text-white font-bold tracking-widest drop-shadow-md text-right" style={{ bottom: '8%', right: '5%', fontSize: '14px' }}>
@@ -440,10 +437,7 @@ export default function MajesticMembershipPage() {
                   className="absolute inset-0 w-full h-full overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.8)] border border-white/20 bg-cover bg-center"
                   style={{ backgroundImage: 'url(/card-bg1.png)', borderRadius: '16px', backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}
                 >
-                  {/* BIG ASIA WATERMARK (Background of back side) */}
-                  <div className="absolute text-white font-extrabold tracking-tighter opacity-80" style={{ bottom: '-5%', left: '4%', fontSize: '72px', lineHeight: '1', textShadow: '2px 2px 4px rgba(0,0,0,0.5)' }}>
-                    ASIA
-                  </div>
+                  {/* BIG ASIA WATERMARK (Removed as it is already in the background image) */}
 
                   {/* Magnetic Stripe */}
                   <div className="absolute w-full bg-[#1c1c1c] shadow-lg" style={{ top: '15%', height: '22%' }}></div>
