@@ -43,6 +43,7 @@ export default function MajesticMembershipPage() {
       reader.onloadend = () => {
         const img = new window.Image();
         img.src = reader.result as string;
+        
         img.onload = () => {
           const canvas = document.createElement('canvas');
           const MAX_WIDTH = 1200;
@@ -67,9 +68,19 @@ export default function MajesticMembershipPage() {
           const ctx = canvas.getContext('2d');
           ctx?.drawImage(img, 0, 0, width, height);
 
-          // Compress to JPEG with 0.6 quality to ensure it stays well under limits
           const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.6);
           setBuktiTransfer(compressedDataUrl);
+        };
+
+        img.onerror = () => {
+          // If it's not an image (e.g. PDF), just use the raw base64
+          // but warn if it's too large
+          if (file.size > 2 * 1024 * 1024) {
+            alert("File dokumen terlalu besar (Maks 2MB). Silakan gunakan format Gambar (JPG/PNG) agar bisa dikompres otomatis.");
+            e.target.value = '';
+          } else {
+            setBuktiTransfer(reader.result as string);
+          }
         };
       };
       reader.readAsDataURL(file);
