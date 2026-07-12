@@ -379,55 +379,106 @@ export default function MajesticMembershipPage() {
             <div className="flex flex-col items-center justify-start w-full max-w-[400px] mx-auto">
               <h3 className="text-gray-400 font-semibold text-center tracking-widest uppercase" style={{ marginBottom: '16px', fontSize: '14px' }}>Pratinjau Kartu Real-Time</h3>
             
-            {/* The Card */}
-            <div 
-              className="w-full max-w-sm relative overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.8)] border border-white/20 transition-all duration-500 bg-cover bg-center"
-              style={{ backgroundImage: 'url(/card-bg1.png)', borderRadius: '16px', aspectRatio: '1.586/1' }}
-            >
-              {/* Logo and Title */}
-              <div className="absolute flex items-center gap-3" style={{ top: '6%', left: '4%' }}>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="/logo-apasific.png" alt="Logo" className="object-contain" style={{ width: '42px', height: '42px' }} />
-                <div className="flex flex-col justify-center">
-                  <span className="text-white font-serif uppercase tracking-wider" style={{ fontSize: '11px', lineHeight: '1.2' }}>ASSOCIATION OF ASIA PACIFIC</span>
-                  <span className="text-white font-serif uppercase tracking-wider" style={{ fontSize: '11px', lineHeight: '1.2' }}>ACADEMICIAN</span>
-                </div>
-              </div>
+            {/* The Card (3D Flip Container) */}
+            <div className="w-full max-w-sm mx-auto group cursor-pointer" style={{ perspective: '1000px', aspectRatio: '1.586/1' }}>
+              <div className="relative w-full h-full transition-transform duration-700 group-hover:[transform:rotateY(180deg)]" style={{ transformStyle: 'preserve-3d' }}>
+                
+                {/* FRONT SIDE */}
+                <div 
+                  className="absolute inset-0 w-full h-full overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.8)] border border-white/20 bg-cover bg-center"
+                  style={{ backgroundImage: 'url(/card-bg1.png)', borderRadius: '16px', backfaceVisibility: 'hidden' }}
+                >
+                  {/* Logo and Title */}
+                  <div className="absolute flex items-center gap-3" style={{ top: '6%', left: '4%' }}>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src="/logo-apasific.png" alt="Logo" className="object-contain" style={{ width: '42px', height: '42px' }} />
+                    <div className="flex flex-col justify-center">
+                      <span className="text-white font-serif uppercase tracking-wider" style={{ fontSize: '11px', lineHeight: '1.2' }}>ASSOCIATION OF ASIA PACIFIC</span>
+                      <span className="text-white font-serif uppercase tracking-wider" style={{ fontSize: '11px', lineHeight: '1.2' }}>ACADEMICIAN</span>
+                    </div>
+                  </div>
 
-              {/* DATES */}
-              <div className="absolute flex flex-col gap-2 text-white font-bold text-right drop-shadow-md" style={{ top: '8%', right: '5%', fontSize: '10px' }}>
-                <div className="flex items-center justify-between gap-4 w-28">
-                  <span className="uppercase text-left leading-tight tracking-widest">MEMBER<br/>SINCE</span>
-                  <span className="text-sm">241125</span>
-                </div>
-                <div className="flex items-center justify-between gap-4 w-28">
-                  <span className="uppercase text-left leading-tight tracking-widest">VALID<br/>THRU</span>
-                  <span className="text-sm">241130</span>
-                </div>
-              </div>
+                  {/* DATES */}
+                  <div className="absolute flex flex-col gap-2 text-white font-bold text-right drop-shadow-md" style={{ top: '8%', right: '5%', fontSize: '10px' }}>
+                    <div className="flex items-center justify-between gap-4 w-28">
+                      <span className="uppercase text-left leading-tight tracking-widest">MEMBER<br/>SINCE</span>
+                      <span className="text-sm">241125</span>
+                    </div>
+                    <div className="flex items-center justify-between gap-4 w-28">
+                      <span className="uppercase text-left leading-tight tracking-widest">VALID<br/>THRU</span>
+                      <span className="text-sm">241130</span>
+                    </div>
+                  </div>
 
-              {/* NAME & CITIZENSHIP */}
-              <div className="absolute flex flex-col gap-1 text-white font-bold uppercase drop-shadow-md tracking-wider whitespace-nowrap" style={{ top: '45%', left: '8%', fontSize: '13px' }}>
-                <div className="flex">
-                  <div className="w-28">NAME</div>
-                  <div className="mr-2">:</div>
-                  <div>{formData.fullName || "NAMA ANDA DI SINI"}</div>
-                </div>
-                <div className="flex">
-                  <div className="w-28">CITIZENSHIP</div>
-                  <div className="mr-2">:</div>
-                  <div>{formData.country || "INDONESIA"}</div>
-                </div>
-              </div>
+                  {/* NAME & CITIZENSHIP */}
+                  <div className="absolute flex flex-col gap-1 text-white font-bold uppercase drop-shadow-md tracking-wider whitespace-nowrap" style={{ top: '45%', left: '8%', fontSize: '13px' }}>
+                    <div className="flex">
+                      <div className="w-28">NAME</div>
+                      <div className="mr-2">:</div>
+                      <div>{formData.fullName || "NAMA ANDA DI SINI"}</div>
+                    </div>
+                    <div className="flex">
+                      <div className="w-28">CITIZENSHIP</div>
+                      <div className="mr-2">:</div>
+                      <div>{formData.country || "INDONESIA"}</div>
+                    </div>
+                  </div>
 
-              {/* ID NUMBER */}
-              <div className="absolute text-white font-bold tracking-widest drop-shadow-md text-right" style={{ bottom: '8%', right: '5%', fontSize: '14px' }}>
-                ID. {formData.internationalId || "0000001"}
+                  {/* BIG ASIA TEXT (Added to Front to match typical cards) */}
+                  <div className="absolute text-white font-bold tracking-tighter drop-shadow-lg opacity-90" style={{ bottom: '2%', left: '6%', fontSize: '56px', lineHeight: '1' }}>
+                    ASIA
+                  </div>
+
+                  {/* ID NUMBER */}
+                  <div className="absolute text-white font-bold tracking-widest drop-shadow-md text-right" style={{ bottom: '8%', right: '5%', fontSize: '14px' }}>
+                    ID. {formData.internationalId || "0000001"}
+                  </div>
+                </div>
+
+                {/* BACK SIDE */}
+                <div 
+                  className="absolute inset-0 w-full h-full overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.8)] border border-white/20 bg-cover bg-center"
+                  style={{ backgroundImage: 'url(/card-bg1.png)', borderRadius: '16px', backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}
+                >
+                  {/* Magnetic Stripe */}
+                  <div className="absolute w-full bg-[#1a1a1a]/95 shadow-inner" style={{ top: '18%', height: '22%' }}></div>
+                  
+                  {/* Text Information */}
+                  <div className="absolute flex flex-col gap-1 text-white font-bold uppercase drop-shadow-md tracking-wider whitespace-nowrap" style={{ top: '48%', left: '8%', fontSize: '14px' }}>
+                    <div className="flex">
+                      <div className="w-28">NAME</div>
+                      <div className="mr-2">:</div>
+                      <div>{formData.fullName || "ARFAN IKHSAN LUBIS"}</div>
+                    </div>
+                    <div className="flex">
+                      <div className="w-28">CITIZENSHIP</div>
+                      <div className="mr-2">:</div>
+                      <div>{formData.country || "INDONESIA"}</div>
+                    </div>
+                    <div className="flex">
+                      <div className="w-28">VALID THRU</div>
+                      <div className="mr-2">:</div>
+                      <div>241130</div>
+                    </div>
+                  </div>
+
+                  {/* QR Code */}
+                  <div className="absolute bg-white p-1 rounded-sm shadow-md flex items-center justify-center" style={{ bottom: '12%', right: '5%', width: '18%', aspectRatio: '1/1' }}>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={`https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=ApasificMember_${formData.internationalId || '0000001'}`} alt="QR Code" className="w-full h-full object-contain" />
+                  </div>
+
+                  {/* Footer Vision */}
+                  <div className="absolute text-center text-white/90" style={{ bottom: '4%', left: '4%', right: '4%', fontSize: '7px', letterSpacing: '0.2px' }}>
+                    ASIA VISION : &quot;Leaders in the Development of Knowledge, Expertise, Sprituality, Solidariy, Responsibility and Professionalism of Academicion in the World&quot;
+                  </div>
+                </div>
+
               </div>
             </div>
 
             <p className="text-gray-500 text-center" style={{ fontSize: '12px', marginTop: '24px', maxWidth: '320px' }}>
-              Kartu ini akan terdaftar secara resmi di jaringan global ASIA setelah pembayaran dan verifikasi berhasil.
+              Arahkan kursor ke kartu (hover) untuk melihat bagian belakang kartu.
             </p>
           </div>
         </div>
