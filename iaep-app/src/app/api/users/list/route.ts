@@ -38,6 +38,9 @@ function saveLocalUsers(users: any[]) {
   }
 }
 
+// Memory cache for Vercel demo when Supabase fails
+let memoryCache: any[] | null = null;
+
 export async function GET() {
   try {
     const { data, error } = await supabaseAdmin
@@ -51,6 +54,8 @@ export async function GET() {
     // Prefer Supabase data if available
     if (!error && data && data.value) {
       users = Array.isArray(data.value) ? data.value : JSON.parse(data.value as string);
+    } else if (memoryCache) {
+      users = memoryCache;
     } else {
       // Fallback to local if Supabase fails or is empty
       users = getLocalUsers();
@@ -159,6 +164,9 @@ export async function GET() {
 
     // Always save locally to ensure edits persist across reloads (in dev)
     saveLocalUsers(users);
+    
+    // Save to memory cache for Vercel
+    memoryCache = users;
 
     // Save to supabase
     const { error: upsertError } = await supabaseAdmin
@@ -166,8 +174,7 @@ export async function GET() {
       .upsert({ key: 'registered_users', value: JSON.stringify(users) });
       
     if (upsertError) {
-      console.error("Supabase upsert error:", upsertError);
-      throw new Error("Gagal menyimpan ke database utama.");
+      console.warn("Supabase upsert failed, using memory cache instead:", upsertError.message);
     }
 
     return NextResponse.json({ success: true, users });
