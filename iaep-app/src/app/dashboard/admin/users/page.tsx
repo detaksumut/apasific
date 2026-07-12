@@ -53,48 +53,83 @@ export default function UserManagement() {
 
   const handleEditSubmit = async () => {
     try {
-      await fetch('/api/users/list', { 
+      const res = await fetch('/api/users/list', { 
         method: 'POST', 
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action: 'edit', user: editFormData }) 
       });
-      // Update local state for demo
-      setUsers(users.map(u => u.id === editFormData.id ? editFormData : u));
-    } catch (e) {
+      const data = await res.json();
+      if (data.success) {
+        setUsers(users.map(u => u.id === editFormData.id ? editFormData : u));
+        showToast("User details successfully updated!");
+        setIsEditOpen(false);
+      } else {
+        showToast("Error updating: " + data.error);
+      }
+    } catch (e: any) {
       console.error(e);
+      showToast("Network Error: " + e.message);
     }
-    setIsEditOpen(false);
-    showToast("User details successfully updated!");
   };
 
   const handleRevoke = async (id: number | string, name: string) => {
-    setUsers(users.map(u => u.id === id ? { ...u, status: "Revoked" } : u));
-    showToast(`Access revoked for ${name}.`);
     try {
-      await fetch('/api/users/list', { method: 'POST', body: JSON.stringify({ action: 'revoke', userId: id }) });
-    } catch (e) {
+      const res = await fetch('/api/users/list', { 
+        method: 'POST', 
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'revoke', userId: id }) 
+      });
+      const data = await res.json();
+      if (data.success) {
+        setUsers(users.map(u => u.id === id ? { ...u, status: "Revoked" } : u));
+        showToast(`Access revoked for ${name}.`);
+      } else {
+        showToast("Error revoking: " + data.error);
+      }
+    } catch (e: any) {
       console.error(e);
+      showToast("Network Error: " + e.message);
     }
   };
 
   const handleDelete = async (id: number | string, name: string) => {
     if (!confirm(`Apakah Anda yakin ingin menghapus user ${name}?`)) return;
-    setUsers(users.filter(u => u.id !== id));
-    showToast(`User ${name} berhasil dihapus.`);
     try {
-      await fetch('/api/users/list', { method: 'POST', body: JSON.stringify({ action: 'delete', userId: id }) });
-    } catch (e) {
+      const res = await fetch('/api/users/list', { 
+        method: 'POST', 
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'delete', userId: id }) 
+      });
+      const data = await res.json();
+      if (data.success) {
+        setUsers(users.filter(u => u.id !== id));
+        showToast(`User ${name} berhasil dihapus.`);
+      } else {
+        showToast("Error deleting: " + data.error);
+      }
+    } catch (e: any) {
       console.error(e);
+      showToast("Network Error: " + e.message);
     }
   };
 
   const handleApprove = async (id: number | string, name: string) => {
-    setUsers(users.map(u => u.id === id ? { ...u, status: "Active" } : u));
-    showToast(`User ${name} berhasil disetujui (Approved).`);
     try {
-      await fetch('/api/users/list', { method: 'POST', body: JSON.stringify({ action: 'approve', userId: id }) });
-    } catch (e) {
+      const res = await fetch('/api/users/list', { 
+        method: 'POST', 
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'approve', userId: id }) 
+      });
+      const data = await res.json();
+      if (data.success) {
+        setUsers(users.map(u => u.id === id ? { ...u, status: "Active" } : u));
+        showToast(`User ${name} berhasil disetujui (Approved).`);
+      } else {
+        showToast("Gagal menyetujui: " + data.error);
+      }
+    } catch (e: any) {
       console.error(e);
+      showToast("Network Error: " + e.message);
     }
   };
 
