@@ -164,8 +164,8 @@ export default function LiveChatWidget() {
           </div>
 
           {/* Chat Body */}
-          <div className="flex-1 overflow-y-auto flex flex-col gap-4" style={{ backgroundColor: '#f8fafc', padding: '20px 16px' }}>
-            <div className="shadow-sm text-sm leading-relaxed font-medium self-start" style={{ backgroundColor: '#ffffff', padding: '12px 18px', borderRadius: '16px', borderTopLeftRadius: '4px', border: '1px solid #e2e8f0', color: '#334155', maxWidth: '90%' }}>
+          <div className="flex-1 overflow-y-auto flex flex-col gap-3" style={{ backgroundColor: '#f8fafc', padding: '16px 14px' }}>
+            <div className="shadow-sm text-[13px] leading-relaxed font-medium self-start" style={{ backgroundColor: '#ffffff', padding: '8px 14px', borderRadius: '16px', borderTopLeftRadius: '4px', border: '1px solid #e2e8f0', color: '#334155', maxWidth: '90%' }}>
               Selamat datang di Forum Global APASIFIC! Silakan berdiskusi atau bertanya bebas di sini.
             </div>
             
@@ -175,10 +175,10 @@ export default function LiveChatWidget() {
               
               return (
                 <div key={msg.id} className={`flex flex-col ${isMine ? 'self-end items-end' : 'self-start items-start'}`} style={{ maxWidth: '85%' }}>
-                  <span className="font-bold mb-1 mx-1" style={{ fontSize: '10px', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{senderName}</span>
-                  <div className="shadow-sm text-sm leading-relaxed break-words" 
+                  <span className="font-bold mb-1 mx-1" style={{ fontSize: '9px', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{senderName}</span>
+                  <div className="shadow-sm text-[13px] leading-relaxed break-words" 
                     style={{ 
-                      padding: '12px 18px', 
+                      padding: '8px 14px', 
                       borderRadius: '16px',
                       borderTopRightRadius: isMine ? '4px' : '16px',
                       borderTopLeftRadius: isMine ? '16px' : '4px',
@@ -197,41 +197,41 @@ export default function LiveChatWidget() {
 
           {/* Chat Footer / Form */}
           {isAskingName ? (
-             <form onSubmit={handleSetGuestName} className="bg-white flex flex-col gap-2" style={{ padding: '16px', borderTop: '1px solid rgba(201,168,76,0.2)' }}>
-                <p className="text-xs font-medium" style={{ color: '#64748b' }}>Silakan masukkan nama Anda</p>
+             <form onSubmit={handleSetGuestName} className="bg-white flex flex-col gap-2" style={{ padding: '12px', borderTop: '1px solid rgba(201,168,76,0.2)' }}>
+                <p className="text-[11px] font-medium" style={{ color: '#64748b' }}>Silakan masukkan nama Anda</p>
                 <div className="flex gap-2">
                   <input
                     type="text"
                     placeholder="Nama Anda..."
                     value={guestName}
                     onChange={(e) => setGuestName(e.target.value)}
-                    className="flex-grow text-sm font-medium bg-white shadow-sm focus:outline-none"
-                    style={{ borderRadius: '9999px', padding: '12px 20px', border: '1px solid #cbd5e1', color: '#0f172a' }}
+                    className="flex-grow text-[13px] font-medium bg-white shadow-sm focus:outline-none"
+                    style={{ borderRadius: '9999px', padding: '10px 16px', border: '1px solid #cbd5e1', color: '#0f172a' }}
                     autoFocus
                   />
-                  <button type="submit" className="rounded-full text-sm font-bold transition-colors shadow-md" style={{ padding: '12px 24px', backgroundColor: '#111120', color: '#c9a84c', border: 'none', cursor: 'pointer' }}>
+                  <button type="submit" className="rounded-full text-[13px] font-bold transition-colors shadow-md" style={{ padding: '10px 20px', backgroundColor: '#111120', color: '#c9a84c', border: 'none', cursor: 'pointer' }}>
                     OK
                   </button>
                 </div>
              </form>
           ) : (
-            <form onSubmit={handleStartChat} className="bg-white flex items-center gap-3" style={{ padding: '16px', borderTop: '1px solid rgba(201,168,76,0.2)' }}>
+            <form onSubmit={handleStartChat} className="bg-white flex items-center gap-2" style={{ padding: '12px', borderTop: '1px solid rgba(201,168,76,0.2)' }}>
               <input
                 type="text"
                 placeholder="Tulis pesan..."
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
-                className="flex-grow text-sm font-medium bg-white focus:outline-none transition-colors"
-                style={{ borderRadius: '9999px', padding: '14px 20px', border: '1px solid #e2e8f0', color: '#0f172a', backgroundColor: '#f8fafc' }}
+                className="flex-grow text-[13px] font-medium bg-white focus:outline-none transition-colors"
+                style={{ borderRadius: '9999px', padding: '10px 16px', border: '1px solid #e2e8f0', color: '#0f172a', backgroundColor: '#f8fafc' }}
               />
               <button
                 type="submit"
                 disabled={!message.trim()}
                 className="rounded-full flex items-center justify-center shadow-md transition-transform hover:scale-105 cursor-pointer shrink-0 outline-none disabled:opacity-50 disabled:hover:scale-100"
-                style={{ width: '48px', height: '48px', backgroundColor: '#c9a84c', border: 'none' }}
+                style={{ width: '40px', height: '40px', backgroundColor: '#c9a84c', border: 'none' }}
                 title="Kirim Pesan"
               >
-                <Send className="w-5 h-5" style={{ color: '#ffffff', marginLeft: '2px' }} />
+                <Send className="w-[18px] h-[18px]" style={{ color: '#ffffff', marginLeft: '2px' }} />
               </button>
             </form>
           )}
