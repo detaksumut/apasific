@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from 'react';
+import { usePathname } from 'next/navigation';
 import { X, Send, MessageCircle } from 'lucide-react';
 import { createClient } from '@/utils/supabase/client';
 
@@ -14,6 +15,7 @@ interface ChatMessage {
 }
 
 export default function LiveChatWidget() {
+  const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
   const [message, setMessage] = useState('');
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -120,6 +122,10 @@ export default function LiveChatWidget() {
     setIsAskingName(false);
     handleStartChat(e); // Proceed sending the message
   };
+
+  if (pathname !== '/') {
+    return null;
+  }
 
   return (
     <div className="fixed bottom-6 right-6 z-[9999] font-sans no-print">
