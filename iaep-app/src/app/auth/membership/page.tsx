@@ -453,10 +453,7 @@ export default function MajesticMembershipPage() {
                     <img src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=ApasificMember_${formData.internationalId || '0000001'}`} alt="QR Code" className="w-full h-full object-contain" />
                   </div>
 
-                  {/* Footer Vision */}
-                  <div className="absolute text-center text-white/90 drop-shadow-md" style={{ bottom: '3%', left: '2%', right: '2%', fontSize: '6.5px', letterSpacing: '0.1px' }}>
-                    ASIA VISION : &quot;Leaders in the Development of Knowledge, Expertise, Spirituality, Solidarity, Responsibility and Professionalism of Academician in the World&quot;
-                  </div>
+                  {/* Footer Vision Removed */}
                 </div>
 
               </div>
