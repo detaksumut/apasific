@@ -1073,6 +1073,42 @@
       document.getElementById('hero-banner-wrap').style.display = 'none';
       document.getElementById('medallion-wrapper').style.display = 'flex';
     }
+
+    /* Dynamic Stats Fetcher */
+    document.addEventListener("DOMContentLoaded", function() {
+      fetch('https://apasific.vercel.app/api/public-stats')
+        .then(response => response.json())
+        .then(data => {
+          if (data && !data.error) {
+            const statItems = document.querySelectorAll('.stat-item');
+            statItems.forEach(item => {
+              const label = item.querySelector('.stat-label');
+              const numSpan = item.querySelector('.stat-num');
+              if (label && numSpan) {
+                const text = label.textContent.toLowerCase();
+                let newValue = null;
+                if (text.includes('member') && data.members > 0) {
+                  newValue = data.members;
+                } else if (text.includes('countr') && data.countries > 0) {
+                  newValue = data.countries;
+                } else if (text.includes('publication') && data.publications > 0) {
+                  newValue = data.publications;
+                }
+                
+                if (newValue !== null) {
+                  numSpan.setAttribute('data-target', newValue);
+                  // Update text immediately if animation already finished or didn't start
+                  // The main.js might re-animate if we just update the target, but if it already ran, we force it:
+                  if (numSpan.textContent !== '0') {
+                    numSpan.textContent = newValue;
+                  }
+                }
+              }
+            });
+          }
+        })
+        .catch(err => console.error('Failed to fetch public stats:', err));
+    });
   </script>
 </body>
 </html>
