@@ -90,7 +90,8 @@ export async function signUpUser(formData: any): Promise<{ success: boolean; err
       }
     }
 
-    // CROSS-SYNC TO RJRAKP
+    // CROSS-SYNC TO RJRAKP (Temporarily disabled as requested)
+    /*
     try {
       // Use RJRAKP variables if they exist, otherwise fallback to the main shared database
       const rjrakpUrl = process.env.RJRAKP_SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -138,6 +139,7 @@ export async function signUpUser(formData: any): Promise<{ success: boolean; err
     } catch (crossSyncError) {
       console.error("RJRAKP Cross-sync error:", crossSyncError);
     }
+    */
 
   return { success: true };
 }
