@@ -1,8 +1,9 @@
 import { createClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
-import Link from "next/link";
 import { UserPlus, Search, BookOpen, Clock } from "lucide-react";
 import { cookies } from "next/headers";
+import AssignReviewerAction from "@/components/dashboard/AssignReviewerAction";
+
 
 export default async function AssignReviewerPage() {
   const supabase = await createClient();
@@ -21,7 +22,14 @@ export default async function AssignReviewerPage() {
     .in("status", ["Awaiting Reviewers", "Under Review"])
     .order("created_at", { ascending: false });
 
+  // Fetch all reviewers
+  const { data: reviewers } = await supabase
+    .from("profiles")
+    .select("*")
+    .eq("role", "reviewer");
+
   const articles = submissions || [];
+  const allReviewers = reviewers || [];
 
   return (
     <div className="max-w-7xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
@@ -87,9 +95,7 @@ export default async function AssignReviewerPage() {
                   </div>
                   
                   <div className="shrink-0">
-                    <button className="w-full lg:w-auto flex items-center justify-center gap-2 px-4 py-2 text-sm font-semibold text-black bg-[#c9a84c] hover:bg-[#e8c97a] rounded-lg transition-colors shadow-[0_0_15px_rgba(201,168,76,0.2)]">
-                      <UserPlus className="w-4 h-4" /> Pilih & Tugaskan Reviewer
-                    </button>
+                    <AssignReviewerAction article={article} reviewers={allReviewers} />
                   </div>
                 </div>
               </div>
