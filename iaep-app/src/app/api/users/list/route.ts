@@ -13,8 +13,12 @@ const supabaseAdmin = createClient(
 const DATA_FILE = path.join(process.cwd(), 'registered_users.json');
 
 function getLocalUsers() {
-  if (fs.existsSync(DATA_FILE)) {
-    return JSON.parse(fs.readFileSync(DATA_FILE, 'utf8'));
+  try {
+    if (fs.existsSync(DATA_FILE)) {
+      return JSON.parse(fs.readFileSync(DATA_FILE, 'utf8'));
+    }
+  } catch (e) {
+    console.error("Error reading local users", e);
   }
   
   const initialUsers = [
@@ -27,7 +31,11 @@ function getLocalUsers() {
 }
 
 function saveLocalUsers(users: any[]) {
-  fs.writeFileSync(DATA_FILE, JSON.stringify(users, null, 2));
+  try {
+    fs.writeFileSync(DATA_FILE, JSON.stringify(users, null, 2));
+  } catch (e) {
+    console.error("Error writing local users (expected on Vercel)", e);
+  }
 }
 
 export async function GET() {
@@ -38,18 +46,14 @@ export async function GET() {
       .eq('key', 'registered_users')
       .single();
 
-    let users = [];
-    let useLocalOnly = false;
+    let users: any[] = [];
     
-    // Check if we have a locally updated file first!
-    const localUsers = getLocalUsers();
-    if (localUsers && localUsers.length > 0) {
-      users = localUsers;
-      useLocalOnly = true;
-    } else if (!error && data && data.value) {
+    // Prefer Supabase data if available
+    if (!error && data && data.value) {
       users = Array.isArray(data.value) ? data.value : JSON.parse(data.value as string);
     } else {
-      users = localUsers;
+      // Fallback to local if Supabase fails or is empty
+      users = getLocalUsers();
     }
 
     // Merge new reviewers data from file
@@ -90,24 +94,18 @@ export async function GET() {
     try {
       const { action, userId, user: editData } = await request.json();
       
-      // First try to fetch from Supabase
       let { data, error } = await supabaseAdmin
         .from('system_settings')
         .select('value')
         .eq('key', 'registered_users')
         .single();
   
-      let users = [];
-      let useLocalOnly = false;
+      let users: any[] = [];
       
-      const localUsers = getLocalUsers();
-      if (localUsers && localUsers.length > 0) {
-        users = localUsers;
-        useLocalOnly = true;
-      } else if (!error && data && data.value) {
+      if (!error && data && data.value) {
         users = Array.isArray(data.value) ? data.value : JSON.parse(data.value as string);
       } else {
-        users = localUsers;
+        users = getLocalUsers();
       }
 
       // Merge new reviewers data from file before updating
@@ -159,10 +157,10 @@ export async function GET() {
         users = users.filter((u: any) => u.id !== userId);
       }
 
-    // Always save locally to ensure edits persist across reloads
+    // Always save locally to ensure edits persist across reloads (in dev)
     saveLocalUsers(users);
 
-    // Try saving to supabase as backup
+    // Save to supabase
     const { error: upsertError } = await supabaseAdmin
       .from('system_settings')
       .upsert({ key: 'registered_users', value: JSON.stringify(users) });
