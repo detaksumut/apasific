@@ -108,7 +108,7 @@ export default async function Home() {
         <div class="stat-divider"></div>
         <div class="stat-item">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" stroke-width="1.5"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
-          <div><span class="stat-num" data-target="7">0</span><p class="stat-label">Disiplin Akademik</p></div>
+          <div><span class="stat-num" data-target="15">0</span><p class="stat-label">Disiplin Akademik</p></div>
         </div>
         <div class="stat-divider"></div>
         <div class="stat-item">
