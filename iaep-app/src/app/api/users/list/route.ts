@@ -164,6 +164,11 @@ export async function GET() {
     const { error: upsertError } = await supabaseAdmin
       .from('system_settings')
       .upsert({ key: 'registered_users', value: JSON.stringify(users) });
+      
+    if (upsertError) {
+      console.error("Supabase upsert error:", upsertError);
+      throw new Error("Gagal menyimpan ke database utama.");
+    }
 
     return NextResponse.json({ success: true, users });
   } catch (error: any) {

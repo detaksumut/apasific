@@ -11,8 +11,9 @@ export default function UserManagement() {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const res = await fetch('/api/users/list');
+        const res = await fetch('/api/users/list?t=' + Date.now());
         const data = await res.json();
+
         
         if (data.success && data.users && data.users.length > 0) {
           const mappedUsers = data.users.map((u: any) => ({
