@@ -345,30 +345,45 @@ export default function MajesticMembershipPage() {
               className="w-full max-w-sm relative overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.8)] border border-white/20 transition-all duration-500 bg-cover bg-center"
               style={{ backgroundImage: 'url(/card-bg1.png)', borderRadius: '16px', aspectRatio: '1.586/1' }}
             >
-              {/* Dynamic Text Placements */}
+              {/* Logo and Title */}
+              <div className="absolute flex items-center gap-2" style={{ top: '8%', left: '4%' }}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src="/logo-apasific.png" alt="Logo" className="object-contain" style={{ width: '40px', height: '40px' }} />
+                <div className="flex flex-col justify-center">
+                  <span className="text-white font-serif uppercase tracking-wider" style={{ fontSize: '11px', lineHeight: '1.1' }}>ASSOCIATION OF ASIA PACIFIC</span>
+                  <span className="text-white font-serif uppercase tracking-wider" style={{ fontSize: '11px', lineHeight: '1.1' }}>ACADEMICIAN</span>
+                </div>
+              </div>
+
               {/* MEMBER SINCE DATE */}
-              <div className="absolute text-white font-bold tracking-widest text-right" style={{ top: '16%', right: '8%', fontSize: '12px' }}>
-                241125
+              <div className="absolute text-white font-bold uppercase tracking-widest text-right flex items-center gap-3" style={{ top: '12%', right: '5%', fontSize: '10px' }}>
+                <span className="text-left leading-tight w-14">MEMBER<br/>SINCE</span>
+                <span className="text-sm">241125</span>
               </div>
               
               {/* VALID THRU DATE */}
-              <div className="absolute text-white font-bold tracking-widest text-right" style={{ top: '27%', right: '8%', fontSize: '12px' }}>
-                241130
+              <div className="absolute text-white font-bold uppercase tracking-widest text-right flex items-center gap-3" style={{ top: '23%', right: '5%', fontSize: '10px' }}>
+                <span className="text-left leading-tight w-14">VALID<br/>THRU</span>
+                <span className="text-sm">241130</span>
               </div>
 
               {/* NAME */}
-              <div className="absolute text-white font-bold uppercase tracking-wide drop-shadow-md whitespace-nowrap" style={{ top: '44%', left: '33%', fontSize: '14px' }}>
-                {formData.fullName || "NAMA ANDA DI SINI"}
+              <div className="absolute text-white font-bold uppercase tracking-wide drop-shadow-md flex whitespace-nowrap" style={{ top: '44%', left: '8%', fontSize: '14px' }}>
+                <div className="w-28">NAME</div>
+                <div className="w-4">:</div>
+                <div>{formData.fullName || "NAMA ANDA DI SINI"}</div>
               </div>
 
               {/* CITIZENSHIP */}
-              <div className="absolute text-white font-bold uppercase tracking-wide drop-shadow-md whitespace-nowrap" style={{ top: '53%', left: '33%', fontSize: '14px' }}>
-                {formData.country || "INDONESIA"}
+              <div className="absolute text-white font-bold uppercase tracking-wide drop-shadow-md flex whitespace-nowrap" style={{ top: '53%', left: '8%', fontSize: '14px' }}>
+                <div className="w-28">CITIZENSHIP</div>
+                <div className="w-4">:</div>
+                <div>{formData.country || "INDONESIA"}</div>
               </div>
 
               {/* ID NUMBER */}
-              <div className="absolute text-white font-bold tracking-widest drop-shadow-md text-right" style={{ bottom: '12%', right: '10%', fontSize: '14px' }}>
-                {formData.internationalId || previewId}
+              <div className="absolute text-white font-bold tracking-widest drop-shadow-md text-right" style={{ bottom: '15%', right: '5%', fontSize: '12px' }}>
+                ID. {formData.internationalId || previewId}
               </div>
             </div>
 
@@ -494,29 +509,46 @@ export default function MajesticMembershipPage() {
               
               {/* Front Card */}
               <div id="print-card-front" className="w-full relative overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.8)] print:shadow-none border border-[#c9a84c]/40 print:border-none bg-cover bg-center" style={{ backgroundImage: 'url(/card-bg1.png)', borderRadius: '16px', aspectRatio: '1.586/1' }}>
+                
+                {/* Logo and Title */}
+                <div className="absolute flex items-center gap-2" style={{ top: '8%', left: '4%' }}>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src="/logo-apasific.png" alt="Logo" className="object-contain" style={{ width: '40px', height: '40px' }} />
+                  <div className="flex flex-col justify-center">
+                    <span className="text-white font-serif uppercase tracking-wider" style={{ fontSize: '11px', lineHeight: '1.1' }}>ASSOCIATION OF ASIA PACIFIC</span>
+                    <span className="text-white font-serif uppercase tracking-wider" style={{ fontSize: '11px', lineHeight: '1.1' }}>ACADEMICIAN</span>
+                  </div>
+                </div>
+
                 {/* MEMBER SINCE DATE */}
-                <div className="absolute text-white font-bold tracking-widest text-right" style={{ top: '16%', right: '8%', fontSize: '12px' }}>
-                  241125
+                <div className="absolute text-white font-bold uppercase tracking-widest text-right flex items-center gap-3" style={{ top: '12%', right: '5%', fontSize: '10px' }}>
+                  <span className="text-left leading-tight w-14">MEMBER<br/>SINCE</span>
+                  <span className="text-sm">241125</span>
                 </div>
                 
                 {/* VALID THRU DATE */}
-                <div className="absolute text-white font-bold tracking-widest text-right" style={{ top: '27%', right: '8%', fontSize: '12px' }}>
-                  241130
+                <div className="absolute text-white font-bold uppercase tracking-widest text-right flex items-center gap-3" style={{ top: '23%', right: '5%', fontSize: '10px' }}>
+                  <span className="text-left leading-tight w-14">VALID<br/>THRU</span>
+                  <span className="text-sm">241130</span>
                 </div>
 
                 {/* NAME */}
-                <div className="absolute text-white font-bold uppercase tracking-wide drop-shadow-md whitespace-nowrap" style={{ top: '44%', left: '33%', fontSize: '14px' }}>
-                  {selectedMemberCard.full_name}
+                <div className="absolute text-white font-bold uppercase tracking-wide drop-shadow-md flex whitespace-nowrap" style={{ top: '44%', left: '8%', fontSize: '14px' }}>
+                  <div className="w-28">NAME</div>
+                  <div className="w-4">:</div>
+                  <div>{selectedMemberCard.full_name}</div>
                 </div>
 
                 {/* CITIZENSHIP */}
-                <div className="absolute text-white font-bold uppercase tracking-wide drop-shadow-md whitespace-nowrap" style={{ top: '53%', left: '33%', fontSize: '14px' }}>
-                  {selectedMemberCard.country}
+                <div className="absolute text-white font-bold uppercase tracking-wide drop-shadow-md flex whitespace-nowrap" style={{ top: '53%', left: '8%', fontSize: '14px' }}>
+                  <div className="w-28">CITIZENSHIP</div>
+                  <div className="w-4">:</div>
+                  <div>{selectedMemberCard.country}</div>
                 </div>
 
                 {/* ID NUMBER */}
-                <div className="absolute text-white font-bold tracking-widest drop-shadow-md text-right" style={{ bottom: '12%', right: '10%', fontSize: '14px' }}>
-                  {selectedMemberCard.international_id || selectedMemberCard.id.split('-')[0]}
+                <div className="absolute text-white font-bold tracking-widest drop-shadow-md text-right" style={{ bottom: '15%', right: '5%', fontSize: '12px' }}>
+                  ID. {selectedMemberCard.international_id || selectedMemberCard.id.split('-')[0]}
                 </div>
               </div>
 
