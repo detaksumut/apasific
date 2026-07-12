@@ -5,16 +5,6 @@ import { createPortal } from 'react-dom';
 const ASIA_INDEX_URL = 'https://rjrakp.vercel.app/asia-index';
 
 function AsiaSearch() {
-  const [query, setQuery] = useState('');
-
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    const target = query.trim()
-      ? `${ASIA_INDEX_URL}?q=${encodeURIComponent(query.trim())}`
-      : ASIA_INDEX_URL;
-    window.open(target, '_blank');
-  };
-
   return (
     <div style={{
       border: '1.5px solid #c9a84c',
@@ -48,45 +38,23 @@ function AsiaSearch() {
         }}>AKTIF 2026</span>
       </div>
 
-      {/* Search form — redirects to RJRAKP ASIA Index */}
-      <form onSubmit={handleSearch} style={{ display: 'flex', gap: '8px' }}>
-        <input
-          type="text"
-          value={query}
-          onChange={e => setQuery(e.target.value)}
-          placeholder="Cari judul, penulis, kata kunci, nama jurnal..."
-          style={{
-            flex: 1,
-            background: 'rgba(255,255,255,0.07)',
-            border: '1px solid rgba(201,168,76,0.4)',
-            borderRadius: '8px',
-            padding: '10px 14px',
-            color: '#fff',
-            fontSize: '0.85rem',
-            outline: 'none',
-          }}
-          onKeyDown={e => e.key === 'Enter' && handleSearch(e as any)}
-        />
-        <button
-          type="submit"
+      {/* Direct link button */}
+      <div style={{ marginTop: '14px', display: 'flex', justifyContent: 'flex-end' }}>
+        <a
+          href={ASIA_INDEX_URL}
+          target="_blank"
+          rel="noreferrer"
           style={{
             background: 'linear-gradient(135deg, #c9a84c, #f0d080)',
             color: '#0d1b2a', fontWeight: 800, fontSize: '0.82rem',
-            padding: '10px 22px', borderRadius: '8px', border: 'none',
-            cursor: 'pointer', whiteSpace: 'nowrap',
-            display: 'flex', alignItems: 'center', gap: '6px',
+            padding: '10px 22px', borderRadius: '8px',
+            textDecoration: 'none', whiteSpace: 'nowrap',
+            display: 'inline-flex', alignItems: 'center', gap: '6px',
           }}
         >
-          🔍 Cari di ASIA Index
-        </button>
-      </form>
-      <p style={{ color: '#555', fontSize: '0.68rem', marginTop: '8px', textAlign: 'right' }}>
-        Pencarian akan dibuka di{' '}
-        <a href={ASIA_INDEX_URL} target="_blank" rel="noreferrer"
-          style={{ color: '#c9a84c', textDecoration: 'none', fontWeight: 700 }}>
-          ASIA Index (RJRAKP) ↗
+          🔍 Cari Artikel di ASIA Index ↗
         </a>
-      </p>
+      </div>
     </div>
   );
 }
