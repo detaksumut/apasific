@@ -441,7 +441,7 @@ export default function MajesticMembershipPage() {
                   </div>
 
                   {/* Magnetic Stripe */}
-                  <div className="absolute w-full bg-[#1c1c1c] shadow-lg" style={{ top: '15%', height: '22%' }}></div>
+                  <div className="absolute w-full bg-[#1c1c1c] shadow-lg" style={{ top: '24%', height: '18%' }}></div>
                   
                   {/* Text Information (Perfectly Aligned) */}
                   <div className="absolute flex flex-col gap-[4px] text-white font-bold uppercase drop-shadow-md tracking-wider whitespace-nowrap" style={{ top: '46%', left: '6%', fontSize: '10px' }}>
