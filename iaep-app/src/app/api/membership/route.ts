@@ -3,7 +3,7 @@ import { createClient } from "@supabase/supabase-js";
 
 // Read directly from env or use fallback (Useful if Vercel env vars are not set yet)
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL || "https://aroasmlrlpjbjokvxlgo.supabase.co";
-const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFibWppZXFjdW1sc2thbm5ma2RsIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4MDQyMjEyNywiZXhwIjoyMDk1OTk4MTI3fQ.imJyFIR09I6EZtUHiBN3KaPz3tzxmQkGjbMUGqphR5U";
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFibWppZXFjdW1sc2thbm5ma2RsIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4MDQyMjEyNywiZXhwIjoyMDk1OTk4MTI3fQ.imJyFIR09I6EZtUHiBN3KaPz3tzxmQkGjbMUGqphR5U";
 
 const supabase = createClient(supabaseUrl, supabaseKey);
 
@@ -49,7 +49,7 @@ export async function POST(request: Request) {
         
       if (countError) {
         console.error("Failed to count members:", countError);
-        throw countError;
+        throw new Error("Count Error: " + (countError.message || JSON.stringify(countError)));
       }
       
       // Calculate sequence number (e.g. 001, 002)
@@ -76,13 +76,14 @@ export async function POST(request: Request) {
 
     if (error) {
       console.error("Supabase insert error:", error);
-      return NextResponse.json({ error: error.message || "Failed to insert into database. Did you run the SQL script?" }, { status: 500 });
+      return NextResponse.json({ error: "Insert Error: " + (error.message || JSON.stringify(error)) }, { status: 500 });
     }
 
     return NextResponse.json({ success: true, data: insertedData });
   } catch (err: any) {
     console.error("API Error:", err);
-    return NextResponse.json({ error: err.message || "Internal Server Error" }, { status: 500 });
+    const errorMessage = err?.message || JSON.stringify(err) || "Unknown Internal Server Error";
+    return NextResponse.json({ error: "System Error: " + errorMessage }, { status: 500 });
   }
 }
 
