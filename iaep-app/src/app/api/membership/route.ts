@@ -31,8 +31,10 @@ export async function POST(request: Request) {
       throw new Error("Count Error: " + (countError.message || JSON.stringify(countError)));
     }
     
-    // Calculate sequence number (e.g. 0000001, 0000002)
-    const finalInternationalId = ((count || 0) + 1).toString().padStart(7, '0');
+    // Calculate sequence number (e.g. ASIA-VII-000001)
+    const romanMonths = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII"];
+    const currentMonthRoman = romanMonths[new Date().getMonth()];
+    const finalInternationalId = `ASIA-${currentMonthRoman}-` + ((count || 0) + 1).toString().padStart(6, '0');
     
     // Append the user's ORCID/Scopus ID to the university field so it's not lost
     const universityWithOrcid = internationalId ? `${university} (ORCID/Scopus: ${internationalId})` : university;

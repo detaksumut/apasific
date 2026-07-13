@@ -5,6 +5,15 @@ import Link from "next/link";
 import QRCode from "react-qr-code";
 import Image from "next/image";
 
+const formatDateYYMMDD = (dateString?: string | null, addYears: number = 0) => {
+  const d = dateString ? new Date(dateString) : new Date();
+  d.setFullYear(d.getFullYear() + addYears);
+  const yy = String(d.getFullYear()).slice(-2);
+  const mm = String(d.getMonth() + 1).padStart(2, '0');
+  const dd = String(d.getDate()).padStart(2, '0');
+  return `${yy}${mm}${dd}`;
+};
+
 export default function MajesticMembershipPage() {
   const [formData, setFormData] = useState({
     fullName: "",
@@ -364,18 +373,43 @@ export default function MajesticMembershipPage() {
                 {/* FRONT SIDE */}
                 <div 
                   className="absolute inset-0 w-full h-full overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.8)] border border-white/20 bg-cover bg-center"
-                  style={{ backgroundImage: 'url(/cardmember.png)', borderRadius: '16px', backfaceVisibility: 'hidden' }}
+                  style={{ backgroundImage: 'url(/cardasia.png)', borderRadius: '16px', backfaceVisibility: 'hidden' }}
                 >
+                  {/* LOGO & TEXT */}
+                  <div className="absolute flex items-center gap-2.5 drop-shadow-2xl" style={{ top: '3%', left: '5%' }}>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src="/logo-apasific.png" alt="ASIA Logo" className="w-[45px] h-[45px] object-contain rounded-full border-2 border-[#e5c058]/30 shadow-[0_0_15px_rgba(229,192,88,0.4)]" />
+                    <div className="flex flex-col uppercase tracking-[0.15em] font-serif text-gray-100 drop-shadow-md" style={{ fontSize: '9px' }}>
+                      <span className="leading-tight">Association of Asia Pacific</span>
+                      <span className="leading-tight">Academician</span>
+                    </div>
+                  </div>
+
                   {/* DATES */}
                   <div className="absolute flex flex-col gap-1 text-white font-bold text-right drop-shadow-md" style={{ top: '8%', right: '5%', fontSize: '8px' }}>
                     <div className="flex items-center justify-between gap-3 w-24">
                       <span className="uppercase text-left leading-tight tracking-widest">MEMBER<br/>SINCE</span>
-                      <span style={{ fontSize: '10px' }}>241125</span>
+                      <span style={{ fontSize: '10px' }}>{formatDateYYMMDD(null, 0)}</span>
                     </div>
                     <div className="flex items-center justify-between gap-3 w-24">
                       <span className="uppercase text-left leading-tight tracking-widest">VALID<br/>THRU</span>
-                      <span style={{ fontSize: '10px' }}>241130</span>
+                      <span style={{ fontSize: '10px' }}>{formatDateYYMMDD(null, 3)}</span>
                     </div>
+                  </div>
+
+                  {/* CHIP */}
+                  <div className="absolute opacity-90 drop-shadow-md" style={{ top: '28%', left: '8%' }}>
+                    <svg width="36" height="26" viewBox="0 0 40 30" xmlns="http://www.w3.org/2000/svg">
+                      <rect width="40" height="30" rx="5" fill="url(#chipGradient)" stroke="#8b6508" strokeWidth="0.5" />
+                      <path d="M0 10 h12 M0 20 h12 M28 10 h12 M28 20 h12 M12 0 v30 M28 0 v30 M12 15 h16" stroke="#8b6508" strokeWidth="0.8" fill="none" />
+                      <defs>
+                        <linearGradient id="chipGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                          <stop offset="0%" stopColor="#e5c058" />
+                          <stop offset="50%" stopColor="#fef0a1" />
+                          <stop offset="100%" stopColor="#c59837" />
+                        </linearGradient>
+                      </defs>
+                    </svg>
                   </div>
 
                   {/* NAME & CITIZENSHIP */}
@@ -393,21 +427,31 @@ export default function MajesticMembershipPage() {
                   </div>
 
                   {/* ID NUMBER */}
-                  <div className="absolute text-white font-bold tracking-widest drop-shadow-md text-right" style={{ bottom: '8%', right: '5%', fontSize: '12px' }}>
-                    ID. 0000001
+                  <div className="absolute text-white font-bold tracking-wider drop-shadow-md text-right" style={{ bottom: '8%', right: '5%', fontSize: '9px' }}>
+                    ID. ASIA-VII-000001
                   </div>
                 </div>
 
                 {/* BACK SIDE */}
                 <div 
                   className="absolute inset-0 w-full h-full overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.8)] border border-white/20 bg-cover bg-center"
-                  style={{ backgroundImage: 'url(/cardmember.png)', borderRadius: '16px', backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}
+                  style={{ backgroundImage: 'url(/cardasia1.png)', borderRadius: '16px', backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}
                 >
+                  {/* LOGO & TEXT */}
+                  <div className="absolute flex items-center gap-2.5 drop-shadow-2xl" style={{ top: '3%', left: '5%' }}>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src="/logo-apasific.png" alt="ASIA Logo" className="w-[45px] h-[45px] object-contain rounded-full border-2 border-[#e5c058]/30 shadow-[0_0_15px_rgba(229,192,88,0.4)]" />
+                    <div className="flex flex-col uppercase tracking-[0.15em] font-serif text-gray-100 drop-shadow-md" style={{ fontSize: '9px' }}>
+                      <span className="leading-tight">Association of Asia Pacific</span>
+                      <span className="leading-tight">Academician</span>
+                    </div>
+                  </div>
+
                   {/* Magnetic Stripe */}
                   <div className="absolute w-full bg-[#1c1c1c] shadow-lg" style={{ top: '24%', height: '18%' }}></div>
                   
                   {/* Text Information (Perfectly Aligned) */}
-                  <div className="absolute flex flex-col gap-[4px] text-white font-bold uppercase drop-shadow-md tracking-wider whitespace-nowrap" style={{ top: '46%', left: '6%', fontSize: '9px' }}>
+                  <div className="absolute flex flex-col gap-[4px] text-white font-bold uppercase drop-shadow-md tracking-wider whitespace-nowrap" style={{ top: '43%', left: '6%', fontSize: '9px' }}>
                     <div className="flex items-center">
                       <div className="w-[75px] text-left">NAME</div>
                       <div className="mr-1">:</div>
@@ -428,7 +472,7 @@ export default function MajesticMembershipPage() {
                   {/* QR Code */}
                   <div className="absolute bg-white p-1 rounded-md shadow-xl flex items-center justify-center" style={{ bottom: '10%', right: '4%', width: '16%', aspectRatio: '1/1' }}>
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=ApasificMember_0000001`} alt="QR Code" className="w-full h-full object-contain" />
+                    <img src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://www.apasific.org`} alt="QR Code" className="w-full h-full object-contain" />
                   </div>
 
                   {/* Footer Vision Removed */}
@@ -558,18 +602,43 @@ export default function MajesticMembershipPage() {
             <div id="print-card-area" className="flex flex-col gap-4 items-center print:gap-8" style={{ width: '100%', maxWidth: '384px' }}>
               
               {/* Front Card */}
-              <div id="print-card-front" className="w-full relative overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.8)] print:shadow-none border border-[#c9a84c]/40 print:border-none bg-cover bg-center" style={{ backgroundImage: 'url(/cardmember.png)', borderRadius: '16px', aspectRatio: '1.586/1' }}>
+              <div id="print-card-front" className="w-full relative overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.8)] print:shadow-none border border-[#c9a84c]/40 print:border-none bg-cover bg-center" style={{ backgroundImage: 'url(/cardasia.png)', borderRadius: '16px', aspectRatio: '1.586/1' }}>
                 
+                {/* LOGO & TEXT */}
+                <div className="absolute flex items-center gap-2.5 drop-shadow-2xl" style={{ top: '3%', left: '5%' }}>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src="/logo-apasific.png" alt="ASIA Logo" className="w-[45px] h-[45px] object-contain rounded-full border-2 border-[#e5c058]/30 shadow-[0_0_15px_rgba(229,192,88,0.4)]" />
+                  <div className="flex flex-col uppercase tracking-[0.15em] font-serif text-gray-100 drop-shadow-md" style={{ fontSize: '9px' }}>
+                    <span className="leading-tight">Association of Asia Pacific</span>
+                    <span className="leading-tight">Academician</span>
+                  </div>
+                </div>
+
                 {/* DATES */}
                 <div className="absolute flex flex-col gap-1 text-white font-bold text-right drop-shadow-md" style={{ top: '8%', right: '5%', fontSize: '8px' }}>
                   <div className="flex items-center justify-between gap-3 w-24">
                     <span className="uppercase text-left leading-tight tracking-widest">MEMBER<br/>SINCE</span>
-                    <span style={{ fontSize: '10px' }}>241125</span>
+                    <span style={{ fontSize: '10px' }}>{formatDateYYMMDD(selectedMemberCard.created_at, 0)}</span>
                   </div>
                   <div className="flex items-center justify-between gap-3 w-24">
                     <span className="uppercase text-left leading-tight tracking-widest">VALID<br/>THRU</span>
-                    <span style={{ fontSize: '10px' }}>241130</span>
+                    <span style={{ fontSize: '10px' }}>{formatDateYYMMDD(selectedMemberCard.created_at, 3)}</span>
                   </div>
+                </div>
+
+                {/* CHIP */}
+                <div className="absolute opacity-90 drop-shadow-md" style={{ top: '28%', left: '8%' }}>
+                  <svg width="36" height="26" viewBox="0 0 40 30" xmlns="http://www.w3.org/2000/svg">
+                    <rect width="40" height="30" rx="5" fill="url(#chipGradient2)" stroke="#8b6508" strokeWidth="0.5" />
+                    <path d="M0 10 h12 M0 20 h12 M28 10 h12 M28 20 h12 M12 0 v30 M28 0 v30 M12 15 h16" stroke="#8b6508" strokeWidth="0.8" fill="none" />
+                    <defs>
+                      <linearGradient id="chipGradient2" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stopColor="#e5c058" />
+                        <stop offset="50%" stopColor="#fef0a1" />
+                        <stop offset="100%" stopColor="#c59837" />
+                      </linearGradient>
+                    </defs>
+                  </svg>
                 </div>
 
                 {/* NAME & CITIZENSHIP */}
@@ -587,18 +656,29 @@ export default function MajesticMembershipPage() {
                 </div>
 
                 {/* ID NUMBER */}
-                <div className="absolute text-white font-bold tracking-widest drop-shadow-md text-right" style={{ bottom: '8%', right: '5%', fontSize: '12px' }}>
-                  ID. {selectedMemberCard.international_id || "0000001"}
+                <div className="absolute text-white font-bold tracking-wider drop-shadow-md text-right" style={{ bottom: '8%', right: '5%', fontSize: '9px' }}>
+                  ID. {selectedMemberCard.international_id || "ASIA-VII-000001"}
                 </div>
               </div>
 
               {/* Back Card */}
-              <div id="print-card-back" className="w-full relative overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.8)] print:shadow-none border border-[#c9a84c]/40 print:border-none bg-cover bg-center" style={{ backgroundImage: 'url(/cardmember.png)', borderRadius: '16px', aspectRatio: '1.586/1' }}>
+              <div id="print-card-back" className="w-full relative overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.8)] print:shadow-none border border-[#c9a84c]/40 print:border-none bg-cover bg-center" style={{ backgroundImage: 'url(/cardasia1.png)', borderRadius: '16px', aspectRatio: '1.586/1' }}>
+                
+                {/* LOGO & TEXT */}
+                <div className="absolute flex items-center gap-2.5 drop-shadow-2xl" style={{ top: '3%', left: '5%' }}>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src="/logo-apasific.png" alt="ASIA Logo" className="w-[45px] h-[45px] object-contain rounded-full border-2 border-[#e5c058]/30 shadow-[0_0_15px_rgba(229,192,88,0.4)]" />
+                  <div className="flex flex-col uppercase tracking-[0.15em] font-serif text-gray-100 drop-shadow-md" style={{ fontSize: '9px' }}>
+                    <span className="leading-tight">Association of Asia Pacific</span>
+                    <span className="leading-tight">Academician</span>
+                  </div>
+                </div>
+
                 {/* Magnetic Stripe */}
                 <div className="absolute w-full bg-[#1c1c1c] shadow-lg" style={{ top: '24%', height: '18%' }}></div>
                 
                 {/* Text Information (Perfectly Aligned) */}
-                <div className="absolute flex flex-col gap-[4px] text-white font-bold uppercase drop-shadow-md tracking-wider whitespace-nowrap" style={{ top: '46%', left: '6%', fontSize: '9px' }}>
+                <div className="absolute flex flex-col gap-[4px] text-white font-bold uppercase drop-shadow-md tracking-wider whitespace-nowrap" style={{ top: '43%', left: '6%', fontSize: '9px' }}>
                   <div className="flex items-center">
                     <div className="w-[75px] text-left">NAME</div>
                     <div className="mr-1">:</div>
@@ -616,11 +696,9 @@ export default function MajesticMembershipPage() {
                   </div>
                 </div>
 
-                {/* QR Code */}
-                <div className="absolute bg-white p-1 rounded-md shadow-xl flex items-center justify-center" style={{ bottom: '10%', right: '4%', width: '16%', aspectRatio: '1/1' }}>
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=ApasificMember_${selectedMemberCard.international_id || '0000001'}`} alt="QR Code" className="w-full h-full object-contain" />
-                </div>
+              <div className="absolute bg-white rounded-md p-1 shadow-lg" style={{ bottom: '6%', right: '6%', width: '48px', height: '48px' }}>
+                <img src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://www.apasific.org`} alt="QR Code" className="w-full h-full object-contain" />
+              </div>
               </div>
 
             </div>
