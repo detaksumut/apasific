@@ -8,13 +8,14 @@ export async function sendWa(target: string, message: string): Promise<boolean> 
   }
 
   try {
+    const cleanTarget = target.replace(/[^0-9]/g, '');
     const res = await fetch("https://api.fonnte.com/send", {
       method: "POST",
       headers: {
         "Authorization": token,
       },
       body: new URLSearchParams({
-        target: target,
+        target: cleanTarget,
         message: message,
       }),
     });

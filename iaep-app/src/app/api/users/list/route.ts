@@ -89,6 +89,7 @@ export async function GET() {
               country: newR.country,
               status: newR.status,
               joined: newR.date,
+              phone_number: newR.phone,
               password: "ReviewerPassword123!"
             });
           }
@@ -150,18 +151,18 @@ export async function GET() {
       if (action === "edit" && editData) {
         users = users.map((u: any) => u.id === editData.id ? { 
           ...u, 
-          full_name: editData.name,
+          full_name: editData.name || editData.full_name,
           email: editData.email,
           role: editData.role.toLowerCase(),
           status: editData.status,
-          phone_number: editData.phone,
+          phone_number: editData.phone_number || editData.phone,
           university: editData.university,
           country: editData.country,
-          orcid_id: editData.orcid,
-          google_scholar_id: editData.googleScholar,
-          scopus_id: editData.scopus,
-          wos_id: editData.wos,
-          sinta_id: editData.sinta
+          orcid_id: editData.orcid_id || editData.orcid,
+          google_scholar_id: editData.google_scholar_id || editData.googleScholar,
+          scopus_id: editData.scopus_id || editData.scopus,
+          wos_id: editData.wos_id || editData.wos,
+          sinta_id: editData.sinta_id || editData.sinta
         } : u);
       } else if (action === "approve") {
         users = users.map((u: any) => u.id === userId ? { ...u, status: "Active" } : u);

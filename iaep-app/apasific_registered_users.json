@@ -9,7 +9,8 @@
     "country": "Indonesia",
     "status": "Active",
     "joined": "11/25/2025 12:43:16",
-    "password": "ReviewerPassword123!"
+    "password": "ReviewerPassword123!",
+    "phone_number": "+6287886034909"
   },
   {
     "id": "demo-user-1783883716359-0.2605839011856409",
@@ -21,7 +22,8 @@
     "country": "INDONESIA",
     "status": "Active",
     "joined": "11/28/2025 19:03:12",
-    "password": "ReviewerPassword123!"
+    "password": "ReviewerPassword123!",
+    "phone_number": "+6281355148080"
   },
   {
     "id": "demo-user-1783883716362-0.8724951060206666",
@@ -33,7 +35,8 @@
     "country": "MALAYSIA",
     "status": "Active",
     "joined": "12/21/2025 10:13:59",
-    "password": "ReviewerPassword123!"
+    "password": "ReviewerPassword123!",
+    "phone_number": "+60166129626"
   },
   {
     "id": "demo-user-1783883716362-0.14664086345232652",
@@ -45,7 +48,8 @@
     "country": "MALAYSIA",
     "status": "Active",
     "joined": "12/22/2025 8:11:57",
-    "password": "ReviewerPassword123!"
+    "password": "ReviewerPassword123!",
+    "phone_number": "60124837913"
   },
   {
     "id": "demo-user-1783883716362-0.44837719579154967",
@@ -57,7 +61,8 @@
     "country": "Malaysia",
     "status": "Active",
     "joined": "12/22/2025 8:25:51",
-    "password": "ReviewerPassword123!"
+    "password": "ReviewerPassword123!",
+    "phone_number": "+601111105076"
   },
   {
     "id": "demo-user-1783883716362-0.11619395145670042",
@@ -69,7 +74,8 @@
     "country": "Malaysia",
     "status": "Active",
     "joined": "12/22/2025 8:29:19",
-    "password": "ReviewerPassword123!"
+    "password": "ReviewerPassword123!",
+    "phone_number": "124015200"
   },
   {
     "id": "demo-user-1783883716362-0.10160221374152134",
@@ -81,7 +87,8 @@
     "country": "MALAYSIA",
     "status": "Active",
     "joined": "12/22/2025 8:30:11",
-    "password": "ReviewerPassword123!"
+    "password": "ReviewerPassword123!",
+    "phone_number": "+60195936932"
   },
   {
     "id": "demo-user-1783883716362-0.4562868417475303",
@@ -93,7 +100,8 @@
     "country": "MALAYSIA",
     "status": "Active",
     "joined": "12/22/2025 8:31:17",
-    "password": "ReviewerPassword123!"
+    "password": "ReviewerPassword123!",
+    "phone_number": "+60134882602"
   },
   {
     "id": "demo-user-1783883716362-0.13447276345929493",
@@ -104,8 +112,9 @@
     "university": "Universiti Utara Malaysia",
     "country": "Malaysia",
     "status": "Active",
-    "joined": "12/22/2025 8:47:03",
-    "password": "ReviewerPassword123!"
+    "joined": "12/22/2025 12:24:47",
+    "password": "ReviewerPassword123!",
+    "phone_number": "+60194572786"
   },
   {
     "id": "demo-user-1783883716362-0.4109131393821126",
@@ -117,7 +126,8 @@
     "country": "MALAYSIA",
     "status": "Active",
     "joined": "12/22/2025 8:48:46",
-    "password": "ReviewerPassword123!"
+    "password": "ReviewerPassword123!",
+    "phone_number": "0060174811673"
   },
   {
     "id": "demo-user-1783883716362-0.11695543987613621",
@@ -129,7 +139,8 @@
     "country": "MALAYSIA",
     "status": "Active",
     "joined": "12/22/2025 8:49:22",
-    "password": "ReviewerPassword123!"
+    "password": "ReviewerPassword123!",
+    "phone_number": "60174713969"
   },
   {
     "id": "demo-user-1783883716362-0.3789661031960819",
@@ -141,7 +152,8 @@
     "country": "MALAYSIA",
     "status": "Active",
     "joined": "12/22/2025 9:08:33",
-    "password": "ReviewerPassword123!"
+    "password": "ReviewerPassword123!",
+    "phone_number": "+601161048384"
   },
   {
     "id": "demo-user-1783883716362-0.6225796805565063",
@@ -153,7 +165,8 @@
     "country": "Malaysia",
     "status": "Active",
     "joined": "12/22/2025 9:14:31",
-    "password": "ReviewerPassword123!"
+    "password": "ReviewerPassword123!",
+    "phone_number": "+60195681574"
   },
   {
     "id": "demo-user-1783883716362-0.00014305041199957902",
@@ -165,7 +178,8 @@
     "country": "MALAYSIA",
     "status": "Active",
     "joined": "12/22/2025 9:16:21",
-    "password": "ReviewerPassword123!"
+    "password": "ReviewerPassword123!",
+    "phone_number": "+60124151883"
   },
   {
     "id": "demo-user-1783883716362-0.3011234786792738",
@@ -177,7 +191,8 @@
     "country": "MALAYSIA",
     "status": "Active",
     "joined": "12/22/2025 9:38:55",
-    "password": "ReviewerPassword123!"
+    "password": "ReviewerPassword123!",
+    "phone_number": "+60189524228"
   },
   {
     "id": "demo-user-1783883716362-0.9970794554675253",
@@ -189,7 +204,8 @@
     "country": "Malaysia",
     "status": "Active",
     "joined": "12/22/2025 9:43:04",
-    "password": "ReviewerPassword123!"
+    "password": "ReviewerPassword123!",
+    "phone_number": "0194518080"
   },
   {
     "id": "demo-user-1783883716362-0.5760055934728682",
@@ -201,7 +217,8 @@
     "country": "MALAYSIA",
     "status": "Active",
     "joined": "12/22/2025 9:46:11",
-    "password": "ReviewerPassword123!"
+    "password": "ReviewerPassword123!",
+    "phone_number": "+60109007163"
   },
   {
     "id": "demo-user-1783883716362-0.2537447422525876",
@@ -213,7 +230,8 @@
     "country": "Malaysia",
     "status": "Active",
     "joined": "12/22/2025 9:46:41",
-    "password": "ReviewerPassword123!"
+    "password": "ReviewerPassword123!",
+    "phone_number": "601137236558"
   },
   {
     "id": "demo-user-1783883716362-0.5271023909739894",
@@ -225,7 +243,11 @@
     "country": "Indonesia",
     "status": "Active",
     "joined": "6/4/2025 8:51:32",
-    "password": "ReviewerPassword123!"
+    "password": "ReviewerPassword123!",
+    "phone_number": "+62811486008",
+    "scopus_id": "57188496923",
+    "google_scholar_id": "6147164",
+    "orcid_id": "0009-0009-1488-4963"
   },
   {
     "id": "demo-user-1783883716362-0.8652190097997866",
@@ -237,7 +259,8 @@
     "country": "Malaysia",
     "status": "Active",
     "joined": "12/22/2025 9:56:49",
-    "password": "ReviewerPassword123!"
+    "password": "ReviewerPassword123!",
+    "phone_number": "0195272400"
   },
   {
     "id": "demo-user-1783883716362-0.7967390494776104",
@@ -249,7 +272,8 @@
     "country": "MALAYSIA",
     "status": "Active",
     "joined": "12/22/2025 9:58:40",
-    "password": "ReviewerPassword123!"
+    "password": "ReviewerPassword123!",
+    "phone_number": "+0060194001118"
   },
   {
     "id": "demo-user-1783883716362-0.5026652320071413",
@@ -261,7 +285,8 @@
     "country": "Malaysia",
     "status": "Active",
     "joined": "12/22/2025 10:16:08",
-    "password": "ReviewerPassword123!"
+    "password": "ReviewerPassword123!",
+    "phone_number": "0124099573"
   },
   {
     "id": "demo-user-1783883716362-0.6980638475758272",
@@ -273,7 +298,8 @@
     "country": "MALAYSIA",
     "status": "Active",
     "joined": "12/22/2025 10:41:49",
-    "password": "ReviewerPassword123!"
+    "password": "ReviewerPassword123!",
+    "phone_number": "0194460712"
   },
   {
     "id": "demo-user-1783883716362-0.39547089820446013",
@@ -285,7 +311,8 @@
     "country": "MALAYSIA",
     "status": "Active",
     "joined": "12/22/2025 11:19:19",
-    "password": "ReviewerPassword123!"
+    "password": "ReviewerPassword123!",
+    "phone_number": "+60195059009"
   },
   {
     "id": "demo-user-1783883716362-0.30035193051013",
@@ -297,7 +324,8 @@
     "country": "Malaysia",
     "status": "Active",
     "joined": "12/22/2025 12:06:55",
-    "password": "ReviewerPassword123!"
+    "password": "ReviewerPassword123!",
+    "phone_number": "+60194707650"
   },
   {
     "id": "demo-user-1783883716362-0.664367379529085",
@@ -309,7 +337,8 @@
     "country": "Malaysia",
     "status": "Active",
     "joined": "12/22/2025 12:10:02",
-    "password": "ReviewerPassword123!"
+    "password": "ReviewerPassword123!",
+    "phone_number": "0164182556"
   },
   {
     "id": "demo-user-1783883716362-0.44389302624526505",
@@ -321,7 +350,8 @@
     "country": "MALAYSIA",
     "status": "Active",
     "joined": "12/22/2025 12:26:06",
-    "password": "ReviewerPassword123!"
+    "password": "ReviewerPassword123!",
+    "phone_number": "+60134860137"
   },
   {
     "id": "demo-user-1783883716362-0.08071527588014105",
@@ -333,7 +363,8 @@
     "country": "Malaysia",
     "status": "Active",
     "joined": "12/22/2025 12:26:59",
-    "password": "ReviewerPassword123!"
+    "password": "ReviewerPassword123!",
+    "phone_number": "0178672346"
   },
   {
     "id": "demo-user-1783883716362-0.48758674871616847",
@@ -345,19 +376,21 @@
     "country": "Malaysia",
     "status": "Active",
     "joined": "12/22/2025 13:03:31",
-    "password": "ReviewerPassword123!"
+    "password": "ReviewerPassword123!",
+    "phone_number": "+60174880084"
   },
   {
     "id": "demo-user-1783883716362-0.7291372804087655",
-    "full_name": "Wan Norhayati Wan Ahmad",
+    "full_name": "WAN NORHAYATI WAN AHMAD",
     "email": "wnwa@uum.edu.my",
     "role": "reviewer",
     "journal": "APASIFIC IAEP",
-    "university": "Universiti Utara Malaysia",
-    "country": "Malaysia",
+    "university": "UNIVERSITI UTARA MALAYSIA",
+    "country": "MALAYSIA",
     "status": "Active",
-    "joined": "12/22/2025 13:16:38",
-    "password": "ReviewerPassword123!"
+    "joined": "12/23/2025 18:34:51",
+    "password": "ReviewerPassword123!",
+    "phone_number": "+60162823959"
   },
   {
     "id": "demo-user-1783883716362-0.9668592447391468",
@@ -369,7 +402,8 @@
     "country": "MALAYSIA",
     "status": "Active",
     "joined": "12/22/2025 14:25:37",
-    "password": "ReviewerPassword123!"
+    "password": "ReviewerPassword123!",
+    "phone_number": "+60126594828"
   },
   {
     "id": "demo-user-1783883716362-0.26600385140836724",
@@ -381,7 +415,8 @@
     "country": "MALAYSIA",
     "status": "Active",
     "joined": "12/22/2025 14:53:51",
-    "password": "ReviewerPassword123!"
+    "password": "ReviewerPassword123!",
+    "phone_number": "0194452757"
   },
   {
     "id": "demo-user-1783883716362-0.198505819451133",
@@ -393,7 +428,8 @@
     "country": "MALAYSIA",
     "status": "Active",
     "joined": "12/22/2025 14:59:53",
-    "password": "ReviewerPassword123!"
+    "password": "ReviewerPassword123!",
+    "phone_number": "+60148278346"
   },
   {
     "id": "demo-user-1783883716362-0.754602160254216",
@@ -405,7 +441,8 @@
     "country": "MALAYSIA",
     "status": "Active",
     "joined": "12/23/2025 6:34:20",
-    "password": "ReviewerPassword123!"
+    "password": "ReviewerPassword123!",
+    "phone_number": "+60183222043"
   },
   {
     "id": "demo-user-1783883716362-0.12657652218322835",
@@ -417,7 +454,8 @@
     "country": "Indonesia",
     "status": "Active",
     "joined": "12/23/2025 8:21:42",
-    "password": "ReviewerPassword123!"
+    "password": "ReviewerPassword123!",
+    "phone_number": "+6281315515000"
   },
   {
     "id": "demo-user-1783883716362-0.9652413233720003",
@@ -429,7 +467,8 @@
     "country": "MALAYSIA",
     "status": "Active",
     "joined": "12/23/2025 10:32:52",
-    "password": "ReviewerPassword123!"
+    "password": "ReviewerPassword123!",
+    "phone_number": "0194100207"
   },
   {
     "id": "demo-user-1783883716362-0.055194359905753165",
@@ -441,7 +480,8 @@
     "country": "Malaysia",
     "status": "Active",
     "joined": "12/23/2025 11:37:18",
-    "password": "ReviewerPassword123!"
+    "password": "ReviewerPassword123!",
+    "phone_number": "+60126953448"
   },
   {
     "id": "demo-user-1783883716362-0.9913532756946852",
@@ -452,8 +492,9 @@
     "university": "UNIVERSITI UTARA MALAYSIA",
     "country": "MALAYSIA",
     "status": "Active",
-    "joined": "12/23/2025 11:42:48",
-    "password": "ReviewerPassword123!"
+    "joined": "12/23/2025 12:02:14",
+    "password": "ReviewerPassword123!",
+    "phone_number": "60134336703"
   },
   {
     "id": "demo-user-1783883716362-0.8392981464060385",
@@ -465,7 +506,8 @@
     "country": "Malaysia",
     "status": "Active",
     "joined": "12/23/2025 11:48:25",
-    "password": "ReviewerPassword123!"
+    "password": "ReviewerPassword123!",
+    "phone_number": "+601116323268"
   },
   {
     "id": "demo-user-1783883716362-0.22138513053106013",
@@ -477,7 +519,8 @@
     "country": "Malaysia",
     "status": "Active",
     "joined": "12/23/2025 11:57:06",
-    "password": "ReviewerPassword123!"
+    "password": "ReviewerPassword123!",
+    "phone_number": "+60194582803"
   },
   {
     "id": "demo-user-1783883716362-0.9720012055002588",
@@ -489,7 +532,8 @@
     "country": "MALAYSIA",
     "status": "Active",
     "joined": "12/23/2025 13:25:41",
-    "password": "ReviewerPassword123!"
+    "password": "ReviewerPassword123!",
+    "phone_number": "60195908793"
   },
   {
     "id": "demo-user-1783883716362-0.6777651822117492",
@@ -501,7 +545,8 @@
     "country": "MALAYSIA",
     "status": "Active",
     "joined": "12/23/2025 21:09:32",
-    "password": "ReviewerPassword123!"
+    "password": "ReviewerPassword123!",
+    "phone_number": "0194166101"
   },
   {
     "id": "demo-user-1783883716362-0.22306900299043286",
@@ -513,7 +558,8 @@
     "country": "INDONESIA",
     "status": "Active",
     "joined": "12/24/2025 8:30:52",
-    "password": "ReviewerPassword123!"
+    "password": "ReviewerPassword123!",
+    "phone_number": "+6282387800205"
   },
   {
     "id": "demo-user-1783883716362-0.46175430839643294",
@@ -525,7 +571,8 @@
     "country": "Malaysia",
     "status": "Active",
     "joined": "12/26/2025 22:43:15",
-    "password": "ReviewerPassword123!"
+    "password": "ReviewerPassword123!",
+    "phone_number": "60105131525"
   },
   {
     "id": "demo-user-1783883716362-0.05730894278781362",
@@ -537,7 +584,8 @@
     "country": "INDONESIA",
     "status": "Active",
     "joined": "1/5/2026 22:53:36",
-    "password": "ReviewerPassword123!"
+    "password": "ReviewerPassword123!",
+    "phone_number": "+6285258175761"
   },
   {
     "id": "demo-user-1783883716362-0.6480814057701898",
@@ -549,7 +597,8 @@
     "country": "Indonesia",
     "status": "Active",
     "joined": "1/28/2026 19:47:29",
-    "password": "ReviewerPassword123!"
+    "password": "ReviewerPassword123!",
+    "phone_number": "+6281371623199"
   },
   {
     "id": "demo-user-1783883716362-0.10475870295027656",
@@ -561,7 +610,8 @@
     "country": "Indonesia",
     "status": "Active",
     "joined": "2/2/2026 11:35:42",
-    "password": "ReviewerPassword123!"
+    "password": "ReviewerPassword123!",
+    "phone_number": "+6285355924614"
   },
   {
     "id": "demo-user-1783883716362-0.6813339075641194",
@@ -573,7 +623,8 @@
     "country": "Indonesia",
     "status": "Active",
     "joined": "2/25/2026 15:26:01",
-    "password": "ReviewerPassword123!"
+    "password": "ReviewerPassword123!",
+    "phone_number": "+6285710766750"
   },
   {
     "id": "demo-user-1783883716362-0.9817978515890335",
@@ -585,7 +636,8 @@
     "country": "Indonesia",
     "status": "Active",
     "joined": "2/26/2026 11:23:01",
-    "password": "ReviewerPassword123!"
+    "password": "ReviewerPassword123!",
+    "phone_number": "+6287746312340"
   },
   {
     "id": "demo-user-1783883716362-0.18279677441582654",
@@ -597,7 +649,8 @@
     "country": "Indonesia",
     "status": "Active",
     "joined": "2/27/2026 7:20:50",
-    "password": "ReviewerPassword123!"
+    "password": "ReviewerPassword123!",
+    "phone_number": "+6285348547742"
   },
   {
     "id": "demo-user-1783883716362-0.8395597950763023",
@@ -609,7 +662,8 @@
     "country": "INDONESIA",
     "status": "Active",
     "joined": "7/6/2026 15:11:49",
-    "password": "ReviewerPassword123!"
+    "password": "ReviewerPassword123!",
+    "phone_number": "+6282261643277"
   },
   {
     "id": "demo-user-1783889321054",
@@ -620,11 +674,6 @@
     "country": "indonesia",
     "university": "Universitas Medan",
     "role": "author",
-    "orcid_id": "",
-    "google_scholar_id": "",
-    "scopus_id": "",
-    "wos_id": "",
-    "sinta_id": "",
     "status": "Active",
     "joined": "2026-07-12T20:48:41.054Z"
   },
@@ -642,7 +691,7 @@
     "email": "isupheni@upms.ac.id",
     "password": "WRTiga2024",
     "full_name": "Dr. Indrian Supheni, SE., M.Aks., CSRA.",
-    "phone_number": "08113130106",
+    "phone_number": "+628113130106",
     "country": "Indonesia",
     "university": "Universitas PGRI Mpu Sindok",
     "role": "author",
@@ -653,5 +702,182 @@
     "sinta_id": "5982195",
     "status": "Active",
     "joined": "2026-07-13T00:07:53.941Z"
+  },
+  {
+    "id": "demo-user-1783924595513",
+    "email": "kiljamilawati.akbar@uin-alauddin.ac.id",
+    "password": "Kiljamilawati@22",
+    "full_name": "Dr. Kiljamilawati, MH",
+    "phone_number": "+6285242026575",
+    "country": "Indonesia",
+    "university": "Universitas Islam Negeri Alauddin Makassar",
+    "role": "reviewer",
+    "orcid_id": "https://orcid.org/0009-0001-5135-3151",
+    "google_scholar_id": "NjRMhcQAAAAJ",
+    "scopus_id": "603321077500",
+    "wos_id": "QQB-6938-2026",
+    "sinta_id": "6877016",
+    "status": "Active",
+    "joined": "2026-07-13T06:36:35.513Z"
+  },
+  {
+    "id": "import-1783937838522-0.18950369259908095",
+    "email": "rparmitasari@uin-alauddin.ac.id",
+    "password": "DefaultPassword123!",
+    "role": "author",
+    "status": "Active",
+    "journal": "APASIFIC IAEP",
+    "joined": "7/11/2026 7:34:57",
+    "full_name": "Prof. Dr. Rika Dwi Ayu Parmitasari, SE, M.Com",
+    "university": "Universitas Islam Negeri Alauddin Makassar Indonesia",
+    "country": "Indonesia",
+    "phone_number": "+6281343814626",
+    "scopus_id": "57192940248",
+    "google_scholar_id": "4o61ZVMAAAAJ",
+    "orcid_id": "0000-0003-2714-9123"
+  },
+  {
+    "id": "import-1783937838523-0.5375361463978983",
+    "email": "aryo.fisip@unej.ac.id",
+    "password": "DefaultPassword123!",
+    "role": "author",
+    "status": "Active",
+    "journal": "APASIFIC IAEP",
+    "joined": "7/11/2026 10:39:22",
+    "full_name": "Aryo Prakoso",
+    "university": "University of Jember",
+    "country": "Indonesia",
+    "phone_number": "+6285731499131",
+    "scopus_id": "5931322210",
+    "google_scholar_id": "hT_VIgYAAAAJ",
+    "orcid_id": "0000-0002-4683-8218"
+  },
+  {
+    "id": "import-1783937838523-0.2950091228091032",
+    "email": "subadriyah@unisnu.ac.id",
+    "password": "DefaultPassword123!",
+    "role": "author",
+    "status": "Active",
+    "journal": "APASIFIC IAEP",
+    "joined": "7/11/2026 11:49:54",
+    "full_name": "Dr. HJ. SUBADRIYAH, S.E., M.Si.",
+    "university": "UNIVERSITAS ISLAM NAHDLATUL ULAMA JEPARA",
+    "country": "Indonesia",
+    "phone_number": "+628112742922",
+    "scopus_id": "57207845594",
+    "google_scholar_id": "KaRTCcsAAAAJ",
+    "orcid_id": "0000-0001-6994-6644"
+  },
+  {
+    "id": "import-1783937838523-0.9685933358309502",
+    "email": "imamgunanjar@unsam.ac.id",
+    "password": "DefaultPassword123!",
+    "role": "author",
+    "status": "Active",
+    "journal": "APASIFIC IAEP",
+    "joined": "7/11/2026 11:58:15",
+    "full_name": "Imam Gunanjar, S.E., M.M.",
+    "university": "Universitas Samudra",
+    "country": "Indonesia",
+    "phone_number": "+6285277719602",
+    "scopus_id": "60142907700",
+    "google_scholar_id": "owKlW6wAAAAJ",
+    "orcid_id": "0009-0004-6714-4452"
+  },
+  {
+    "id": "import-1783937838523-0.6131541139950851",
+    "email": "ha.di@polsri.ac.id",
+    "password": "DefaultPassword123!",
+    "role": "author",
+    "status": "Active",
+    "journal": "APASIFIC IAEP",
+    "joined": "7/11/2026 12:27:44",
+    "full_name": "Hadi Jauhari",
+    "university": "Politeknik Negeri Sriwijaya",
+    "country": "Indonesia",
+    "phone_number": "+6281367163993",
+    "scopus_id": "57194244234",
+    "google_scholar_id": "WkNvivgAAAAJ",
+    "orcid_id": "0000-0002-4059-4371"
+  },
+  {
+    "id": "import-1783937838523-0.7173022143229102",
+    "email": "ikbar.p@gmail.com",
+    "password": "DefaultPassword123!",
+    "role": "author",
+    "status": "Active",
+    "journal": "APASIFIC IAEP",
+    "joined": "7/11/2026 14:34:45",
+    "full_name": "Ikbar Pratama",
+    "university": "Universitas Medan Area",
+    "country": "Indonesia",
+    "phone_number": "+6281376666352",
+    "scopus_id": "57220929541",
+    "google_scholar_id": "Y_NdcAoAAAAJ",
+    "orcid_id": "0000-0002-7897-2737"
+  },
+  {
+    "id": "import-1783937838523-0.6260706724684217",
+    "email": "T.dessy91@gmail.com.",
+    "password": "DefaultPassword123!",
+    "role": "author",
+    "status": "Active",
+    "journal": "APASIFIC IAEP",
+    "joined": "7/11/2026 14:44:54",
+    "full_name": "TRI DESSY FADILLAH",
+    "university": "Institut Syekh Abdul Halim.",
+    "country": "Indonesia",
+    "phone_number": "+6285262571664",
+    "scopus_id": "Scopus Link",
+    "google_scholar_id": "91y1puwAAAAJ",
+    "orcid_id": "0009-0002-3319-086X"
+  },
+  {
+    "id": "import-1783937838523-0.23635514577856953",
+    "email": "surna.lastri@unmuha.ac.id",
+    "password": "DefaultPassword123!",
+    "role": "author",
+    "status": "Active",
+    "journal": "APASIFIC IAEP",
+    "joined": "7/11/2026 15:05:47",
+    "full_name": "Dr. Surna Lastri, SE, M.Si, CTT, CSBA",
+    "university": "Universitas Muhammadiyah Aceh",
+    "country": "Indonesia",
+    "phone_number": "+62811689748",
+    "scopus_id": "57669510400",
+    "google_scholar_id": "Google Scholar Link",
+    "orcid_id": "0000-0001-9602-9446"
+  },
+  {
+    "id": "import-1783937838523-0.12160993736528813",
+    "email": "ayusuryandari@unmas.ac.id",
+    "password": "DefaultPassword123!",
+    "role": "author",
+    "status": "Active",
+    "journal": "APASIFIC IAEP",
+    "joined": "7/12/2026 8:57:20",
+    "full_name": "Dr. Ni Nyoman Ayu Suryandari, SE., M.Si., Ak., CA",
+    "university": "Universitas Mahasaraswati Denpasar",
+    "country": "Indonesia",
+    "phone_number": "+6281337154769",
+    "scopus_id": "57218585288",
+    "google_scholar_id": "zviYldQAAAAJ",
+    "orcid_id": "0000-0001-7103-779X"
+  },
+  {
+    "id": "import-1783937838524-0.3220738021052103",
+    "email": "pettyapriliasari@gmail.com",
+    "password": "DefaultPassword123!",
+    "role": "author",
+    "status": "Active",
+    "journal": "APASIFIC IAEP",
+    "joined": "7/13/2026 9:56:32",
+    "full_name": "Assoc.Prof.Petty Aprilia Sari,S.E.,M.Ak.",
+    "university": "Institut Putra Perdana Indonesia",
+    "country": "Indonesia",
+    "phone_number": "+6285326289990",
+    "scopus_id": "59136382000",
+    "google_scholar_id": "8AFgrTYAAAAJ",
+    "orcid_id": "0009-0006-1797-8568"
   }
 ]

@@ -21,22 +21,22 @@ export async function POST(request: Request) {
       university,
       buktiTransfer
     } = data;
-    // Auto-generate Membership ID if not provided
-    let finalInternationalId = internationalId;
-    if (!finalInternationalId || finalInternationalId.trim() === "") {
-      // Count existing rows to generate sequence number
-      const { count, error: countError } = await supabase
-        .from("membership_applications")
-        .select('*', { count: 'exact', head: true });
-        
-      if (countError) {
-        console.error("Failed to count members:", countError);
-        throw new Error("Count Error: " + (countError.message || JSON.stringify(countError)));
-      }
+    // Auto-generate Membership ID sequentially
+    const { count, error: countError } = await supabase
+      .from("membership_applications")
+      .select('*', { count: 'exact', head: true });
       
-      // Calculate sequence number (e.g. 0000001, 0000002)
-      finalInternationalId = ((count || 0) + 1).toString().padStart(7, '0');
+    if (countError) {
+      console.error("Failed to count members:", countError);
+      throw new Error("Count Error: " + (countError.message || JSON.stringify(countError)));
     }
+    
+    // Calculate sequence number (e.g. 0000001, 0000002)
+    const finalInternationalId = ((count || 0) + 1).toString().padStart(7, '0');
+    
+    // Append the user's ORCID/Scopus ID to the university field so it's not lost
+    const universityWithOrcid = internationalId ? `${university} (ORCID/Scopus: ${internationalId})` : university;
+
 
     const { data: insertedData, error } = await supabase
       .from("membership_applications")
@@ -48,7 +48,7 @@ export async function POST(request: Request) {
           country: country,
           academic_level: academicLevel,
           international_id: finalInternationalId,
-          university: university,
+          university: universityWithOrcid,
           bukti_transfer_url: buktiTransfer, // Base64 string
           status: 'Pending'
         }

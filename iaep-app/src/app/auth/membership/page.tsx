@@ -394,7 +394,7 @@ export default function MajesticMembershipPage() {
 
                   {/* ID NUMBER */}
                   <div className="absolute text-white font-bold tracking-widest drop-shadow-md text-right" style={{ bottom: '8%', right: '5%', fontSize: '12px' }}>
-                    ID. {formData.internationalId || "0000001"}
+                    ID. 0000001
                   </div>
                 </div>
 
@@ -428,7 +428,7 @@ export default function MajesticMembershipPage() {
                   {/* QR Code */}
                   <div className="absolute bg-white p-1 rounded-md shadow-xl flex items-center justify-center" style={{ bottom: '10%', right: '4%', width: '16%', aspectRatio: '1/1' }}>
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=ApasificMember_${formData.internationalId || '0000001'}`} alt="QR Code" className="w-full h-full object-contain" />
+                    <img src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=ApasificMember_0000001`} alt="QR Code" className="w-full h-full object-contain" />
                   </div>
 
                   {/* Footer Vision Removed */}
