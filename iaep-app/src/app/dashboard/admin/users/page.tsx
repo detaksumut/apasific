@@ -5,6 +5,7 @@ import { useState, useEffect } from "react";
 export default function UserManagement() {
   const [users, setUsers] = useState<any[]>([]);
   const [activeTab, setActiveTab] = useState('All');
+  const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
@@ -20,7 +21,7 @@ export default function UserManagement() {
             id: u.id,
             name: u.full_name || u.name,
             email: u.email,
-            role: u.role === "author" ? "Author" : u.role === "reviewer" ? "Reviewer" : u.role === "admin" ? "Admin" : u.role || "Author",
+            role: u.role === "author" ? "Author" : u.role === "reviewer" ? "Reviewer" : u.role === "admin" ? "Admin" : u.role === "co_admin" ? "Co-Admin" : u.role || "Author",
             journal: u.role === "reviewer" ? "APASIFIC IAEP" : u.journal || "RJRAKP", 
             joined: u.joined ? new Date(u.joined).toLocaleDateString() : "Oct 2024",
             status: u.status || "Pending"
@@ -60,7 +61,11 @@ export default function UserManagement() {
       });
       const data = await res.json();
       if (data.success) {
-        setUsers(users.map(u => u.id === editFormData.id ? editFormData : u));
+        const updatedUser = {
+          ...editFormData,
+          role: editFormData.role === "author" ? "Author" : editFormData.role === "reviewer" ? "Reviewer" : editFormData.role === "admin" ? "Admin" : editFormData.role === "co_admin" ? "Co-Admin" : editFormData.role || "Author"
+        };
+        setUsers(users.map(u => u.id === editFormData.id ? updatedUser : u));
         showToast("User details successfully updated!");
         setIsEditOpen(false);
       } else {
@@ -151,7 +156,13 @@ export default function UserManagement() {
         <div className="flex gap-3">
           <div className="relative">
             <svg className="w-5 h-5 absolute left-3 top-2.5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-            <input type="text" placeholder="Search users by email..." className="bg-[#18182e] border border-gray-700 text-white rounded-lg pl-10 pr-4 py-2 focus:outline-none focus:border-[#c9a84c] w-64" />
+            <input 
+              type="text" 
+              placeholder="Search users by email or name..." 
+              value={searchQuery}
+              onChange={(e) => { setSearchQuery(e.target.value); setCurrentPage(1); }}
+              className="bg-[#18182e] border border-gray-700 text-white rounded-lg pl-10 pr-4 py-2 focus:outline-none focus:border-[#c9a84c] w-64" 
+            />
           </div>
           <button 
             onClick={() => setIsInviteOpen(true)}
@@ -186,7 +197,13 @@ export default function UserManagement() {
           onClick={() => { setActiveTab('Editor'); setCurrentPage(1); }}
           className={`px-4 py-3 font-bold transition-colors ${activeTab === 'Editor' ? 'text-[#c9a84c] border-b-2 border-[#c9a84c]' : 'text-gray-400 hover:text-white border-b-2 border-transparent'}`}
         >
-          Editors & Admins
+          Editors
+        </button>
+        <button 
+          onClick={() => { setActiveTab('Admin'); setCurrentPage(1); }}
+          className={`px-4 py-3 font-bold transition-colors ${activeTab === 'Admin' ? 'text-[#c9a84c] border-b-2 border-[#c9a84c]' : 'text-gray-400 hover:text-white border-b-2 border-transparent'}`}
+        >
+          Admins
         </button>
       </div>
 
@@ -205,8 +222,14 @@ export default function UserManagement() {
             <tbody className="divide-y divide-gray-800">
               {(() => {
                 const filteredUsers = users.filter(u => {
+                  const searchMatch = searchQuery === '' || 
+                                      u.email.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                                      u.name.toLowerCase().includes(searchQuery.toLowerCase());
+                  if (!searchMatch) return false;
+                  
                   if (activeTab === 'All') return true;
-                  if (activeTab === 'Editor') return u.role.toLowerCase() === 'editor' || u.role.toLowerCase() === 'admin';
+                  if (activeTab === 'Editor') return u.role.toLowerCase() === 'editor';
+                  if (activeTab === 'Admin') return u.role.toLowerCase() === 'admin' || u.role.toLowerCase() === 'co_admin';
                   return u.role.toLowerCase() === activeTab.toLowerCase();
                 });
                 
@@ -229,6 +252,7 @@ export default function UserManagement() {
                   <td className="p-5">
                     <span className={`px-3 py-1 rounded text-xs font-bold ${
                       user.role === 'Editor' ? 'bg-purple-900/50 text-purple-300 border border-purple-700' :
+                      user.role === 'Co-Admin' ? 'bg-pink-900/50 text-pink-300 border border-pink-700' :
                       user.role === 'Reviewer' ? 'bg-blue-900/50 text-blue-300 border border-blue-700' :
                       'bg-gray-800 text-gray-300 border border-gray-600'
                     }`}>
@@ -287,8 +311,14 @@ export default function UserManagement() {
           <div className="px-5 py-4 border-t border-gray-800 bg-[#111120] flex items-center justify-between">
             {(() => {
               const filteredUsers = users.filter(u => {
+                const searchMatch = searchQuery === '' || 
+                                    u.email.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                                    u.name.toLowerCase().includes(searchQuery.toLowerCase());
+                if (!searchMatch) return false;
+
                 if (activeTab === 'All') return true;
-                if (activeTab === 'Editor') return u.role.toLowerCase() === 'editor' || u.role.toLowerCase() === 'admin';
+                if (activeTab === 'Editor') return u.role.toLowerCase() === 'editor';
+                if (activeTab === 'Admin') return u.role.toLowerCase() === 'admin' || u.role.toLowerCase() === 'co_admin';
                 return u.role.toLowerCase() === activeTab.toLowerCase();
               });
               const totalPages = Math.ceil(filteredUsers.length / itemsPerPage) || 1;
@@ -349,10 +379,12 @@ export default function UserManagement() {
               <div>
                 <label className="block text-sm font-medium text-gray-400 mb-1">Global Role</label>
                 <select className="w-full bg-[#0a0a14] border border-gray-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-[#c9a84c]">
-                  <option>Author</option>
-                  <option>Reviewer</option>
-                  <option>Editor</option>
-                  <option>Journal Manager</option>
+                  <option value="author">Author</option>
+                  <option value="reviewer">Reviewer</option>
+                  <option value="editor">Editor</option>
+                  <option value="admin">Admin</option>
+                  <option value="co_admin">Co-Admin</option>
+                  <option value="journal_manager">Journal Manager</option>
                 </select>
               </div>
               <div className="pt-4">
@@ -420,10 +452,11 @@ export default function UserManagement() {
                 <div>
                   <label className="block text-sm font-medium text-gray-400 mb-1">Change Role</label>
                   <select value={editFormData.role || 'Author'} onChange={e => setEditFormData({...editFormData, role: e.target.value})} className="w-full bg-[#0a0a14] border border-gray-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-[#c9a84c]">
-                    <option value="Author">Author</option>
-                    <option value="Reviewer">Reviewer</option>
-                    <option value="Editor">Editor</option>
-                    <option value="Admin">Admin</option>
+                    <option value="author">Author</option>
+                    <option value="reviewer">Reviewer</option>
+                    <option value="editor">Editor</option>
+                    <option value="admin">Admin</option>
+                    <option value="co_admin">Co-Admin</option>
                   </select>
                 </div>
                 <div>

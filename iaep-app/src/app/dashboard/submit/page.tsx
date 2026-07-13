@@ -58,6 +58,11 @@ const JOURNALS = [
     id: '8',
     name: 'Jurnal Teknik dan Teknologi',
     scopes: ['Teknik Sipil', 'Teknik Mesin', 'Teknik Elektro', 'Teknik Industri', 'Teknologi Informasi', 'Sistem Informasi', 'Kecerdasan Buatan', 'Rekayasa Perangkat Lunak']
+  },
+  {
+    id: '9',
+    name: 'Jurnal Pengabdian Kepada Masyarakat (PKM)',
+    scopes: ['Pemberdayaan Masyarakat', 'Pelatihan dan Pendampingan', 'Pengembangan Potensi Lokal', 'Penerapan Teknologi Tepat Guna', 'Inovasi Sosial']
   }
 ];
 

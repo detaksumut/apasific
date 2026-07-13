@@ -6,7 +6,7 @@ import path from 'path';
 export const dynamic = 'force-dynamic';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL || "https://aroasmlrlpjbjokvxlgo.supabase.co";
-const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFibWppZXFjdW1sc2thbm5ma2RsIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4MDQyMjEyNywiZXhwIjoyMDk1OTk4MTI3fQ.imJyFIR09I6EZtUHiBN3KaPz3tzxmQkGjbMUGqphR5U";
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFyb2FzbWxybHBqYmpva3Z4bGdvIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4MzE4OTU5MCwiZXhwIjoyMDk4NzY1NTkwfQ.pSVcAi-8EpF9CMVCB7rcM5vhMlsJ9WgYURL2jyJyFfg";
 
 const supabaseAdmin = createClient(supabaseUrl, supabaseKey);
 
@@ -51,14 +51,23 @@ export async function GET() {
 
     let users: any[] = [];
     
-    // Prefer Supabase data if available
+    // Prefer Supabase data if available, but merge with local data to avoid missing new registrants
+    const localUsers = getLocalUsers() || [];
+    
     if (!error && data && data.value) {
-      users = Array.isArray(data.value) ? data.value : JSON.parse(data.value as string);
+      const sbUsers = Array.isArray(data.value) ? data.value : JSON.parse(data.value as string);
+      users = [...sbUsers];
+      
+      // Merge local users that might have failed to save to Supabase
+      for (let lu of localUsers) {
+        if (!users.find(u => u.email.toLowerCase() === lu.email.toLowerCase())) {
+          users.push(lu);
+        }
+      }
     } else if (memoryCache) {
       users = memoryCache;
     } else {
-      // Fallback to local if Supabase fails or is empty
-      users = getLocalUsers();
+      users = localUsers;
     }
 
     // Merge new reviewers data from file

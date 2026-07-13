@@ -14,10 +14,42 @@ import {
 } from 'lucide-react';
 
 export default function Submissions() {
-  const [activeTab, setActiveTab] = useState<'aktif' | 'arsip'>('arsip');
+  const [activeTab, setActiveTab] = useState<'aktif' | 'arsip'>('aktif');
+  const [submissions, setSubmissions] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // The submissions will be fetched from the database
-  const submissions: any[] = [];
+  useEffect(() => {
+    const fetchSubmissions = async () => {
+      try {
+        const { createClient } = await import('@/utils/supabase/client');
+        const supabase = createClient();
+        const { data: { user } } = await supabase.auth.getUser();
+        
+        if (user) {
+          const { data, error } = await supabase
+            .from('submissions')
+            .select('*, journals(name)')
+            .eq('author_id', user.id)
+            .order('created_at', { ascending: false });
+            
+          if (!error && data) {
+            setSubmissions(data);
+          }
+        }
+      } catch (e) {
+        console.error(e);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    fetchSubmissions();
+  }, []);
+
+  const activeSubmissions = submissions.filter(s => !['Published', 'Rejected'].includes(s.status));
+  const archivedSubmissions = submissions.filter(s => ['Published', 'Rejected'].includes(s.status));
+  
+  const currentDisplayList = activeTab === 'aktif' ? activeSubmissions : archivedSubmissions;
 
   return (
     <div className="max-w-7xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-700 pb-20">
@@ -53,13 +85,13 @@ export default function Submissions() {
               onClick={() => setActiveTab('aktif')}
               className={`px-6 py-3 font-semibold text-sm transition-colors border-b-2 ${activeTab === 'aktif' ? 'border-emerald-500 text-emerald-500' : 'border-transparent text-zinc-500 hover:text-zinc-300'}`}
             >
-              Antrean Aktif <span className="ml-2 bg-zinc-800 text-zinc-400 py-0.5 px-2 rounded-full text-xs">0</span>
+              Antrean Aktif <span className="ml-2 bg-zinc-800 text-zinc-400 py-0.5 px-2 rounded-full text-xs">{activeSubmissions.length}</span>
             </button>
             <button 
               onClick={() => setActiveTab('arsip')}
               className={`px-6 py-3 font-semibold text-sm transition-colors border-b-2 ${activeTab === 'arsip' ? 'border-emerald-500 text-emerald-500' : 'border-transparent text-zinc-500 hover:text-zinc-300'}`}
             >
-              Arsip <span className="ml-2 bg-emerald-500/20 text-emerald-500 py-0.5 px-2 rounded-full text-xs">3</span>
+              Arsip <span className="ml-2 bg-emerald-500/20 text-emerald-500 py-0.5 px-2 rounded-full text-xs">{archivedSubmissions.length}</span>
             </button>
           </div>
 
@@ -80,33 +112,36 @@ export default function Submissions() {
             </div>
             
             <div className="divide-y divide-zinc-800/80">
-              {activeTab === 'aktif' ? (
+              {isLoading ? (
+                <div className="p-12 text-center text-zinc-500">Memuat naskah...</div>
+              ) : currentDisplayList.length === 0 ? (
                 <div className="p-12 text-center text-zinc-500 flex flex-col items-center justify-center">
                   <FileText className="w-12 h-12 mb-4 opacity-20" />
-                  <p>Tidak ada naskah dalam antrean aktif.</p>
+                  <p>Tidak ada naskah di kategori ini.</p>
                 </div>
               ) : (
-                submissions.map((sub, idx) => (
+                currentDisplayList.map((sub, idx) => (
                   <div key={idx} className="p-6 hover:bg-zinc-900/30 transition-colors group">
                     <div className="flex items-start justify-between gap-4">
                       <div className="flex-1">
                         <div className="flex items-center gap-3 mb-2">
-                          <span className="text-xs font-mono bg-zinc-800 text-zinc-400 px-2 py-1 rounded">{sub.id}</span>
-                          <span className="text-xs font-bold text-emerald-600/70">{sub.journal}</span>
-                          <span className="text-xs text-zinc-500">Dikirim: {sub.date}</span>
+                          <span className="text-xs font-mono bg-zinc-800 text-zinc-400 px-2 py-1 rounded">#{sub.id.split('-')[0]}</span>
+                          <span className="text-xs font-bold text-emerald-600/70">{sub.journals?.name || 'Jurnal'}</span>
+                          <span className="text-xs text-zinc-500">Dikirim: {new Date(sub.created_at).toLocaleDateString('id-ID')}</span>
                         </div>
                         <h4 className="text-lg font-bold text-white group-hover:text-emerald-400 transition-colors mb-2 leading-snug">
                           {sub.title}
                         </h4>
-                        <p className="text-sm text-zinc-400">{sub.author}</p>
+                        <div className="flex items-center gap-3 mt-4">
+                          <span className="flex items-center gap-1.5 px-3 py-1 bg-zinc-800 border border-zinc-700 text-zinc-300 rounded-full text-xs font-bold">
+                            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" /> {sub.status}
+                          </span>
+                        </div>
                       </div>
-                      <div className="flex items-center gap-3">
-                        <span className="flex items-center gap-1.5 px-3 py-1 bg-green-500/10 border border-green-500/30 text-green-500 rounded-full text-xs font-bold">
-                          <CheckCircle2 className="w-3.5 h-3.5" /> {sub.status}
-                        </span>
-                        <button className="p-2 border border-zinc-700 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-800 transition-all">
-                          <Eye className="w-4 h-4" />
-                        </button>
+                      <div className="flex flex-col items-end gap-3">
+                        <Link href={`/dashboard/submissions/${sub.id}`} className="px-4 py-2 border border-emerald-500/50 hover:bg-emerald-500/10 text-emerald-500 rounded-lg text-sm font-semibold transition-all flex items-center gap-2">
+                          <Eye className="w-4 h-4" /> Lacak Proses
+                        </Link>
                       </div>
                     </div>
                   </div>

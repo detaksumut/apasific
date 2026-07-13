@@ -87,25 +87,6 @@ export default function MajesticMembershipPage() {
     }
   };
 
-  const getCountryCode = (country: string) => {
-    const map: Record<string, string> = {
-      "Indonesia": "ID", "Malaysia": "MY", "Singapore": "SG", "Thailand": "TH", 
-      "Vietnam": "VN", "Philippines": "PH", "Japan": "JP", "South Korea": "KR", 
-      "China": "CN", "India": "IN", "Australia": "AU"
-    };
-    return map[country] || "XX";
-  };
-  
-  const getLevelCode = (lvl: string) => {
-    if (lvl === "Institusi") return "INS";
-    return lvl || "XX";
-  };
-
-  const currentYear = new Date().getFullYear().toString().slice(2);
-  const previewCountryCode = getCountryCode(formData.country);
-  const previewLevelCode = getLevelCode(formData.academicLevel);
-  const previewId = `ASIA-${previewCountryCode}${currentYear}-${previewLevelCode}001`;
-
   useEffect(() => {
     async function fetchMembers() {
       try {

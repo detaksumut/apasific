@@ -34,14 +34,17 @@ export default function SelectRolePage() {
       router.push("/dashboard/editor");
     } else if (selectedRole === "admin") {
       router.push("/dashboard/admin");
+    } else if (selectedRole === "co_admin") {
+      router.push("/dashboard/admin/users");
     }
   };
 
   // Determine what options this user is allowed to see based on their DB role
   const allowedRoles = ["author"];
-  if (userRole === "reviewer" || userRole === "editor" || userRole === "admin") allowedRoles.push("reviewer");
+  if (userRole === "reviewer" || userRole === "editor" || userRole === "admin" || userRole === "co_admin") allowedRoles.push("reviewer");
   if (userRole === "editor" || userRole === "admin") allowedRoles.push("editor");
   if (userRole === "admin") allowedRoles.push("admin");
+  if (userRole === "co_admin" || userRole === "admin") allowedRoles.push("co_admin");
 
   return (
     <div className="min-h-screen bg-[#05050a] flex items-center justify-center p-4">
@@ -115,6 +118,23 @@ export default function SelectRolePage() {
                 <div>
                   <h3 className="text-white font-bold text-lg group-hover:text-amber-500 transition-colors">Portal Administrasi</h3>
                   <p className="text-zinc-400 text-sm">Kelola sistem, jurnal, pengguna, dan pengaturan global.</p>
+                </div>
+              </div>
+            </button>
+          )}
+
+          {allowedRoles.includes("co_admin") && (
+            <button 
+              onClick={() => handleSelectRole("co_admin")}
+              className="group flex items-center justify-between p-6 bg-zinc-900/50 border border-zinc-800 rounded-xl hover:border-purple-500 hover:bg-purple-500/5 transition-all text-left"
+            >
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 rounded-full bg-purple-500/10 flex items-center justify-center">
+                  <ShieldCheck className="w-6 h-6 text-purple-500" />
+                </div>
+                <div>
+                  <h3 className="text-white font-bold text-lg group-hover:text-purple-500 transition-colors">Portal Co-Admin</h3>
+                  <p className="text-zinc-400 text-sm">Akses khusus untuk menyetujui Member dan Author baru.</p>
                 </div>
               </div>
             </button>

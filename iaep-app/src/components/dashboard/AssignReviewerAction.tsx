@@ -36,6 +36,15 @@ export default function AssignReviewerAction({ article, reviewers }: { article: 
           .eq('id', article.id);
       }
 
+      // 3. Log history
+      const { data: { user } } = await supabase.auth.getUser();
+      await supabase.from('submission_history').insert({
+        submission_id: article.id,
+        action: 'Reviewer Assigned',
+        performed_by: user?.id,
+        details: `Assigned to reviewer ID: ${reviewerId}`
+      });
+
       setIsOpen(false);
       router.refresh(); // Refresh page to show updated status
     } catch (error) {

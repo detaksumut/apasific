@@ -1,10 +1,33 @@
 "use client";
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Award, Download, Printer } from 'lucide-react';
 
 export default function Certificates() {
-  // The certificates will be fetched from the database
-  const certificates: any[] = [];
+  const [certificates, setCertificates] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchCerts = async () => {
+      try {
+        const { createClient } = await import('@/utils/supabase/client');
+        const supabase = createClient();
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          const { data } = await supabase
+            .from('certificates')
+            .select('*')
+            .eq('user_id', user.id)
+            .order('issued_at', { ascending: false });
+          if (data) setCertificates(data);
+        }
+      } catch (e) {
+        console.error(e);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchCerts();
+  }, []);
 
   return (
     <div className="max-w-6xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-700 pb-20">

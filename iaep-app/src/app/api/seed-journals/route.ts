@@ -56,6 +56,30 @@ export async function GET() {
       }
     }
 
+    // --- START PKM SEEDING ---
+    const { data: pkmCheck } = await supabase.from('journals').select('id').eq('id', 9).single();
+    if (!pkmCheck) {
+      await supabase.from('journals').insert({
+        id: 9,
+        name: 'Jurnal Pengabdian Kepada Masyarakat (PKM)',
+        abbreviation: 'JPKM',
+        issn: 'XXXX-XXXX',
+        description: 'Jurnal publikasi hasil kegiatan pengabdian kepada masyarakat.'
+      });
+      
+      await supabase.from('journal_scopes').insert([
+        { journal_id: 9, name: 'Pemberdayaan Masyarakat' },
+        { journal_id: 9, name: 'Pelatihan dan Pendampingan' },
+        { journal_id: 9, name: 'Pengembangan Potensi Lokal' },
+        { journal_id: 9, name: 'Penerapan Teknologi Tepat Guna' },
+        { journal_id: 9, name: 'Inovasi Sosial' }
+      ]);
+      results.push({ body: 'PKM Journal', success: true, action: 'inserted' });
+    } else {
+      results.push({ body: 'PKM Journal', success: true, action: 'already_exists' });
+    }
+    // --- END PKM SEEDING ---
+
     return NextResponse.json({ success: true, results });
   } catch (error: any) {
     return NextResponse.json({ error: error.message, fullError: error }, { status: 200 });

@@ -1,0 +1,200 @@
+"use client";
+
+import React, { useState } from 'react';
+import { createClient } from '@/utils/supabase/client';
+import { useRouter } from 'next/navigation';
+import { AlertCircle, CheckCircle, Save, Send, ShieldCheck, XCircle } from 'lucide-react';
+
+export default function ReviewActionForm({ assignment }: { assignment: any }) {
+  const [status, setStatus] = useState(assignment.status); // 'pending', 'accepted', 'completed'
+  const [recommendation, setRecommendation] = useState(assignment.recommendation || 'accept');
+  const [commentsAuthor, setCommentsAuthor] = useState(assignment.comments_for_author || '');
+  const [commentsEditor, setCommentsEditor] = useState(assignment.comments_for_editor || '');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const router = useRouter();
+  const supabase = createClient();
+
+  const handleAcceptAssignment = async () => {
+    setIsSubmitting(true);
+    try {
+      const { error } = await supabase
+        .from('review_assignments')
+        .update({ status: 'accepted' })
+        .eq('id', assignment.id);
+      
+      if (error) throw error;
+      
+      // Log history
+      await supabase.from('submission_history').insert({
+        submission_id: assignment.submission_id,
+        action: 'Reviewer Accepted Assignment',
+        performed_by: assignment.reviewer_id,
+        details: 'Reviewer has agreed to review the manuscript.'
+      });
+
+      setStatus('accepted');
+      router.refresh();
+    } catch (e) {
+      console.error(e);
+      alert('Gagal menerima tugas.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleRejectAssignment = async () => {
+    setIsSubmitting(true);
+    try {
+      const { error } = await supabase
+        .from('review_assignments')
+        .update({ status: 'rejected' })
+        .eq('id', assignment.id);
+      if (error) throw error;
+      router.refresh();
+    } catch (e) {
+      alert('Gagal menolak tugas.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleSubmitReview = async () => {
+    if (!commentsAuthor.trim()) {
+      alert('Komentar untuk Penulis wajib diisi.');
+      return;
+    }
+    
+    setIsSubmitting(true);
+    try {
+      const { error } = await supabase
+        .from('review_assignments')
+        .update({
+          status: 'completed',
+          recommendation,
+          comments_for_author: commentsAuthor,
+          comments_for_editor: commentsEditor,
+          completed_at: new Date().toISOString()
+        })
+        .eq('id', assignment.id);
+      
+      if (error) throw error;
+
+      await supabase.from('submission_history').insert({
+        submission_id: assignment.submission_id,
+        action: 'Review Completed',
+        performed_by: assignment.reviewer_id,
+        details: `Recommendation: ${recommendation}`
+      });
+
+      setStatus('completed');
+      router.refresh();
+    } catch (e) {
+      console.error(e);
+      alert('Gagal mengirim hasil ulasan.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  if (status === 'pending') {
+    return (
+      <div className="flex justify-end gap-3 mt-6">
+        <button 
+          onClick={handleRejectAssignment}
+          disabled={isSubmitting}
+          className="px-6 py-2 border border-red-500/30 text-red-500 hover:bg-red-500/10 rounded-lg font-medium text-sm transition-colors disabled:opacity-50"
+        >
+          Tolak Tugas
+        </button>
+        <button 
+          onClick={handleAcceptAssignment}
+          disabled={isSubmitting}
+          className="px-6 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg font-medium text-sm transition-colors shadow-lg shadow-emerald-900/20 disabled:opacity-50 flex items-center gap-2"
+        >
+          <ShieldCheck className="w-4 h-4" />
+          Terima Ulasan
+        </button>
+      </div>
+    );
+  }
+
+  if (status === 'completed') {
+    return (
+      <div className="mt-6 p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-xl flex items-center gap-3">
+        <CheckCircle className="w-6 h-6 text-emerald-500" />
+        <div>
+          <h4 className="text-emerald-400 font-bold">Ulasan Telah Selesai</h4>
+          <p className="text-sm text-emerald-500/80">Terima kasih atas kontribusi Anda. Hasil ulasan telah dikirim ke Editor.</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Accepted Status - Show the Review Form
+  return (
+    <div className="mt-6 border-t border-zinc-800 pt-6 animate-in fade-in slide-in-from-top-4 duration-500">
+      <h4 className="text-white font-bold mb-4 flex items-center gap-2">
+        <Send className="w-4 h-4 text-[#c9a84c]" />
+        Formulir Penilaian (Review Form)
+      </h4>
+      
+      <div className="space-y-6">
+        {/* Recommendation */}
+        <div>
+          <label className="block text-sm font-semibold text-zinc-300 mb-2">Rekomendasi Akhir <span className="text-red-500">*</span></label>
+          <select 
+            value={recommendation}
+            onChange={(e) => setRecommendation(e.target.value)}
+            className="w-full bg-[#0a0a0f] border border-zinc-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-[#c9a84c] transition-colors appearance-none"
+          >
+            <option value="accept">Accept Submission (Diterima)</option>
+            <option value="minor_revision">Revisions Required (Revisi Minor)</option>
+            <option value="major_revision">Resubmit for Review (Revisi Mayor)</option>
+            <option value="reject">Decline Submission (Ditolak)</option>
+          </select>
+        </div>
+
+        {/* Comments for Author */}
+        <div>
+          <label className="block text-sm font-semibold text-zinc-300 mb-2">
+            Komentar untuk Penulis (Authors) <span className="text-red-500">*</span>
+          </label>
+          <p className="text-xs text-zinc-500 mb-2">Komentar ini akan diteruskan oleh Editor kepada Penulis. Berikan kritik dan saran yang konstruktif.</p>
+          <textarea 
+            value={commentsAuthor}
+            onChange={(e) => setCommentsAuthor(e.target.value)}
+            rows={5}
+            className="w-full bg-[#0a0a0f] border border-zinc-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-[#c9a84c] transition-colors"
+            placeholder="Ketik ulasan Anda di sini..."
+          />
+        </div>
+
+        {/* Comments for Editor */}
+        <div>
+          <label className="block text-sm font-semibold text-zinc-300 mb-2">
+            Komentar Rahasia untuk Editor (Opsional)
+          </label>
+          <p className="text-xs text-zinc-500 mb-2">Komentar ini HANYA dapat dibaca oleh Editor (tidak akan diberikan ke Penulis).</p>
+          <textarea 
+            value={commentsEditor}
+            onChange={(e) => setCommentsEditor(e.target.value)}
+            rows={3}
+            className="w-full bg-[#0a0a0f] border border-zinc-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-[#c9a84c] transition-colors"
+            placeholder="Pesan khusus untuk pertimbangan Editor..."
+          />
+        </div>
+
+        <div className="flex justify-end pt-4">
+          <button 
+            onClick={handleSubmitReview}
+            disabled={isSubmitting}
+            className="px-8 py-3 bg-[#c9a84c] hover:bg-[#e8c97a] text-black rounded-lg font-bold text-sm transition-colors shadow-[0_0_15px_rgba(201,168,76,0.2)] disabled:opacity-50 flex items-center gap-2"
+          >
+            <Save className="w-4 h-4" />
+            {isSubmitting ? 'Mengirim...' : 'Kirim Hasil Ulasan'}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}

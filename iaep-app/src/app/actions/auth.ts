@@ -45,7 +45,7 @@ export async function signUpUser(formData: any): Promise<{ success: boolean; err
 
     const { createClient: createSupabaseClient } = await import('@supabase/supabase-js');
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL || "https://aroasmlrlpjbjokvxlgo.supabase.co";
-    const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFibWppZXFjdW1sc2thbm5ma2RsIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4MDQyMjEyNywiZXhwIjoyMDk1OTk4MTI3fQ.imJyFIR09I6EZtUHiBN3KaPz3tzxmQkGjbMUGqphR5U";
+    const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFyb2FzbWxybHBqYmpva3Z4bGdvIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4MzE4OTU5MCwiZXhwIjoyMDk4NzY1NTkwfQ.pSVcAi-8EpF9CMVCB7rcM5vhMlsJ9WgYURL2jyJyFfg";
     
     const supabaseAdmin = createSupabaseClient(supabaseUrl, supabaseKey);
 
@@ -95,7 +95,7 @@ export async function signUpUser(formData: any): Promise<{ success: boolean; err
     try {
       // Use RJRAKP variables if they exist, otherwise fallback to the main shared database
       const rjrakpUrl = process.env.RJRAKP_SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL;
-      const rjrakpKey = process.env.RJRAKP_SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFibWppZXFjdW1sc2thbm5ma2RsIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4MDQyMjEyNywiZXhwIjoyMDk1OTk4MTI3fQ.imJyFIR09I6EZtUHiBN3KaPz3tzxmQkGjbMUGqphR5U";
+      const rjrakpKey = process.env.RJRAKP_SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFyb2FzbWxybHBqYmpva3Z4bGdvIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4MzE4OTU5MCwiZXhwIjoyMDk4NzY1NTkwfQ.pSVcAi-8EpF9CMVCB7rcM5vhMlsJ9WgYURL2jyJyFfg";
       
       if (rjrakpUrl && rjrakpKey) {
         const { createClient: createRjrakpClient } = require('@supabase/supabase-js');
@@ -178,11 +178,21 @@ export async function loginUser(email: string, password?: string): Promise<{ suc
     let existingUsers = [];
     if (!settingsError && settingsData && settingsData.value) {
       existingUsers = Array.isArray(settingsData.value) ? settingsData.value : JSON.parse(settingsData.value as string);
-    } else {
+    }
+    
+    // Always merge local users in case some users failed to sync to Supabase (like Dr Arfan)
+    try {
       const DATA_FILE = path.join(process.cwd(), 'apasific_registered_users.json');
       if (fs.existsSync(DATA_FILE)) {
-        existingUsers = JSON.parse(fs.readFileSync(DATA_FILE, 'utf8'));
+        const localUsers = JSON.parse(fs.readFileSync(DATA_FILE, 'utf8'));
+        for (let lu of localUsers) {
+          if (!existingUsers.find((u: any) => u.email.toLowerCase() === lu.email.toLowerCase())) {
+            existingUsers.push(lu);
+          }
+        }
       }
+    } catch (e) {
+      console.error("Error reading local users during login", e);
     }
 
     // Merge bulk reviewers so they can log in!

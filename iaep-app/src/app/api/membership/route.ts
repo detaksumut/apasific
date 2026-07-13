@@ -3,7 +3,7 @@ import { createClient } from "@supabase/supabase-js";
 
 // Read directly from env or use fallback (Useful if Vercel env vars are not set yet)
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL || "https://aroasmlrlpjbjokvxlgo.supabase.co";
-const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFibWppZXFjdW1sc2thbm5ma2RsIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4MDQyMjEyNywiZXhwIjoyMDk1OTk4MTI3fQ.imJyFIR09I6EZtUHiBN3KaPz3tzxmQkGjbMUGqphR5U";
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFyb2FzbWxybHBqYmpva3Z4bGdvIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4MzE4OTU5MCwiZXhwIjoyMDk4NzY1NTkwfQ.pSVcAi-8EpF9CMVCB7rcM5vhMlsJ9WgYURL2jyJyFfg";
 
 const supabase = createClient(supabaseUrl, supabaseKey);
 
@@ -21,27 +21,9 @@ export async function POST(request: Request) {
       university,
       buktiTransfer
     } = data;
-    // Auto-generate International ID if not provided
+    // Auto-generate Membership ID if not provided
     let finalInternationalId = internationalId;
     if (!finalInternationalId || finalInternationalId.trim() === "") {
-      const getCountryCode = (c: string) => {
-        const map: Record<string, string> = {
-          "Indonesia": "ID", "Malaysia": "MY", "Singapore": "SG", "Thailand": "TH", 
-          "Vietnam": "VN", "Philippines": "PH", "Japan": "JP", "South Korea": "KR", 
-          "China": "CN", "India": "IN", "Australia": "AU"
-        };
-        return map[c] || "XX";
-      };
-      
-      const getLevelCode = (lvl: string) => {
-        if (lvl === "Institusi") return "INS";
-        return lvl || "XX";
-      };
-
-      const currentYear = new Date().getFullYear().toString().slice(2);
-      const cCode = getCountryCode(country || "Indonesia");
-      const lCode = getLevelCode(academicLevel || "S2");
-
       // Count existing rows to generate sequence number
       const { count, error: countError } = await supabase
         .from("membership_applications")
@@ -52,9 +34,8 @@ export async function POST(request: Request) {
         throw new Error("Count Error: " + (countError.message || JSON.stringify(countError)));
       }
       
-      // Calculate sequence number (e.g. 001, 002)
-      const sequenceNum = ((count || 0) + 1).toString().padStart(3, '0');
-      finalInternationalId = `ASIA-${cCode}${currentYear}-${lCode}${sequenceNum}`;
+      // Calculate sequence number (e.g. 0000001, 0000002)
+      finalInternationalId = ((count || 0) + 1).toString().padStart(7, '0');
     }
 
     const { data: insertedData, error } = await supabase

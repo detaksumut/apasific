@@ -17,7 +17,7 @@ export default function Login() {
       const res = await loginUser(emailLower, password);
       
       if (res.success && res.user) {
-        if (["editor", "reviewer", "admin"].includes(res.user.role)) {
+        if (["editor", "reviewer", "admin", "co_admin"].includes(res.user.role)) {
           // Set mock user so they are authenticated
           document.cookie = `mock_user=${res.user.role}; path=/; max-age=2592000`;
           document.cookie = `mock_user_name=${res.user.full_name || res.user.name || "User"}; path=/; max-age=2592000`;

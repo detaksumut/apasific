@@ -2,6 +2,7 @@ import { createClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { ClipboardCheck, FileText, CheckCircle, Search, Eye } from "lucide-react";
+import MakeDecisionAction from "@/components/dashboard/MakeDecisionAction";
 import { cookies } from "next/headers";
 
 export default async function ReviewResultsPage() {
@@ -95,9 +96,7 @@ export default async function ReviewResultsPage() {
                       <Eye className="w-4 h-4 text-zinc-400" /> Lihat Detail
                     </button>
                     {article.status === 'Reviewed' && (
-                      <button className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-black bg-[#c9a84c] hover:bg-[#e8c97a] rounded-lg transition-colors shadow-[0_0_15px_rgba(201,168,76,0.2)]">
-                        <CheckCircle className="w-4 h-4" /> Buat Keputusan
-                      </button>
+                      <MakeDecisionAction article={article} />
                     )}
                   </div>
                 </div>

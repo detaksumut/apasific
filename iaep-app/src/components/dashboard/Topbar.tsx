@@ -71,7 +71,15 @@ export default function Topbar({ userName, role }: { userName: string; role: str
                   </div>
                 </div>
               ))}
-              <div className="notif-footer">Lihat semua notifikasi</div>
+              <div 
+                className="notif-footer"
+                onClick={() => {
+                  setShowNotif(false);
+                  window.location.href = "/dashboard/notifications";
+                }}
+              >
+                Lihat semua notifikasi
+              </div>
             </div>
           )}
         </div>
@@ -94,6 +102,8 @@ export default function Topbar({ userName, role }: { userName: string; role: str
             className="topbar-logout-btn"
             onClick={() => {
               document.cookie = "mock_user=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+              document.cookie = "mock_user_name=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+              document.cookie = "active_portal_role=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
               window.location.href = "/";
             }}
             title="Logout"
