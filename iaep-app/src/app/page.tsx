@@ -134,7 +134,7 @@ export default async function Home() {
   <!-- ═══════════════════════════════════════════
        PROMO VIDEO SECTION
   ═══════════════════════════════════════════ -->
-  <section class="section promo-section" style="padding: 40px 0 20px 0; background: var(--bg-color); position: relative; z-index: 10; margin-top: 150px;">
+  <section class="section promo-section" style="padding: 40px 0 20px 0; background: var(--bg-color); position: relative; z-index: 10; margin-top: 20px;">
     <div class="container" style="max-width: 900px; margin: 0 auto; text-align: center;">
       <video width="100%" controls autoplay loop muted playsinline style="border-radius: 16px; box-shadow: 0 15px 40px rgba(0,0,0,0.6); border: 1px solid rgba(201,168,76,0.4); display: block;">
         <source src="/promo2.mp4" type="video/mp4">
