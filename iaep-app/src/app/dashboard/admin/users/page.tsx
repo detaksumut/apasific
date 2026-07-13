@@ -203,7 +203,13 @@ export default function UserManagement() {
           onClick={() => { setActiveTab('Admin'); setCurrentPage(1); }}
           className={`px-4 py-3 font-bold transition-colors ${activeTab === 'Admin' ? 'text-[#c9a84c] border-b-2 border-[#c9a84c]' : 'text-gray-400 hover:text-white border-b-2 border-transparent'}`}
         >
-          Admins
+          Super Admins
+        </button>
+        <button 
+          onClick={() => { setActiveTab('Co-Admin'); setCurrentPage(1); }}
+          className={`px-4 py-3 font-bold transition-colors ${activeTab === 'Co-Admin' ? 'text-[#c9a84c] border-b-2 border-[#c9a84c]' : 'text-gray-400 hover:text-white border-b-2 border-transparent'}`}
+        >
+          Co-Admins
         </button>
       </div>
 
@@ -229,7 +235,8 @@ export default function UserManagement() {
                   
                   if (activeTab === 'All') return true;
                   if (activeTab === 'Editor') return u.role.toLowerCase() === 'editor';
-                  if (activeTab === 'Admin') return u.role.toLowerCase() === 'admin' || u.role.toLowerCase() === 'co_admin';
+                  if (activeTab === 'Admin') return u.role.toLowerCase() === 'admin';
+                  if (activeTab === 'Co-Admin') return u.role.toLowerCase() === 'co_admin';
                   return u.role.toLowerCase() === activeTab.toLowerCase();
                 });
                 
