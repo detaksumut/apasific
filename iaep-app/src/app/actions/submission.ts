@@ -190,12 +190,8 @@ Asia Index & Metric
 Association Asia Pacific Academicians
 https://apasific.org`;
 
-          await rjrakpSupabase.functions.invoke('send-wa', {
-            body: {
-              target: userPhone,
-              message: waMessage
-            }
-          });
+          const { sendWa } = await import('@/utils/sendWa');
+          await sendWa(userPhone, waMessage);
         }
       }
     } catch (crossSyncError) {

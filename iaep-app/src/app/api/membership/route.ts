@@ -60,6 +60,29 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Insert Error: " + (error.message || JSON.stringify(error)) }, { status: 500 });
     }
 
+    // Trigger WhatsApp Notification
+    if (phone) {
+      const waMessage = `Terima kasih ${fullName} telah melakukan pendaftaran keanggotaan (Membership) di Asia Index & Metric (Association Asia Pacific Academicians).
+
+Detail Pendaftaran:
+ID Keanggotaan: ${finalInternationalId}
+Level Akademik: ${academicLevel}
+Institusi: ${university}
+
+Status aplikasi Anda saat ini adalah Pending. Tim kami akan segera melakukan verifikasi terhadap bukti transfer dan data yang Anda berikan.
+
+Asia Index & Metric
+Association Asia Pacific Academicians
+https://apasific.org`;
+
+      try {
+        const { sendWa } = await import('@/utils/sendWa');
+        await sendWa(phone, waMessage);
+      } catch (waError) {
+        console.error("WhatsApp Notification failed:", waError);
+      }
+    }
+
     return NextResponse.json({ success: true, data: insertedData });
   } catch (err: any) {
     console.error("API Error:", err);
