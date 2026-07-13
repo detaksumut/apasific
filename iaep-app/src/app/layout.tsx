@@ -356,7 +356,7 @@ export default function RootLayout({
               <li style="margin-bottom: 8px;"><strong>9. Papua (Indonesia):</strong> Jl. Dr. Sam Ratulangi No. 11. Trikora, Kec. Jayapura Utara, Kota Jayapura, Papua 9913.</li>
             </ul>
             <p style="margin-top: 24px; font-size: 12px; color: #a1a1aa;">
-              <strong>Akta Pendirian ASIA Kemenkumham No. C-1615.Ht.03.01-Th.2022</strong> <span style="margin: 0 10px; color: rgba(255,255,255,0.2);">|</span> <span style="font-style: italic;">Standar Publikasi Internasional: Elsevier & Thomson Reuters</span>
+              <strong>ASIA Deed of Establishment (Ministry of Law and Human Rights) No. C-1615.Ht.03.01-Th.2022</strong> <span style="margin: 0 10px; color: rgba(255,255,255,0.2);">|</span> <span style="font-style: italic;">Standar Publikasi Internasional: Elsevier & Thomson Reuters</span>
             </p>
           </div>
         </div>
