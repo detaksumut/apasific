@@ -51,13 +51,13 @@ function formatPhone(phone: string) {
 export async function GET() {
   try {
     const DATA_FILE = path.join(process.cwd(), 'apasific_registered_users.json');
-    let users = [];
+    let users: any[] = [];
     if (fs.existsSync(DATA_FILE)) {
       users = JSON.parse(fs.readFileSync(DATA_FILE, 'utf8'));
     }
 
     const { data } = await supabaseAdmin.from('system_settings').select('value').eq('key', 'apasific_registered_users').single();
-    let supabaseUsers = [];
+    let supabaseUsers: any[] = [];
     if (data && data.value) {
       supabaseUsers = Array.isArray(data.value) ? data.value : JSON.parse(data.value as string);
     } else {
@@ -69,7 +69,7 @@ export async function GET() {
     let updatedCount = 0;
 
     const processUser = (email: string, updates: any) => {
-      let sbUser = supabaseUsers.find(u => u.email.toLowerCase() === email.toLowerCase());
+      let sbUser = supabaseUsers.find((u: any) => u.email.toLowerCase() === email.toLowerCase());
       if (sbUser) {
         Object.assign(sbUser, updates);
         updatedCount++;
@@ -86,7 +86,7 @@ export async function GET() {
         addedCount++;
       }
 
-      let localUser = users.find(u => u.email.toLowerCase() === email.toLowerCase());
+      let localUser = users.find((u: any) => u.email.toLowerCase() === email.toLowerCase());
       if (localUser) {
         Object.assign(localUser, updates);
       } else {
@@ -151,6 +151,16 @@ export async function GET() {
     for (let u of supabaseUsers) {
       if (u.phone_number) u.phone_number = formatPhone(u.phone_number);
       if (u.phone) u.phone = formatPhone(u.phone);
+    }
+    
+    // MERGE LOCAL USERS INTO SUPABASE
+    // (This guarantees the 17 dummy reviewers from add-asiacert-reviewers get uploaded)
+    for (const localU of users) {
+      const existsInSb = supabaseUsers.find((su: any) => su.email.toLowerCase() === localU.email.toLowerCase());
+      if (!existsInSb) {
+        supabaseUsers.push(localU);
+        addedCount++;
+      }
     }
     
     // Save to local
