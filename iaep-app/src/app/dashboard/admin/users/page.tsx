@@ -236,7 +236,7 @@ export default function UserManagement() {
                   if (activeTab === 'All') return true;
                   if (activeTab === 'Editor') return u.role.toLowerCase() === 'editor';
                   if (activeTab === 'Admin') return u.role.toLowerCase() === 'admin';
-                  if (activeTab === 'Co-Admin') return u.role.toLowerCase() === 'co_admin';
+                  if (activeTab === 'Co-Admin') return u.role.toLowerCase() === 'co-admin';
                   return u.role.toLowerCase() === activeTab.toLowerCase();
                 });
                 
