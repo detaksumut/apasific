@@ -47,8 +47,10 @@ export default async function Home() {
         .hero-cta-overlay { bottom: auto !important; top: 39% !important; transform: translateX(-50%) !important; flex-direction: row !important; flex-wrap: nowrap !important; width: 100% !important; padding: 0 10px !important; gap: 8px !important; }
         .hero-cta-overlay a { flex: 1 !important; padding: 8px 4px !important; font-size: 8.5px !important; height: auto !important; min-height: 44px !important; display: flex !important; flex-direction: column !important; align-items: center !important; justify-content: center !important; text-align: center !important; white-space: normal !important; gap: 4px !important; line-height: 1.2 !important; }
         .hero-cta-overlay a svg { width: 14px !important; height: 14px !important; margin: 0 !important; }
-        .hero-stats { margin-top: -220px !important; }
+        .hero-stats { margin-top: -245px !important; }
         .hide-on-mobile { display: none !important; }
+        .bank-card-overlay { transform: scale(0.55) !important; transform-origin: top left !important; top: 8px !important; left: 8px !important; }
+        .promo-section { margin-top: -120px !important; }
       }
       @media (min-width: 769px) {
         .hero-logo-overlay { position: absolute !important; right: 5% !important; top: 10% !important; z-index: 5 !important; pointer-events: none !important; transform: scale(1.1) !important; transform-origin: center !important; }
@@ -64,7 +66,7 @@ export default async function Home() {
     </div>
 
     <!-- Bank Account Overlay (Inline styles to bypass cache) -->
-    <div style="position: absolute; top: 15px; left: max(20px, calc((100vw - 1440px) / 2 + 20px)); z-index: 10; background: rgba(10, 10, 15, 0.85); border: 1px solid rgba(201, 168, 76, 0.4); border-radius: 6px; padding: 6px 10px; backdrop-filter: blur(12px); color: #fff; min-width: 180px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);">
+    <div class="bank-card-overlay" style="position: absolute; top: 15px; left: max(20px, calc((100vw - 1440px) / 2 + 20px)); z-index: 10; background: rgba(10, 10, 15, 0.85); border: 1px solid rgba(201, 168, 76, 0.4); border-radius: 6px; padding: 6px 10px; backdrop-filter: blur(12px); color: #fff; min-width: 180px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);">
       <div style="display: flex; align-items: center; gap: 4px; color: #c9a84c; font-weight: 700; font-size: 0.55rem; margin-bottom: 6px; border-bottom: 1px solid rgba(201, 168, 76, 0.2); padding-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px;">
         <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
         Rekening Bank Resmi
