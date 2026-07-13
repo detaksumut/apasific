@@ -33,6 +33,7 @@ export async function signUpUser(formData: any): Promise<{ success: boolean; err
       phone_number: formData.phone,
       country: formData.country,
       university: formData.university,
+      discipline: formData.discipline,
       role: formData.role,
       orcid_id: formData.orcid,
       google_scholar_id: formData.googleScholar,

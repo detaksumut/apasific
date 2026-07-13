@@ -24,6 +24,7 @@ export default function MajesticMembershipPage() {
     academicLevel: "S2",
     internationalId: "",
     university: "",
+    discipline: "",
   });
 
   const [buktiTransfer, setBuktiTransfer] = useState("");
@@ -277,6 +278,10 @@ export default function MajesticMembershipPage() {
                   <input type="text" name="university" value={formData.university} onChange={handleChange} placeholder="Mis. Universitas Nasional" className="w-full bg-[#05050a]/50 border border-gray-700 text-white focus:outline-none focus:border-[#c9a84c] focus:ring-1 focus:ring-[#c9a84c] transition-all" style={{ width: '100%', borderRadius: '12px', padding: '14px 16px' }} required />
                 </div>
                 <div>
+                  <label className="block text-gray-300 tracking-wider uppercase font-semibold" style={{ fontSize: '12px', marginBottom: '8px' }}>Disiplin Keilmuan</label>
+                  <input type="text" name="discipline" value={formData.discipline} onChange={handleChange} placeholder="Mis. Manajemen Keuangan" className="w-full bg-[#05050a]/50 border border-gray-700 text-white focus:outline-none focus:border-[#c9a84c] focus:ring-1 focus:ring-[#c9a84c] transition-all" style={{ width: '100%', borderRadius: '12px', padding: '14px 16px' }} required />
+                </div>
+                <div>
                   <label className="block text-gray-300 tracking-wider uppercase font-semibold" style={{ fontSize: '12px', marginBottom: '8px' }}>Kata Sandi</label>
                   <input type="password" name="password" value={formData.password} onChange={handleChange} placeholder="Min. 6 karakter" className="w-full bg-[#05050a]/50 border border-gray-700 text-white focus:outline-none focus:border-[#c9a84c] focus:ring-1 focus:ring-[#c9a84c] transition-all" style={{ width: '100%', borderRadius: '12px', padding: '14px 16px' }} required minLength={6} />
                 </div>
@@ -500,8 +505,8 @@ export default function MajesticMembershipPage() {
               <thead>
                 <tr className="bg-black/40 border-b border-gray-800">
                   <th className="py-4 px-6 text-gray-300 font-semibold uppercase tracking-wider text-xs">Nama</th>
+                  <th className="py-4 px-6 text-gray-300 font-semibold uppercase tracking-wider text-xs">Disiplin Keilmuan</th>
                   <th className="py-4 px-6 text-gray-300 font-semibold uppercase tracking-wider text-xs">Institusi/Universitas</th>
-                  <th className="py-4 px-6 text-gray-300 font-semibold uppercase tracking-wider text-xs">No HP</th>
                   <th className="py-4 px-6 text-gray-300 font-semibold uppercase tracking-wider text-xs">Tanggal Terdaftar</th>
                   <th className="py-4 px-6 text-gray-300 font-semibold uppercase tracking-wider text-xs">Habis Masa Berlaku</th>
                   <th className="py-4 px-6 text-gray-300 font-semibold uppercase tracking-wider text-xs text-center">Card</th>
@@ -536,8 +541,8 @@ export default function MajesticMembershipPage() {
                           <div className="font-bold text-gray-200 group-hover:text-white transition-colors">{member.full_name}</div>
                           <div className="text-gray-500 font-mono text-xs mt-1">{member.international_id || member.id.split('-')[0]}</div>
                         </td>
-                        <td className="py-4 px-6 text-gray-400 text-sm">{member.university}</td>
-                        <td className="py-4 px-6 text-gray-400 font-mono text-sm">{member.phone}</td>
+                        <td className="py-4 px-6 text-gray-400 text-sm">{member.discipline || '-'}</td>
+                        <td className="py-4 px-6 text-gray-400 text-sm">{member.university || '-'}</td>
                         <td className="py-4 px-6 text-gray-400 text-sm">{regDateStr}</td>
                         <td className="py-4 px-6">
                           <span className="bg-green-500/10 text-green-400 border border-green-500/20 rounded px-2 py-1 text-xs font-semibold">

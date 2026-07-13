@@ -24,6 +24,7 @@ export default function RegisterWizard({ availableRoles, defaultRole, forcedRole
     role: forcedRole || defaultRole || availableRoles[0]?.value || "member",
     country: "",
     university: "",
+    discipline: "",
     orcid: "",
     googleScholar: "",
     scopus: "",
@@ -175,6 +176,10 @@ export default function RegisterWizard({ availableRoles, defaultRole, forcedRole
                 <div>
                   <label className="block text-gray-300 text-xs tracking-wider uppercase font-semibold mb-2">Country</label>
                   <input type="text" name="country" value={formData.country} onChange={handleChange} className="w-full bg-[#05050a]/50 border border-gray-700 text-white rounded-xl px-4 py-3.5 focus:outline-none focus:border-[#c9a84c] focus:ring-1 focus:ring-[#c9a84c] transition-all" required />
+                </div>
+                <div className="md:col-span-2">
+                  <label className="block text-gray-300 text-xs tracking-wider uppercase font-semibold mb-2">Disiplin Keilmuan / Scientific Discipline</label>
+                  <input type="text" name="discipline" value={formData.discipline} onChange={handleChange} placeholder="Contoh: Manajemen Keuangan, Sistem Informasi, dsb." className="w-full bg-[#05050a]/50 border border-gray-700 text-white rounded-xl px-4 py-3.5 focus:outline-none focus:border-[#c9a84c] focus:ring-1 focus:ring-[#c9a84c] transition-all" required />
                 </div>
                 <div className="md:col-span-2">
                   <label className="block text-gray-300 text-xs tracking-wider uppercase font-semibold mb-1">Status Akademik Saat Ini (Current Academic Status)</label>

@@ -19,6 +19,7 @@ export async function POST(request: Request) {
       academicLevel,
       internationalId,
       university,
+      discipline,
       buktiTransfer
     } = data;
     // Auto-generate Membership ID sequentially
@@ -51,6 +52,7 @@ export async function POST(request: Request) {
           academic_level: academicLevel,
           international_id: finalInternationalId,
           university: universityWithOrcid,
+          discipline: discipline,
           bukti_transfer_url: buktiTransfer, // Base64 string
           status: 'Pending'
         }
