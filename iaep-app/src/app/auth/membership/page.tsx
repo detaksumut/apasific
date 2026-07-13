@@ -465,7 +465,7 @@ export default function MajesticMembershipPage() {
                     <div className="flex items-center">
                       <div className="w-[75px] text-left">VALID THRU</div>
                       <div className="mr-1">:</div>
-                      <div>241130</div>
+                      <div>{formatDateYYMMDD(null, 3)}</div>
                     </div>
                   </div>
 
@@ -692,7 +692,7 @@ export default function MajesticMembershipPage() {
                   <div className="flex items-center">
                     <div className="w-[75px] text-left">VALID THRU</div>
                     <div className="mr-1">:</div>
-                    <div>241130</div>
+                    <div>{selectedMemberCard ? formatDateYYMMDD(selectedMemberCard.created_at, 3) : formatDateYYMMDD(null, 3)}</div>
                   </div>
                 </div>
 
