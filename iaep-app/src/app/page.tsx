@@ -154,8 +154,8 @@ export default async function Home() {
         </div>
         <div class="stat-divider"></div>
         <div class="stat-item">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" stroke-width="1.5"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
-          <div><span class="stat-num" data-target="${publicationsCount > 0 ? publicationsCount : 0}">0</span><p class="stat-label">Publikasi</p></div>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/><line x1="21.17" y1="8" x2="12" y2="8"/><line x1="3.95" y1="6.06" x2="8.54" y2="14"/><line x1="10.88" y1="21.94" x2="15.46" y2="14"/></svg>
+          <div><span class="stat-num" data-target="100">0</span><span class="stat-plus">+</span><p class="stat-label">Scope</p></div>
         </div>
         <div class="stat-divider"></div>
         <div class="stat-item">
@@ -164,8 +164,8 @@ export default async function Home() {
         </div>
         <div class="stat-divider"></div>
         <div class="stat-item">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/><line x1="21.17" y1="8" x2="12" y2="8"/><line x1="3.95" y1="6.06" x2="8.54" y2="14"/><line x1="10.88" y1="21.94" x2="15.46" y2="14"/></svg>
-          <div><span class="stat-num" data-target="100">0</span><span class="stat-plus">+</span><p class="stat-label">Scope</p></div>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" stroke-width="1.5"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+          <div><span class="stat-num" data-target="${publicationsCount > 0 ? publicationsCount : 0}">0</span><p class="stat-label">Publikasi</p></div>
         </div>
       </div>
     </div>
