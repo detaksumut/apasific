@@ -3,29 +3,104 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { FileText, Clock, CheckCircle, ArrowRight, Plus } from "lucide-react";
 import { cookies } from "next/headers";
+import { getFirebaseAdmin } from "@/utils/firebase/server";
+import { getFirestore } from "@/utils/firebase/db";
 
 export default async function AuthorDashboard() {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  const cookieStore = await cookies();
-  const mockUserCookie = cookieStore.get("mock_user");
-  const mockUserName = cookieStore.get("mock_user_name");
+  
+  // 1. Dual-Auth Check: Try Supabase first, fallback to Firebase Cookie
+  let { data: { user } } = await supabase.auth.getUser();
+  let userName = 'Author';
+  let userId = '';
+  
+  if (!user) {
+    const cookieStore = await cookies();
+    const fbToken = cookieStore.get('firebase_session')?.value;
+    const fallbackUserId = cookieStore.get('supabase_fallback_session')?.value;
+    
+    if (fbToken || fallbackUserId) {
+        try {
+            const admin = getFirebaseAdmin();
+            if (fbToken) {
+               // fbToken is a Custom Token (JWT), not an ID Token. Decode it manually to get UID.
+               const payloadBase64 = fbToken.split('.')[1];
+               const payload = JSON.parse(Buffer.from(payloadBase64, 'base64').toString());
+               const fbUser = await admin.auth().getUser(payload.uid);
+               user = { id: fbUser.uid, email: fbUser.email, user_metadata: { full_name: fbUser.displayName } } as any;
+            }
+        } catch (e) {
+            console.error("Firebase token verification failed", e);
+        }
+        
+        if (!user && fallbackUserId) {
+           user = { id: fallbackUserId, email: "user@example.com", user_metadata: { full_name: "Author" } } as any;
+        }
+    }
+  }
 
-  if (!user && !mockUserCookie) {
+  if (!user) {
     redirect("/auth/login");
   }
 
-  const userId = user?.id || "demo-user-id";
-  const userName = user?.user_metadata?.full_name || mockUserName?.value || 'Author';
+  userId = user.id;
 
-  // Fetch author's submissions
-  const { data: submissions, error } = await supabase
-    .from("submissions")
-    .select("*, journals(name)")
-    .eq("submitter_id", userId)
-    .order("created_at", { ascending: false });
+  // 2. Dual-Database Profile Fetch: Try Supabase, fallback to Firestore
+  try {
+      const { data: profile, error: profileError } = await supabase.from('profiles').select('full_name').eq('id', userId).single();
+      if (profile && !profileError) {
+          userName = profile.full_name;
+      } else {
+          throw new Error("Supabase profile failed or empty");
+      }
+  } catch (e) {
+      // Fallback to Firestore
+      try {
+          const db = getFirestore();
+          const profileDoc = await db.collection('profiles').doc(userId).get();
+          if (profileDoc.exists) {
+              userName = profileDoc.data()?.full_name || user.user_metadata?.full_name || user.email || 'Author';
+          }
+      } catch(fbErr) {
+          userName = user.user_metadata?.full_name || user.email || 'Author';
+      }
+  }
 
-  const articles = submissions || [];
+  // 3. Dual-Database Submissions Fetch: Try Supabase, fallback to Firestore
+  let articles: any[] = [];
+  try {
+      const { data: submissions, error } = await supabase
+        .from("submissions")
+        .select("*, journals(name)")
+        .eq("author_id", userId)
+        .order("created_at", { ascending: false });
+        
+      if (error) throw error;
+      articles = submissions || [];
+  } catch (e) {
+      console.warn("Supabase fetch failed, falling back to Firestore for submissions");
+      try {
+          const db = getFirestore();
+          const submissionsSnapshot = await db.collection('submissions')
+            .where('author_id', '==', userId)
+            .orderBy('created_at', 'desc')
+            .get();
+          
+          articles = submissionsSnapshot.docs.map(doc => {
+              const data = doc.data();
+              return {
+                  submission_id: doc.id,
+                  title: data.title,
+                  status: data.status,
+                  created_at: data.created_at ? data.created_at.toDate() : new Date(),
+                  journals: data.journals || { name: 'Unknown Journal' }
+              };
+          });
+      } catch (fbErr) {
+          console.error("Both databases failed to fetch submissions", fbErr);
+          articles = [];
+      }
+  }
   
   const totalArticles = articles.length;
   const pendingArticles = articles.filter(a => ['queued', 'under_review'].includes(a.status)).length;

@@ -666,16 +666,6 @@
     "phone_number": "+6282261643277"
   },
   {
-    "id": "demo-user-1783889321054",
-    "email": "arfanihksan@gmail.com",
-    "password": "mikrosistem",
-    "full_name": "Muhibbuddin",
-    "phone_number": "+6281343737367",
-    "role": "author",
-    "status": "Active",
-    "joined": "2026-07-12T20:48:41.054Z"
-  },
-  {
     "id": "demo-user-1783889412852",
     "email": "arfanihksan@unimed.ac.id",
     "password": "mikrosistem",
@@ -1099,5 +1089,17 @@
     "joined": "7/14/2026, 12:40:22 AM",
     "password": "ReviewerPassword123!",
     "phone_number": ""
+  },
+  {
+    "id": "demo-user-1784016481961",
+    "email": "kadinmedan1@gmail.com",
+    "password": "mikrosistem2169",
+    "full_name": "Muhibbuddin",
+    "phone_number": "+6281343737367",
+    "discipline": "Sistem Informasi Komputer",
+    "role": "editor",
+    "wos_id": "QKY-3514-2026",
+    "status": "Active",
+    "joined": "2026-07-14T08:08:01.961Z"
   }
 ]

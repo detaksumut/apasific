@@ -18,12 +18,7 @@ export default function SuperAdminOverview() {
       } catch (e) { console.error(e); }
     }
 
-    const defaultLogs = [
-      { time: "10 menit lalu",  text: "Jurnal baru dibuat: 'APASIFIC Medical Journal'",       status: "success" },
-      { time: "1 jam lalu",     text: "Backup sistem berhasil diselesaikan.",                  status: "info"    },
-      { time: "3 jam lalu",     text: "M. A. Rahman diberikan peran 'Editor' di RJRAKP.",     status: "warning" },
-      { time: "1 hari lalu",    text: "Peringatan traffic tinggi: 50+ submission serentak.",  status: "error"   },
-    ];
+    const defaultLogs: any[] = [];
 
     const storedLogs = localStorage.getItem("mock_system_logs");
     if (storedLogs) {

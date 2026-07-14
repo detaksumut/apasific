@@ -21,11 +21,7 @@ function getLocalUsers() {
     console.error("Error reading local users", e);
   }
   
-  const initialUsers = [
-    { id: 1, full_name: "M. A. Rahman", email: "marahman2169@gmail.com", role: "Editor", journal: "RJRAKP, APASIFIC IAEP", joined: "Oct 2024", status: "Active" },
-    { id: 2, full_name: "Kadin Medan", email: "kadinmedan1@gmail.com", role: "Reviewer", journal: "RJRAKP", joined: "Nov 2024", status: "Active" },
-    { id: 3, full_name: "Kad Sumut", email: "kadsumut@gmail.com", role: "Author", journal: "APASIFIC IAEP", joined: "Dec 2024", status: "Active" }
-  ];
+  const initialUsers: any[] = [];
   saveLocalUsers(initialUsers);
   return initialUsers;
 }

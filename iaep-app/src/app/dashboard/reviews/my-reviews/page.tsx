@@ -8,13 +8,11 @@ import { cookies } from "next/headers";
 export default async function MyReviewsPage() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
-  const cookieStore = await cookies();
-  const mockUserCookie = cookieStore.get("mock_user");
 
-  if (!user && !mockUserCookie) {
+  if (!user) {
     redirect("/auth/login");
   }
-  const userId = user?.id || "demo-user-id";
+  const userId = user.id;
 
   let assignments: any[] = [];
   try {

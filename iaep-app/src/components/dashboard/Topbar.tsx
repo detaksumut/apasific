@@ -100,7 +100,10 @@ export default function Topbar({ userName, role }: { userName: string; role: str
           </div>
           <button
             className="topbar-logout-btn"
-            onClick={() => {
+            onClick={async () => {
+              const { createClient } = await import('@/utils/supabase/client');
+              const supabase = createClient();
+              await supabase.auth.signOut();
               document.cookie = "mock_user=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
               document.cookie = "mock_user_name=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
               document.cookie = "active_portal_role=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";

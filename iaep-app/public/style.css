@@ -2424,6 +2424,66 @@ img { max-width: 100%; display: block; }
   }
 }
 
-
-
-
+/* Custom Language Selector Styles */
+.custom-lang-selector {
+  position: relative;
+  display: inline-block;
+  cursor: pointer;
+}
+.lang-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 10px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  transition: all 0.3s;
+}
+.lang-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+.lang-dropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 5px;
+  background: #111;
+  border: 1px solid #333;
+  border-radius: 4px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+  min-width: 150px;
+  max-height: 300px;
+  overflow-y: auto;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(10px);
+  transition: all 0.3s ease;
+  z-index: 1000;
+}
+.custom-lang-selector:hover .lang-dropdown {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+.lang-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 15px;
+  color: #fff;
+  font-size: 14px;
+  transition: background 0.2s;
+}
+.lang-option:hover {
+  background: #c9a84c;
+  color: #000;
+}
+.lang-option img {
+  width: 20px;
+  height: auto;
+  border-radius: 2px;
+}
+#google_translate_element {
+  display: none !important;
+}

@@ -11,8 +11,7 @@ const DEFAULT_MEMBERS = [
   { jabatan: "Wakil Presiden",  nama: "DR. MUHAMMAD YAMIN NOCH., SE., MSA",         afiliasi: "Urusan Akademik & Pengembangan Institusi", foto: "/yamin.jpg" },
   { jabatan: "Wakil Presiden",  nama: "PROF. DR. ISTIANINGSIH SASTRODIHARJO., SE., M.Si", afiliasi: "Riset & Kerjasama Internasional", foto: "/istianingsih.jpg" },
   { jabatan: "Sekretaris Jenderal", nama: "DR. NGATEMIN., M.Si",                     afiliasi: "Operasi Strategis & Tata Kelola",      foto: "/ngatemin.jpg" },
-  { jabatan: "Bendahara",       nama: "TRI DESSY FADILLAH., SE., M.Ak",            afiliasi: "Manajemen Keuangan & Sumber Daya",           foto: "/tridessy.jpg" },
-  { jabatan: "Teknologi Informasi", nama: "M. A. RAHMAN",                       afiliasi: "Platform Digital & Integrasi Sistem",   foto: "/rahman.jpg" },
+  { jabatan: "Bendahara",       nama: "TRI DESSY FADILLAH., SE., M.Ak",            afiliasi: "Manajemen Keuangan & Sumber Daya",           foto: "/tridessy.jpg" }
 ];
 
 interface Member {

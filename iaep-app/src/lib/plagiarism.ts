@@ -30,13 +30,23 @@ export function removeBibliography(text: string): string {
 }
 
 /**
- * Memecah teks menjadi paragraf.
+ * Memecah teks menjadi potongan (chunk) maksimal 20 kata.
  */
 export function extractParagraphs(text: string): string[] {
-  const rawParagraphs = text.split(/\n+/);
-  return rawParagraphs
-    .map(p => p.trim())
-    .filter(p => p.length > 0);
+  const rawParagraphs = text.split(/\n+/).map(p => p.trim()).filter(p => p.length > 0);
+  const chunks: string[] = [];
+  
+  for (const p of rawParagraphs) {
+    const words = p.split(/\s+/).filter(w => w.length > 0);
+    const chunkSize = 20;
+    
+    // Potong setiap paragraf asli menjadi chunk 20 kata
+    for (let i = 0; i < words.length; i += chunkSize) {
+      chunks.push(words.slice(i, i + chunkSize).join(' '));
+    }
+  }
+  
+  return chunks;
 }
 
 /**

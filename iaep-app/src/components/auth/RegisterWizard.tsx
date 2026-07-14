@@ -68,9 +68,6 @@ export default function RegisterWizard({ availableRoles, defaultRole, forcedRole
           redirectPath = "/auth/membership"; // or wherever members go
         }
 
-        document.cookie = `mock_user=${mockRole}; path=/`;
-        document.cookie = `mock_user_name=${formData.fullName}; path=/`;
-
         setMessage({ type: 'success', text: 'Registrasi berhasil! Data Anda telah masuk ke database. Menghubungkan...' });
         
         setTimeout(() => {

@@ -8,13 +8,11 @@ import { cookies } from "next/headers";
 export default async function ReviewerDashboard() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
-  const cookieStore = await cookies();
-  const mockUserCookie = cookieStore.get("mock_user");
 
-  if (!user && !mockUserCookie) {
+  if (!user) {
     redirect("/auth/login");
   }
-  const userId = user?.id || "demo-user-id";
+  const userId = user.id;
 
   // Attempt to fetch review assignments if the table exists
   let assignments: any[] = [];

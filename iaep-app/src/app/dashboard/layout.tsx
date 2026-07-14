@@ -6,36 +6,28 @@ import { createClient } from "@/utils/supabase/server";
 
 export default async function DashboardLayout({ children }: { children: ReactNode }) {
   let userRole = "author";
-  let userName = "Dr. M A Rahman";
+  let userName = "User";
 
   try {
     const cookieStore = await cookies();
-    const mockUser = cookieStore.get('mock_user')?.value;
+    
+    // Read fallback cookies if they exist
+    const cookieRole = cookieStore.get('user_role')?.value;
+    const cookieName = cookieStore.get('user_name')?.value;
+    
+    if (cookieRole) userRole = cookieRole;
+    if (cookieName) userName = decodeURIComponent(cookieName);
 
-    if (mockUser === 'admin') {
-      userRole = 'admin';
-      userName = 'Super Admin';
-    } else if (mockUser === 'co_admin') {
-      userRole = 'co_admin';
-      userName = cookieStore.get('mock_user_name')?.value ? decodeURIComponent(cookieStore.get('mock_user_name')?.value as string) : 'Co Admin';
-    } else if (mockUser === 'editor') {
-      userRole = 'editor';
-      userName = cookieStore.get('mock_user_name')?.value || 'M. A. Rahman';
-    } else if (mockUser === 'reviewer') {
-      userRole = 'reviewer';
-      userName = cookieStore.get('mock_user_name')?.value || 'Kadin Medan';
-    } else if (mockUser === 'submitter') {
-      userRole = 'author';
-      userName = cookieStore.get('mock_user_name')?.value || 'Kad Sumut';
-    } else {
-      const supabase = await createClient();
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        const { data: profile } = await supabase.from('profiles').select('full_name, role').eq('id', user.id).single();
-        if (profile) {
-          userRole = profile.role || "member";
-          userName = profile.full_name || user.email || "User";
-        }
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+
+    if (user) {
+      const { data: profile } = await supabase.from('profiles').select('full_name, role').eq('id', user.id).single();
+      if (profile) {
+        userRole = profile.role || userRole;
+        userName = profile.full_name || user.email || userName;
+      } else {
+        userName = user.user_metadata?.full_name || user.email || userName;
       }
     }
 
@@ -50,7 +42,7 @@ export default async function DashboardLayout({ children }: { children: ReactNod
       const allowedRolesForReviewer = ['reviewer', 'author'];
 
       let isAllowed = false;
-      if (userRole === 'admin' && allowedRolesForAdmin.includes(activePortalRole)) isAllowed = true;
+      if ((userRole === 'admin' || userRole === 'super_admin' || userRole === 'superadmin') && allowedRolesForAdmin.includes(activePortalRole)) isAllowed = true;
       if (userRole === 'co_admin' && allowedRolesForCoAdmin.includes(activePortalRole)) isAllowed = true;
       if (userRole === 'editor' && allowedRolesForEditor.includes(activePortalRole)) isAllowed = true;
       if (userRole === 'reviewer' && allowedRolesForReviewer.includes(activePortalRole)) isAllowed = true;

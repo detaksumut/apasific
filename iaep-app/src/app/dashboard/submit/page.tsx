@@ -607,7 +607,7 @@ export default function AuthorSubmit() {
               <><Send className="w-7 h-7" /> Kirim Naskah Sekarang</>
             )}
           </button>
-          <p className="text-center text-zinc-500 mt-6 text-sm">Dengan menekan tombol kirim, Anda menyetujui seluruh Syarat & Ketentuan publikasi yang berlaku di RJRAKP.</p>
+          <p className="text-center text-zinc-500 mt-6 text-sm">Dengan menekan tombol kirim, Anda menyetujui seluruh Syarat & Ketentuan publikasi yang berlaku di ASIA.</p>
         </div>
       </form>
     </div>

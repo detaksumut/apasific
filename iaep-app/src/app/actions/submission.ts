@@ -4,11 +4,17 @@ import { createClient } from "@/utils/supabase/server";
 
 export async function submitManuscript(formData: FormData) {
   const supabase = await createClient();
+  const { createClient: createSupabaseClient } = require('@supabase/supabase-js');
+  const supabaseAdmin = createSupabaseClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL || "https://aroasmlrlpjbjokvxlgo.supabase.co",
+    process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  );
   
   try {
-    const { data: { user } } = await supabase.auth.getUser();
+    let { data: { user } } = await supabase.auth.getUser();
+    let userId = user?.id;
     
-    if (!user) {
+    if (!userId) {
       return { success: false, error: "Authentication required" };
     }
 
@@ -23,12 +29,39 @@ export async function submitManuscript(formData: FormData) {
       return { success: false, error: "Title and file are required." };
     }
 
+    // Ensure the profile exists to prevent foreign key constraint errors
+    if (user && user.id) {
+      try {
+         const { error: profileError } = await supabaseAdmin.from('profiles').upsert({
+            id: user.id,
+            full_name: user.user_metadata?.full_name || user.email || 'Author',
+            role: 'author'
+         }, { onConflict: 'id' });
+         
+         if (profileError) {
+            console.error("Profile Upsert Error:", profileError);
+            return { success: false, error: `PROFILE_UPSERT_ERROR: ${profileError.message} | UserID: ${user.id} | isMock: ${!user.email}` };
+         }
+      } catch (profileCatchError: any) {
+         console.error("Failed to ensure profile exists:", profileCatchError);
+         return { success: false, error: `PROFILE_CATCH_ERROR: ${profileCatchError.message} | UserID: ${user.id}` };
+      }
+    }
+
+    // Verify journal exists, fallback to first available if not
+    let validJournalId = journalId;
+    const { data: journalCheck } = await supabaseAdmin.from('journals').select('id').eq('id', journalId).single();
+    if (!journalCheck) {
+       const { data: anyJournal } = await supabaseAdmin.from('journals').select('id').limit(1).single();
+       if (anyJournal) validJournalId = anyJournal.id;
+    }
+
     // 1. Insert into Submissions table
     // Note: The 'abstract' field now receives a rich JSON payload containing authors, keywords, etc.
-    const { data: submission, error: submissionError } = await supabase
+    const { data: submission, error: submissionError } = await supabaseAdmin
       .from('submissions')
       .insert({
-        journal_id: journalId,
+        journal_id: validJournalId,
         author_id: user.id,
         title,
         abstract,
@@ -39,15 +72,36 @@ export async function submitManuscript(formData: FormData) {
 
     if (submissionError) throw submissionError;
 
+    // --- DUAL-DATABASE WRITE: Mirror to Firebase Firestore ---
+    try {
+       const { getFirestore } = require('@/utils/firebase/db');
+       const db = getFirestore();
+       const admin = require('@/utils/firebase/server').getFirebaseAdmin();
+       
+       await db.collection('submissions').doc(submission.submission_id).set({
+           journal_id: validJournalId,
+           author_id: user.id,
+           title,
+           abstract,
+           status: 'Awaiting Reviewers',
+           created_at: admin.firestore.FieldValue.serverTimestamp(),
+           updated_at: admin.firestore.FieldValue.serverTimestamp()
+       });
+       console.log("Dual-write to Firestore successful for:", submission.submission_id);
+    } catch (fbErr) {
+       console.error("Dual-write to Firestore failed:", fbErr);
+       // Do not throw here so Supabase submission is not interrupted
+    }
+
     // Helper function to upload and log files
     const uploadAndLogFile = async (f: File, prefix: string) => {
       const fileExt = f.name.split('.').pop();
-      const filePath = `${submission.id}/${Date.now()}_${prefix}.${fileExt}`;
+      const filePath = `${submission.submission_id}/${Date.now()}_${prefix}.${fileExt}`;
       
       const arrayBuffer = await f.arrayBuffer();
       const buffer = Buffer.from(arrayBuffer);
 
-      const { error: uploadError } = await supabase.storage
+      const { error: uploadError } = await supabaseAdmin.storage
         .from('manuscripts')
         .upload(filePath, buffer, {
           contentType: f.type
@@ -55,10 +109,10 @@ export async function submitManuscript(formData: FormData) {
 
       if (uploadError) throw uploadError;
 
-      const { error: fileError } = await supabase
+      const { error: fileError } = await supabaseAdmin
         .from('submission_files')
         .insert({
-          submission_id: submission.id,
+          submission_id: submission.submission_id,
           uploader_id: user.id,
           file_stage: 'submission',
           file_name: `${prefix}_${f.name}`,
@@ -83,61 +137,25 @@ export async function submitManuscript(formData: FormData) {
       }
     } catch (uploadError: any) {
       // Rollback submission if any upload fails
-      await supabase.from('submissions').delete().eq('id', submission.id);
+      await supabaseAdmin.from('submissions').delete().eq('submission_id', submission.submission_id);
       throw uploadError;
     }
 
-    // 3. Cross-sync to RJRAKP
+    // 3. Trigger WhatsApp Notification
+    let richPayload: any = {};
     try {
-      // Use RJRAKP variables if they exist, otherwise fallback to the main shared database
-      const rjrakpUrl = process.env.RJRAKP_SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL;
-      const rjrakpKey = process.env.RJRAKP_SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-      
-      if (rjrakpUrl && rjrakpKey) {
-        const { createClient: createSupabaseClient } = require('@supabase/supabase-js');
-        const rjrakpSupabase = createSupabaseClient(rjrakpUrl, rjrakpKey);
+      richPayload = JSON.parse(abstract);
+    } catch(e) {}
+
+    const userPhone = user.user_metadata?.phone;
+    if (userPhone) {
+      try {
+        const publicationType = richPayload.publicationType || '';
+        const isSinta = publicationType.startsWith('sinta_');
+        const pkgName = isSinta ? 'Publikasi Jurnal SINTA' : 'Jurnal Internasional';
         
-        let richPayload: any = {};
-        try {
-          richPayload = JSON.parse(abstract);
-        } catch(e) {}
-
-        const { data: rjrakpArticle, error: rjrakpError } = await rjrakpSupabase
-          .from('articles')
-          .insert({
-            title: title,
-            abstract: richPayload.abstract_en || abstract,
-            keywords: richPayload.keywords || '',
-            status: 'submitted'
-          })
-          .select()
-          .single();
-          
-        if (rjrakpError) {
-          console.error("Failed to sync to RJRAKP DB:", rjrakpError);
-        } else if (richPayload.authors && richPayload.authors.length > 0) {
-           const authorsToInsert = richPayload.authors.map((a: any, idx: number) => ({
-             article_id: rjrakpArticle.id,
-             full_name: a.full_name,
-             email: a.email,
-             affiliation: a.affiliation,
-             country: a.country,
-             orcid: a.orcid,
-             is_corresponding: idx === 0,
-             author_order: idx + 1
-           }));
-           await rjrakpSupabase.from('article_authors').insert(authorsToInsert);
-        }
-
-        // Trigger WhatsApp Notification
-        const userPhone = user.user_metadata?.phone;
-        if (userPhone) {
-          const publicationType = richPayload.publicationType || '';
-          const isSinta = publicationType.startsWith('sinta_');
-          const pkgName = isSinta ? 'Publikasi Jurnal SINTA' : 'Jurnal Internasional';
-          
-          const waMessage = isSinta 
-            ? `Terima kasih telah melakukan submit artikel Anda melalui sistem Asia Index & Metric (Association Asia Pacific Academicians).
+        const waMessage = isSinta 
+          ? `Terima kasih telah melakukan submit artikel Anda melalui sistem Asia Index & Metric (Association Asia Pacific Academicians).
 
 Detail Pengajuan:
 
@@ -169,7 +187,7 @@ Proses evaluasi dan publikasi dilaksanakan sesuai standar kualitas ilmiah dan ke
 Asia Index & Metric
 Association Asia Pacific Academicians
 https://apasific.org`
-            : `Terima kasih telah melakukan submit artikel Anda melalui sistem Asia Index & Metric (Association Asia Pacific Academicians).
+          : `Terima kasih telah melakukan submit artikel Anda melalui sistem Asia Index & Metric (Association Asia Pacific Academicians).
 
 Detail Pengajuan:
 
@@ -190,12 +208,11 @@ Asia Index & Metric
 Association Asia Pacific Academicians
 https://apasific.org`;
 
-          const { sendWa } = await import('@/utils/sendWa');
-          await sendWa(userPhone, waMessage);
-        }
+        const { sendWa } = await import('@/utils/sendWa');
+        await sendWa(userPhone, waMessage);
+      } catch (waError) {
+        console.error("WhatsApp notification failed:", waError);
       }
-    } catch (crossSyncError) {
-      console.error("Cross-sync to RJRAKP failed:", crossSyncError);
     }
 
     return { success: true, submissionId: submission.submission_id };

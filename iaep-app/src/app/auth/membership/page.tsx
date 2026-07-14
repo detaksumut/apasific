@@ -192,7 +192,7 @@ export default function MajesticMembershipPage() {
         throw new Error(result?.error || "Gagal mendaftar");
       }
 
-      document.cookie = "mock_user=member; path=/";
+
       window.location.href = "/auth/pending-approval";
     } catch (err: any) {
       console.error(err);

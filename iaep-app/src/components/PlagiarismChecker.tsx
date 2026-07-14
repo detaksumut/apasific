@@ -58,8 +58,15 @@ export const PlagiarismChecker: React.FC<PlagiarismCheckerProps> = ({ initialTex
       const paragraph = paragraphs[i];
       const wordCount = countWords(paragraph);
       
-      const sources = await checkParagraphPlagiarism(paragraph);
-      const isPlagiarized = sources.length > 0;
+      let sources: string[] = [];
+      let isPlagiarized = false;
+
+      // Filter: Hanya periksa plagiarisme jika potongan (chunk) berisi 20 kata
+      // (Sesuai instruksi: 1 paragraf maksimal 20 kata, dan hanya yang mengandung 20 kata utuh yang dicek)
+      if (wordCount >= 20) {
+        sources = await checkParagraphPlagiarism(paragraph);
+        isPlagiarized = sources.length > 0;
+      }
       
       if (isPlagiarized) {
         plagiarizedCount++;
@@ -88,6 +95,39 @@ export const PlagiarismChecker: React.FC<PlagiarismCheckerProps> = ({ initialTex
     });
 
     setIsChecking(false);
+  };
+
+  const downloadReport = () => {
+    if (!report) return;
+    
+    let content = `HASIL PENGECEKAN PLAGIARISME (Sistem Internal ASIA)\n`;
+    content += `====================================================\n\n`;
+    content += `Total Potongan Teks: ${report.totalParagraphs}\n`;
+    content += `Potongan Diperiksa : ${report.checkedParagraphs} (Minimal 20 Kata)\n`;
+    content += `Terdeteksi Plagiat : ${report.plagiarizedParagraphs}\n`;
+    content += `Persentase Plagiat : ${report.plagiarismPercentage}%\n\n`;
+    content += `DETAIL TEKS YANG TERINDIKASI PLAGIAT:\n`;
+    content += `-------------------------------------\n\n`;
+    
+    const plagiarizedItems = report.results.filter(r => r.isPlagiarized);
+    if (plagiarizedItems.length === 0) {
+      content += `Tidak ada teks yang terindikasi plagiat! Artikel Anda aman.\n`;
+    } else {
+      plagiarizedItems.forEach((result, idx) => {
+        content += `[Temuan #${idx + 1}] (${result.wordCount} kata)\n`;
+        content += `Teks: "${result.sentence}"\n\n`;
+      });
+    }
+    
+    const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `Laporan_Plagiarisme_${new Date().getTime()}.txt`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
   };
 
   return (
@@ -127,7 +167,16 @@ export const PlagiarismChecker: React.FC<PlagiarismCheckerProps> = ({ initialTex
 
       {report && (
         <div className="mt-8 border-t border-emerald-500/20 pt-6">
-          <h3 className="text-xl font-semibold mb-4 text-emerald-400">Hasil Pengecekan</h3>
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-6">
+            <h3 className="text-xl font-semibold text-emerald-400 mb-4 sm:mb-0">Hasil Pengecekan</h3>
+            <button
+              onClick={downloadReport}
+              className="bg-zinc-800 hover:bg-zinc-700 text-white border border-zinc-700 text-sm py-2 px-4 rounded-md transition-colors flex items-center gap-2"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+              Download Laporan (TXT)
+            </button>
+          </div>
           
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
             <div className="bg-black/60 p-4 rounded-md border border-zinc-800 text-center">

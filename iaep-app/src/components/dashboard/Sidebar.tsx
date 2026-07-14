@@ -378,14 +378,11 @@ export default function Sidebar({ role }: SidebarProps) {
         </div>
       </div>
 
-      {/* Role Badge (Clickable to switch roles) */}
-      <Link href="/auth/select-role" className="sidebar-role-badge" title="Klik untuk berganti Portal (Penulis/Reviewer/Editor)" style={{ "--role-color": roleColorMap[role] || "#c9a84c", cursor: "pointer", textDecoration: "none" } as React.CSSProperties}>
+      {/* Role Badge (Static - No longer clickable) */}
+      <div className="sidebar-role-badge" style={{ "--role-color": roleColorMap[role] || "#c9a84c" } as React.CSSProperties}>
         <div className="sidebar-role-dot" />
         <span style={{ flex: 1 }}>{roleLabelMap[role] || role} Portal</span>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ width: 14, height: 14, opacity: 0.5 }}>
-          <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z" />
-        </svg>
-      </Link>
+      </div>
 
       {/* Nav */}
       <nav className="sidebar-nav">

@@ -6,7 +6,7 @@ export const dynamic = 'force-dynamic';
 
 export async function GET() {
   try {
-    const uuids = {
+    const uuids: Record<string, string> = {
       "1": "5f6bca5a-39e2-442b-a2e0-5b3f35614b4e",
       "2": "4f4ad30b-1fab-4c43-ab96-227f0d7d5977",
       "3": "71809c3b-44dd-46cb-a553-636fe1395b46",

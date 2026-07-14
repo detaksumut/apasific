@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { UserCircle, PenTool, Edit, ShieldCheck } from "lucide-react";
+import { getCurrentUserRole } from "@/app/actions/user";
 
 export default function SelectRolePage() {
   const router = useRouter();
@@ -9,18 +10,18 @@ export default function SelectRolePage() {
   const [userName, setUserName] = useState<string>("User");
 
   useEffect(() => {
-    // Read the mock_user cookie which contains their actual database role
-    const getCookie = (name: string) => {
-      const value = `; ${document.cookie}`;
-      const parts = value.split(`; ${name}=`);
-      if (parts.length === 2) return parts.pop()?.split(';').shift();
-      return null;
+    const fetchUserRole = async () => {
+      const profile = await getCurrentUserRole();
+      
+      if (profile) {
+        setUserRole(profile.role || "author");
+        setUserName(profile.full_name || "User");
+      } else {
+        router.push("/auth/login");
+      }
     };
-    const role = getCookie("mock_user") || "author";
-    const name = getCookie("mock_user_name") || "User";
-    setUserRole(role);
-    setUserName(decodeURIComponent(name));
-  }, []);
+    fetchUserRole();
+  }, [router]);
 
   const handleSelectRole = (selectedRole: string) => {
     document.cookie = `active_portal_role=${selectedRole}; path=/; max-age=2592000`;

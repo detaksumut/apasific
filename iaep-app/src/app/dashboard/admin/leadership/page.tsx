@@ -11,8 +11,7 @@ const DEFAULT_HOME_MEMBERS = [
   { jabatan: "Vice President",  nama: "DR. MUHAMMAD YAMIN NOCH., SE., MSA",         afiliasi: "Academic Affairs & Institutional Development", foto: "" },
   { jabatan: "Vice President",  nama: "PROF. DR. ISTIANINGSIH SASTRODIHARJO., SE., M.Si", afiliasi: "Research & International Cooperation", foto: "" },
   { jabatan: "Secretary General", nama: "DR. NGATEMIN., M.Si",                     afiliasi: "Strategic Operations & Governance",      foto: "" },
-  { jabatan: "Treasurer",       nama: "TRI DESSY FADILLAH., SE., M.Ak",            afiliasi: "Finance & Resource Management",           foto: "" },
-  { jabatan: "Information Technology", nama: "M. A. RAHMAN",                       afiliasi: "Digital Platform & System Integration",   foto: "" },
+  { jabatan: "Treasurer",       nama: "TRI DESSY FADILLAH., SE., M.Ak",            afiliasi: "Finance & Resource Management",           foto: "" }
 ];
 
 export default function LeadershipManagementPage() {

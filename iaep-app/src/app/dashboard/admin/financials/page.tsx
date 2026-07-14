@@ -5,43 +5,9 @@ import { useState } from "react";
 export default function FinancialManagement() {
   const [activeTab, setActiveTab] = useState("stipends");
 
-  const stipends = [
-    { 
-      id: 1, name: "Prof. Dr. Alan Turing", role: "Editor in Chief", 
-      details: [
-        { level: "Mahasiswa", count: 10, rate: 100000 },
-        { level: "S1", count: 8, rate: 150000 },
-        { level: "S2", count: 5, rate: 200000 },
-        { level: "S3", count: 2, rate: 250000 }
-      ],
-      status: "Pending" 
-    },
-    { id: 2, name: "M. A. Rahman", role: "Editor on Board", baseRate: 75000, articles: 25, status: "Paid" },
-    { 
-      id: 3, name: "Kadin Medan", role: "Reviewer On Board", 
-      details: [
-        { level: "Mahasiswa", count: 5, rate: 75000 },
-        { level: "S1", count: 10, rate: 100000 },
-        { level: "S2", count: 8, rate: 150000 },
-        { level: "S3", count: 2, rate: 200000 }
-      ], 
-      status: "Pending" 
-    },
-    { id: 4, name: "Grace Hopper", role: "Publish Editor", baseRate: 40000, articles: 25, status: "Paid" },
-  ];
-
-  const tasks = [
-    { id: 101, name: "Dr. Bruce Wayne", role: "Freelance Reviewer", article: "Impact of AI...", fee: "Rp 250.000", date: "01 Jul 2026", status: "Pending" },
-    { id: 102, name: "Kadin Medan", role: "Reviewer On Board", article: "Regional Economic...", fee: "Rp 250.000", date: "02 Jul 2026", status: "Pending" },
-    { id: 103, name: "Prof. John von Neumann", role: "Reviewer On Board", article: "Blockchain Integration...", fee: "Rp 250.000", date: "03 Jul 2026", status: "Pending" },
-    { id: 104, name: "Dr. Sarah Connor", role: "Freelance Reviewer", article: "Medical Advances...", fee: "Rp 250.000", date: "28 Jun 2026", status: "Paid" },
-  ];
-
-  const royalties = [
-    { id: 201, author: "Dr. Budi Santoso", article: "Impact of AI in Regional Economics", journal: "RJRAKP", downloads: 42, revenue: 2100000, status: "Pending Payout" },
-    { id: 202, author: "Siti Aminah, M.Sc", article: "Supply Chain Disruptions", journal: "APASIFIC IAEP", downloads: 15, revenue: 750000, status: "Pending Payout" },
-    { id: 203, author: "Prof. H. Ahmad", article: "Blockchain in Education", journal: "RJRAKP", downloads: 85, revenue: 4250000, status: "Paid" },
-  ];
+  const [stipends, setStipends] = useState<any[]>([]);
+  const tasks: any[] = [];
+  const royalties: any[] = [];
 
   return (
     <div className="max-w-6xl mx-auto space-y-8 pb-20">

@@ -22,7 +22,7 @@ export default function UserManagement() {
             name: u.full_name || u.name,
             email: u.email,
             role: u.role === "author" ? "Author" : u.role === "reviewer" ? "Reviewer" : u.role === "admin" ? "Admin" : u.role === "co_admin" ? "Co-Admin" : u.role || "Author",
-            journal: u.role === "reviewer" ? "APASIFIC IAEP" : u.journal || "RJRAKP", 
+            journal: "ASIA", 
             joined: u.joined ? new Date(u.joined).toLocaleDateString() : "Oct 2024",
             status: u.status || "Pending"
           }));

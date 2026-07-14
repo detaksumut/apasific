@@ -4,11 +4,7 @@ import Link from "next/link";
 import { useState, useEffect } from "react";
 
 export default function JournalManagement() {
-  const [journals, setJournals] = useState([
-    { id: 1, code: "RJ", title: "RJRAKP", fullname: "Riau Journal of Review Audit & Knowledge...", color: "from-[#c9a84c] to-[#9a7a30]", users: 215, status: "Active", lastUpdated: "2 days ago" },
-    { id: 2, code: "IA", title: "APASIFIC IAEP", fullname: "Impact of Artificial Intelligence on Educ...", color: "from-blue-600 to-indigo-800", users: 1033, status: "Active", lastUpdated: "5 hours ago" },
-    { id: 3, code: "MJ", title: "Med J", fullname: "Medical Journal of APASIFIC (Draft)", color: "from-gray-600 to-gray-800", users: 0, status: "Setup", lastUpdated: "Just now" },
-  ]);
+  const [journals, setJournals] = useState<any[]>([]);
 
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);

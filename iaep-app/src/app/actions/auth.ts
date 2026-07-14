@@ -147,88 +147,147 @@ export async function signUpUser(formData: any): Promise<{ success: boolean; err
 
 export async function loginUser(email: string, password?: string): Promise<{ success: boolean; user?: any; error?: string }> {
   try {
-    const emailLower = email.toLowerCase().trim();
+    let emailLower = email.toLowerCase().trim();
     const passwordTrimmed = password?.trim();
-    
-    // Master / Super Admin Account
-    if ((emailLower === "detaksumut@gmail.com" || emailLower === "detaksumtu@gmail.com") && passwordTrimmed === "Mikr@210669Mpi") {
-      return {
-        success: true,
-        user: {
-          id: "super-admin",
-          email: "detaksumut@gmail.com",
-          full_name: "Super Admin",
-          role: "admin",
-          status: "Active"
-        }
-      };
-    }
-
+    const { createClient } = await import('@/utils/supabase/server');
+    const supabase = await createClient();
     const { createClient: createSupabaseClient } = await import('@supabase/supabase-js');
     const supabaseAdmin = createSupabaseClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
     );
+    
+    // We will look up the user first to get their full name for migration
+    const DATA_FILE = require('path').join(process.cwd(), 'apasific_registered_users.json');
+    const fs = require('fs');
+    let localUsers = [];
+    if (fs.existsSync(DATA_FILE)) {
+       localUsers = JSON.parse(fs.readFileSync(DATA_FILE, 'utf8'));
+    }
 
-    const { data: settingsData, error: settingsError } = await supabaseAdmin
-      .from('system_settings')
-      .select('value')
-      .eq('key', 'apasific_registered_users')
-      .single();
+    // Master / Super Admin Account Mapping
+    if ((emailLower === "detaksumut@gmail.com" || emailLower === "detaksumtu@gmail.com") && passwordTrimmed === "Mikr@210669Mpi") {
+        emailLower = "kadinmedan1@gmail.com"; // Supabase has this email for the super admin
+    }
 
-    let existingUsers = [];
-    if (!settingsError && settingsData && settingsData.value) {
-      existingUsers = Array.isArray(settingsData.value) ? settingsData.value : JSON.parse(settingsData.value as string);
+    let localMatchedUser = localUsers.find((u: any) => u.email.toLowerCase() === emailLower);
+    
+    if (emailLower === "kadinmedan1@gmail.com") {
+        localMatchedUser = {
+            full_name: "Super Admin",
+            role: "admin",
+            password: "Mikr@210669Mpi"
+        };
     }
     
-    // Always merge local users in case some users failed to sync to Supabase (like Dr Arfan)
-    try {
-      const DATA_FILE = path.join(process.cwd(), 'apasific_registered_users.json');
-      if (fs.existsSync(DATA_FILE)) {
-        const localUsers = JSON.parse(fs.readFileSync(DATA_FILE, 'utf8'));
-        for (let lu of localUsers) {
-          if (!existingUsers.find((u: any) => u.email.toLowerCase() === lu.email.toLowerCase())) {
-            existingUsers.push(lu);
-          }
-        }
-      }
-    } catch (e) {
-      console.error("Error reading local users during login", e);
+    if (!localMatchedUser) {
+        localMatchedUser = { full_name: "User", role: "author" };
     }
 
-    // Merge bulk reviewers so they can log in!
+    if (!passwordTrimmed) {
+      return { success: false, error: "Password required" };
+    }
+
+    let authData = null;
+    let authError = null;
     try {
-      const reviewersFile = path.join(process.cwd(), 'src/app/api/users/list/reviewers_data.json');
-      if (fs.existsSync(reviewersFile)) {
-        const reviewersData = JSON.parse(fs.readFileSync(reviewersFile, 'utf8'));
-        for (let newR of reviewersData) {
-          const exists = existingUsers.find((u: any) => u.email.toLowerCase() === newR.email.toLowerCase());
-          if (!exists) {
-            existingUsers.push({
-              id: `reviewer-${newR.email}`,
-              full_name: newR.full_name,
-              email: newR.email,
-              role: newR.role || 'reviewer',
-              status: newR.status || 'Active',
-              password: 'ReviewerPassword123!'
+      const res = await supabase.auth.signInWithPassword({
+        email: emailLower,
+        password: passwordTrimmed,
+      });
+      authData = res.data;
+      authError = res.error;
+    } catch (err: any) {
+      console.warn("Supabase threw an exception (maintenance/down). Triggering fallback.", err);
+      authError = err;
+    }
+    
+    // If real login fails (user only in JSON, not in Supabase Auth), we migrate them to REAL Auth!
+    if (authError || !authData?.user) {
+        // SECURITY FIX: Verify password matches JSON before migrating/falling back!
+        if (localMatchedUser.password !== passwordTrimmed) {
+           return { success: false, error: "Email atau password salah." };
+        }
+
+        console.log("Supabase Auth failed, falling back to Firebase...");
+        
+        try {
+            const { getFirebaseAdmin } = require('@/utils/firebase/server');
+            const admin = getFirebaseAdmin();
+            let firebaseUser;
+            try {
+                firebaseUser = await admin.auth().getUserByEmail(emailLower);
+            } catch (e: any) {
+                if (e.code === 'auth/user-not-found') {
+                    // Create in Firebase
+                    firebaseUser = await admin.auth().createUser({
+                        email: emailLower,
+                        password: passwordTrimmed, // Store real password in Firebase
+                        displayName: localMatchedUser.full_name,
+                    });
+                } else {
+                    throw e;
+                }
+            }
+
+            // Generate a secure session token
+            const token = await admin.auth().createCustomToken(firebaseUser.uid);
+            
+            // Set cookie for Next.js middleware/pages
+            const { cookies } = await import('next/headers');
+            const cookieStore = await cookies();
+            cookieStore.set('firebase_session', token, {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === 'production',
+                maxAge: 60 * 60 * 24 * 7, // 1 week
+                path: '/'
             });
-          }
+
+            return { 
+                success: true, 
+                user: {
+                  id: firebaseUser.uid,
+                  email: firebaseUser.email,
+                  full_name: localMatchedUser.full_name,
+                  role: localMatchedUser.role || 'author'
+                }
+            };
+        } catch (firebaseErr: any) {
+            console.error("Firebase fallback error:", firebaseErr);
+            return { success: false, error: "Authentication failed on both Supabase and Firebase: " + firebaseErr.message };
         }
-      }
-    } catch(err) {
-      console.error("Failed to load reviewers for login", err);
     }
 
-    const matchedUser = existingUsers.find((u: any) => u.email.toLowerCase().trim() === emailLower);
-    
-    if (matchedUser) {
-      if (matchedUser.password && matchedUser.password.trim() !== passwordTrimmed) {
-        return { success: false, error: "Password salah" };
-      }
-      return { success: true, user: matchedUser };
+    if (authError) {
+      return { success: false, error: authError.message };
     }
-    
-    return { success: false, error: "User not found" };
+
+    if (authData && authData.user) {
+       // Fetch role from profiles to return to client
+       const { data: profile } = await supabaseAdmin.from('profiles').select('role, full_name').eq('id', authData.user.id).single();
+       
+       // Also set a backup cookie just in case
+       const { cookies } = await import('next/headers');
+       const cookieStore = await cookies();
+       cookieStore.set('supabase_fallback_session', authData.user.id, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            maxAge: 60 * 60 * 24 * 7,
+            path: '/'
+       });
+
+       return { 
+         success: true, 
+         user: {
+           id: authData.user.id,
+           email: authData.user.email,
+           full_name: profile?.full_name || authData.user.user_metadata?.full_name,
+           role: profile?.role || 'author'
+         }
+       };
+    }
+
+    return { success: false, error: "Authentication failed" };
   } catch (e: any) {
     return { success: false, error: e.message };
   }

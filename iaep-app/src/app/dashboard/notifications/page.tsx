@@ -6,10 +6,8 @@ import { cookies } from "next/headers";
 export default async function NotificationsPage() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
-  const cookieStore = await cookies();
-  const mockUserCookie = cookieStore.get("mock_user")?.value;
 
-  if (!user && !mockUserCookie) {
+  if (!user) {
     redirect("/auth/login");
   }
 
