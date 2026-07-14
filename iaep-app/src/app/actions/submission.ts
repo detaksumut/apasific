@@ -113,7 +113,7 @@ export async function submitManuscript(formData: FormData) {
         .from('submission_files')
         .insert({
           submission_id: submission.submission_id,
-          uploader_id: user.id,
+          uploader_id: userId,
           file_stage: 'submission',
           file_name: `${prefix}_${f.name}`,
           file_type: f.type,
