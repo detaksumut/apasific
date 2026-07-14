@@ -147,7 +147,7 @@ export async function submitManuscript(formData: FormData) {
       richPayload = JSON.parse(abstract);
     } catch(e) {}
 
-    const userPhone = user.user_metadata?.phone;
+    const userPhone = user?.user_metadata?.phone;
     if (userPhone) {
       try {
         const publicationType = richPayload.publicationType || '';
