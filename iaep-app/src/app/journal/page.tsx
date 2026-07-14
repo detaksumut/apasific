@@ -141,7 +141,11 @@ export default function JournalPage() {
                           {m.jabatan}
                         </div>
                         <div style={{ color: "rgba(255,255,255,0.4)", fontSize: "12px", lineHeight: "1.5" }}>
-                          {m.afiliasi}
+                          {m.afiliasi?.includes("Komite Advokasi Daerah Anti Korupsi") ? (
+                            <>Komite Advokasi Daerah<br />Anti Korupsi Sumatera Utara</>
+                          ) : (
+                            m.afiliasi
+                          )}
                         </div>
                       </div>
                     ))}

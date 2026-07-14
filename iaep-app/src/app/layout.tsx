@@ -94,6 +94,7 @@ export default function RootLayout({
               <a href="/political.html"><span class="dd-icon">◈</span> Ilmu Politik &amp; Hubungan Internasional</a>
               <a href="/tourism.html"><span class="dd-icon">◈</span> Pariwisata &amp; Manajemen Perhotelan</a>
               <a href="/pkm.html"><span class="dd-icon">◈</span> Pengabdian Kepada Masyarakat (PKM)</a>
+              <a href="/islamic.html"><span class="dd-icon">◈</span> Disiplin Ilmu Agama dan Peradaban Islam</a>
             </div>
           </div>
         </li>
