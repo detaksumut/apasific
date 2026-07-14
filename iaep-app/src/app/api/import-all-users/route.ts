@@ -164,7 +164,11 @@ export async function GET() {
     }
     
     // Save to local
-    fs.writeFileSync(DATA_FILE, JSON.stringify(users, null, 2));
+    try {
+      fs.writeFileSync(DATA_FILE, JSON.stringify(users, null, 2));
+    } catch (e) {
+      console.warn("Could not write to local file (expected on Vercel)");
+    }
 
     // Save to Supabase
     await supabaseAdmin
