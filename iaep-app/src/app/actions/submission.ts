@@ -12,7 +12,7 @@ export async function submitManuscript(formData: FormData) {
       return { success: false, error: "Authentication required" };
     }
 
-    const journalId = parseInt(formData.get('journalId') as string) || 1;
+    const journalId = formData.get('journalId') as string;
     const title = formData.get('title') as string;
     const abstract = formData.get('abstract') as string;
     const file = formData.get('file') as File;
@@ -29,10 +29,10 @@ export async function submitManuscript(formData: FormData) {
       .from('submissions')
       .insert({
         journal_id: journalId,
-        submitter_id: user.id,
+        author_id: user.id,
         title,
         abstract,
-        status: 'queued'
+        status: 'Awaiting Reviewers'
       })
       .select()
       .single();
@@ -42,7 +42,7 @@ export async function submitManuscript(formData: FormData) {
     // Helper function to upload and log files
     const uploadAndLogFile = async (f: File, prefix: string) => {
       const fileExt = f.name.split('.').pop();
-      const filePath = `${submission.submission_id}/${Date.now()}_${prefix}.${fileExt}`;
+      const filePath = `${submission.id}/${Date.now()}_${prefix}.${fileExt}`;
       
       const arrayBuffer = await f.arrayBuffer();
       const buffer = Buffer.from(arrayBuffer);
@@ -58,7 +58,7 @@ export async function submitManuscript(formData: FormData) {
       const { error: fileError } = await supabase
         .from('submission_files')
         .insert({
-          submission_id: submission.submission_id,
+          submission_id: submission.id,
           uploader_id: user.id,
           file_stage: 'submission',
           file_name: `${prefix}_${f.name}`,
@@ -83,7 +83,7 @@ export async function submitManuscript(formData: FormData) {
       }
     } catch (uploadError: any) {
       // Rollback submission if any upload fails
-      await supabase.from('submissions').delete().eq('submission_id', submission.submission_id);
+      await supabase.from('submissions').delete().eq('id', submission.id);
       throw uploadError;
     }
 

@@ -304,50 +304,113 @@ export default async function Home() {
             </thead>
             <tbody>
               <tr>
-                <td><span class="jl-abbr">AJAF</span> ASIA Journal of Accounting and Finance</td>
+                <td><span class="jl-abbr">AJAF</span> Journal of Accounting and Finance</td>
                 <td class="text-center"><span class="field-tag accounting">Akuntansi</span></td>
                 <td class="text-center jl-year">2026</td>
                 <td class="text-center"><span class="db-badge in-review small">Tertunda</span></td>
                 <td class="text-center"><span class="db-badge submitted small">Berlangsung</span></td>
               </tr>
               <tr>
-                <td><span class="jl-abbr">APJBA</span> Asia Pacific Journal of Business Administration</td>
-                <td class="text-center"><span class="field-tag business">Bisnis</span></td>
-                <td class="text-center jl-year">2026</td>
-                <td class="text-center"><span class="db-badge in-review small">Tertunda</span></td>
-                <td class="text-center"><span class="db-badge submitted small">Berlangsung</span></td>
-              </tr>
-              <tr>
-                <td><span class="jl-abbr">AJITE</span> ASIA Journal of IT &amp; Engineering</td>
-                <td class="text-center"><span class="field-tag tech">Teknologi</span></td>
-                <td class="text-center jl-year">2026</td>
-                <td class="text-center"><span class="db-badge in-review small">Tertunda</span></td>
-                <td class="text-center"><span class="db-badge planned small">Direncanakan</span></td>
-              </tr>
-              <tr>
-                <td><span class="jl-abbr">AJLS</span> ASIA Journal of Law and Society</td>
-                <td class="text-center"><span class="field-tag law">Hukum</span></td>
-                <td class="text-center jl-year">2026</td>
-                <td class="text-center"><span class="db-badge in-review small">Tertunda</span></td>
-                <td class="text-center"><span class="db-badge planned small">Direncanakan</span></td>
-              </tr>
-              <tr>
-                <td><span class="jl-abbr">APJEP</span> Asia Pacific Journal of Education &amp; Pedagogy</td>
-                <td class="text-center"><span class="field-tag edu">Pendidikan</span></td>
-                <td class="text-center jl-year">2026</td>
-                <td class="text-center"><span class="db-badge in-review small">Tertunda</span></td>
-                <td class="text-center"><span class="db-badge planned small">Direncanakan</span></td>
-              </tr>
-              <tr>
-                <td><span class="jl-abbr">AJED</span> ASIA Journal of Economics and Development</td>
+                <td><span class="jl-abbr">AJED</span> Journal of Economics and Development</td>
                 <td class="text-center"><span class="field-tag econ">Ekonomi</span></td>
                 <td class="text-center jl-year">2026</td>
                 <td class="text-center"><span class="db-badge in-review small">Tertunda</span></td>
                 <td class="text-center"><span class="db-badge planned small">Direncanakan</span></td>
               </tr>
               <tr>
-                <td><span class="jl-abbr">AJSSH</span> ASIA Journal of Social Sciences &amp; Humanities</td>
-                <td class="text-center"><span class="field-tag social">Sosial</span></td>
+                <td><span class="jl-abbr">AJEP</span> Journal of Education and Pedagogy</td>
+                <td class="text-center"><span class="field-tag edu">Pendidikan</span></td>
+                <td class="text-center jl-year">2026</td>
+                <td class="text-center"><span class="db-badge in-review small">Tertunda</span></td>
+                <td class="text-center"><span class="db-badge planned small">Direncanakan</span></td>
+              </tr>
+              <tr>
+                <td><span class="jl-abbr">AJCE</span> Journal of Civil and Mechanical Engineering</td>
+                <td class="text-center"><span class="field-tag tech">Teknik Sipil</span></td>
+                <td class="text-center jl-year">2026</td>
+                <td class="text-center"><span class="db-badge in-review small">Tertunda</span></td>
+                <td class="text-center"><span class="db-badge planned small">Direncanakan</span></td>
+              </tr>
+              <tr>
+                <td><span class="jl-abbr">AJAFR</span> Journal of Agriculture, Forestry and Fisheries</td>
+                <td class="text-center"><span class="field-tag">Pertanian</span></td>
+                <td class="text-center jl-year">2026</td>
+                <td class="text-center"><span class="db-badge in-review small">Tertunda</span></td>
+                <td class="text-center"><span class="db-badge planned small">Direncanakan</span></td>
+              </tr>
+              <tr>
+                <td><span class="jl-abbr">AJADM</span> Journal of Art, Design and Creative Media</td>
+                <td class="text-center"><span class="field-tag">Seni &amp; Desain</span></td>
+                <td class="text-center jl-year">2026</td>
+                <td class="text-center"><span class="db-badge in-review small">Tertunda</span></td>
+                <td class="text-center"><span class="db-badge planned small">Direncanakan</span></td>
+              </tr>
+              <tr>
+                <td><span class="jl-abbr">AJIR</span> Journal of International Relations and Politics</td>
+                <td class="text-center"><span class="field-tag social">Politik</span></td>
+                <td class="text-center jl-year">2026</td>
+                <td class="text-center"><span class="db-badge in-review small">Tertunda</span></td>
+                <td class="text-center"><span class="db-badge planned small">Direncanakan</span></td>
+              </tr>
+              <tr>
+                <td><span class="jl-abbr">AJCS</span> Journal of Community Service</td>
+                <td class="text-center"><span class="field-tag social">PKM</span></td>
+                <td class="text-center jl-year">2026</td>
+                <td class="text-center"><span class="db-badge in-review small">Tertunda</span></td>
+                <td class="text-center"><span class="db-badge planned small">Direncanakan</span></td>
+              </tr>
+              <tr>
+                <td><span class="jl-abbr">AJBA</span> Journal of Business Administration</td>
+                <td class="text-center"><span class="field-tag business">Bisnis</span></td>
+                <td class="text-center jl-year">2026</td>
+                <td class="text-center"><span class="db-badge in-review small">Tertunda</span></td>
+                <td class="text-center"><span class="db-badge submitted small">Berlangsung</span></td>
+              </tr>
+              <tr>
+                <td><span class="jl-abbr">AJLS</span> Journal of Law and Society</td>
+                <td class="text-center"><span class="field-tag law">Hukum</span></td>
+                <td class="text-center jl-year">2026</td>
+                <td class="text-center"><span class="db-badge in-review small">Tertunda</span></td>
+                <td class="text-center"><span class="db-badge planned small">Direncanakan</span></td>
+              </tr>
+              <tr>
+                <td><span class="jl-abbr">AJPH</span> Journal of Public Health and Medicine</td>
+                <td class="text-center"><span class="field-tag">Kesehatan</span></td>
+                <td class="text-center jl-year">2026</td>
+                <td class="text-center"><span class="db-badge in-review small">Tertunda</span></td>
+                <td class="text-center"><span class="db-badge planned small">Direncanakan</span></td>
+              </tr>
+              <tr>
+                <td><span class="jl-abbr">AJITE</span> Journal of IT &amp; Engineering</td>
+                <td class="text-center"><span class="field-tag tech">IT &amp; Teknik</span></td>
+                <td class="text-center jl-year">2026</td>
+                <td class="text-center"><span class="db-badge in-review small">Tertunda</span></td>
+                <td class="text-center"><span class="db-badge planned small">Direncanakan</span></td>
+              </tr>
+              <tr>
+                <td><span class="jl-abbr">AJSSH</span> Journal of Social Sciences &amp; Humanities</td>
+                <td class="text-center"><span class="field-tag social">Sosial &amp; Budaya</span></td>
+                <td class="text-center jl-year">2026</td>
+                <td class="text-center"><span class="db-badge in-review small">Tertunda</span></td>
+                <td class="text-center"><span class="db-badge planned small">Direncanakan</span></td>
+              </tr>
+              <tr>
+                <td><span class="jl-abbr">AJES</span> Journal of Environmental and Sustainability</td>
+                <td class="text-center"><span class="field-tag">Lingkungan</span></td>
+                <td class="text-center jl-year">2026</td>
+                <td class="text-center"><span class="db-badge in-review small">Tertunda</span></td>
+                <td class="text-center"><span class="db-badge planned small">Direncanakan</span></td>
+              </tr>
+              <tr>
+                <td><span class="jl-abbr">AJTHM</span> Journal of Tourism and Hospitality Management</td>
+                <td class="text-center"><span class="field-tag business">Pariwisata</span></td>
+                <td class="text-center jl-year">2026</td>
+                <td class="text-center"><span class="db-badge in-review small">Tertunda</span></td>
+                <td class="text-center"><span class="db-badge planned small">Direncanakan</span></td>
+              </tr>
+              <tr>
+                <td><span class="jl-abbr">AJIS</span> Journal of Islamic Studies</td>
+                <td class="text-center"><span class="field-tag social">Studi Islam</span></td>
                 <td class="text-center jl-year">2026</td>
                 <td class="text-center"><span class="db-badge in-review small">Tertunda</span></td>
                 <td class="text-center"><span class="db-badge planned small">Direncanakan</span></td>

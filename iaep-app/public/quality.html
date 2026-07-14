@@ -20,7 +20,7 @@
         <div class="logo-icon">
           <!-- Logo image: place your file at public/images/logo.png -->
           <img id="nav-logo-img"
-               src="logo-apasific.png"
+               src="/logo-apasific.png"
                alt="ASIA Logo"
                width="44" height="44"
                onerror="this.style.display='none';document.getElementById('nav-logo-svg').style.display='block';"
@@ -42,89 +42,124 @@
 
       <!-- Nav Links -->
       <ul class="nav-links" id="nav-links">
-        <li><a href="/" class="nav-link active" id="nav-home">HOME</a></li>
+        <li><a href="/" class="nav-link active" id="nav-home">BERANDA</a></li>
 
         <li class="has-dropdown">
           <a href="/#about" class="nav-link" id="nav-about">ABOUT ASIA <span class="chevron">▾</span></a>
           <div class="dropdown">
-            <a href="vision-mission.html"><span class="dd-icon">◈</span> Vision &amp; Mission</a>
+            <a href="/#vision-mission"><span class="dd-icon">◈</span> Vision &amp; Mission</a>
             <a href="/#leadership"><span class="dd-icon">◈</span> Leadership</a>
-            <a href="/#org-structure"><span class="dd-icon">◈</span> Organizational Structure</a>
-            <a href="/#certification-structure"><span class="dd-icon">◈</span> Certification Structure</a>
-            <a href="/#journal-structure"><span class="dd-icon">◈</span> Journal Structure</a>
+            <a href="/organization-structure"><span class="dd-icon">◈</span> Organizational Structure</a>
+            <a href="/certification-structure"><span class="dd-icon">◈</span> Certification Structure</a>
+            <a href="/journal"><span class="dd-icon">◈</span> Journal Structure</a>
           </div>
         </li>
 
         <li class="has-dropdown">
-          <a href="/#academic-divisions" class="nav-link" id="nav-divisions">ACADEMIC DIVISIONS <span class="chevron">▾</span></a>
+          <a href="/#academic-divisions" class="nav-link" id="nav-divisions">DIVISI AKADEMIK <span class="chevron">▾</span></a>
           <div class="dropdown dropdown-wide">
             <div class="dd-grid">
-              <a href="accounting.html"><span class="dd-icon">◈</span> Accounting, Auditing &amp; Taxation</a>
-              <a href="business.html"><span class="dd-icon">◈</span> Business, Management &amp; Entrepreneurship</a>
-              <a href="finance.html"><span class="dd-icon">◈</span> Finance, Banking &amp; Investment</a>
-              <a href="hr.html"><span class="dd-icon">◈</span> Human Resources &amp; Organizational Development</a>
-              <a href="economics.html"><span class="dd-icon">◈</span> Economics &amp; Public Policy</a>
-              <a href="education.html"><span class="dd-icon">◈</span> Education &amp; Academic Development</a>
-              <a href="law.html"><span class="dd-icon">◈</span> Law, Governance &amp; Public Administration</a>
-              <a href="it.html"><span class="dd-icon">◈</span> IT, AI &amp; Digital Transformation</a>
-              <a href="engineering.html"><span class="dd-icon">◈</span> Engineering, Technology &amp; Applied Sciences</a>
-              <a href="social.html"><span class="dd-icon">◈</span> Social Sciences, Humanities &amp; Communication</a>
-              <a href="tourism.html"><span class="dd-icon">◈</span> Tourism, Hospitality &amp; Creative Economy</a>
-              <a href="health.html"><span class="dd-icon">◈</span> Health, Public Health &amp; Well-Being</a>
-              <a href="agriculture.html"><span class="dd-icon">◈</span> Agriculture, Environment &amp; Sustainability</a>
-              <a href="islamic.html"><span class="dd-icon">◈</span> Islamic Studies, Ethics &amp; Spirituality</a>
+              <a href="/accounting.html"><span class="dd-icon">◈</span> Akuntansi, Audit &amp; Perpajakan</a>
+              <a href="/business.html"><span class="dd-icon">◈</span> Administrasi &amp; Manajemen Bisnis</a>
+              <a href="/economics.html"><span class="dd-icon">◈</span> Ekonomi Pembangunan &amp; Keuangan</a>
+              <a href="/law.html"><span class="dd-icon">◈</span> Ilmu Hukum &amp; Hak Asasi Manusia</a>
+              <a href="/education.html"><span class="dd-icon">◈</span> Pendidikan Dasar, Menengah &amp; Tinggi</a>
+              <a href="/medical.html"><span class="dd-icon">◈</span> Kedokteran, Kesehatan Masyarakat &amp; Keperawatan</a>
+              <a href="/engineering.html"><span class="dd-icon">◈</span> Teknik Sipil, Mesin &amp; Elektro</a>
+              <a href="/computer.html"><span class="dd-icon">◈</span> Ilmu Komputer &amp; Teknologi Informasi</a>
+              <a href="/agriculture.html"><span class="dd-icon">◈</span> Pertanian, Kehutanan &amp; Perikanan</a>
+              <a href="/social.html"><span class="dd-icon">◈</span> Sosiologi &amp; Ilmu Pengetahuan Budaya</a>
+              <a href="/arts.html"><span class="dd-icon">◈</span> Seni, Desain &amp; Media Kreatif</a>
+              <a href="/environmental.html"><span class="dd-icon">◈</span> Ilmu Lingkungan &amp; Keberlanjutan</a>
+              <a href="/political.html"><span class="dd-icon">◈</span> Ilmu Politik &amp; Hubungan Internasional</a>
+              <a href="/tourism.html"><span class="dd-icon">◈</span> Pariwisata &amp; Manajemen Perhotelan</a>
+              <a href="/pkm.html"><span class="dd-icon">◈</span> Pengabdian Kepada Masyarakat (PKM)</a>
+              <a href="/islamic.html"><span class="dd-icon">◈</span> Disiplin Ilmu Agama dan Peradaban Islam</a>
             </div>
           </div>
         </li>
 
         <li class="has-dropdown">
-          <a href="/#strategic-bodies" class="nav-link" id="nav-bodies">STRATEGIC BODIES <span class="chevron">▾</span></a>
+          <a href="/#strategic-bodies" class="nav-link" id="nav-bodies">BADAN STRATEGIS <span class="chevron">▾</span></a>
           <div class="dropdown dropdown-wide">
             <div class="dd-grid">
-              <a href="asiacert.html"><span class="dd-icon">◈</span> ASIACERT</a>
-              <a href="boc.html"><span class="dd-icon">◈</span> ASIA Board of Certification (BOC)</a>
-              <a href="research.html"><span class="dd-icon">◈</span> Research &amp; Innovation Council</a>
-              <a href="conference.html"><span class="dd-icon">◈</span> Conference &amp; Academic Forum</a>
-              <a href="publication.html"><span class="dd-icon">◈</span> Publication &amp; Knowledge Center</a>
-              <a href="mobility.html"><span class="dd-icon">◈</span> Academic Mobility Center</a>
-              <a href="competition.html"><span class="dd-icon">◈</span> Competition Center</a>
-              <a href="community.html"><span class="dd-icon">◈</span> Community Engagement &amp; SDGs Center</a>
-              <a href="quality.html"><span class="dd-icon">◈</span> Quality Assurance &amp; Accreditation Board</a>
-              <a href="academy.html"><span class="dd-icon">◈</span> Digital Academy &amp; AI Center</a>
-              <a href="young.html"><span class="dd-icon">◈</span> Young Academician Network</a>
-              <a href="awards.html"><span class="dd-icon">◈</span> Awards &amp; Recognition Council</a>
+              <a href="/asiacert.html" target="_blank"><span class="dd-icon">◈</span> ASIACERT</a>
+              <a href="/boc.html" target="_blank"><span class="dd-icon">◈</span> Dewan Sertifikasi (BOC) ASIA</a>
+              <a href="/research.html" target="_blank"><span class="dd-icon">◈</span> Dewan Riset &amp; Inovasi</a>
+              <a href="/conference.html" target="_blank"><span class="dd-icon">◈</span> Konferensi &amp; Forum Akademik</a>
+              <a href="/publication.html" target="_blank"><span class="dd-icon">◈</span> Pusat Publikasi &amp; Pengetahuan</a>
+              <a href="/mobility.html" target="_blank"><span class="dd-icon">◈</span> Pusat Mobilitas Akademik</a>
+              <a href="/competition.html" target="_blank"><span class="dd-icon">◈</span> Pusat Kompetisi</a>
+              <a href="/community.html" target="_blank"><span class="dd-icon">◈</span> Keterlibatan Komunitas &amp; Pusat SDGs</a>
+              <a href="/quality.html" target="_blank"><span class="dd-icon">◈</span> Dewan Penjaminan Mutu &amp; Akreditasi</a>
+              <a href="/academy.html" target="_blank"><span class="dd-icon">◈</span> Akademi Digital &amp; Pusat AI</a>
+              <a href="/young.html" target="_blank"><span class="dd-icon">◈</span> Jaringan Akademisi Muda</a>
+              <a href="/awards.html" target="_blank"><span class="dd-icon">◈</span> Dewan Penghargaan &amp; Rekognisi</a>
             </div>
           </div>
         </li>
 
         <li class="has-dropdown">
-          <a href="/#publications" class="nav-link" id="nav-publications">PUBLICATIONS <span class="chevron">▾</span></a>
+          <a href="/#publications" class="nav-link" id="nav-publications">PUBLIKASI <span class="chevron">▾</span></a>
           <div class="dropdown">
-            <a href="/#journals"><span class="dd-icon">◈</span> Academic Journals</a>
-            <a href="/#proceedings"><span class="dd-icon">◈</span> Proceedings</a>
-            <a href="/#books"><span class="dd-icon">◈</span> Academic Books</a>
-            <a href="/#monographs"><span class="dd-icon">◈</span> Monographs</a>
-            <a href="/#policy-briefs"><span class="dd-icon">◈</span> Policy Briefs</a>
+            <a href="/journals"><span class="dd-icon">◈</span> Jurnal Akademik</a>
+            <a href="/#proceedings"><span class="dd-icon">◈</span> Prosiding</a>
+            <a href="/#books"><span class="dd-icon">◈</span> Buku Akademik</a>
+            <a href="/#monographs"><span class="dd-icon">◈</span> Monograf</a>
+            <a href="/#policy-briefs"><span class="dd-icon">◈</span> Ringkasan Kebijakan</a>
           </div>
         </li>
 
-        <li><a href="/bookstore" class="nav-link" id="nav-bookstore">BOOK STORE</a></li>
+        <li><a href="/bookstore" class="nav-link" id="nav-bookstore">TOKO BUKU</a></li>
         <li class="has-dropdown">
-          <a href="/#programs" class="nav-link" id="nav-programs">PROGRAMS <span class="chevron">▾</span></a>
+          <a href="/#programs" class="nav-link" id="nav-programs">PROGRAM <span class="chevron">▾</span></a>
           <div class="dropdown">
-            <a href="/#certification"><span class="dd-icon">◈</span> Certification</a>
-            <a href="/#conferences"><span class="dd-icon">◈</span> Conferences</a>
-            <a href="/#competitions"><span class="dd-icon">◈</span> Competitions</a>
-            <a href="/#training"><span class="dd-icon">◈</span> Training</a>
-            <a href="/#mobility"><span class="dd-icon">◈</span> Mobility</a>
-            <a href="/#research-grants"><span class="dd-icon">◈</span> Research Grants</a>
-            <a href="/#awards-prog"><span class="dd-icon">◈</span> Awards</a>
+            <a href="/#certification"><span class="dd-icon">◈</span> Sertifikasi</a>
+            <a href="/#conferences"><span class="dd-icon">◈</span> Konferensi</a>
+            <a href="/#competitions"><span class="dd-icon">◈</span> Kompetisi</a>
+            <a href="/#training"><span class="dd-icon">◈</span> Pelatihan</a>
+            <a href="/#mobility"><span class="dd-icon">◈</span> Mobilitas</a>
+            <a href="/#research-grants"><span class="dd-icon">◈</span> Hibah Penelitian</a>
+            <a href="/#awards-prog"><span class="dd-icon">◈</span> Penghargaan</a>
           </div>
+        </li>
+        <li class="mobile-login-item">
+          <a href="/auth/login" class="nav-link" style="color: #c9a84c; font-weight: bold;">LOGIN / DAFTAR</a>
         </li>
       </ul>
-
-      <a href="/auth/login" class="btn-join" id="btn-login-nav">LOGIN / DAFTAR</a>
-      <button class="hamburger" id="hamburger" aria-label="Open menu">
+      <style>
+        .mobile-login-item { display: none; }
+        @media (max-width: 768px) {
+          .mobile-login-item { display: block; margin-top: 10px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 10px; }
+        }
+      </style>
+      <div class="nav-actions" style="display: flex; gap: 10px; align-items: center;">
+        <div id="google_translate_element"></div>
+        <div class="custom-lang-selector" id="custom-lang-selector">
+          <div class="lang-btn" id="lang-btn">
+            <img src="https://flagcdn.com/w20/id.png" alt="ID" id="current-lang-flag">
+            <span class="chevron" style="margin-left:4px; font-size:10px;">▾</span>
+          </div>
+          <div class="lang-dropdown" id="lang-dropdown">
+            <div class="lang-option" data-lang="id" data-flag="id.png"><img src="https://flagcdn.com/w20/id.png" alt="ID"> Indonesia</div>
+            <div class="lang-option" data-lang="en" data-flag="gb.png"><img src="https://flagcdn.com/w20/gb.png" alt="EN"> English</div>
+            <div class="lang-option" data-lang="ar" data-flag="sa.png"><img src="https://flagcdn.com/w20/sa.png" alt="AR"> العربية</div>
+            <div class="lang-option" data-lang="zh-CN" data-flag="cn.png"><img src="https://flagcdn.com/w20/cn.png" alt="ZH"> 中文</div>
+            <div class="lang-option" data-lang="ja" data-flag="jp.png"><img src="https://flagcdn.com/w20/jp.png" alt="JA"> 日本語</div>
+            <div class="lang-option" data-lang="de" data-flag="de.png"><img src="https://flagcdn.com/w20/de.png" alt="DE"> Deutsch</div>
+            <div class="lang-option" data-lang="fr" data-flag="fr.png"><img src="https://flagcdn.com/w20/fr.png" alt="FR"> Français</div>
+            <div class="lang-option" data-lang="ko" data-flag="kr.png"><img src="https://flagcdn.com/w20/kr.png" alt="KO"> 한국어</div>
+            <div class="lang-option" data-lang="th" data-flag="th.png"><img src="https://flagcdn.com/w20/th.png" alt="TH"> ไทย</div>
+            <div class="lang-option" data-lang="vi" data-flag="vn.png"><img src="https://flagcdn.com/w20/vn.png" alt="VI"> Tiếng Việt</div>
+            <div class="lang-option" data-lang="ru" data-flag="ru.png"><img src="https://flagcdn.com/w20/ru.png" alt="RU"> Русский</div>
+            <div class="lang-option" data-lang="fa" data-flag="ir.png"><img src="https://flagcdn.com/w20/ir.png" alt="FA"> فارسی</div>
+            <div class="lang-option" data-lang="ms" data-flag="my.png"><img src="https://flagcdn.com/w20/my.png" alt="MS"> Melayu</div>
+            <div class="lang-option" data-lang="hi" data-flag="in.png"><img src="https://flagcdn.com/w20/in.png" alt="HI"> हिन्दी</div>
+          </div>
+        </div>
+        <a href="/auth/login" class="btn-join" id="btn-login-nav">LOGIN / DAFTAR</a>
+      </div>
+      <button class="hamburger" id="hamburger-btn" aria-label="Open menu">
         <span></span><span></span><span></span>
       </button>
     </div>

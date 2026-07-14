@@ -20,49 +20,84 @@ interface AuthorData {
 
 const JOURNALS = [
   {
-    id: '1',
-    name: 'Jurnal Agama dan Peradaban Islam',
-    scopes: ['Studi Islam', 'Akidah dan Akhlak', 'Tafsir Al-Qur\'an', 'Hadis', 'Tasawuf', 'Peradaban Islam', 'Pemikiran Islam', 'Pendidikan Islam']
+    id: '5f6bca5a-39e2-442b-a2e0-5b3f35614b4e',
+    name: 'AJAF - Journal of Accounting and Finance',
+    scopes: ['Akuntansi', 'Audit', 'Perpajakan', 'Keuangan', 'Tata Kelola Perusahaan', 'Sistem Informasi Akuntansi']
   },
   {
-    id: '2',
-    name: 'Jurnal Audit Kebijakan Publik',
-    scopes: ['Audit Kebijakan Publik', 'Evaluasi Kebijakan', 'Tata Kelola Pemerintahan', 'Pengawasan Publik', 'Reformasi Birokrasi', 'Administrasi Publik', 'Akuntabilitas Publik']
+    id: '4f4ad30b-1fab-4c43-ab96-227f0d7d5977',
+    name: 'AJED - Journal of Economics and Development',
+    scopes: ['Ekonomi Pembangunan', 'Ekonomi Regional', 'Kebijakan Publik', 'Ekonomi Internasional', 'Ketenagakerjaan']
   },
   {
-    id: '3',
-    name: 'Jurnal Ekonomi dan Bisnis',
-    scopes: ['Manajemen Bisnis', 'Akuntansi', 'Akuntansi Syariah', 'Ilmu Ekonomi', 'Keuangan', 'Ekonomi Syariah', 'Pemasaran', 'Ekonomi Internasional', 'Ekonomi Regional', 'Keuangan dan Perbankan']
+    id: '71809c3b-44dd-46cb-a553-636fe1395b46',
+    name: 'AJEP - Journal of Education and Pedagogy',
+    scopes: ['Pendidikan Dasar', 'Pendidikan Menengah', 'Pendidikan Tinggi', 'Kurikulum', 'Teknologi Pendidikan', 'Evaluasi Pembelajaran']
   },
   {
-    id: '4',
-    name: 'Jurnal Hukum dan Keadilan',
-    scopes: ['Hukum Perdata', 'Hukum Pidana', 'Hukum Tata Negara', 'Hukum Administrasi Negara', 'Hukum Bisnis', 'Hukum Internasional', 'Sistem Peradilan', 'Keadilan Sosial']
+    id: 'bdbd934b-a76b-42a5-8553-2444b2b7b45a',
+    name: 'AJCE - Journal of Civil and Mechanical Engineering',
+    scopes: ['Teknik Sipil', 'Teknik Mesin', 'Teknik Elektro', 'Infrastruktur', 'Ilmu Material', 'Energi Terbarukan']
   },
   {
-    id: '5',
-    name: 'Jurnal Ilmu Pertanian dan Agribisnis',
-    scopes: ['Agroteknologi dan Agronomi', 'Ekonomi Pertanian dan Agribisnis', 'Ketahanan dan Teknologi Pangan', 'Pertanian Presisi (Smart Agriculture)', 'Penyuluhan dan Pemberdayaan Petani', 'Teknologi Hasil Pertanian', 'Sistem Pertanian Terpadu', 'Pengelolaan Sumber Daya Alam', 'Kehutanan Sosial dan Agroforestri']
+    id: '31f8f2cc-7036-40cd-8f7c-fedf25eda4ec',
+    name: 'AJAFR - Journal of Agriculture, Forestry and Fisheries',
+    scopes: ['Agroteknologi', 'Agribisnis', 'Kehutanan', 'Perikanan', 'Ketahanan Pangan', 'Lingkungan Pertanian']
   },
   {
-    id: '6',
-    name: 'Jurnal Pendidikan dan Pembelajaran',
-    scopes: ['Pendidikan Dasar', 'Pendidikan Menengah', 'Pendidikan Tinggi', 'Kurikulum', 'Teknologi Pendidikan', 'Manajemen Pendidikan', 'Evaluasi Pembelajaran', 'Inovasi Pembelajaran']
+    id: '1e64461f-a671-431b-a739-2c01b4b865ac',
+    name: 'AJADM - Journal of Art, Design and Creative Media',
+    scopes: ['Seni Rupa', 'Desain Komunikasi Visual', 'Media Kreatif', 'Seni Pertunjukan', 'Kajian Budaya']
   },
   {
-    id: '7',
-    name: 'Jurnal Riset Multidisiplin dan Inovasi',
-    scopes: ['Artificial Intelligence & Machine Learning', 'Green Technology & Energi Terbarukan', 'Digital Economy & E-Commerce', 'Kesehatan Masyarakat & Digital Health', 'Keamanan Siber (Cyber Security)', 'Internet of Things (IoT) & Smart Cities', 'Sustainable Development Goals (SDGs)', 'Mitigasi Perubahan Iklim']
+    id: 'c212a65d-a0dc-4410-879a-352932014a52',
+    name: 'AJIR - Journal of International Relations and Politics',
+    scopes: ['Ilmu Politik', 'Hubungan Internasional', 'Kebijakan Luar Negeri', 'Studi Keamanan', 'Demokrasi']
   },
   {
-    id: '8',
-    name: 'Jurnal Teknik dan Teknologi',
-    scopes: ['Teknik Sipil', 'Teknik Mesin', 'Teknik Elektro', 'Teknik Industri', 'Teknologi Informasi', 'Sistem Informasi', 'Kecerdasan Buatan', 'Rekayasa Perangkat Lunak']
+    id: '6e3a2c2c-0e6c-4e18-82bd-e0fdc2d1ac5d',
+    name: 'AJCS - Journal of Community Service',
+    scopes: ['Pemberdayaan Masyarakat', 'Inovasi Sosial', 'Penerapan Teknologi Tepat Guna', 'Pelatihan dan Pendampingan']
   },
   {
-    id: '9',
-    name: 'Jurnal Pengabdian Kepada Masyarakat (PKM)',
-    scopes: ['Pemberdayaan Masyarakat', 'Pelatihan dan Pendampingan', 'Pengembangan Potensi Lokal', 'Penerapan Teknologi Tepat Guna', 'Inovasi Sosial']
+    id: 'ad2edb51-7f51-455c-9000-6aaab590387f',
+    name: 'AJBA - Journal of Business Administration',
+    scopes: ['Manajemen Bisnis', 'Administrasi Bisnis', 'Pemasaran', 'Sumber Daya Manusia', 'Kewirausahaan', 'Perilaku Organisasi']
+  },
+  {
+    id: 'a1dbfeee-da95-4565-9373-330feeca7901',
+    name: 'AJLS - Journal of Law and Society',
+    scopes: ['Hukum Perdata', 'Hukum Pidana', 'Hukum Tata Negara', 'Hukum Internasional', 'Sosiologi Hukum', 'Hak Asasi Manusia']
+  },
+  {
+    id: 'bdff93b5-9e6a-43ec-9ae1-633001cbfba1',
+    name: 'AJPH - Journal of Public Health and Medicine',
+    scopes: ['Kedokteran', 'Kesehatan Masyarakat', 'Keperawatan', 'Epidemiologi', 'Kebijakan Kesehatan']
+  },
+  {
+    id: '033cce77-8836-492c-8fff-a27a911b4701',
+    name: 'AJITE - Journal of IT & Engineering',
+    scopes: ['Ilmu Komputer', 'Teknologi Informasi', 'Kecerdasan Buatan', 'Rekayasa Perangkat Lunak', 'Sistem Informasi', 'Keamanan Siber']
+  },
+  {
+    id: '8fc81b02-780f-4611-869b-294a3f9b7749',
+    name: 'AJSSH - Journal of Social Sciences & Humanities',
+    scopes: ['Sosiologi', 'Antropologi', 'Sejarah', 'Ilmu Komunikasi', 'Filsafat', 'Ilmu Pengetahuan Budaya']
+  },
+  {
+    id: '08c59804-37e5-476f-9166-5d86f3dabc0d',
+    name: 'AJES - Journal of Environmental and Sustainability',
+    scopes: ['Ilmu Lingkungan', 'Keberlanjutan', 'Mitigasi Perubahan Iklim', 'Konservasi Alam', 'AMDAL']
+  },
+  {
+    id: '5c3b5789-043a-48b4-89de-792599db95ac',
+    name: 'AJTHM - Journal of Tourism and Hospitality Management',
+    scopes: ['Pariwisata', 'Manajemen Perhotelan', 'Ekowisata', 'Pemasaran Pariwisata', 'Gastronomi']
+  },
+  {
+    id: '00270d77-49ea-447e-804e-2a0c44c66fa3',
+    name: 'AJIS - Journal of Islamic Studies',
+    scopes: ['Studi Islam', 'Peradaban Islam', 'Pendidikan Islam', 'Hukum Keluarga Islam', 'Tafsir dan Hadis', 'Ekonomi Syariah']
   }
 ];
 
@@ -73,7 +108,7 @@ export default function AuthorSubmit() {
   const [isTranslating, setIsTranslating] = useState(false);
 
   const [formData, setFormData] = useState({
-    journal_id: '1',
+    journal_id: '5f6bca5a-39e2-442b-a2e0-5b3f35614b4e',
     publicationType: 'international',
     selectedScope: '',
     customScope: '',

@@ -22,14 +22,22 @@ export default function EditorialBoardManagement() {
   const fotoRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   const journals = [
-    "AJAF - ASIA Journal of Accounting and Finance",
-    "APJBA - Asia Pacific Journal of Business Administration",
-    "AJITE - ASIA Journal of IT & Engineering",
-    "AJLS - ASIA Journal of Law and Society",
-    "APJEP - Asia Pacific Journal of Education & Pedagogy",
-    "AJED - ASIA Journal of Economics and Development",
-    "AJSSH - ASIA Journal of Social Sciences & Humanities",
-    "AJIS - ASIA Journal of Islamic Studies"
+    "AJAF - Journal of Accounting and Finance",
+    "AJED - Journal of Economics and Development",
+    "AJEP - Journal of Education and Pedagogy",
+    "AJCE - Journal of Civil and Mechanical Engineering",
+    "AJAFR - Journal of Agriculture, Forestry and Fisheries",
+    "AJADM - Journal of Art, Design and Creative Media",
+    "AJIR - Journal of International Relations and Politics",
+    "AJCS - Journal of Community Service",
+    "AJBA - Journal of Business Administration",
+    "AJLS - Journal of Law and Society",
+    "AJPH - Journal of Public Health and Medicine",
+    "AJITE - Journal of IT & Engineering",
+    "AJSSH - Journal of Social Sciences & Humanities",
+    "AJES - Journal of Environmental and Sustainability",
+    "AJTHM - Journal of Tourism and Hospitality Management",
+    "AJIS - Journal of Islamic Studies"
   ];
 
   useEffect(() => {
