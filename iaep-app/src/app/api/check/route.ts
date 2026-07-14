@@ -6,15 +6,15 @@ export async function GET() {
   const file = path.join(process.cwd(), 'apasific_registered_users.json');
   const data = JSON.parse(fs.readFileSync(file, 'utf8'));
   
-  let rolesByEmail = {};
-  data.forEach(u => {
+  let rolesByEmail: Record<string, Set<string>> = {};
+  data.forEach((u: any) => {
     const email = (u.email || '').toLowerCase().trim();
-    if (!rolesByEmail[email]) rolesByEmail[email] = new Set();
+    if (!rolesByEmail[email]) rolesByEmail[email] = new Set<string>();
     const role = (u.role || '').toLowerCase();
     rolesByEmail[email].add(role);
   });
   
-  let overlaps = [];
+  let overlaps: string[] = [];
   for (let [email, roles] of Object.entries(rolesByEmail)) {
     if (roles.has('reviewer') && roles.has('author')) {
       overlaps.push(email);
