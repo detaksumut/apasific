@@ -5,9 +5,13 @@ import fs from 'fs';
 export function getFirebaseAdmin() {
   if (!admin.apps.length) {
     try {
-      // Load credential directly from file using fs to avoid Next.js Webpack require errors
-      const serviceAccountPath = path.join(process.cwd(), 'firebase-admin-key.json');
-      const serviceAccount = JSON.parse(fs.readFileSync(serviceAccountPath, 'utf8'));
+      let serviceAccount;
+      if (process.env.FIREBASE_SERVICE_ACCOUNT_KEY) {
+        serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_KEY);
+      } else {
+        const serviceAccountPath = path.join(process.cwd(), 'firebase-admin-key.json');
+        serviceAccount = JSON.parse(fs.readFileSync(serviceAccountPath, 'utf8'));
+      }
       
       admin.initializeApp({
         credential: admin.credential.cert(serviceAccount),
