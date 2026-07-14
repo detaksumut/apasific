@@ -25,10 +25,18 @@ export async function GET() {
     }
     
     // Push
-    const { stdout, stderr } = await execAsync("git push", { cwd });
+    let stdout = "";
+    let stderr = "";
+    try {
+       const res = await execAsync("git push", { cwd });
+       stdout = res.stdout;
+       stderr = res.stderr;
+    } catch(pushErr: any) {
+       return NextResponse.json({ success: false, message: "Push failed", error: pushErr.message, stdout: pushErr.stdout, stderr: pushErr.stderr });
+    }
 
     return NextResponse.json({ success: true, message: "Successfully pushed to GitHub", output: stdout, errorOutput: stderr });
   } catch (error: any) {
-    return NextResponse.json({ error: error.message, stdout: error.stdout, stderr: error.stderr }, { status: 500 });
+    return NextResponse.json({ success: false, error: error.message, stdout: error.stdout, stderr: error.stderr });
   }
 }
