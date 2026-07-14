@@ -86,7 +86,7 @@ export default function FinancialManagement() {
                               </div>
                             ))}
                             <div className="pt-1 mt-1 border-t border-gray-700 text-sm">
-                              {item.details.reduce((sum, d) => sum + d.count, 0)}
+                              {item.details.reduce((sum: number, d: any) => sum + d.count, 0)}
                             </div>
                           </div>
                         ) : (
@@ -113,7 +113,7 @@ export default function FinancialManagement() {
                         {item.details ? (
                           <div className="flex flex-col h-full justify-end">
                             <span className="text-xl">
-                              Rp {item.details.reduce((sum, d) => sum + (d.count * d.rate), 0).toLocaleString('id-ID')}
+                              Rp {item.details.reduce((sum: number, d: any) => sum + (d.count * d.rate), 0).toLocaleString('id-ID')}
                             </span>
                           </div>
                         ) : (
