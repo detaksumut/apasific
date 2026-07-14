@@ -62,7 +62,7 @@ export async function submitManuscript(formData: FormData) {
       .from('submissions')
       .insert({
         journal_id: validJournalId,
-        author_id: user.id,
+        author_id: userId,
         title,
         abstract,
         status: 'Awaiting Reviewers'
