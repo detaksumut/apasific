@@ -80,7 +80,7 @@ export async function submitManuscript(formData: FormData) {
        
        await db.collection('submissions').doc(submission.submission_id).set({
            journal_id: validJournalId,
-           author_id: user.id,
+           author_id: userId,
            title,
            abstract,
            status: 'Awaiting Reviewers',
