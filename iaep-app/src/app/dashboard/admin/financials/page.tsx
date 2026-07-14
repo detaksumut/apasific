@@ -79,7 +79,7 @@ export default function FinancialManagement() {
                       <td className="p-5 text-center font-bold text-blue-400 align-top">
                         {item.details ? (
                           <div className="space-y-1">
-                            {item.details.map((d, i) => (
+                            {item.details.map((d: any, i: number) => (
                               <div key={i} className="flex justify-between text-xs">
                                 <span className="text-gray-500 mr-2">{d.level}:</span>
                                 <span>{d.count}</span>
@@ -97,7 +97,7 @@ export default function FinancialManagement() {
                       <td className="p-5 text-right text-gray-300 text-sm align-top">
                         {item.details ? (
                           <div className="space-y-1">
-                            {item.details.map((d, i) => (
+                            {item.details.map((d: any, i: number) => (
                               <div key={i} className="text-xs">
                                 Rp {d.rate.toLocaleString('id-ID')}
                               </div>
