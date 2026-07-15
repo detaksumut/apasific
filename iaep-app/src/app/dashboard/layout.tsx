@@ -29,9 +29,9 @@ export default async function DashboardLayout({ children }: { children: ReactNod
     const { data: profile } = await supabase.from('profiles').select('full_name, role').eq('id', user!.id).single();
     if (profile) {
       userRole = profile.role || userRole;
-      userName = profile.full_name || user.email || userName;
+      userName = profile.full_name || user!.email || userName;
     } else {
-      userName = user.user_metadata?.full_name || user.email || userName;
+      userName = user!.user_metadata?.full_name || user!.email || userName;
     }
 
     // No portal switching — 1 ID = 1 role only
