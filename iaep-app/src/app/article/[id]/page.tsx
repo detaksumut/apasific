@@ -19,15 +19,15 @@ export default function ArticlePaywall() {
   const [crossrefCitations, setCrossrefCitations] = useState<number | null>(null);
   
   const [article, setArticle] = useState({
-    title: "The Impact of Artificial Intelligence on Regional Economic Policies in ASEAN",
-    author: "Dr. Budi Santoso, M.Sc",
-    journal: "Rumah Jurnal Riset, Analisis dan Keadilan Publik (RJRAKP)",
-    date: "July 2026",
-    abstract: "This paper examines the transformative effects of Artificial Intelligence (AI) integration within the economic sectors of ASEAN member states...",
-    keywords: ["Artificial Intelligence", "ASEAN Economy", "Economic Policy"],
+    title: "",
+    author: "",
+    journal: "APASIFIC IAEP",
+    date: "",
+    abstract: "",
+    keywords: [] as string[],
     price: 50000,
-    orcid: "0000-0002-1825-0097",
-    doi: "10.5281/zenodo.10543210",
+    orcid: "",
+    doi: "",
     views: 0,
     downloads: 0,
     pdf_url: "",
@@ -144,7 +144,24 @@ export default function ArticlePaywall() {
   };
 
   if (loading) {
-    return <div className="min-h-screen pt-32 text-center text-[#c9a84c] bg-[#05050a] font-bold">Memuat detail artikel...</div>;
+    return <div className="min-h-screen pt-32 text-center text-[#c9a84c] bg-[#05050a] font-bold animate-pulse">Memuat detail artikel...</div>;
+  }
+
+  if (!article.title) {
+    return (
+      <div className="min-h-screen text-[#e8e8f0] font-sans pt-32 bg-[#05050a] flex flex-col items-center justify-center">
+        <div className="text-center max-w-md p-8 bg-[#111120] border border-gray-800 rounded-2xl shadow-2xl">
+          <svg className="w-16 h-16 text-[#c9a84c] mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+          </svg>
+          <h2 className="text-2xl font-bold text-white mb-2">Artikel Tidak Ditemukan</h2>
+          <p className="text-gray-400 text-sm mb-6 leading-relaxed">Artikel yang Anda cari tidak terdaftar atau belum dipublikasikan secara publik.</p>
+          <button onClick={() => window.history.back()} className="bg-[#c9a84c] text-black font-bold py-2 px-6 rounded-lg hover:bg-[#e8c97a] transition-all transform hover:scale-105">
+            Kembali
+          </button>
+        </div>
+      </div>
+    );
   }
 
   return (
