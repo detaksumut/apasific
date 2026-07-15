@@ -674,9 +674,21 @@ export async function getPublishedArticleDetails(articleId: string) {
 
         // Try to fetch author name if missing
         if (subData && subData.author_id) {
-             const { data: profile } = await supabaseAdmin.from('profiles').select('full_name').eq('id', subData.author_id).single();
-             if (profile?.full_name) {
-                  subData.profiles = { full_name: profile.full_name };
+             let queryId = subData.author_id;
+             if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(queryId)) {
+                 const hex = Buffer.from(queryId).toString('hex').padEnd(32, '0').slice(0, 32);
+                 queryId = `${hex.slice(0,8)}-${hex.slice(8,12)}-${hex.slice(12,16)}-${hex.slice(16,20)}-${hex.slice(20,32)}`;
+             }
+             try {
+                 const { data: profile } = await supabaseAdmin.from('profiles').select('full_name, orcid').eq('id', queryId).single();
+                 if (profile?.full_name) {
+                      subData.profiles = { 
+                          full_name: profile.full_name,
+                          orcid: profile.orcid
+                      };
+                 }
+             } catch (err) {
+                 console.warn("Failed to fetch author profile for public view:", err);
              }
         }
 
@@ -738,9 +750,18 @@ export async function getPublishedArticles(journalId?: string) {
         const formatted = await Promise.all(articlesList.map(async (a) => {
              let authorName = a.author || 'Author';
              if (a.author_id) {
-                  const { data: profile } = await supabaseAdmin.from('profiles').select('full_name').eq('id', a.author_id).single();
-                  if (profile?.full_name) {
-                       authorName = profile.full_name;
+                  let queryId = a.author_id;
+                  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(queryId)) {
+                      const hex = Buffer.from(queryId).toString('hex').padEnd(32, '0').slice(0, 32);
+                      queryId = `${hex.slice(0,8)}-${hex.slice(8,12)}-${hex.slice(12,16)}-${hex.slice(16,20)}-${hex.slice(20,32)}`;
+                  }
+                  try {
+                      const { data: profile } = await supabaseAdmin.from('profiles').select('full_name').eq('id', queryId).single();
+                      if (profile?.full_name) {
+                           authorName = profile.full_name;
+                      }
+                  } catch (err) {
+                      console.warn("Failed to fetch author profile for list view:", err);
                   }
              }
              return {
