@@ -9,6 +9,14 @@ export default async function DashboardLayout({ children }: { children: ReactNod
   let userName = "User";
 
   try {
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+
+    if (!user) {
+      const { redirect } = require("next/navigation");
+      redirect("/auth/login");
+    }
+
     const cookieStore = await cookies();
     
     // Read fallback cookies if they exist
@@ -18,22 +26,20 @@ export default async function DashboardLayout({ children }: { children: ReactNod
     if (cookieRole) userRole = cookieRole;
     if (cookieName) userName = decodeURIComponent(cookieName);
 
-    const supabase = await createClient();
-    const { data: { user } } = await supabase.auth.getUser();
-
-    if (user) {
-      const { data: profile } = await supabase.from('profiles').select('full_name, role').eq('id', user.id).single();
-      if (profile) {
-        userRole = profile.role || userRole;
-        userName = profile.full_name || user.email || userName;
-      } else {
-        userName = user.user_metadata?.full_name || user.email || userName;
-      }
+    const { data: profile } = await supabase.from('profiles').select('full_name, role').eq('id', user.id).single();
+    if (profile) {
+      userRole = profile.role || userRole;
+      userName = profile.full_name || user.email || userName;
+    } else {
+      userName = user.user_metadata?.full_name || user.email || userName;
     }
 
     // No portal switching — 1 ID = 1 role only
 
-  } catch {
+  } catch (e: any) {
+    if (e.message === 'NEXT_REDIRECT') {
+      throw e;
+    }
     console.log("Using fallback dashboard data");
   }
 
