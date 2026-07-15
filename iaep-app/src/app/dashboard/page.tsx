@@ -45,11 +45,20 @@ export default async function AuthorDashboard() {
 
   userId = user.id;
 
+  // FIX THE ROOT CAUSE: Convert Firebase UID into a deterministic 32-char valid UUID format
+  // so it matches what we save in submissions and profiles
+  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(userId)) {
+      const hex = Buffer.from(userId).toString('hex').padEnd(32, '0').slice(0, 32);
+      userId = `${hex.slice(0,8)}-${hex.slice(8,12)}-${hex.slice(12,16)}-${hex.slice(16,20)}-${hex.slice(20,32)}`;
+  }
+
   // 2. Dual-Database Profile Fetch: Try Supabase, fallback to Firestore
+  let role = 'author';
   try {
-      const { data: profile, error: profileError } = await supabase.from('profiles').select('full_name').eq('id', userId).single();
+      const { data: profile, error: profileError } = await supabase.from('profiles').select('full_name, role').eq('id', userId).single();
       if (profile && !profileError) {
           userName = profile.full_name;
+          if (profile.role) role = profile.role.toLowerCase();
       } else {
           throw new Error("Supabase profile failed or empty");
       }
@@ -59,12 +68,28 @@ export default async function AuthorDashboard() {
           const db = getFirestore();
           const profileDoc = await db.collection('profiles').doc(userId).get();
           if (profileDoc.exists) {
-              userName = profileDoc.data()?.full_name || user.user_metadata?.full_name || user.email || 'Author';
+              const data = profileDoc.data();
+              userName = data?.full_name || user.user_metadata?.full_name || user.email || 'Author';
+              if (data?.role) role = data.role.toLowerCase();
           }
       } catch(fbErr) {
           userName = user.user_metadata?.full_name || user.email || 'Author';
       }
   }
+
+  const cookieStore = await cookies();
+  const activePortalRole = cookieStore.get('active_portal_role')?.value;
+  const cookieRole = cookieStore.get('user_role')?.value;
+  if (activePortalRole) role = activePortalRole.toLowerCase();
+  else if (cookieRole && role === 'author') role = cookieRole.toLowerCase();
+
+  // Redirect based on role if they hit the root dashboard
+  if (role === 'layout editor') redirect('/dashboard/production/layout');
+  if (role === 'cover editor') redirect('/dashboard/production/cover');
+  if (role === 'publish editor') redirect('/dashboard/production/publish');
+  if (role === 'supervisor') redirect('/dashboard/production/admin');
+  if (role === 'editor' && !activePortalRole) redirect('/dashboard/editor');
+  if (role === 'admin' && !activePortalRole) redirect('/dashboard/admin');
 
   // 3. Dual-Database Submissions Fetch: Try Supabase, fallback to Firestore
   let articles: any[] = [];

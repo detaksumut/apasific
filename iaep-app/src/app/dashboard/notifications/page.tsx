@@ -5,7 +5,28 @@ import { cookies } from "next/headers";
 
 export default async function NotificationsPage() {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  let { data: { user } } = await supabase.auth.getUser();
+
+  // Dual-Auth Check: Fallback to Firebase Cookie if Supabase fails
+  if (!user) {
+    const cookieStore = await cookies();
+    const fbToken = cookieStore.get('firebase_session')?.value;
+    const fallbackUserId = cookieStore.get('supabase_fallback_session')?.value;
+    
+    if (fbToken || fallbackUserId) {
+        try {
+            if (fbToken) {
+               const payloadBase64 = fbToken.split('.')[1];
+               const payload = JSON.parse(Buffer.from(payloadBase64, 'base64').toString());
+               user = { id: payload.uid, email: "user@firebase.local" } as any;
+            }
+        } catch (e) { }
+        
+        if (!user && fallbackUserId) {
+           user = { id: fallbackUserId, email: "user@fallback.local" } as any;
+        }
+    }
+  }
 
   if (!user) {
     redirect("/auth/login");

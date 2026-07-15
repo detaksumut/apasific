@@ -23,10 +23,15 @@ export default function Submissions() {
       try {
         const { createClient } = await import('@/utils/supabase/client');
         const supabase = createClient();
-        const { data: { user } } = await supabase.auth.getUser();
+        const { getCurrentUser } = await import('@/app/actions/auth');
+        let user = await getCurrentUser();
         
-        if (user) {
-          const { data, error } = await supabase
+        if (!user) {
+            window.location.href = '/auth/login';
+            return;
+        }
+        
+        const { data, error } = await supabase
             .from('submissions')
             .select('*, journals(name)')
             .eq('author_id', user.id)
@@ -35,7 +40,6 @@ export default function Submissions() {
           if (!error && data) {
             setSubmissions(data);
           }
-        }
       } catch (e) {
         console.error(e);
       } finally {

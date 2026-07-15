@@ -171,6 +171,45 @@ export default function Sidebar({ role }: SidebarProps) {
     },
   ];
 
+  const productionLinks = [
+    {
+      label: "Layout Editor",
+      path: "/dashboard/production/layout",
+      icon: (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+          <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line>
+        </svg>
+      ),
+    },
+    {
+      label: "Cover Editor",
+      path: "/dashboard/production/cover",
+      icon: (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+          <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline>
+        </svg>
+      ),
+    },
+    {
+      label: "Publish Editor",
+      path: "/dashboard/production/publish",
+      icon: (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M21.2 15c.7-1.2 1-2.5.7-3.9-.6-2-2.4-3.5-4.4-3.5h-1.2c-.7-3-3.2-5.2-6.2-5.6-3-.3-5.9 1.3-7.3 4-1.2 2.5-1 6.5.5 8.8m8.7-1.6V21"></path><path d="M16 16l-4-4-4 4"></path>
+        </svg>
+      ),
+    },
+    {
+      label: "Supervisor",
+      path: "/dashboard/production/admin",
+      icon: (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+        </svg>
+      ),
+    },
+  ];
+
   const adminLinks = [
     {
       label: "Ringkasan Sistem",
@@ -318,8 +357,10 @@ export default function Sidebar({ role }: SidebarProps) {
     },
   ];
 
+  const normalizedRole = role ? role.toLowerCase() : "";
+
   const getRoleLinks = () => {
-    switch (role) {
+    switch (normalizedRole) {
       case "author":   return authorLinks;
       case "reviewer": return reviewerLinks;
       case "editor":   return editorLinks;
@@ -379,9 +420,9 @@ export default function Sidebar({ role }: SidebarProps) {
       </div>
 
       {/* Role Badge (Static - No longer clickable) */}
-      <div className="sidebar-role-badge" style={{ "--role-color": roleColorMap[role] || "#c9a84c" } as React.CSSProperties}>
+      <div className="sidebar-role-badge" style={{ "--role-color": roleColorMap[normalizedRole] || "#c9a84c" } as React.CSSProperties}>
         <div className="sidebar-role-dot" />
-        <span style={{ flex: 1 }}>{roleLabelMap[role] || role} Portal</span>
+        <span style={{ flex: 1 }}>{roleLabelMap[normalizedRole] || normalizedRole} Portal</span>
       </div>
 
       {/* Nav */}
@@ -389,10 +430,30 @@ export default function Sidebar({ role }: SidebarProps) {
         <div className="sidebar-section-label">Utama</div>
         {commonLinks.map(link => <NavLink key={link.path} link={link} />)}
 
-        <div className="sidebar-section-label" style={{ marginTop: 24 }}>
-          Menu {roleLabelMap[role] || role}
-        </div>
-        {getRoleLinks().map(link => <NavLink key={link.path} link={link} />)}
+        {getRoleLinks().length > 0 && (
+          <>
+            <div className="sidebar-section-label" style={{ marginTop: 24 }}>
+              Menu {roleLabelMap[normalizedRole] || normalizedRole}
+            </div>
+            {getRoleLinks().map(link => <NavLink key={link.path} link={link} />)}
+          </>
+        )}
+
+        {(normalizedRole === "editor" || normalizedRole === "superadmin" || normalizedRole === "layout editor" || normalizedRole === "cover editor" || normalizedRole === "publish editor" || normalizedRole === "supervisor") && (
+          <>
+            <div className="sidebar-section-label" style={{ marginTop: 24 }}>Menu Produksi</div>
+            {productionLinks.filter((link) => {
+               if (normalizedRole === "superadmin" || normalizedRole === "editor") return true;
+               if (normalizedRole === "layout editor" && link.label === "Layout Editor") return true;
+               if (normalizedRole === "cover editor" && link.label === "Cover Editor") return true;
+               if (normalizedRole === "publish editor" && link.label === "Publish Editor") return true;
+               if (normalizedRole === "supervisor" && link.label === "Supervisor") return true;
+               return false;
+            }).map((link) => (
+              <NavLink key={link.path} link={link} />
+            ))}
+          </>
+        )}
       </nav>
 
       {/* Footer */}

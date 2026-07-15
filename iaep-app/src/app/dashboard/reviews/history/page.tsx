@@ -7,7 +7,8 @@ import { cookies } from "next/headers";
 
 export default async function ReviewHistoryPage() {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const { getCurrentUser } = await import('@/app/actions/auth');
+  const user: any = await getCurrentUser();
 
   if (!user) {
     redirect("/auth/login");
@@ -16,15 +17,55 @@ export default async function ReviewHistoryPage() {
 
   let assignments: any[] = [];
   try {
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from("review_assignments")
       .select("*, submissions(*, journals(name))")
       .eq("reviewer_id", userId)
       .eq("status", "completed")
       .order("completed_at", { ascending: false });
+    if (error) throw error;
     if (data) assignments = data;
   } catch (error) {
-    console.error("Error fetching review history:", error);
+    console.warn("Supabase fetch history failed, falling back to Firestore");
+    try {
+        const { getFirestore } = await import('@/utils/firebase/db');
+        const db = getFirestore();
+        
+        const reviewerIdToUse = user.json_id || userId;
+        const assignmentsSnapshot = await db.collection('review_assignments')
+          .where('reviewer_id', '==', reviewerIdToUse)
+          .where('status', '==', 'completed')
+          .get();
+          
+        for (const doc of assignmentsSnapshot.docs) {
+            const data = doc.data();
+            const assignment: any = {
+                id: doc.id,
+                ...data,
+                completed_at: data.completed_at ? data.completed_at.toDate() : new Date(),
+            };
+            
+            // fetch submission
+            if (data.submission_id) {
+               const subDoc = await db.collection('submissions').doc(data.submission_id).get();
+               if (subDoc.exists) {
+                   const subData = subDoc.data()!;
+                   assignment.submissions = {
+                       id: subDoc.id,
+                       title: subData.title,
+                       abstract: subData.abstract,
+                       status: subData.status,
+                       journals: subData.journals || { name: 'Jurnal' }
+                   };
+               }
+            }
+            assignments.push(assignment);
+        }
+        
+        assignments.sort((a, b) => new Date(b.completed_at).getTime() - new Date(a.completed_at).getTime());
+    } catch (fbErr) {
+        console.error("Firestore fallback failed", fbErr);
+    }
   }
 
   return (

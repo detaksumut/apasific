@@ -164,6 +164,23 @@ export async function loginUser(email: string, password?: string): Promise<{ suc
     if (fs.existsSync(DATA_FILE)) {
        localUsers = JSON.parse(fs.readFileSync(DATA_FILE, 'utf8'));
     }
+    try {
+       const { data: settingsData } = await supabaseAdmin.from('system_settings').select('value').eq('key', 'apasific_registered_users').single();
+       if (settingsData && settingsData.value) {
+           const sbUsers = Array.isArray(settingsData.value) ? settingsData.value : JSON.parse(settingsData.value as string);
+           for (let su of sbUsers) {
+               if (!localUsers.find((lu: any) => lu.email.toLowerCase() === su.email.toLowerCase())) {
+                   localUsers.push(su);
+               } else {
+                   // overwrite local user with supabase user data (e.g. password updates)
+                   const idx = localUsers.findIndex((lu: any) => lu.email.toLowerCase() === su.email.toLowerCase());
+                   localUsers[idx] = { ...localUsers[idx], ...su };
+               }
+           }
+       }
+    } catch(e) {
+       console.error("Error fetching users from Supabase for login:", e);
+    }
 
     // Master / Super Admin Account Mapping
     if ((emailLower === "detaksumut@gmail.com" || emailLower === "detaksumtu@gmail.com") && passwordTrimmed === "Mikr@210669Mpi") {
@@ -172,7 +189,9 @@ export async function loginUser(email: string, password?: string): Promise<{ suc
 
     let localMatchedUser = localUsers.find((u: any) => u.email.toLowerCase() === emailLower);
     
-    if (emailLower === "kadinmedan1@gmail.com") {
+    // Only force Super Admin role if they actually used the Super Admin password!
+    // Otherwise, let them login as the normal user defined in JSON (e.g. Editor with password mikrosistem)
+    if (emailLower === "kadinmedan1@gmail.com" && passwordTrimmed === "Mikr@210669Mpi") {
         localMatchedUser = {
             full_name: "Super Admin",
             role: "admin",
@@ -242,6 +261,15 @@ export async function loginUser(email: string, password?: string): Promise<{ suc
                 maxAge: 60 * 60 * 24 * 7, // 1 week
                 path: '/'
             });
+            
+            if (localMatchedUser.id) {
+                cookieStore.set('reviewer_json_id', localMatchedUser.id.toString(), {
+                    httpOnly: true,
+                    secure: process.env.NODE_ENV === 'production',
+                    maxAge: 60 * 60 * 24 * 7,
+                    path: '/'
+                });
+            }
 
             return { 
                 success: true, 
@@ -291,4 +319,38 @@ export async function loginUser(email: string, password?: string): Promise<{ suc
   } catch (e: any) {
     return { success: false, error: e.message };
   }
+}
+
+export async function getCurrentUser() {
+  const { createClient } = await import('@/utils/supabase/server');
+  const supabase = await createClient();
+  let { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) {
+    const { cookies } = await import('next/headers');
+    const cookieStore = await cookies();
+    const fbToken = cookieStore.get('firebase_session')?.value;
+    const fallbackUserId = cookieStore.get('supabase_fallback_session')?.value;
+    
+    if (fbToken || fallbackUserId) {
+        try {
+            if (fbToken) {
+               const payloadBase64 = fbToken.split('.')[1];
+               const payload = JSON.parse(Buffer.from(payloadBase64, 'base64').toString());
+               user = { id: payload.uid, email: "fallback@firebase.local" } as any;
+            }
+        } catch (e) {}
+        
+        if (!user && fallbackUserId) {
+           user = { id: fallbackUserId, email: "fallback@fallback.local" } as any;
+        }
+    }
+    
+    // Attach json_id if available
+    const jsonId = cookieStore.get('reviewer_json_id')?.value;
+    if (user && jsonId) {
+        (user as any).json_id = jsonId;
+    }
+  }
+  return user;
 }

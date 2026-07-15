@@ -3,23 +3,81 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { FileText, Eye, CheckCircle, XCircle } from "lucide-react";
 import { cookies } from "next/headers";
+import IncomingActionButtons from "@/components/dashboard/IncomingActionButtons";
 
 export default async function IncomingArticles() {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  let { data: { user } } = await supabase.auth.getUser();
+
+  // Dual-Auth Check: Fallback to Firebase Cookie if Supabase fails
+  if (!user) {
+    const cookieStore = await cookies();
+    const fbToken = cookieStore.get('firebase_session')?.value;
+    const fallbackUserId = cookieStore.get('supabase_fallback_session')?.value;
+    
+    if (fbToken || fallbackUserId) {
+        try {
+            if (fbToken) {
+               const payloadBase64 = fbToken.split('.')[1];
+               const payload = JSON.parse(Buffer.from(payloadBase64, 'base64').toString());
+               user = { id: payload.uid, email: "editor@firebase.local" } as any;
+            }
+        } catch (e) {
+            console.error("Firebase token verification failed in IncomingArticles", e);
+        }
+        
+        if (!user && fallbackUserId) {
+           user = { id: fallbackUserId, email: "editor@fallback.local" } as any;
+        }
+    }
+  }
 
   if (!user) {
     redirect("/auth/login");
   }
 
   // Fetch submissions that are newly submitted or awaiting reviewers
-  const { data: submissions, error } = await supabase
-    .from("submissions")
-    .select("*, journals(name), profiles:author_id(full_name)")
-    .in("status", ["queued", "submitted", "pending", "Awaiting Reviewers"])
-    .order("created_at", { ascending: false });
-
-  const articles = submissions || [];
+  let articles: any[] = [];
+  try {
+    const { data: submissions, error } = await supabase
+      .from("submissions")
+      .select("*, journals(name), profiles:author_id(full_name, phone)")
+      .in("status", ["queued", "submitted", "pending", "Awaiting Reviewers"])
+      .order("created_at", { ascending: false });
+      
+    if (error) throw error;
+    articles = submissions || [];
+  } catch (e) {
+    console.warn("Supabase fetch failed in IncomingArticles, falling back to Firestore");
+    try {
+      const { getFirestore } = await import('@/utils/firebase/db');
+      const db = getFirestore();
+      
+      // Fetch all submissions ordered by created_at, then filter in memory
+      // This avoids the FAILED_PRECONDITION composite index error in Firestore
+      const submissionsSnapshot = await db.collection('submissions')
+        .orderBy('created_at', 'desc')
+        .get();
+        
+      const allowedStatuses = ["queued", "submitted", "pending", "Awaiting Reviewers"];
+      
+      articles = submissionsSnapshot.docs
+        .map(doc => {
+          const data = doc.data();
+          return {
+              id: doc.id,
+              title: data.title,
+              status: data.status,
+              created_at: data.created_at ? data.created_at.toDate() : new Date(),
+              journals: data.journals || { name: 'Unknown Journal' },
+              profiles: { full_name: 'Author', phone: data.phone || '' } // Cannot easily join Firestore profiles here without multiple queries
+          };
+        })
+        .filter(article => allowedStatuses.includes(article.status));
+    } catch (fbErr) {
+      console.error("Firestore fallback failed", fbErr);
+    }
+  }
 
   return (
     <div className="max-w-7xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
@@ -70,13 +128,8 @@ export default async function IncomingArticles() {
                     </p>
                   </div>
                   
-                  <div className="flex items-center gap-3 shrink-0">
-                    <button className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-emerald-400 bg-emerald-500/10 hover:bg-emerald-500/20 rounded-lg transition-colors border border-emerald-500/20">
-                      <CheckCircle className="w-4 h-4" /> Terima & Teruskan
-                    </button>
-                    <button className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-rose-400 bg-rose-500/10 hover:bg-rose-500/20 rounded-lg transition-colors border border-rose-500/20">
-                      <XCircle className="w-4 h-4" /> Tolak (Desk Reject)
-                    </button>
+                  <div className="shrink-0">
+                    <IncomingActionButtons articleId={article.id} authorPhone={article.profiles?.phone} />
                   </div>
                 </div>
               </div>

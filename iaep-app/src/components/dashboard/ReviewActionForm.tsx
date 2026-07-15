@@ -3,13 +3,15 @@
 import React, { useState } from 'react';
 import { createClient } from '@/utils/supabase/client';
 import { useRouter } from 'next/navigation';
-import { AlertCircle, CheckCircle, Save, Send, ShieldCheck, XCircle } from 'lucide-react';
+import { AlertCircle, CheckCircle, Save, Send, ShieldCheck, XCircle, FileUp } from 'lucide-react';
 
 export default function ReviewActionForm({ assignment }: { assignment: any }) {
   const [status, setStatus] = useState(assignment.status); // 'pending', 'accepted', 'completed'
   const [recommendation, setRecommendation] = useState(assignment.recommendation || 'accept');
   const [commentsAuthor, setCommentsAuthor] = useState(assignment.comments_for_author || '');
   const [commentsEditor, setCommentsEditor] = useState(assignment.comments_for_editor || '');
+  const [reviewFileUrl, setReviewFileUrl] = useState(assignment.review_file_url || '');
+  const [isUploading, setIsUploading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
   const supabase = createClient();
@@ -73,6 +75,7 @@ export default function ReviewActionForm({ assignment }: { assignment: any }) {
           recommendation,
           comments_for_author: commentsAuthor,
           comments_for_editor: commentsEditor,
+          review_file_url: reviewFileUrl,
           completed_at: new Date().toISOString()
         })
         .eq('id', assignment.id);
@@ -182,6 +185,50 @@ export default function ReviewActionForm({ assignment }: { assignment: any }) {
             className="w-full bg-[#0a0a0f] border border-zinc-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-[#c9a84c] transition-colors"
             placeholder="Pesan khusus untuk pertimbangan Editor..."
           />
+        </div>
+
+        {/* PDF Upload */}
+        <div>
+          <label className="block text-sm font-semibold text-zinc-300 mb-2">
+            Unggah File Hasil Pemeriksaan (PDF) <span className="text-zinc-500 font-normal">(Opsional)</span>
+          </label>
+          <p className="text-xs text-zinc-500 mb-2">Unggah file PDF berisi coretan/catatan langsung pada naskah (jika ada).</p>
+          <div className="bg-[#0a0a0f] p-4 border border-zinc-700 rounded-lg">
+            <input 
+              type="file" 
+              accept=".pdf,.doc,.docx"
+              onChange={async (e) => {
+                if(!e.target.files || !e.target.files[0]) return;
+                setIsUploading(true);
+                const formData = new FormData();
+                formData.append('file', e.target.files[0]);
+                formData.append('submissionId', assignment.submission_id);
+                try {
+                  const res = await fetch('/api/upload-revised-manuscript', { method: 'POST', body: formData });
+                  const data = await res.json();
+                  if(data.success) {
+                    setReviewFileUrl(data.url);
+                    alert('Berhasil upload file hasil review!');
+                  } else {
+                    alert('Gagal upload: ' + data.error);
+                  }
+                } catch(err) {
+                  alert('Error uploading file');
+                } finally {
+                  setIsUploading(false);
+                }
+              }}
+              disabled={isUploading}
+              className="block w-full text-sm text-zinc-500 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-zinc-800 file:text-white hover:file:bg-zinc-700 disabled:opacity-50" 
+            />
+            {isUploading && <p className="text-xs text-[#c9a84c] mt-2 font-bold animate-pulse">Mengunggah file... Mohon tunggu.</p>}
+            {reviewFileUrl && (
+              <div className="mt-3 text-sm text-emerald-400 font-semibold bg-emerald-500/10 p-2 rounded border border-emerald-500/20 flex justify-between items-center">
+                <span>✅ File telah diunggah</span>
+                <a href={reviewFileUrl} target="_blank" className="text-emerald-500 underline">Lihat File</a>
+              </div>
+            )}
+          </div>
         </div>
 
         <div className="flex justify-end pt-4">

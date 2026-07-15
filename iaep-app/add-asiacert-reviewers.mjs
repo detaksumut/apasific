@@ -29,9 +29,9 @@ const newReviewers = [
 
 let added = 0;
 for (const r of newReviewers) {
-  // Generate a dummy email from their name (e.g., Dr. Wahida -> wahida@apasific-dummy.com)
+  // Generate a dummy email from their name (e.g., Dr. Wahida -> wahida@apasific.org)
   const safeName = r.name.toLowerCase().replace(/[^a-z0-9]/g, '');
-  const dummyEmail = `${safeName}@apasific-dummy.com`;
+  const dummyEmail = `${safeName}@apasific.org`;
   
   // Check if they already exist
   const exists = users.find(u => u.email === dummyEmail || u.full_name === r.name);

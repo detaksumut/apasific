@@ -7,7 +7,28 @@ import { cookies } from "next/headers";
 
 export default async function ReviewResultsPage() {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  let { data: { user } } = await supabase.auth.getUser();
+
+  // Dual-Auth Check: Fallback to Firebase Cookie if Supabase fails
+  if (!user) {
+    const cookieStore = await cookies();
+    const fbToken = cookieStore.get('firebase_session')?.value;
+    const fallbackUserId = cookieStore.get('supabase_fallback_session')?.value;
+    
+    if (fbToken || fallbackUserId) {
+        try {
+            if (fbToken) {
+               const payloadBase64 = fbToken.split('.')[1];
+               const payload = JSON.parse(Buffer.from(payloadBase64, 'base64').toString());
+               user = { id: payload.uid, email: "editor@firebase.local" } as any;
+            }
+        } catch (e) { }
+        
+        if (!user && fallbackUserId) {
+           user = { id: fallbackUserId, email: "editor@fallback.local" } as any;
+        }
+    }
+  }
 
   if (!user) {
     redirect("/auth/login");
@@ -20,7 +41,37 @@ export default async function ReviewResultsPage() {
     .in("status", ["Under Review", "Reviewed", "Revision Required"])
     .order("updated_at", { ascending: false });
 
-  const articles = submissions || [];
+  let articles = submissions || [];
+
+  // Fallback to Firestore for submissions
+  try {
+      const { getFirestore } = await import('@/utils/firebase/db');
+      const db = getFirestore();
+      const fbSubmissions = await db.collection('submissions')
+        .where('status', 'in', ['Under Review', 'Reviewed', 'Revision Required'])
+        .get();
+
+      for (const doc of fbSubmissions.docs) {
+          const data = doc.data();
+          // Avoid duplicates if it's already in Supabase
+          if (!articles.find((a: any) => a.id === doc.id || a.submission_id === doc.id)) {
+              articles.push({
+                  id: doc.id,
+                  submission_id: doc.id,
+                  ...data,
+                  created_at: data.created_at ? data.created_at.toDate().toISOString() : new Date().toISOString(),
+                  updated_at: data.updated_at ? data.updated_at.toDate().toISOString() : new Date().toISOString(),
+                  journals: data.journals || { name: 'Jurnal' },
+                  profiles: { full_name: 'Author' } // Note: In a real app we'd fetch the author profile too
+              });
+          }
+      }
+      
+      // Sort by updated_at descending
+      articles.sort((a: any, b: any) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime());
+  } catch (err) {
+      console.warn("Firebase fetch failed", err);
+  }
 
   return (
     <div className="max-w-7xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
@@ -89,10 +140,10 @@ export default async function ReviewResultsPage() {
                     </p>
                   </div>
                   
-                  <div className="shrink-0 flex items-center gap-3">
-                    <button className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-zinc-800 hover:bg-zinc-700 rounded-lg transition-colors border border-zinc-700">
+                  <div className="shrink-0 flex flex-wrap items-center justify-end gap-3">
+                    <Link href={`/dashboard/editor/submissions/${article.id || article.submission_id}`} className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-zinc-800 hover:bg-zinc-700 rounded-lg transition-colors border border-zinc-700">
                       <Eye className="w-4 h-4 text-zinc-400" /> Lihat Detail
-                    </button>
+                    </Link>
                     {article.status === 'Reviewed' && (
                       <MakeDecisionAction article={article} />
                     )}

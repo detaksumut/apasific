@@ -1,12 +1,15 @@
 import RegisterWizard, { RoleType } from "@/components/auth/RegisterWizard";
 import Link from "next/link";
 
-export default function PublicationAuth() {
+export default async function PublicationAuth({ searchParams }: { searchParams: Promise<{ role?: string }> }) {
   const roles = [
     { value: "author" as RoleType, label: "Author / Submitter" },
     { value: "reviewer" as RoleType, label: "Reviewer" },
     { value: "editor" as RoleType, label: "Editor" },
   ];
+
+  const resolvedParams = await searchParams;
+  const roleParam = resolvedParams.role as RoleType | undefined;
 
   return (
     <div className="min-h-screen pt-24 pb-12 px-4 flex flex-col items-center">
@@ -25,7 +28,11 @@ export default function PublicationAuth() {
         </p>
       </div>
 
-      <RegisterWizard title="Create Publication Account" availableRoles={roles} />
+      <RegisterWizard 
+        title="Create Publication Account" 
+        availableRoles={roles} 
+        forcedRole={roleParam}
+      />
     </div>
   );
 }

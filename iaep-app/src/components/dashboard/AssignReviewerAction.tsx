@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { UserPlus, Search, X, CheckCircle, GraduationCap } from 'lucide-react';
 import { createClient } from '@/utils/supabase/client';
 import { useRouter } from 'next/navigation';
+import { assignReviewerActionFunc } from '@/app/actions/submission';
 
 export default function AssignReviewerAction({ article, reviewers }: { article: any, reviewers: any[] }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -13,40 +14,17 @@ export default function AssignReviewerAction({ article, reviewers }: { article: 
   const router = useRouter();
   const supabase = createClient();
 
-  const handleAssign = async (reviewerId: string) => {
-    setIsAssigning(reviewerId);
+  const handleAssign = async (reviewer: any) => {
+    setIsAssigning(reviewer.id);
     
     try {
-      // 1. Create the assignment
-      const { error: assignError } = await supabase
-        .from('review_assignments')
-        .insert({
-          submission_id: article.id,
-          reviewer_id: reviewerId,
-          status: 'pending'
-        });
-
-      if (assignError) throw assignError;
-
-      // 2. Update submission status if it's Awaiting Reviewers
-      if (article.status === 'Awaiting Reviewers') {
-        await supabase
-          .from('submissions')
-          .update({ status: 'Under Review' })
-          .eq('id', article.id);
+      const res = await assignReviewerActionFunc(article.id, reviewer);
+      if (!res.success) {
+        throw new Error(res.error || "Failed to assign reviewer");
       }
-
-      // 3. Log history
-      const { data: { user } } = await supabase.auth.getUser();
-      await supabase.from('submission_history').insert({
-        submission_id: article.id,
-        action: 'Reviewer Assigned',
-        performed_by: user?.id,
-        details: `Assigned to reviewer ID: ${reviewerId}`
-      });
-
       setIsOpen(false);
-      router.refresh(); // Refresh page to show updated status
+      // Let the Server Action's revalidatePath handle the refresh, but we can also hard reload to be safe
+      window.location.href = "/dashboard/editor/assign-reviewer";
     } catch (error) {
       console.error("Error assigning reviewer:", error);
       alert("Terjadi kesalahan saat menugaskan reviewer.");
@@ -140,7 +118,7 @@ export default function AssignReviewerAction({ article, reviewers }: { article: 
                       </div>
                       
                       <button
-                        onClick={() => handleAssign(reviewer.id)}
+                        onClick={() => handleAssign(reviewer)}
                         disabled={isAssigning !== null}
                         className={`w-full py-2 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2
                           ${isAssigning === reviewer.id 

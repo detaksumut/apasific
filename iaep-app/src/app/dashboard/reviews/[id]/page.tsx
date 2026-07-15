@@ -1,9 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, use } from "react";
 import Link from "next/link";
+import { getAssignmentDetails, submitReviewResultsWithFile } from "@/app/actions/reviewer";
 
-export default function ReviewEvaluation() {
+export default function ReviewEvaluation({ params }: { params: Promise<{ id: string }> }) {
+  const unwrappedParams = use(params);
   const [step, setStep] = useState(1);
   const [agreed, setAgreed] = useState(false);
   const [commentsForEditor, setCommentsForEditor] = useState("");
@@ -11,18 +13,34 @@ export default function ReviewEvaluation() {
   const [correctionNotes, setCorrectionNotes] = useState("");
   const [recommendation, setRecommendation] = useState("");
   const [submitted, setSubmitted] = useState(false);
+  const [annotatedFile, setAnnotatedFile] = useState<File | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const steps = ["Request", "Guidelines", "Review", "Submit"];
 
-  const submission = {
-    id: "1045",
-    title: "The Impact of Artificial Intelligence on Southeast Asian Higher Education",
-    abstract: "This paper explores the transformative effects of AI technologies on university curricula and administrative processes across ASEAN nations. The study examines case studies from Singapore, Malaysia, Indonesia, Thailand, and Vietnam, assessing both policy frameworks and institutional responses to emerging AI tools in academic settings.",
+  const [submission, setSubmission] = useState<any>({
+    id: unwrappedParams.id,
+    title: "Loading...",
+    abstract: "Loading...",
     type: "Articles",
-    journal: "APASIFIC IAEP",
-    dueDate: "July 30, 2026",
+    journal: "Loading...",
+    dueDate: "Loading...",
     round: 1,
-  };
+    file_url: ""
+  });
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchData() {
+        const data = await getAssignmentDetails(unwrappedParams.id);
+            
+        if (data) {
+            setSubmission(data);
+        }
+        setIsLoading(false);
+    }
+    fetchData();
+  }, [unwrappedParams.id]);
 
   const recommendations = [
     { value: "accept", label: "Accept Submission", color: "#34d399", bg: "rgba(52,211,153,0.08)", border: "rgba(52,211,153,0.2)" },
@@ -101,14 +119,14 @@ export default function ReviewEvaluation() {
       {/* Page Header */}
       <div className="rev-header">
         <div>
-          <h1 className="rev-page-title">Evaluate Submission</h1>
-          <p className="rev-page-sub">Manuscript #{submission.id} · {submission.journal} · Round {submission.round}</p>
+          <h1 className="rev-page-title">Tinjau Naskah</h1>
+          <p className="rev-page-sub">Naskah #{submission.id} · {submission.journal} · Putaran {submission.round}</p>
         </div>
         <div className="rev-deadline">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
             <circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" />
           </svg>
-          Due: {submission.dueDate}
+          Batas Waktu: {submission.dueDate || 'Tidak ditentukan'}
         </div>
       </div>
 
@@ -150,7 +168,39 @@ export default function ReviewEvaluation() {
               </div>
               <div className="rev-ms-field">
                 <div className="rev-ms-label">Abstract</div>
-                <div className="rev-ms-value">{submission.abstract}</div>
+                <div className="rev-ms-value" style={{ lineHeight: '1.7' }}>
+                   {(() => {
+                      let abs = submission.abstract;
+                      if (typeof abs === 'string' && abs.startsWith('{')) {
+                         try {
+                             const parsed = JSON.parse(abs);
+                             return (
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', marginTop: '8px' }}>
+                                   {parsed.abstract && (
+                                     <div>
+                                        <div style={{ fontSize: '13px', fontWeight: 700, color: '#c9a84c', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Abstract (Bahasa Indonesia)</div>
+                                        <div style={{ color: 'rgba(255,255,255,0.85)', textAlign: 'justify' }}>{parsed.abstract}</div>
+                                     </div>
+                                   )}
+                                   {parsed.abstract_en && (
+                                     <div>
+                                        <div style={{ fontSize: '13px', fontWeight: 700, color: '#c9a84c', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Abstract (English)</div>
+                                        <div style={{ color: 'rgba(255,255,255,0.85)', textAlign: 'justify' }}>{parsed.abstract_en}</div>
+                                     </div>
+                                   )}
+                                   {parsed.keywords && (
+                                     <div>
+                                        <div style={{ fontSize: '13px', fontWeight: 700, color: '#c9a84c', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Keywords</div>
+                                        <div style={{ color: '#f0f0f8' }}>{parsed.keywords}</div>
+                                     </div>
+                                   )}
+                                </div>
+                             )
+                         } catch(e) {}
+                      }
+                      return abs;
+                   })()}
+                </div>
               </div>
               <div className="rev-ms-row">
                 <div className="rev-ms-mini">
@@ -240,29 +290,31 @@ export default function ReviewEvaluation() {
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                       <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" /><polyline points="14 2 14 8 20 8" />
                     </svg>
-                    Anonymous_Manuscript.pdf
+                    {submission.file_url ? 'Manuscript.pdf' : 'No File Attached'}
                   </div>
-                  <button className="rev-download-btn">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3" /></svg>
-                    Download
-                  </button>
+                  {submission.file_url && (
+                      <a href={submission.file_url} target="_blank" rel="noreferrer" className="rev-download-btn">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                           <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7" />
+                        </svg>
+                        Full Layar
+                      </a>
+                  )}
                 </div>
                 <div className="rev-pdf-body">
-                  <div className="rev-pdf-mock">
-                    <div className="rev-pdf-icon">📄</div>
-                    <div className="rev-pdf-mock-title">Anonymous Manuscript</div>
-                    <div className="rev-pdf-mock-sub">Blind review document · Author identity hidden</div>
-                    <div className="rev-pdf-pages">
-                      {[1, 2, 3].map(p => (
-                        <div key={p} className="rev-pdf-page">
-                          <div className="rev-pdf-page-num">Page {p}</div>
-                          {[...Array(8)].map((_, i) => (
-                            <div key={i} className="rev-pdf-line" style={{ width: `${60 + Math.random() * 35}%`, opacity: 0.3 + Math.random() * 0.4 }} />
-                          ))}
-                        </div>
-                      ))}
+                  {submission.file_url ? (
+                    <iframe 
+                        src={submission.file_url} 
+                        style={{ width: '100%', height: '100%', minHeight: '600px', border: 'none' }} 
+                        title="Manuscript PDF"
+                    />
+                  ) : (
+                    <div className="rev-pdf-mock">
+                      <div className="rev-pdf-icon">📄</div>
+                      <div className="rev-pdf-mock-title">Anonymous Manuscript</div>
+                      <div className="rev-pdf-mock-sub">Blind review document · No file provided</div>
                     </div>
-                  </div>
+                  )}
                 </div>
               </div>
 
@@ -318,8 +370,18 @@ export default function ReviewEvaluation() {
                   </div>
                   <div className="rev-upload-zone">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12" /></svg>
-                    <span>Drop annotated PDF here or <label htmlFor="annotated-file" className="rev-browse-link">browse</label></span>
-                    <input type="file" id="annotated-file" accept=".pdf" className="rev-file-input" />
+                    <span>{annotatedFile ? annotatedFile.name : 'Drop annotated PDF here or '} <label htmlFor="annotated-file" className="rev-browse-link">{annotatedFile ? 'change' : 'browse'}</label></span>
+                    <input 
+                       type="file" 
+                       id="annotated-file" 
+                       accept=".pdf" 
+                       className="rev-file-input"
+                       onChange={(e) => {
+                         if (e.target.files && e.target.files.length > 0) {
+                           setAnnotatedFile(e.target.files[0]);
+                         }
+                       }}
+                    />
                   </div>
                 </div>
               </div>
@@ -379,11 +441,31 @@ export default function ReviewEvaluation() {
               <button className="rev-btn-ghost" onClick={() => setStep(3)}>← Back</button>
               <button
                 className="rev-btn-success"
-                disabled={!recommendation}
-                onClick={() => setSubmitted(true)}
+                disabled={!recommendation || isSubmitting}
+                onClick={async () => {
+                  setIsSubmitting(true);
+                  const formData = new FormData();
+                  formData.append('assignmentId', unwrappedParams.id);
+                  formData.append('submissionId', submission.id);
+                  formData.append('recommendation', recommendation);
+                  formData.append('commentsForEditor', commentsForEditor);
+                  formData.append('commentsForAuthor', commentsForAuthor);
+                  formData.append('correctionNotes', correctionNotes);
+                  if (annotatedFile) {
+                    formData.append('file', annotatedFile);
+                  }
+
+                  const res = await submitReviewResultsWithFile(formData);
+                  setIsSubmitting(false);
+                  if (res.success) {
+                      setSubmitted(true);
+                  } else {
+                      alert("Error submitting review: " + res.error);
+                  }
+                }}
               >
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
-                Submit Review
+                {isSubmitting ? 'Submitting...' : 'Submit Review'}
               </button>
             </div>
           </div>
@@ -739,8 +821,8 @@ export default function ReviewEvaluation() {
         /* Review Grid */
         .rev-review-grid {
           display: grid;
-          grid-template-columns: 1fr 1fr;
-          gap: 20px;
+          grid-template-columns: 2.2fr 1fr;
+          gap: 24px;
         }
         @media (max-width: 800px) { .rev-review-grid { grid-template-columns: 1fr; } }
 
@@ -751,7 +833,7 @@ export default function ReviewEvaluation() {
           border: 1px solid rgba(255,255,255,0.08);
           border-radius: 14px;
           overflow: hidden;
-          height: 620px;
+          height: 800px;
         }
         .rev-pdf-topbar {
           display: flex;

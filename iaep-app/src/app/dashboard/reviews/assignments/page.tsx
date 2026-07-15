@@ -1,12 +1,13 @@
 import { createClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
-import { Clock, AlertCircle } from "lucide-react";
-
+import { UserPlus, Search, BookOpen, Clock, AlertCircle } from "lucide-react";
 import { cookies } from "next/headers";
+import AssignmentActionButtons from "@/components/dashboard/AssignmentActionButtons";
 
 export default async function AssignmentsPage() {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const { getCurrentUser } = await import('@/app/actions/auth');
+  const user: any = await getCurrentUser();
 
   if (!user) {
     redirect("/auth/login");
@@ -15,15 +16,56 @@ export default async function AssignmentsPage() {
 
   let assignments: any[] = [];
   try {
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from("review_assignments")
       .select("*, submissions(*, journals(name))")
       .eq("reviewer_id", userId)
       .eq("status", "pending")
       .order("assigned_at", { ascending: false });
+    if (error) throw error;
     if (data) assignments = data;
   } catch (error) {
-    console.error("Error fetching assignments:", error);
+    console.warn("Supabase fetch assignments failed, falling back to Firestore");
+    try {
+        const { getFirestore } = await import('@/utils/firebase/db');
+        const db = getFirestore();
+        
+        const reviewerIdToUse = user.json_id || userId;
+        const assignmentsSnapshot = await db.collection('review_assignments')
+          .where('reviewer_id', '==', reviewerIdToUse)
+          .where('status', '==', 'pending')
+          .get();
+          
+        for (const doc of assignmentsSnapshot.docs) {
+            const data = doc.data();
+            const assignment: any = {
+                id: doc.id,
+                ...data,
+                assigned_at: data.created_at ? data.created_at.toDate() : new Date(),
+                deadline: data.deadline ? data.deadline.toDate() : null
+            };
+            
+            // fetch submission
+            if (data.submission_id) {
+               const subDoc = await db.collection('submissions').doc(data.submission_id).get();
+               if (subDoc.exists) {
+                   const subData = subDoc.data()!;
+                   assignment.submissions = {
+                       id: subDoc.id,
+                       title: subData.title,
+                       abstract: subData.abstract,
+                       status: subData.status,
+                       journals: subData.journals || { name: 'Jurnal' }
+                   };
+               }
+            }
+            assignments.push(assignment);
+        }
+        
+        assignments.sort((a, b) => new Date(b.assigned_at).getTime() - new Date(a.assigned_at).getTime());
+    } catch (fbErr) {
+        console.error("Firestore fallback failed", fbErr);
+    }
   }
 
   return (
@@ -58,10 +100,11 @@ export default async function AssignmentsPage() {
                     <div>Batas Waktu: <span className="text-red-400 font-medium">{new Date(assignment.deadline).toLocaleDateString('id-ID')}</span></div>
                   )}
                 </div>
-                <div className="flex justify-end gap-3">
-                  <button className="px-4 py-2 border border-red-500/30 text-red-500 hover:bg-red-500/10 rounded-lg font-medium text-sm transition-colors">Tolak</button>
-                  <button className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg font-medium text-sm transition-colors shadow-lg shadow-emerald-900/20">Terima Ulasan</button>
-                </div>
+                
+                <AssignmentActionButtons 
+                  assignmentId={assignment.id} 
+                  submissionId={assignment.submission_id || assignment.submissions?.id} 
+                />
               </div>
             ))}
           </div>

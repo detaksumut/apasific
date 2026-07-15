@@ -1,9 +1,9 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { createClient } from '@/utils/supabase/client';
 import { useRouter } from 'next/navigation';
 import { CheckCircle, XCircle, AlertCircle, FileSignature, RefreshCw } from 'lucide-react';
+import { getReviewsForSubmission, submitEditorialDecision } from '@/app/actions/editor';
 
 export default function MakeDecisionAction({ article }: { article: any }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -15,7 +15,6 @@ export default function MakeDecisionAction({ article }: { article: any }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   
   const router = useRouter();
-  const supabase = createClient();
 
   // Fetch reviews when opened
   useEffect(() => {
@@ -27,14 +26,10 @@ export default function MakeDecisionAction({ article }: { article: any }) {
   const fetchReviews = async () => {
     setIsLoading(true);
     try {
-      const { data, error } = await supabase
-        .from('review_assignments')
-        .select('*, reviewer:reviewer_id(full_name)')
-        .eq('submission_id', article.id)
-        .eq('status', 'completed');
-      
-      if (error) throw error;
-      setReviews(data || []);
+      const res = await getReviewsForSubmission(article.id || article.submission_id);
+      if (res.success) {
+          setReviews(res.reviews || []);
+      }
     } catch (e) {
       console.error(e);
     } finally {
@@ -45,36 +40,15 @@ export default function MakeDecisionAction({ article }: { article: any }) {
   const handleSubmitDecision = async () => {
     setIsSubmitting(true);
     try {
-      // Get current user (Editor)
-      const { data: { user } } = await supabase.auth.getUser();
-      // If mock, we might not have user.id, but we'll use a placeholder or check cookie
-      const editorId = user?.id || null;
+      const res = await submitEditorialDecision(
+          article.id || article.submission_id, 
+          article.author_id, 
+          article.title, 
+          decision, 
+          comments
+      );
 
-      // Update submission status
-      const { error: updateError } = await supabase
-        .from('submissions')
-        .update({ status: decision })
-        .eq('id', article.id);
-      
-      if (updateError) throw updateError;
-
-      // Log decision
-      await supabase.from('submission_history').insert({
-        submission_id: article.id,
-        action: `Editor Decision: ${decision}`,
-        performed_by: editorId,
-        details: comments
-      });
-
-      // If accepted, generate a certificate
-      if (decision === 'Accepted') {
-        await supabase.from('certificates').insert({
-          user_id: article.author_id,
-          type: 'author_publication',
-          reference_id: article.id,
-          title: `Sertifikat Publikasi Naskah: ${article.title}`
-        });
-      }
+      if (!res.success) throw new Error(res.error);
 
       setIsOpen(false);
       router.refresh();

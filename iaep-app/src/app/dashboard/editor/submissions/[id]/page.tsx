@@ -4,7 +4,9 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { publishArticleToZenodo, ZenodoMetadata } from "@/utils/zenodo";
+import { getSubmissionDetailsEditor } from "@/app/actions/editor";
 import { createClient } from "@/utils/supabase/client";
+import CoverGenerator from "@/components/dashboard/CoverGenerator";
 
 export default function SubmissionControlPanel() {
   const params = useParams();
@@ -20,6 +22,20 @@ export default function SubmissionControlPanel() {
   const [toastMessage, setToastMessage] = useState("");
   const [isPublishingZenodo, setIsPublishingZenodo] = useState(false);
   const [generatedDoi, setGeneratedDoi] = useState("");
+  const [reviews, setReviews] = useState<any[]>([]);
+  const [availableReviewers, setAvailableReviewers] = useState<any[]>([]);
+  const [isUploadingRevised, setIsUploadingRevised] = useState(false);
+  const [isUploadingGalley, setIsUploadingGalley] = useState(false);
+  const [boardMembers, setBoardMembers] = useState<any[]>([]);
+  const [currentUserRole, setCurrentUserRole] = useState<string>("");
+
+  // Determine role cleanly
+  const roleStr = currentUserRole.toLowerCase();
+  const isLayoutEditor = roleStr.includes('layout');
+  const isCoverEditor = roleStr.includes('cover');
+  const isPublishEditor = roleStr.includes('publish');
+  const isSupervisor = roleStr.includes('supervisor');
+  const isPureEditor = roleStr.includes('admin') || roleStr.includes('supervisor') || (roleStr.includes('editor') && !roleStr.includes('layout') && !roleStr.includes('cover') && !roleStr.includes('publish'));
 
   const showToast = (msg: string) => {
     setToastMessage(msg);
@@ -28,24 +44,24 @@ export default function SubmissionControlPanel() {
 
   useEffect(() => {
     const fetchSubmission = async () => {
-      const supabase = createClient();
-      const { data, error } = await supabase
-        .from('submissions')
-        .select('*, profiles:author_id(full_name)')
-        .eq('id', submissionId)
-        .single();
+      const res = await getSubmissionDetailsEditor(submissionId);
         
-      if (data) {
+      if (res.success && res.submission) {
+        const data = res.submission;
         setSubmission({
           id: data.id,
           title: data.title,
           author: data.profiles?.full_name || 'Unknown',
           abstract: data.abstract,
           file_url: data.file_url,
+          revised_file_url: data.revised_file_url,
+          file_url_galley: data.file_url_galley,
+          cover_file_url: data.cover_file_url,
           stage: data.stage || 'Review',
           status: data.status || 'Awaiting Reviewers',
           doi: data.doi,
-          zenodo_id: data.zenodo_id
+          zenodo_id: data.zenodo_id,
+          journals: data.journals
         });
         if (data.doi) setGeneratedDoi(data.doi);
         
@@ -53,9 +69,53 @@ export default function SubmissionControlPanel() {
         if (data.stage === 'Review') setActiveTab('review');
         else if (data.stage === 'Copyediting') setActiveTab('copyediting');
         else if (data.stage === 'Production' || data.stage === 'Published') setActiveTab('production');
+
+        // Fetch reviews
+        const m = await import("@/app/actions/editor");
+        const revRes = await m.getReviewsForSubmission(submissionId);
+        if (revRes.success) setReviews(revRes.reviews || []);
+
+        const availRes = await m.getActiveReviewers();
+        if (availRes.success) setAvailableReviewers(availRes.reviewers || []);
+
+        if (data.journals?.name) {
+          const boardRes = await m.getEditorialBoard(data.journals.name);
+          if (boardRes.success) setBoardMembers(boardRes.members || []);
+        }
       } else {
-        console.error("Error fetching submission:", error);
+        console.error("Error fetching submission:", res.error);
       }
+      
+      // Fetch current user role to customize UI
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      let roleStr = "";
+      if (user) {
+         const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single();
+         if (profile && profile.role) {
+             roleStr = profile.role.toLowerCase();
+         } else if (user.email) {
+             // Fallbacks for the explicitly created production accounts
+             if (user.email.includes('kun@apasific.org')) roleStr = 'layout editor';
+             if (user.email.includes('rizky@apasific.org')) roleStr = 'cover editor';
+             if (user.email.includes('parida@apasific.org')) roleStr = 'publish editor';
+             if (user.email.includes('danil@apasific.org')) roleStr = 'supervisor';
+         }
+      }
+
+      if (!roleStr) {
+         const match = document.cookie.match(new RegExp('(^| )active_portal_role=([^;]+)')) || 
+                       document.cookie.match(new RegExp('(^| )user_role=([^;]+)'));
+         if (match) {
+             roleStr = decodeURIComponent(match[2]).toLowerCase();
+         } else if (user?.email) {
+             if (user.email.includes('editor')) roleStr = 'editor';
+             if (user.email.includes('admin')) roleStr = 'admin';
+         }
+      }
+      
+      setCurrentUserRole(roleStr || 'editor');
+      
       setLoading(false);
     };
     
@@ -132,13 +192,10 @@ export default function SubmissionControlPanel() {
     }
 
     try {
-      const supabase = createClient();
-      const { error } = await supabase
-        .from('submissions')
-        .update({ stage: newStage, status: newStatus })
-        .eq('id', submission.id);
+      const m = await import("@/app/actions/editor");
+      const res = await m.updateSubmissionStage(submission.id, newStage, newStatus);
         
-      if (error) throw error;
+      if (!res.success) throw new Error(res.error);
       
       setSubmission({ ...submission, stage: newStage, status: newStatus });
       
@@ -220,18 +277,48 @@ export default function SubmissionControlPanel() {
             <div className="space-y-8">
               <div>
                 <h3 className="text-lg font-bold text-gray-800 border-b pb-2 mb-4">Submission Files</h3>
-                <div className="border border-gray-200 rounded-lg p-4 bg-gray-50 flex justify-between items-center">
-                  <div>
-                    <div className="font-semibold text-gray-800 text-sm">1045-1-Manuscript-Main.docx</div>
-                    <div className="text-xs text-gray-500">Uploaded July 1, 2024</div>
+                {submission.file_url ? (
+                  <div className="border border-gray-200 rounded-lg p-4 bg-gray-50 flex justify-between items-center">
+                    <div>
+                      <div className="font-semibold text-gray-800 text-sm">
+                        {submission.file_url.split('/').pop()?.split('?')[0] || 'Manuscript File'}
+                      </div>
+                      <div className="text-xs text-gray-500">
+                        Disubmit: {submission.created_at ? new Date(submission.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) : '-'}
+                      </div>
+                    </div>
+                    <a
+                      href={submission.file_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      download
+                      className="inline-flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors"
+                    >
+                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                      Download
+                    </a>
                   </div>
-                  <button className="text-blue-600 hover:underline text-sm font-semibold">Download</button>
-                </div>
+                ) : (
+                  <div className="border border-dashed border-gray-300 rounded-lg p-6 text-center bg-gray-50">
+                    <p className="text-sm text-gray-500">Tidak ada file yang diupload oleh Author.</p>
+                  </div>
+                )}
               </div>
 
               <div>
                 <h3 className="text-lg font-bold text-gray-800 border-b pb-2 mb-4">Action</h3>
-                <button className="bg-blue-600 text-white px-6 py-2 rounded shadow-sm hover:bg-blue-700 font-semibold">
+                <button 
+                  onClick={async () => {
+                     const m = await import("@/app/actions/editor");
+                     const res = await m.updateSubmissionStage(submission.id, 'Review', 'Awaiting Reviewers');
+                     if (res.success) {
+                       showToast("Sent to Review Stage!");
+                       setTimeout(() => window.location.reload(), 1500);
+                     } else {
+                       showToast("Error updating stage");
+                     }
+                  }}
+                  className="bg-blue-600 text-white px-6 py-2 rounded shadow-sm hover:bg-blue-700 font-semibold">
                   Send to Review
                 </button>
               </div>
@@ -250,89 +337,136 @@ export default function SubmissionControlPanel() {
                 </div>
 
                 {/* Assigned Reviewer Card */}
-                <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
-                  <div className="flex justify-between items-start mb-2">
-                    <div>
-                      <h4 className="font-bold text-gray-800">Prof. Alan Turing</h4>
-                      <div className="text-xs text-gray-500 mt-1">Due: July 30, 2024 • Phone: +628111222333</div>
-                    </div>
-                    <div className="text-right">
-                      <span className="px-2 py-1 bg-green-100 text-green-800 text-xs font-bold rounded">Completed</span>
-                      <a 
-                        href={`https://wa.me/628111222333?text=${encodeURIComponent("Dear Prof. Alan Turing, thank you for completing the review of paper #1045 on the APASIFIC platform.")}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="block text-[#25D366] hover:text-[#20ba56] text-xs font-semibold mt-2"
-                        style={{ textDecoration: 'none' }}
-                      >
-                        💬 Contact Reviewer
-                      </a>
-                    </div>
+                {reviews.length === 0 ? (
+                  <div className="p-4 bg-gray-50 border border-gray-200 rounded-lg text-center text-gray-500 text-sm">
+                    Belum ada reviewer yang ditugaskan atau selesai.
                   </div>
-                  
-                  <div className="mt-4 p-3 bg-gray-50 border border-gray-200 rounded text-sm text-gray-700">
-                    <div className="font-semibold mb-2 text-green-700">Recommendation: Revisions Required</div>
-                    
-                    <div className="bg-yellow-50 border border-yellow-200 p-3 rounded mb-2">
-                      <div className="font-semibold text-yellow-800 text-xs mb-1">Correction Notes / Catatan Kesalahan:</div>
-                      <p className="text-xs text-gray-600">Bab 2 - Paragraf 3: Referensi tahun 2015 terlalu usang, harap gunakan referensi 5 tahun terakhir.</p>
-                      <p className="text-xs text-gray-600 mt-1">Bab 3 - Metodologi: Penjelasan sampling kurang mendetail.</p>
-                    </div>
+                ) : (
+                  reviews.map((rev) => (
+                    <div key={rev.id} className="bg-white border border-gray-200 rounded-xl shadow-sm mb-4 overflow-hidden">
+                      {/* Header */}
+                      <div className="flex justify-between items-center px-5 py-3 bg-gradient-to-r from-gray-50 to-white border-b border-gray-200">
+                        <div>
+                          <h4 className="font-bold text-gray-800">{rev.reviewer?.full_name || 'Anonim'}</h4>
+                          <div className="text-xs text-gray-500 mt-0.5">
+                            Selesai: {rev.completed_at ? new Date(rev.completed_at).toLocaleDateString('id-ID', { day:'numeric', month:'long', year:'numeric' }) : new Date(rev.updated_at).toLocaleDateString('id-ID', { day:'numeric', month:'long', year:'numeric' })}
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className={`px-3 py-1 text-xs font-bold rounded-full ${
+                            rev.recommendation === 'accept' ? 'bg-green-100 text-green-800' :
+                            rev.recommendation === 'minor_revision' ? 'bg-yellow-100 text-yellow-800' :
+                            rev.recommendation === 'major_revision' ? 'bg-orange-100 text-orange-800' :
+                            'bg-red-100 text-red-800'
+                          }`}>
+                            {rev.recommendation === 'accept' ? '✅ Accept' :
+                             rev.recommendation === 'minor_revision' ? '🟡 Revisi Minor' :
+                             rev.recommendation === 'major_revision' ? '🟠 Revisi Mayor' :
+                             rev.recommendation === 'resubmit' ? '🔄 Resubmit' :
+                             rev.recommendation === 'reject' ? '❌ Decline' : rev.recommendation}
+                          </span>
+                          <span className="px-2 py-1 bg-green-100 text-green-800 text-xs font-bold rounded-full">Completed</span>
+                        </div>
+                      </div>
 
-                    <button className="text-blue-600 hover:underline text-xs mt-1">Read Full Review Comments</button>
-                  </div>
-                </div>
+                      <div className="p-5 space-y-4">
+                        {/* Comments for Author */}
+                        <div>
+                          <div className="flex items-center gap-2 mb-2">
+                            <span className="text-xs font-bold text-gray-500 uppercase tracking-wide">💬 Komentar untuk Penulis (Author)</span>
+                          </div>
+                          <div className="bg-blue-50 border border-blue-100 rounded-lg p-3">
+                            <p className="text-sm text-gray-800 whitespace-pre-wrap leading-relaxed">{rev.comments_for_author || 'Tidak ada komentar.'}</p>
+                          </div>
+                        </div>
+
+                        {/* Correction Notes */}
+                        {(rev.correction_notes) && (
+                          <div>
+                            <div className="flex items-center gap-2 mb-2">
+                              <span className="text-xs font-bold text-yellow-700 uppercase tracking-wide">✏️ Correction Notes / Catatan Koreksi</span>
+                            </div>
+                            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+                              <p className="text-sm text-gray-700 whitespace-pre-wrap leading-relaxed">{rev.correction_notes}</p>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Private Comments for Editor */}
+                        {(rev.comments_for_editor) && (
+                          <div>
+                            <div className="flex items-center gap-2 mb-2">
+                              <span className="text-xs font-bold text-purple-700 uppercase tracking-wide">🔒 Catatan Rahasia untuk Editor (Confidential)</span>
+                              <span className="text-xs bg-purple-100 text-purple-600 px-2 py-0.5 rounded-full">Hanya Editor yang bisa melihat ini</span>
+                            </div>
+                            <div className="bg-purple-50 border border-purple-200 rounded-lg p-3">
+                              <p className="text-sm text-gray-700 whitespace-pre-wrap leading-relaxed">{rev.comments_for_editor}</p>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Reviewer File */}
+                        {(rev.annotated_file_url || rev.review_file_url) && (
+                          <div className="pt-3 border-t border-gray-100">
+                            <div className="text-xs font-bold text-blue-700 mb-2 uppercase tracking-wide">📎 File Hasil Pemeriksaan (dari Reviewer)</div>
+                            <div className="flex items-center gap-3 bg-blue-50 border border-blue-200 rounded-lg p-3">
+                              <div className="flex-1">
+                                <p className="text-xs text-blue-700 font-semibold">File telah diunggah oleh Reviewer</p>
+                                <p className="text-xs text-gray-500 mt-1">⬆ Download, periksa, lalu upload ulang di tab <strong>Copyediting</strong> untuk diteruskan ke Layout Editor.</p>
+                              </div>
+                              <a
+                                href={rev.annotated_file_url || rev.review_file_url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="shrink-0 inline-flex items-center gap-2 text-xs bg-blue-600 text-white hover:bg-blue-700 font-bold py-2 px-4 rounded-lg transition-colors"
+                              >
+                                ↓ Download
+                              </a>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ))
+                )}
 
                 {/* Active Reviewers Panel */}
                 <div className="mt-8 border-t pt-6">
-                  <h3 className="text-lg font-bold text-gray-800 mb-4">Active Reviewers (Online Now)</h3>
+                  <h3 className="text-lg font-bold text-gray-800 mb-4">Reviewer yang Online</h3>
                   <div className="space-y-3">
-                    <div className="flex items-center justify-between bg-white border border-gray-200 p-3 rounded-lg shadow-sm">
-                      <div className="flex items-center">
-                        <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse mr-3"></div>
-                        <div>
-                          <div className="font-semibold text-sm text-gray-800">Dr. Sarah Connor</div>
-                          <div className="text-xs text-gray-500">Expertise: AI, Machine Learning • Phone: +628987654321</div>
-                        </div>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <a 
-                          href={`https://wa.me/628987654321?text=${encodeURIComponent("Dear Dr. Sarah Connor, we invite you to review paper #1045 (The Impact of Artificial Intelligence on Southeast Asian Higher Education) on the APASIFIC platform.")}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-xs bg-[#25D366] text-black font-semibold py-1 px-3 rounded hover:bg-[#22c35e] text-center"
-                          style={{ textDecoration: 'none' }}
-                        >
-                          💬 Invite
-                        </a>
-                        <button className="text-xs bg-[#c9a84c] text-black font-semibold py-1 px-3 rounded hover:bg-[#b0923d]">Assign</button>
-                      </div>
-                    </div>
-                    
-                    <div className="flex items-center justify-between bg-white border border-gray-200 p-3 rounded-lg shadow-sm">
-                      <div className="flex items-center">
-                        <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse mr-3"></div>
-                        <div>
-                          <div className="font-semibold text-sm text-gray-800">Prof. John von Neumann</div>
-                          <div className="text-xs text-gray-500">Expertise: Education Technology • Phone: +628776655443</div>
-                        </div>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <a 
-                          href={`https://wa.me/628776655443?text=${encodeURIComponent("Dear Prof. John von Neumann, we invite you to review paper #1045 (The Impact of Artificial Intelligence on Southeast Asian Higher Education) on the APASIFIC platform.")}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-xs bg-[#25D366] text-black font-semibold py-1 px-3 rounded hover:bg-[#22c35e] text-center"
-                          style={{ textDecoration: 'none' }}
-                        >
-                          💬 Invite
-                        </a>
-                        <button className="text-xs bg-[#c9a84c] text-black font-semibold py-1 px-3 rounded hover:bg-[#b0923d]">Assign</button>
-                      </div>
-                    </div>
+                    {availableReviewers.length === 0 ? (
+                        <div className="text-sm text-gray-500 bg-gray-50 p-4 border border-gray-200 rounded-lg text-center">Belum ada reviewer yang online saat ini.</div>
+                    ) : (
+                        availableReviewers.map((rev) => (
+                            <div key={rev.id} className="flex items-center justify-between bg-white border border-gray-200 p-3 rounded-lg shadow-sm">
+                              <div className="flex items-center">
+                                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse mr-3"></div>
+                                <div>
+                                  <div className="font-semibold text-sm text-gray-800">{rev.full_name}</div>
+                                  <div className="text-xs text-gray-500">Keahlian: {rev.expertise || 'Umum'} • Kontak: {rev.phone_number || '-'}</div>
+                                </div>
+                              </div>
+                              <div className="flex items-center space-x-2">
+                                <a 
+                                  href={`https://wa.me/${(rev.phone_number || '').replace(/\D/g,'')}?text=${encodeURIComponent(`Yth. ${rev.full_name}, kami mengundang Anda untuk meninjau naskah #${submission.id} di platform APASIFIC.`)}`}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="text-xs bg-[#25D366] text-black font-semibold py-1 px-3 rounded hover:bg-[#22c35e] text-center"
+                                  style={{ textDecoration: 'none' }}
+                                >
+                                  💬 Invite
+                                </a>
+                                <button className="text-xs bg-gray-800 text-white font-semibold py-1 px-3 rounded hover:bg-gray-700">
+                                  Assign
+                                </button>
+                              </div>
+                            </div>
+                        ))
+                    )}
                   </div>
                 </div>
               </div>
+
 
               {/* Right Column: Decisions */}
               <div className="space-y-6">
@@ -353,82 +487,546 @@ export default function SubmissionControlPanel() {
           )}
           
           {activeTab === 'copyediting' && (
-            <div className="py-12 text-center text-gray-500">
-              <div className="text-4xl mb-4">🛠️</div>
-              <h2 className="text-xl font-bold text-gray-700 mb-2">Stage Locked</h2>
-              <p>An editorial decision must be made in the Review stage before moving to {activeTab}.</p>
-            </div>
-          )}
-
-          {activeTab === 'production' && (
-            <div className="py-8 space-y-8">
-              <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
-                <h3 className="text-xl font-bold text-gray-800 border-b pb-2 mb-4">Publishing & Export</h3>
-                <p className="text-sm text-gray-600 mb-6">Distribute this manuscript to external indexing services and assign persistent identifiers.</p>
-                
-                <div className="pt-4 border-t border-gray-200 space-y-4">
-                  <div className="flex items-center justify-between mb-2">
-                    <h4 className="text-xs font-bold text-gray-500 uppercase tracking-widest">Integrasi Sistem Publikasi</h4>
-                    {generatedDoi ? (
-                      <span className="bg-green-100 text-green-700 px-2 py-1 rounded text-[10px] font-bold">LIVE</span>
-                    ) : (
-                      <span className="bg-gray-200 text-gray-500 px-2 py-1 rounded text-[10px] font-bold">OFFLINE</span>
+            <div className="space-y-8 animate-fade-in-up">
+              <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100">
+                <div className="flex justify-between items-start mb-8">
+                  <div>
+                    <h3 className="text-2xl font-extrabold text-gray-900 tracking-tight">Copyediting & Layout</h3>
+                    <p className="text-gray-500 mt-2 max-w-3xl leading-relaxed text-sm">
+                      Tahap perbaikan tata bahasa, format referensi, dan penyesuaian tata letak (layout) naskah agar sesuai dengan <span className="font-semibold text-gray-700">template resmi jurnal</span> sebelum dipublikasikan.
+                    </p>
+                  </div>
+                  <div className="flex flex-col items-end gap-3">
+                    <span className="px-4 py-1.5 bg-amber-50 border border-amber-200 text-amber-700 text-xs font-bold uppercase tracking-wider rounded-full shadow-sm">
+                      In Progress
+                    </span>
+                    {isPureEditor && (
+                      <button 
+                        onClick={async () => {
+                           const m = await import("@/app/actions/editor");
+                           const res = await m.updateSubmissionStage(submission.id, 'Copyediting', 'Assigned to Layout');
+                           if(res.success) {
+                             showToast("Berhasil ditugaskan ke Layout Editor!");
+                             setTimeout(() => window.location.reload(), 1500);
+                           } else {
+                             showToast("Gagal menugaskan naskah.");
+                           }
+                        }}
+                        className="bg-[#18182e] hover:bg-[#252542] text-white font-bold py-2.5 px-6 rounded-xl shadow-lg hover:shadow-xl transition-all text-sm flex items-center gap-2 border border-gray-700">
+                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" /></svg>
+                        Tugaskan ke Layout Editor (Kirim Naskah)
+                      </button>
                     )}
                   </div>
-                  
-                  <div className="flex flex-col sm:flex-row gap-4">
-                    <button 
-                      disabled={!generatedDoi}
-                      className={`flex-1 font-bold py-3 px-4 rounded transition-colors flex justify-center items-center gap-2 ${
-                        generatedDoi 
-                          ? 'bg-amber-50 text-amber-700 hover:bg-amber-100 border border-amber-200' 
-                          : 'bg-gray-50 text-gray-400 border border-gray-200 cursor-not-allowed'
-                      }`}
-                    >
-                      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
-                      Download XML Crossref
-                    </button>
+                </div>
 
-                    <button 
-                      onClick={handlePublishToZenodo}
-                      disabled={isPublishingZenodo || !!generatedDoi}
-                      className={`flex-1 font-bold py-3 px-4 rounded transition-colors flex justify-center items-center gap-2 ${
-                        !generatedDoi
-                          ? 'bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200'
-                          : 'bg-gray-50 text-gray-400 border border-gray-200 cursor-not-allowed'
-                      }`}
-                    >
-                      {isPublishingZenodo ? (
-                        <svg className="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
-                      ) : (
-                        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
-                      )}
-                      {isPublishingZenodo ? 'Sending to Zenodo...' : (generatedDoi ? 'Telah Diterbitkan (DOI Active)' : 'Terbitkan ke Zenodo (Auto-DOI)')}
-                    </button>
-                  </div>
-                  
-                  {/* Tracking Indicators */}
-                  <div className="flex gap-3 pt-3">
-                    <div className={`flex-1 flex flex-col items-center justify-center p-3 rounded-lg border transition-all ${generatedDoi ? 'bg-[#A6CE39]/10 border-[#A6CE39]/30 text-[#7ca221]' : 'bg-gray-50 border-gray-200 text-gray-400'}`}>
-                      <span className="text-xs font-black uppercase tracking-wider">ORCID</span>
-                      <span className="text-[10px] font-medium mt-1">{generatedDoi ? 'Tracking' : 'Pasif'}</span>
+                <div className={`grid grid-cols-1 ${!isPureEditor ? '' : 'lg:grid-cols-12'} gap-8`}>
+                  {/* Left: Tasks */}
+                  {isPureEditor && (
+                    <div className="lg:col-span-4 space-y-6">
+                      
+                      {/* Card: Supervisor Assignment */}
+                      <div className="bg-gray-50/50 border border-gray-200 rounded-xl p-5 shadow-sm">
+                        <div className="flex items-center gap-3 mb-4">
+                          <div className="bg-[#18182e] p-2 rounded-lg">
+                            <svg className="w-4 h-4 text-[#c9a84c]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
+                          </div>
+                          <h4 className="font-bold text-gray-900 text-xs uppercase tracking-wide">TIM SUPERVISI & DESAIN</h4>
+                        </div>
+                        
+                        <div className="space-y-3">
+                          {boardMembers.filter(m => m.jabatan.toLowerCase().includes('admin') || m.jabatan.toLowerCase().includes('copy') || m.jabatan.toLowerCase().includes('layout') || m.jabatan.toLowerCase().includes('cover')).length > 0 ? (
+                            boardMembers.filter(m => m.jabatan.toLowerCase().includes('admin') || m.jabatan.toLowerCase().includes('copy') || m.jabatan.toLowerCase().includes('layout') || m.jabatan.toLowerCase().includes('cover')).map((member, idx) => (
+                              <label key={idx} className="group flex items-center space-x-3 p-3 bg-white border border-gray-200 rounded-lg cursor-pointer hover:border-[#c9a84c] hover:shadow-md transition-all duration-200">
+                                <div className="relative flex items-center justify-center">
+                                  <input type="checkbox" className="peer form-checkbox h-4 w-4 text-[#18182e] border-gray-300 rounded focus:ring-[#c9a84c] focus:ring-offset-1 transition-all" />
+                                </div>
+                                <div className="flex flex-col">
+                                  <span className="text-xs text-gray-900 font-bold group-hover:text-[#18182e] transition-colors">{member.nama}</span>
+                                  <span className="text-[10px] text-gray-500 font-medium">{member.jabatan}</span>
+                                </div>
+                              </label>
+                            ))
+                          ) : (
+                            <div className="flex items-center gap-2 text-xs text-gray-600 bg-white p-3 rounded-lg border border-gray-200 border-dashed">
+                              <svg className="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+                              <span>Belum ada personil yang tersedia.</span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Card: Standar Checklist */}
+                      <div className="bg-gray-50/50 border border-gray-200 rounded-xl p-5 shadow-sm">
+                        <div className="flex items-center gap-3 mb-4">
+                           <div className="bg-blue-100 p-2 rounded-lg">
+                             <svg className="w-4 h-4 text-blue-700" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" /></svg>
+                           </div>
+                           <h4 className="font-bold text-gray-900 text-xs uppercase tracking-wide">STANDAR CHECKLIST</h4>
+                        </div>
+                        <div className="space-y-2">
+                          <label className="flex items-center space-x-3 p-3 bg-white border border-gray-100 rounded-lg cursor-pointer hover:bg-gray-50 hover:border-gray-300 transition-all">
+                            <input type="checkbox" className="form-checkbox h-4 w-4 text-blue-600 rounded border-gray-300" />
+                            <span className="text-xs text-gray-700 font-semibold">Proofreading & Ejaan</span>
+                          </label>
+                          <label className="flex items-center space-x-3 p-3 bg-white border border-gray-100 rounded-lg cursor-pointer hover:bg-gray-50 hover:border-gray-300 transition-all">
+                            <input type="checkbox" className="form-checkbox h-4 w-4 text-blue-600 rounded border-gray-300" />
+                            <span className="text-xs text-gray-700 font-semibold">Format Referensi (APA/IEEE)</span>
+                          </label>
+                        </div>
+                      </div>
+
                     </div>
-                    <div className={`flex-1 flex flex-col items-center justify-center p-3 rounded-lg border transition-all ${generatedDoi ? 'bg-orange-50 border-orange-200 text-orange-700' : 'bg-gray-50 border-gray-200 text-gray-400'}`}>
-                      <span className="text-xs font-black uppercase tracking-wider">Scopus</span>
-                      <span className="text-[10px] font-medium mt-1">{generatedDoi ? 'Tracking' : 'Pasif'}</span>
+                  )}
+
+                  {/* Right: Files */}
+                  <div className={`space-y-6 ${!isPureEditor ? '' : 'lg:col-span-8'}`}>
+                    
+                    {/* Source File to Download */}
+                    <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
+                      <div className="bg-gray-50 px-6 py-4 border-b border-gray-200">
+                        <h4 className="font-bold text-gray-800 text-xs tracking-wider uppercase">BAHAN NASKAH (DARI EDITOR)</h4>
+                      </div>
+                      <div className="p-6 space-y-6">
+                        
+                        {/* Reviewer Notes Section */}
+                        <div>
+                          <div className="flex items-center gap-2 mb-3">
+                            <svg className="w-4 h-4 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                            <h5 className="text-sm font-bold text-gray-800">Catatan Hasil Review (Telah Diverifikasi Editor)</h5>
+                          </div>
+                          
+                          {reviews.length > 0 ? (
+                            <div className="space-y-3">
+                              {reviews.filter(r => r.status === 'completed').map((rev) => (
+                                <div key={rev.id} className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
+                                  <div className="flex justify-between items-center mb-3">
+                                    <div className="text-sm font-bold text-gray-900">{rev.reviewer?.full_name || 'Reviewer'}</div>
+                                    <span className="px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider rounded-md bg-gray-100 text-gray-600">
+                                      {rev.recommendation}
+                                    </span>
+                                  </div>
+                                  {(rev.correction_notes || rev.comments_for_author) && (
+                                    <div className="mb-3 text-sm text-gray-700 bg-gray-50/80 p-3 rounded-lg border border-gray-100 leading-relaxed">
+                                      <span className="font-bold text-gray-900 block mb-1">Catatan Revisi:</span>
+                                      {rev.correction_notes || rev.comments_for_author}
+                                    </div>
+                                  )}
+                                  {(rev.annotated_file_url || rev.review_file_url) && (
+                                    <div className="flex items-center justify-between bg-blue-50/50 border border-blue-100 rounded-lg p-3 mt-2">
+                                      <div className="flex items-center gap-3">
+                                        <div className="bg-white p-1.5 rounded-md shadow-sm border border-blue-100">
+                                          <svg className="w-4 h-4 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" /></svg>
+                                        </div>
+                                        <div>
+                                          <div className="text-xs font-bold text-blue-900">File Upload dari Reviewer</div>
+                                          <div className="text-[10px] text-blue-600 mt-0.5">Berisi coretan/anotasi pada naskah</div>
+                                        </div>
+                                      </div>
+                                      <a
+                                        href={rev.annotated_file_url || rev.review_file_url}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="text-xs bg-blue-600 text-white px-4 py-1.5 rounded-md hover:bg-blue-700 font-bold transition-colors shadow-sm"
+                                      >
+                                        Download
+                                      </a>
+                                    </div>
+                                  )}
+                                </div>
+                              ))}
+                            </div>
+                          ) : (
+                            <div className="bg-gray-50 border border-gray-100 rounded-lg p-4 text-center">
+                              <p className="text-xs text-gray-500 font-medium">Tidak ada catatan review yang tersedia untuk naskah ini.</p>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Revised Manuscript Block */}
+                        <div className="bg-[#f8f9fa] border border-[#e9ecef] rounded-xl p-5">
+                          <div className="flex items-start gap-4">
+                            <div className="bg-white p-3 rounded-xl border border-gray-200 shadow-sm shrink-0">
+                               <svg className="w-6 h-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                            </div>
+                            <div className="flex-1">
+                              <h5 className="text-sm font-bold text-gray-900">{submission?.revised_file_url ? 'Naskah Pasca-Review (.DOCX)' : 'Naskah Orisinal (Belum Direvisi Editor)'}</h5>
+                              <p className="text-xs text-gray-500 mt-1 leading-relaxed max-w-md">Gunakan file ini sebagai sumber utama (source) untuk dikerjakan tata letaknya di Microsoft Word.</p>
+                              
+                              <div className="mt-4 flex gap-3">
+                                <a 
+                                  href={submission?.revised_file_url || submission?.file_url || '#'} 
+                                  target="_blank" 
+                                  rel="noopener noreferrer"
+                                  className="inline-flex items-center gap-2 bg-[#18182e] text-white hover:bg-[#252542] font-semibold py-2 px-5 rounded-lg text-sm shadow-md transition-colors"
+                                >
+                                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+                                  Download Source
+                                </a>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Upload Revised Manuscript (For Editors) */}
+                        {isPureEditor && (
+                          <div className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm">
+                             <label className="flex items-center gap-2 text-sm font-bold text-gray-900 mb-2">
+                               <svg className="w-4 h-4 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" /></svg>
+                               Upload Pembaruan Naskah (Opsional)
+                             </label>
+                             <p className="text-xs text-gray-500 mb-4 leading-relaxed">
+                               Jika Anda sudah mengedit naskah pasca-review, unggah file terbarunya di sini agar Layout Editor menggunakan versi yang benar.
+                             </p>
+                             
+                             <div className="relative">
+                               <input 
+                                 type="file" 
+                                 accept=".doc,.docx,.rtf,.pdf"
+                                 onChange={async (e) => {
+                                   if(!e.target.files || !e.target.files[0]) return;
+                                   setIsUploadingRevised(true);
+                                   const formData = new FormData();
+                                   formData.append('file', e.target.files[0]);
+                                   formData.append('submissionId', submission.id);
+                                   try {
+                                     const res = await fetch('/api/upload-revised-manuscript', { method: 'POST', body: formData });
+                                     const data = await res.json();
+                                     if(data.success) {
+                                       showToast('Berhasil upload naskah revisi!');
+                                       setSubmission({...submission, revised_file_url: data.url});
+                                     } else {
+                                       showToast('Gagal upload: ' + data.error);
+                                     }
+                                   } catch(err) {
+                                     showToast('Error uploading file');
+                                   } finally {
+                                     setIsUploadingRevised(false);
+                                   }
+                                 }}
+                                 disabled={isUploadingRevised}
+                                 className="block w-full text-sm text-gray-600 file:mr-4 file:py-2.5 file:px-5 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 disabled:opacity-50 cursor-pointer border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20" 
+                               />
+                               {isUploadingRevised && (
+                                 <div className="absolute inset-0 bg-white/80 backdrop-blur-sm rounded-lg flex items-center justify-center">
+                                    <div className="flex items-center gap-2 text-blue-600 font-bold text-sm">
+                                      <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
+                                      Mengunggah...
+                                    </div>
+                                 </div>
+                               )}
+                             </div>
+                          </div>
+                        )}
+                        
+                      </div>
                     </div>
-                    <div className={`flex-1 flex flex-col items-center justify-center p-3 rounded-lg border transition-all ${generatedDoi ? 'bg-purple-50 border-purple-200 text-purple-700' : 'bg-gray-50 border-gray-200 text-gray-400'}`}>
-                      <span className="text-xs font-black uppercase tracking-wider">WoS</span>
-                      <span className="text-[10px] font-medium mt-1">{generatedDoi ? 'Tracking' : 'Pasif'}</span>
+                    
+                    {/* Final Layout Galley Upload */}
+                    <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
+                      <div className="bg-gray-50 px-6 py-4 border-b border-gray-200">
+                        <h4 className="font-bold text-gray-800 text-xs tracking-wider uppercase">HASIL AKHIR LAYOUT (GALLEY)</h4>
+                      </div>
+                      <div className="p-6">
+                        <label className="border-2 border-dashed border-gray-300 rounded-xl p-8 flex flex-col items-center justify-center text-center hover:bg-gray-50 hover:border-gray-400 transition-all cursor-pointer group block relative">
+                          <div className="w-14 h-14 bg-blue-50 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                            <svg className="w-7 h-7 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" /></svg>
+                          </div>
+                          <p className="text-sm font-bold text-gray-900 mb-1">Upload File Naskah Final (.DOCX / .PDF)</p>
+                          <p className="text-xs text-gray-500 mb-6 max-w-sm">File ini adalah versi akhir yang sudah diformat dengan template jurnal.</p>
+                          {submission?.file_url_galley ? (
+                            <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg flex flex-col gap-3 w-full" onClick={(e) => e.preventDefault()}>
+                              <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-3">
+                                  <svg className="w-6 h-6 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                  <div>
+                                    <p className="text-sm font-bold text-green-900">Galley File Berhasil Diunggah!</p>
+                                    <a href={submission.file_url_galley} target="_blank" rel="noopener noreferrer" className="text-xs text-green-700 hover:underline">Lihat File</a>
+                                  </div>
+                                </div>
+                                <button
+                                  type="button"
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    setSubmission({ ...submission, file_url_galley: null });
+                                  }}
+                                  className="px-3 py-1.5 bg-white border border-gray-300 rounded-md text-xs font-bold text-gray-700 hover:bg-gray-50 shadow-sm"
+                                >
+                                  Ganti File
+                                </button>
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="relative w-full flex justify-center">
+                              <span className="bg-white border border-gray-300 text-gray-700 font-bold py-2 px-6 rounded-lg shadow-sm group-hover:bg-gray-50 group-hover:border-gray-400 transition-colors text-xs pointer-events-none">
+                                Pilih File dari Komputer
+                              </span>
+                              <input 
+                                type="file" 
+                                accept=".pdf,.doc,.docx"
+                                onChange={async (e) => {
+                                  if (!e.target.files || e.target.files.length === 0) return;
+                                  setIsUploadingGalley(true);
+                                  const file = e.target.files[0];
+                                  try {
+                                    const formData = new FormData();
+                                    formData.append('file', file);
+                                    formData.append('submissionId', submission.id);
+                                    
+                                    const res = await fetch('/api/upload-galley', {
+                                      method: 'POST',
+                                      body: formData
+                                    });
+                                    if (!res.ok) {
+                                      const text = await res.text();
+                                      throw new Error(`HTTP ${res.status} - ${text.substring(0, 100)}`);
+                                    }
+                                    const data = await res.json();
+                                    if(data.success) {
+                                      setSubmission({...submission, file_url_galley: data.url});
+                                      showToast('File Galley berhasil diupload!');
+                                    } else {
+                                      showToast('Gagal upload: ' + data.error);
+                                    }
+                                  } catch(err: any) {
+                                    console.error('Upload Galley Error:', err);
+                                    showToast('Error uploading file: ' + (err.message || String(err)));
+                                  } finally {
+                                    setIsUploadingGalley(false);
+                                  }
+                                }}
+                                disabled={isUploadingGalley}
+                                className="hidden" 
+                              />
+                              {isUploadingGalley && (
+                                <div className="absolute inset-0 bg-white/80 backdrop-blur-sm rounded-lg flex items-center justify-center">
+                                  <div className="flex items-center gap-2 text-blue-600 font-bold text-sm">
+                                    <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
+                                    Mengunggah...
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          )}
+                        </label>
+
+                        {isLayoutEditor && submission?.status === 'Assigned to Layout' && (
+                           <div className="mt-6 p-4 bg-blue-50/50 border border-blue-100 rounded-xl flex items-center justify-between">
+                             <div>
+                               <h5 className="font-bold text-blue-900 text-sm">Tugas Layout Selesai?</h5>
+                               <p className="text-xs text-blue-700 mt-1">Lanjutkan naskah ini ke Cover Editor untuk pembuatan sampul.</p>
+                             </div>
+                             <button 
+                               onClick={async () => {
+                                  const m = await import("@/app/actions/editor");
+                                  const res = await m.updateSubmissionStage(submission.id, 'Copyediting', 'Assigned to Cover');
+                                  if(res.success) {
+                                    showToast("Berhasil dikirim ke Cover Editor!");
+                                    setTimeout(() => window.location.reload(), 1500);
+                                  } else {
+                                    showToast("Gagal mengirim.");
+                                  }
+                               }}
+                               className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 px-6 rounded-lg shadow-md hover:shadow-lg transition-all text-sm flex items-center gap-2">
+                               Kirim ke Cover Editor
+                               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
+                             </button>
+                           </div>
+                        )}
+
+                        {isCoverEditor && (
+                           <div className="mt-8 border-t pt-6">
+                             <h4 className="text-md font-bold text-gray-800 uppercase mb-4 border-b pb-2 flex items-center gap-2">
+                                <svg className="w-5 h-5 text-[#c9a84c]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                                Cover Generator
+                             </h4>
+                             <CoverGenerator submission={submission} />
+                           </div>
+                        )}
+                      </div>
                     </div>
+
                   </div>
                 </div>
-                
-                {generatedDoi && (
-                  <div className="mt-6 p-4 bg-green-50 border border-green-200 rounded text-green-800 text-sm font-semibold">
-                    ✅ Generated DOI: {generatedDoi}
+
+                {/* Admin Editor Buttons (Hidden from specialized production roles) */}
+              </div>
+            </div>
+          )}
+          {activeTab === 'production' && (
+            <div className="py-8 space-y-8">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                {/* 1. Publish Editor Dashboard */}
+                <div className="bg-white border border-blue-200 rounded-lg p-6 shadow-sm border-t-4 border-t-blue-500">
+                  <h3 className="text-xl font-bold text-gray-800 border-b pb-2 mb-4">Publish Editor</h3>
+                  <p className="text-sm text-gray-600 mb-6">Bertanggung jawab atas metadata, integrasi identifier (DOI), pengecekan similarity akhir, dan sinkronisasi mesin indeks eksternal.</p>
+                  
+                  {/* Publish Editor Staff */}
+                  <div className="space-y-3 mb-6">
+                      {boardMembers.filter(m => m.jabatan.toLowerCase().includes('publish') || m.jabatan.toLowerCase().includes('editor') && !m.jabatan.toLowerCase().includes('layout') && !m.jabatan.toLowerCase().includes('copy') && !m.jabatan.toLowerCase().includes('in chief')).length > 0 ? (
+                        boardMembers.filter(m => m.jabatan.toLowerCase().includes('publish') || m.jabatan.toLowerCase().includes('editor') && !m.jabatan.toLowerCase().includes('layout') && !m.jabatan.toLowerCase().includes('copy') && !m.jabatan.toLowerCase().includes('in chief')).map((member, idx) => (
+                          <label key={idx} className="flex items-center space-x-3 p-3 bg-blue-50 border border-blue-100 rounded cursor-pointer hover:bg-blue-100 transition-colors">
+                            <input type="checkbox" className="form-checkbox h-5 w-5 text-blue-600 rounded focus:ring-blue-500" />
+                            <div className="flex flex-col">
+                              <span className="text-sm text-blue-900 font-bold">{member.nama}</span>
+                              <span className="text-xs text-blue-700">{member.jabatan}</span>
+                            </div>
+                          </label>
+                        ))
+                      ) : (
+                        <div className="text-sm text-gray-500 bg-gray-50 p-3 rounded border border-gray-200">
+                          Belum ada Publish Editor di menu Board Editor.
+                        </div>
+                      )}
                   </div>
-                )}
+
+                  {/* Publish Editor Tools */}
+                  <div className="pt-4 border-t border-gray-200 space-y-4">
+                    <h4 className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">Alur Publikasi (Integrasi & API)</h4>
+                    
+                    <div className="flex items-center justify-between p-3 bg-gray-50 border border-gray-200 rounded">
+                      <span className="text-sm font-semibold text-gray-700">Skor Plagiasi Akhir (Turnitin)</span>
+                      <span className="text-xs bg-gray-200 text-gray-600 px-2 py-1 rounded font-bold">N/A</span>
+                    </div>
+
+                    <div className="flex flex-col gap-3 mt-4">
+                      <button 
+                        onClick={handlePublishToZenodo}
+                        disabled={isPublishingZenodo || !!generatedDoi}
+                        className={`font-bold py-3 px-4 rounded transition-colors flex justify-center items-center gap-2 ${
+                          !generatedDoi
+                            ? 'bg-[#1a1a2e] text-white hover:bg-[#252542]'
+                            : 'bg-gray-100 text-gray-400 border border-gray-200 cursor-not-allowed'
+                        }`}
+                      >
+                        {isPublishingZenodo ? (
+                          <svg className="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                        ) : (
+                          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
+                        )}
+                        {isPublishingZenodo ? 'Menyambungkan ke API...' : (generatedDoi ? 'Telah Diterbitkan (DOI Active)' : 'Terbitkan Metadata & Generate DOI')}
+                      </button>
+
+                      <button 
+                        disabled={!generatedDoi}
+                        className={`font-bold py-3 px-4 rounded transition-colors flex justify-center items-center gap-2 ${
+                          generatedDoi 
+                            ? 'bg-amber-50 text-amber-700 hover:bg-amber-100 border border-amber-200' 
+                            : 'bg-gray-50 text-gray-400 border border-gray-200 cursor-not-allowed'
+                        }`}
+                      >
+                        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                        Download XML Crossref
+                      </button>
+                    </div>
+
+                    {generatedDoi && (
+                      <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded text-green-800 text-sm font-semibold">
+                        ✅ Persistent Identifier (DOI): {generatedDoi}
+                      </div>
+                    )}
+
+                    {currentUserRole.includes('publish') && submission?.status === 'Assigned to Publish' && (
+                       <div className="flex justify-end pt-6 mt-4 border-t border-gray-200">
+                         <button 
+                           onClick={async () => {
+                              const m = await import("@/app/actions/editor");
+                              const res = await m.updateSubmissionStage(submission.id, 'Production', 'Pending Supervisor');
+                              if(res.success) {
+                                showToast("Berhasil dikirim ke Supervisor!");
+                                setTimeout(() => window.location.reload(), 1500);
+                              } else {
+                                showToast("Gagal mengirim.");
+                              }
+                           }}
+                           className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 px-6 rounded shadow-sm text-sm flex items-center gap-2">
+                           Kirim ke Supervisor
+                           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
+                         </button>
+                       </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* 2. Supervisor Dashboard */}
+                <div className="bg-white border border-green-200 rounded-lg p-6 shadow-sm border-t-4 border-t-green-500">
+                  <div className="flex justify-between items-start">
+                    <h3 className="text-xl font-bold text-gray-800 border-b pb-2 mb-4">Supervisor (Pemeriksa Final)</h3>
+                    <span className="px-3 py-1 bg-gray-100 text-gray-800 text-xs font-bold rounded-full border border-gray-200">Pending</span>
+                  </div>
+                  <p className="text-sm text-gray-600 mb-6">Sebagai pintu gerbang terakhir, Supervisor bertugas memvalidasi hasil kerja tim Layout Editor, Cover Editor, dan Publish Editor sebelum naskah benar-benar diterbitkan.</p>
+                    
+                    {/* Admin Produksi Staff */}
+                    <div className="space-y-3 mb-6">
+                        {boardMembers.filter(m => m.jabatan.toLowerCase().includes('admin')).length > 0 ? (
+                          boardMembers.filter(m => m.jabatan.toLowerCase().includes('admin')).map((member, idx) => (
+                            <label key={idx} className="flex items-center space-x-3 p-3 bg-yellow-50 border border-yellow-200 rounded cursor-pointer hover:bg-yellow-100 transition-colors">
+                              <input type="checkbox" className="form-checkbox h-5 w-5 text-[#c9a84c] rounded focus:ring-[#c9a84c]" />
+                              <div className="flex flex-col">
+                                <span className="text-sm text-yellow-900 font-bold">{member.nama}</span>
+                                <span className="text-xs text-yellow-700">{member.jabatan}</span>
+                              </div>
+                            </label>
+                          ))
+                        ) : (
+                          <div className="text-sm text-gray-500 bg-gray-50 p-3 rounded border border-gray-200">
+                            Belum ada Admin Editor di menu Board Editor.
+                          </div>
+                        )}
+                    </div>
+
+                    <div className="pt-4 border-t border-gray-200 space-y-4">
+                      <h4 className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">Checklist Validasi Supervisor</h4>
+                      <label className="flex items-center space-x-3 p-2 hover:bg-gray-50 rounded cursor-pointer border border-transparent hover:border-gray-200">
+                        <input type="checkbox" className="form-checkbox h-4 w-4 text-green-600 rounded" />
+                        <span className="text-xs text-gray-700 font-medium">Validasi Kerja Tim Layout & Cover (Galley PDF sudah sesuai standar)</span>
+                      </label>
+                      <label className="flex items-center space-x-3 p-2 hover:bg-gray-50 rounded cursor-pointer border border-transparent hover:border-gray-200">
+                        <input type="checkbox" className="form-checkbox h-4 w-4 text-green-600 rounded" />
+                        <span className="text-xs text-gray-700 font-medium">Validasi Kerja Publish Editor (DOI dan Metadata sudah aktif)</span>
+                      </label>
+
+                      {/* Tracking Indicators */}
+                      <h4 className="text-xs font-bold text-gray-500 uppercase tracking-widest mt-6 mb-2">Monitor Mesin Indeks (OAI-PMH)</h4>
+                      <div className="flex gap-2">
+                        <div className={`flex-1 flex flex-col items-center justify-center p-2 rounded-lg border transition-all ${generatedDoi ? 'bg-[#A6CE39]/10 border-[#A6CE39]/30 text-[#7ca221]' : 'bg-gray-50 border-gray-200 text-gray-400'}`}>
+                          <span className="text-[10px] font-black uppercase tracking-wider">ORCID</span>
+                          <span className="text-[9px] font-medium mt-1">{generatedDoi ? 'Pushing Data' : 'Menunggu DOI'}</span>
+                        </div>
+                        <div className={`flex-1 flex flex-col items-center justify-center p-2 rounded-lg border transition-all ${generatedDoi ? 'bg-orange-50 border-orange-200 text-orange-700' : 'bg-gray-50 border-gray-200 text-gray-400'}`}>
+                          <span className="text-[10px] font-black uppercase tracking-wider">Scopus</span>
+                          <span className="text-[9px] font-medium mt-1">{generatedDoi ? 'Ready to Sync' : 'Menunggu DOI'}</span>
+                        </div>
+                        <div className={`flex-1 flex flex-col items-center justify-center p-2 rounded-lg border transition-all ${generatedDoi ? 'bg-purple-50 border-purple-200 text-purple-700' : 'bg-gray-50 border-gray-200 text-gray-400'}`}>
+                          <span className="text-[10px] font-black uppercase tracking-wider">WoS</span>
+                          <span className="text-[9px] font-medium mt-1">{generatedDoi ? 'Ready to Sync' : 'Menunggu DOI'}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                  <div className="mt-8 border-t border-gray-200 pt-6">
+                    <button 
+                      onClick={async () => {
+                         const m = await import("@/app/actions/editor");
+                         const res = await m.updateSubmissionStage(submission.id, 'Production', 'Production Completed');
+                         if(res.success) {
+                           showToast("Produksi selesai! Dikembalikan ke Editor.");
+                           setTimeout(() => window.location.reload(), 1500);
+                         } else {
+                           showToast("Gagal memproses.");
+                         }
+                      }}
+                      className={`w-full font-bold py-4 px-6 rounded-lg shadow-sm transition-colors text-base flex justify-center items-center gap-2 ${
+                        submission?.status === 'Pending Supervisor' ? 'bg-green-600 hover:bg-green-700 text-white shadow-green-600/30' : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                      }`}
+                      disabled={submission?.status !== 'Pending Supervisor'}
+                    >
+                      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" /></svg>
+                      {submission?.status === 'Pending Supervisor' ? 'Kembalikan ke Editor (Selesai)' : 'Menunggu Publish Editor'}
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
           )}

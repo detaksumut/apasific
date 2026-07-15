@@ -7,19 +7,69 @@ import { cookies } from "next/headers";
 
 export default async function EditorDashboard() {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  let { data: { user } } = await supabase.auth.getUser();
+
+  // Dual-Auth Check: Fallback to Firebase Cookie if Supabase fails
+  if (!user) {
+    const cookieStore = await cookies();
+    const fbToken = cookieStore.get('firebase_session')?.value;
+    const fallbackUserId = cookieStore.get('supabase_fallback_session')?.value;
+    
+    if (fbToken || fallbackUserId) {
+        try {
+            if (fbToken) {
+               const payloadBase64 = fbToken.split('.')[1];
+               const payload = JSON.parse(Buffer.from(payloadBase64, 'base64').toString());
+               user = { id: payload.uid, email: "editor@firebase.local" } as any;
+            }
+        } catch (e) {
+            console.error("Firebase token verification failed in EditorDashboard", e);
+        }
+        
+        if (!user && fallbackUserId) {
+           user = { id: fallbackUserId, email: "editor@fallback.local" } as any;
+        }
+    }
+  }
 
   if (!user) {
     redirect("/auth/login");
   }
 
-  // Fetch all submissions for the editor
-  const { data: submissions, error } = await supabase
-    .from("submissions")
-    .select("*, journals(name)")
-    .order("created_at", { ascending: false });
-
-  const articles = submissions || [];
+  // Fetch all submissions for the editor (Dual-Database Fallback)
+  let articles: any[] = [];
+  try {
+    const { data: submissions, error } = await supabase
+      .from("submissions")
+      .select("*, journals(name)")
+      .order("created_at", { ascending: false });
+      
+    if (error) throw error;
+    articles = submissions || [];
+  } catch (e) {
+    console.warn("Supabase fetch failed in Editor Dashboard, falling back to Firestore");
+    try {
+      const { getFirestore } = await import('@/utils/firebase/db');
+      const db = getFirestore();
+      const submissionsSnapshot = await db.collection('submissions')
+        .orderBy('created_at', 'desc')
+        .get();
+        
+      articles = submissionsSnapshot.docs.map(doc => {
+          const data = doc.data();
+          return {
+              submission_id: doc.id,
+              id: doc.id,
+              title: data.title,
+              status: data.status,
+              created_at: data.created_at ? data.created_at.toDate() : new Date(),
+              journals: data.journals || { name: 'Unknown Journal' }
+          };
+      });
+    } catch (fbErr) {
+      console.error("Firestore fallback failed", fbErr);
+    }
+  }
   
   const totalArticles = articles.length;
   const pendingReview = articles.filter(a => ['queued', 'Awaiting Reviewers', 'Under Review'].includes(a.status)).length;

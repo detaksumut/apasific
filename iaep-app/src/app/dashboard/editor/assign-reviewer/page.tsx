@@ -7,27 +7,129 @@ import AssignReviewerAction from "@/components/dashboard/AssignReviewerAction";
 
 export default async function AssignReviewerPage() {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  let { data: { user } } = await supabase.auth.getUser();
+
+  // Dual-Auth Check: Fallback to Firebase Cookie if Supabase fails
+  if (!user) {
+    const cookieStore = await cookies();
+    const fbToken = cookieStore.get('firebase_session')?.value;
+    const fallbackUserId = cookieStore.get('supabase_fallback_session')?.value;
+    
+    if (fbToken || fallbackUserId) {
+        try {
+            if (fbToken) {
+               const payloadBase64 = fbToken.split('.')[1];
+               const payload = JSON.parse(Buffer.from(payloadBase64, 'base64').toString());
+               user = { id: payload.uid, email: "editor@firebase.local" } as any;
+            }
+        } catch (e) {
+            console.error("Firebase token verification failed in AssignReviewer", e);
+        }
+        
+        if (!user && fallbackUserId) {
+           user = { id: fallbackUserId, email: "editor@fallback.local" } as any;
+        }
+    }
+  }
 
   if (!user) {
     redirect("/auth/login");
   }
 
   // Fetch articles waiting for reviewers
-  const { data: submissions, error } = await supabase
-    .from("submissions")
-    .select("*, journals(name), profiles:author_id(full_name)")
-    .in("status", ["Awaiting Reviewers", "Under Review"])
-    .order("created_at", { ascending: false });
+  let articles: any[] = [];
+  try {
+    const { data: submissions, error } = await supabase
+      .from("submissions")
+      .select("*, journals(name), profiles:author_id(full_name)")
+      .in("status", ["Awaiting Reviewers", "Pending Reviewer Approval", "Under Review"])
+      .order("created_at", { ascending: false });
+      
+    if (error) {
+       console.warn("Supabase fetch error in AssignReviewer:", error.message);
+    }
+    articles = submissions || [];
+  } catch (e) {
+    console.warn("Supabase fetch exception in AssignReviewer");
+  }
+
+  // Always fetch from Firestore as fallback to merge items that Supabase missed (e.g. Firebase UIDs)
+  try {
+    const { getFirestore } = await import('@/utils/firebase/db');
+    const db = getFirestore();
+    
+    const submissionsSnapshot = await db.collection('submissions')
+      .orderBy('created_at', 'desc')
+      .get();
+      
+    const allowedStatuses = ["Awaiting Reviewers", "Pending Reviewer Approval", "Under Review"];
+    
+    const fbArticles = submissionsSnapshot.docs
+      .map(doc => {
+        const data = doc.data();
+        return {
+            id: doc.id,
+            title: data.title,
+            status: data.status,
+            created_at: data.created_at ? data.created_at.toDate() : new Date(),
+            journals: data.journals || { name: 'Unknown Journal' },
+            profiles: { full_name: 'Author' }
+        };
+      })
+      .filter(article => allowedStatuses.includes(article.status));
+      
+    // Merge Firestore articles that are not in Supabase
+    fbArticles.forEach(fbArt => {
+       if (!articles.find(a => a.id === fbArt.id || a.submission_id === fbArt.id)) {
+           articles.push(fbArt);
+       }
+    });
+    
+    // Re-sort the merged array
+    articles.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+  } catch (fbErr) {
+    console.error("Firestore fallback failed", fbErr);
+  }
 
   // Fetch all reviewers
-  const { data: reviewers } = await supabase
-    .from("profiles")
-    .select("*")
-    .eq("role", "reviewer");
+  let allReviewers: any[] = [];
+  try {
+    const { data: reviewers } = await supabase
+      .from("profiles")
+      .select("*")
+      .eq("role", "reviewer");
+    allReviewers = reviewers || [];
+  } catch (e) {
+    console.warn("Supabase fetch for reviewers failed", e);
+  }
 
-  const articles = submissions || [];
-  const allReviewers = reviewers || [];
+  // Fallback / Merge from local JSON if Supabase is missing reviewers
+  try {
+    const fs = await import('fs');
+    const path = await import('path');
+    const jsonPath = path.join(process.cwd(), 'apasific_registered_users.json');
+    if (fs.existsSync(jsonPath)) {
+      const usersData = JSON.parse(fs.readFileSync(jsonPath, 'utf8'));
+      const jsonReviewers = usersData.filter((u: any) => u.role === 'reviewer');
+      
+      jsonReviewers.forEach((jr: any) => {
+        // Only add if not already in allReviewers (matching by email)
+        if (!allReviewers.find(r => r.email === jr.email)) {
+          allReviewers.push({
+            id: jr.id,
+            full_name: jr.full_name,
+            email: jr.email,
+            role: 'reviewer',
+            academic_field: jr.journal || 'General',
+            university: jr.university,
+            country: jr.country
+          });
+        }
+      });
+    }
+  } catch (err) {
+    console.error("Failed to load fallback reviewers from JSON", err);
+  }
 
   return (
     <div className="max-w-7xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
@@ -76,6 +178,10 @@ export default async function AssignReviewerPage() {
                       {article.status === 'Under Review' ? (
                         <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/20">
                           Sedang Direview
+                        </span>
+                      ) : article.status === 'Pending Reviewer Approval' ? (
+                        <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-purple-500/10 text-purple-400 border border-purple-500/20">
+                          Menunggu Persetujuan
                         </span>
                       ) : (
                         <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/20">

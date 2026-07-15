@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useTransition, useEffect } from "react";
 import { signUpUser } from "@/app/actions/auth";
 
 export type RoleType = "author" | "reviewer" | "editor" | "member";
@@ -33,6 +33,13 @@ export default function RegisterWizard({ availableRoles, defaultRole, forcedRole
     academicLevel: "S1",
     bankAccount: "",
   });
+
+  // Sync forcedRole if it changes after initial render (e.g. from searchParams)
+  useEffect(() => {
+    if (forcedRole && formData.role !== forcedRole) {
+      setFormData(prev => ({ ...prev, role: forcedRole }));
+    }
+  }, [forcedRole]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });

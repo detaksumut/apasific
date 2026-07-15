@@ -7,19 +7,24 @@ export default function Certificates() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const fetchCerts = async () => {
+    const fetchCertificates = async () => {
       try {
         const { createClient } = await import('@/utils/supabase/client');
         const supabase = createClient();
-        const { data: { user } } = await supabase.auth.getUser();
-        if (user) {
-          const { data } = await supabase
+        const { getCurrentUser } = await import('@/app/actions/auth');
+        let user = await getCurrentUser();
+        
+        if (!user) {
+            window.location.href = '/auth/login';
+            return;
+        }
+
+        const { data } = await supabase
             .from('certificates')
             .select('*')
             .eq('user_id', user.id)
             .order('issued_at', { ascending: false });
-          if (data) setCertificates(data);
-        }
+        if (data) setCertificates(data);
       } catch (e) {
         console.error(e);
       } finally {

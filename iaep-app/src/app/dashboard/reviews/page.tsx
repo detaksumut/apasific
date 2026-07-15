@@ -7,7 +7,30 @@ import { cookies } from "next/headers";
 
 export default async function ReviewerDashboard() {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  let { data: { user } } = await supabase.auth.getUser();
+
+  // Dual-Auth Check: Fallback to Firebase Cookie if Supabase fails
+  if (!user) {
+    const cookieStore = await cookies();
+    const fbToken = cookieStore.get('firebase_session')?.value;
+    const fallbackUserId = cookieStore.get('supabase_fallback_session')?.value;
+    
+    if (fbToken || fallbackUserId) {
+        try {
+            if (fbToken) {
+               const payloadBase64 = fbToken.split('.')[1];
+               const payload = JSON.parse(Buffer.from(payloadBase64, 'base64').toString());
+               user = { id: payload.uid, email: "reviewer@firebase.local" } as any;
+            }
+        } catch (e) {
+            console.error("Firebase token verification failed in Reviewer Dashboard", e);
+        }
+        
+        if (!user && fallbackUserId) {
+           user = { id: fallbackUserId, email: "reviewer@fallback.local" } as any;
+        }
+    }
+  }
 
   if (!user) {
     redirect("/auth/login");
@@ -17,14 +40,53 @@ export default async function ReviewerDashboard() {
   // Attempt to fetch review assignments if the table exists
   let assignments: any[] = [];
   try {
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from("review_assignments")
       .select("*, submissions(*, journals(name))")
       .eq("reviewer_id", userId)
       .order("assigned_at", { ascending: false });
+    if (error) throw error;
     if (data) assignments = data;
   } catch (error) {
-    console.error("Error fetching review assignments:", error);
+    console.warn("Supabase fetch review assignments failed, falling back to Firestore");
+    try {
+        const { getFirestore } = await import('@/utils/firebase/db');
+        const db = getFirestore();
+        
+        const assignmentsSnapshot = await db.collection('review_assignments')
+          .where('reviewer_id', '==', userId)
+          .get();
+          
+        for (const doc of assignmentsSnapshot.docs) {
+            const data = doc.data();
+            const assignment: any = {
+                id: doc.id,
+                ...data,
+                assigned_at: data.created_at ? data.created_at.toDate() : new Date(),
+                deadline: data.deadline ? data.deadline.toDate() : null
+            };
+            
+            // fetch submission
+            if (data.submission_id) {
+               const subDoc = await db.collection('submissions').doc(data.submission_id).get();
+               if (subDoc.exists) {
+                   const subData = subDoc.data()!;
+                   assignment.submissions = {
+                       id: subDoc.id,
+                       title: subData.title,
+                       abstract: subData.abstract,
+                       status: subData.status,
+                       journals: subData.journals || { name: 'Jurnal' }
+                   };
+               }
+            }
+            assignments.push(assignment);
+        }
+        
+        assignments.sort((a, b) => new Date(b.assigned_at).getTime() - new Date(a.assigned_at).getTime());
+    } catch (fbErr) {
+        console.error("Firestore fallback failed", fbErr);
+    }
   }
 
   const pendingAssignments = assignments.filter(a => a.status === 'pending');
