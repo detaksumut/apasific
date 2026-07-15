@@ -163,10 +163,14 @@ export async function updateSubmissionStage(submissionId: string, stage: string,
                 .eq('id', submissionId)
                 .single();
             
-            if (sub?.profiles?.phone) {
-                const message = `Halo ${sub.profiles.full_name},\n\nPemberitahuan dari Tim Editorial Asia Index & Metric (APASIFIC).\n\nNaskah Anda yang berjudul:\n"${sub.title}"\n\nTelah selesai ditinjau oleh Reviewer dan *MEMERLUKAN REVISI*. \nSilakan login ke dashboard APASIFIC, masuk ke menu Submisi -> Lacak Proses, untuk membaca catatan revisi dan mengunggah naskah yang telah diperbaiki.\n\nTerima kasih.\nhttps://apasific.org`;
+            const authorProfile = sub?.profiles as any;
+            const phoneNum = Array.isArray(authorProfile) ? authorProfile[0]?.phone : authorProfile?.phone;
+            const fullName = Array.isArray(authorProfile) ? authorProfile[0]?.full_name : authorProfile?.full_name;
+
+            if (phoneNum) {
+                const message = `Halo ${fullName},\n\nPemberitahuan dari Tim Editorial Asia Index & Metric (APASIFIC).\n\nNaskah Anda yang berjudul:\n"${sub?.title}"\n\nTelah selesai ditinjau oleh Reviewer dan *MEMERLUKAN REVISI*. \nSilakan login ke dashboard APASIFIC, masuk ke menu Submisi -> Lacak Proses, untuk membaca catatan revisi dan mengunggah naskah yang telah diperbaiki.\n\nTerima kasih.\nhttps://apasific.org`;
                 const { sendWa } = await import('@/utils/sendWa');
-                await sendWa(sub.profiles.phone, message);
+                await sendWa(phoneNum, message);
             }
         }
 
