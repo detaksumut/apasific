@@ -71,7 +71,7 @@ export async function submitManuscript(formData: FormData) {
       try {
          const { error: profileError } = await supabaseAdmin.from('profiles').upsert({
             id: userId,
-            full_name: user.user_metadata?.full_name || user.email || 'Author',
+            full_name: user?.user_metadata?.full_name || user?.email || 'Author',
             role: 'author'
          }, { onConflict: 'id' });
          
