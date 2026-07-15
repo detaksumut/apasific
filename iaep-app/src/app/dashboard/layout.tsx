@@ -26,7 +26,7 @@ export default async function DashboardLayout({ children }: { children: ReactNod
     if (cookieRole) userRole = cookieRole;
     if (cookieName) userName = decodeURIComponent(cookieName);
 
-    const { data: profile } = await supabase.from('profiles').select('full_name, role').eq('id', user.id).single();
+    const { data: profile } = await supabase.from('profiles').select('full_name, role').eq('id', user!.id).single();
     if (profile) {
       userRole = profile.role || userRole;
       userName = profile.full_name || user.email || userName;
