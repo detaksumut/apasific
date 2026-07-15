@@ -1,29 +1,37 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
-
-const mockJournals = [
-  {
-    id: "iaep",
-    title: "APASIFIC International Academic Exchange Program Journal (IAEP)",
-    issn: "e-ISSN : 2891-9876 | p-ISSN : 2891-5432",
-    publisher: "Association of Asia Pacific Academician",
-    description: "IAEP menerbitkan artikel tinjauan sejawat berkualitas tinggi yang mencakup pendidikan internasional, program pertukaran akademik, studi lintas budaya, dan kebijakan pendidikan global.",
-    impact: "2.10",
-    hIndex: "8",
-    citations: "310",
-    quartile: "Q2",
-    subject: "Pendidikan",
-  }
-];
+import { createClient } from "@/utils/supabase/client";
 
 export default function JournalsRepository() {
+  const [journals, setJournals] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
-  const [filter, setFilter] = useState("Semua");
 
-  const filteredJournals = mockJournals.filter(j => 
-    (filter === "Semua" || j.subject === filter) && 
-    (j.title.toLowerCase().includes(searchTerm.toLowerCase()) || j.publisher.toLowerCase().includes(searchTerm.toLowerCase()))
+  useEffect(() => {
+    async function fetchJournals() {
+      try {
+        const supabase = createClient();
+        const { data, error } = await supabase
+          .from("journals")
+          .select("*")
+          .eq("is_active", true);
+
+        if (error) throw error;
+        setJournals(data || []);
+      } catch (err) {
+        console.error("Gagal memuat jurnal:", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchJournals();
+  }, []);
+
+  const filteredJournals = journals.filter(j => 
+    j.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+    (j.e_issn || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (j.p_issn || "").toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
@@ -32,12 +40,12 @@ export default function JournalsRepository() {
       <section className="hero-section">
         <div className="container">
           <h1 className="hero-title">Repositori <span className="gold">Jurnal ASIA</span></h1>
-          <p className="hero-subtitle">Temukan, baca, dan kutip jurnal ilmiah berdampak tinggi yang terindeks dalam Database Akademik ASIA.</p>
+          <p className="hero-subtitle">Temukan, baca, dan kutip jurnal ilmiah resmi yang terdaftar dalam database Akademik ASIA.</p>
           
           <div className="search-box">
             <input 
               type="text" 
-              placeholder="Cari berdasarkan Judul Jurnal, ISSN, atau Penerbit..." 
+              placeholder="Cari berdasarkan Judul Jurnal atau ISSN..." 
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="search-input"
@@ -54,97 +62,53 @@ export default function JournalsRepository() {
 
       {/* Main Content Area */}
       <section className="main-content">
-        <div className="container layout-grid">
-          
-          {/* Sidebar Filters */}
-          <aside className="sidebar">
-            <div className="filter-widget">
-              <h3 className="widget-title">Bidang Ilmu</h3>
-              <ul className="filter-list">
-                <li>
-                  <button className={`filter-item ${filter === "Semua" ? "active" : ""}`} onClick={() => setFilter("Semua")}>
-                    Semua Bidang <span className="count">2</span>
-                  </button>
-                </li>
-                <li>
-                  <button className={`filter-item ${filter === "Multidisiplin" ? "active" : ""}`} onClick={() => setFilter("Multidisiplin")}>
-                    Multidisiplin <span className="count">1</span>
-                  </button>
-                </li>
-                <li>
-                  <button className={`filter-item ${filter === "Pendidikan" ? "active" : ""}`} onClick={() => setFilter("Pendidikan")}>
-                    Pendidikan <span className="count">1</span>
-                  </button>
-                </li>
-              </ul>
+        <div className="container">
+          {loading ? (
+            <div className="text-center py-20 text-[#c9a84c] font-bold animate-pulse text-lg">
+              Menghubungkan ke database Repositori Jurnal ASIA...
             </div>
-            
-            <div className="filter-widget mt-6">
-              <h3 className="widget-title">Tingkat Kuartil</h3>
-              <div className="tier-grid">
-                <div className="tier-box">Q1</div>
-                <div className="tier-box active">Q2</div>
-                <div className="tier-box active">Q3</div>
-                <div className="tier-box">Q4</div>
+          ) : (
+            <div className="journal-list-container">
+              <div className="list-header mb-8 flex justify-between items-center">
+                <div className="results-count text-gray-400 font-medium">
+                  Menampilkan {filteredJournals.length} Jurnal
+                </div>
               </div>
-            </div>
-          </aside>
 
-          {/* Journal List */}
-          <main className="journal-list">
-            <div className="list-header">
-              <div className="results-count">Menampilkan {filteredJournals.length} Jurnal</div>
-              <div className="sort-box">
-                Urutkan: 
-                <select className="sort-select">
-                  <option>Faktor Dampak</option>
-                  <option>Total Kutipan</option>
-                  <option>A-Z</option>
-                </select>
+              <div className="grid gap-8">
+                {filteredJournals.map(journal => (
+                  <div key={journal.id} className="journal-card">
+                    <div className="jc-left">
+                      <div className="jc-cover">
+                        {journal.name.charAt(0)}
+                      </div>
+                    </div>
+                    <div className="jc-body">
+                      <h2 className="jc-title">{journal.name}</h2>
+                      <div className="jc-meta flex flex-wrap gap-4 mt-2 mb-4 text-sm text-gray-400">
+                        <span className="publisher font-bold text-gray-300">Penerbit: Association of Asia Pacific Academician</span>
+                        {journal.e_issn && <span className="issn bg-zinc-900 px-2 py-0.5 rounded text-gray-400 border border-zinc-800">{journal.e_issn}</span>}
+                        {journal.p_issn && <span className="issn bg-zinc-900 px-2 py-0.5 rounded text-gray-400 border border-zinc-800">{journal.p_issn}</span>}
+                      </div>
+                      <p className="jc-desc text-gray-400 leading-relaxed text-justify">
+                        {journal.description || "Jurnal resmi terbitan Association of Asia Pacific Academician yang menerbitkan artikel ilmiah hasil peninjauan sejawat (peer-review) berkualitas tinggi di bidang sains dan akademik."}
+                      </p>
+                    </div>
+                    <div className="jc-right flex flex-col gap-3 justify-center">
+                      <button className="view-btn" onClick={() => window.location.href = `/journals/${journal.slug}`}>Lihat Artikel</button>
+                      <button className="submit-btn" onClick={() => window.location.href = "/dashboard/submit"}>Kirim Naskah</button>
+                    </div>
+                  </div>
+                ))}
+
+                {filteredJournals.length === 0 && (
+                  <div className="text-center py-20 text-gray-500 bg-[#111120] border border-gray-800 rounded-2xl">
+                    Tidak ada jurnal yang sesuai dengan pencarian Anda.
+                  </div>
+                )}
               </div>
             </div>
-
-            {filteredJournals.map(journal => (
-              <div key={journal.id} className="journal-card">
-                <div className="jc-left">
-                  <div className="jc-cover">
-                    {journal.title.split(" ")[0][0]}
-                  </div>
-                </div>
-                <div className="jc-body">
-                  <h2 className="jc-title">{journal.title}</h2>
-                  <div className="jc-meta">
-                    <span className="publisher">Penerbit: {journal.publisher}</span>
-                    <span className="issn">{journal.issn}</span>
-                  </div>
-                  <p className="jc-desc">{journal.description}</p>
-                  
-                  <div className="jc-metrics">
-                    <div className="metric-pill">
-                      <span className="m-label">Dampak</span>
-                      <span className="m-value">{journal.impact}</span>
-                    </div>
-                    <div className="metric-pill">
-                      <span className="m-label">Indeks-H</span>
-                      <span className="m-value">{journal.hIndex}</span>
-                    </div>
-                    <div className="metric-pill">
-                      <span className="m-label">Kutipan</span>
-                      <span className="m-value">{journal.citations}</span>
-                    </div>
-                    <div className="metric-pill tier">
-                      <span className="m-label">Tingkat</span>
-                      <span className="m-value">{journal.quartile}</span>
-                    </div>
-                  </div>
-                </div>
-                <div className="jc-right">
-                  <button className="view-btn" onClick={() => window.location.href = `/journals/${journal.id}`}>Lihat Artikel</button>
-                  <button className="submit-btn" onClick={() => window.location.href = "/dashboard/submit"}>Kirim Naskah</button>
-                </div>
-              </div>
-            ))}
-          </main>
+          )}
         </div>
       </section>
 
@@ -168,7 +132,7 @@ export default function JournalsRepository() {
         /* Hero */
         .hero-section {
           background: linear-gradient(180deg, #111120 0%, #05050a 100%);
-          padding: 60px 0;
+          padding: 60px 0 40px;
           text-align: center;
           border-bottom: 1px solid rgba(255,255,255,0.05);
         }
@@ -218,226 +182,108 @@ export default function JournalsRepository() {
         }
         .search-btn:hover { background: #b0923d; }
         
-        /* Layout */
-        .layout-grid {
-          display: grid;
-          grid-template-columns: 280px 1fr;
-          gap: 40px;
-          padding: 40px 20px 80px;
-        }
-        @media (max-width: 900px) {
-          .layout-grid { grid-template-columns: 1fr; }
+        /* Main Content */
+        .main-content {
+          padding: 40px 0 80px;
         }
         
-        /* Sidebar */
-        .filter-widget {
-          background: #111120;
-          border: 1px solid rgba(255,255,255,0.05);
-          border-radius: 16px;
-          padding: 25px;
-        }
-        .widget-title {
-          font-size: 16px;
-          font-weight: 700;
-          color: #c9a84c;
-          margin-bottom: 15px;
-          padding-bottom: 10px;
-          border-bottom: 1px solid rgba(255,255,255,0.05);
-        }
-        .filter-list {
-          list-style: none;
-          padding: 0; margin: 0;
-        }
-        .filter-item {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          width: 100%;
-          background: transparent;
-          border: none;
-          color: #8888aa;
-          padding: 10px 0;
-          font-size: 14px;
-          cursor: pointer;
-          transition: color 0.2s;
-          text-align: left;
-        }
-        .filter-item:hover, .filter-item.active {
-          color: #fff;
-        }
-        .filter-item .count {
-          background: rgba(255,255,255,0.05);
-          padding: 2px 8px;
-          border-radius: 12px;
-          font-size: 12px;
-        }
-        .filter-item.active .count {
-          background: rgba(201,168,76,0.15);
-          color: #c9a84c;
-        }
-        .mt-6 { margin-top: 24px; }
-        
-        .tier-grid {
-          display: grid;
-          grid-template-columns: 1fr 1fr;
-          gap: 10px;
-        }
-        .tier-box {
-          background: rgba(255,255,255,0.02);
-          border: 1px solid rgba(255,255,255,0.05);
-          border-radius: 8px;
-          text-align: center;
-          padding: 10px;
-          font-weight: 700;
-          color: #555;
-        }
-        .tier-box.active {
-          background: rgba(201,168,76,0.1);
-          border-color: rgba(201,168,76,0.3);
-          color: #c9a84c;
-        }
-
-        /* List Header */
-        .list-header {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          margin-bottom: 25px;
-          padding-bottom: 15px;
-          border-bottom: 1px solid rgba(255,255,255,0.05);
-        }
-        .results-count {
-          color: #8888aa;
-          font-size: 15px;
-        }
-        .sort-box {
-          color: #8888aa;
-          font-size: 14px;
-        }
-        .sort-select {
-          background: #111120;
-          border: 1px solid rgba(255,255,255,0.1);
-          color: #fff;
-          padding: 5px 10px;
-          border-radius: 6px;
-          margin-left: 10px;
-          outline: none;
-        }
-
         /* Journal Card */
         .journal-card {
           background: #111120;
           border: 1px solid rgba(255,255,255,0.05);
           border-radius: 16px;
-          padding: 25px;
+          padding: 30px;
           display: flex;
-          gap: 25px;
-          margin-bottom: 20px;
-          transition: transform 0.2s, box-shadow 0.2s;
+          gap: 30px;
+          transition: transform 0.3s, border-color 0.3s;
         }
         .journal-card:hover {
-          transform: translateY(-2px);
-          box-shadow: 0 15px 40px rgba(0,0,0,0.6);
-          border-color: rgba(201,168,76,0.2);
+          transform: translateY(-5px);
+          border-color: rgba(201,168,76,0.3);
         }
         
-        .jc-left { flex-shrink: 0; }
+        .jc-left {
+          flex-shrink: 0;
+        }
         .jc-cover {
-          width: 100px;
-          height: 140px;
-          background: linear-gradient(135deg, #18182e 0%, #111120 100%);
+          width: 80px;
+          height: 100px;
+          background: linear-gradient(135deg, #1b1b3a 0%, #0d0d1a 100%);
           border: 1px solid rgba(201,168,76,0.2);
           border-radius: 8px;
           display: flex;
           align-items: center;
           justify-content: center;
-          font-family: 'Cinzel', serif;
-          font-size: 40px;
-          font-weight: 900;
-          color: #c9a84c;
-        }
-
-        .jc-body { flex: 1; }
-        .jc-title {
-          font-size: 20px;
+          font-size: 36px;
           font-weight: 700;
-          margin: 0 0 10px;
+          color: #c9a84c;
+          font-family: 'Cinzel', serif;
+          box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+        
+        .jc-body {
+          flex: 1;
+        }
+        .jc-title {
+          font-size: 22px;
+          font-weight: 700;
           color: #fff;
-          line-height: 1.3;
+          font-family: 'Cinzel', serif;
         }
         .jc-meta {
-          font-size: 13px;
-          color: #8888aa;
-          margin-bottom: 12px;
-          display: flex;
-          flex-wrap: wrap;
-          gap: 15px;
+          margin-bottom: 15px;
         }
-        .publisher { color: #c9a84c; font-weight: 600; }
-        .issn { border-left: 1px solid rgba(255,255,255,0.1); padding-left: 15px; }
-        
         .jc-desc {
-          font-size: 14px;
+          color: #a0a0ba;
+          font-size: 15px;
           line-height: 1.6;
-          color: #aaa;
-          margin-bottom: 20px;
         }
-
-        .jc-metrics {
-          display: flex;
-          gap: 15px;
-          flex-wrap: wrap;
-        }
-        .metric-pill {
-          background: rgba(255,255,255,0.03);
-          border: 1px solid rgba(255,255,255,0.08);
-          border-radius: 8px;
-          padding: 8px 15px;
-          display: flex;
-          flex-direction: column;
-        }
-        .metric-pill.tier {
-          background: rgba(201,168,76,0.1);
-          border-color: rgba(201,168,76,0.3);
-        }
-        .m-label { font-size: 11px; color: #8888aa; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 2px;}
-        .m-value { font-size: 18px; font-weight: 800; color: #fff; }
-        .tier .m-value { color: #c9a84c; }
-
+        
         .jc-right {
-          display: flex;
-          flex-direction: column;
-          gap: 10px;
-          min-width: 150px;
+          flex-shrink: 0;
+          width: 180px;
+        }
+        .view-btn, .submit-btn {
+          width: 100%;
+          padding: 12px 0;
+          border-radius: 8px;
+          font-weight: 700;
+          font-size: 14px;
+          cursor: pointer;
+          transition: all 0.3s;
+          text-align: center;
         }
         .view-btn {
-          background: transparent;
-          border: 1px solid #c9a84c;
-          color: #c9a84c;
-          padding: 12px 20px;
-          border-radius: 8px;
-          font-weight: 600;
-          cursor: pointer;
-          transition: background 0.2s;
+          background: #c9a84c;
+          color: #000;
+          border: none;
         }
-        .view-btn:hover { background: rgba(201,168,76,0.1); }
+        .view-btn:hover { background: #b0923d; }
         
         .submit-btn {
-          background: #c9a84c;
-          border: none;
-          color: #000;
-          padding: 12px 20px;
-          border-radius: 8px;
-          font-weight: 600;
-          cursor: pointer;
-          transition: background 0.2s;
+          background: transparent;
+          color: #c9a84c;
+          border: 1px solid #c9a84c;
         }
-        .submit-btn:hover { background: #b0923d; }
-
+        .submit-btn:hover {
+          background: rgba(201,168,76,0.1);
+        }
+        
         @media (max-width: 768px) {
-          .journal-card { flex-direction: column; }
-          .jc-right { flex-direction: row; }
-          .view-btn, .submit-btn { flex: 1; }
+          .journal-card {
+            flex-direction: column;
+            gap: 20px;
+            padding: 20px;
+          }
+          .jc-right {
+            width: 100%;
+            flex-direction: row;
+          }
+          .jc-cover {
+            width: 60px;
+            height: 80px;
+            font-size: 28px;
+          }
         }
       `}</style>
     </div>
