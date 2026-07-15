@@ -87,8 +87,8 @@ export default async function AuthorDashboard() {
   if (role === 'publish editor') redirect('/dashboard/production/publish');
   if (role === 'admin editor') redirect('/dashboard/production/supervisor');
   if (role === 'supervisor') redirect('/dashboard/production/supervisor');
-  if (role === 'editor' && !activePortalRole) redirect('/dashboard/editor');
-  if (role === 'admin' && !activePortalRole) redirect('/dashboard/admin');
+  if (role === 'editor') redirect('/dashboard/editor');
+  if (role === 'admin') redirect('/dashboard/admin');
 
   // 3. Dual-Database Submissions Fetch: Try Supabase, fallback to Firestore
   let articles: any[] = [];
