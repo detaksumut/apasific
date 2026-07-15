@@ -34,6 +34,8 @@ export default function ArticlePaywall() {
     cover_file_url: ""
   });
 
+  const [errorMessage, setErrorMessage] = useState("");
+
   useEffect(() => {
     if (!id || id === '1045') {
       setLoading(false);
@@ -65,9 +67,12 @@ export default function ArticlePaywall() {
             downloads: 0,
             cover_file_url: data.cover_file_url || ""
           });
+        } else {
+          setErrorMessage(res.error || "Artikel tidak terdaftar atau belum dipublikasikan secara publik.");
         }
-      } catch (e) {
+      } catch (e: any) {
         console.error(e);
+        setErrorMessage(e.message || "Failed to load article");
       } finally {
         setLoading(false);
       }
@@ -155,7 +160,9 @@ export default function ArticlePaywall() {
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
           </svg>
           <h2 className="text-2xl font-bold text-white mb-2">Artikel Tidak Ditemukan</h2>
-          <p className="text-gray-400 text-sm mb-6 leading-relaxed">Artikel yang Anda cari tidak terdaftar atau belum dipublikasikan secara publik.</p>
+          <p className="text-gray-400 text-sm mb-6 leading-relaxed">
+            {errorMessage || "Artikel yang Anda cari tidak terdaftar atau belum dipublikasikan secara publik."}
+          </p>
           <button onClick={() => window.history.back()} className="bg-[#c9a84c] text-black font-bold py-2 px-6 rounded-lg hover:bg-[#e8c97a] transition-all transform hover:scale-105">
             Kembali
           </button>

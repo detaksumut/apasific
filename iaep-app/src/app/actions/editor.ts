@@ -667,8 +667,9 @@ export async function getPublishedArticleDetails(articleId: string) {
                         journals: { name: journalName }
                     };
                 }
-            } catch (e) {
+            } catch (e: any) {
                 console.warn("Firestore fetch failed", e);
+                return { success: false, error: `Firestore fetch error: ${e.message}` };
             }
         }
 
