@@ -18,7 +18,7 @@ export default function AssignReviewerAction({ article, reviewers }: { article: 
     setIsAssigning(reviewer.id);
     
     try {
-      const res = await assignReviewerActionFunc(article.id, reviewer);
+      const res = await assignReviewerActionFunc(article.id, reviewer) as any;
       if (!res.success) {
         throw new Error(res.error || "Failed to assign reviewer");
       }
