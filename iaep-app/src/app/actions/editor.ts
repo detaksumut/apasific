@@ -598,14 +598,14 @@ export async function getUserCertificates(userId: string) {
           }
           const snapshot = await query.get();
           const existingIds = new Set(certList.map(c => c.id || c.reference_id));
-          const fbCerts = snapshot.docs.map(doc => {
+           const fbCerts = snapshot.docs.map((doc: any) => {
             const data = doc.data();
             return {
               id: doc.id,
               ...data,
               created_at: data.created_at?.toDate ? data.created_at.toDate() : data.created_at || new Date()
             };
-          }).filter(c => !existingIds.has(c.id));
+          }).filter((c: any) => !existingIds.has(c.id));
           certList = [...certList, ...fbCerts];
         } catch (fbErr) {
           console.error("Firestore certificates fetch failed", fbErr);
@@ -721,14 +721,14 @@ export async function getPublishedArticles(journalId?: string) {
           }
           const snapshot = await query.get();
           const existingIds = new Set(articlesList.map(a => a.id || a.submission_id));
-          const fbArticles = snapshot.docs.map(doc => {
+           const fbArticles = snapshot.docs.map((doc: any) => {
             const data = doc.data();
             return {
               id: doc.id,
               ...data,
               created_at: data.created_at?.toDate ? data.created_at.toDate().toISOString() : data.created_at || new Date().toISOString()
             };
-          }).filter(c => !existingIds.has(c.id));
+          }).filter((c: any) => !existingIds.has(c.id));
           articlesList = [...articlesList, ...fbArticles];
         } catch (fbErr) {
           console.error("Firestore published articles fetch failed", fbErr);
