@@ -2,44 +2,36 @@ import { ReactNode } from "react";
 import Sidebar from "@/components/dashboard/Sidebar";
 import Topbar from "@/components/dashboard/Topbar";
 import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 import { createClient } from "@/utils/supabase/server";
 
 export default async function DashboardLayout({ children }: { children: ReactNode }) {
   let userRole = "author";
   let userName = "User";
 
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  // If not logged in, redirect to login page
+  if (!user) {
+    redirect("/auth/login");
+  }
+
   try {
-    const supabase = await createClient();
-    const { data: { user } } = await supabase.auth.getUser();
-
-    if (!user) {
-      const { redirect } = require("next/navigation");
-      redirect("/auth/login");
-    }
-
     const cookieStore = await cookies();
-    
-    // Read fallback cookies if they exist
     const cookieRole = cookieStore.get('user_role')?.value;
     const cookieName = cookieStore.get('user_name')?.value;
-    
     if (cookieRole) userRole = cookieRole;
     if (cookieName) userName = decodeURIComponent(cookieName);
 
-    const { data: profile } = await supabase.from('profiles').select('full_name, role').eq('id', user!.id).single();
+    const { data: profile } = await supabase.from('profiles').select('full_name, role').eq('id', user.id).single();
     if (profile) {
       userRole = profile.role || userRole;
-      userName = profile.full_name || user!.email || userName;
+      userName = profile.full_name || user.email || userName;
     } else {
-      userName = user!.user_metadata?.full_name || user!.email || userName;
+      userName = user.user_metadata?.full_name || user.email || userName;
     }
-
-    // No portal switching — 1 ID = 1 role only
-
-  } catch (e: any) {
-    if (e.message === 'NEXT_REDIRECT') {
-      throw e;
-    }
+  } catch {
     console.log("Using fallback dashboard data");
   }
 
