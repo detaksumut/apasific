@@ -12,7 +12,16 @@ export default function Sidebar({ role }: SidebarProps) {
   const commonLinks = [
     {
       label: "Ringkasan",
-      path: "/dashboard",
+      path: (() => {
+        const r = (role || '').toLowerCase();
+        if (r === 'editor') return '/dashboard/editor';
+        if (r === 'admin editor') return '/dashboard/production/supervisor';
+        if (r === 'admin' || r === 'superadmin' || r === 'super_admin') return '/dashboard/admin';
+        if (r === 'layout editor') return '/dashboard/production/layout';
+        if (r === 'cover editor') return '/dashboard/production/cover';
+        if (r === 'publish editor') return '/dashboard/production/publish';
+        return '/dashboard';
+      })(),
       icon: (
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
           <rect x="3" y="3" width="7" height="7" rx="1.5" /><rect x="14" y="3" width="7" height="7" rx="1.5" />
@@ -160,15 +169,6 @@ export default function Sidebar({ role }: SidebarProps) {
         </svg>
       ),
     },
-    {
-      label: "Generate Cover & Publikasi",
-      path: "/dashboard/editor/publications",
-      icon: (
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z" /><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z" />
-        </svg>
-      ),
-    },
   ];
 
   const productionLinks = [
@@ -201,7 +201,7 @@ export default function Sidebar({ role }: SidebarProps) {
     },
     {
       label: "Supervisor",
-      path: "/dashboard/production/admin",
+      path: "/dashboard/production/supervisor",
       icon: (
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
           <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
@@ -439,15 +439,15 @@ export default function Sidebar({ role }: SidebarProps) {
           </>
         )}
 
-        {(normalizedRole === "editor" || normalizedRole === "superadmin" || normalizedRole === "layout editor" || normalizedRole === "cover editor" || normalizedRole === "publish editor" || normalizedRole === "supervisor") && (
+        {(normalizedRole === "superadmin" || normalizedRole === "layout editor" || normalizedRole === "cover editor" || normalizedRole === "publish editor" || normalizedRole === "supervisor" || normalizedRole === "admin editor") && (
           <>
             <div className="sidebar-section-label" style={{ marginTop: 24 }}>Menu Produksi</div>
             {productionLinks.filter((link) => {
-               if (normalizedRole === "superadmin" || normalizedRole === "editor") return true;
+               if (normalizedRole === "superadmin") return true;
                if (normalizedRole === "layout editor" && link.label === "Layout Editor") return true;
                if (normalizedRole === "cover editor" && link.label === "Cover Editor") return true;
                if (normalizedRole === "publish editor" && link.label === "Publish Editor") return true;
-               if (normalizedRole === "supervisor" && link.label === "Supervisor") return true;
+               if ((normalizedRole === "supervisor" || normalizedRole === "admin editor") && link.label === "Supervisor") return true;
                return false;
             }).map((link) => (
               <NavLink key={link.path} link={link} />

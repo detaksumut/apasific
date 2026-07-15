@@ -4,18 +4,6 @@ import Link from "next/link";
 
 const mockJournals = [
   {
-    id: "rjrakp",
-    title: "Rumah Jurnal Riset, Analisis dan Keadilan Publik (RJRAKP)",
-    issn: "e-ISSN : 2987-1234 | p-ISSN : 2987-5678",
-    publisher: "Association of Asia Pacific Academician",
-    description: "RJRAKP berfokus pada penelitian multidisiplin, mempromosikan mobilitas akademik, dan menyediakan platform untuk wacana ilmiah kritis di seluruh wilayah Asia Pasifik.",
-    impact: "1.25",
-    hIndex: "5",
-    citations: "142",
-    quartile: "Q3",
-    subject: "Multidisiplin",
-  },
-  {
     id: "iaep",
     title: "APASIFIC International Academic Exchange Program Journal (IAEP)",
     issn: "e-ISSN : 2891-9876 | p-ISSN : 2891-5432",
@@ -151,7 +139,7 @@ export default function JournalsRepository() {
                   </div>
                 </div>
                 <div className="jc-right">
-                  <button className="view-btn" onClick={() => window.location.href = "/journals/rjrakp"}>Lihat Artikel</button>
+                  <button className="view-btn" onClick={() => window.location.href = `/journals/${journal.id}`}>Lihat Artikel</button>
                   <button className="submit-btn" onClick={() => window.location.href = "/dashboard/submit"}>Kirim Naskah</button>
                 </div>
               </div>

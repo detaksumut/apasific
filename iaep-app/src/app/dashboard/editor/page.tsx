@@ -36,40 +36,53 @@ export default async function EditorDashboard() {
     redirect("/auth/login");
   }
 
-  // Fetch all submissions for the editor (Dual-Database Fallback)
+  // Fetch all submissions for the editor (Dual-Database: Supabase + Firestore merged)
   let articles: any[] = [];
+  
+  // 1. Try Supabase
   try {
-    const { data: submissions, error } = await supabase
+    const { data: submissions } = await supabase
       .from("submissions")
       .select("*, journals(name)")
       .order("created_at", { ascending: false });
-      
-    if (error) throw error;
-    articles = submissions || [];
-  } catch (e) {
-    console.warn("Supabase fetch failed in Editor Dashboard, falling back to Firestore");
-    try {
-      const { getFirestore } = await import('@/utils/firebase/db');
-      const db = getFirestore();
-      const submissionsSnapshot = await db.collection('submissions')
-        .orderBy('created_at', 'desc')
-        .get();
-        
-      articles = submissionsSnapshot.docs.map(doc => {
-          const data = doc.data();
-          return {
-              submission_id: doc.id,
-              id: doc.id,
-              title: data.title,
-              status: data.status,
-              created_at: data.created_at ? data.created_at.toDate() : new Date(),
-              journals: data.journals || { name: 'Unknown Journal' }
-          };
-      });
-    } catch (fbErr) {
-      console.error("Firestore fallback failed", fbErr);
+    if (submissions && submissions.length > 0) {
+      articles = [...submissions];
     }
+  } catch (e) {
+    console.warn("Supabase fetch failed in Editor Dashboard");
   }
+
+  // 2. Always also query Firestore and merge (avoid duplicates)
+  try {
+    const { getFirestore } = await import('@/utils/firebase/db');
+    const db = getFirestore();
+    const submissionsSnapshot = await db.collection('submissions')
+      .orderBy('created_at', 'desc')
+      .get();
+    const existingIds = new Set(articles.map(a => a.id));
+    const fbArticles = submissionsSnapshot.docs
+      .map(doc => {
+        const data = doc.data();
+        return {
+          submission_id: doc.id,
+          id: doc.id,
+          title: data.title,
+          status: data.status,
+          stage: data.stage,
+          created_at: data.created_at ? data.created_at.toDate() : new Date(),
+          journals: data.journals || { name: 'Unknown Journal' }
+        };
+      })
+      .filter(a => !existingIds.has(a.id));
+    articles = [...articles, ...fbArticles];
+  } catch (fbErr) {
+    console.error("Firestore fetch failed in Editor Dashboard", fbErr);
+  }
+
+  // Sort merged results by created_at desc
+  articles.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+
+
   
   const totalArticles = articles.length;
   const pendingReview = articles.filter(a => ['queued', 'Awaiting Reviewers', 'Under Review'].includes(a.status)).length;

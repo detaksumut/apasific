@@ -37,7 +37,7 @@ export default async function PublishEditorDashboard() {
       .from("submissions")
       .select("*, journals(name), profiles:author_id(full_name)")
       .eq("stage", "Production")
-      .eq("status", "Assigned to Publish")
+      .in("status", ["Assigned to Publish", "Pending Supervisor", "Published"])
       .order("created_at", { ascending: false });
     
     if (submissions && submissions.length > 0) {
@@ -62,7 +62,7 @@ export default async function PublishEditorDashboard() {
           journals: data.journals || { name: 'Unknown Journal' },
           profiles: { full_name: data.author || 'Author' }
       };
-    }).filter(article => article.stage === "Production" && article.status === "Assigned to Publish");
+    }).filter(article => article.stage === "Production" && ["Assigned to Publish", "Pending Supervisor", "Published"].includes(article.status));
     
     // Merge avoiding duplicates if any
     const existingIds = new Set(articles.map(a => a.id));
@@ -110,9 +110,15 @@ export default async function PublishEditorDashboard() {
                       <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-zinc-800 text-zinc-300 border border-zinc-700">
                         {article.journals?.name || "Jurnal"}
                       </span>
-                      <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-500 border border-amber-500/20">
-                        Menunggu DOI
-                      </span>
+                      {article.status === 'Assigned to Publish' ? (
+                        <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-500 border border-amber-500/20">
+                          Menunggu Proses
+                        </span>
+                      ) : (
+                        <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
+                          Selesai (Di Supervisor)
+                        </span>
+                      )}
                     </div>
                     <h3 className="text-lg font-semibold text-white group-hover:text-amber-500 transition-colors line-clamp-1">
                       {article.title}
@@ -120,8 +126,8 @@ export default async function PublishEditorDashboard() {
                   </div>
                   
                   <div className="shrink-0">
-                    <Link href={`/dashboard/editor/submissions/${article.id}?tab=production`} className="bg-amber-600 hover:bg-amber-500 text-white font-bold py-2 px-4 rounded text-sm flex items-center gap-2 transition-colors">
-                      Proses Integrasi API
+                    <Link href={`/dashboard/editor/submissions/${article.id}?tab=production`} className={`font-bold py-2 px-4 rounded text-sm flex items-center gap-2 transition-colors ${article.status === 'Assigned to Publish' ? 'bg-amber-600 hover:bg-amber-500 text-white' : 'bg-zinc-800 hover:bg-zinc-700 text-zinc-300'}`}>
+                      {article.status === 'Assigned to Publish' ? 'Proses Integrasi API' : 'Lihat Arsip Naskah'}
                       <ArrowRight className="w-4 h-4" />
                     </Link>
                   </div>

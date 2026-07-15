@@ -3,9 +3,10 @@ import { useState, useRef, useEffect } from 'react';
 
 interface CoverGeneratorProps {
   submission: any;
+  generatedDoi?: string;
 }
 
-export default function CoverGenerator({ submission }: CoverGeneratorProps) {
+export default function CoverGenerator({ submission, generatedDoi }: CoverGeneratorProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [theme, setTheme] = useState<'blue' | 'red' | 'gold'>('blue');
   const [customBgUrl, setCustomBgUrl] = useState<string | null>(null);
@@ -210,10 +211,14 @@ export default function CoverGenerator({ submission }: CoverGeneratorProps) {
     wrapText(ctx, `Judul: ${displayTitle}`, tableX + 25, tableY + headerHeight + 85, (tableWidth * 0.65) - 50, 32);
 
     // Right Body Text (DOI)
-    ctx.textAlign = 'center';
+    ctx.textAlign = 'left';
     ctx.fillStyle = theme === 'gold' ? '#000' : '#fff';
     ctx.font = 'bold 28px Arial, sans-serif';
-    ctx.fillText("DOI: ______________", dividerX + (tableWidth * 0.35) / 2, tableY + headerHeight + (bodyHeight / 2) + 10);
+    if (generatedDoi) {
+      ctx.fillText(`DOI: ${generatedDoi}`, dividerX + 30, tableY + headerHeight + (bodyHeight / 2) + 10);
+    } else {
+      ctx.fillText("DOI: ______________", dividerX + 30, tableY + headerHeight + (bodyHeight / 2) + 10);
+    }
 
     // Reset textAlign
     ctx.textAlign = 'center';
@@ -231,7 +236,7 @@ export default function CoverGenerator({ submission }: CoverGeneratorProps) {
 
   useEffect(() => {
     drawCover();
-  }, [title, author, journalName, theme, scope, customBgUrl]);
+  }, [title, author, journalName, theme, scope, customBgUrl, generatedDoi]);
 
   const attachCover = () => {
     const canvas = canvasRef.current;
@@ -257,7 +262,6 @@ export default function CoverGenerator({ submission }: CoverGeneratorProps) {
         const data = await res.json();
         if (data.success) {
            alert("Berhasil! Cover telah dibajukan / dilampirkan ke naskah ini.");
-           window.location.reload();
         } else {
            alert("Gagal melampirkan cover: " + data.error);
         }

@@ -9,8 +9,6 @@ export default function Certificates() {
   useEffect(() => {
     const fetchCertificates = async () => {
       try {
-        const { createClient } = await import('@/utils/supabase/client');
-        const supabase = createClient();
         const { getCurrentUser } = await import('@/app/actions/auth');
         let user = await getCurrentUser();
         
@@ -19,20 +17,20 @@ export default function Certificates() {
             return;
         }
 
-        const { data } = await supabase
-            .from('certificates')
-            .select('*')
-            .eq('user_id', user.id)
-            .order('issued_at', { ascending: false });
-        if (data) setCertificates(data);
+        const { getUserCertificates } = await import('@/app/actions/editor');
+        const res = await getUserCertificates(user.id);
+        if (res.success && res.certificates) {
+          setCertificates(res.certificates);
+        }
       } catch (e) {
-        console.error(e);
+        console.error("Failed to load certificates", e);
       } finally {
         setIsLoading(false);
       }
     };
-    fetchCerts();
+    fetchCertificates();
   }, []);
+
 
   return (
     <div className="max-w-6xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-700 pb-20">

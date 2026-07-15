@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { publishArticleToZenodo, ZenodoMetadata } from "@/utils/zenodo";
-import { getSubmissionDetailsEditor } from "@/app/actions/editor";
+import { getSubmissionDetailsEditor, updateIssn, updateDoi } from "@/app/actions/editor";
 import { createClient } from "@/utils/supabase/client";
 import CoverGenerator from "@/components/dashboard/CoverGenerator";
 
@@ -22,6 +22,7 @@ export default function SubmissionControlPanel() {
   const [toastMessage, setToastMessage] = useState("");
   const [isPublishingZenodo, setIsPublishingZenodo] = useState(false);
   const [generatedDoi, setGeneratedDoi] = useState("");
+  const [manualIssn, setManualIssn] = useState("");
   const [reviews, setReviews] = useState<any[]>([]);
   const [availableReviewers, setAvailableReviewers] = useState<any[]>([]);
   const [isUploadingRevised, setIsUploadingRevised] = useState(false);
@@ -64,6 +65,7 @@ export default function SubmissionControlPanel() {
           journals: data.journals
         });
         if (data.doi) setGeneratedDoi(data.doi);
+        if (data.issn) setManualIssn(data.issn);
         
         // Auto set active tab based on stage
         if (data.stage === 'Review') setActiveTab('review');
@@ -131,6 +133,23 @@ export default function SubmissionControlPanel() {
     setEmailText(prev => prev.split('Our decision is:')[0] + 'Our decision is: ' + decisionText + '\n\nEditor-in-Chief');
   };
 
+  const handleSaveIssn = async () => {
+    if (!manualIssn.trim()) {
+      showToast("ISSN tidak boleh kosong");
+      return;
+    }
+    
+    try {
+      const res = await updateIssn(submission.id, manualIssn);
+      if (!res.success) throw new Error(res.error);
+      
+      showToast("ISSN berhasil disimpan!");
+    } catch (err: any) {
+      console.error(err);
+      showToast("ISSN gagal disimpan: " + err.message);
+    }
+  };
+
   const handlePublishToZenodo = async () => {
     setIsPublishingZenodo(true);
     showToast("Publishing to Zenodo... Please wait.");
@@ -156,14 +175,8 @@ export default function SubmissionControlPanel() {
         throw new Error(result.error);
       }
 
-      // Update Supabase with the new DOI
-      const supabase = createClient();
-      const { error: updateErr } = await supabase
-        .from('submissions')
-        .update({ doi: result.doi, zenodo_id: result.deposition?.id })
-        .eq('id', submission.id);
-
-      if (updateErr) throw updateErr;
+      const updateRes = await updateDoi(submission.id, result.doi, result.deposition?.id);
+      if (!updateRes.success) throw new Error("Failed to update database: " + updateRes.error);
 
       setGeneratedDoi(result.doi);
       showToast(`Successfully published to Zenodo! DOI: ${result.doi}`);
@@ -823,7 +836,7 @@ export default function SubmissionControlPanel() {
                                   const res = await m.updateSubmissionStage(submission.id, 'Copyediting', 'Assigned to Cover');
                                   if(res.success) {
                                     showToast("Berhasil dikirim ke Cover Editor!");
-                                    setTimeout(() => window.location.reload(), 1500);
+                                    setTimeout(() => window.location.href = '/dashboard/production/layout', 1500);
                                   } else {
                                     showToast("Gagal mengirim.");
                                   }
@@ -841,7 +854,32 @@ export default function SubmissionControlPanel() {
                                 <svg className="w-5 h-5 text-[#c9a84c]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
                                 Cover Generator
                              </h4>
-                             <CoverGenerator submission={submission} />
+                             <CoverGenerator submission={submission} generatedDoi={generatedDoi || submission.doi} />
+                             
+                             {submission?.status === 'Assigned to Cover' && (
+                               <div className="mt-6 p-4 bg-yellow-50/50 border border-yellow-100 rounded-xl flex items-center justify-between">
+                                 <div>
+                                   <h5 className="font-bold text-yellow-900 text-sm">Tugas Cover Selesai?</h5>
+                                   <p className="text-xs text-yellow-700 mt-1">Lanjutkan naskah ini ke Publish Editor untuk publikasi dan metadata (DOI).</p>
+                                 </div>
+                                 <button 
+                                   onClick={async () => {
+                                      const m = await import("@/app/actions/editor");
+                                      // Publish Editor is in the Production tab
+                                      const res = await m.updateSubmissionStage(submission.id, 'Production', 'Assigned to Publish');
+                                      if(res.success) {
+                                        showToast("Berhasil dikirim ke Publish Editor!");
+                                        setTimeout(() => window.location.href = '/dashboard/production/cover', 1500);
+                                      } else {
+                                        showToast("Gagal mengirim.");
+                                      }
+                                   }}
+                                   className="bg-[#c9a84c] hover:bg-yellow-600 text-white font-bold py-2.5 px-6 rounded-lg shadow-md hover:shadow-lg transition-all text-sm flex items-center gap-2">
+                                   Kirim ke Publish Editor
+                                   <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
+                                 </button>
+                               </div>
+                             )}
                            </div>
                         )}
                       </div>
@@ -856,178 +894,413 @@ export default function SubmissionControlPanel() {
           )}
           {activeTab === 'production' && (
             <div className="py-8 space-y-8">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                {/* 1. Publish Editor Dashboard */}
-                <div className="bg-white border border-blue-200 rounded-lg p-6 shadow-sm border-t-4 border-t-blue-500">
-                  <h3 className="text-xl font-bold text-gray-800 border-b pb-2 mb-4">Publish Editor</h3>
-                  <p className="text-sm text-gray-600 mb-6">Bertanggung jawab atas metadata, integrasi identifier (DOI), pengecekan similarity akhir, dan sinkronisasi mesin indeks eksternal.</p>
-                  
-                  {/* Publish Editor Staff */}
-                  <div className="space-y-3 mb-6">
-                      {boardMembers.filter(m => m.jabatan.toLowerCase().includes('publish') || m.jabatan.toLowerCase().includes('editor') && !m.jabatan.toLowerCase().includes('layout') && !m.jabatan.toLowerCase().includes('copy') && !m.jabatan.toLowerCase().includes('in chief')).length > 0 ? (
-                        boardMembers.filter(m => m.jabatan.toLowerCase().includes('publish') || m.jabatan.toLowerCase().includes('editor') && !m.jabatan.toLowerCase().includes('layout') && !m.jabatan.toLowerCase().includes('copy') && !m.jabatan.toLowerCase().includes('in chief')).map((member, idx) => (
-                          <label key={idx} className="flex items-center space-x-3 p-3 bg-blue-50 border border-blue-100 rounded cursor-pointer hover:bg-blue-100 transition-colors">
-                            <input type="checkbox" className="form-checkbox h-5 w-5 text-blue-600 rounded focus:ring-blue-500" />
-                            <div className="flex flex-col">
-                              <span className="text-sm text-blue-900 font-bold">{member.nama}</span>
-                              <span className="text-xs text-blue-700">{member.jabatan}</span>
-                            </div>
-                          </label>
-                        ))
+              {(submission?.status === 'Production Completed' || submission?.status === 'Published') ? (
+                <div className="bg-[#0b0c10]/60 border border-zinc-800 rounded-2xl p-8 shadow-2xl backdrop-blur-md">
+                  <div className="flex flex-col md:flex-row justify-between items-start md:items-center border-b border-zinc-800 pb-6 mb-8 gap-4">
+                    <div>
+                      <h3 className="text-2xl font-bold text-white font-serif">Penerbitan & Publikasi Jurnal</h3>
+                      <p className="text-sm text-zinc-400 mt-1">Langkah akhir untuk mempublikasikan artikel secara resmi ke publik dan menerbitkan sertifikat penulis.</p>
+                    </div>
+                    <span className={`px-4 py-2 text-xs font-bold rounded-full border uppercase tracking-wider ${
+                      submission?.status === 'Published' 
+                        ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/25' 
+                        : 'bg-amber-500/10 text-amber-400 border-amber-500/25'
+                    }`}>
+                      {submission?.status === 'Published' ? '✓ Diterbitkan (Published)' : '● Siap Terbit (Production Completed)'}
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                    {/* Left: Cover Display */}
+                    <div className="lg:col-span-5 flex flex-col items-center">
+                      <h4 className="text-xs font-bold text-zinc-500 uppercase tracking-widest mb-4 w-full">Sampul Depan (Cover)</h4>
+                      {submission?.cover_file_url ? (
+                        <div className="border border-zinc-800 rounded-xl overflow-hidden shadow-2xl max-w-sm w-full relative" style={{ containerType: 'inline-size' }}>
+                          <img src={submission.cover_file_url} alt="Cover Naskah" className="w-full h-auto object-contain relative z-0" />
+                          {(submission.doi || generatedDoi) && (
+                            <a 
+                              href={(() => {
+                                const doiVal = submission.doi || generatedDoi;
+                                if (doiVal.includes('zenodo.')) {
+                                  const zenodoId = doiVal.split('zenodo.')[1];
+                                  return `https://zenodo.org/records/${zenodoId}`;
+                                }
+                                return `https://doi.org/${doiVal}`;
+                              })()}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="absolute z-10 font-bold flex items-center hover:underline hover:text-emerald-300 transition-colors" 
+                              style={{
+                                top: (() => {
+                                  const displayTitle = (submission.title || 'Untitled Article').split(':')[0].trim();
+                                  const words = displayTitle.split(' ');
+                                  let lines = 1;
+                                  let currentLineLength = 0;
+                                  for (let word of words) {
+                                    if (currentLineLength + word.length > 28 && currentLineLength > 0) {
+                                      lines++;
+                                      currentLineLength = word.length + 1;
+                                    } else {
+                                      currentLineLength += word.length + 1;
+                                    }
+                                  }
+                                  const endY = 460 + (lines - 1) * 85;
+                                  const tableY = endY + 140;
+                                  const cellTop = tableY + 55; // Header height is 55
+                                  return `calc(${(cellTop / 1754) * 100}% + 2px)`;
+                                })(),
+                                left: 'calc(62.096% + 2px)', // Right of divider (770/1240)
+                                width: 'calc(28.225% - 4px)', // Cell width (350/1240)
+                                height: 'calc(8.266% - 4px)', // Cell height (145/1754)
+                                backgroundColor: '#1b263b', // Matches the blue theme table body
+                                fontSize: '1.75cqw',
+                                whiteSpace: 'nowrap',
+                                color: '#fff',
+                                paddingLeft: '0.5cqw',
+                                textDecoration: 'none'
+                              }}
+                            >
+                              DOI: {submission.doi || generatedDoi}
+                            </a>
+                          )}
+                        </div>
                       ) : (
-                        <div className="text-sm text-gray-500 bg-gray-50 p-3 rounded border border-gray-200">
-                          Belum ada Publish Editor di menu Board Editor.
+                        <div className="border-2 border-dashed border-zinc-800 rounded-2xl p-12 w-full flex flex-col items-center justify-center text-center bg-zinc-900/30 text-zinc-500">
+                          <svg className="w-12 h-12 text-zinc-600 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                          <span className="text-sm font-semibold">Cover belum diunggah oleh Cover Editor</span>
                         </div>
                       )}
-                  </div>
-
-                  {/* Publish Editor Tools */}
-                  <div className="pt-4 border-t border-gray-200 space-y-4">
-                    <h4 className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">Alur Publikasi (Integrasi & API)</h4>
-                    
-                    <div className="flex items-center justify-between p-3 bg-gray-50 border border-gray-200 rounded">
-                      <span className="text-sm font-semibold text-gray-700">Skor Plagiasi Akhir (Turnitin)</span>
-                      <span className="text-xs bg-gray-200 text-gray-600 px-2 py-1 rounded font-bold">N/A</span>
                     </div>
 
-                    <div className="flex flex-col gap-3 mt-4">
-                      <button 
-                        onClick={handlePublishToZenodo}
-                        disabled={isPublishingZenodo || !!generatedDoi}
-                        className={`font-bold py-3 px-4 rounded transition-colors flex justify-center items-center gap-2 ${
-                          !generatedDoi
-                            ? 'bg-[#1a1a2e] text-white hover:bg-[#252542]'
-                            : 'bg-gray-100 text-gray-400 border border-gray-200 cursor-not-allowed'
-                        }`}
-                      >
-                        {isPublishingZenodo ? (
-                          <svg className="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
-                        ) : (
-                          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
-                        )}
-                        {isPublishingZenodo ? 'Menyambungkan ke API...' : (generatedDoi ? 'Telah Diterbitkan (DOI Active)' : 'Terbitkan Metadata & Generate DOI')}
-                      </button>
-
-                      <button 
-                        disabled={!generatedDoi}
-                        className={`font-bold py-3 px-4 rounded transition-colors flex justify-center items-center gap-2 ${
-                          generatedDoi 
-                            ? 'bg-amber-50 text-amber-700 hover:bg-amber-100 border border-amber-200' 
-                            : 'bg-gray-50 text-gray-400 border border-gray-200 cursor-not-allowed'
-                        }`}
-                      >
-                        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
-                        Download XML Crossref
-                      </button>
-                    </div>
-
-                    {generatedDoi && (
-                      <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded text-green-800 text-sm font-semibold">
-                        ✅ Persistent Identifier (DOI): {generatedDoi}
+                    {/* Right: Final Actions */}
+                    <div className="lg:col-span-7 space-y-6">
+                      <div className="bg-zinc-900/40 p-6 rounded-xl border border-zinc-800/80 space-y-4">
+                        <h5 className="text-xs font-bold text-zinc-400 uppercase tracking-wider">Metadata Penerbitan</h5>
+                        <div className="grid grid-cols-2 gap-6 text-sm">
+                          <div>
+                            <span className="text-zinc-500 block text-xs uppercase font-semibold">Jurnal</span>
+                            <span className="font-semibold text-zinc-200">{submission?.journals?.name || '-'}</span>
+                          </div>
+                          <div>
+                            <span className="text-zinc-500 block text-xs uppercase font-semibold">ISSN</span>
+                            <span className="font-semibold text-zinc-200">{submission?.issn || '-'}</span>
+                          </div>
+                          <div className="col-span-2">
+                            <span className="text-zinc-500 block text-xs uppercase font-semibold">Digital Object Identifier (DOI)</span>
+                            {(submission?.doi || generatedDoi) ? (
+                              <a 
+                                href={(() => {
+                                  const doiVal = submission.doi || generatedDoi;
+                                  if (doiVal.includes('zenodo.')) {
+                                    const zenodoId = doiVal.split('zenodo.')[1];
+                                    return `https://zenodo.org/records/${zenodoId}`;
+                                  }
+                                  return `https://doi.org/${doiVal}`;
+                                })()}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="font-mono text-emerald-400 hover:text-emerald-300 hover:underline break-all"
+                              >
+                                {submission?.doi || generatedDoi}
+                              </a>
+                            ) : (
+                              <span className="text-zinc-500">Menunggu API Publish Editor</span>
+                            )}
+                          </div>
+                        </div>
                       </div>
-                    )}
 
-                    {currentUserRole.includes('publish') && submission?.status === 'Assigned to Publish' && (
-                       <div className="flex justify-end pt-6 mt-4 border-t border-gray-200">
-                         <button 
-                           onClick={async () => {
+
+                      {submission?.status === 'Production Completed' ? (
+                        <div className="space-y-4 pt-4">
+                          <div className="p-4 bg-amber-500/10 border border-amber-500/20 text-amber-400 rounded-lg text-xs font-medium">
+                            ⚠️ Seluruh proses produksi (Layout, Cover, & API) telah disahkan oleh Supervisor. Anda sekarang dapat merilis naskah ini.
+                          </div>
+                          <button
+                            onClick={async () => {
+                              const confirmPublish = confirm("Apakah Anda yakin ingin menerbitkan naskah ini? Status naskah akan berubah menjadi Published dan Sertifikat Publikasi penulis akan diterbitkan secara otomatis.");
+                              if (!confirmPublish) return;
                               const m = await import("@/app/actions/editor");
-                              const res = await m.updateSubmissionStage(submission.id, 'Production', 'Pending Supervisor');
-                              if(res.success) {
-                                showToast("Berhasil dikirim ke Supervisor!");
-                                setTimeout(() => window.location.reload(), 1500);
+                              const res = await m.publishArticle(submission.id, submission.journal_id || "");
+                              if (res.success) {
+                                showToast("Naskah resmi diterbitkan!");
+                                setTimeout(() => window.location.reload(), 1000);
                               } else {
-                                showToast("Gagal mengirim.");
+                                showToast("Gagal menerbitkan naskah.");
                               }
-                           }}
-                           className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 px-6 rounded shadow-sm text-sm flex items-center gap-2">
-                           Kirim ke Supervisor
-                           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
-                         </button>
-                       </div>
-                    )}
+                            }}
+                            className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-4 px-6 rounded-xl shadow-lg transition-colors text-base flex justify-center items-center gap-2 border border-emerald-500/30"
+                          >
+                            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                            Mempublikasikan Naskah (Publish)
+                          </button>
+                        </div>
+                      ) : (
+                        <div className="space-y-4 pt-4">
+                          <div className="p-4 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-lg text-xs font-medium">
+                            ✓ Naskah telah dipublikasikan dan sertifikat penghargaan penulis telah aktif.
+                          </div>
+                          <Link
+                            href="/dashboard/certificates"
+                            target="_blank"
+                            className="w-full bg-zinc-800 hover:bg-zinc-700 text-zinc-200 font-bold py-4 px-6 rounded-xl transition-colors text-base flex justify-center items-center gap-2 border border-zinc-700 text-center"
+                            style={{ textDecoration: 'none' }}
+                          >
+                            <svg className="w-5 h-5 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                            Lihat Sertifikat Terbit
+                          </Link>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
-
-                {/* 2. Supervisor Dashboard */}
-                <div className="bg-white border border-green-200 rounded-lg p-6 shadow-sm border-t-4 border-t-green-500">
-                  <div className="flex justify-between items-start">
-                    <h3 className="text-xl font-bold text-gray-800 border-b pb-2 mb-4">Supervisor (Pemeriksa Final)</h3>
-                    <span className="px-3 py-1 bg-gray-100 text-gray-800 text-xs font-bold rounded-full border border-gray-200">Pending</span>
-                  </div>
-                  <p className="text-sm text-gray-600 mb-6">Sebagai pintu gerbang terakhir, Supervisor bertugas memvalidasi hasil kerja tim Layout Editor, Cover Editor, dan Publish Editor sebelum naskah benar-benar diterbitkan.</p>
+              ) : (
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                  {/* 1. Publish Editor Dashboard */}
+                  {(isPublishEditor || isPureEditor || isSupervisor) ? (
+                  <div className="bg-white border border-blue-200 rounded-lg p-6 shadow-sm border-t-4 border-t-blue-500">
+                    <h3 className="text-xl font-bold text-gray-800 border-b pb-2 mb-4">Publish Editor</h3>
+                    <p className="text-sm text-gray-600 mb-6">Bertanggung jawab atas metadata, integrasi identifier (DOI), pengecekan similarity akhir, dan sinkronisasi mesin indeks eksternal.</p>
                     
-                    {/* Admin Produksi Staff */}
+                    {/* Publish Editor Staff */}
                     <div className="space-y-3 mb-6">
-                        {boardMembers.filter(m => m.jabatan.toLowerCase().includes('admin')).length > 0 ? (
-                          boardMembers.filter(m => m.jabatan.toLowerCase().includes('admin')).map((member, idx) => (
-                            <label key={idx} className="flex items-center space-x-3 p-3 bg-yellow-50 border border-yellow-200 rounded cursor-pointer hover:bg-yellow-100 transition-colors">
-                              <input type="checkbox" className="form-checkbox h-5 w-5 text-[#c9a84c] rounded focus:ring-[#c9a84c]" />
+                        {boardMembers.filter(m => m.jabatan.toLowerCase().includes('publish') || m.jabatan.toLowerCase().includes('editor') && !m.jabatan.toLowerCase().includes('layout') && !m.jabatan.toLowerCase().includes('copy') && !m.jabatan.toLowerCase().includes('in chief')).length > 0 ? (
+                          boardMembers.filter(m => m.jabatan.toLowerCase().includes('publish') || m.jabatan.toLowerCase().includes('editor') && !m.jabatan.toLowerCase().includes('layout') && !m.jabatan.toLowerCase().includes('copy') && !m.jabatan.toLowerCase().includes('in chief')).map((member, idx) => (
+                            <label key={idx} className="flex items-center space-x-3 p-3 bg-blue-50 border border-blue-100 rounded cursor-pointer hover:bg-blue-100 transition-colors">
+                              <input type="checkbox" className="form-checkbox h-5 w-5 text-blue-600 rounded focus:ring-blue-500" />
                               <div className="flex flex-col">
-                                <span className="text-sm text-yellow-900 font-bold">{member.nama}</span>
-                                <span className="text-xs text-yellow-700">{member.jabatan}</span>
+                                <span className="text-sm text-blue-900 font-bold">{member.nama}</span>
+                                <span className="text-xs text-blue-700">{member.jabatan}</span>
                               </div>
                             </label>
                           ))
                         ) : (
                           <div className="text-sm text-gray-500 bg-gray-50 p-3 rounded border border-gray-200">
-                            Belum ada Admin Editor di menu Board Editor.
+                            Belum ada Publish Editor di menu Board Editor.
                           </div>
                         )}
                     </div>
 
+                    {/* Publish Editor Tools */}
                     <div className="pt-4 border-t border-gray-200 space-y-4">
-                      <h4 className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">Checklist Validasi Supervisor</h4>
-                      <label className="flex items-center space-x-3 p-2 hover:bg-gray-50 rounded cursor-pointer border border-transparent hover:border-gray-200">
-                        <input type="checkbox" className="form-checkbox h-4 w-4 text-green-600 rounded" />
-                        <span className="text-xs text-gray-700 font-medium">Validasi Kerja Tim Layout & Cover (Galley PDF sudah sesuai standar)</span>
-                      </label>
-                      <label className="flex items-center space-x-3 p-2 hover:bg-gray-50 rounded cursor-pointer border border-transparent hover:border-gray-200">
-                        <input type="checkbox" className="form-checkbox h-4 w-4 text-green-600 rounded" />
-                        <span className="text-xs text-gray-700 font-medium">Validasi Kerja Publish Editor (DOI dan Metadata sudah aktif)</span>
-                      </label>
+                      <h4 className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">Cover Naskah Final</h4>
+                      {submission?.cover_file_url ? (
+                        <div className="mb-6 rounded-lg overflow-hidden border border-gray-200 shadow-sm max-w-xs mx-auto md:mx-0 relative" style={{ containerType: 'inline-size' }}>
+                           <img src={submission.cover_file_url} alt="Cover Naskah" className="w-full h-auto object-contain relative z-0" />
+                           {(generatedDoi || submission.doi) && (
+                             <div 
+                               className="absolute z-10 font-bold flex items-center" 
+                               style={{
+                                 top: (() => {
+                                   const displayTitle = (submission.title || 'Untitled Article').split(':')[0].trim();
+                                   const words = displayTitle.split(' ');
+                                   let lines = 1;
+                                   let currentLineLength = 0;
+                                   for (let word of words) {
+                                     if (currentLineLength + word.length > 28 && currentLineLength > 0) {
+                                       lines++;
+                                       currentLineLength = word.length + 1;
+                                     } else {
+                                       currentLineLength += word.length + 1;
+                                     }
+                                   }
+                                   const endY = 460 + (lines - 1) * 85;
+                                   const tableY = endY + 140;
+                                   const cellTop = tableY + 55; // Header height is 55
+                                   return `calc(${(cellTop / 1754) * 100}% + 2px)`;
+                                 })(),
+                                 left: 'calc(62.096% + 2px)', // Right of divider (770/1240)
+                                 width: 'calc(28.225% - 4px)', // Cell width (350/1240)
+                                 height: 'calc(8.266% - 4px)', // Cell height (145/1754)
+                                 backgroundColor: '#1b263b', // Matches the blue theme table body
+                                 fontSize: '1.75cqw',
+                                 whiteSpace: 'nowrap',
+                                 color: '#fff',
+                                 paddingLeft: '0.5cqw',
+                               }}
+                             >
+                               DOI: {generatedDoi || submission.doi}
+                             </div>
+                           )}
+                        </div>
+                      ) : (
+                        <div className="mb-6 text-sm text-gray-500 bg-gray-50 p-3 rounded border border-gray-200">
+                           Belum ada cover yang dikirim dari Cover Editor.
+                        </div>
+                      )}
 
-                      {/* Tracking Indicators */}
-                      <h4 className="text-xs font-bold text-gray-500 uppercase tracking-widest mt-6 mb-2">Monitor Mesin Indeks (OAI-PMH)</h4>
-                      <div className="flex gap-2">
-                        <div className={`flex-1 flex flex-col items-center justify-center p-2 rounded-lg border transition-all ${generatedDoi ? 'bg-[#A6CE39]/10 border-[#A6CE39]/30 text-[#7ca221]' : 'bg-gray-50 border-gray-200 text-gray-400'}`}>
-                          <span className="text-[10px] font-black uppercase tracking-wider">ORCID</span>
-                          <span className="text-[9px] font-medium mt-1">{generatedDoi ? 'Pushing Data' : 'Menunggu DOI'}</span>
+                      <h4 className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-2 border-t pt-4">Alur Publikasi (Integrasi & API)</h4>
+                      
+                      <div className="flex items-center justify-between p-3 bg-gray-50 border border-gray-200 rounded">
+                        <span className="text-sm font-semibold text-gray-700">Skor Plagiasi Akhir (Turnitin)</span>
+                        <span className="text-xs bg-gray-200 text-gray-600 px-2 py-1 rounded font-bold">N/A</span>
+                      </div>
+
+                      <div className="mt-3 p-3 bg-gray-50 border border-gray-200 rounded flex flex-col gap-2">
+                         <label className="text-sm font-semibold text-gray-700">ISSN Jurnal (Manual)</label>
+                         <div className="flex gap-2">
+                           <input 
+                              type="text" 
+                              placeholder="Contoh: 2722-1234"
+                              value={manualIssn}
+                              onChange={(e) => setManualIssn(e.target.value)}
+                              className="flex-1 px-3 py-2 border border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500 text-sm"
+                           />
+                           <button 
+                              onClick={handleSaveIssn}
+                              className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm font-bold transition-colors shadow-sm"
+                           >
+                              Simpan ISSN
+                           </button>
+                         </div>
+                      </div>
+
+                      <div className="flex flex-col gap-3 mt-4">
+                        <button 
+                          onClick={handlePublishToZenodo}
+                          disabled={isPublishingZenodo || !!generatedDoi}
+                          className={`font-bold py-3 px-4 rounded transition-colors flex justify-center items-center gap-2 ${
+                            !generatedDoi
+                              ? 'bg-[#1a1a2e] text-white hover:bg-[#252542]'
+                              : 'bg-gray-100 text-gray-400 border border-gray-200 cursor-not-allowed'
+                          }`}
+                        >
+                          {isPublishingZenodo ? (
+                            <svg className="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                          ) : (
+                            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
+                          )}
+                          {isPublishingZenodo ? 'Menyambungkan ke API...' : (generatedDoi ? 'Telah Diterbitkan (DOI Active)' : 'Terbitkan Metadata & Generate DOI')}
+                        </button>
+
+                        <button 
+                          disabled={!generatedDoi}
+                          className={`font-bold py-3 px-4 rounded transition-colors flex justify-center items-center gap-2 ${
+                            generatedDoi 
+                              ? 'bg-amber-50 text-amber-700 hover:bg-amber-100 border border-amber-200' 
+                              : 'bg-gray-50 text-gray-400 border border-gray-200 cursor-not-allowed'
+                          }`}
+                        >
+                          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                          Download XML Crossref
+                        </button>
+                      </div>
+
+                      {generatedDoi && (
+                        <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded text-green-800 text-sm font-semibold">
+                          ✅ Persistent Identifier (DOI): {generatedDoi}
                         </div>
-                        <div className={`flex-1 flex flex-col items-center justify-center p-2 rounded-lg border transition-all ${generatedDoi ? 'bg-orange-50 border-orange-200 text-orange-700' : 'bg-gray-50 border-gray-200 text-gray-400'}`}>
-                          <span className="text-[10px] font-black uppercase tracking-wider">Scopus</span>
-                          <span className="text-[9px] font-medium mt-1">{generatedDoi ? 'Ready to Sync' : 'Menunggu DOI'}</span>
-                        </div>
-                        <div className={`flex-1 flex flex-col items-center justify-center p-2 rounded-lg border transition-all ${generatedDoi ? 'bg-purple-50 border-purple-200 text-purple-700' : 'bg-gray-50 border-gray-200 text-gray-400'}`}>
-                          <span className="text-[10px] font-black uppercase tracking-wider">WoS</span>
-                          <span className="text-[9px] font-medium mt-1">{generatedDoi ? 'Ready to Sync' : 'Menunggu DOI'}</span>
+                      )}
+
+                      {currentUserRole.includes('publish') && submission?.status === 'Assigned to Publish' && (
+                         <div className="flex justify-end pt-6 mt-4 border-t border-gray-200">
+                           <button 
+                             onClick={async () => {
+                                const m = await import("@/app/actions/editor");
+                                const res = await m.updateSubmissionStage(submission.id, 'Production', 'Pending Supervisor');
+                                if(res.success) {
+                                  showToast("Berhasil dikirim ke Supervisor!");
+                                  setTimeout(() => window.location.href = '/dashboard/production/publish', 1500);
+                                } else {
+                                  showToast("Gagal mengirim.");
+                                }
+                             }}
+                             className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 px-6 rounded shadow-sm text-sm flex items-center gap-2">
+                             Kirim ke Supervisor
+                             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
+                           </button>
+                         </div>
+                      )}
+                    </div>
+                  </div>
+                  ) : (
+                    <div className="bg-gray-50 border border-gray-200 rounded-lg p-10 flex flex-col items-center justify-center text-center shadow-inner h-full">
+                      <svg className="w-16 h-16 text-gray-300 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
+                      <h3 className="text-xl font-bold text-gray-500">Akses Dibatasi</h3>
+                      <p className="text-gray-400 mt-2 text-sm max-w-sm">Halaman ini hanya dapat diakses oleh Publish Editor dan Supervisor. Tugas Anda di naskah ini sudah selesai.</p>
+                    </div>
+                  )}
+
+                  {/* 2. Supervisor Dashboard */}
+                  <div className="bg-white border border-green-200 rounded-lg p-6 shadow-sm border-t-4 border-t-green-500">
+                    <div className="flex justify-between items-start">
+                      <h3 className="text-xl font-bold text-gray-800 border-b pb-2 mb-4">Supervisor (Pemeriksa Final)</h3>
+                      <span className="px-3 py-1 bg-gray-100 text-gray-800 text-xs font-bold rounded-full border border-gray-200">Pending</span>
+                    </div>
+                    <p className="text-sm text-gray-600 mb-6">Sebagai pintu gerbang terakhir, Supervisor bertugas memvalidasi hasil kerja tim Layout Editor, Cover Editor, dan Publish Editor sebelum naskah benar-benar diterbitkan.</p>
+                      
+                      {/* Admin Produksi Staff */}
+                      <div className="space-y-3 mb-6">
+                          {boardMembers.filter(m => m.jabatan.toLowerCase().includes('admin')).length > 0 ? (
+                            boardMembers.filter(m => m.jabatan.toLowerCase().includes('admin')).map((member, idx) => (
+                              <label key={idx} className="flex items-center space-x-3 p-3 bg-yellow-50 border border-yellow-200 rounded cursor-pointer hover:bg-yellow-100 transition-colors">
+                                <input type="checkbox" className="form-checkbox h-5 w-5 text-[#c9a84c] rounded focus:ring-[#c9a84c]" />
+                                <div className="flex flex-col">
+                                  <span className="text-sm text-yellow-900 font-bold">{member.nama}</span>
+                                  <span className="text-xs text-yellow-700">{member.jabatan}</span>
+                                </div>
+                              </label>
+                            ))
+                          ) : (
+                            <div className="text-sm text-gray-500 bg-gray-50 p-3 rounded border border-gray-200">
+                              Belum ada Admin Editor di menu Board Editor.
+                            </div>
+                          )}
+                      </div>
+
+                      <div className="pt-4 border-t border-gray-200 space-y-4">
+                        <h4 className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">Checklist Validasi Supervisor</h4>
+                        <label className="flex items-center space-x-3 p-2 hover:bg-gray-50 rounded cursor-pointer border border-transparent hover:border-gray-200">
+                          <input type="checkbox" className="form-checkbox h-4 w-4 text-green-600 rounded" />
+                          <span className="text-xs text-gray-700 font-medium">Validasi Kerja Tim Layout & Cover (Galley PDF sudah sesuai standar)</span>
+                        </label>
+                        <label className="flex items-center space-x-3 p-2 hover:bg-gray-50 rounded cursor-pointer border border-transparent hover:border-gray-200">
+                          <input type="checkbox" className="form-checkbox h-4 w-4 text-green-600 rounded" />
+                          <span className="text-xs text-gray-700 font-medium">Validasi Kerja Publish Editor (DOI dan Metadata sudah aktif)</span>
+                        </label>
+
+                        {/* Tracking Indicators */}
+                        <h4 className="text-xs font-bold text-gray-500 uppercase tracking-widest mt-6 mb-2">Monitor Mesin Indeks (OAI-PMH)</h4>
+                        <div className="flex gap-2">
+                          <div className={`flex-1 flex flex-col items-center justify-center p-2 rounded-lg border transition-all ${generatedDoi ? 'bg-[#A6CE39]/10 border-[#A6CE39]/30 text-[#7ca221]' : 'bg-gray-50 border-gray-200 text-gray-400'}`}>
+                            <span className="text-[10px] font-black uppercase tracking-wider">ORCID</span>
+                            <span className="text-[9px] font-medium mt-1">{generatedDoi ? 'Pushing Data' : 'Menunggu DOI'}</span>
+                          </div>
+                          <div className={`flex-1 flex flex-col items-center justify-center p-2 rounded-lg border transition-all ${generatedDoi ? 'bg-orange-50 border-orange-200 text-orange-700' : 'bg-gray-50 border-gray-200 text-gray-400'}`}>
+                            <span className="text-[10px] font-black uppercase tracking-wider">Scopus</span>
+                            <span className="text-[9px] font-medium mt-1">{generatedDoi ? 'Ready to Sync' : 'Menunggu DOI'}</span>
+                          </div>
+                          <div className={`flex-1 flex flex-col items-center justify-center p-2 rounded-lg border transition-all ${generatedDoi ? 'bg-purple-50 border-purple-200 text-purple-700' : 'bg-gray-50 border-gray-200 text-gray-400'}`}>
+                            <span className="text-[10px] font-black uppercase tracking-wider">WoS</span>
+                            <span className="text-[9px] font-medium mt-1">{generatedDoi ? 'Ready to Sync' : 'Menunggu DOI'}</span>
+                          </div>
                         </div>
                       </div>
-                    </div>
 
-                  <div className="mt-8 border-t border-gray-200 pt-6">
-                    <button 
-                      onClick={async () => {
-                         const m = await import("@/app/actions/editor");
-                         const res = await m.updateSubmissionStage(submission.id, 'Production', 'Production Completed');
-                         if(res.success) {
-                           showToast("Produksi selesai! Dikembalikan ke Editor.");
-                           setTimeout(() => window.location.reload(), 1500);
-                         } else {
-                           showToast("Gagal memproses.");
-                         }
-                      }}
-                      className={`w-full font-bold py-4 px-6 rounded-lg shadow-sm transition-colors text-base flex justify-center items-center gap-2 ${
-                        submission?.status === 'Pending Supervisor' ? 'bg-green-600 hover:bg-green-700 text-white shadow-green-600/30' : 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                      }`}
-                      disabled={submission?.status !== 'Pending Supervisor'}
-                    >
-                      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" /></svg>
-                      {submission?.status === 'Pending Supervisor' ? 'Kembalikan ke Editor (Selesai)' : 'Menunggu Publish Editor'}
-                    </button>
+                    <div className="mt-8 border-t border-gray-200 pt-6">
+                      <button 
+                        onClick={async () => {
+                           const m = await import("@/app/actions/editor");
+                           const res = await m.updateSubmissionStage(submission.id, 'Production', 'Production Completed');
+                           if(res.success) {
+                             showToast("Produksi selesai! Naskah dikembalikan ke Editor.");
+                             setTimeout(() => window.location.href = '/dashboard/production/supervisor', 1500);
+                           } else {
+                             showToast("Gagal memproses.");
+                           }
+                        }}
+                        className={`w-full font-bold py-4 px-6 rounded-lg shadow-sm transition-colors text-base flex justify-center items-center gap-2 ${
+                          submission?.status === 'Pending Supervisor' ? 'bg-green-600 hover:bg-green-700 text-white shadow-green-600/30' : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                        }`}
+                        disabled={submission?.status !== 'Pending Supervisor'}
+                      >
+                        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" /></svg>
+                        {submission?.status === 'Pending Supervisor' ? 'Kembalikan ke Editor (Selesai)' : 'Menunggu Publish Editor'}
+                      </button>
+                    </div>
                   </div>
                 </div>
-              </div>
+              )}
             </div>
           )}
 

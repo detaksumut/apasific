@@ -30,7 +30,8 @@ export default function ArticlePaywall() {
     doi: "10.5281/zenodo.10543210",
     views: 0,
     downloads: 0,
-    pdf_url: ""
+    pdf_url: "",
+    cover_file_url: ""
   });
 
   useEffect(() => {
@@ -41,30 +42,13 @@ export default function ArticlePaywall() {
 
     async function fetchRealArticle() {
       try {
-        const supabase = createClient();
-        const { data, error } = await supabase
-          .from('submissions')
-          .select(`
-            id,
-            title,
-            abstract,
-            keywords,
-            doi,
-            file_url,
-            created_at,
-            article_authors ( full_name, orcid ),
-            journals ( name )
-          `)
-          .eq('id', id)
-          .single();
+        const { getPublishedArticleDetails } = await import("@/app/actions/editor");
+        const res = await getPublishedArticleDetails(id);
 
-        if (data && !error) {
-          const authors = data.article_authors?.length 
-            ? data.article_authors.map((a: any) => a.full_name).join(", ") 
-            : "Penulis Tidak Diketahui";
-          
-          const orcids = data.article_authors?.map((a: any) => a.orcid).filter(Boolean);
-          const firstOrcid = orcids && orcids.length > 0 ? orcids[0] : "";
+        if (res.success && res.article) {
+          const data = res.article;
+          const authors = data.profiles?.full_name || data.author || "Penulis Tidak Diketahui";
+          const firstOrcid = data.profiles?.orcid || "";
           
           setArticle({
             title: data.title || "",
@@ -78,7 +62,8 @@ export default function ArticlePaywall() {
             orcid: firstOrcid,
             doi: data.doi || "",
             views: 0,
-            downloads: 0
+            downloads: 0,
+            cover_file_url: data.cover_file_url || ""
           });
         }
       } catch (e) {
@@ -344,6 +329,54 @@ export default function ArticlePaywall() {
 
           {/* Right Column: Metrics & Citation */}
           <div className="space-y-6">
+            {article.cover_file_url && (
+              <div className="bg-[#0d0d1a] rounded-xl p-6 border border-gray-800 flex flex-col items-center shadow-xl">
+                <span className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-4 w-full text-center">Sampul Depan (Cover)</span>
+                <div className="rounded-xl overflow-hidden border border-gray-850 shadow-2xl w-full max-w-[240px] aspect-[1/1.414] relative bg-black/40" style={{ containerType: 'inline-size' }}>
+                  <img src={article.cover_file_url} alt="Cover Artikel" className="w-full h-full object-cover relative z-0" />
+                  {article.doi && (
+                    <a 
+                      href={article.doi.includes('zenodo.') ? `https://zenodo.org/records/${article.doi.split('zenodo.')[1]}` : `https://doi.org/${article.doi}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="absolute z-10 font-bold flex items-center hover:underline hover:text-emerald-300 transition-colors" 
+                      style={{
+                        top: (() => {
+                          const displayTitle = (article.title || 'Untitled Article').split(':')[0].trim();
+                          const words = displayTitle.split(' ');
+                          let lines = 1;
+                          let currentLineLength = 0;
+                          for (let word of words) {
+                            if (currentLineLength + word.length > 28 && currentLineLength > 0) {
+                              lines++;
+                              currentLineLength = word.length + 1;
+                            } else {
+                              currentLineLength += word.length + 1;
+                            }
+                          }
+                          const endY = 460 + (lines - 1) * 85;
+                          const tableY = endY + 140;
+                          const cellTop = tableY + 55;
+                          return `calc(${(cellTop / 1754) * 100}% + 2px)`;
+                        })(),
+                        left: 'calc(62.096% + 2px)',
+                        width: 'calc(28.225% - 4px)',
+                        height: 'calc(8.266% - 4px)',
+                        backgroundColor: '#1b263b',
+                        fontSize: '1.75cqw',
+                        whiteSpace: 'nowrap',
+                        color: '#fff',
+                        paddingLeft: '0.5cqw',
+                        textDecoration: 'none'
+                      }}
+                    >
+                      DOI: {article.doi}
+                    </a>
+                  )}
+                </div>
+              </div>
+            )}
+
             <div className="bg-[#0d0d1a] rounded-xl p-6 border border-gray-800">
               <h3 className="text-[#c9a84c] font-bold mb-4 uppercase text-sm tracking-widest">Metrik</h3>
               <div className="space-y-4">

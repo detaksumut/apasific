@@ -46,23 +46,79 @@ export default async function AuthorSubmissionDetail({ params }: { params: Promi
         <ArrowLeft className="w-4 h-4" /> Kembali ke Submisi
       </Link>
 
-      {/* Header */}
-      <div className="bg-black/40 border border-zinc-800 rounded-2xl p-8 mb-8 relative overflow-hidden">
-        <div className="absolute top-0 right-0 p-8 opacity-5">
-           <FileText className="w-48 h-48" />
-        </div>
-        <div className="relative z-10">
-            <div className="flex items-center gap-3 mb-4">
-              <span className="text-sm font-mono bg-zinc-800 text-zinc-400 px-3 py-1 rounded-md">#{submission.id.split('-')[0]}</span>
-              <span className="text-sm font-bold text-emerald-600/70 uppercase tracking-widest">{submission.journals?.name || 'Jurnal'}</span>
+      {/* Header & Cover Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-12 gap-8 mb-8">
+        <div className={submission.cover_file_url ? "md:col-span-8" : "md:col-span-12"}>
+          {/* Main Info Card */}
+          <div className="bg-black/40 border border-zinc-800 rounded-2xl p-8 h-full relative overflow-hidden flex flex-col justify-center">
+            <div className="absolute top-0 right-0 p-8 opacity-5">
+               <FileText className="w-48 h-48" />
             </div>
-            <h1 className="text-3xl font-bold text-white leading-snug mb-4">{submission.title}</h1>
-            <div className="flex items-center gap-4 text-sm text-zinc-400">
-               <span className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-emerald-500" /> Status: <strong className="text-white">{submission.status}</strong></span>
-               <span>•</span>
-               <span>Dikirim: {new Date(submission.created_at).toLocaleDateString('id-ID')}</span>
+            <div className="relative z-10">
+                <div className="flex items-center gap-3 mb-4">
+                  <span className="text-sm font-mono bg-zinc-800 text-zinc-400 px-3 py-1 rounded-md">#{submission.id.split('-')[0]}</span>
+                  <span className="text-xs font-bold text-emerald-500 uppercase tracking-widest bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">{submission.journals?.name || 'Jurnal'}</span>
+                </div>
+                <h1 className="text-2xl md:text-3xl font-bold text-white leading-snug mb-4">{submission.title}</h1>
+                <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-zinc-400">
+                   <span className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-emerald-500" /> Status: <strong className="text-white">{submission.status}</strong></span>
+                   <span>•</span>
+                   <span>Dikirim: {new Date(submission.created_at).toLocaleDateString('id-ID')}</span>
+                </div>
             </div>
+          </div>
         </div>
+
+        {submission.cover_file_url && (
+          <div className="md:col-span-4 flex flex-col items-center">
+            <div className="bg-black/40 border border-zinc-800 rounded-2xl p-4 w-full flex flex-col items-center shadow-2xl">
+              <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-3">Sampul Depan (Cover)</span>
+              <div className="rounded-xl overflow-hidden border border-zinc-800 shadow-lg w-full max-w-[200px] aspect-[1/1.414] relative" style={{ containerType: 'inline-size' }}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={submission.cover_file_url} alt="Cover Artikel" className="w-full h-full object-cover relative z-0" />
+                {submission.doi && (
+                  <a 
+                    href={submission.doi.includes('zenodo.') ? `https://zenodo.org/records/${submission.doi.split('zenodo.')[1]}` : `https://doi.org/${submission.doi}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="absolute z-10 font-bold flex items-center hover:underline hover:text-emerald-300 transition-colors" 
+                    style={{
+                      top: (() => {
+                        const displayTitle = (submission.title || 'Untitled Article').split(':')[0].trim();
+                        const words = displayTitle.split(' ');
+                        let lines = 1;
+                        let currentLineLength = 0;
+                        for (let word of words) {
+                          if (currentLineLength + word.length > 28 && currentLineLength > 0) {
+                            lines++;
+                            currentLineLength = word.length + 1;
+                          } else {
+                            currentLineLength += word.length + 1;
+                          }
+                        }
+                        const endY = 460 + (lines - 1) * 85;
+                        const tableY = endY + 140;
+                        const cellTop = tableY + 55; // Header height is 55
+                        return `calc(${(cellTop / 1754) * 100}% + 2px)`;
+                      })(),
+                      left: 'calc(62.096% + 2px)', // Right of divider (770/1240)
+                      width: 'calc(28.225% - 4px)', // Cell width (350/1240)
+                      height: 'calc(8.266% - 4px)', // Cell height (145/1754)
+                      backgroundColor: '#1b263b', // Matches the blue theme table body
+                      fontSize: '1.75cqw',
+                      whiteSpace: 'nowrap',
+                      color: '#fff',
+                      paddingLeft: '0.5cqw',
+                      textDecoration: 'none'
+                    }}
+                  >
+                    DOI: {submission.doi}
+                  </a>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       {isRevision && (

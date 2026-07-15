@@ -126,15 +126,36 @@ export async function submitEditorialDecision(submissionId: string, authorId: st
 
 export async function updateSubmissionStage(submissionId: string, stage: string, status: string) {
     try {
+        const isFirestoreId = submissionId.startsWith('sub_') || !submissionId.includes('-');
+
+        // 1. Update Firestore first (primary for Firestore-based submissions)
+        if (isFirestoreId) {
+            const { getFirestore } = await import('@/utils/firebase/db');
+            const db = getFirestore();
+            const subRef = db.collection('submissions').doc(submissionId);
+            await subRef.update({ stage, status, updated_at: new Date() });
+        }
+
+        // 2. Update Supabase (primary for UUID-based submissions)
         const supabaseAdmin = (await import('@supabase/supabase-js')).createClient(
           process.env.NEXT_PUBLIC_SUPABASE_URL!,
           process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
         );
-
-        // 1. Update Supabase
         await supabaseAdmin.from('submissions').update({ stage, status, updated_at: new Date() }).eq('id', submissionId);
 
-        // 2. Fetch author phone and send WA if Needs Revision
+        // 3. Also update Firestore for Supabase submissions (cross-sync)
+        if (!isFirestoreId) {
+            try {
+                const { getFirestore } = await import('@/utils/firebase/db');
+                const db = getFirestore();
+                const subRef = db.collection('submissions').doc(submissionId);
+                await subRef.update({ stage, status, updated_at: new Date() });
+            } catch (e) {
+                console.warn("Firestore cross-sync update failed", e);
+            }
+        }
+
+        // 4. Fetch author phone and send WA if Needs Revision
         if (status === 'Needs Revision') {
             const { data: sub } = await supabaseAdmin
                 .from('submissions')
@@ -143,32 +164,10 @@ export async function updateSubmissionStage(submissionId: string, stage: string,
                 .single();
             
             if (sub?.profiles?.phone) {
-                const message = `Halo ${sub.profiles.full_name},
-
-Pemberitahuan dari Tim Editorial Asia Index & Metric (APASIFIC).
-
-Naskah Anda yang berjudul:
-"${sub.title}"
-
-Telah selesai ditinjau oleh Reviewer dan *MEMERLUKAN REVISI*. 
-Silakan login ke dashboard APASIFIC, masuk ke menu Submisi -> Lacak Proses, untuk membaca catatan revisi dan mengunggah naskah yang telah diperbaiki.
-
-Terima kasih.
-https://apasific.org`;
-
+                const message = `Halo ${sub.profiles.full_name},\n\nPemberitahuan dari Tim Editorial Asia Index & Metric (APASIFIC).\n\nNaskah Anda yang berjudul:\n"${sub.title}"\n\nTelah selesai ditinjau oleh Reviewer dan *MEMERLUKAN REVISI*. \nSilakan login ke dashboard APASIFIC, masuk ke menu Submisi -> Lacak Proses, untuk membaca catatan revisi dan mengunggah naskah yang telah diperbaiki.\n\nTerima kasih.\nhttps://apasific.org`;
                 const { sendWa } = await import('@/utils/sendWa');
                 await sendWa(sub.profiles.phone, message);
             }
-        }
-
-        // 3. Update Firestore
-        try {
-            const { getFirestore } = await import('@/utils/firebase/db');
-            const db = getFirestore();
-            const subRef = db.collection('submissions').doc(submissionId);
-            await subRef.update({ stage, status, updated_at: new Date() });
-        } catch (e) {
-            console.warn("Firestore update stage failed", e);
         }
 
         const { revalidatePath } = require('next/cache');
@@ -313,3 +312,451 @@ export async function getEditorialBoard(journalName: string) {
         return { success: false, error: e.message };
     }
 }
+
+export async function updateIssn(submissionId: string, issn: string) {
+    try {
+        const supabaseAdmin = (await import('@supabase/supabase-js')).createClient(
+          process.env.NEXT_PUBLIC_SUPABASE_URL!,
+          process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+        );
+
+        const { error } = await supabaseAdmin.from('submissions').update({ issn }).eq('id', submissionId);
+        
+        try {
+            const { getFirestore } = await import('@/utils/firebase/db');
+            const db = getFirestore();
+            await db.collection('submissions').doc(submissionId).update({ issn });
+        } catch (e) {
+            console.warn("Failed to update ISSN in Firestore", e);
+        }
+
+        if (error) {
+           return { success: false, error: error.message };
+        }
+
+        return { success: true };
+    } catch (e: any) {
+        return { success: false, error: e.message };
+    }
+}
+
+export async function updateDoi(submissionId: string, doi: string, zenodoId: string | number) {
+    try {
+        const supabaseAdmin = (await import('@supabase/supabase-js')).createClient(
+          process.env.NEXT_PUBLIC_SUPABASE_URL!,
+          process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+        );
+
+        // Try Supabase first, ignore error if id format is invalid for UUID
+        const { error } = await supabaseAdmin.from('submissions')
+            .update({ doi: doi, zenodo_id: zenodoId })
+            .eq('id', submissionId);
+            
+        // Always try Firestore as fallback/sync
+        try {
+            const { getFirestore } = await import('@/utils/firebase/db');
+            const db = getFirestore();
+            await db.collection('submissions').doc(submissionId).update({ 
+                doi: doi, 
+                zenodo_id: zenodoId 
+            });
+        } catch (e) {
+            console.warn("Failed to update DOI in Firestore", e);
+        }
+
+        return { success: true };
+    } catch (e: any) {
+        return { success: false, error: e.message };
+    }
+}
+
+export async function getPublicationsData(journalId: string) {
+    try {
+        const supabaseAdmin = (await import('@supabase/supabase-js')).createClient(
+          process.env.NEXT_PUBLIC_SUPABASE_URL!,
+          process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+        );
+
+        let articles: any[] = [];
+
+        // 1. Fetch from Supabase
+        try {
+            const { data } = await supabaseAdmin
+                .from('submissions')
+                .select('*, profiles:author_id(full_name)')
+                .eq('journal_id', journalId)
+                .in('status', ['Production Completed', 'Published']);
+            if (data) articles = [...data];
+        } catch (dbErr) {
+            console.error("Supabase publications fetch failed", dbErr);
+        }
+
+        // 2. Fetch from Firestore
+        try {
+            const { getFirestore } = await import('@/utils/firebase/db');
+            const db = getFirestore();
+            const snapshot = await db.collection('submissions')
+                .where('journal_id', '==', journalId)
+                .get();
+
+            const existingIds = new Set(articles.map(a => a.id));
+            const fbArticles = [];
+            for (const doc of snapshot.docs) {
+                const data = doc.data();
+                if ((data.status === 'Production Completed' || data.status === 'Published') && !existingIds.has(doc.id)) {
+                    // Get author name
+                    let authorName = data.author || 'Author';
+                    if (data.author_id) {
+                         const { data: profile } = await supabaseAdmin.from('profiles').select('full_name').eq('id', data.author_id).single();
+                         if (profile?.full_name) authorName = profile.full_name;
+                         else {
+                             const uDoc = await db.collection('users').doc(data.author_id).get();
+                             if (uDoc.exists) authorName = uDoc.data()?.full_name || uDoc.data()?.name || authorName;
+                         }
+                    }
+
+                    fbArticles.push({
+                        id: doc.id,
+                        title: data.title,
+                        status: data.status,
+                        stage: data.stage,
+                        author_id: data.author_id,
+                        created_at: data.created_at?.toDate ? data.created_at.toDate().toISOString() : data.created_at || new Date().toISOString(),
+                        profiles: { full_name: authorName }
+                    });
+                }
+            }
+            articles = [...articles, ...fbArticles];
+        } catch (fbErr) {
+            console.error("Firestore publications fetch failed", fbErr);
+        }
+
+        return {
+            success: true,
+            acceptedArticles: articles.filter(a => a.status === 'Production Completed'),
+            publishedArticles: articles.filter(a => a.status === 'Published')
+        };
+    } catch (e: any) {
+        return { success: false, error: e.message };
+    }
+}
+
+export async function publishArticle(submissionId: string, journalId: string, volume: string = "Vol. 1", issue: string = "No. 1") {
+    try {
+        const supabaseAdmin = (await import('@supabase/supabase-js')).createClient(
+          process.env.NEXT_PUBLIC_SUPABASE_URL!,
+          process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+        );
+
+        const { getFirestore } = await import('@/utils/firebase/db');
+        const db = getFirestore();
+
+        // 1. Get submission details to find author and title
+        let submissionTitle = '';
+        let authorId = '';
+        let isFirestore = submissionId.startsWith('sub_') || !submissionId.includes('-');
+
+        if (isFirestore) {
+            const doc = await db.collection('submissions').doc(submissionId).get();
+            if (doc.exists) {
+                submissionTitle = doc.data()?.title || '';
+                authorId = doc.data()?.author_id || '';
+            }
+        } else {
+            const { data } = await supabaseAdmin.from('submissions').select('title, author_id').eq('id', submissionId).single();
+            if (data) {
+                submissionTitle = data.title;
+                authorId = data.author_id;
+            }
+        }
+
+        // Get journal name
+        let journalName = 'APASIFIC Jurnal';
+        if (journalId) {
+             const { data: j } = await supabaseAdmin.from('journals').select('name').eq('id', journalId).single();
+             if (j) journalName = j.name;
+             else {
+                 const jDoc = await db.collection('journals').doc(journalId).get();
+                 if (jDoc.exists) journalName = jDoc.data()?.name || journalName;
+             }
+        }
+
+        const editionStr = `${volume} ${issue} (${new Date().getFullYear()})`;
+        const dateStr = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+
+        // 2. Update status to Published
+        if (isFirestore) {
+            await db.collection('submissions').doc(submissionId).update({
+                status: 'Published',
+                updated_at: new Date()
+            });
+        }
+        await supabaseAdmin.from('submissions').update({
+            status: 'Published',
+            updated_at: new Date()
+        }).eq('id', submissionId);
+
+        // 3. Ensure Certificate exists
+        // Check in Supabase
+        const { data: certSupabase } = await supabaseAdmin.from('certificates').select('id').eq('reference_id', submissionId);
+        let hasCert = certSupabase && certSupabase.length > 0;
+
+        // Check in Firestore
+        if (!hasCert) {
+            const fbCertSnapshot = await db.collection('certificates').where('reference_id', '==', submissionId).get();
+            hasCert = !fbCertSnapshot.empty;
+        }
+
+        if (!hasCert && authorId) {
+            // Create in Supabase
+            try {
+                await supabaseAdmin.from('certificates').insert({
+                    user_id: authorId,
+                    type: 'author_publication',
+                    reference_id: submissionId,
+                    title: `Sertifikat Publikasi Naskah: ${submissionTitle}`,
+                    journal: journalName,
+                    edition: editionStr,
+                    date: dateStr
+                });
+            } catch (err) {
+                console.error("Failed to insert certificate to Supabase", err);
+            }
+
+            // Create in Firestore
+            try {
+                await db.collection('certificates').add({
+                    user_id: authorId,
+                    type: 'author_publication',
+                    reference_id: submissionId,
+                    title: `Sertifikat Publikasi Naskah: ${submissionTitle}`,
+                    journal: journalName,
+                    edition: editionStr,
+                    date: dateStr,
+                    created_at: new Date()
+                });
+            } catch (err) {
+                console.error("Failed to insert certificate to Firestore", err);
+            }
+        }
+
+        return { success: true };
+    } catch (e: any) {
+        return { success: false, error: e.message };
+    }
+}
+
+export async function getUserCertificates(userId: string) {
+    try {
+        const supabaseAdmin = (await import('@supabase/supabase-js')).createClient(
+          process.env.NEXT_PUBLIC_SUPABASE_URL!,
+          process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+        );
+
+        // Check user role first
+        let isStaff = false;
+        try {
+            const { data: profile } = await supabaseAdmin.from('profiles').select('role').eq('id', userId).single();
+            const role = profile?.role?.toLowerCase() || '';
+            isStaff = role === 'editor' || role === 'admin' || role === 'superadmin' || role === 'supervisor' || role === 'admin editor';
+        } catch (err) {
+            // Check in Firestore if Supabase fails or is empty
+            try {
+                const { getFirestore } = await import('@/utils/firebase/db');
+                const db = getFirestore();
+                const uDoc = await db.collection('profiles').doc(userId).get();
+                const role = uDoc.data()?.role?.toLowerCase() || '';
+                isStaff = role === 'editor' || role === 'admin' || role === 'superadmin' || role === 'supervisor' || role === 'admin editor';
+            } catch (fbErr) {}
+        }
+
+        let certList: any[] = [];
+
+        // 1. Fetch from Supabase
+        try {
+          let query = supabaseAdmin.from('certificates').select('*');
+          if (!isStaff) {
+             query = query.eq('user_id', userId);
+          }
+          const { data } = await query;
+          if (data) certList = [...data];
+        } catch (dbErr) {
+          console.error("Supabase certificates fetch failed", dbErr);
+        }
+
+        // 2. Fetch from Firestore
+        try {
+          const { getFirestore } = await import('@/utils/firebase/db');
+          const db = getFirestore();
+          let query: any = db.collection('certificates');
+          if (!isStaff) {
+             query = query.where('user_id', '==', userId);
+          }
+          const snapshot = await query.get();
+          const existingIds = new Set(certList.map(c => c.id || c.reference_id));
+          const fbCerts = snapshot.docs.map(doc => {
+            const data = doc.data();
+            return {
+              id: doc.id,
+              ...data,
+              created_at: data.created_at?.toDate ? data.created_at.toDate() : data.created_at || new Date()
+            };
+          }).filter(c => !existingIds.has(c.id));
+          certList = [...certList, ...fbCerts];
+        } catch (fbErr) {
+          console.error("Firestore certificates fetch failed", fbErr);
+        }
+
+        // Format and add fallbacks
+        const formatted = certList.map(c => ({
+          id: c.id,
+          journal: c.journal || 'APASIFIC Jurnal',
+          edition: c.edition || 'Vol. 1 No. 1 (2026)',
+          date: c.date || (c.issued_at || c.created_at ? new Date(c.issued_at || c.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) : new Date().toLocaleDateString('id-ID')),
+          title: c.title || 'Sertifikat Publikasi Naskah'
+        }));
+
+        return { success: true, certificates: formatted };
+    } catch (e: any) {
+        return { success: false, error: e.message, certificates: [] };
+    }
+}
+
+export async function getPublishedArticleDetails(articleId: string) {
+    try {
+        const supabaseAdmin = (await import('@supabase/supabase-js')).createClient(
+          process.env.NEXT_PUBLIC_SUPABASE_URL!,
+          process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+        );
+
+        let subData: any = null;
+        const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(articleId);
+
+        if (isUuid) {
+            const { data } = await supabaseAdmin
+                .from('submissions')
+                .select('*, journals:journal_id(name)')
+                .eq('id', articleId)
+                .single();
+            if (data) subData = data;
+        }
+
+        if (!subData) {
+            try {
+                const { getFirestore } = await import('@/utils/firebase/db');
+                const db = getFirestore();
+                const doc = await db.collection('submissions').doc(articleId).get();
+                if (doc.exists) {
+                    const fbData = doc.data();
+                    let journalName = 'Unknown Journal';
+                    if (fbData?.journal_id) {
+                         const { data: sj } = await supabaseAdmin.from('journals').select('name').eq('id', fbData.journal_id).single();
+                         if (sj) journalName = sj.name;
+                    }
+                    let authorName = fbData?.author || 'Author';
+
+                    subData = {
+                        id: doc.id,
+                        ...fbData,
+                        created_at: fbData?.created_at?.toDate ? fbData.created_at.toDate().toISOString() : fbData?.created_at || new Date().toISOString(),
+                        profiles: { full_name: authorName },
+                        journals: { name: journalName }
+                    };
+                }
+            } catch (e) {
+                console.warn("Firestore fetch failed", e);
+            }
+        }
+
+        // Try to fetch author name if missing
+        if (subData && subData.author_id) {
+             const { data: profile } = await supabaseAdmin.from('profiles').select('full_name').eq('id', subData.author_id).single();
+             if (profile?.full_name) {
+                  subData.profiles = { full_name: profile.full_name };
+             }
+        }
+
+        if (!subData) return { success: false, error: "Not found" };
+        return { success: true, article: subData };
+    } catch (e: any) {
+        return { success: false, error: e.message };
+    }
+}
+
+export async function getPublishedArticles(journalId?: string) {
+    try {
+        const supabaseAdmin = (await import('@supabase/supabase-js')).createClient(
+          process.env.NEXT_PUBLIC_SUPABASE_URL!,
+          process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+        );
+
+        let articlesList: any[] = [];
+
+        // 1. Fetch from Supabase
+        try {
+          let query = supabaseAdmin
+              .from('submissions')
+              .select('*, journals:journal_id(name)')
+              .eq('status', 'Published');
+          if (journalId) {
+              query = query.eq('journal_id', journalId);
+          }
+          const { data } = await query;
+          if (data) articlesList = [...data];
+        } catch (dbErr) {
+          console.error("Supabase published articles fetch failed", dbErr);
+        }
+
+        // 2. Fetch from Firestore
+        try {
+          const { getFirestore } = await import('@/utils/firebase/db');
+          const db = getFirestore();
+          let query = db.collection('submissions').where('status', '==', 'Published');
+          if (journalId) {
+              query = query.where('journal_id', '==', journalId);
+          }
+          const snapshot = await query.get();
+          const existingIds = new Set(articlesList.map(a => a.id || a.submission_id));
+          const fbArticles = snapshot.docs.map(doc => {
+            const data = doc.data();
+            return {
+              id: doc.id,
+              ...data,
+              created_at: data.created_at?.toDate ? data.created_at.toDate().toISOString() : data.created_at || new Date().toISOString()
+            };
+          }).filter(c => !existingIds.has(c.id));
+          articlesList = [...articlesList, ...fbArticles];
+        } catch (fbErr) {
+          console.error("Firestore published articles fetch failed", fbErr);
+        }
+
+        // Fetch authors if missing
+        const formatted = await Promise.all(articlesList.map(async (a) => {
+             let authorName = a.author || 'Author';
+             if (a.author_id) {
+                  const { data: profile } = await supabaseAdmin.from('profiles').select('full_name').eq('id', a.author_id).single();
+                  if (profile?.full_name) {
+                       authorName = profile.full_name;
+                  }
+             }
+             return {
+                 id: a.id || a.submission_id,
+                 title: a.title,
+                 abstract: a.abstract,
+                 author: authorName,
+                 doi: a.doi,
+                 cover_file_url: a.cover_file_url,
+                 created_at: a.created_at,
+                 journal: a.journals?.name || 'APASIFIC IAEP'
+             };
+        }));
+
+        return { success: true, articles: formatted };
+    } catch (e: any) {
+        return { success: false, error: e.message, articles: [] };
+    }
+}
+
+
+
+

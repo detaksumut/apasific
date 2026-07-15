@@ -78,16 +78,15 @@ export default async function AuthorDashboard() {
   }
 
   const cookieStore = await cookies();
-  const activePortalRole = cookieStore.get('active_portal_role')?.value;
   const cookieRole = cookieStore.get('user_role')?.value;
-  if (activePortalRole) role = activePortalRole.toLowerCase();
-  else if (cookieRole && role === 'author') role = cookieRole.toLowerCase();
+  if (cookieRole && role === 'author') role = cookieRole.toLowerCase();
 
   // Redirect based on role if they hit the root dashboard
   if (role === 'layout editor') redirect('/dashboard/production/layout');
   if (role === 'cover editor') redirect('/dashboard/production/cover');
   if (role === 'publish editor') redirect('/dashboard/production/publish');
-  if (role === 'supervisor') redirect('/dashboard/production/admin');
+  if (role === 'admin editor') redirect('/dashboard/production/supervisor');
+  if (role === 'supervisor') redirect('/dashboard/production/supervisor');
   if (role === 'editor' && !activePortalRole) redirect('/dashboard/editor');
   if (role === 'admin' && !activePortalRole) redirect('/dashboard/admin');
 
