@@ -29,6 +29,13 @@ export async function GET() {
     const submissionId = "sub_1784062294881_r2jx1m4";
     const results: string[] = [];
 
+    // Convert submissionId to UUID format for Supabase
+    let supabaseSubId = submissionId;
+    if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(supabaseSubId)) {
+      const hex = Buffer.from(supabaseSubId).toString('hex').padEnd(32, '0').slice(0, 32);
+      supabaseSubId = `${hex.slice(0,8)}-${hex.slice(8,12)}-${hex.slice(12,16)}-${hex.slice(16,20)}-${hex.slice(20,32)}`;
+    }
+
     // Reset Firestore Status
     try {
       await db.collection("submissions").doc(submissionId).update({
@@ -53,7 +60,7 @@ export async function GET() {
           zenodo_id: null,
           updated_at: new Date().toISOString()
         })
-        .eq("id", submissionId);
+        .eq("id", supabaseSubId);
       if (error) throw error;
       results.push("Supabase: Reverted submission status, cleared doi/zenodo_id.");
     } catch (e: any) {
@@ -80,8 +87,15 @@ export async function GET() {
       const { error } = await supabase
         .from("certificates")
         .delete()
-        .eq("reference_id", submissionId);
-      if (error) throw error;
+        .eq("reference_id", supabaseSubId);
+      if (error) {
+        // Fallback: also try deleting with the original non-uuid string just in case
+        const { error: error2 } = await supabase
+          .from("certificates")
+          .delete()
+          .eq("reference_id", submissionId);
+        if (error2) throw error;
+      }
       results.push("Supabase: Deleted certificate(s).");
     } catch (e: any) {
       results.push(`Supabase Cert Error: ${e.message}`);
