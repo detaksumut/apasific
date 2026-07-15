@@ -155,12 +155,20 @@ export default function SubmissionControlPanel() {
     showToast("Publishing to Zenodo... Please wait.");
     
     try {
+      const creatorName = submission.profiles?.full_name || submission.author || "Unknown Author";
+      const creatorAffiliation = submission.profiles?.university || submission.university || undefined;
+      const creatorOrcid = submission.profiles?.orcid || submission.orcid || undefined;
+
       const metadata: ZenodoMetadata = {
         title: submission.title,
         description: submission.abstract,
         upload_type: 'publication',
         publication_type: 'article',
-        creators: [{ name: submission.author }],
+        creators: [{ 
+          name: creatorName,
+          ...(creatorAffiliation ? { affiliation: creatorAffiliation } : {}),
+          ...(creatorOrcid ? { orcid: creatorOrcid } : {})
+        }],
         communities: [{ identifier: 'rjrakp' }],
         access_right: 'open',
         keywords: ['Artificial Intelligence', 'Education']
