@@ -2,7 +2,7 @@ import React from 'react';
 import Link from 'next/link';
 import { createClient } from '@/utils/supabase/server';
 import { notFound, redirect } from 'next/navigation';
-import { ArrowLeft, FileText, CheckCircle2, AlertCircle, FileDown, UploadCloud } from 'lucide-react';
+import { ArrowLeft, FileText, CheckCircle2, AlertCircle, FileDown, UploadCloud, Clock, Check } from 'lucide-react';
 import { getCurrentUser } from '@/app/actions/auth';
 import AuthorRevisedUpload from '@/components/dashboard/AuthorRevisedUpload';
 
@@ -13,29 +13,80 @@ export default async function AuthorSubmissionDetail({ params }: { params: Promi
 
   const supabase = await createClient();
 
-  // 1. Fetch submission
-  const { data: submission } = await supabase
+  // 1. Fetch submission — try Supabase first, fallback to Firestore
+  let submission: any = null;
+
+  const { data: sbSub } = await supabase
     .from('submissions')
     .select('*, journals(name)')
     .eq('id', id)
     .single();
 
-  if (!submission) return notFound();
-
-  // Make sure it belongs to the author
-  if (submission.author_id !== user.id) {
-     // Allow if admin/editor but let's just stick to standard for now, this is author dashboard.
-     // If they somehow land here and they don't own it, we redirect.
-     // But wait, Firebase users might have a different ID mapping. I'll just skip the hard check for simplicity in this prototype.
+  if (sbSub) {
+    submission = sbSub;
+  } else {
+    // Firestore fallback
+    try {
+      const { getFirestore } = await import('@/utils/firebase/db');
+      const db = getFirestore();
+      const doc = await db.collection('submissions').doc(id).get();
+      if (doc.exists) {
+        const fbData = doc.data() as Record<string, any>;
+        let jName = 'APASIFIC Jurnal';
+        if (fbData.journal_id) {
+          const { data: jData } = await supabase.from('journals').select('name').eq('id', fbData.journal_id).single();
+          if (jData) jName = jData.name;
+        }
+        // Parse abstract JSON if it's stored as stringified JSON
+        let parsedAbstract = fbData.abstract || '';
+        try { parsedAbstract = JSON.parse(parsedAbstract); } catch(e) {}
+        submission = {
+          id: doc.id,
+          ...fbData,
+          abstract: parsedAbstract,
+          journals: { name: jName },
+          created_at: fbData.created_at?.toDate ? fbData.created_at.toDate().toISOString() : new Date().toISOString(),
+          updated_at: fbData.updated_at?.toDate ? fbData.updated_at.toDate().toISOString() : new Date().toISOString(),
+        };
+      }
+    } catch (fbErr) {
+      console.error('Firestore fetch failed:', fbErr);
+    }
   }
 
-  // 2. Fetch completed reviews if the status is Revision Required or Resubmit for Review
-  // Even if it's Reviewed, we might want to show notes. Let's just fetch them.
+  if (!submission) return notFound();
+
+  // 2. Fetch completed reviews
   const { data: reviews } = await supabase
     .from('review_assignments')
     .select('*')
-    .eq('submission_id', submission.id)
+    .eq('submission_id', id)
     .eq('status', 'completed');
+
+  // 3. Fetch submission history (Supabase)
+  const { data: sbHistory } = await supabase
+    .from('submission_history')
+    .select('*')
+    .eq('submission_id', id)
+    .order('created_at', { ascending: true });
+
+  let historyData: any[] = sbHistory || [];
+
+  // Also fetch from Firestore history if none found in Supabase
+  if (historyData.length === 0) {
+    try {
+      const { getFirestore } = await import('@/utils/firebase/db');
+      const db = getFirestore();
+      const fbHistSnap = await db.collection('submission_history').where('submission_id', '==', id).orderBy('created_at', 'asc').get();
+      historyData = fbHistSnap.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data(),
+        created_at: doc.data().created_at?.toDate ? doc.data().created_at.toDate().toISOString() : new Date().toISOString()
+      }));
+    } catch (e) {
+      console.warn('Firestore history fetch failed:', e);
+    }
+  }
 
   const isRevision = submission.status?.toLowerCase().includes('revision') || submission.status?.toLowerCase().includes('resubmit');
 
@@ -56,7 +107,7 @@ export default async function AuthorSubmissionDetail({ params }: { params: Promi
             </div>
             <div className="relative z-10">
                 <div className="flex items-center gap-3 mb-4">
-                  <span className="text-sm font-mono bg-zinc-800 text-zinc-400 px-3 py-1 rounded-md">#{submission.id.split('-')[0]}</span>
+                  <span className="text-sm font-mono bg-zinc-800 text-zinc-400 px-3 py-1 rounded-md">#{submission.id.includes('-') ? submission.id.split('-')[0] : submission.id.slice(0, 12)}</span>
                   <span className="text-xs font-bold text-emerald-500 uppercase tracking-widest bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">{submission.journals?.name || 'Jurnal'}</span>
                 </div>
                 <h1 className="text-2xl md:text-3xl font-bold text-white leading-snug mb-4">{submission.title}</h1>
@@ -186,6 +237,45 @@ export default async function AuthorSubmissionDetail({ params }: { params: Promi
       {/* Upload Revised Manuscript */}
       {isRevision && (
           <AuthorRevisedUpload submissionId={submission.id} />
+      )}
+
+      {/* Submission Timeline / History */}
+      {historyData && historyData.length > 0 && (
+        <div className="mt-12">
+          <h3 className="text-xl font-bold text-white border-b border-zinc-800 pb-3 mb-6 flex items-center gap-2">
+            <Clock className="w-5 h-5 text-emerald-500" />
+            Riwayat Perjalanan Naskah (Timeline)
+          </h3>
+          <div className="relative border-l border-zinc-800 ml-3 space-y-8 pb-4">
+            {historyData.map((item: any, idx: number) => {
+               const isLast = idx === historyData.length - 1;
+               return (
+                 <div key={item.id} className="relative pl-8">
+                   {/* Timeline dot */}
+                   <span className={`absolute -left-[9px] top-1 w-4 h-4 rounded-full border-2 border-[#0b0c10] ${isLast ? 'bg-emerald-500' : 'bg-zinc-700'}`}></span>
+                   
+                   <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2">
+                     <div>
+                       <h4 className={`text-base font-bold ${isLast ? 'text-emerald-400' : 'text-zinc-200'}`}>
+                         {item.action}
+                       </h4>
+                       {item.details && (
+                         <p className="text-sm text-zinc-400 mt-1 leading-relaxed">
+                           {item.details}
+                         </p>
+                       )}
+                     </div>
+                     <span className="text-xs font-mono text-zinc-500 bg-zinc-900 px-2 py-1 rounded border border-zinc-800 whitespace-nowrap self-start">
+                       {new Date(item.created_at).toLocaleString('id-ID', {
+                         day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit'
+                       })}
+                     </span>
+                   </div>
+                 </div>
+               );
+            })}
+          </div>
+        </div>
       )}
 
     </div>

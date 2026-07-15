@@ -21,25 +21,15 @@ export default function Submissions() {
   useEffect(() => {
     const fetchSubmissions = async () => {
       try {
-        const { createClient } = await import('@/utils/supabase/client');
-        const supabase = createClient();
-        const { getCurrentUser } = await import('@/app/actions/auth');
-        let user = await getCurrentUser();
-        
-        if (!user) {
-            window.location.href = '/auth/login';
-            return;
+        const res = await fetch('/api/author/submissions');
+        if (res.status === 401) {
+          window.location.href = '/auth/login';
+          return;
         }
-        
-        const { data, error } = await supabase
-            .from('submissions')
-            .select('*, journals(name)')
-            .eq('author_id', user.id)
-            .order('created_at', { ascending: false });
-            
-          if (!error && data) {
-            setSubmissions(data);
-          }
+        if (res.ok) {
+          const json = await res.json();
+          setSubmissions(json.submissions || []);
+        }
       } catch (e) {
         console.error(e);
       } finally {

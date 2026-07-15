@@ -116,7 +116,10 @@ export default function Certificates() {
                 <div className="text-xs text-zinc-500 font-mono">
                   ID: {cert.id}
                 </div>
-                <button className="flex items-center gap-2 bg-zinc-800 hover:bg-emerald-600 hover:text-black text-zinc-300 font-bold py-2.5 px-5 rounded-lg transition-all text-sm group/btn">
+                <button 
+                  onClick={() => window.open(`/dashboard/certificates/print/${cert.id}`, '_blank')}
+                  className="flex items-center gap-2 bg-zinc-800 hover:bg-emerald-600 hover:text-black text-zinc-300 font-bold py-2.5 px-5 rounded-lg transition-all text-sm group/btn"
+                >
                   <Printer className="w-4 h-4 group-hover/btn:-translate-y-0.5 transition-transform" /> Cetak / Unduh PDF
                 </button>
               </div>

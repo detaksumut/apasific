@@ -337,12 +337,25 @@ export async function getCurrentUser() {
             if (fbToken) {
                const payloadBase64 = fbToken.split('.')[1];
                const payload = JSON.parse(Buffer.from(payloadBase64, 'base64').toString());
-               user = { id: payload.uid, email: "fallback@firebase.local" } as any;
+               user = { id: payload.uid, email: payload.email || "fallback@firebase.local" } as any;
             }
         } catch (e) {}
         
         if (!user && fallbackUserId) {
            user = { id: fallbackUserId, email: "fallback@fallback.local" } as any;
+        }
+
+        // Try to enrich email from Firestore profiles collection
+        const activeUid = user?.id || fallbackUserId;
+        if (activeUid && (!user?.email || user.email.includes('fallback@'))) {
+            try {
+                const { getFirestore } = await import('@/utils/firebase/db');
+                const db = getFirestore();
+                const uDoc = await db.collection('profiles').doc(activeUid).get();
+                if (uDoc.exists && uDoc.data()?.email) {
+                    user = { id: activeUid, email: uDoc.data()?.email } as any;
+                }
+            } catch (e) {}
         }
     }
     

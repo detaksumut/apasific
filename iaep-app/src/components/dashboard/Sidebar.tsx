@@ -61,6 +61,15 @@ export default function Sidebar({ role }: SidebarProps) {
       ),
     },
     {
+      label: "Lacak Proses",
+      path: "/dashboard/track",
+      icon: (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M12 2a10 10 0 1 1 0 20A10 10 0 0 1 12 2z"/><polyline points="12 6 12 12 16 14"/>
+        </svg>
+      ),
+    },
+    {
       label: "Acceptance Letter",
       path: "/dashboard/loa",
       icon: (

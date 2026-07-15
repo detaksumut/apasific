@@ -27,6 +27,9 @@ export default function ArticlePaywall() {
     keywords: [] as string[],
     price: 50000,
     orcid: "",
+    google_scholar: "",
+    wos: "",
+    ssrn: "",
     doi: "",
     views: 0,
     downloads: 0,
@@ -51,7 +54,17 @@ export default function ArticlePaywall() {
           const data = res.article;
           const authors = data.profiles?.full_name || data.author || "Penulis Tidak Diketahui";
           const firstOrcid = data.profiles?.orcid || "";
-          
+          const googleScholar = data.profiles?.google_scholar || "";
+          const wos = data.profiles?.wos || "";
+          const ssrn = data.profiles?.ssrn || "";
+          let hiddenDoi = data.doi || "";
+          if (!hiddenDoi && typeof data.abstract === 'string' && data.abstract.trim().startsWith('{')) {
+            try {
+              const parsedAbs = JSON.parse(data.abstract);
+              if (parsedAbs.doi) hiddenDoi = parsedAbs.doi;
+            } catch (e) {}
+          }
+
           setArticle({
             title: data.title || "",
             author: authors,
@@ -62,7 +75,10 @@ export default function ArticlePaywall() {
             price: 50000,
             pdf_url: data.file_url || "",
             orcid: firstOrcid,
-            doi: data.doi || "",
+            google_scholar: googleScholar,
+            wos: wos,
+            ssrn: ssrn,
+            doi: hiddenDoi,
             views: 0,
             downloads: 0,
             cover_file_url: data.cover_file_url || ""
@@ -193,22 +209,47 @@ export default function ArticlePaywall() {
           </h1>
           <div className="flex flex-col text-lg text-gray-400 mt-2 gap-2">
             <span className="font-bold text-gray-200 text-xl">{article.author}</span>
-            <span className="text-sm flex items-center gap-2 text-gray-400">
+            <div className="flex flex-row flex-wrap items-center gap-4 mt-1 mb-1">
+              <span className="text-sm font-semibold text-gray-400 mr-1">ID Akademik:</span>
+              <a href={article.orcid ? (article.orcid.startsWith('http') ? article.orcid : `https://orcid.org/${article.orcid}`) : "#"} target={article.orcid ? "_blank" : "_self"} rel="noopener noreferrer" className={`inline-flex items-center gap-2 text-sm text-[#A6CE39] hover:underline w-fit ${!article.orcid && 'opacity-50 cursor-not-allowed'}`}>
+                <div className="bg-[#A6CE39] rounded-full p-1.5 flex items-center justify-center">
+                  <svg className="w-8 h-8 text-white" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 0C5.372 0 0 5.372 0 12s5.372 12 12 12 12-5.372 12-12S18.628 0 12 0zM7.369 4.378c.525 0 .947.431.947.947s-.422.947-.947.947a.95.95 0 01-.947-.947c0-.525.422-.947.947-.947zm-.722 3.038h1.444v10.041H6.647V7.416zm3.562 0h3.9c3.712 0 5.344 2.653 5.344 5.025 0 2.578-2.016 5.025-5.325 5.025h-3.919V7.416zm1.444 1.303v7.44h2.297c3.272 0 4.022-2.484 4.022-3.72 0-2.016-1.284-3.72-4.097-3.72h-2.222z"/>
+                  </svg>
+                </div>
+                ORCID
+              </a>
+              <a href={article.google_scholar || "#"} target={article.google_scholar ? "_blank" : "_self"} rel="noopener noreferrer" className={`inline-flex items-center gap-2 text-sm text-[#4285F4] hover:underline w-fit ${!article.google_scholar && 'opacity-50 cursor-not-allowed'}`}>
+                <div className="bg-[#4285F4] rounded-full p-1.5 flex items-center justify-center">
+                  <svg className="w-8 h-8 text-white" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 24a7 7 0 1 1 0-14 7 7 0 0 1 0 14zm0-24L0 9.5l4.838 3.94A8 8 0 0 1 12 9a8 8 0 0 1 7.162 4.44L24 9.5z"/>
+                  </svg>
+                </div>
+                Google Scholar
+              </a>
+              <a href={article.wos || "#"} target={article.wos ? "_blank" : "_self"} rel="noopener noreferrer" className={`inline-flex items-center gap-2 text-sm text-[#5c2d91] hover:underline w-fit ${!article.wos && 'opacity-50 cursor-not-allowed'}`}>
+                <div className="bg-[#5c2d91] rounded-full p-1.5 flex items-center justify-center">
+                  <svg className="w-8 h-8 text-white" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14.5v-9l6 4.5-6 4.5z"/>
+                  </svg>
+                </div>
+                Web of Science
+              </a>
+              <a href={article.ssrn || "#"} target={article.ssrn ? "_blank" : "_self"} rel="noopener noreferrer" className={`inline-flex items-center gap-2 text-sm text-[#1D4F91] hover:underline w-fit ${!article.ssrn && 'opacity-50 cursor-not-allowed'}`}>
+                <div className="bg-[#1D4F91] rounded-full p-1.5 flex items-center justify-center">
+                  <svg className="w-8 h-8 text-white" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 0L0 7.5v9L12 24l12-7.5v-9L12 0zm0 3.5l8 5-8 5-8-5 8-5z"/>
+                  </svg>
+                </div>
+                SSRN
+              </a>
+            </div>
+            <span className="text-sm flex items-center gap-2 text-gray-400 mt-1">
               <svg className="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
               </svg>
               APASIFIC IAEP, Indonesia
             </span>
-            {article.orcid && (
-              <a href={`https://orcid.org/${article.orcid}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-sm text-[#A6CE39] hover:underline mt-1 w-fit">
-                <div className="bg-[#A6CE39] rounded-full p-0.5">
-                  <svg className="w-3 h-3 text-white" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M12 0C5.372 0 0 5.372 0 12s5.372 12 12 12 12-5.372 12-12S18.628 0 12 0zM7.369 4.378c.525 0 .947.431.947.947s-.422.947-.947.947a.95.95 0 01-.947-.947c0-.525.422-.947.947-.947zm-.722 3.038h1.444v10.041H6.647V7.416zm3.562 0h3.9c3.712 0 5.344 2.653 5.344 5.025 0 2.578-2.016 5.025-5.325 5.025h-3.919V7.416zm1.444 1.303v7.44h2.297c3.272 0 4.022-2.484 4.022-3.72 0-2.016-1.284-3.72-4.097-3.72h-2.222z"/>
-                  </svg>
-                </div>
-                ORCID: {article.orcid}
-              </a>
-            )}
             
             {article.doi && (
               <div className="mt-4 pt-4 border-t border-gray-800 text-sm">
@@ -244,9 +285,41 @@ export default function ArticlePaywall() {
           <div className="lg:col-span-2 space-y-8">
             <section className="bg-[#0d0d1a] rounded-2xl p-8 border border-gray-800 shadow-xl">
               <h2 className="text-2xl font-bold text-[#c9a84c] mb-4">Abstrak</h2>
-              <p className="text-gray-300 leading-relaxed text-lg text-justify">
-                {article.abstract}
-              </p>
+              
+              {(() => {
+                try {
+                  // Try to parse if it's a JSON string
+                  if (typeof article.abstract === 'string' && article.abstract.trim().startsWith('{')) {
+                    const parsed = JSON.parse(article.abstract);
+                    return (
+                      <div className="space-y-6">
+                        {parsed.abstract && (
+                          <div className="text-gray-300 leading-relaxed text-lg text-justify whitespace-pre-wrap">
+                            {parsed.abstract.replace(/^Abstrak\n?/i, '')}
+                          </div>
+                        )}
+                        {parsed.abstract_en && (
+                          <>
+                            <h2 className="text-2xl font-bold text-[#c9a84c] mb-4 mt-8 border-t border-gray-800 pt-8">Abstract</h2>
+                            <div className="text-gray-300 leading-relaxed text-lg text-justify whitespace-pre-wrap italic">
+                              {parsed.abstract_en.replace(/^Abstract\n?/i, '')}
+                            </div>
+                          </>
+                        )}
+                      </div>
+                    );
+                  }
+                } catch (e) {
+                  // Ignore parse error and fall back to plain text
+                }
+                
+                // Fallback for plain text abstract
+                return (
+                  <p className="text-gray-300 leading-relaxed text-lg text-justify whitespace-pre-wrap">
+                    {article.abstract}
+                  </p>
+                );
+              })()}
               
               {article.keywords && article.keywords.length > 0 && (
                 <div className="mt-8">
