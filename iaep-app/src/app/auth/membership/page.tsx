@@ -378,7 +378,7 @@ export default function MajesticMembershipPage() {
                 {/* FRONT SIDE */}
                 <div 
                   className="absolute inset-0 w-full h-full overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.8)] border border-white/20 bg-cover bg-center"
-                  style={{ backgroundImage: 'url(/cardasia.png)', borderRadius: '16px', backfaceVisibility: 'hidden' }}
+                  style={{ backgroundImage: 'url(/ASIA_under1MB.png)', borderRadius: '16px', backfaceVisibility: 'hidden' }}
                 >
                   {/* LOGO & TEXT */}
                   <div className="absolute flex items-center gap-2.5 drop-shadow-2xl" style={{ top: '3%', left: '5%' }}>
@@ -402,8 +402,8 @@ export default function MajesticMembershipPage() {
                     </div>
                   </div>
 
-                  {/* CHIP */}
-                  <div className="absolute opacity-90 drop-shadow-md" style={{ top: '28%', left: '8%' }}>
+                  {/* CHIP (Dipindah ke atas No ID) */}
+                  <div className="absolute opacity-90 drop-shadow-md flex justify-end" style={{ bottom: '18%', right: '5%' }}>
                     <svg width="36" height="26" viewBox="0 0 40 30" xmlns="http://www.w3.org/2000/svg">
                       <rect width="40" height="30" rx="5" fill="url(#chipGradient)" stroke="#8b6508" strokeWidth="0.5" />
                       <path d="M0 10 h12 M0 20 h12 M28 10 h12 M28 20 h12 M12 0 v30 M28 0 v30 M12 15 h16" stroke="#8b6508" strokeWidth="0.8" fill="none" />
@@ -418,13 +418,13 @@ export default function MajesticMembershipPage() {
                   </div>
 
                   {/* NAME & CITIZENSHIP */}
-                  <div className="absolute flex flex-col gap-1 text-white font-bold uppercase drop-shadow-md tracking-wider whitespace-nowrap" style={{ top: '45%', left: '8%', fontSize: '11px' }}>
+                  <div className="absolute flex flex-col gap-0 text-white font-bold uppercase drop-shadow-md tracking-wider whitespace-nowrap" style={{ top: '45%', left: '8%', fontSize: '11px' }}>
                     <div className="flex items-center">
                       <div className="w-24">NAME</div>
                       <div className="mr-2">:</div>
                       <div>{formData.fullName || "NAMA ANDA DI SINI"}</div>
                     </div>
-                    <div className="flex items-center">
+                    <div className="flex items-center -mt-1">
                       <div className="w-24">CITIZENSHIP</div>
                       <div className="mr-2">:</div>
                       <div>{formData.country || "INDONESIA"}</div>
@@ -456,13 +456,13 @@ export default function MajesticMembershipPage() {
                   <div className="absolute w-full bg-[#1c1c1c] shadow-lg" style={{ top: '24%', height: '18%' }}></div>
                   
                   {/* Text Information (Perfectly Aligned) */}
-                  <div className="absolute flex flex-col gap-[4px] text-white font-bold uppercase drop-shadow-md tracking-wider whitespace-nowrap" style={{ top: '43%', left: '6%', fontSize: '9px' }}>
+                  <div className="absolute flex flex-col gap-[1px] text-white font-bold uppercase drop-shadow-md tracking-wider whitespace-nowrap" style={{ top: '43%', left: '6%', fontSize: '9px' }}>
                     <div className="flex items-center">
                       <div className="w-[75px] text-left">NAME</div>
                       <div className="mr-1">:</div>
                       <div>{formData.fullName || "ARFAN IKHSAN LUBIS"}</div>
                     </div>
-                    <div className="flex items-center">
+                    <div className="flex items-center -mt-1">
                       <div className="w-[75px] text-left">CITIZENSHIP</div>
                       <div className="mr-1">:</div>
                       <div>{formData.country || "INDONESIA"}</div>
@@ -607,7 +607,7 @@ export default function MajesticMembershipPage() {
             <div id="print-card-area" className="flex flex-col gap-4 items-center print:gap-8" style={{ width: '100%', maxWidth: '384px' }}>
               
               {/* Front Card */}
-              <div id="print-card-front" className="w-full relative overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.8)] print:shadow-none border border-[#c9a84c]/40 print:border-none bg-cover bg-center" style={{ backgroundImage: 'url(/cardasia.png)', borderRadius: '16px', aspectRatio: '1.586/1' }}>
+              <div id="print-card-front" className="w-full relative overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.8)] print:shadow-none border border-[#c9a84c]/40 print:border-none bg-cover bg-center" style={{ backgroundImage: 'url(/ASIA_under1MB.png)', borderRadius: '16px', aspectRatio: '1.586/1' }}>
                 
                 {/* LOGO & TEXT */}
                 <div className="absolute flex items-center gap-2.5 drop-shadow-2xl" style={{ top: '3%', left: '5%' }}>
@@ -631,8 +631,8 @@ export default function MajesticMembershipPage() {
                   </div>
                 </div>
 
-                {/* CHIP */}
-                <div className="absolute opacity-90 drop-shadow-md" style={{ top: '28%', left: '8%' }}>
+                {/* CHIP (Dipindah ke atas No ID) */}
+                <div className="absolute opacity-90 drop-shadow-md flex justify-end" style={{ bottom: '18%', right: '5%' }}>
                   <svg width="36" height="26" viewBox="0 0 40 30" xmlns="http://www.w3.org/2000/svg">
                     <rect width="40" height="30" rx="5" fill="url(#chipGradient2)" stroke="#8b6508" strokeWidth="0.5" />
                     <path d="M0 10 h12 M0 20 h12 M28 10 h12 M28 20 h12 M12 0 v30 M28 0 v30 M12 15 h16" stroke="#8b6508" strokeWidth="0.8" fill="none" />
@@ -647,13 +647,13 @@ export default function MajesticMembershipPage() {
                 </div>
 
                 {/* NAME & CITIZENSHIP */}
-                <div className="absolute flex flex-col gap-1 text-white font-bold uppercase drop-shadow-md tracking-wider whitespace-nowrap" style={{ top: '45%', left: '8%', fontSize: '11px' }}>
+                <div className="absolute flex flex-col gap-0 text-white font-bold uppercase drop-shadow-md tracking-wider whitespace-nowrap" style={{ top: '45%', left: '8%', fontSize: '11px' }}>
                   <div className="flex items-center">
                     <div className="w-24">NAME</div>
                     <div className="mr-2">:</div>
                     <div>{selectedMemberCard.full_name || "NAMA ANDA DI SINI"}</div>
                   </div>
-                  <div className="flex items-center">
+                  <div className="flex items-center -mt-1">
                     <div className="w-24">CITIZENSHIP</div>
                     <div className="mr-2">:</div>
                     <div>{selectedMemberCard.country || "INDONESIA"}</div>
@@ -683,13 +683,13 @@ export default function MajesticMembershipPage() {
                 <div className="absolute w-full bg-[#1c1c1c] shadow-lg" style={{ top: '24%', height: '18%' }}></div>
                 
                 {/* Text Information (Perfectly Aligned) */}
-                <div className="absolute flex flex-col gap-[4px] text-white font-bold uppercase drop-shadow-md tracking-wider whitespace-nowrap" style={{ top: '43%', left: '6%', fontSize: '9px' }}>
+                <div className="absolute flex flex-col gap-[1px] text-white font-bold uppercase drop-shadow-md tracking-wider whitespace-nowrap" style={{ top: '43%', left: '6%', fontSize: '9px' }}>
                   <div className="flex items-center">
                     <div className="w-[75px] text-left">NAME</div>
                     <div className="mr-1">:</div>
                     <div>{selectedMemberCard.full_name || "ARFAN IKHSAN LUBIS"}</div>
                   </div>
-                  <div className="flex items-center">
+                  <div className="flex items-center -mt-1">
                     <div className="w-[75px] text-left">CITIZENSHIP</div>
                     <div className="mr-1">:</div>
                     <div>{selectedMemberCard.country || "INDONESIA"}</div>
