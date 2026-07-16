@@ -18,6 +18,7 @@ export default function UserManagement() {
         
         if (data.success && data.users && data.users.length > 0) {
           const mappedUsers = data.users.map((u: any) => ({
+            ...u,
             id: u.id,
             name: u.full_name || u.name,
             email: u.email,
@@ -605,6 +606,10 @@ export default function UserManagement() {
                 <div className="md:col-span-2">
                   <label className="block text-sm font-medium text-gray-400 mb-1">Institusi/Universitas</label>
                   <input value={editFormData.university || ''} onChange={e => setEditFormData({...editFormData, university: e.target.value})} className="w-full bg-[#0a0a14] border border-gray-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-[#c9a84c]" />
+                </div>
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-gray-400 mb-1">Disiplin Keilmuan / Academic Field</label>
+                  <input value={editFormData.academic_field || editFormData.discipline || ''} onChange={e => setEditFormData({...editFormData, academic_field: e.target.value})} className="w-full bg-[#0a0a14] border border-gray-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-[#c9a84c]" />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-400 mb-1">ID Akademik (ORCID)</label>

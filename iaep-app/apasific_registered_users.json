@@ -13,19 +13,6 @@
     "phone_number": "+6287886034909"
   },
   {
-    "id": "demo-user-1783883716359-0.2605839011856409",
-    "full_name": "LINCE BULUTODING",
-    "email": "lince.bulutoding@uin-alauddin.ac.id",
-    "role": "reviewer",
-    "journal": "APASIFIC IAEP",
-    "university": "UNIVERSITAS ISLAM NEGERI ALAUDDIN MAKASSAR",
-    "country": "INDONESIA",
-    "status": "Active",
-    "joined": "11/28/2025 19:03:12",
-    "password": "ReviewerPassword123!",
-    "phone_number": "+6281355148080"
-  },
-  {
     "id": "demo-user-1783883716362-0.8724951060206666",
     "full_name": "NORFAIEZAH SAWANDI",
     "email": "ezah@uum.edu.my",
@@ -49,7 +36,7 @@
     "status": "Active",
     "joined": "12/22/2025 8:11:57",
     "password": "ReviewerPassword123!",
-    "phone_number": "60124837913"
+    "phone_number": "+60124837913"
   },
   {
     "id": "demo-user-1783883716362-0.44837719579154967",
@@ -75,7 +62,7 @@
     "status": "Active",
     "joined": "12/22/2025 8:29:19",
     "password": "ReviewerPassword123!",
-    "phone_number": "124015200"
+    "phone_number": "+60124015200"
   },
   {
     "id": "demo-user-1783883716362-0.10160221374152134",
@@ -127,7 +114,7 @@
     "status": "Active",
     "joined": "12/22/2025 8:48:46",
     "password": "ReviewerPassword123!",
-    "phone_number": "0060174811673"
+    "phone_number": "+60174811673"
   },
   {
     "id": "demo-user-1783883716362-0.11695543987613621",
@@ -140,7 +127,7 @@
     "status": "Active",
     "joined": "12/22/2025 8:49:22",
     "password": "ReviewerPassword123!",
-    "phone_number": "60174713969"
+    "phone_number": "+60174713969"
   },
   {
     "id": "demo-user-1783883716362-0.3789661031960819",
@@ -260,7 +247,7 @@
     "status": "Active",
     "joined": "12/22/2025 9:56:49",
     "password": "ReviewerPassword123!",
-    "phone_number": "0195272400"
+    "phone_number": "+600195272400"
   },
   {
     "id": "demo-user-1783883716362-0.7967390494776104",
@@ -416,7 +403,7 @@
     "status": "Active",
     "joined": "12/22/2025 14:53:51",
     "password": "ReviewerPassword123!",
-    "phone_number": "0194452757"
+    "phone_number": "+600194452757"
   },
   {
     "id": "demo-user-1783883716362-0.198505819451133",
@@ -468,7 +455,7 @@
     "status": "Active",
     "joined": "12/23/2025 10:32:52",
     "password": "ReviewerPassword123!",
-    "phone_number": "0194100207"
+    "phone_number": "+600194100207"
   },
   {
     "id": "demo-user-1783883716362-0.055194359905753165",
@@ -494,7 +481,7 @@
     "status": "Active",
     "joined": "12/23/2025 12:02:14",
     "password": "ReviewerPassword123!",
-    "phone_number": "60134336703"
+    "phone_number": "+60134336703"
   },
   {
     "id": "demo-user-1783883716362-0.8392981464060385",
@@ -533,7 +520,7 @@
     "status": "Active",
     "joined": "12/23/2025 13:25:41",
     "password": "ReviewerPassword123!",
-    "phone_number": "60195908793"
+    "phone_number": "+60195908793"
   },
   {
     "id": "demo-user-1783883716362-0.6777651822117492",
@@ -546,7 +533,7 @@
     "status": "Active",
     "joined": "12/23/2025 21:09:32",
     "password": "ReviewerPassword123!",
-    "phone_number": "0194166101"
+    "phone_number": "+600194166101"
   },
   {
     "id": "demo-user-1783883716362-0.22306900299043286",
@@ -572,7 +559,7 @@
     "status": "Active",
     "joined": "12/26/2025 22:43:15",
     "password": "ReviewerPassword123!",
-    "phone_number": "60105131525"
+    "phone_number": "+60105131525"
   },
   {
     "id": "demo-user-1783883716362-0.05730894278781362",
@@ -681,14 +668,7 @@
     "password": "WRTiga2024",
     "full_name": "Dr. Indrian Supheni, SE., M.Aks., CSRA.",
     "phone_number": "+628113130106",
-    "country": "Indonesia",
-    "university": "Universitas PGRI Mpu Sindok",
     "role": "author",
-    "orcid_id": "0000-0001-7249-1783",
-    "google_scholar_id": "uGV0eIAAAAAJ",
-    "scopus_id": "59410654700",
-    "wos_id": "",
-    "sinta_id": "5982195",
     "status": "Active",
     "joined": "2026-07-13T00:07:53.941Z"
   },
@@ -718,12 +698,7 @@
     "journal": "APASIFIC IAEP",
     "joined": "7/11/2026 7:34:57",
     "full_name": "Prof. Dr. Rika Dwi Ayu Parmitasari, SE, M.Com",
-    "university": "Universitas Islam Negeri Alauddin Makassar Indonesia",
-    "country": "Indonesia",
-    "phone_number": "+6281343814626",
-    "scopus_id": "57192940248",
-    "google_scholar_id": "4o61ZVMAAAAJ",
-    "orcid_id": "0000-0003-2714-9123"
+    "phone_number": "+6281343814626"
   },
   {
     "id": "import-1783937838523-0.5375361463978983",
@@ -734,12 +709,7 @@
     "journal": "APASIFIC IAEP",
     "joined": "7/11/2026 10:39:22",
     "full_name": "Aryo Prakoso",
-    "university": "University of Jember",
-    "country": "Indonesia",
-    "phone_number": "+6285731499131",
-    "scopus_id": "5931322210",
-    "google_scholar_id": "hT_VIgYAAAAJ",
-    "orcid_id": "0000-0002-4683-8218"
+    "phone_number": "+6285731499131"
   },
   {
     "id": "import-1783937838523-0.2950091228091032",
@@ -750,12 +720,7 @@
     "journal": "APASIFIC IAEP",
     "joined": "7/11/2026 11:49:54",
     "full_name": "Dr. HJ. SUBADRIYAH, S.E., M.Si.",
-    "university": "UNIVERSITAS ISLAM NAHDLATUL ULAMA JEPARA",
-    "country": "Indonesia",
-    "phone_number": "+628112742922",
-    "scopus_id": "57207845594",
-    "google_scholar_id": "KaRTCcsAAAAJ",
-    "orcid_id": "0000-0001-6994-6644"
+    "phone_number": "+628112742922"
   },
   {
     "id": "import-1783937838523-0.9685933358309502",
@@ -766,12 +731,7 @@
     "journal": "APASIFIC IAEP",
     "joined": "7/11/2026 11:58:15",
     "full_name": "Imam Gunanjar, S.E., M.M.",
-    "university": "Universitas Samudra",
-    "country": "Indonesia",
-    "phone_number": "+6285277719602",
-    "scopus_id": "60142907700",
-    "google_scholar_id": "owKlW6wAAAAJ",
-    "orcid_id": "0009-0004-6714-4452"
+    "phone_number": "+6285277719602"
   },
   {
     "id": "import-1783937838523-0.6131541139950851",
@@ -782,12 +742,7 @@
     "journal": "APASIFIC IAEP",
     "joined": "7/11/2026 12:27:44",
     "full_name": "Hadi Jauhari",
-    "university": "Politeknik Negeri Sriwijaya",
-    "country": "Indonesia",
-    "phone_number": "+6281367163993",
-    "scopus_id": "57194244234",
-    "google_scholar_id": "WkNvivgAAAAJ",
-    "orcid_id": "0000-0002-4059-4371"
+    "phone_number": "+6281367163993"
   },
   {
     "id": "import-1783937838523-0.7173022143229102",
@@ -798,12 +753,7 @@
     "journal": "APASIFIC IAEP",
     "joined": "7/11/2026 14:34:45",
     "full_name": "Ikbar Pratama",
-    "university": "Universitas Medan Area",
-    "country": "Indonesia",
-    "phone_number": "+6281376666352",
-    "scopus_id": "57220929541",
-    "google_scholar_id": "Y_NdcAoAAAAJ",
-    "orcid_id": "0000-0002-7897-2737"
+    "phone_number": "+6281376666352"
   },
   {
     "id": "import-1783937838523-0.6260706724684217",
@@ -830,12 +780,7 @@
     "journal": "APASIFIC IAEP",
     "joined": "7/11/2026 15:05:47",
     "full_name": "Dr. Surna Lastri, SE, M.Si, CTT, CSBA",
-    "university": "Universitas Muhammadiyah Aceh",
-    "country": "Indonesia",
-    "phone_number": "+62811689748",
-    "scopus_id": "57669510400",
-    "google_scholar_id": "Google Scholar Link",
-    "orcid_id": "0000-0001-9602-9446"
+    "phone_number": "+62811689748"
   },
   {
     "id": "import-1783937838523-0.12160993736528813",
@@ -846,12 +791,7 @@
     "journal": "APASIFIC IAEP",
     "joined": "7/12/2026 8:57:20",
     "full_name": "Dr. Ni Nyoman Ayu Suryandari, SE., M.Si., Ak., CA",
-    "university": "Universitas Mahasaraswati Denpasar",
-    "country": "Indonesia",
-    "phone_number": "+6281337154769",
-    "scopus_id": "57218585288",
-    "google_scholar_id": "zviYldQAAAAJ",
-    "orcid_id": "0000-0001-7103-779X"
+    "phone_number": "+6281337154769"
   },
   {
     "id": "import-1783937838524-0.3220738021052103",
@@ -862,17 +802,12 @@
     "journal": "APASIFIC IAEP",
     "joined": "7/13/2026 9:56:32",
     "full_name": "Assoc.Prof.Petty Aprilia Sari,S.E.,M.Ak.",
-    "university": "Institut Putra Perdana Indonesia",
-    "country": "Indonesia",
-    "phone_number": "+6285326289990",
-    "scopus_id": "59136382000",
-    "google_scholar_id": "8AFgrTYAAAAJ",
-    "orcid_id": "0009-0006-1797-8568"
+    "phone_number": "+6285326289990"
   },
   {
     "id": "asiacert-1783964422291-0.14600105553178588",
     "full_name": "Dr. Sazali Zainal Abidin",
-    "email": "drsazalizainalabidin@apasific.org",
+    "email": "drsazalizainalabidin@apasific-dummy.com",
     "role": "reviewer",
     "journal": "APASIFIC IAEP",
     "university": "ASIACERT Board",
@@ -885,7 +820,7 @@
   {
     "id": "asiacert-1783964422314-0.33241769399875176",
     "full_name": "Dr. Amni Suhailah",
-    "email": "dramnisuhailah@apasific.org",
+    "email": "dramnisuhailah@apasific-dummy.com",
     "role": "reviewer",
     "journal": "APASIFIC IAEP",
     "university": "ASIACERT Board",
@@ -898,7 +833,7 @@
   {
     "id": "asiacert-1783964422314-0.07339327162639098",
     "full_name": "Dr. Prattana Arisuk",
-    "email": "drprattanaarisuk@apasific.org",
+    "email": "drprattanaarisuk@apasific-dummy.com",
     "role": "reviewer",
     "journal": "APASIFIC IAEP",
     "university": "ASIACERT Board",
@@ -911,7 +846,7 @@
   {
     "id": "asiacert-1783964422314-0.7781704072380886",
     "full_name": "Dr. Prattana Srisuk",
-    "email": "drprattanasrisuk@apasific.org",
+    "email": "drprattanasrisuk@apasific-dummy.com",
     "role": "reviewer",
     "journal": "APASIFIC IAEP",
     "university": "ASIACERT Board",
@@ -924,7 +859,7 @@
   {
     "id": "asiacert-1783964422314-0.17059731405586076",
     "full_name": "Dr. Cliff Cheng",
-    "email": "drcliffcheng@apasific.org",
+    "email": "drcliffcheng@apasific-dummy.com",
     "role": "reviewer",
     "journal": "APASIFIC IAEP",
     "university": "ASIACERT Board",
@@ -937,7 +872,7 @@
   {
     "id": "asiacert-1783964422315-0.04155968419535894",
     "full_name": "Dr. Ha Thuy",
-    "email": "drhathuy@apasific.org",
+    "email": "drhathuy@apasific-dummy.com",
     "role": "reviewer",
     "journal": "APASIFIC IAEP",
     "university": "ASIACERT Board",
@@ -950,7 +885,7 @@
   {
     "id": "asiacert-1783964422315-0.46775345070867114",
     "full_name": "Dr. Hakan Aslan",
-    "email": "drhakanaslan@apasific.org",
+    "email": "drhakanaslan@apasific-dummy.com",
     "role": "reviewer",
     "journal": "APASIFIC IAEP",
     "university": "ASIACERT Board",
@@ -963,7 +898,7 @@
   {
     "id": "asiacert-1783964422315-0.45567656016295555",
     "full_name": "Dr. Wahida",
-    "email": "drwahida@apasific.org",
+    "email": "drwahida@apasific-dummy.com",
     "role": "reviewer",
     "journal": "APASIFIC IAEP",
     "university": "ASIACERT Board",
@@ -976,7 +911,7 @@
   {
     "id": "asiacert-1783964422315-0.08716488875865736",
     "full_name": "Dr. Muhammad Hashim",
-    "email": "drmuhammadhashim@apasific.org",
+    "email": "drmuhammadhashim@apasific-dummy.com",
     "role": "reviewer",
     "journal": "APASIFIC IAEP",
     "university": "ASIACERT Board",
@@ -989,7 +924,7 @@
   {
     "id": "asiacert-1783964422315-0.2829483945828817",
     "full_name": "Dr. Raja Haslinda",
-    "email": "drrajahaslinda@apasific.org",
+    "email": "drrajahaslinda@apasific-dummy.com",
     "role": "reviewer",
     "journal": "APASIFIC IAEP",
     "university": "ASIACERT Board",
@@ -1002,7 +937,7 @@
   {
     "id": "asiacert-1783964422315-0.3110529266382067",
     "full_name": "Dr. Nifaosan",
-    "email": "drnifaosan@apasific.org",
+    "email": "drnifaosan@apasific-dummy.com",
     "role": "reviewer",
     "journal": "APASIFIC IAEP",
     "university": "ASIACERT Board",
@@ -1015,7 +950,7 @@
   {
     "id": "asiacert-1783964422315-0.12350357711609439",
     "full_name": "Dr. Ryan",
-    "email": "drryan@apasific.org",
+    "email": "drryan@apasific-dummy.com",
     "role": "reviewer",
     "journal": "APASIFIC IAEP",
     "university": "ASIACERT Board",
@@ -1028,7 +963,7 @@
   {
     "id": "asiacert-1783964422316-0.5265942620791124",
     "full_name": "Prof. Dr. Indra Devi",
-    "email": "profdrindradevi@apasific.org",
+    "email": "profdrindradevi@apasific-dummy.com",
     "role": "reviewer",
     "journal": "APASIFIC IAEP",
     "university": "ASIACERT Board",
@@ -1041,7 +976,7 @@
   {
     "id": "asiacert-1783964422316-0.6632937419324025",
     "full_name": "Dr. Intan Fatimah Anwar",
-    "email": "drintanfatimahanwar@apasific.org",
+    "email": "drintanfatimahanwar@apasific-dummy.com",
     "role": "reviewer",
     "journal": "APASIFIC IAEP",
     "university": "ASIACERT Board",
@@ -1054,7 +989,7 @@
   {
     "id": "asiacert-1783964422316-0.4394542423605887",
     "full_name": "Dr. Majo George",
-    "email": "drmajogeorge@apasific.org",
+    "email": "drmajogeorge@apasific-dummy.com",
     "role": "reviewer",
     "journal": "APASIFIC IAEP",
     "university": "ASIACERT Board",
@@ -1067,7 +1002,7 @@
   {
     "id": "asiacert-1783964422316-0.5453699020740483",
     "full_name": "DR. Mohammad Sahabuddin",
-    "email": "drmohammadsahabuddin@apasific.org",
+    "email": "drmohammadsahabuddin@apasific-dummy.com",
     "role": "reviewer",
     "journal": "APASIFIC IAEP",
     "university": "ASIACERT Board",
@@ -1080,7 +1015,7 @@
   {
     "id": "asiacert-1783964422316-0.24076387600416793",
     "full_name": "Prof. Dr. Ram Al Jafri bin Saad",
-    "email": "profdrramaljafribinsaad@apasific.org",
+    "email": "profdrramaljafribinsaad@apasific-dummy.com",
     "role": "reviewer",
     "journal": "APASIFIC IAEP",
     "university": "ASIACERT Board",
@@ -1119,5 +1054,117 @@
     "orcid_id": "QKY-3514-2026",
     "status": "Active",
     "joined": "2026-07-14T20:26:16.065Z"
+  },
+  {
+    "id": "demo-user-1784072140915",
+    "email": "kun@apasific.org",
+    "password": "mikrosistem",
+    "full_name": "Kun Syafi'i Habibi",
+    "phone_number": "+628000000000",
+    "country": "Indonesia",
+    "university": "APASIFIC",
+    "discipline": "Publishing",
+    "role": "Layout Editor",
+    "orcid_id": "",
+    "google_scholar_id": "",
+    "scopus_id": "",
+    "wos_id": "",
+    "sinta_id": "",
+    "status": "Active",
+    "joined": "2026-07-14T23:35:40.915Z"
+  },
+  {
+    "id": "demo-user-1784072141577",
+    "email": "rizky@apasific.org",
+    "password": "mikrosistem",
+    "full_name": "Rizky Al Ridho",
+    "phone_number": "+628000000000",
+    "country": "Indonesia",
+    "university": "APASIFIC",
+    "discipline": "Publishing",
+    "role": "Cover Editor",
+    "orcid_id": "",
+    "google_scholar_id": "",
+    "scopus_id": "",
+    "wos_id": "",
+    "sinta_id": "",
+    "status": "Active",
+    "joined": "2026-07-14T23:35:41.577Z"
+  },
+  {
+    "id": "demo-user-1784072142245",
+    "email": "parida@apasific.org",
+    "password": "mikrosistem",
+    "full_name": "Parida Hannum",
+    "phone_number": "+628000000000",
+    "country": "Indonesia",
+    "university": "APASIFIC",
+    "discipline": "Publishing",
+    "role": "Publish Editor",
+    "orcid_id": "",
+    "google_scholar_id": "",
+    "scopus_id": "",
+    "wos_id": "",
+    "sinta_id": "",
+    "status": "Active",
+    "joined": "2026-07-14T23:35:42.245Z"
+  },
+  {
+    "id": "demo-user-1784072142931",
+    "email": "danil@apasific.org",
+    "password": "mikrosistem",
+    "full_name": "Muhammad Danil",
+    "phone_number": "+628000000000",
+    "country": "Indonesia",
+    "university": "APASIFIC",
+    "discipline": "Publishing",
+    "role": "Admin Editor",
+    "orcid_id": "",
+    "google_scholar_id": "",
+    "scopus_id": "",
+    "wos_id": "",
+    "sinta_id": "",
+    "status": "Active",
+    "joined": "2026-07-14T23:35:42.931Z"
+  },
+  {
+    "id": "demo-user-1784098732284",
+    "email": "inugrahr@gmail.com",
+    "password": "Aoapabarakallah1",
+    "full_name": "Dr. Inugrah Ratia Pratiwi, S.E., M.Ak., Ak., CA.",
+    "phone_number": "08112233857",
+    "country": "Indonesia ",
+    "university": "Universitas Muhammadiyah Bandung ",
+    "discipline": "Financial Accounting ",
+    "role": "reviewer",
+    "orcid_id": "",
+    "google_scholar_id": "https://scholar.google.com/citations?user=vOwRh5sAAAAJ&hl=en",
+    "scopus_id": "",
+    "wos_id": "",
+    "sinta_id": "6783348",
+    "status": "Active",
+    "joined": "2026-07-15T06:58:52.284Z"
+  },
+  {
+    "email": "aulia_juanda@itsi.ac.id",
+    "full_name": "Aulia Juanda Djaingsastro",
+    "role": "reviewer",
+    "status": "Active",
+    "expertise": "Pertanian",
+    "joined": "2026-07-15T23:50:39.807Z",
+    "id": "demo-user-1784159440703-0.20091326214123417",
+    "password": "ReviewerPassword123!",
+    "phone_number": "+6281260976299"
+  },
+  {
+    "id": "demo-user-1784190700820",
+    "email": "lince.bulutoding@uin-alauddin.ac.id",
+    "password": "Putrinisa75",
+    "full_name": "Dr. Lince Bulutoding, SE., M.Si., Ak., CA., PCIF., SAS",
+    "phone_number": "+6281355148080",
+    "discipline": "Akuntansi Syariah",
+    "role": "author",
+    "status": "Active",
+    "joined": "2026-07-16T08:31:40.820Z"
   }
 ]

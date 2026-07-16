@@ -20,6 +20,7 @@ export default function Sidebar({ role }: SidebarProps) {
         if (r === 'layout editor') return '/dashboard/production/layout';
         if (r === 'cover editor') return '/dashboard/production/cover';
         if (r === 'publish editor') return '/dashboard/production/publish';
+        if (r === 'co_admin' || r === 'co-admin') return '/dashboard/admin/users';
         return '/dashboard';
       })(),
       icon: (
