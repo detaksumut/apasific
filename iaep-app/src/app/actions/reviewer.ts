@@ -45,6 +45,28 @@ export async function handleReviewerDecision(assignmentId: string, submissionId:
         details: logDetails
     });
 
+    // Send WA when reviewer accepts
+    if (decision === 'accepted') {
+      try {
+        const { data: sub } = await supabaseAdmin
+            .from('submissions')
+            .select('title, profiles:author_id(full_name, phone)')
+            .eq('id', submissionId)
+            .single();
+        const authorProfile = sub?.profiles as any;
+        const phoneNum = Array.isArray(authorProfile) ? authorProfile[0]?.phone : authorProfile?.phone;
+        const fullName = Array.isArray(authorProfile) ? authorProfile[0]?.full_name : authorProfile?.full_name;
+        
+        if (phoneNum) {
+            const message = `Halo ${fullName},\n\nPemberitahuan dari Tim Editorial Asia Index & Metric (APASIFIC).\n\nNaskah Anda yang berjudul:\n"${sub?.title}"\n\nSaat ini *TELAH BERSEDIA DIREVIEW* oleh tim Reviewer kami. Untuk proses selanjutnya dan konfirmasi biaya publikasi (Article Processing Charge / APC) akan diinformasikan kemudian oleh Editor.\n\nTerima kasih.\nhttps://apasific.org`;
+            const { sendWa } = await import('@/utils/sendWa');
+            await sendWa(phoneNum, message);
+        }
+      } catch (waErr) {
+        console.error("Failed to send WA on reviewer acceptance", waErr);
+      }
+    }
+
     // 4. Update Firestore as fallback
     try {
         const { getFirestore } = await import('@/utils/firebase/db');

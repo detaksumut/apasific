@@ -78,6 +78,26 @@ export async function submitEditorialDecision(submissionId: string, authorId: st
               reference_id: submissionId,
               title: `Sertifikat Publikasi Naskah: ${title}`
             });
+
+            try {
+                const { data: sub } = await supabaseAdmin
+                    .from('submissions')
+                    .select('title, profiles:author_id(full_name, phone)')
+                    .eq('id', submissionId)
+                    .single();
+                
+                const authorProfile = sub?.profiles as any;
+                const phoneNum = Array.isArray(authorProfile) ? authorProfile[0]?.phone : authorProfile?.phone;
+                const fullName = Array.isArray(authorProfile) ? authorProfile[0]?.full_name : authorProfile?.full_name;
+
+                if (phoneNum) {
+                    const message = `Halo ${fullName},\n\nKabar gembira dari Tim Editorial Asia Index & Metric (APASIFIC).\n\nNaskah Anda yang berjudul:\n"${sub?.title}"\n\nTelah dinyatakan *DITERIMA (ACCEPTED)* untuk dipublikasikan.\nSilakan login ke dashboard APASIFIC untuk melihat langkah selanjutnya atau mengunduh Letter of Acceptance (LoA) Anda.\n\nTerima kasih atas kontribusi Anda.\nhttps://apasific.org`;
+                    const { sendWa } = await import('@/utils/sendWa');
+                    await sendWa(phoneNum, message);
+                }
+            } catch (waErr) {
+                console.error("Failed to send Accepted WA", waErr);
+            }
         }
 
         // 2. Update Firestore
@@ -175,21 +195,42 @@ export async function updateSubmissionStage(submissionId: string, stage: string,
         }
 
         // 4. Fetch author phone and send WA if Needs Revision
+        // 4. Fetch author phone and send WA if Needs Revision
         if (status === 'Needs Revision') {
-            const { data: sub } = await supabaseAdmin
-                .from('submissions')
-                .select('title, profiles:author_id(full_name, phone)')
-                .eq('id', submissionId)
-                .single();
-            
-            const authorProfile = sub?.profiles as any;
-            const phoneNum = Array.isArray(authorProfile) ? authorProfile[0]?.phone : authorProfile?.phone;
-            const fullName = Array.isArray(authorProfile) ? authorProfile[0]?.full_name : authorProfile?.full_name;
+            try {
+                const { data: sub } = await supabaseAdmin
+                    .from('submissions')
+                    .select('title, profiles:author_id(full_name, phone)')
+                    .eq('id', submissionId)
+                    .single();
+                
+                // Fetch latest review notes
+                const { data: reviewAssignments } = await supabaseAdmin
+                    .from('review_assignments')
+                    .select('comments_for_author, correction_notes')
+                    .eq('submission_id', submissionId)
+                    .eq('status', 'completed')
+                    .order('updated_at', { ascending: false })
+                    .limit(1);
 
-            if (phoneNum) {
-                const message = `Halo ${fullName},\n\nPemberitahuan dari Tim Editorial Asia Index & Metric (APASIFIC).\n\nNaskah Anda yang berjudul:\n"${sub?.title}"\n\nTelah selesai ditinjau oleh Reviewer dan *MEMERLUKAN REVISI*. \nSilakan login ke dashboard APASIFIC, masuk ke menu Submisi -> Lacak Proses, untuk membaca catatan revisi dan mengunggah naskah yang telah diperbaiki.\n\nTerima kasih.\nhttps://apasific.org`;
-                const { sendWa } = await import('@/utils/sendWa');
-                await sendWa(phoneNum, message);
+                let reviewNotes = '';
+                if (reviewAssignments && reviewAssignments.length > 0) {
+                    const notes = reviewAssignments[0];
+                    if (notes.comments_for_author) reviewNotes += `\n*Catatan Umum:* ${notes.comments_for_author}`;
+                    if (notes.correction_notes) reviewNotes += `\n*Catatan Koreksi Tambahan:* ${notes.correction_notes}`;
+                }
+
+                const authorProfile = sub?.profiles as any;
+                const phoneNum = Array.isArray(authorProfile) ? authorProfile[0]?.phone : authorProfile?.phone;
+                const fullName = Array.isArray(authorProfile) ? authorProfile[0]?.full_name : authorProfile?.full_name;
+
+                if (phoneNum) {
+                    const message = `Halo ${fullName},\n\nPemberitahuan dari Tim Editorial Asia Index & Metric (APASIFIC).\n\nNaskah Anda yang berjudul:\n"${sub?.title}"\n\nTelah selesai ditinjau oleh Reviewer dan *MEMERLUKAN REVISI*.${reviewNotes ? '\n\nBerikut adalah catatan perbaikan dari Reviewer:' + reviewNotes : ''}\n\nNaskah beserta semua catatan perbaikan kini telah dikembalikan ke laci dashboard Anda. Silakan login ke dashboard APASIFIC, masuk ke menu Submisi -> Lacak Proses, untuk membaca catatan lengkapnya dan mengunggah naskah yang telah diperbaiki.\n\nTerima kasih.\nhttps://apasific.org`;
+                    const { sendWa } = await import('@/utils/sendWa');
+                    await sendWa(phoneNum, message);
+                }
+            } catch (waErr) {
+                console.error("Failed to send Needs Revision WA", waErr);
             }
         }
 
