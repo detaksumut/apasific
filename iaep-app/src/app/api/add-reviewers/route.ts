@@ -9,48 +9,13 @@ const supabaseAdmin = createClient(
 export async function GET() {
   const newReviewers = [
     {
-      email: "kiljamilawati.akbar@uin-alauddin.ac.id",
-      full_name: "Dr. Kiljamilawati, MH",
-      university: "Universitas Islam Negeri Alauddin Makassar",
+      email: "aulia_juanda@itsi.ac.id",
+      full_name: "Aulia Juanda Djaingsastro",
+      university: "Institut Teknologi Sawit Indonesia (ITSI)",
       country: "Indonesia",
       role: "reviewer",
       status: "Active",
-      joined: new Date().toISOString()
-    },
-    {
-      email: "ikbar.p@gmail.com",
-      full_name: "Ikbar Pratama",
-      university: "Universitas Medan Area",
-      country: "Indonesia",
-      role: "reviewer",
-      status: "Active",
-      joined: new Date().toISOString()
-    },
-    {
-      email: "T.dessy91@gmail.com",
-      full_name: "tri dessy fadillah",
-      university: "Institut Syekh Abdul Halim Hasan (IAHN) Binjai",
-      country: "Indonesia",
-      role: "reviewer",
-      status: "Active",
-      joined: new Date().toISOString()
-    },
-    {
-      email: "adrianusnggoro567@gmail.com",
-      full_name: "Adrianus Marselus Nggoro",
-      university: "Universitas Katolik Indonesia Santu Paulus Ruteng",
-      country: "Indonesia",
-      role: "reviewer",
-      status: "Active",
-      joined: new Date().toISOString()
-    },
-    {
-      email: "binaricandra@gmail.com",
-      full_name: "Dr.Wisanf Candra Bintari.S.E.,M.M",
-      university: "Universitas Muhammadiyah Sorong",
-      country: "Indonesia",
-      role: "reviewer",
-      status: "Active",
+      expertise: "Pertanian",
       joined: new Date().toISOString()
     }
   ];

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/utils/supabase/server";
-
+import { createClient as createSupabaseAdminClient } from '@supabase/supabase-js';
 const HOME_BODY = "Struktur Organisasi ASIA (Home)";
 
 export async function GET(request: NextRequest) {
@@ -72,7 +72,10 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const supabase = await createClient();
+    const supabaseAdmin = createSupabaseAdminClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    );
 
     const payload = await request.json();
     const { bodyName, members } = payload;
@@ -110,7 +113,7 @@ export async function POST(request: NextRequest) {
       };
     }
 
-    const { error } = await supabase
+    const { error } = await supabaseAdmin
       .from("leadership")
       .upsert(upsertPayload, { onConflict: "body_name" });
 
