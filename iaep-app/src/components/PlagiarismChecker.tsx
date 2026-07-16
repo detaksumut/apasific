@@ -115,7 +115,12 @@ export const PlagiarismChecker: React.FC<PlagiarismCheckerProps> = ({ initialTex
     } else {
       plagiarizedItems.forEach((result, idx) => {
         content += `[Temuan #${idx + 1}] (${result.wordCount} kata)\n`;
-        content += `Teks: "${result.sentence}"\n\n`;
+        content += `Teks: "${result.sentence}"\n`;
+        if (result.sources && result.sources.length > 0) {
+          content += `Sumber Terindikasi:\n`;
+          result.sources.forEach(src => content += `- ${src}\n`);
+        }
+        content += `\n`;
       });
     }
     
@@ -206,6 +211,22 @@ export const PlagiarismChecker: React.FC<PlagiarismCheckerProps> = ({ initialTex
                 {report.results.map((result, idx) => (
                   <li key={idx} className={`p-4 rounded-md border text-sm ${result.isPlagiarized ? 'border-red-500/30 bg-red-900/10 text-zinc-300' : 'border-green-500/30 bg-green-900/10 text-zinc-300'}`}>
                     <p className="mb-2 text-zinc-400">{result.sentence}</p>
+                    
+                    {result.isPlagiarized && result.sources && result.sources.length > 0 && (
+                      <div className="mb-3 mt-2 border-t border-red-500/20 pt-2">
+                        <p className="text-red-400 font-semibold mb-1 text-xs">Sumber terindikasi:</p>
+                        <ul className="list-disc pl-4 space-y-1">
+                          {result.sources.map((src, srcIdx) => (
+                            <li key={srcIdx}>
+                              <a href={src} target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline break-all text-xs">
+                                {src}
+                              </a>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+
                     <div className="flex justify-between items-center text-xs">
                       <span className="font-medium text-emerald-500/70">
                         {result.wordCount} kata
