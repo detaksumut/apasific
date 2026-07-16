@@ -60,12 +60,20 @@ export const PlagiarismChecker: React.FC<PlagiarismCheckerProps> = ({ initialTex
       
       let sources: string[] = [];
       let isPlagiarized = false;
+      let similarityScore = 0;
+      let classification = "Low Similarity";
+      let phrasesChecked: string[] = [];
 
-      // Filter: Hanya periksa plagiarisme jika potongan (chunk) berisi 20 kata
-      // (Sesuai instruksi: 1 paragraf maksimal 20 kata, dan hanya yang mengandung 20 kata utuh yang dicek)
-      if (wordCount >= 20) {
-        sources = await checkParagraphPlagiarism(paragraph);
-        isPlagiarized = sources.length > 0;
+      // Proses blok yang memiliki cukup kata
+      if (wordCount >= 10) {
+        const checkResult = await checkParagraphPlagiarism(paragraph);
+        sources = checkResult.sources;
+        similarityScore = checkResult.similarityScore;
+        classification = checkResult.classification;
+        phrasesChecked = checkResult.phrasesChecked;
+        
+        // Klasifikasikan sebagai plagiat jika skor similarity >= 25% (1 dari 4 potongan terdeteksi)
+        isPlagiarized = similarityScore >= 25;
       }
       
       if (isPlagiarized) {
@@ -78,7 +86,10 @@ export const PlagiarismChecker: React.FC<PlagiarismCheckerProps> = ({ initialTex
         sentence: paragraph,
         isPlagiarized,
         wordCount,
-        sources
+        sources,
+        similarityScore,
+        classification,
+        phrasesChecked
       });
 
       setProgress(Math.round(((i + 1) / totalTarget) * 100));
@@ -114,8 +125,12 @@ export const PlagiarismChecker: React.FC<PlagiarismCheckerProps> = ({ initialTex
       content += `Tidak ada teks yang terindikasi plagiat! Artikel Anda aman.\n`;
     } else {
       plagiarizedItems.forEach((result, idx) => {
-        content += `[Temuan #${idx + 1}] (${result.wordCount} kata)\n`;
+        content += `[Blok #${idx + 1}] (${result.wordCount} kata) - ${result.classification} (${result.similarityScore}%)\n`;
         content += `Teks: "${result.sentence}"\n`;
+        if (result.phrasesChecked && result.phrasesChecked.length > 0) {
+          content += `Frasa yang diuji:\n`;
+          result.phrasesChecked.forEach(phrase => content += `> "${phrase}"\n`);
+        }
         if (result.sources && result.sources.length > 0) {
           content += `Sumber Terindikasi:\n`;
           result.sources.forEach(src => content += `- ${src}\n`);
@@ -203,18 +218,45 @@ export const PlagiarismChecker: React.FC<PlagiarismCheckerProps> = ({ initialTex
           </div>
 
           <div className="space-y-4">
-            <h4 className="font-medium text-zinc-300">Detail Paragraf yang Diperiksa:</h4>
+            <h4 className="font-medium text-zinc-300">Detail Blok yang Diperiksa:</h4>
             {report.results.length === 0 ? (
-              <p className="text-zinc-500 text-sm italic">Tidak ada paragraf yang ditemukan.</p>
+              <p className="text-zinc-500 text-sm italic">Tidak ada blok yang ditemukan.</p>
             ) : (
               <ul className="space-y-3">
                 {report.results.map((result, idx) => (
                   <li key={idx} className={`p-4 rounded-md border text-sm ${result.isPlagiarized ? 'border-red-500/30 bg-red-900/10 text-zinc-300' : 'border-green-500/30 bg-green-900/10 text-zinc-300'}`}>
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="text-xs font-bold text-zinc-500">Blok #{idx + 1}</span>
+                      {result.classification && (
+                        <span className={`text-xs font-bold px-2 py-1 rounded ${
+                          result.similarityScore && result.similarityScore >= 90 ? 'bg-red-500 text-white' : 
+                          result.similarityScore && result.similarityScore >= 70 ? 'bg-orange-500 text-white' :
+                          result.similarityScore && result.similarityScore >= 40 ? 'bg-yellow-500 text-black' :
+                          'bg-zinc-800 text-zinc-400'
+                        }`}>
+                          {result.classification} ({result.similarityScore}%)
+                        </span>
+                      )}
+                    </div>
+                    
                     <p className="mb-2 text-zinc-400">{result.sentence}</p>
                     
-                    {result.isPlagiarized && result.sources && result.sources.length > 0 && (
-                      <div className="mb-3 mt-2 border-t border-red-500/20 pt-2">
-                        <p className="text-red-400 font-semibold mb-1 text-xs">Sumber terindikasi:</p>
+                    {result.phrasesChecked && result.phrasesChecked.length > 0 && (
+                      <div className="mb-3 mt-2 border-t border-zinc-700/50 pt-2">
+                        <p className="text-zinc-500 font-semibold mb-1 text-xs">Frasa yang diuji ke Mesin Pencari:</p>
+                        <ul className="list-disc pl-4 space-y-1">
+                          {result.phrasesChecked.map((phrase, pIdx) => (
+                            <li key={pIdx} className="text-zinc-400 text-xs italic">
+                              "{phrase}"
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                    
+                    {result.sources && result.sources.length > 0 && (
+                      <div className="mb-3 border-t border-red-500/20 pt-2">
+                        <p className="text-red-400 font-semibold mb-1 text-xs">URL Sumber Terindikasi (Evidence):</p>
                         <ul className="list-disc pl-4 space-y-1">
                           {result.sources.map((src, srcIdx) => (
                             <li key={srcIdx}>
@@ -227,7 +269,7 @@ export const PlagiarismChecker: React.FC<PlagiarismCheckerProps> = ({ initialTex
                       </div>
                     )}
 
-                    <div className="flex justify-between items-center text-xs">
+                    <div className="flex justify-between items-center text-xs mt-3">
                       <span className="font-medium text-emerald-500/70">
                         {result.wordCount} kata
                       </span>
