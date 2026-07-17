@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/utils/supabase/server";
 import { createClient as createSupabaseAdminClient } from '@supabase/supabase-js';
+
+export const dynamic = 'force-dynamic';
+
 const HOME_BODY = "Struktur Organisasi ASIA (Home)";
 
 export async function GET(request: NextRequest) {
