@@ -6,97 +6,97 @@ export const dynamic = 'force-dynamic';
 const JOURNALS = [
   {
     id: 1,
-    name: 'AJAF - Journal of Accounting and Finance',
+    name: 'AJAF - Akuntansi, Audit & Perpajakan',
     abbreviation: 'AJAF',
     scopes: ['Akuntansi', 'Audit', 'Perpajakan', 'Keuangan', 'Tata Kelola Perusahaan', 'Sistem Informasi Akuntansi']
   },
   {
     id: 2,
-    name: 'AJED - Journal of Economics and Development',
+    name: 'AJED - Ekonomi Pembangunan & Keuangan',
     abbreviation: 'AJED',
     scopes: ['Ekonomi Pembangunan', 'Ekonomi Regional', 'Kebijakan Publik', 'Ekonomi Internasional', 'Ketenagakerjaan']
   },
   {
     id: 3,
-    name: 'AJEP - Journal of Education and Pedagogy',
+    name: 'AJEP - Pendidikan Dasar, Menengah & Tinggi',
     abbreviation: 'AJEP',
     scopes: ['Pendidikan Dasar', 'Pendidikan Menengah', 'Pendidikan Tinggi', 'Kurikulum', 'Teknologi Pendidikan', 'Evaluasi Pembelajaran']
   },
   {
     id: 4,
-    name: 'AJCE - Journal of Civil and Mechanical Engineering',
+    name: 'AJCE - Teknik Sipil, Mesin & Elektro',
     abbreviation: 'AJCE',
     scopes: ['Teknik Sipil', 'Teknik Mesin', 'Teknik Elektro', 'Infrastruktur', 'Ilmu Material', 'Energi Terbarukan']
   },
   {
     id: 5,
-    name: 'AJAFR - Journal of Agriculture, Forestry and Fisheries',
+    name: 'AJAFR - Pertanian, Kehutanan & Perikanan',
     abbreviation: 'AJAFR',
     scopes: ['Agroteknologi', 'Agribisnis', 'Kehutanan', 'Perikanan', 'Ketahanan Pangan', 'Lingkungan Pertanian']
   },
   {
     id: 6,
-    name: 'AJADM - Journal of Art, Design and Creative Media',
+    name: 'AJADM - Seni, Desain & Media Kreatif',
     abbreviation: 'AJADM',
     scopes: ['Seni Rupa', 'Desain Komunikasi Visual', 'Media Kreatif', 'Seni Pertunjukan', 'Kajian Budaya']
   },
   {
     id: 7,
-    name: 'AJIR - Journal of International Relations and Politics',
+    name: 'AJIR - Ilmu Politik & Hubungan Internasional',
     abbreviation: 'AJIR',
     scopes: ['Ilmu Politik', 'Hubungan Internasional', 'Kebijakan Luar Negeri', 'Studi Keamanan', 'Demokrasi']
   },
   {
     id: 8,
-    name: 'AJCS - Journal of Community Service',
+    name: 'AJCS - Pengabdian Kepada Masyarakat (PKM)',
     abbreviation: 'AJCS',
     scopes: ['Pemberdayaan Masyarakat', 'Inovasi Sosial', 'Penerapan Teknologi Tepat Guna', 'Pelatihan dan Pendampingan']
   },
   {
     id: 9,
-    name: 'AJBA - Journal of Business Administration',
+    name: 'AJBA - Manajemen, Bisnis dan Administrasi',
     abbreviation: 'AJBA',
     scopes: ['Manajemen Bisnis', 'Administrasi Bisnis', 'Pemasaran', 'Sumber Daya Manusia', 'Kewirausahaan', 'Perilaku Organisasi']
   },
   {
     id: 10,
-    name: 'AJLS - Journal of Law and Society',
+    name: 'AJLS - Ilmu Hukum & Hak Asasi Manusia',
     abbreviation: 'AJLS',
     scopes: ['Hukum Perdata', 'Hukum Pidana', 'Hukum Tata Negara', 'Hukum Internasional', 'Sosiologi Hukum', 'Hak Asasi Manusia']
   },
   {
     id: 11,
-    name: 'AJPH - Journal of Public Health and Medicine',
+    name: 'AJPH - Kedokteran, Kesehatan Masyarakat & Keperawatan',
     abbreviation: 'AJPH',
     scopes: ['Kedokteran', 'Kesehatan Masyarakat', 'Keperawatan', 'Epidemiologi', 'Kebijakan Kesehatan']
   },
   {
     id: 12,
-    name: 'AJITE - Journal of IT & Engineering',
+    name: 'AJITE - Ilmu Komputer & Teknologi Informasi',
     abbreviation: 'AJITE',
     scopes: ['Ilmu Komputer', 'Teknologi Informasi', 'Kecerdasan Buatan', 'Rekayasa Perangkat Lunak', 'Sistem Informasi', 'Keamanan Siber']
   },
   {
     id: 13,
-    name: 'AJSSH - Journal of Social Sciences & Humanities',
+    name: 'AJSSH - Sosiologi & Ilmu Pengetahuan Budaya',
     abbreviation: 'AJSSH',
     scopes: ['Sosiologi', 'Antropologi', 'Sejarah', 'Ilmu Komunikasi', 'Filsafat', 'Ilmu Pengetahuan Budaya']
   },
   {
     id: 14,
-    name: 'AJES - Journal of Environmental and Sustainability',
+    name: 'AJES - Ilmu Lingkungan & Keberlanjutan',
     abbreviation: 'AJES',
     scopes: ['Ilmu Lingkungan', 'Keberlanjutan', 'Mitigasi Perubahan Iklim', 'Konservasi Alam', 'AMDAL']
   },
   {
     id: 15,
-    name: 'AJTHM - Journal of Tourism and Hospitality Management',
+    name: 'AJTHM - Pariwisata & Manajemen Perhotelan',
     abbreviation: 'AJTHM',
     scopes: ['Pariwisata', 'Manajemen Perhotelan', 'Ekowisata', 'Pemasaran Pariwisata', 'Gastronomi']
   },
   {
     id: 16,
-    name: 'AJIS - Journal of Islamic Studies',
+    name: 'AJIS - Disiplin Ilmu Agama dan Peradaban Islam',
     abbreviation: 'AJIS',
     scopes: ['Studi Islam', 'Peradaban Islam', 'Pendidikan Islam', 'Hukum Keluarga Islam', 'Tafsir dan Hadis', 'Ekonomi Syariah']
   }

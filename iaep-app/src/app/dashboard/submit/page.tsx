@@ -21,82 +21,82 @@ interface AuthorData {
 const JOURNALS = [
   {
     id: '5f6bca5a-39e2-442b-a2e0-5b3f35614b4e',
-    name: 'AJAF - Journal of Accounting and Finance',
+    name: 'AJAF - Akuntansi, Audit & Perpajakan',
     scopes: ['Akuntansi', 'Audit', 'Perpajakan', 'Keuangan', 'Tata Kelola Perusahaan', 'Sistem Informasi Akuntansi']
   },
   {
     id: '4f4ad30b-1fab-4c43-ab96-227f0d7d5977',
-    name: 'AJED - Journal of Economics and Development',
+    name: 'AJED - Ekonomi Pembangunan & Keuangan',
     scopes: ['Ekonomi Pembangunan', 'Ekonomi Regional', 'Kebijakan Publik', 'Ekonomi Internasional', 'Ketenagakerjaan']
   },
   {
     id: '71809c3b-44dd-46cb-a553-636fe1395b46',
-    name: 'AJEP - Journal of Education and Pedagogy',
+    name: 'AJEP - Pendidikan Dasar, Menengah & Tinggi',
     scopes: ['Pendidikan Dasar', 'Pendidikan Menengah', 'Pendidikan Tinggi', 'Kurikulum', 'Teknologi Pendidikan', 'Evaluasi Pembelajaran']
   },
   {
     id: 'bdbd934b-a76b-42a5-8553-2444b2b7b45a',
-    name: 'AJCE - Journal of Civil and Mechanical Engineering',
+    name: 'AJCE - Teknik Sipil, Mesin & Elektro',
     scopes: ['Teknik Sipil', 'Teknik Mesin', 'Teknik Elektro', 'Infrastruktur', 'Ilmu Material', 'Energi Terbarukan']
   },
   {
     id: '31f8f2cc-7036-40cd-8f7c-fedf25eda4ec',
-    name: 'AJAFR - Journal of Agriculture, Forestry and Fisheries',
+    name: 'AJAFR - Pertanian, Kehutanan & Perikanan',
     scopes: ['Agroteknologi', 'Agribisnis', 'Kehutanan', 'Perikanan', 'Ketahanan Pangan', 'Lingkungan Pertanian']
   },
   {
     id: '1e64461f-a671-431b-a739-2c01b4b865ac',
-    name: 'AJADM - Journal of Art, Design and Creative Media',
+    name: 'AJADM - Seni, Desain & Media Kreatif',
     scopes: ['Seni Rupa', 'Desain Komunikasi Visual', 'Media Kreatif', 'Seni Pertunjukan', 'Kajian Budaya']
   },
   {
     id: 'c212a65d-a0dc-4410-879a-352932014a52',
-    name: 'AJIR - Journal of International Relations and Politics',
+    name: 'AJIR - Ilmu Politik & Hubungan Internasional',
     scopes: ['Ilmu Politik', 'Hubungan Internasional', 'Kebijakan Luar Negeri', 'Studi Keamanan', 'Demokrasi']
   },
   {
     id: '6e3a2c2c-0e6c-4e18-82bd-e0fdc2d1ac5d',
-    name: 'AJCS - Journal of Community Service',
+    name: 'AJCS - Pengabdian Kepada Masyarakat (PKM)',
     scopes: ['Pemberdayaan Masyarakat', 'Inovasi Sosial', 'Penerapan Teknologi Tepat Guna', 'Pelatihan dan Pendampingan']
   },
   {
     id: 'ad2edb51-7f51-455c-9000-6aaab590387f',
-    name: 'AJBA - Journal of Business Administration',
+    name: 'AJBA - Manajemen, Bisnis dan Administrasi',
     scopes: ['Manajemen Bisnis', 'Administrasi Bisnis', 'Pemasaran', 'Sumber Daya Manusia', 'Kewirausahaan', 'Perilaku Organisasi']
   },
   {
     id: 'a1dbfeee-da95-4565-9373-330feeca7901',
-    name: 'AJLS - Journal of Law and Society',
+    name: 'AJLS - Ilmu Hukum & Hak Asasi Manusia',
     scopes: ['Hukum Perdata', 'Hukum Pidana', 'Hukum Tata Negara', 'Hukum Internasional', 'Sosiologi Hukum', 'Hak Asasi Manusia']
   },
   {
     id: 'bdff93b5-9e6a-43ec-9ae1-633001cbfba1',
-    name: 'AJPH - Journal of Public Health and Medicine',
+    name: 'AJPH - Kedokteran, Kesehatan Masyarakat & Keperawatan',
     scopes: ['Kedokteran', 'Kesehatan Masyarakat', 'Keperawatan', 'Epidemiologi', 'Kebijakan Kesehatan']
   },
   {
     id: '033cce77-8836-492c-8fff-a27a911b4701',
-    name: 'AJITE - Journal of IT & Engineering',
+    name: 'AJITE - Ilmu Komputer & Teknologi Informasi',
     scopes: ['Ilmu Komputer', 'Teknologi Informasi', 'Kecerdasan Buatan', 'Rekayasa Perangkat Lunak', 'Sistem Informasi', 'Keamanan Siber']
   },
   {
     id: '8fc81b02-780f-4611-869b-294a3f9b7749',
-    name: 'AJSSH - Journal of Social Sciences & Humanities',
+    name: 'AJSSH - Sosiologi & Ilmu Pengetahuan Budaya',
     scopes: ['Sosiologi', 'Antropologi', 'Sejarah', 'Ilmu Komunikasi', 'Filsafat', 'Ilmu Pengetahuan Budaya']
   },
   {
     id: '08c59804-37e5-476f-9166-5d86f3dabc0d',
-    name: 'AJES - Journal of Environmental and Sustainability',
+    name: 'AJES - Ilmu Lingkungan & Keberlanjutan',
     scopes: ['Ilmu Lingkungan', 'Keberlanjutan', 'Mitigasi Perubahan Iklim', 'Konservasi Alam', 'AMDAL']
   },
   {
     id: '5c3b5789-043a-48b4-89de-792599db95ac',
-    name: 'AJTHM - Journal of Tourism and Hospitality Management',
+    name: 'AJTHM - Pariwisata & Manajemen Perhotelan',
     scopes: ['Pariwisata', 'Manajemen Perhotelan', 'Ekowisata', 'Pemasaran Pariwisata', 'Gastronomi']
   },
   {
     id: '00270d77-49ea-447e-804e-2a0c44c66fa3',
-    name: 'AJIS - Journal of Islamic Studies',
+    name: 'AJIS - Disiplin Ilmu Agama dan Peradaban Islam',
     scopes: ['Studi Islam', 'Peradaban Islam', 'Pendidikan Islam', 'Hukum Keluarga Islam', 'Tafsir dan Hadis', 'Ekonomi Syariah']
   }
 ];

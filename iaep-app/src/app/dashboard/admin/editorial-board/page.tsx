@@ -22,22 +22,22 @@ export default function EditorialBoardManagement() {
   const fotoRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   const journals = [
-    "AJAF - Journal of Accounting and Finance",
-    "AJED - Journal of Economics and Development",
-    "AJEP - Journal of Education and Pedagogy",
-    "AJCE - Journal of Civil and Mechanical Engineering",
-    "AJAFR - Journal of Agriculture, Forestry and Fisheries",
-    "AJADM - Journal of Art, Design and Creative Media",
-    "AJIR - Journal of International Relations and Politics",
-    "AJCS - Journal of Community Service",
-    "AJBA - Journal of Business Administration",
-    "AJLS - Journal of Law and Society",
-    "AJPH - Journal of Public Health and Medicine",
-    "AJITE - Journal of IT & Engineering",
-    "AJSSH - Journal of Social Sciences & Humanities",
-    "AJES - Journal of Environmental and Sustainability",
-    "AJTHM - Journal of Tourism and Hospitality Management",
-    "AJIS - Journal of Islamic Studies"
+    "AJAF - Akuntansi, Audit & Perpajakan",
+    "AJED - Ekonomi Pembangunan & Keuangan",
+    "AJEP - Pendidikan Dasar, Menengah & Tinggi",
+    "AJCE - Teknik Sipil, Mesin & Elektro",
+    "AJAFR - Pertanian, Kehutanan & Perikanan",
+    "AJADM - Seni, Desain & Media Kreatif",
+    "AJIR - Ilmu Politik & Hubungan Internasional",
+    "AJCS - Pengabdian Kepada Masyarakat (PKM)",
+    "AJBA - Manajemen, Bisnis dan Administrasi",
+    "AJLS - Ilmu Hukum & Hak Asasi Manusia",
+    "AJPH - Kedokteran, Kesehatan Masyarakat & Keperawatan",
+    "AJITE - Ilmu Komputer & Teknologi Informasi",
+    "AJSSH - Sosiologi & Ilmu Pengetahuan Budaya",
+    "AJES - Ilmu Lingkungan & Keberlanjutan",
+    "AJTHM - Pariwisata & Manajemen Perhotelan",
+    "AJIS - Disiplin Ilmu Agama dan Peradaban Islam"
   ];
 
   useEffect(() => {

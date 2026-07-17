@@ -81,7 +81,7 @@ export default function PrintCertificate() {
       title: 'Editor in Chief – AJITE',
       photo: '/images/org/member-34-1783583131708.jpeg'
     };
-  } else if (journalName.includes('AJBA') || journalName.includes('Business Administration')) {
+  } else if (journalName.includes('AJBA') || journalName.includes('Management and Business Administration')) {
     qrData = 'https://www.apasific.org/journals/ajba';
     eic = {
       name: 'Dr. Arfan Ikhsan Lubis, SE, M.Si, CATr',
