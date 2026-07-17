@@ -23,7 +23,7 @@ export async function GET() {
     const { data: sData } = await supabaseAdmin.from('submissions').select('*').or(`submitter_name.ilike.%${keyword}%,abstract.ilike.%${keyword}%`);
     results.supabase.submissions = sData;
 
-    const { data: uData } = await supabaseAdmin.from('users').select('*').ilike('full_name', `%${keyword}%`).catch(() => ({data: []}));
+    const { data: uData } = await supabaseAdmin.from('users').select('*').ilike('full_name', `%${keyword}%`);
     results.supabase.users = uData || [];
 
     // FIRESTORE
