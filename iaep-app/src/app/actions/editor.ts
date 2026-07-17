@@ -651,7 +651,7 @@ export async function getUserCertificates(userId: string) {
             const { data: profile } = await supabaseAdmin.from('profiles').select('role, email').eq('id', userId).single();
             const role = profile?.role?.toLowerCase() || '';
             if (profile?.email) userEmail = profile.email;
-            isStaff = role === 'editor' || role === 'admin' || role === 'superadmin' || role === 'supervisor' || role === 'admin editor';
+            isStaff = role === 'editor' || role === 'admin' || role === 'superadmin' || role === 'super_admin' || role === 'supervisor' || role === 'admin editor';
         } catch (err) {
             // Check in Firestore if Supabase fails or is empty
             try {
@@ -661,7 +661,7 @@ export async function getUserCertificates(userId: string) {
                 const uData = uDoc.data();
                 const role = uData?.role?.toLowerCase() || '';
                 if (uData?.email) userEmail = uData.email;
-                isStaff = role === 'editor' || role === 'admin' || role === 'superadmin' || role === 'supervisor' || role === 'admin editor';
+                isStaff = role === 'editor' || role === 'admin' || role === 'superadmin' || role === 'super_admin' || role === 'supervisor' || role === 'admin editor';
             } catch (fbErr) {}
         }
 
