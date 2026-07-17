@@ -45,7 +45,7 @@ export default function LiveChatWidget() {
     const fetchMessages = async () => {
       // In Supabase, if we want to join with a public profile table, we need to make sure the users table is accessible.
       // Assuming 'profiles' or 'users' is used. Let's try 'profiles' first, or fallback to 'users' if APASIFIC uses 'users'.
-      // Looking at RJRAKP it used 'users', but APASIFIC might use 'profiles' as per standard or 'users' as well. 
+      // Looking at RJRAKP it used 'users', but APASIFIC might use 'profiles' as per standard or 'users' as well.
       // We will select 'users ( full_name )' first, if it fails, we ignore joined data.
       const { data, error } = await supabase
         .from('global_chats')

@@ -205,19 +205,8 @@ export default function SuperAdminOverview() {
               <Link href="/dashboard/admin/journals">Kelola Semua →</Link>
             </div>
             <div>
-              <div className="journal-row">
-                <div style={{ display: "flex", alignItems: "center" }}>
-                  <div className="journal-avatar" style={{ background: "linear-gradient(135deg, #c9a84c, #9a7a30)" }}>RJ</div>
-                  <div className="journal-info">
-                    <h3>RJRAKP</h3>
-                    <p>Riau Journal of Review Audit &amp; Knowledge Practice</p>
-                  </div>
-                </div>
-                <div className="journal-meta">
-                  <div className="users dash-num">215</div>
-                  <div className="status">● Aktif</div>
-                </div>
-              </div>
+
+
               <div className="journal-row">
                 <div style={{ display: "flex", alignItems: "center" }}>
                   <div className="journal-avatar" style={{ background: "linear-gradient(135deg, #4285f4, #1a56c4)" }}>IA</div>
