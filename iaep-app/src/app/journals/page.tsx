@@ -107,16 +107,7 @@ export default function JournalsRepository() {
                            } catch(e) { return "-"; }
                         })()}
                      </div>
-                    {art.doi && (
-                      <a href={art.doi.includes('zenodo.') ? `https://zenodo.org/records/${art.doi.split('zenodo.')[1]}` : `https://doi.org/${art.doi}`}
-                         target="_blank" rel="noopener noreferrer"
-                         className="text-sm text-emerald-400 hover:text-emerald-300 font-bold mt-1 inline-flex items-center gap-1 transition-colors w-fit">
-                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                        </svg>
-                        Baca di Repositori (DOI)
-                      </a>
-                    )}
+
                     <Link 
                       href={`/article/${art.id}`} 
                       className="text-sm bg-transparent border border-[#c9a84c] text-[#c9a84c] px-4 py-1.5 rounded font-bold hover:bg-[#c9a84c]/10 transition-colors mt-2 text-center"
