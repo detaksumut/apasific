@@ -133,11 +133,14 @@ export default function LiveChatWidget() {
       {!isOpen && (
         <button
           onClick={() => setIsOpen(true)}
-          className="flex items-center justify-center w-14 h-14 bg-gradient-to-r from-[#c9a84c] to-[#a3802b] text-[#05050a] rounded-full shadow-[0_4px_25px_rgba(201,168,76,0.5)] transition-all duration-300 hover:scale-110 hover:-translate-y-1 relative group cursor-pointer border border-[#c9a84c]/50 outline-none"
+          className="flex items-center justify-center w-14 h-14 bg-gradient-to-r from-[#c9a84c] to-[#a3802b] text-[#25D366] rounded-full shadow-[0_4px_25px_rgba(201,168,76,0.5)] transition-all duration-300 hover:scale-110 hover:-translate-y-1 relative group cursor-pointer border border-[#c9a84c]/50 outline-none"
           title="Buka Global Discussion"
         >
           <span className="absolute inset-0 rounded-full bg-[#c9a84c]/30 animate-ping pointer-events-none" />
-          <MessageCircle className="w-7 h-7 fill-current" />
+          <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center relative">
+            <MessageCircle className="w-[46px] h-[46px] fill-current" />
+            <span className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-[55%] text-[10px] font-bold text-white z-10 pointer-events-none tracking-wide">Chat</span>
+          </div>
         </button>
       )}
 

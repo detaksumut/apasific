@@ -71,7 +71,7 @@ export default function IAEPArticles() {
                   </h2>
                   
                   {art.abstract && (
-                    <p className="text-zinc-400 mb-6 line-clamp-3 text-sm leading-relaxed">
+                    <p className="text-zinc-400 mb-6 line-clamp-[12] text-sm leading-relaxed">
                       {(() => {
                         try {
                           const abs = JSON.parse(art.abstract);
