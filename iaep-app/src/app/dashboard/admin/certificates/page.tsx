@@ -19,6 +19,7 @@ export default async function AdminCertificates() {
       const d = doc.data();
       return {
         id: doc.id,
+        user_id: d.user_id,
         ...d,
         created_at: d.created_at?.toDate ? d.created_at.toDate() : new Date(),
         author_name: d.author_name || "Unknown Author",
@@ -36,7 +37,7 @@ export default async function AdminCertificates() {
       if (profSnap) {
         profSnap.forEach(p => profileMap.set(p.id, p));
       }
-      fbCerts.forEach(c => {
+      fbCerts.forEach((c: any) => {
         if (c.user_id && profileMap.has(c.user_id)) {
           const p = profileMap.get(c.user_id);
           if (p.full_name || p.name) c.author_name = p.full_name || p.name;
