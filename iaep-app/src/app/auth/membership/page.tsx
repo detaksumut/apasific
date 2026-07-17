@@ -8,10 +8,9 @@ import Image from "next/image";
 const formatDateYYMMDD = (dateString?: string | null, addYears: number = 0) => {
   const d = dateString ? new Date(dateString) : new Date();
   d.setFullYear(d.getFullYear() + addYears);
-  const yy = String(d.getFullYear()).slice(-2);
   const mm = String(d.getMonth() + 1).padStart(2, '0');
-  const dd = String(d.getDate()).padStart(2, '0');
-  return `${yy}${mm}${dd}`;
+  const yyyy = d.getFullYear();
+  return `${mm}/${yyyy}`; // Format diubah menjadi MM/YYYY untuk memperjelas masa berlaku 3 tahun
 };
 
 export default function MajesticMembershipPage() {

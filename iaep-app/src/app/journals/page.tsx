@@ -5,11 +5,12 @@ import { createClient } from "@/utils/supabase/client";
 
 export default function JournalsRepository() {
   const [journals, setJournals] = useState<any[]>([]);
+  const [globalArticles, setGlobalArticles] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
-    async function fetchJournals() {
+    async function fetchData() {
       try {
         const supabase = createClient();
         const { data, error } = await supabase
@@ -19,13 +20,19 @@ export default function JournalsRepository() {
 
         if (error) throw error;
         setJournals(data || []);
+
+        const { getPublishedArticles } = await import("@/app/actions/editor");
+        const res = await getPublishedArticles();
+        if (res.success && res.articles) {
+          setGlobalArticles(res.articles);
+        }
       } catch (err) {
-        console.error("Gagal memuat jurnal:", err);
+        console.error("Gagal memuat jurnal atau artikel:", err);
       } finally {
         setLoading(false);
       }
     }
-    fetchJournals();
+    fetchData();
   }, []);
 
   const filteredJournals = journals.filter(j => 
@@ -59,6 +66,62 @@ export default function JournalsRepository() {
           </div>
         </div>
       </section>
+
+      {/* Global Articles Section */}
+      {!loading && globalArticles.length > 0 && (
+        <section className="bg-[#05050a] py-12 border-b border-[#1f1f2e]">
+          <div className="container">
+            <div className="mb-8 flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
+              <div>
+                <h2 className="text-3xl font-bold font-['Cinzel'] text-white">
+                  Terbitan <span className="text-[#c9a84c]">Terbaru</span>
+                </h2>
+                <p className="text-gray-400 mt-2">Kumpulan artikel ilmiah terbaru yang dipublikasikan lintas bidang akademik ASIA.</p>
+              </div>
+            </div>
+            <div className="grid md:grid-cols-2 gap-6">
+              {globalArticles.slice(0, 6).map((art, idx) => (
+                <div key={idx} className="bg-[#111120] border border-gray-800 rounded-xl p-6 hover:border-[#c9a84c]/50 transition-all flex flex-col justify-between shadow-lg">
+                  <div>
+                    <div className="text-xs text-[#c9a84c] mb-3 font-bold uppercase tracking-wider px-3 py-1 bg-[#c9a84c]/10 inline-block rounded-full">
+                      {art.journals?.name || 'ASIA Journal'}
+                    </div>
+                    <h3 className="text-xl text-white font-bold mb-3 line-clamp-2 leading-snug">{art.title}</h3>
+                    <p className="text-sm text-gray-400 line-clamp-3 mb-4 leading-relaxed">
+                      {(() => {
+                        try {
+                          const abs = JSON.parse(art.abstract);
+                          return abs.abstract_en || abs.abstract || "";
+                        } catch(e) { return art.abstract; }
+                      })()}
+                    </p>
+                  </div>
+                  <div className="flex flex-wrap flex-col gap-2 mt-4 pt-4 border-t border-gray-800/50">
+                     <div className="text-xs text-gray-500 font-medium">
+                        Penulis: {(() => {
+                           try {
+                             const abs = JSON.parse(art.abstract);
+                             return abs.authors?.map((a:any) => a.full_name).join(', ') || "-";
+                           } catch(e) { return "-"; }
+                        })()}
+                     </div>
+                    {art.doi && (
+                      <a href={art.doi.includes('zenodo.') ? `https://zenodo.org/records/${art.doi.split('zenodo.')[1]}` : `https://doi.org/${art.doi}`}
+                         target="_blank" rel="noopener noreferrer"
+                         className="text-sm text-emerald-400 hover:text-emerald-300 font-bold mt-1 inline-flex items-center gap-1 transition-colors w-fit">
+                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                        </svg>
+                        Baca di Repositori (DOI)
+                      </a>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* Main Content Area */}
       <section className="main-content">

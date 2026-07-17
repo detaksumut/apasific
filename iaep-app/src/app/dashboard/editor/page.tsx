@@ -41,7 +41,13 @@ export default async function EditorDashboard() {
   
   // 1. Try Supabase
   try {
-    const { data: submissions } = await supabase
+    const { createClient: createSupabaseClient } = await import('@supabase/supabase-js');
+    const supabaseAdmin = createSupabaseClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL || "https://aroasmlrlpjbjokvxlgo.supabase.co",
+      process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ""
+    );
+
+    const { data: submissions } = await supabaseAdmin
       .from("submissions")
       .select("*, journals(name)")
       .order("created_at", { ascending: false });

@@ -11,7 +11,7 @@ export default async function Home() {
   
   let membersCount = 0;
   let countriesCount = 0;
-  let publicationsCount = 0;
+  let publicationsCount = 1; // Sudah ada 1 terbitan manual yang menyebar ke Zenodo, dll.
   
   try {
     // 1. Get Approved Members from Membership Applications
@@ -59,7 +59,7 @@ export default async function Home() {
     
     // 5. Get Publications Count
     const { count: pCount } = await supabase.from('submissions').select('*', { count: 'exact', head: true });
-    if (pCount !== null) publicationsCount = pCount;
+    if (pCount !== null) publicationsCount += pCount;
   } catch (err) {
     console.error("Failed to fetch live stats:", err);
     membersCount = 105; // Fallback
@@ -163,10 +163,10 @@ export default async function Home() {
           <div><span class="stat-num" data-target="1">0</span><p class="stat-label">Acara Tahunan</p></div>
         </div>
         <div class="stat-divider"></div>
-        <div class="stat-item">
+        <a href="/journals" class="stat-item" style="text-decoration: none; cursor: pointer;">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" stroke-width="1.5"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
           <div><span class="stat-num" data-target="${publicationsCount > 0 ? publicationsCount : 0}">0</span><p class="stat-label">Publikasi</p></div>
-        </div>
+        </a>
       </div>
     </div>
   </section>

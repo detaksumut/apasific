@@ -39,7 +39,13 @@ export default async function IncomingArticles() {
   // Fetch submissions that are newly submitted or awaiting reviewers
   let articles: any[] = [];
   try {
-    const { data: submissions, error } = await supabase
+    const { createClient: createSupabaseClient } = await import('@supabase/supabase-js');
+    const supabaseAdmin = createSupabaseClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL || "https://aroasmlrlpjbjokvxlgo.supabase.co",
+      process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ""
+    );
+
+    const { data: submissions, error } = await supabaseAdmin
       .from("submissions")
       .select("*, journals(name), profiles:author_id(full_name, phone)")
       .in("status", ["queued", "submitted", "pending", "Awaiting Reviewers"])
