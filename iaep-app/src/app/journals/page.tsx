@@ -97,24 +97,31 @@ export default function JournalsRepository() {
                         } catch(e) { return art.abstract; }
                       })()}
                     </p>
+                    {/* Author and DOI */}
+                    <div className="flex flex-col gap-1 mt-4 pt-4 border-t border-gray-800/50">
+                       <div className="text-xs text-gray-500 font-medium">
+                          Penulis: {(() => {
+                             try {
+                               const abs = JSON.parse(art.abstract);
+                               return abs.authors?.map((a:any) => a.full_name).join(', ') || "-";
+                             } catch(e) { return "-"; }
+                          })()}
+                       </div>
+                       {art.doi && (
+                         <div className="text-xs text-gray-400 font-medium mt-1">
+                            DOI: <a href={`https://doi.org/${art.doi.trim()}`} target="_blank" rel="noopener noreferrer" className="text-emerald-500 hover:underline">{art.doi}</a>
+                         </div>
+                       )}
+                    </div>
                   </div>
-                  <div className="flex flex-wrap flex-col gap-2 mt-4 pt-4 border-t border-gray-800/50">
-                     <div className="text-xs text-gray-500 font-medium">
-                        Penulis: {(() => {
-                           try {
-                             const abs = JSON.parse(art.abstract);
-                             return abs.authors?.map((a:any) => a.full_name).join(', ') || "-";
-                           } catch(e) { return "-"; }
-                        })()}
-                     </div>
-
-                    <Link 
-                      href={`/article/${art.id}`} 
-                      className="text-sm bg-transparent border border-[#c9a84c] text-[#c9a84c] px-4 py-1.5 rounded font-bold hover:bg-[#c9a84c]/10 transition-colors mt-2 text-center"
-                    >
-                      View Details
-                    </Link>
-                  </div>
+                  
+                  {/* View Details Button at the bottom */}
+                  <Link 
+                    href={`/article/${art.id}`} 
+                    className="mt-6 w-full block text-sm bg-transparent border border-[#c9a84c] text-[#c9a84c] px-4 py-2 rounded font-bold hover:bg-[#c9a84c]/10 transition-colors text-center"
+                  >
+                    View Details
+                  </Link>
                 </div>
               ))}
             </div>
