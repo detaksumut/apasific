@@ -86,7 +86,9 @@ export default function JournalsRepository() {
                     <div className="text-xs text-[#c9a84c] mb-3 font-bold uppercase tracking-wider px-3 py-1 bg-[#c9a84c]/10 inline-block rounded-full">
                       {art.journals?.name || 'ASIA Journal'}
                     </div>
-                    <h3 className="text-xl text-white font-bold mb-3 line-clamp-2 leading-snug">{art.title}</h3>
+                    <Link href={`/article/${art.id}`} className="hover:text-[#c9a84c] transition-colors">
+                      <h3 className="text-xl text-white font-bold mb-3 line-clamp-2 leading-snug">{art.title}</h3>
+                    </Link>
                     <p className="text-sm text-gray-400 line-clamp-3 mb-4 leading-relaxed">
                       {(() => {
                         try {
@@ -115,6 +117,12 @@ export default function JournalsRepository() {
                         Baca di Repositori (DOI)
                       </a>
                     )}
+                    <Link 
+                      href={`/article/${art.id}`} 
+                      className="text-sm bg-transparent border border-[#c9a84c] text-[#c9a84c] px-4 py-1.5 rounded font-bold hover:bg-[#c9a84c]/10 transition-colors mt-2 text-center"
+                    >
+                      View Details
+                    </Link>
                   </div>
                 </div>
               ))}

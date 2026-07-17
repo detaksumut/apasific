@@ -254,8 +254,13 @@ export default function ArticlePaywall() {
             {article.doi && (
               <div className="mt-4 pt-4 border-t border-gray-800 text-sm">
                 <span className="font-bold text-gray-300">DOI: </span>
-                <a href={`https://doi.org/${article.doi}`} target="_blank" rel="noopener noreferrer" className="text-[#c9a84c] hover:underline">
-                  https://doi.org/{article.doi}
+                <a 
+                  href={article.doi.includes('zenodo.') ? `https://zenodo.org/records/${article.doi.split('zenodo.')[1]?.trim()}` : `https://doi.org/${article.doi.trim()}`} 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="text-[#c9a84c] hover:underline"
+                >
+                  {article.doi.includes('zenodo.') ? `https://zenodo.org/records/${article.doi.split('zenodo.')[1]?.trim()}` : `https://doi.org/${article.doi.trim()}`}
                 </a>
               </div>
             )}
