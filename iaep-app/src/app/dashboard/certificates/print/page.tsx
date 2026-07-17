@@ -110,6 +110,10 @@ export default function PrintCertificate() {
         </button>
       </div>
 
+      <style dangerouslySetInnerHTML={{__html: `
+        @import url('https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap');
+      `}} />
+
       {/* Landscape Certificate Border Wrapper */}
       <div id="print-certificate-container" className="w-[297mm] h-[210mm] bg-[#FAF9F6] border-[16px] border-double border-[#b59441] p-10 flex flex-col justify-between relative shadow-2xl overflow-hidden print:shadow-none print:border-[16px]">
         
@@ -127,10 +131,10 @@ export default function PrintCertificate() {
 
         {/* Top Header Section */}
         <div className="text-center relative z-10 flex flex-col items-center">
-          <div className="flex items-center gap-4 mb-2">
+          <div className="flex flex-col items-center gap-2 mb-2">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/logo-apasific.png" alt="ASIA Logo" className="h-44 w-auto object-contain print:h-40" />
-            <div className="text-left font-sans">
+            <img src="/logo-apasific.png" alt="ASIA Logo" className="h-36 w-auto object-contain print:h-32 mb-2" />
+            <div className="text-center font-sans">
               <h2 className="text-5xl font-extrabold tracking-widest text-[#b59441] leading-none" style={{ fontFamily: 'Arial, sans-serif' }}>ASIA</h2>
               <p className="text-2xl font-bold tracking-wider text-[#2e5d9e] uppercase mt-2 print:text-[24px]" style={{ fontFamily: 'Arial, sans-serif' }}>Association of Asia Pacific Academician</p>
             </div>
@@ -149,7 +153,7 @@ export default function PrintCertificate() {
             This is proudly presented to
           </p>
           
-          <h3 className="text-4xl md:text-5xl font-bold text-zinc-800 border-b-2 border-[#b59441]/40 pb-2 px-12 inline-block italic mb-6" style={{ fontFamily: 'Times New Roman, serif' }}>
+          <h3 className="text-6xl md:text-7xl text-zinc-800 border-b-2 border-[#b59441]/40 pb-2 px-12 inline-block mb-6" style={{ fontFamily: "'Great Vibes', cursive", fontWeight: 400 }}>
             {cert.author}
           </h3>
           
