@@ -204,6 +204,7 @@ export default function MajesticMembershipPage() {
 
   return (
     <div className="min-h-screen text-[#e8e8f0] flex flex-col items-center relative overflow-hidden" style={{ padding: '40px 16px' }}>
+      <style dangerouslySetInnerHTML={{ __html: "@import url('https://fonts.googleapis.com/css2?family=DotGothic16&display=swap');" }} />
       
       {/* Background glow effects */}
       <div className="absolute top-0 left-1/4 bg-[#c9a84c] rounded-full mix-blend-color-dodge filter blur-[128px] opacity-20 animate-blob z-0" style={{ width: '384px', height: '384px' }}></div>
@@ -418,13 +419,13 @@ export default function MajesticMembershipPage() {
                   </div>
 
                   {/* NAME & CITIZENSHIP */}
-                  <div className="absolute flex flex-col gap-0 text-white font-bold uppercase drop-shadow-md tracking-wider whitespace-nowrap" style={{ top: '45%', left: '8%', fontSize: '11px' }}>
-                    <div className="flex items-center">
+                  <div className="absolute flex flex-col gap-0 text-white font-bold uppercase drop-shadow-md tracking-wider whitespace-nowrap" style={{ top: '62%', left: '8%', fontSize: '11px' }}>
+                    <div className="flex items-center leading-none">
                       <div className="w-24">NAME</div>
                       <div className="mr-2">:</div>
                       <div>{formData.fullName || "NAMA ANDA DI SINI"}</div>
                     </div>
-                    <div className="flex items-center -mt-1">
+                    <div className="flex items-center leading-none -mt-2">
                       <div className="w-24">CITIZENSHIP</div>
                       <div className="mr-2">:</div>
                       <div>{formData.country || "INDONESIA"}</div>
@@ -432,8 +433,9 @@ export default function MajesticMembershipPage() {
                   </div>
 
                   {/* ID NUMBER */}
-                  <div className="absolute text-white font-bold tracking-wider drop-shadow-md text-right" style={{ bottom: '8%', right: '5%', fontSize: '9px' }}>
-                    ID. ASIA-VII-000001
+                  <div className="absolute text-white font-bold tracking-wider drop-shadow-md text-right flex items-baseline" style={{ bottom: '8%', right: '3%', fontSize: '9px' }}>
+                    <span>ID. ASIA-VII-</span>
+                    <span style={{ fontFamily: '"DotGothic16", monospace', fontSize: '12px', letterSpacing: '0.15em', fontWeight: 'normal', backgroundColor: 'black', color: '#00ff00', padding: '0 4px', borderRadius: '2px', marginLeft: '4px' }}>0000001</span>
                   </div>
                 </div>
 
@@ -452,22 +454,21 @@ export default function MajesticMembershipPage() {
                     </div>
                   </div>
 
-                  {/* Magnetic Stripe */}
-                  <div className="absolute w-full bg-[#1c1c1c] shadow-lg" style={{ top: '24%', height: '18%' }}></div>
+
                   
                   {/* Text Information (Perfectly Aligned) */}
-                  <div className="absolute flex flex-col gap-[1px] text-white font-bold uppercase drop-shadow-md tracking-wider whitespace-nowrap" style={{ top: '43%', left: '6%', fontSize: '9px' }}>
-                    <div className="flex items-center">
+                  <div className="absolute flex flex-col gap-0 text-white font-bold uppercase drop-shadow-md tracking-wider whitespace-nowrap" style={{ top: '55%', left: '6%', fontSize: '9px' }}>
+                    <div className="flex items-center leading-none">
                       <div className="w-[75px] text-left">NAME</div>
                       <div className="mr-1">:</div>
                       <div>{formData.fullName || "ARFAN IKHSAN LUBIS"}</div>
                     </div>
-                    <div className="flex items-center -mt-1">
+                    <div className="flex items-center leading-none -mt-2">
                       <div className="w-[75px] text-left">CITIZENSHIP</div>
                       <div className="mr-1">:</div>
                       <div>{formData.country || "INDONESIA"}</div>
                     </div>
-                    <div className="flex items-center">
+                    <div className="flex items-center leading-none -mt-2">
                       <div className="w-[75px] text-left">VALID THRU</div>
                       <div className="mr-1">:</div>
                       <div>{formatDateYYMMDD(null, 3)}</div>
@@ -647,13 +648,13 @@ export default function MajesticMembershipPage() {
                 </div>
 
                 {/* NAME & CITIZENSHIP */}
-                <div className="absolute flex flex-col gap-0 text-white font-bold uppercase drop-shadow-md tracking-wider whitespace-nowrap" style={{ top: '45%', left: '8%', fontSize: '11px' }}>
-                  <div className="flex items-center">
+                <div className="absolute flex flex-col gap-0 text-white font-bold uppercase drop-shadow-md tracking-wider whitespace-nowrap" style={{ top: '62%', left: '8%', fontSize: '11px' }}>
+                  <div className="flex items-center leading-none">
                     <div className="w-24">NAME</div>
                     <div className="mr-2">:</div>
                     <div>{selectedMemberCard.full_name || "NAMA ANDA DI SINI"}</div>
                   </div>
-                  <div className="flex items-center -mt-1">
+                  <div className="flex items-center leading-none -mt-2">
                     <div className="w-24">CITIZENSHIP</div>
                     <div className="mr-2">:</div>
                     <div>{selectedMemberCard.country || "INDONESIA"}</div>
@@ -661,8 +662,22 @@ export default function MajesticMembershipPage() {
                 </div>
 
                 {/* ID NUMBER */}
-                <div className="absolute text-white font-bold tracking-wider drop-shadow-md text-right" style={{ bottom: '8%', right: '5%', fontSize: '9px' }}>
-                  ID. {selectedMemberCard.international_id || "ASIA-VII-000001"}
+                <div className="absolute text-white font-bold tracking-wider drop-shadow-md text-right flex items-baseline" style={{ bottom: '8%', right: '3%', fontSize: '9px' }}>
+                  {(() => {
+                    const fullId = selectedMemberCard.international_id || "ASIA-VII-0000001";
+                    const lastDash = fullId.lastIndexOf('-');
+                    if (lastDash === -1) {
+                      return <span style={{ fontFamily: '"DotGothic16", monospace', fontSize: '12px', letterSpacing: '0.15em', fontWeight: 'normal', backgroundColor: 'black', color: '#00ff00', padding: '0 4px', borderRadius: '2px' }}>ID. {fullId}</span>;
+                    }
+                    const prefix = fullId.substring(0, lastDash + 1);
+                    const num = fullId.substring(lastDash + 1);
+                    return (
+                      <>
+                        <span>ID. {prefix}</span>
+                        <span style={{ fontFamily: '"DotGothic16", monospace', fontSize: '12px', letterSpacing: '0.15em', fontWeight: 'normal', backgroundColor: 'black', color: '#00ff00', padding: '0 4px', borderRadius: '2px', marginLeft: '4px' }}>{num}</span>
+                      </>
+                    );
+                  })()}
                 </div>
               </div>
 
@@ -679,22 +694,21 @@ export default function MajesticMembershipPage() {
                   </div>
                 </div>
 
-                {/* Magnetic Stripe */}
-                <div className="absolute w-full bg-[#1c1c1c] shadow-lg" style={{ top: '24%', height: '18%' }}></div>
+
                 
                 {/* Text Information (Perfectly Aligned) */}
-                <div className="absolute flex flex-col gap-[1px] text-white font-bold uppercase drop-shadow-md tracking-wider whitespace-nowrap" style={{ top: '43%', left: '6%', fontSize: '9px' }}>
-                  <div className="flex items-center">
+                <div className="absolute flex flex-col gap-0 text-white font-bold uppercase drop-shadow-md tracking-wider whitespace-nowrap" style={{ top: '55%', left: '6%', fontSize: '9px' }}>
+                  <div className="flex items-center leading-none">
                     <div className="w-[75px] text-left">NAME</div>
                     <div className="mr-1">:</div>
                     <div>{selectedMemberCard.full_name || "ARFAN IKHSAN LUBIS"}</div>
                   </div>
-                  <div className="flex items-center -mt-1">
+                  <div className="flex items-center leading-none -mt-2">
                     <div className="w-[75px] text-left">CITIZENSHIP</div>
                     <div className="mr-1">:</div>
                     <div>{selectedMemberCard.country || "INDONESIA"}</div>
                   </div>
-                  <div className="flex items-center">
+                  <div className="flex items-center leading-none -mt-2">
                     <div className="w-[75px] text-left">VALID THRU</div>
                     <div className="mr-1">:</div>
                     <div>{selectedMemberCard ? formatDateYYMMDD(selectedMemberCard.created_at, 3) : formatDateYYMMDD(null, 3)}</div>
