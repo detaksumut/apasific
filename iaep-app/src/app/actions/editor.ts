@@ -77,13 +77,6 @@ export async function submitEditorialDecision(submissionId: string, authorId: st
         });
 
         if (decision === 'Accepted') {
-            await supabaseAdmin.from('certificates').insert({
-              user_id: authorId,
-              type: 'author_publication',
-              reference_id: submissionId,
-              title: `Sertifikat Publikasi Naskah: ${title}`
-            });
-
             try {
                 const { data: sub } = await supabaseAdmin
                     .from('submissions')
@@ -123,16 +116,7 @@ export async function submitEditorialDecision(submissionId: string, authorId: st
                 created_at: new Date()
             });
 
-            if (decision === 'Accepted') {
-                const certRef = db.collection('certificates').doc();
-                batch.set(certRef, {
-                    user_id: authorId,
-                    type: 'author_publication',
-                    reference_id: submissionId,
-                    title: `Sertifikat Publikasi Naskah: ${title}`,
-                    created_at: new Date()
-                });
-            }
+
 
             await batch.commit();
         } catch (e) {
