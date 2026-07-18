@@ -253,11 +253,15 @@ export async function getAssignmentDetails(assignmentId: string) {
           if (!isNaN(d.getTime())) dueDateStr = d.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
         } else if (assignment.accepted_at) {
           const d = new Date(assignment.accepted_at);
-          d.setDate(d.getDate() + 3);
+          d.setDate(d.getDate() + 7);
           if (!isNaN(d.getTime())) dueDateStr = d.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
         } else if (assignment.created_at) {
           const d = new Date(assignment.created_at);
-          d.setDate(d.getDate() + 3);
+          d.setDate(d.getDate() + 7);
+          if (!isNaN(d.getTime())) dueDateStr = d.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+        } else if (assignment.assigned_at) {
+          const d = new Date(assignment.assigned_at);
+          d.setDate(d.getDate() + 7);
           if (!isNaN(d.getTime())) dueDateStr = d.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
         }
 
@@ -306,11 +310,15 @@ export async function getAssignmentDetails(assignmentId: string) {
                   if (!isNaN(d.getTime())) dueDateStr = d.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
                 } else if (fbData.accepted_at) {
                   const d = fbData.accepted_at.toDate ? fbData.accepted_at.toDate() : new Date(fbData.accepted_at);
-                  d.setDate(d.getDate() + 3);
+                  d.setDate(d.getDate() + 7);
                   if (!isNaN(d.getTime())) dueDateStr = d.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
                 } else if (fbData.created_at) {
                   const d = fbData.created_at.toDate ? fbData.created_at.toDate() : new Date(fbData.created_at);
-                  d.setDate(d.getDate() + 3);
+                  d.setDate(d.getDate() + 7);
+                  if (!isNaN(d.getTime())) dueDateStr = d.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+                } else if (fbData.assigned_at) {
+                  const d = fbData.assigned_at.toDate ? fbData.assigned_at.toDate() : new Date(fbData.assigned_at);
+                  d.setDate(d.getDate() + 7);
                   if (!isNaN(d.getTime())) dueDateStr = d.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
                 }
 
