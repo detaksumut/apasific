@@ -1,6 +1,7 @@
 "use client";
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { submitManuscript } from '@/app/actions/submission';
+import { createClient } from '@/utils/supabase/client';
 import { PlagiarismChecker } from '@/components/PlagiarismChecker';
 import { FileText, Upload, Send, Languages, Plus, Trash2, ChevronUp, ChevronDown } from 'lucide-react';
 
@@ -121,8 +122,33 @@ export default function AuthorSubmit() {
     funding_source: '',
     conflict_of_interest: false,
     ai_disclosure_type: 'none',
-    ai_disclosure_statement: ''
+    ai_disclosure_statement: '',
+    phone: ''
   });
+
+  useEffect(() => {
+    const fetchUserPhone = async () => {
+      try {
+        const supabase = createClient();
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          // Try from user metadata first
+          if (user.user_metadata?.phone) {
+            setFormData(prev => ({ ...prev, phone: user.user_metadata.phone }));
+            return;
+          }
+          // Try from profiles table
+          const { data: profile } = await supabase.from('profiles').select('phone').eq('id', user.id).single();
+          if (profile?.phone) {
+            setFormData(prev => ({ ...prev, phone: profile.phone }));
+          }
+        }
+      } catch (e) {
+        console.error("Error fetching user phone", e);
+      }
+    };
+    fetchUserPhone();
+  }, []);
 
   const [authors, setAuthors] = useState<AuthorData[]>([
     { id: '1', full_name: '', email: '', affiliation: '', country: '', orcid: '', academic_id: '', google_scholar: '', sinta: '', scopus: '', wos: '' }
@@ -233,6 +259,7 @@ export default function AuthorSubmit() {
     
     form.append('journalId', formData.journal_id);
     form.append('title', finalTitle);
+    form.append('phone', formData.phone);
     
     const metadataObj = {
       abstract: formData.abstract,
@@ -383,13 +410,24 @@ export default function AuthorSubmit() {
             <p className="text-sm text-[#8888aa] mt-2 pl-1">* Biaya dan fasilitas masing-masing paket akan diinformasikan lebih lanjut oleh editor.</p>
           </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginBottom: '2.5rem' }}>
-            <label className="block text-base font-bold text-[#c9a84c]">Judul Artikel <span className="text-red-500">*</span></label>
-            <input
-              type="text" name="title" required value={formData.title} onChange={handleChange} style={{ padding: '1rem' }}
-              className="w-full bg-[#0a0a14] border border-zinc-700/80 rounded-xl px-5 py-4 text-white text-lg font-medium focus:border-[#c9a84c] focus:ring-1 focus:ring-[#c9a84c] transition-colors"
-              placeholder="Ketik judul lengkap naskah Anda di sini..."
-            />
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '2rem', marginBottom: '2.5rem' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+              <label className="block text-base font-bold text-[#c9a84c]">Judul Artikel <span className="text-red-500">*</span></label>
+              <input
+                type="text" name="title" required value={formData.title} onChange={handleChange} style={{ padding: '1rem' }}
+                className="w-full bg-[#0a0a14] border border-zinc-700/80 rounded-xl px-5 py-4 text-white text-lg font-medium focus:border-[#c9a84c] focus:ring-1 focus:ring-[#c9a84c] transition-colors"
+                placeholder="Ketik judul lengkap naskah Anda di sini..."
+              />
+            </div>
+            
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+              <label className="block text-base font-bold text-[#c9a84c]">Nomor WhatsApp <span className="text-red-500">*</span></label>
+              <input
+                type="tel" name="phone" required value={formData.phone} onChange={handleChange} style={{ padding: '1rem' }}
+                className="w-full bg-[#0a0a14] border border-zinc-700/80 rounded-xl px-5 py-4 text-white text-lg font-medium focus:border-[#c9a84c] focus:ring-1 focus:ring-[#c9a84c] transition-colors"
+                placeholder="+62 812-3456-7890 (Untuk Notifikasi Update)"
+              />
+            </div>
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '2rem', marginBottom: '2.5rem' }}>
