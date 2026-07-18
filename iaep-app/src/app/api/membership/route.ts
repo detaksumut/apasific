@@ -51,7 +51,7 @@ export async function POST(request: Request) {
           academic_level: academicLevel,
           international_id: finalInternationalId,
           university: universityWithOrcid,
-          academic_field: discipline, // Changed from discipline to academic_field
+          discipline: discipline, // Reverted back to discipline to match Supabase schema
           bukti_transfer_url: buktiTransfer, // Base64 string
           status: 'Pending'
         }
