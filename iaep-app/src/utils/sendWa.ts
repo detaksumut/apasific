@@ -9,23 +9,50 @@ export async function sendWa(target: string, message: string): Promise<boolean> 
 
   try {
     const cleanTarget = target.replace(/[^0-9]/g, '');
-    const res = await fetch("https://api.fonnte.com/send", {
-      method: "POST",
+    const postData = new URLSearchParams({
+      target: cleanTarget,
+      message: message,
+    }).toString();
+
+    const https = require('https');
+    const options = {
+      hostname: 'api.fonnte.com',
+      port: 443,
+      path: '/send',
+      method: 'POST',
       headers: {
-        "Authorization": token,
-      },
-      body: new URLSearchParams({
-        target: cleanTarget,
-        message: message,
-      }),
+        'Authorization': token,
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Content-Length': Buffer.byteLength(postData)
+      }
+    };
+
+    return new Promise((resolve, reject) => {
+      const req = https.request(options, (res: any) => {
+        let data = '';
+        res.on('data', (chunk: any) => data += chunk);
+        res.on('end', () => {
+          try {
+            const parsed = JSON.parse(data);
+            if (!parsed.status) {
+              console.error("Fonnte failed to send:", parsed);
+              reject(new Error(`Fonnte API Error: ${parsed.reason || JSON.stringify(parsed)}`));
+            } else {
+              resolve(true);
+            }
+          } catch(e) {
+            reject(new Error("Invalid JSON from Fonnte"));
+          }
+        });
+      });
+
+      req.on('error', (e: any) => {
+        reject(new Error(`Network Error: ${e.message}`));
+      });
+
+      req.write(postData);
+      req.end();
     });
-    
-    const data = await res.json();
-    if (!data.status) {
-      console.error("Fonnte failed to send:", data);
-      throw new Error(`Fonnte API Error: ${data.reason || JSON.stringify(data)}`);
-    }
-    return true;
   } catch (e: any) {
     console.error("Fonnte API error:", e);
     throw new Error(e.message || "Unknown error connecting to Fonnte");
