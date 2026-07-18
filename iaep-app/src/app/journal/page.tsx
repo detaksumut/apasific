@@ -35,6 +35,7 @@ const OFFICIAL_JOURNALS = [
 export default function JournalPage() {
   const [boards, setBoards] = useState<BoardData[]>([]);
   const [loading, setLoading] = useState(true);
+  const [zoomedImage, setZoomedImage] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchAllBoards = async () => {
@@ -87,7 +88,36 @@ export default function JournalPage() {
   }, []);
 
   return (
-    <main style={{ minHeight: "100vh", padding: "100px 20px 60px", background: "#05050a", fontFamily: "sans-serif" }}>
+    <main style={{ minHeight: "100vh", padding: "100px 20px 60px", background: "#05050a", fontFamily: "sans-serif" }} className="relative overflow-x-hidden">
+      
+      {/* SIDEBAR GAMBAR KIRI */}
+      <div className="hidden xl:block fixed top-[150px] left-[30px] 2xl:left-[60px] w-[180px] 2xl:w-[220px] z-40">
+        <div 
+          // onClick={() => setZoomedImage("/path-ke-gambar-kiri.jpg")} // Uncomment jika gambar sudah ada
+          className="overflow-hidden rounded-xl border-2 border-dashed border-[#c9a84c]/40 flex flex-col items-center justify-center bg-[#0a0a0f]/30 aspect-[3/4]"
+        >
+          <div className="text-center p-4">
+            <svg className="w-8 h-8 text-[#c9a84c]/40 mx-auto mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+            <p className="text-[#c9a84c]/70 text-[11px] font-bold tracking-widest uppercase">Space Gambar<br/>Kiri</p>
+            <p className="text-gray-500/70 text-[9px] mt-2">(Belum ada gambar)</p>
+          </div>
+        </div>
+      </div>
+
+      {/* SIDEBAR GAMBAR KANAN */}
+      <div className="hidden xl:block fixed top-[150px] right-[30px] 2xl:right-[60px] w-[180px] 2xl:w-[220px] z-40">
+        <div 
+          // onClick={() => setZoomedImage("/path-ke-gambar-kanan.jpg")} // Uncomment jika gambar sudah ada
+          className="overflow-hidden rounded-xl border-2 border-dashed border-[#c9a84c]/40 flex flex-col items-center justify-center bg-[#0a0a0f]/30 aspect-[3/4]"
+        >
+          <div className="text-center p-4">
+            <svg className="w-8 h-8 text-[#c9a84c]/40 mx-auto mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+            <p className="text-[#c9a84c]/70 text-[11px] font-bold tracking-widest uppercase">Space Gambar<br/>Kanan</p>
+            <p className="text-gray-500/70 text-[9px] mt-2">(Belum ada gambar)</p>
+          </div>
+        </div>
+      </div>
+
       <div style={{ maxWidth: "1000px", margin: "0 auto" }}>
         
         <div style={{ textAlign: "center", marginBottom: "50px", padding: "40px 0", borderBottom: "1px solid rgba(201,168,76,0.15)" }}>
@@ -186,6 +216,28 @@ export default function JournalPage() {
         )}
 
       </div>
+
+      {/* MODAL ZOOM IMAGE */}
+      {zoomedImage && (
+        <div 
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm p-4 cursor-zoom-out"
+          onClick={() => setZoomedImage(null)}
+        >
+          <div className="relative max-w-[95vw] max-h-[95vh]">
+            <img 
+              src={zoomedImage} 
+              alt="Zoomed Image" 
+              className="max-w-full max-h-[90vh] object-contain rounded-xl border-2 border-[#c9a84c]/40 shadow-[0_0_50px_rgba(201,168,76,0.3)]"
+            />
+            <button 
+              onClick={(e) => { e.stopPropagation(); setZoomedImage(null); }}
+              className="absolute -top-4 -right-4 bg-red-600/90 text-white w-10 h-10 rounded-full flex items-center justify-center font-bold border-2 border-white/20 hover:scale-110 hover:bg-red-500 transition-all shadow-lg text-lg"
+            >
+              ×
+            </button>
+          </div>
+        </div>
+      )}
     </main>
   );
 }
