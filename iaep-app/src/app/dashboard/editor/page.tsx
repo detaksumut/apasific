@@ -4,7 +4,7 @@ import Link from "next/link";
 import { FileText, Clock, CheckCircle, ArrowRight, ShieldCheck, Users } from "lucide-react";
 
 import { cookies } from "next/headers";
-
+import DeleteSubmissionButton from "@/components/DeleteSubmissionButton";
 export default async function EditorDashboard() {
   const supabase = await createClient();
   let { data: { user } } = await supabase.auth.getUser();
@@ -182,13 +182,16 @@ export default async function EditorDashboard() {
                     </p>
                   </div>
                   
-                  <Link 
-                    href={`/dashboard/editor/submissions/${article.id || article.submission_id}`}
-                    className="shrink-0 flex items-center justify-center gap-2 px-4 py-2 bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500 hover:text-white rounded-lg transition-all text-sm font-medium border border-emerald-500/20 hover:border-emerald-500"
-                  >
-                    Kelola Naskah
-                    <ArrowRight className="w-4 h-4" />
-                  </Link>
+                  <div className="flex items-center gap-2 shrink-0">
+                    <Link 
+                      href={`/dashboard/editor/submissions/${article.id || article.submission_id}`}
+                      className="flex items-center justify-center gap-2 px-4 py-2 bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500 hover:text-white rounded-lg transition-all text-sm font-medium border border-emerald-500/20 hover:border-emerald-500"
+                    >
+                      Kelola Naskah
+                      <ArrowRight className="w-4 h-4" />
+                    </Link>
+                    <DeleteSubmissionButton id={article.id || article.submission_id} />
+                  </div>
                 </div>
               </div>
             ))}
