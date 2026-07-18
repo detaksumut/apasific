@@ -978,7 +978,8 @@ export async function assignReviewer(submissionId: string, reviewerId: string, r
 
 export async function getActiveReviewers() {
     try {
-        const supabaseAdmin = (await import('@supabase/supabase-js')).createClient(
+        const { createClient: createSupabaseClient } = await import('@supabase/supabase-js');
+        const supabaseAdmin = createSupabaseClient(
           process.env.NEXT_PUBLIC_SUPABASE_URL!,
           process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
         );
