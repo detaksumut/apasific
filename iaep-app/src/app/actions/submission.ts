@@ -103,7 +103,8 @@ export async function submitManuscript(formData: FormData) {
             author_id: userId,
             title,
             abstract,
-            status: 'Awaiting Reviewers'
+            status: 'Awaiting Reviewers',
+            phone: formPhone || null
           })
           .select()
           .single();
@@ -129,6 +130,7 @@ export async function submitManuscript(formData: FormData) {
            author_id: userId,
            title,
            abstract,
+           phone: formPhone || null,
            status: 'Awaiting Reviewers',
            created_at: admin.firestore.FieldValue.serverTimestamp(),
            updated_at: admin.firestore.FieldValue.serverTimestamp()
@@ -318,7 +320,7 @@ export async function deleteSubmission(submissionId: string) {
   return { success: false, error: "Failed to delete from both databases." };
 }
 
-export async function sendReminderWa(submissionId: string) {
+export async function sendReminderWa(submissionId: string, manualPhone?: string) {
   const { createClient: createSupabaseClient } = require('@supabase/supabase-js');
   const supabaseAdmin = createSupabaseClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL || "https://aroasmlrlpjbjokvxlgo.supabase.co",
@@ -378,6 +380,10 @@ export async function sendReminderWa(submissionId: string) {
         } catch (fbErr) {
             console.error("Firestore fallback in sendReminderWa failed", fbErr);
         }
+    }
+
+    if (manualPhone) {
+        phone = manualPhone;
     }
 
     if (!phone) {
