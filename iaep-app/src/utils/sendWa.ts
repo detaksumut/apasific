@@ -1,5 +1,5 @@
 export async function sendWa(target: string, message: string): Promise<boolean> {
-  const token = process.env.FONNTE_TOKEN;
+  const token = process.env.FONNTE_TOKEN || "NuENajiEsZG5UWxZsAyE";
   
   if (!token) {
     console.warn("[Apasific WA System] FONNTE_TOKEN is not set in environment variables. Message simulated:");
