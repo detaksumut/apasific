@@ -49,7 +49,7 @@ export default async function EditorDashboard() {
 
     const { data: submissions } = await supabaseAdmin
       .from("submissions")
-      .select("*, journals(name)")
+      .select("*, journals(name), profiles(full_name, phone)")
       .order("created_at", { ascending: false });
     if (submissions && submissions.length > 0) {
       articles = [...submissions];
@@ -65,6 +65,11 @@ export default async function EditorDashboard() {
     const submissionsSnapshot = await db.collection('submissions')
       .orderBy('created_at', 'desc')
       .get();
+    
+    const usersSnapshot = await db.collection('users').get();
+    const fbUsers: any = {};
+    usersSnapshot.docs.forEach((doc: any) => fbUsers[doc.id] = doc.data());
+
     const existingIds = new Set(articles.map(a => a.id));
     const fbArticles = submissionsSnapshot.docs
       .map(doc => {
@@ -75,8 +80,10 @@ export default async function EditorDashboard() {
           title: data.title,
           status: data.status,
           stage: data.stage,
+          abstract: data.abstract,
           created_at: data.created_at ? data.created_at.toDate() : new Date(),
-          journals: data.journals || { name: 'Unknown Journal' }
+          journals: data.journals || { name: 'Unknown Journal' },
+          profiles: fbUsers[data.author_id] ? { full_name: fbUsers[data.author_id].full_name, phone: fbUsers[data.author_id].phone } : null
         };
       })
       .filter(a => !existingIds.has(a.id));
@@ -157,7 +164,22 @@ export default async function EditorDashboard() {
           </div>
         ) : (
           <div className="divide-y divide-zinc-800/50">
-            {articles.map((article: any) => (
+            {articles.map((article: any) => {
+              let senderName = article.profiles?.full_name || 'Penulis Tidak Diketahui';
+              let senderPhone = article.profiles?.phone || '-';
+              let senderEmail = 'N/A';
+
+              try {
+                const parsedAbstract = JSON.parse(article.abstract || '{}');
+                if (parsedAbstract.authors && parsedAbstract.authors.length > 0) {
+                  const primary = parsedAbstract.authors[0];
+                  if (primary.full_name && senderName === 'Penulis Tidak Diketahui') senderName = primary.full_name;
+                  if (primary.email) senderEmail = primary.email;
+                }
+                if (parsedAbstract.phone && senderPhone === '-') senderPhone = parsedAbstract.phone;
+              } catch(e) {}
+
+              return (
               <div key={article.id || article.submission_id} className="p-6 hover:bg-zinc-800/30 transition-colors group">
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                   <div className="space-y-1">
@@ -180,6 +202,20 @@ export default async function EditorDashboard() {
                     <p className="text-sm text-zinc-500">
                       Disubmit pada: {new Date(article.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}
                     </p>
+                    <div className="mt-2 flex flex-wrap items-center gap-2">
+                      <div className="flex items-center gap-1 text-xs text-zinc-300 bg-zinc-800/60 px-2 py-1 rounded border border-zinc-700/50">
+                        <Users className="w-3.5 h-3.5 text-emerald-500" />
+                        <span>{senderName}</span>
+                      </div>
+                      <div className="flex items-center gap-1 text-xs font-mono text-emerald-400 bg-emerald-500/10 px-2 py-1 rounded border border-emerald-500/20">
+                        <span>HP: {senderPhone}</span>
+                      </div>
+                      {senderEmail !== 'N/A' && (
+                        <div className="flex items-center gap-1 text-xs text-zinc-400 bg-zinc-800/60 px-2 py-1 rounded border border-zinc-700/50">
+                          <span>{senderEmail}</span>
+                        </div>
+                      )}
+                    </div>
                   </div>
                   
                   <div className="flex items-center gap-2 shrink-0">
@@ -194,7 +230,8 @@ export default async function EditorDashboard() {
                   </div>
                 </div>
               </div>
-            ))}
+            );
+            })}
           </div>
         )}
       </div>
