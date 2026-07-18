@@ -38,6 +38,15 @@ export default async function EditorDashboard() {
     redirect("/auth/login");
   }
 
+  // Block co-admins from Editor Dashboard
+  const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single();
+  if (profile && profile.role) {
+      const r = profile.role.toLowerCase();
+      if (r.includes('co-admin') || r.includes('co_admin')) {
+          redirect('/dashboard/admin/users');
+      }
+  }
+
   // Fetch all submissions for the editor (Dual-Database: Supabase + Firestore merged)
   let articles: any[] = [];
   

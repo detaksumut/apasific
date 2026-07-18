@@ -363,6 +363,12 @@ export async function getActiveReviewers() {
             }
         } catch(e) {}
 
+        // Exclude anyone who is an admin or co-admin from being listed as a reviewer
+        reviewers = reviewers.filter(r => {
+            const roleLower = (r.role || '').toLowerCase();
+            return !roleLower.includes('admin') && !roleLower.includes('co-admin') && !roleLower.includes('co_admin');
+        });
+
         // 3. Fallback to hardcoded mock just in case DB is empty for demo
         if (reviewers.length === 0) {
             reviewers.push({
@@ -408,6 +414,13 @@ export async function getEditorialBoard(journalName: string) {
             members = JSON.parse(data.members_json);
         } else if (data.members_json) {
             members = data.members_json;
+        }
+
+        if (Array.isArray(members)) {
+            members = members.filter((m: any) => {
+                const jabatan = (m.jabatan || '').toLowerCase();
+                return !jabatan.includes('co-admin') && !jabatan.includes('co_admin');
+            });
         }
 
         return { success: true, members: members || [] };

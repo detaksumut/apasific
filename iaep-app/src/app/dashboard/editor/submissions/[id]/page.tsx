@@ -28,6 +28,7 @@ export default function SubmissionControlPanel() {
   const [isAddReviewerOpen, setIsAddReviewerOpen] = useState(false);
   const [reviewerSearch, setReviewerSearch] = useState("");
   const [reviewerPage, setReviewerPage] = useState(1);
+  const [onlineReviewerPage, setOnlineReviewerPage] = useState(1);
   const REVIEWERS_PER_PAGE = 7;
   const [isUploadingRevised, setIsUploadingRevised] = useState(false);
   const [isUploadingGalley, setIsUploadingGalley] = useState(false);
@@ -40,7 +41,7 @@ export default function SubmissionControlPanel() {
   const isCoverEditor = roleStr.includes('cover');
   const isPublishEditor = roleStr.includes('publish');
   const isSupervisor = roleStr.includes('supervisor');
-  const isPureEditor = roleStr.includes('admin') || roleStr.includes('supervisor') || (roleStr.includes('editor') && !roleStr.includes('layout') && !roleStr.includes('cover') && !roleStr.includes('publish'));
+  const isPureEditor = (roleStr.includes('admin') && !roleStr.includes('co')) || roleStr.includes('supervisor') || (roleStr.includes('editor') && !roleStr.includes('layout') && !roleStr.includes('cover') && !roleStr.includes('publish'));
 
   const showToast = (msg: string) => {
     setToastMessage(msg);
@@ -461,33 +462,59 @@ export default function SubmissionControlPanel() {
                   <div className="space-y-3">
                     {availableReviewers.length === 0 ? (
                         <div className="text-sm text-gray-500 bg-gray-50 p-4 border border-gray-200 rounded-lg text-center">Belum ada reviewer yang online saat ini.</div>
-                    ) : (
-                        availableReviewers.map((rev) => (
-                            <div key={rev.id} className="flex items-center justify-between bg-white border border-gray-200 p-3 rounded-lg shadow-sm">
-                              <div className="flex items-center">
-                                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse mr-3"></div>
-                                <div>
-                                  <div className="font-semibold text-sm text-gray-800">{rev.full_name}</div>
-                                  <div className="text-xs text-gray-500">Keahlian: {rev.expertise || 'Umum'} • Kontak: {rev.phone_number || '-'}</div>
+                    ) : (() => {
+                        const totalPages = Math.ceil(availableReviewers.length / REVIEWERS_PER_PAGE) || 1;
+                        const paginatedReviewers = availableReviewers.slice((onlineReviewerPage - 1) * REVIEWERS_PER_PAGE, onlineReviewerPage * REVIEWERS_PER_PAGE);
+                        
+                        return (
+                          <>
+                            {paginatedReviewers.map((rev) => (
+                                <div key={rev.id} className="flex items-center justify-between bg-white border border-gray-200 p-3 rounded-lg shadow-sm">
+                                  <div className="flex items-center">
+                                    <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse mr-3"></div>
+                                    <div>
+                                      <div className="font-semibold text-sm text-gray-800">{rev.full_name}</div>
+                                      <div className="text-xs text-gray-500">Keahlian: {rev.expertise || 'Umum'} • Kontak: {rev.phone_number || '-'}</div>
+                                    </div>
+                                  </div>
+                                  <div className="flex items-center space-x-2">
+                                    <a 
+                                      href={`https://wa.me/${(rev.phone_number || '').replace(/\D/g,'')}?text=${encodeURIComponent(`Yth. ${rev.full_name}, kami mengundang Anda untuk meninjau naskah #${submission.id} di platform APASIFIC.`)}`}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="text-xs bg-[#25D366] text-black font-semibold py-1 px-3 rounded hover:bg-[#22c35e] text-center"
+                                      style={{ textDecoration: 'none' }}
+                                    >
+                                      💬 Invite
+                                    </a>
+                                    <button className="text-xs bg-gray-800 text-white font-semibold py-1 px-3 rounded hover:bg-gray-700">
+                                      Assign
+                                    </button>
+                                  </div>
                                 </div>
-                              </div>
-                              <div className="flex items-center space-x-2">
-                                <a 
-                                  href={`https://wa.me/${(rev.phone_number || '').replace(/\D/g,'')}?text=${encodeURIComponent(`Yth. ${rev.full_name}, kami mengundang Anda untuk meninjau naskah #${submission.id} di platform APASIFIC.`)}`}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="text-xs bg-[#25D366] text-black font-semibold py-1 px-3 rounded hover:bg-[#22c35e] text-center"
-                                  style={{ textDecoration: 'none' }}
-                                >
-                                  💬 Invite
-                                </a>
-                                <button className="text-xs bg-gray-800 text-white font-semibold py-1 px-3 rounded hover:bg-gray-700">
-                                  Assign
-                                </button>
-                              </div>
-                            </div>
-                        ))
-                    )}
+                            ))}
+                            {totalPages > 1 && (
+                                <div className="flex justify-between items-center pt-2 mt-4">
+                                    <button 
+                                        disabled={onlineReviewerPage === 1}
+                                        onClick={() => setOnlineReviewerPage(p => Math.max(1, p - 1))}
+                                        className="px-3 py-1 bg-white border border-gray-300 text-gray-700 rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed text-xs font-medium transition-colors"
+                                    >
+                                        Sebelumnya
+                                    </button>
+                                    <span className="text-xs text-gray-500 font-medium bg-gray-50 px-2 py-1 rounded-full">Hal {onlineReviewerPage} dari {totalPages}</span>
+                                    <button 
+                                        disabled={onlineReviewerPage === totalPages}
+                                        onClick={() => setOnlineReviewerPage(p => Math.min(totalPages, p + 1))}
+                                        className="px-3 py-1 bg-white border border-gray-300 text-gray-700 rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed text-xs font-medium transition-colors"
+                                    >
+                                        Berikutnya
+                                    </button>
+                                </div>
+                            )}
+                          </>
+                        );
+                    })()}
                   </div>
                 </div>
               </div>
