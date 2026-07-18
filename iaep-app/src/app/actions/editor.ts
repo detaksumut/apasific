@@ -37,8 +37,12 @@ export async function getReviewsForSubmission(submissionId: string) {
                         id: doc.id,
                         ...data,
                         reviewer: { full_name: reviewerName },
-                        created_at: data.created_at ? data.created_at.toDate().toISOString() : new Date().toISOString(),
-                        updated_at: data.updated_at ? data.updated_at.toDate().toISOString() : new Date().toISOString(),
+                        created_at: data.created_at?.toDate ? data.created_at.toDate().toISOString() : new Date().toISOString(),
+                        updated_at: data.updated_at?.toDate ? data.updated_at.toDate().toISOString() : new Date().toISOString(),
+                        assigned_at: data.assigned_at?.toDate ? data.assigned_at.toDate().toISOString() : null,
+                        deadline: data.deadline?.toDate ? data.deadline.toDate().toISOString() : null,
+                        accepted_at: data.accepted_at?.toDate ? data.accepted_at.toDate().toISOString() : null,
+                        completed_at: data.completed_at?.toDate ? data.completed_at.toDate().toISOString() : null,
                     });
                 }
             }
@@ -155,22 +159,26 @@ export async function updateSubmissionStage(submissionId: string, stage: string,
             await subRef.update({ stage, status, updated_at: new Date() });
         }
 
-        // 2. Update Supabase (primary for UUID-based submissions)
-        const supabaseAdmin = (await import('@supabase/supabase-js')).createClient(
-          process.env.NEXT_PUBLIC_SUPABASE_URL!,
-          process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-        );
-        await supabaseAdmin.from('submissions').update({ stage, status, updated_at: new Date() }).eq('id', submissionId);
+        // 2. Update Supabase (wrapped in try/catch to ignore UUID errors for Firestore IDs)
+        try {
+            const supabaseAdmin = (await import('@supabase/supabase-js')).createClient(
+              process.env.NEXT_PUBLIC_SUPABASE_URL!,
+              process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+            );
+            await supabaseAdmin.from('submissions').update({ stage, status, updated_at: new Date() }).eq('id', submissionId);
 
-        // Insert into submission_history
-        const { getCurrentUser } = await import('./auth');
-        const user: any = await getCurrentUser();
-        await supabaseAdmin.from('submission_history').insert({
-            submission_id: submissionId,
-            action: `Stage updated: ${stage} (${status})`,
-            performed_by: user?.id || null,
-            details: `Naskah dipindahkan ke tahap ${stage} dengan status ${status}`
-        });
+            // Insert into submission_history
+            const { getCurrentUser } = await import('./auth');
+            const user: any = await getCurrentUser();
+            await supabaseAdmin.from('submission_history').insert({
+                submission_id: submissionId,
+                action: `Stage updated: ${stage} (${status})`,
+                performed_by: user?.id || null,
+                details: `Naskah dipindahkan ke tahap ${stage} dengan status ${status}`
+            });
+        } catch (supaErr) {
+            console.warn("Supabase update skipped (likely Firestore ID format mismatch)", supaErr);
+        }
 
         // 3. Also update Firestore for Supabase submissions (cross-sync)
         if (!isFirestoreId) {

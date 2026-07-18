@@ -474,22 +474,22 @@ export async function submitReviewResultsWithFile(formData: FormData) {
       }
     }
 
+    // 1. Update assignment status payload
+    const updatePayload: any = { 
+        status: 'completed',
+        recommendation: recommendation,
+        comments_for_editor: commentsForEditor,
+        comments_for_author: commentsForAuthor,
+        correction_notes: correctionNotes,
+        updated_at: new Date()
+    };
+    
+    if (annotatedFileUrl) {
+        updatePayload.annotated_file_url = annotatedFileUrl;
+    }
+
     // Supabase updates (wrapped in try/catch)
     try {
-        // 1. Update assignment status in Supabase
-        const updatePayload: any = { 
-            status: 'completed',
-            recommendation: recommendation,
-            comments_for_editor: commentsForEditor,
-            comments_for_author: commentsForAuthor,
-            correction_notes: correctionNotes,
-            updated_at: new Date()
-        };
-        
-        if (annotatedFileUrl) {
-            updatePayload.annotated_file_url = annotatedFileUrl;
-        }
-
         await supabaseAdmin.from('review_assignments').update(updatePayload).eq('id', assignmentId);
         
         // 2. Update submission status in Supabase

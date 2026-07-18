@@ -610,8 +610,8 @@ export default function SubmissionControlPanel() {
                         </div>
                         
                         <div className="space-y-3">
-                          {boardMembers.filter(m => m.jabatan.toLowerCase().includes('admin') || m.jabatan.toLowerCase().includes('copy') || m.jabatan.toLowerCase().includes('layout') || m.jabatan.toLowerCase().includes('cover')).length > 0 ? (
-                            boardMembers.filter(m => m.jabatan.toLowerCase().includes('admin') || m.jabatan.toLowerCase().includes('copy') || m.jabatan.toLowerCase().includes('layout') || m.jabatan.toLowerCase().includes('cover')).map((member, idx) => (
+                          {boardMembers.filter(m => m.jabatan.toLowerCase().includes('admin') || m.jabatan.toLowerCase().includes('copy') || m.jabatan.toLowerCase().includes('layout') || m.jabatan.toLowerCase().includes('cover') || m.jabatan.toLowerCase().includes('publish')).length > 0 ? (
+                            boardMembers.filter(m => m.jabatan.toLowerCase().includes('admin') || m.jabatan.toLowerCase().includes('copy') || m.jabatan.toLowerCase().includes('layout') || m.jabatan.toLowerCase().includes('cover') || m.jabatan.toLowerCase().includes('publish')).map((member, idx) => (
                               <label key={idx} className="group flex items-center space-x-3 p-3 bg-white border border-gray-200 rounded-lg cursor-pointer hover:border-[#c9a84c] hover:shadow-md transition-all duration-200">
                                 <div className="relative flex items-center justify-center">
                                   <input type="checkbox" className="peer form-checkbox h-4 w-4 text-[#18182e] border-gray-300 rounded focus:ring-[#c9a84c] focus:ring-offset-1 transition-all" />
