@@ -397,6 +397,7 @@ export default function AuthorSubmit() {
               <label className="block text-base font-bold text-[#c9a84c]">Abstrak (Bahasa Indonesia) <span className="text-red-500">*</span></label>
               <textarea 
                 name="abstract" required value={formData.abstract} onChange={handleChange} rows={8} style={{ padding: '1rem' }}
+                data-gramm="false" data-gramm_editor="false" data-enable-grammarly="false"
                 className="w-full bg-[#0a0a14] border border-zinc-700/80 rounded-xl px-5 py-4 text-white text-base leading-relaxed focus:border-[#c9a84c] focus:ring-1 focus:ring-[#c9a84c] transition-colors resize-none" 
                 placeholder="Tuliskan isi dari Abstrak naskah Anda berbahasa Indonesia..."
               />
@@ -413,6 +414,7 @@ export default function AuthorSubmit() {
               </div>
               <textarea 
                 name="abstract_en" required value={formData.abstract_en} onChange={handleChange} rows={8} style={{ padding: '1rem' }}
+                data-gramm="false" data-gramm_editor="false" data-enable-grammarly="false"
                 className="w-full bg-[#0a0a14] border border-zinc-700/80 rounded-xl px-5 py-4 text-white text-base leading-relaxed focus:border-[#c9a84c] focus:ring-1 focus:ring-[#c9a84c] transition-colors resize-none" 
                 placeholder="Write your translated English abstract here..."
               />
@@ -509,6 +511,7 @@ export default function AuthorSubmit() {
             <label className="block text-base font-bold text-[#c9a84c]">Daftar Pustaka (Bibliography) <span className="text-red-500">*</span></label>
             <textarea 
               name="bibliography" required value={formData.bibliography} onChange={handleChange} rows={6} style={{ padding: '1rem' }}
+              data-gramm="false" data-gramm_editor="false" data-enable-grammarly="false"
               className="w-full bg-[#0a0a14] border border-zinc-700/80 rounded-xl px-5 py-4 text-white text-base leading-relaxed focus:border-[#c9a84c] focus:ring-1 focus:ring-[#c9a84c] outline-none transition-colors"
               placeholder="Paste seluruh daftar referensi, sitasi, dan pustaka dari naskah Anda di sini (Format APA/IEEE disarankan)..."
             />
@@ -518,6 +521,7 @@ export default function AuthorSubmit() {
             <label className="block text-base font-bold text-[#c9a84c]">Surat Pengantar untuk Editor (Cover Letter) <span className="text-[#8888aa] font-normal">(Opsional)</span></label>
             <textarea 
               name="cover_letter" value={formData.cover_letter} onChange={handleChange} rows={4} style={{ padding: '1rem' }}
+              data-gramm="false" data-gramm_editor="false" data-enable-grammarly="false"
               className="w-full bg-[#0a0a14] border border-zinc-700/80 rounded-xl px-5 py-4 text-white text-base leading-relaxed focus:border-[#c9a84c] focus:ring-1 focus:ring-[#c9a84c] outline-none transition-colors"
               placeholder="Jelaskan secara singkat apa temuan utama dari riset Anda dan mengapa cocok untuk jurnal ini..."
             />

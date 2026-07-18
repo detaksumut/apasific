@@ -158,6 +158,7 @@ export const PlagiarismChecker: React.FC<PlagiarismCheckerProps> = ({ initialTex
       </p>
 
       <textarea
+        data-gramm="false" data-gramm_editor="false" data-enable-grammarly="false"
         className="w-full p-4 bg-zinc-900 border border-emerald-500/30 text-white rounded-md focus:ring-2 focus:ring-emerald-500 focus:outline-none mb-4 min-h-[200px]"
         placeholder="Tempelkan teks artikel Anda di sini..."
         value={text}
