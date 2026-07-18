@@ -45,25 +45,63 @@ export async function handleReviewerDecision(assignmentId: string, submissionId:
         details: logDetails
     });
 
-    // Send WA when reviewer accepts
+    // Send WA based on decision
     if (decision === 'accepted') {
       try {
-        const { data: sub } = await supabaseAdmin
-            .from('submissions')
-            .select('title, profiles:author_id(full_name, phone)')
-            .eq('id', submissionId)
-            .single();
-        const authorProfile = sub?.profiles as any;
-        const phoneNum = Array.isArray(authorProfile) ? authorProfile[0]?.phone : authorProfile?.phone;
-        const fullName = Array.isArray(authorProfile) ? authorProfile[0]?.full_name : authorProfile?.full_name;
+        let phoneNum = null;
+        
+        // 1. Try Supabase first (ignore if it fails due to UUID issues)
+        try {
+            const { data: sub } = await supabaseAdmin
+                .from('submissions')
+                .select('profiles:author_id(phone)')
+                .eq('id', submissionId)
+                .single();
+            const authorProfile = sub?.profiles as any;
+            phoneNum = Array.isArray(authorProfile) ? authorProfile[0]?.phone : authorProfile?.phone;
+        } catch (e) {}
+
+        // 2. Try Firestore fallback to get phone number directly from submission
+        if (!phoneNum) {
+            try {
+                const { getFirestore } = await import('@/utils/firebase/db');
+                const db = getFirestore();
+                const subDoc = await db.collection('submissions').doc(submissionId).get();
+                if (subDoc.exists) {
+                    phoneNum = subDoc.data()?.phone;
+                    if (!phoneNum) {
+                        // try to get from user profile in firestore
+                        const authorId = subDoc.data()?.author_id;
+                        if (authorId) {
+                            const userDoc = await db.collection('users').doc(authorId).get();
+                            if (userDoc.exists) phoneNum = userDoc.data()?.phone_number || userDoc.data()?.phone;
+                        }
+                    }
+                }
+            } catch (fbErr) {
+                console.error("Firestore phone lookup failed", fbErr);
+            }
+        }
         
         if (phoneNum) {
-            const message = `Halo ${fullName},\n\nPemberitahuan dari Tim Editorial Asia Index & Metric (APASIFIC).\n\nNaskah Anda yang berjudul:\n"${sub?.title}"\n\nSaat ini *TELAH BERSEDIA DIREVIEW* oleh tim Reviewer kami. Untuk proses selanjutnya dan konfirmasi biaya publikasi (Article Processing Charge / APC) akan diinformasikan kemudian oleh Editor.\n\nTerima kasih.\nhttps://apasific.org`;
+            const message = `Naskah anda mulai di review`;
             const { sendWa } = await import('@/utils/sendWa');
             await sendWa(phoneNum, message);
+        } else {
+            console.warn("Could not find phone number for WA notification to author.");
         }
       } catch (waErr) {
         console.error("Failed to send WA on reviewer acceptance", waErr);
+      }
+    } else if (decision === 'rejected') {
+      try {
+        // Send to Editor's phone number
+        const editorPhone = "+62811665212";
+        const message = `Maaf, saya masih sibuk`;
+        const { sendWa } = await import('@/utils/sendWa');
+        await sendWa(editorPhone, message);
+      } catch (waErr) {
+        console.error("Failed to send WA on reviewer rejection", waErr);
       }
     }
 
@@ -132,6 +170,16 @@ export async function deleteAssignment(assignmentId: string, submissionId: strin
         action: `Assignment Deleted`,
         details: 'Review assignment was deleted'
     });
+
+    // Send WA when reviewer deletes (same as reject)
+    try {
+        const editorPhone = "+62811665212";
+        const message = `Maaf, saya masih sibuk`;
+        const { sendWa } = await import('@/utils/sendWa');
+        await sendWa(editorPhone, message);
+    } catch (waErr) {
+        console.error("Failed to send WA on reviewer deletion", waErr);
+    }
 
     // 4. Update Firestore as fallback
     try {

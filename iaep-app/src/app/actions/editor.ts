@@ -10,7 +10,7 @@ export async function getReviewsForSubmission(submissionId: string) {
             .from('review_assignments')
             .select('*, reviewer:reviewer_id(full_name)')
             .eq('submission_id', submissionId)
-            .eq('status', 'completed');
+            .in('status', ['pending', 'accepted', 'completed']);
             
         let finalReviews = reviews || [];
 
@@ -20,7 +20,7 @@ export async function getReviewsForSubmission(submissionId: string) {
             const db = getFirestore();
             const fbReviews = await db.collection('review_assignments')
                 .where('submission_id', '==', submissionId)
-                .where('status', '==', 'completed')
+                .where('status', 'in', ['pending', 'accepted', 'completed'])
                 .get();
 
             for (const doc of fbReviews.docs) {
