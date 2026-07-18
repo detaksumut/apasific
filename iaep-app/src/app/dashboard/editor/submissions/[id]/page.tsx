@@ -26,6 +26,9 @@ export default function SubmissionControlPanel() {
   const [reviews, setReviews] = useState<any[]>([]);
   const [availableReviewers, setAvailableReviewers] = useState<any[]>([]);
   const [isAddReviewerOpen, setIsAddReviewerOpen] = useState(false);
+  const [reviewerSearch, setReviewerSearch] = useState("");
+  const [reviewerPage, setReviewerPage] = useState(1);
+  const REVIEWERS_PER_PAGE = 7;
   const [isUploadingRevised, setIsUploadingRevised] = useState(false);
   const [isUploadingGalley, setIsUploadingGalley] = useState(false);
   const [boardMembers, setBoardMembers] = useState<any[]>([]);
@@ -1396,39 +1399,85 @@ export default function SubmissionControlPanel() {
                 <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"/></svg>
               </button>
             </div>
+            
+            <div className="p-4 border-b border-gray-200 bg-white">
+                <input 
+                    type="text" 
+                    placeholder="🔍 Cari berdasarkan nama, institusi, atau negara..." 
+                    value={reviewerSearch}
+                    onChange={(e) => { setReviewerSearch(e.target.value); setReviewerPage(1); }}
+                    className="w-full px-4 py-2.5 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-shadow text-gray-800"
+                />
+            </div>
+
             <div className="p-6 overflow-y-auto">
               {availableReviewers.length === 0 ? (
                 <div className="text-center text-gray-500 py-8">Tidak ada reviewer yang tersedia di database.</div>
-              ) : (
-                <div className="space-y-4">
-                  {availableReviewers.map(rev => (
-                    <div key={rev.id || rev.email} className="flex justify-between items-center p-4 border rounded-lg hover:border-blue-500 hover:shadow-sm transition-all">
-                      <div>
-                        <div className="font-bold text-gray-800">{rev.full_name || rev.name}</div>
-                        <div className="text-sm text-gray-500">{rev.university || rev.institution || 'Unknown University'} • {rev.country || 'Unknown Country'}</div>
-                        <div className="text-xs text-blue-600 font-semibold mt-1">{rev.email}</div>
-                      </div>
-                      <button 
-                        onClick={async () => {
-                          setToastMessage("Menugaskan reviewer...");
-                          const m = await import("@/app/actions/editor");
-                          const res = await m.assignReviewer(submissionId, rev.id || rev.email, rev.full_name || rev.name);
-                          if (res.success) {
-                            setToastMessage("Reviewer berhasil ditugaskan!");
-                            setIsAddReviewerOpen(false);
-                            setTimeout(() => window.location.reload(), 1500);
-                          } else {
-                            setToastMessage("Gagal menugaskan reviewer: " + res.error);
-                          }
-                        }}
-                        className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold rounded shadow-sm transition-colors"
-                      >
-                        Tugaskan
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              )}
+              ) : (() => {
+                const filteredReviewers = availableReviewers.filter(r => 
+                    (r.full_name || r.name || '').toLowerCase().includes(reviewerSearch.toLowerCase()) || 
+                    (r.university || r.institution || '').toLowerCase().includes(reviewerSearch.toLowerCase()) ||
+                    (r.country || '').toLowerCase().includes(reviewerSearch.toLowerCase())
+                );
+                const totalPages = Math.ceil(filteredReviewers.length / REVIEWERS_PER_PAGE) || 1;
+                const paginatedReviewers = filteredReviewers.slice((reviewerPage - 1) * REVIEWERS_PER_PAGE, reviewerPage * REVIEWERS_PER_PAGE);
+                
+                return (
+                  <div className="space-y-4">
+                    {filteredReviewers.length === 0 ? (
+                        <div className="text-center text-gray-500 py-8">Pencarian tidak menemukan hasil.</div>
+                    ) : (
+                        paginatedReviewers.map(rev => (
+                          <div key={rev.id || rev.email} className="flex justify-between items-center p-4 border rounded-lg hover:border-blue-500 hover:shadow-sm transition-all">
+                            <div>
+                              <div className="font-bold text-gray-800">{rev.full_name || rev.name}</div>
+                              <div className="text-sm text-gray-500">{rev.university || rev.institution || 'Unknown University'} • {rev.country || 'Unknown Country'}</div>
+                              <div className="text-xs text-blue-600 font-semibold mt-1">{rev.email}</div>
+                            </div>
+                            <button 
+                              onClick={async () => {
+                                setToastMessage("Menugaskan reviewer...");
+                                const m = await import("@/app/actions/editor");
+                                const res = await m.assignReviewer(submissionId, rev.id || rev.email, rev.full_name || rev.name);
+                                if (res.success) {
+                                  setToastMessage("Reviewer berhasil ditugaskan!");
+                                  setIsAddReviewerOpen(false);
+                                  setTimeout(() => window.location.reload(), 1500);
+                                } else {
+                                  setToastMessage("Gagal menugaskan reviewer: " + res.error);
+                                }
+                              }}
+                              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold rounded shadow-sm transition-colors"
+                            >
+                              Tugaskan
+                            </button>
+                          </div>
+                        ))
+                    )}
+                    
+                    {/* Pagination Controls */}
+                    {totalPages > 1 && (
+                        <div className="flex justify-between items-center pt-4 mt-6 border-t border-gray-100">
+                            <button 
+                                disabled={reviewerPage === 1}
+                                onClick={() => setReviewerPage(p => Math.max(1, p - 1))}
+                                className="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium transition-colors"
+                            >
+                                Sebelumnya
+                            </button>
+                            <span className="text-sm text-gray-500 font-medium bg-gray-50 px-3 py-1 rounded-full">Halaman {reviewerPage} dari {totalPages}</span>
+                            <button 
+                                disabled={reviewerPage === totalPages}
+                                onClick={() => setReviewerPage(p => Math.min(totalPages, p + 1))}
+                                className="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium transition-colors"
+                            >
+                                Berikutnya
+                            </button>
+                        </div>
+                    )}
+                  </div>
+                );
+              })()}
             </div>
           </div>
         </div>
