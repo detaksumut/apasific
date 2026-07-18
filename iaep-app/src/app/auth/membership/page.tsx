@@ -692,6 +692,22 @@ export default function MajesticMembershipPage() {
                   </div>
                 </div>
 
+                {/* ACADEMIC ID LOGOS (VERTICAL LEFT) - MODAL FRONT */}
+                {(selectedMemberCard.university?.includes("ORCID/Scopus") || selectedMemberCard) && (
+                  <div className="absolute flex flex-col gap-1.5 drop-shadow-lg" style={{ top: '22%', left: '3%' }}>
+                    {/* ORCID */}
+                    <div className="w-5 h-5 bg-[#A6CE39] rounded-full flex items-center justify-center text-white font-serif font-bold shadow-md" style={{ fontSize: '11px' }}>iD</div>
+                    {/* Google Scholar */}
+                    <div className="w-5 h-5 bg-[#4285F4] rounded-sm flex items-center justify-center shadow-md">
+                      <svg className="w-3.5 h-3.5 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M12 3L1 9l4 2.18v6L12 21l7-3.82v-6l2-1.09V17h2V9L12 3zm6.82 6L12 12.72 5.18 9 12 5.28 18.82 9zM17 15.99l-5 2.73-5-2.73v-3.72l5 2.73 5-2.73v3.72z"/></svg>
+                    </div>
+                    {/* Scopus */}
+                    <div className="w-5 h-5 bg-[#FF8200] rounded-sm flex items-center justify-center text-white font-sans font-bold italic shadow-md" style={{ fontSize: '12px' }}>S</div>
+                    {/* Web of Science */}
+                    <div className="w-5 h-5 bg-[#5C2D91] rounded-sm flex items-center justify-center text-white font-serif font-bold shadow-md" style={{ fontSize: '12px' }}>W</div>
+                  </div>
+                )}
+
                 {/* ID NUMBER */}
                 <div className="absolute text-white font-bold tracking-wider drop-shadow-md text-right flex items-baseline" style={{ bottom: '8%', right: '3%', fontSize: '9px' }}>
                   {(() => {
@@ -745,6 +761,22 @@ export default function MajesticMembershipPage() {
                     <div>{selectedMemberCard ? formatDateYYMMDD(selectedMemberCard.created_at, 3) : formatDateYYMMDD(null, 3)}</div>
                   </div>
                 </div>
+
+                {/* ACADEMIC ID LOGOS (VERTICAL LEFT) - MODAL BACK */}
+                {(selectedMemberCard.university?.includes("ORCID/Scopus") || selectedMemberCard) && (
+                  <div className="absolute flex flex-col gap-1.5 drop-shadow-lg" style={{ top: '22%', left: '3%' }}>
+                    {/* ORCID */}
+                    <div className="w-5 h-5 bg-[#A6CE39] rounded-full flex items-center justify-center text-white font-serif font-bold shadow-md" style={{ fontSize: '11px' }}>iD</div>
+                    {/* Google Scholar */}
+                    <div className="w-5 h-5 bg-[#4285F4] rounded-sm flex items-center justify-center shadow-md">
+                      <svg className="w-3.5 h-3.5 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M12 3L1 9l4 2.18v6L12 21l7-3.82v-6l2-1.09V17h2V9L12 3zm6.82 6L12 12.72 5.18 9 12 5.28 18.82 9zM17 15.99l-5 2.73-5-2.73v-3.72l5 2.73 5-2.73v3.72z"/></svg>
+                    </div>
+                    {/* Scopus */}
+                    <div className="w-5 h-5 bg-[#FF8200] rounded-sm flex items-center justify-center text-white font-sans font-bold italic shadow-md" style={{ fontSize: '12px' }}>S</div>
+                    {/* Web of Science */}
+                    <div className="w-5 h-5 bg-[#5C2D91] rounded-sm flex items-center justify-center text-white font-serif font-bold shadow-md" style={{ fontSize: '12px' }}>W</div>
+                  </div>
+                )}
 
               <div className="absolute bg-white rounded-md p-1 shadow-lg" style={{ bottom: '6%', right: '6%', width: '48px', height: '48px' }}>
                 <img src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://www.apasific.org`} alt="QR Code" className="w-full h-full object-contain" />
