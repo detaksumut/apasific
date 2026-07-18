@@ -276,7 +276,7 @@ export default function ArticlePaywall() {
               <div className="flex items-center gap-2 bg-[#1a1a2e] border border-gray-700 px-3 py-1.5 rounded-lg shadow-sm">
                 <span className="text-[#5c2d91] font-bold text-xs uppercase tracking-wider">Web of Science</span>
                 <span className="text-gray-300 text-xs font-semibold bg-black px-2 py-0.5 rounded">
-                  {crossrefCitations !== null ? `${crossrefCitations} Kutipan` : 'Proses'}
+                  {crossrefCitations !== null && crossrefCitations > 0 ? `${crossrefCitations} Kutipan` : 'Listed'}
                 </span>
               </div>
             </div>

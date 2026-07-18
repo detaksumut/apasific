@@ -13,6 +13,25 @@ interface BoardData {
   members: Member[];
 }
 
+const OFFICIAL_JOURNALS = [
+  "AJAF - Akuntansi, Audit & Perpajakan",
+  "AJED - Ekonomi Pembangunan & Keuangan",
+  "AJEP - Pendidikan Dasar, Menengah & Tinggi",
+  "AJCE - Teknik Sipil, Mesin & Elektro",
+  "AJAFR - Pertanian, Kehutanan & Perikanan",
+  "AJADM - Seni, Desain & Media Kreatif",
+  "AJIR - Ilmu Politik & Hubungan Internasional",
+  "AJCS - Pengabdian Kepada Masyarakat (PKM)",
+  "AJBA - Manajemen, Bisnis dan Administrasi",
+  "AJLS - Ilmu Hukum & Hak Asasi Manusia",
+  "AJPH - Kedokteran, Kesehatan Masyarakat & Keperawatan",
+  "AJITE - Ilmu Komputer & Teknologi Informasi",
+  "AJSSH - Sosiologi & Ilmu Pengetahuan Budaya",
+  "AJES - Ilmu Lingkungan & Keberlanjutan",
+  "AJTHM - Pariwisata & Manajemen Perhotelan",
+  "AJIS - Disiplin Ilmu Agama dan Peradaban Islam"
+];
+
 export default function JournalPage() {
   const [boards, setBoards] = useState<BoardData[]>([]);
   const [loading, setLoading] = useState(true);
@@ -26,7 +45,12 @@ export default function JournalPage() {
         if (res.ok) {
           // data is an array of all rows in the leadership table
           const editorialBoards = data
-            .filter((row: any) => row.body_name && row.body_name.startsWith("Editorial Board - ") && !row.body_name.includes("RJRAKP") && !row.body_name.includes("APASIFIC"))
+            .filter((row: any) => {
+              if (!row.body_name || !row.body_name.startsWith("Editorial Board - ")) return false;
+              const extractedName = row.body_name.replace("Editorial Board - ", "");
+              // Only allow exact matches with the official journal structure (hides old/obsolete data)
+              return OFFICIAL_JOURNALS.includes(extractedName);
+            })
             .map((row: any) => {
               let parsedMembers = [];
               try {
@@ -43,6 +67,11 @@ export default function JournalPage() {
                 members: parsedMembers
               };
             });
+            
+          // Sort them to match the official journal order
+          editorialBoards.sort((a, b) => {
+            return OFFICIAL_JOURNALS.indexOf(a.body_name) - OFFICIAL_JOURNALS.indexOf(b.body_name);
+          });
             
           setBoards(editorialBoards);
         } else {
