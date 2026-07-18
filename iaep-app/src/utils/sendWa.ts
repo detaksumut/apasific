@@ -23,11 +23,11 @@ export async function sendWa(target: string, message: string): Promise<boolean> 
     const data = await res.json();
     if (!data.status) {
       console.error("Fonnte failed to send:", data);
-      return false;
+      throw new Error(`Fonnte API Error: ${data.reason || JSON.stringify(data)}`);
     }
     return true;
-  } catch (e) {
+  } catch (e: any) {
     console.error("Fonnte API error:", e);
-    return false;
+    throw new Error(e.message || "Unknown error connecting to Fonnte");
   }
 }
