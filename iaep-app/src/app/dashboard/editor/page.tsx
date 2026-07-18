@@ -92,6 +92,7 @@ export default async function EditorDashboard() {
           status: data.status,
           stage: data.stage,
           abstract: data.abstract,
+          phone: data.phone,
           created_at: data.created_at ? data.created_at.toDate() : new Date(),
           journals: data.journals || { name: 'Unknown Journal' },
           profiles: fbUsers[data.author_id] ? { full_name: fbUsers[data.author_id].full_name, phone: fbUsers[data.author_id].phone } : null
