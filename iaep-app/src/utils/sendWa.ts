@@ -1,60 +1,40 @@
 export async function sendWa(target: string, message: string): Promise<boolean> {
-  const token = process.env.FONNTE_TOKEN;
+  // Menggunakan kredensial Green API dari gambar yang Bapak kirimkan
+  const idInstance = process.env.GREEN_API_ID || "710722686671";
+  const apiToken = process.env.GREEN_API_TOKEN || "ffb8b974964a4331899e8c7db8ce40f17d5987ac70ca47c8b2";
   
-  if (!token) {
-    console.warn("[Apasific WA System] FONNTE_TOKEN is not set in environment variables. Message simulated:");
-    console.log(`To: ${target}\nMessage: ${message}`);
-    return false; // Simulated success but not actually sent
-  }
+  // URL Green API berdasarkan konfigurasi instance 7107
+  const apiUrl = `https://7107.api.greenapi.com/waInstance${idInstance}/sendMessage/${apiToken}`;
 
   try {
+    // Bersihkan karakter non-angka pada nomor tujuan (misal +62 jadi 62)
     const cleanTarget = target.replace(/[^0-9]/g, '');
-    const postData = new URLSearchParams({
-      target: cleanTarget,
-      message: message,
-    }).toString();
+    
+    // Green API mewajibkan penambahan "@c.us" di akhir nomor tujuan WhatsApp standar
+    const chatId = `${cleanTarget}@c.us`;
 
-    const https = require('https');
-    const options = {
-      hostname: 'api.fonnte.com',
-      port: 443,
-      path: '/send',
-      method: 'POST',
+    const res = await fetch(apiUrl, {
+      method: "POST",
       headers: {
-        'Authorization': token,
-        'Content-Type': 'application/x-www-form-urlencoded',
-        'Content-Length': Buffer.byteLength(postData)
-      }
-    };
-
-    return new Promise((resolve, reject) => {
-      const req = https.request(options, (res: any) => {
-        let data = '';
-        res.on('data', (chunk: any) => data += chunk);
-        res.on('end', () => {
-          try {
-            const parsed = JSON.parse(data);
-            if (!parsed.status) {
-              console.error("Fonnte failed to send:", parsed);
-              reject(new Error(`Fonnte API Error: ${parsed.reason || JSON.stringify(parsed)}`));
-            } else {
-              resolve(true);
-            }
-          } catch(e) {
-            reject(new Error("Invalid JSON from Fonnte"));
-          }
-        });
-      });
-
-      req.on('error', (e: any) => {
-        reject(new Error(`Network Error: ${e.message}`));
-      });
-
-      req.write(postData);
-      req.end();
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        chatId: chatId,
+        message: message,
+      }),
     });
+    
+    const data = await res.json();
+    
+    // Green API merespons dengan properti "idMessage" jika pengiriman sukses
+    if (res.ok && data.idMessage) {
+      return true;
+    } else {
+      console.error("Green API failed to send:", data);
+      throw new Error(`Green API Error: ${JSON.stringify(data)}`);
+    }
   } catch (e: any) {
-    console.error("Fonnte API error:", e);
-    throw new Error(e.message || "Unknown error connecting to Fonnte");
+    console.error("WhatsApp API error:", e);
+    throw new Error(e.message || "Gagal terhubung ke server WhatsApp API");
   }
 }
