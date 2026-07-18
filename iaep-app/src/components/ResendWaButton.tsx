@@ -21,6 +21,7 @@ export default function ResendWaButton({ phone, title }: { phone: string, title:
     setIsSending(false);
     if (res.success) {
       setStatus('success');
+      alert('Pesan WA berhasil terkirim ke Penulis!');
       setTimeout(() => setStatus('idle'), 3000);
     } else {
       setStatus('error');
