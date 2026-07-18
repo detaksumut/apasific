@@ -368,14 +368,38 @@ export default function ReviewEvaluation({ params }: { params: Promise<{ id: str
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12" /></svg>
                     Upload Annotated File (Optional)
                   </div>
-                  <div className="rev-upload-zone">
+                  <div 
+                    className="rev-upload-zone"
+                    onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); }}
+                    onDrop={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+                        setAnnotatedFile(e.dataTransfer.files[0]);
+                      }
+                    }}
+                  >
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12" /></svg>
-                    <span>{annotatedFile ? annotatedFile.name : 'Drop annotated PDF here or '} <label htmlFor="annotated-file" className="rev-browse-link">{annotatedFile ? 'change' : 'browse'}</label></span>
+                    {annotatedFile ? (
+                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', textAlign: 'center' }}>
+                        <span style={{ color: '#34d399', fontWeight: 600, fontSize: '13px' }}>
+                          ✓ File siap dikirim: {annotatedFile.name}
+                        </span>
+                        <label htmlFor="annotated-file" className="rev-browse-link" style={{ fontSize: '11.5px', opacity: 0.8 }}>
+                          (Klik di sini untuk mengganti file)
+                        </label>
+                      </div>
+                    ) : (
+                      <span>
+                        Drop file (PDF/Word) here or <label htmlFor="annotated-file" className="rev-browse-link">browse</label>
+                      </span>
+                    )}
                     <input 
                        type="file" 
                        id="annotated-file" 
-                       accept=".pdf" 
+                       accept=".pdf,.doc,.docx" 
                        className="rev-file-input"
+                       title="Upload file"
                        onChange={(e) => {
                          if (e.target.files && e.target.files.length > 0) {
                            setAnnotatedFile(e.target.files[0]);
@@ -423,7 +447,7 @@ export default function ReviewEvaluation({ params }: { params: Promise<{ id: str
                   {recommendation === rec.value && (
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ width: 14, height: 14 }}><polyline points="20 6 9 17 4 12" /></svg>
                   )}
-                  {rec.label}
+                  <span>{rec.label}</span>
                 </button>
               ))}
             </div>
@@ -443,24 +467,29 @@ export default function ReviewEvaluation({ params }: { params: Promise<{ id: str
                 className="rev-btn-success"
                 disabled={!recommendation || isSubmitting}
                 onClick={async () => {
-                  setIsSubmitting(true);
-                  const formData = new FormData();
-                  formData.append('assignmentId', unwrappedParams.id);
-                  formData.append('submissionId', submission.id);
-                  formData.append('recommendation', recommendation);
-                  formData.append('commentsForEditor', commentsForEditor);
-                  formData.append('commentsForAuthor', commentsForAuthor);
-                  formData.append('correctionNotes', correctionNotes);
-                  if (annotatedFile) {
-                    formData.append('file', annotatedFile);
-                  }
+                  try {
+                    setIsSubmitting(true);
+                    const formData = new FormData();
+                    formData.append('assignmentId', unwrappedParams.id);
+                    formData.append('submissionId', submission.id);
+                    formData.append('recommendation', recommendation);
+                    formData.append('commentsForEditor', commentsForEditor);
+                    formData.append('commentsForAuthor', commentsForAuthor);
+                    formData.append('correctionNotes', correctionNotes);
+                    if (annotatedFile) {
+                      formData.append('file', annotatedFile);
+                    }
 
-                  const res = await submitReviewResultsWithFile(formData);
-                  setIsSubmitting(false);
-                  if (res.success) {
-                      setSubmitted(true);
-                  } else {
-                      alert("Error submitting review: " + res.error);
+                    const res = await submitReviewResultsWithFile(formData);
+                    setIsSubmitting(false);
+                    if (res.success) {
+                        setSubmitted(true);
+                    } else {
+                        alert("Error submitting review: " + res.error);
+                    }
+                  } catch (err: any) {
+                    setIsSubmitting(false);
+                    alert("Terjadi kesalahan jaringan atau file terlalu besar. Silakan coba lagi. (" + err.message + ")");
                   }
                 }}
               >

@@ -355,26 +355,31 @@ export async function submitReviewResults(
     
     if (!user) return { success: false, error: "Unauthorized" };
 
-    // 1. Update assignment status in Supabase
-    await supabaseAdmin.from('review_assignments').update({ 
-        status: 'completed',
-        recommendation: results.recommendation,
-        comments_for_editor: results.commentsForEditor,
-        comments_for_author: results.commentsForAuthor,
-        correction_notes: results.correctionNotes,
-        updated_at: new Date()
-    }).eq('id', assignmentId);
-    
-    // 2. Update submission status in Supabase
-    await supabaseAdmin.from('submissions').update({ status: 'Reviewed' }).eq('id', submissionId);
-    await supabaseAdmin.from('submissions').update({ status: 'Reviewed' }).eq('submission_id', submissionId);
+    // Supabase updates (wrapped in try/catch to not block Firestore)
+    try {
+        // 1. Update assignment status in Supabase
+        await supabaseAdmin.from('review_assignments').update({ 
+            status: 'completed',
+            recommendation: results.recommendation,
+            comments_for_editor: results.commentsForEditor,
+            comments_for_author: results.commentsForAuthor,
+            correction_notes: results.correctionNotes,
+            updated_at: new Date()
+        }).eq('id', assignmentId);
+        
+        // 2. Update submission status in Supabase
+        await supabaseAdmin.from('submissions').update({ status: 'Reviewed' }).eq('id', submissionId);
+        await supabaseAdmin.from('submissions').update({ status: 'Reviewed' }).eq('submission_id', submissionId);
 
-    // 3. Insert history in Supabase
-    await supabaseAdmin.from('submission_history').insert({
-        submission_id: submissionId,
-        action: `Review Completed`,
-        details: `Reviewer submitted recommendation: ${results.recommendation}`
-    });
+        // 3. Insert history in Supabase
+        await supabaseAdmin.from('submission_history').insert({
+            submission_id: submissionId,
+            action: `Review Completed`,
+            details: `Reviewer submitted recommendation: ${results.recommendation}`
+        });
+    } catch (supaErr) {
+        console.warn("Supabase update failed during review submission:", supaErr);
+    }
 
     // 4. Update Firestore as fallback
     try {
@@ -469,32 +474,37 @@ export async function submitReviewResultsWithFile(formData: FormData) {
       }
     }
 
-    // 1. Update assignment status in Supabase
-    const updatePayload: any = { 
-        status: 'completed',
-        recommendation: recommendation,
-        comments_for_editor: commentsForEditor,
-        comments_for_author: commentsForAuthor,
-        correction_notes: correctionNotes,
-        updated_at: new Date()
-    };
-    
-    if (annotatedFileUrl) {
-        updatePayload.annotated_file_url = annotatedFileUrl;
+    // Supabase updates (wrapped in try/catch)
+    try {
+        // 1. Update assignment status in Supabase
+        const updatePayload: any = { 
+            status: 'completed',
+            recommendation: recommendation,
+            comments_for_editor: commentsForEditor,
+            comments_for_author: commentsForAuthor,
+            correction_notes: correctionNotes,
+            updated_at: new Date()
+        };
+        
+        if (annotatedFileUrl) {
+            updatePayload.annotated_file_url = annotatedFileUrl;
+        }
+
+        await supabaseAdmin.from('review_assignments').update(updatePayload).eq('id', assignmentId);
+        
+        // 2. Update submission status in Supabase
+        await supabaseAdmin.from('submissions').update({ status: 'Reviewed' }).eq('id', submissionId);
+        await supabaseAdmin.from('submissions').update({ status: 'Reviewed' }).eq('submission_id', submissionId);
+
+        // 3. Insert history in Supabase
+        await supabaseAdmin.from('submission_history').insert({
+            submission_id: submissionId,
+            action: `Review Completed`,
+            details: `Reviewer submitted recommendation: ${recommendation}` + (annotatedFileUrl ? ' (with annotated file)' : '')
+        });
+    } catch (supaErr) {
+        console.warn("Supabase update failed during review file submission:", supaErr);
     }
-
-    await supabaseAdmin.from('review_assignments').update(updatePayload).eq('id', assignmentId);
-    
-    // 2. Update submission status in Supabase
-    await supabaseAdmin.from('submissions').update({ status: 'Reviewed' }).eq('id', submissionId);
-    await supabaseAdmin.from('submissions').update({ status: 'Reviewed' }).eq('submission_id', submissionId);
-
-    // 3. Insert history in Supabase
-    await supabaseAdmin.from('submission_history').insert({
-        submission_id: submissionId,
-        action: `Review Completed`,
-        details: `Reviewer submitted recommendation: ${recommendation}` + (annotatedFileUrl ? ' (with annotated file)' : '')
-    });
 
     // 4. Update Firestore as fallback
     try {
