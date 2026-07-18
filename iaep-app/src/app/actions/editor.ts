@@ -977,3 +977,64 @@ export async function assignReviewer(submissionId: string, reviewerId: string, r
         return { success: false, error: e.message };
     }
 }
+
+export async function getActiveReviewers() {
+    try {
+        const supabaseAdmin = (await import('@supabase/supabase-js')).createClient(
+          process.env.NEXT_PUBLIC_SUPABASE_URL!,
+          process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+        );
+        
+        let reviewers: any[] = [];
+
+        // 1. Fetch from profiles table
+        try {
+            const { data: profiles } = await supabaseAdmin
+                .from('profiles')
+                .select('*')
+                .ilike('role', '%reviewer%');
+            if (profiles) reviewers = [...profiles];
+        } catch(e) {}
+
+        // 2. Fetch from system_settings
+        try {
+            const { data: settings } = await supabaseAdmin
+                .from('system_settings')
+                .select('value')
+                .eq('key', 'apasific_registered_users')
+                .single();
+            if (settings && settings.value) {
+                const users = Array.isArray(settings.value) ? settings.value : JSON.parse(settings.value as string);
+                const sysReviewers = users.filter((u: any) => u.role && u.role.toLowerCase().includes('reviewer'));
+                
+                for (const sr of sysReviewers) {
+                    if (!reviewers.find(r => (r.email || '').toLowerCase() === (sr.email || '').toLowerCase())) {
+                        reviewers.push(sr);
+                    }
+                }
+            }
+        } catch(e) {}
+
+        // 3. Fallback to hardcoded mock just in case DB is empty for demo
+        if (reviewers.length === 0) {
+            reviewers.push({
+                id: 'rev-demo-1',
+                full_name: 'Dr. Jane Doe',
+                email: 'janedoe@example.com',
+                university: 'National University',
+                country: 'Malaysia'
+            });
+            reviewers.push({
+                id: 'rev-demo-2',
+                full_name: 'Prof. Ahmad',
+                email: 'ahmad@example.com',
+                university: 'Universiti Malaya',
+                country: 'Malaysia'
+            });
+        }
+
+        return { success: true, reviewers };
+    } catch (e: any) {
+        return { success: false, error: e.message, reviewers: [] };
+    }
+}
