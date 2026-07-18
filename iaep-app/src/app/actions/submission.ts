@@ -55,6 +55,7 @@ export async function submitManuscript(formData: FormData) {
     const journalId = formData.get('journalId') as string;
     const title = formData.get('title') as string;
     const abstract = formData.get('abstract') as string;
+    const formPhone = formData.get('phone') as string;
     const file = formData.get('file') as File;
     const anonymousFile = formData.get('anonymousFile') as File | null;
     const supportingFile = formData.get('supportingFile') as File | null;
@@ -209,66 +210,17 @@ export async function submitManuscript(formData: FormData) {
       richPayload = JSON.parse(abstract);
     } catch(e) {}
 
-    const userPhone = user?.user_metadata?.phone;
+    const userPhone = formPhone || user?.user_metadata?.phone;
     if (userPhone) {
       try {
         const publicationType = richPayload.publicationType || '';
         const isSinta = publicationType.startsWith('sinta_');
         const pkgName = isSinta ? 'Publikasi Jurnal SINTA' : 'Jurnal Internasional';
         
-        const waMessage = isSinta 
-          ? `Terima kasih telah melakukan submit artikel Anda melalui sistem Asia Index & Metric (Association Asia Pacific Academicians).
+        const waMessage = `Terimakasih telah Submit naskah di ASIA.
+Judul: ${title}
 
-Detail Pengajuan:
-
-Judul Artikel:
-${title}
-
-Target Indeksasi & Metrik:
-${pkgName}
-
-Fasilitas yang diperoleh:
-
-✓ Review dan standardisasi naskah
-✓ Penyuntingan berbasis metrik sitasi
-✓ Penyesuaian template jurnal mitra
-✓ Pendampingan submit artikel
-✓ Pendampingan revisi reviewer
-✓ Monitoring proses publikasi hingga terbit
-✓ Depositori dan jejak digital Zenodo
-✓ Integrasi metrik OpenAIRE (Europe Base Index)
-✓ Integrasi profil ORCID Author
-✓ Indeksasi Google Scholar
-✓ Pendampingan metadata publikasi
-
-Khusus paket publikasi SINTA, Asia Index & Metric akan melakukan pemantauan dan pengelolaan agar artikel Anda memenuhi standar kualitas publikasi pada jurnal yang terindeks SINTA sesuai kategori yang dipilih.
-
-Catatan:
-Proses evaluasi dan publikasi dilaksanakan sesuai standar kualitas ilmiah dan kebijakan jurnal mitra.
-
-Asia Index & Metric
-Association Asia Pacific Academicians
-https://apasific.org`
-          : `Terima kasih telah melakukan submit artikel Anda melalui sistem Asia Index & Metric (Association Asia Pacific Academicians).
-
-Detail Pengajuan:
-
-Judul Artikel:
-${title}
-
-Target Indeksasi & Metrik:
-Jurnal Internasional
-
-Fasilitas yang diperoleh:
-✓ Penerbitan di Jurnal Internasional mitra
-✓ Indeksasi Google Scholar & Zenodo
-✓ Integrasi profil ORCID
-✓ Indeksasi metadata OpenAIRE (Europe Base Index)
-✓ Penerbitan sertifikat dan jejak DOI
-
-Asia Index & Metric
-Association Asia Pacific Academicians
-https://apasific.org`;
+Tim Redaksi kami akan segera memproses naskah Anda.`;
 
         const { sendWa } = await import('@/utils/sendWa');
         await sendWa(userPhone, waMessage);

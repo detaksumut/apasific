@@ -65,18 +65,11 @@ export async function POST(request: Request) {
 
     // Trigger WhatsApp Notification
     if (phone) {
-      const waMessage = `Terima kasih ${fullName} telah melakukan pendaftaran keanggotaan (Membership) di Asia Index & Metric (Association Asia Pacific Academicians).
-
-Detail Pendaftaran:
-ID Keanggotaan: ${finalInternationalId}
-Level Akademik: ${academicLevel}
+      const waMessage = `Terimakasih telah Submit pendaftaran member di ASIA.
+Nama: ${fullName}
 Institusi: ${university}
 
-Status aplikasi Anda saat ini adalah Pending. Tim kami akan segera melakukan verifikasi terhadap bukti transfer dan data yang Anda berikan.
-
-Asia Index & Metric
-Association Asia Pacific Academicians
-https://apasific.org`;
+Tim kami akan segera memproses pendaftaran Anda.`;
 
       try {
         const { sendWa } = await import('@/utils/sendWa');
