@@ -433,7 +433,7 @@ export default function MajesticMembershipPage() {
 
                   {/* ACADEMIC ID LOGOS (VERTICAL LEFT) */}
                   {formData.internationalId && (
-                    <div className="absolute flex flex-col gap-1.5 drop-shadow-lg" style={{ top: '22%', left: '3%' }}>
+                    <div className="absolute flex flex-col gap-1.5 drop-shadow-lg" style={{ top: '22%', left: '0' }}>
                       {/* ORCID */}
                       <div className="w-5 h-5 bg-[#A6CE39] rounded-full flex items-center justify-center text-white font-serif font-bold shadow-md" style={{ fontSize: '11px' }}>iD</div>
                       {/* Google Scholar */}
@@ -694,7 +694,7 @@ export default function MajesticMembershipPage() {
 
                 {/* ACADEMIC ID LOGOS (VERTICAL LEFT) - MODAL FRONT */}
                 {(selectedMemberCard.university?.includes("ORCID/Scopus") || selectedMemberCard) && (
-                  <div className="absolute flex flex-col gap-1.5 drop-shadow-lg" style={{ top: '22%', left: '3%' }}>
+                  <div className="absolute flex flex-col gap-1.5 drop-shadow-lg" style={{ top: '22%', left: '0' }}>
                     {/* ORCID */}
                     <div className="w-5 h-5 bg-[#A6CE39] rounded-full flex items-center justify-center text-white font-serif font-bold shadow-md" style={{ fontSize: '11px' }}>iD</div>
                     {/* Google Scholar */}
