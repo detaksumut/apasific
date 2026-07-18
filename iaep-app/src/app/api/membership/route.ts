@@ -40,7 +40,6 @@ export async function POST(request: Request) {
     // Append the user's ORCID/Scopus ID to the university field so it's not lost
     const universityWithOrcid = internationalId ? `${university} (ORCID/Scopus: ${internationalId})` : university;
 
-
     const { data: insertedData, error } = await supabase
       .from("membership_applications")
       .insert([
@@ -52,7 +51,7 @@ export async function POST(request: Request) {
           academic_level: academicLevel,
           international_id: finalInternationalId,
           university: universityWithOrcid,
-          discipline: discipline,
+          academic_field: discipline, // Changed from discipline to academic_field
           bukti_transfer_url: buktiTransfer, // Base64 string
           status: 'Pending'
         }
