@@ -69,7 +69,7 @@ export default function JournalPage() {
             });
             
           // Sort them to match the official journal order
-          editorialBoards.sort((a, b) => {
+          editorialBoards.sort((a: BoardData, b: BoardData) => {
             return OFFICIAL_JOURNALS.indexOf(a.body_name) - OFFICIAL_JOURNALS.indexOf(b.body_name);
           });
             
