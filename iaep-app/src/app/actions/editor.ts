@@ -1,6 +1,7 @@
 "use server";
 
 import { createClient } from '@/utils/supabase/server';
+import { revalidatePath } from 'next/cache';
 
 export async function getReviewsForSubmission(submissionId: string) {
     try {
@@ -133,8 +134,6 @@ export async function submitEditorialDecision(submissionId: string, authorId: st
         } catch (e) {
             console.warn("Firestore update decision failed", e);
         }
-
-        const { revalidatePath } = require('next/cache');
         revalidatePath('/dashboard/editor/review-results');
         revalidatePath('/dashboard/editor/submissions');
         
@@ -969,7 +968,6 @@ export async function assignReviewer(submissionId: string, reviewerId: string, r
         // Update submission status to Under Review
         await updateSubmissionStage(submissionId, 'Review', 'Under Review');
 
-        const { revalidatePath } = require('next/cache');
         revalidatePath(`/dashboard/editor/submissions/${submissionId}`);
         
         return { success: true };
