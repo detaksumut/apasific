@@ -495,7 +495,22 @@ export default function SubmissionControlPanel() {
                                     >
                                       💬 Invite
                                     </button>
-                                    <button className="text-xs bg-gray-800 text-white font-semibold py-1 px-3 rounded hover:bg-gray-700">
+                                    <button 
+                                      onClick={async () => {
+                                        if (window.confirm(`Tugaskan ${rev.full_name} sebagai reviewer?`)) {
+                                          setToastMessage("Menugaskan reviewer...");
+                                          const m = await import("@/app/actions/editor");
+                                          const res = await m.assignReviewer(submission.id, rev.id || rev.email, rev.full_name || rev.name);
+                                          if (res.success) {
+                                            setToastMessage("Reviewer berhasil ditugaskan!");
+                                            setTimeout(() => window.location.reload(), 1500);
+                                          } else {
+                                            setToastMessage("Gagal menugaskan reviewer: " + res.error);
+                                          }
+                                        }
+                                      }}
+                                      className="text-xs bg-gray-800 text-white font-semibold py-1 px-3 rounded hover:bg-gray-700"
+                                    >
                                       Assign
                                     </button>
                                   </div>

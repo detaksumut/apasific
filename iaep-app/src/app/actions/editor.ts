@@ -1010,22 +1010,65 @@ export async function assignReviewer(submissionId: string, reviewerId: string, r
           process.env.NEXT_PUBLIC_SUPABASE_URL!,
           process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
         );
+        let validReviewerId = reviewerId;
         
-        const assignmentData = {
+        // 1. Try to find the existing profile by email first to get the REAL Supabase Auth UUID
+        const emailToSearch = reviewerId.includes('@') ? reviewerId : null;
+        let profileFound = false;
+        if (emailToSearch) {
+            const { data: existingProfile } = await supabaseAdmin
+                .from('profiles')
+                .select('id')
+                .eq('email', emailToSearch)
+                .single();
+            
+            if (existingProfile && existingProfile.id) {
+                validReviewerId = existingProfile.id;
+                profileFound = true;
+            }
+        }
+
+        // 2. If not found and it's not a UUID, normalize it (fallback)
+        if (!profileFound && !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(validReviewerId)) {
+            const hex = Buffer.from(validReviewerId).toString('hex').padEnd(32, '0').slice(0, 32);
+            validReviewerId = `${hex.slice(0,8)}-${hex.slice(8,12)}-${hex.slice(12,16)}-${hex.slice(16,20)}-${hex.slice(20,32)}`;
+        }
+
+        // 3. Ensure reviewer profile exists in Supabase
+        if (!profileFound) {
+            await supabaseAdmin.from('profiles').upsert({
+                id: validReviewerId,
+                full_name: reviewerName || 'Reviewer',
+                email: reviewerId.includes('@') ? reviewerId : `${validReviewerId}@reviewer.local`,
+                role: 'reviewer'
+            }, { onConflict: 'id' });
+        }
+        
+        const assignmentDataSupabase = {
             submission_id: submissionId,
-            reviewer_id: reviewerId,
-            status: 'assigned',
+            reviewer_id: validReviewerId,
+            status: 'pending',
+            assigned_at: new Date()
+        };
+
+        const assignmentDataFirestore = {
+            submission_id: submissionId,
+            reviewer_id: reviewerId, // Keep original ID for Firestore (e.g. demo-user-178...)
+            status: 'pending',
             assigned_at: new Date()
         };
 
         // Insert to Supabase review_assignments
-        await supabaseAdmin.from('review_assignments').insert(assignmentData);
+        const { error: sbError } = await supabaseAdmin.from('review_assignments').insert(assignmentDataSupabase);
+        if (sbError) {
+            console.error("Supabase assign reviewer failed (likely UUID mismatch, continuing to Firestore):", sbError);
+        }
         
         // Insert to Firestore review_assignments
         try {
             const { getFirestore } = await import('@/utils/firebase/db');
             const db = getFirestore();
-            await db.collection('review_assignments').add(assignmentData);
+            await db.collection('review_assignments').add(assignmentDataFirestore);
         } catch (e) {
             console.warn("Firestore assign reviewer failed", e);
         }

@@ -15,57 +15,94 @@ export default async function AssignmentsPage() {
   const userId = user.id;
 
   let assignments: any[] = [];
-  try {
-    const { data, error } = await supabase
-      .from("review_assignments")
-      .select("*, submissions(*, journals(name))")
-      .eq("reviewer_id", userId)
-      .eq("status", "pending")
-      .order("assigned_at", { ascending: false });
-    if (error) throw error;
-    if (data) assignments = data;
-  } catch (error) {
-    console.warn("Supabase fetch assignments failed, falling back to Firestore");
+  const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(userId);
+
+  if (isUuid) {
     try {
-        const { getFirestore } = await import('@/utils/firebase/db');
-        const db = getFirestore();
-        
-        const reviewerIdToUse = user.json_id || userId;
-        const assignmentsSnapshot = await db.collection('review_assignments')
-          .where('reviewer_id', '==', reviewerIdToUse)
-          .where('status', '==', 'pending')
-          .get();
-          
-        for (const doc of assignmentsSnapshot.docs) {
-            const data = doc.data();
-            const assignment: any = {
-                id: doc.id,
-                ...data,
-                assigned_at: data.created_at ? data.created_at.toDate() : new Date(),
-                deadline: data.deadline ? data.deadline.toDate() : null
-            };
-            
-            // fetch submission
-            if (data.submission_id) {
-               const subDoc = await db.collection('submissions').doc(data.submission_id).get();
-               if (subDoc.exists) {
-                   const subData = subDoc.data()!;
-                   assignment.submissions = {
-                       id: subDoc.id,
-                       title: subData.title,
-                       abstract: subData.abstract,
-                       status: subData.status,
-                       journals: subData.journals || { name: 'Jurnal' }
-                   };
-               }
-            }
-            assignments.push(assignment);
-        }
-        
-        assignments.sort((a, b) => new Date(b.assigned_at).getTime() - new Date(a.assigned_at).getTime());
-    } catch (fbErr) {
-        console.error("Firestore fallback failed", fbErr);
+      const { data, error } = await supabase
+        .from("review_assignments")
+        .select("*, submissions(*, journals(name))")
+        .eq("reviewer_id", userId)
+        .eq("status", "pending")
+        .order("assigned_at", { ascending: false });
+      
+      // Don't use console.error to avoid Next.js dev overlay popups for expected Postgres errors
+      if (error && error.code !== '22P02') {
+         console.warn("Supabase warning:", error.message);
+      }
+      if (data) assignments = [...data];
+    } catch (error) {
+      // ignore
     }
+  }
+
+  // Always fetch from Firestore to merge because some assignments (sub_...) fail to insert into Supabase
+  try {
+      const { getFirestore } = await import('@/utils/firebase/db');
+      const db = getFirestore();
+      
+      const reviewerIdToUse = user.json_id || userId;
+      
+      // 1. Calculate normalized UUID just in case it was saved under the UUID form (because of Supabase constraints)
+      let normalizedUuid = reviewerIdToUse;
+      if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(normalizedUuid)) {
+          const hex = Buffer.from(normalizedUuid).toString('hex').padEnd(32, '0').slice(0, 32);
+          normalizedUuid = `${hex.slice(0,8)}-${hex.slice(8,12)}-${hex.slice(12,16)}-${hex.slice(16,20)}-${hex.slice(20,32)}`;
+      }
+
+      // 2. Query Firestore for original ID
+      const snapshot1 = await db.collection('review_assignments')
+        .where('reviewer_id', '==', reviewerIdToUse)
+        .where('status', '==', 'pending')
+        .get();
+        
+      // 3. Query Firestore for normalized UUID (if different)
+      let allDocs = snapshot1.docs;
+      if (normalizedUuid !== reviewerIdToUse) {
+          const snapshot2 = await db.collection('review_assignments')
+            .where('reviewer_id', '==', normalizedUuid)
+            .where('status', '==', 'pending')
+            .get();
+          // Merge avoiding duplicates
+          const existingIds = new Set(allDocs.map(d => d.id));
+          for (const doc of snapshot2.docs) {
+              if (!existingIds.has(doc.id)) {
+                  allDocs.push(doc);
+              }
+          }
+      }
+        
+      for (const doc of allDocs) {
+          const data = doc.data();
+          if (assignments.find(a => a.id === doc.id)) continue; // Skip if already found in Supabase
+
+          const assignment: any = {
+              id: doc.id,
+              ...data,
+              assigned_at: data.created_at ? data.created_at.toDate() : (data.assigned_at?.toDate ? data.assigned_at.toDate() : new Date()),
+              deadline: data.deadline ? (data.deadline.toDate ? data.deadline.toDate() : new Date(data.deadline)) : null
+          };
+          
+          // fetch submission
+          if (data.submission_id) {
+             const subDoc = await db.collection('submissions').doc(data.submission_id).get();
+             if (subDoc.exists) {
+                 const subData = subDoc.data()!;
+                 assignment.submissions = {
+                     id: subDoc.id,
+                     title: subData.title,
+                     abstract: subData.abstract,
+                     status: subData.status,
+                     journals: subData.journals || { name: 'Jurnal' }
+                 };
+             }
+          }
+          assignments.push(assignment);
+      }
+      
+      assignments.sort((a, b) => new Date(b.assigned_at).getTime() - new Date(a.assigned_at).getTime());
+  } catch (fbErr) {
+      console.error("Firestore fallback failed", fbErr);
   }
 
   return (

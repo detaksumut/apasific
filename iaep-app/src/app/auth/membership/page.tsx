@@ -420,13 +420,13 @@ export default function MajesticMembershipPage() {
                   {/* NAME, CITIZENSHIP */}
                   <div className="absolute flex flex-col gap-0 text-white font-bold uppercase drop-shadow-md tracking-wider whitespace-nowrap" style={{ top: '62%', left: '8%', fontSize: '11px' }}>
                     <div className="flex items-center leading-none">
-                      <div className="w-24">NAME</div>
-                      <div className="mr-2">:</div>
+                      <div className="w-[80px]">NAME</div>
+                      <div className="mr-1">:</div>
                       <div className="truncate max-w-[160px]">{formData.fullName || "NAMA ANDA DI SINI"}</div>
                     </div>
                     <div className="flex items-center leading-none -mt-2">
-                      <div className="w-24">CITIZENSHIP</div>
-                      <div className="mr-2">:</div>
+                      <div className="w-[80px]">CITIZENSHIP</div>
+                      <div className="mr-1">:</div>
                       <div className="truncate max-w-[160px]">{formData.country || "INDONESIA"}</div>
                     </div>
                   </div>
@@ -474,17 +474,17 @@ export default function MajesticMembershipPage() {
                   {/* Text Information (Perfectly Aligned) */}
                   <div className="absolute flex flex-col gap-0 text-white font-bold uppercase drop-shadow-md tracking-wider whitespace-nowrap" style={{ top: '55%', left: '6%', fontSize: '9px' }}>
                     <div className="flex items-center leading-none">
-                      <div className="w-[75px] text-left">NAME</div>
+                      <div className="w-[65px] text-left">NAME</div>
                       <div className="mr-1">:</div>
                       <div className="truncate max-w-[180px]">{formData.fullName || "ARFAN IKHSAN LUBIS"}</div>
                     </div>
                     <div className="flex items-center leading-none -mt-2">
-                      <div className="w-[75px] text-left">CITIZENSHIP</div>
+                      <div className="w-[65px] text-left">CITIZENSHIP</div>
                       <div className="mr-1">:</div>
                       <div className="truncate max-w-[180px]">{formData.country || "INDONESIA"}</div>
                     </div>
                     <div className="flex items-center leading-none -mt-2">
-                      <div className="w-[75px] text-left">VALID THRU</div>
+                      <div className="w-[65px] text-left">VALID THRU</div>
                       <div className="mr-1">:</div>
                       <div>{formatDateYYMMDD(null, 3)}</div>
                     </div>
@@ -681,13 +681,13 @@ export default function MajesticMembershipPage() {
                 {/* NAME & CITIZENSHIP */}
                 <div className="absolute flex flex-col gap-0 text-white font-bold uppercase drop-shadow-md tracking-wider whitespace-nowrap" style={{ top: '62%', left: '8%', fontSize: '11px' }}>
                   <div className="flex items-center leading-none">
-                    <div className="w-24">NAME</div>
-                    <div className="mr-2">:</div>
+                    <div className="w-[80px]">NAME</div>
+                    <div className="mr-1">:</div>
                     <div>{selectedMemberCard.full_name || "NAMA ANDA DI SINI"}</div>
                   </div>
                   <div className="flex items-center leading-none -mt-2">
-                    <div className="w-24">CITIZENSHIP</div>
-                    <div className="mr-2">:</div>
+                    <div className="w-[80px]">CITIZENSHIP</div>
+                    <div className="mr-1">:</div>
                     <div>{selectedMemberCard.country || "INDONESIA"}</div>
                   </div>
                 </div>
@@ -746,17 +746,17 @@ export default function MajesticMembershipPage() {
                 {/* Text Information (Perfectly Aligned) */}
                 <div className="absolute flex flex-col gap-0 text-white font-bold uppercase drop-shadow-md tracking-wider whitespace-nowrap" style={{ top: '55%', left: '6%', fontSize: '9px' }}>
                   <div className="flex items-center leading-none">
-                    <div className="w-[75px] text-left">NAME</div>
+                    <div className="w-[65px] text-left">NAME</div>
                     <div className="mr-1">:</div>
                     <div>{selectedMemberCard.full_name || "ARFAN IKHSAN LUBIS"}</div>
                   </div>
                   <div className="flex items-center leading-none -mt-2">
-                    <div className="w-[75px] text-left">CITIZENSHIP</div>
+                    <div className="w-[65px] text-left">CITIZENSHIP</div>
                     <div className="mr-1">:</div>
                     <div>{selectedMemberCard.country || "INDONESIA"}</div>
                   </div>
                   <div className="flex items-center leading-none -mt-2">
-                    <div className="w-[75px] text-left">VALID THRU</div>
+                    <div className="w-[65px] text-left">VALID THRU</div>
                     <div className="mr-1">:</div>
                     <div>{selectedMemberCard ? formatDateYYMMDD(selectedMemberCard.created_at, 3) : formatDateYYMMDD(null, 3)}</div>
                   </div>
