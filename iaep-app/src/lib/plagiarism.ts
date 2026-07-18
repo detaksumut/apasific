@@ -25,7 +25,14 @@ export function removeBibliography(text: string): string {
   const regex = /(?:\n|^)\s*(?:DAFTAR PUSTAKA|REFERENSI|REFERENCES|BIBLIOGRAPHY)\s*(?:\n|$)/i;
   const match = text.match(regex);
   if (match && match.index !== undefined) {
-    return text.substring(0, match.index);
+    const cutText = text.substring(0, match.index).trim();
+    // Jika memotong daftar pustaka membuat teks menjadi kosong,
+    // berarti user HANYA mem-paste daftar pustaka untuk diuji.
+    // Dalam kasus ini, kembalikan teks aslinya agar tetap bisa diuji.
+    if (cutText.length === 0) {
+      return text;
+    }
+    return cutText;
   }
   return text;
 }

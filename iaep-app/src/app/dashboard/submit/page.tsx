@@ -125,7 +125,7 @@ export default function AuthorSubmit() {
   });
 
   const [authors, setAuthors] = useState<AuthorData[]>([
-    { id: Math.random().toString(), full_name: '', email: '', affiliation: '', country: '', orcid: '', academic_id: '', google_scholar: '', sinta: '', scopus: '', wos: '' }
+    { id: '1', full_name: '', email: '', affiliation: '', country: '', orcid: '', academic_id: '', google_scholar: '', sinta: '', scopus: '', wos: '' }
   ]);
 
   const [files, setFiles] = useState({
