@@ -216,8 +216,6 @@ export default function JournalPage() {
 
       </div>
 
-      </div>
-
       {/* MODAL VIEW PDF SK */}
       {viewPdf && (
         <div className="fixed inset-0 z-50 flex flex-col bg-black/95 backdrop-blur-sm p-3 sm:p-6">
