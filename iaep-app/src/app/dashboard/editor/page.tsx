@@ -92,6 +92,20 @@ export default async function EditorDashboard() {
     console.error("Firestore fetch failed in Editor Dashboard", fbErr);
   }
 
+  // 3. Fetch Registered Users from system_settings to get accurate phone numbers
+  let registeredUsers: any[] = [];
+  try {
+    const { createClient: createSupabaseClient } = await import('@supabase/supabase-js');
+    const supabaseAdmin = createSupabaseClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL || "https://aroasmlrlpjbjokvxlgo.supabase.co",
+      process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ""
+    );
+    const { data: setting } = await supabaseAdmin.from('system_settings').select('value').eq('key', 'apasific_registered_users').single();
+    if (setting && setting.value) {
+      registeredUsers = Array.isArray(setting.value) ? setting.value : JSON.parse(setting.value);
+    }
+  } catch (e) {}
+
   // Sort merged results by created_at desc
   articles.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
 
@@ -178,6 +192,14 @@ export default async function EditorDashboard() {
                 }
                 if (parsedAbstract.phone && senderPhone === '-') senderPhone = parsedAbstract.phone;
               } catch(e) {}
+
+              // Lookup registered users array by email
+              if (senderPhone === '-' && senderEmail !== 'N/A') {
+                const match = registeredUsers.find(u => u.email?.toLowerCase() === senderEmail.toLowerCase());
+                if (match && (match.phone_number || match.phone)) {
+                  senderPhone = match.phone_number || match.phone;
+                }
+              }
 
               return (
               <div key={article.id || article.submission_id} className="p-6 hover:bg-zinc-800/30 transition-colors group">
