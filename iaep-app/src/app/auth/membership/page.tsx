@@ -34,7 +34,7 @@ export default function MajesticMembershipPage() {
   const [isMembersLoading, setIsMembersLoading] = useState(true);
   const [selectedMemberCard, setSelectedMemberCard] = useState<any>(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const membersPerPage = 20;
+  const membersPerPage = 10;
 
   const countries = [
     "Indonesia", "Malaysia", "Singapore", "Thailand", "Vietnam", 
