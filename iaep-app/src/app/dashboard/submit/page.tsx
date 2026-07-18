@@ -323,7 +323,7 @@ export default function AuthorSubmit() {
           {error && (
             <div className="bg-red-900/30 border border-red-500/50 text-red-300 px-6 py-4 rounded-xl text-base font-medium mb-10 flex items-center gap-3">
               <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse"></div>
-              {error}
+              <span>{error}</span>
             </div>
           )}
 
@@ -409,7 +409,7 @@ export default function AuthorSubmit() {
                   type="button" onClick={handleAutoTranslate} disabled={isTranslating || !formData.abstract}
                   className="text-sm bg-[#c9a84c]/10 hover:bg-[#c9a84c]/20 text-[#c9a84c] border border-[#c9a84c]/30 px-4 py-2 rounded-lg flex items-center gap-2 transition-all disabled:opacity-50 font-medium"
                 >
-                  <Languages className="w-4 h-4" /> {isTranslating ? 'Menerjemahkan...' : 'Auto Translate'}
+                  <Languages className="w-4 h-4" /> <span>{isTranslating ? 'Menerjemahkan...' : 'Auto Translate'}</span>
                 </button>
               </div>
               <textarea 
@@ -495,7 +495,7 @@ export default function AuthorSubmit() {
             ))}
             
             <button type="button" onClick={addAuthor} className="w-full py-5 mt-2 border-2 border-dashed border-[#c9a84c]/40 rounded-2xl text-[#c9a84c] text-lg font-bold hover:bg-[#c9a84c]/10 flex items-center justify-center gap-3 transition-all hover:border-[#c9a84c] group">
-              <Plus className="w-6 h-6 group-hover:scale-110 transition-transform" /> Tambah Penulis Lainnya <span className="text-sm font-normal text-[#c9a84c]/70 ml-1">(Jika penulis lebih dari satu orang)</span>
+              <Plus className="w-6 h-6 group-hover:scale-110 transition-transform" /> <span>Tambah Penulis Lainnya</span> <span className="text-sm font-normal text-[#c9a84c]/70 ml-1">(Jika penulis lebih dari satu orang)</span>
             </button>
           </div>
         </div>
@@ -605,10 +605,13 @@ export default function AuthorSubmit() {
             {loading ? (
               <span className="flex items-center gap-3">
                 <div className="w-6 h-6 border-4 border-black border-t-transparent rounded-full animate-spin"></div>
-                Memproses Pengiriman...
+                <span>Memproses Pengiriman...</span>
               </span>
             ) : (
-              <><Send className="w-7 h-7" /> Kirim Naskah Sekarang</>
+              <span className="flex items-center gap-3">
+                <Send className="w-7 h-7" /> 
+                <span>Kirim Naskah Sekarang</span>
+              </span>
             )}
           </button>
           <p className="text-center text-zinc-500 mt-6 text-sm">Dengan menekan tombol kirim, Anda menyetujui seluruh Syarat & Ketentuan publikasi yang berlaku di ASIA.</p>

@@ -171,7 +171,7 @@ export const PlagiarismChecker: React.FC<PlagiarismCheckerProps> = ({ initialTex
         disabled={isChecking || !text.trim()}
         className="bg-gradient-to-r from-emerald-600 to-emerald-400 text-black font-bold py-2 px-6 rounded-md transition-all disabled:opacity-50 hover:from-emerald-500 hover:to-emerald-300"
       >
-        {isChecking ? 'Sedang Mengecek...' : 'Mulai Pengecekan'}
+        {isChecking ? <span>Sedang Mengecek...</span> : <span>Mulai Pengecekan</span>}
       </button>
 
       {isChecking && (
