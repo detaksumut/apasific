@@ -354,7 +354,7 @@ export async function sendReminderWa(submissionId: string) {
 
     if (submission) {
         const profile = Array.isArray(submission.profiles) ? submission.profiles[0] : submission.profiles;
-        phone = profile?.phone || "";
+        phone = profile?.phone || submission.phone || submission.author_phone || "";
         authorName = profile?.full_name || "Penulis";
         title = submission.title || "";
     } else {
@@ -366,10 +366,11 @@ export async function sendReminderWa(submissionId: string) {
             if (doc.exists) {
                 const fbData = doc.data();
                 title = fbData?.title || "";
+                phone = fbData?.phone || fbData?.author_phone || "";
                 if (fbData?.author_id) {
                     const profileDoc = await db.collection('users').doc(fbData.author_id).get();
                     if (profileDoc.exists) {
-                        phone = profileDoc.data()?.phone || "";
+                        phone = profileDoc.data()?.phone || phone;
                         authorName = profileDoc.data()?.full_name || "Penulis";
                     }
                 }
@@ -380,7 +381,7 @@ export async function sendReminderWa(submissionId: string) {
     }
 
     if (!phone) {
-       return { success: false, error: "Nomor handphone penulis tidak ditemukan." };
+       return { success: false, error: "Nomor handphone penulis tidak ditemukan. Pastikan penulis telah mengisi profil dengan lengkap atau naskah memiliki data nomor telepon." };
     }
 
     const message = `Halo ${authorName},
