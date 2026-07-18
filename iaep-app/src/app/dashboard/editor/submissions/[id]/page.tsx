@@ -25,6 +25,7 @@ export default function SubmissionControlPanel() {
   const [manualIssn, setManualIssn] = useState("");
   const [reviews, setReviews] = useState<any[]>([]);
   const [availableReviewers, setAvailableReviewers] = useState<any[]>([]);
+  const [isAddReviewerOpen, setIsAddReviewerOpen] = useState(false);
   const [isUploadingRevised, setIsUploadingRevised] = useState(false);
   const [isUploadingGalley, setIsUploadingGalley] = useState(false);
   const [boardMembers, setBoardMembers] = useState<any[]>([]);
@@ -352,7 +353,7 @@ export default function SubmissionControlPanel() {
               <div className="lg:col-span-2 space-y-6">
                 <div className="flex justify-between items-center border-b pb-2">
                   <h3 className="text-lg font-bold text-gray-800">Assigned Reviewers (Round 1)</h3>
-                  <button className="text-sm bg-gray-100 hover:bg-gray-200 text-gray-800 font-semibold py-1.5 px-4 rounded border border-gray-300">
+                  <button onClick={() => setIsAddReviewerOpen(true)} className="text-sm bg-gray-100 hover:bg-gray-200 text-gray-800 font-semibold py-1.5 px-4 rounded border border-gray-300">
                     Add Reviewer
                   </button>
                 </div>
@@ -1384,6 +1385,55 @@ export default function SubmissionControlPanel() {
           </div>
         </div>
       )}
+
+      {/* Add Reviewer Modal */}
+      {isAddReviewerOpen && (
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] flex flex-col animate-in fade-in zoom-in-95 duration-200">
+            <div className="flex justify-between items-center p-6 border-b border-gray-200 bg-gray-50">
+              <h3 className="text-xl font-bold text-gray-800">Assign Reviewer</h3>
+              <button onClick={() => setIsAddReviewerOpen(false)} className="text-gray-400 hover:text-gray-600 transition-colors">
+                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"/></svg>
+              </button>
+            </div>
+            <div className="p-6 overflow-y-auto">
+              {availableReviewers.length === 0 ? (
+                <div className="text-center text-gray-500 py-8">Tidak ada reviewer yang tersedia di database.</div>
+              ) : (
+                <div className="space-y-4">
+                  {availableReviewers.map(rev => (
+                    <div key={rev.id || rev.email} className="flex justify-between items-center p-4 border rounded-lg hover:border-blue-500 hover:shadow-sm transition-all">
+                      <div>
+                        <div className="font-bold text-gray-800">{rev.full_name || rev.name}</div>
+                        <div className="text-sm text-gray-500">{rev.university || rev.institution || 'Unknown University'} • {rev.country || 'Unknown Country'}</div>
+                        <div className="text-xs text-blue-600 font-semibold mt-1">{rev.email}</div>
+                      </div>
+                      <button 
+                        onClick={async () => {
+                          setToastMessage("Menugaskan reviewer...");
+                          const m = await import("@/app/actions/editor");
+                          const res = await m.assignReviewer(submissionId, rev.id || rev.email, rev.full_name || rev.name);
+                          if (res.success) {
+                            setToastMessage("Reviewer berhasil ditugaskan!");
+                            setIsAddReviewerOpen(false);
+                            setTimeout(() => window.location.reload(), 1500);
+                          } else {
+                            setToastMessage("Gagal menugaskan reviewer: " + res.error);
+                          }
+                        }}
+                        className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold rounded shadow-sm transition-colors"
+                      >
+                        Tugaskan
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
       </>
       )}
     </div>

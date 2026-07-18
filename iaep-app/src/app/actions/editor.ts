@@ -940,6 +940,40 @@ export async function getPublishedArticles(journalId?: string) {
     }
 }
 
+export async function assignReviewer(submissionId: string, reviewerId: string, reviewerName: string) {
+    try {
+        const supabaseAdmin = (await import('@supabase/supabase-js')).createClient(
+          process.env.NEXT_PUBLIC_SUPABASE_URL!,
+          process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+        );
+        
+        const assignmentData = {
+            submission_id: submissionId,
+            reviewer_id: reviewerId,
+            status: 'assigned',
+            assigned_at: new Date()
+        };
 
+        // Insert to Supabase review_assignments
+        await supabaseAdmin.from('review_assignments').insert(assignmentData);
+        
+        // Insert to Firestore review_assignments
+        try {
+            const { getFirestore } = await import('@/utils/firebase/db');
+            const db = getFirestore();
+            await db.collection('review_assignments').add(assignmentData);
+        } catch (e) {
+            console.warn("Firestore assign reviewer failed", e);
+        }
 
+        // Update submission status to Under Review
+        await updateSubmissionStage(submissionId, 'Review', 'Under Review');
 
+        const { revalidatePath } = require('next/cache');
+        revalidatePath(`/dashboard/editor/submissions/${submissionId}`);
+        
+        return { success: true };
+    } catch (e: any) {
+        return { success: false, error: e.message };
+    }
+}
