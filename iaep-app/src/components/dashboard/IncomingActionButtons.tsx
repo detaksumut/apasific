@@ -45,7 +45,19 @@ export default function IncomingActionButtons({ articleId, authorPhone }: { arti
     if (!confirm("Kirim pesan otomatis via WhatsApp (Sistem APASIFIC) ke Penulis ini?")) return;
     setLoading(true);
     try {
-      const res = await sendReminderWa(articleId);
+      let res = await sendReminderWa(articleId);
+      
+      // Jika nomor HP benar-benar tidak ada di database, minta Editor memasukkannya secara manual
+      if (!res.success && res.error?.includes("tidak ditemukan")) {
+         const manualPhone = prompt(res.error + "\n\nJika Anda mengetahuinya, silakan masukkan nomor WhatsApp penulis secara manual (Gunakan format 628...):");
+         if (manualPhone && manualPhone.trim() !== "") {
+             res = await sendReminderWa(articleId, manualPhone.trim());
+         } else {
+             setLoading(false);
+             return; // Dibatalkan oleh pengguna
+         }
+      }
+      
       if (res.success) {
         alert("Pesan WA berhasil terkirim melalui sistem!");
       } else {

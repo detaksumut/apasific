@@ -992,6 +992,18 @@ export async function getPublishedArticles(journalId?: string) {
     }
 }
 
+export async function sendReviewerInviteWa(phone: string, name: string, submissionId: string) {
+    try {
+        if (!phone) return { success: false, error: "Nomor telepon tidak tersedia" };
+        const { sendWa } = await import('@/utils/sendWa');
+        const message = `Yth. ${name}, kami mengundang Anda untuk meninjau naskah #${submissionId} di platform APASIFIC.`;
+        const result = await sendWa(phone, message);
+        return { success: result, message: result ? "Pesan WA terkirim" : "Gagal mengirim pesan via Fonnte" };
+    } catch (e: any) {
+        return { success: false, error: e.message };
+    }
+}
+
 export async function assignReviewer(submissionId: string, reviewerId: string, reviewerName: string) {
     try {
         const supabaseAdmin = (await import('@supabase/supabase-js')).createClient(

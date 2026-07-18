@@ -478,15 +478,23 @@ export default function SubmissionControlPanel() {
                                     </div>
                                   </div>
                                   <div className="flex items-center space-x-2">
-                                    <a 
-                                      href={`https://wa.me/${(rev.phone_number || '').replace(/\D/g,'')}?text=${encodeURIComponent(`Yth. ${rev.full_name}, kami mengundang Anda untuk meninjau naskah #${submission.id} di platform APASIFIC.`)}`}
-                                      target="_blank"
-                                      rel="noopener noreferrer"
+                                    <button 
+                                      onClick={async () => {
+                                        if (window.confirm("Kirim pesan otomatis via WhatsApp (Sistem APASIFIC) ke Reviewer ini?")) {
+                                            setToastMessage("Mengirim pesan...");
+                                            const m = await import("@/app/actions/editor");
+                                            const res = await m.sendReviewerInviteWa(rev.phone_number || '', rev.full_name, submission.id);
+                                            if (res.success) {
+                                                setToastMessage("Berhasil terkirim via Fonnte!");
+                                            } else {
+                                                setToastMessage("Gagal mengirim pesan: " + res.error);
+                                            }
+                                        }
+                                      }}
                                       className="text-xs bg-[#25D366] text-black font-semibold py-1 px-3 rounded hover:bg-[#22c35e] text-center"
-                                      style={{ textDecoration: 'none' }}
                                     >
                                       💬 Invite
-                                    </a>
+                                    </button>
                                     <button className="text-xs bg-gray-800 text-white font-semibold py-1 px-3 rounded hover:bg-gray-700">
                                       Assign
                                     </button>

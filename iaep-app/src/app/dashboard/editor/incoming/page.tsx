@@ -135,7 +135,7 @@ export default async function IncomingArticles() {
                   </div>
                   
                   <div className="shrink-0">
-                    <IncomingActionButtons articleId={article.id} authorPhone={article.profiles?.phone} />
+                    <IncomingActionButtons articleId={article.id} authorPhone={article.phone || article.profiles?.phone} />
                   </div>
                 </div>
               </div>

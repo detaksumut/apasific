@@ -191,7 +191,7 @@ export default async function EditorDashboard() {
           <div className="divide-y divide-zinc-800/50">
             {articles.map((article: any) => {
               let senderName = article.profiles?.full_name || 'Penulis Tidak Diketahui';
-              let senderPhone = article.profiles?.phone || '-';
+              let senderPhone = article.phone || article.profiles?.phone || '-';
               let senderEmail = 'N/A';
 
               try {
