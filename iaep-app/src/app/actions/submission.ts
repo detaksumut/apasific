@@ -1,6 +1,7 @@
 "use server";
 
 import { createClient } from "@/utils/supabase/server";
+import { revalidatePath } from 'next/cache';
 
 export async function submitManuscript(formData: FormData) {
   const supabase = await createClient();
@@ -271,7 +272,6 @@ export async function updateSubmissionStatus(submissionId: string, newStatus: st
   }
 
   if (success) {
-      const { revalidatePath } = require('next/cache');
       revalidatePath('/dashboard/editor/incoming');
       revalidatePath('/dashboard/editor/assign-reviewer');
       return { success: true };
