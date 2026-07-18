@@ -417,17 +417,22 @@ export default function MajesticMembershipPage() {
                     </svg>
                   </div>
 
-                  {/* NAME & CITIZENSHIP */}
+                  {/* NAME, CITIZENSHIP & ACADEMIC ID */}
                   <div className="absolute flex flex-col gap-0 text-white font-bold uppercase drop-shadow-md tracking-wider whitespace-nowrap" style={{ top: '62%', left: '8%', fontSize: '11px' }}>
                     <div className="flex items-center leading-none">
                       <div className="w-24">NAME</div>
                       <div className="mr-2">:</div>
-                      <div>{formData.fullName || "NAMA ANDA DI SINI"}</div>
+                      <div className="truncate max-w-[160px]">{formData.fullName || "NAMA ANDA DI SINI"}</div>
                     </div>
                     <div className="flex items-center leading-none -mt-2">
                       <div className="w-24">CITIZENSHIP</div>
                       <div className="mr-2">:</div>
-                      <div>{formData.country || "INDONESIA"}</div>
+                      <div className="truncate max-w-[160px]">{formData.country || "INDONESIA"}</div>
+                    </div>
+                    <div className="flex items-center leading-none -mt-2">
+                      <div className="w-24">ACADEMIC ID</div>
+                      <div className="mr-2">:</div>
+                      <div className="truncate max-w-[160px]" title={formData.internationalId || "-"}>{formData.internationalId || "-"}</div>
                     </div>
                   </div>
 
@@ -460,12 +465,17 @@ export default function MajesticMembershipPage() {
                     <div className="flex items-center leading-none">
                       <div className="w-[75px] text-left">NAME</div>
                       <div className="mr-1">:</div>
-                      <div>{formData.fullName || "ARFAN IKHSAN LUBIS"}</div>
+                      <div className="truncate max-w-[180px]">{formData.fullName || "ARFAN IKHSAN LUBIS"}</div>
                     </div>
                     <div className="flex items-center leading-none -mt-2">
                       <div className="w-[75px] text-left">CITIZENSHIP</div>
                       <div className="mr-1">:</div>
-                      <div>{formData.country || "INDONESIA"}</div>
+                      <div className="truncate max-w-[180px]">{formData.country || "INDONESIA"}</div>
+                    </div>
+                    <div className="flex items-center leading-none -mt-2">
+                      <div className="w-[75px] text-left">ACADEMIC ID</div>
+                      <div className="mr-1">:</div>
+                      <div className="truncate max-w-[180px]">{formData.internationalId || "-"}</div>
                     </div>
                     <div className="flex items-center leading-none -mt-2">
                       <div className="w-[75px] text-left">VALID THRU</div>
