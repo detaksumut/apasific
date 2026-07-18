@@ -37,8 +37,8 @@ export async function POST(request: Request) {
     const currentMonthRoman = romanMonths[new Date().getMonth()];
     const finalInternationalId = `ASIA-${currentMonthRoman}-` + ((count || 0) + 1).toString().padStart(6, '0');
     
-    // Append the user's ORCID/Scopus ID to the university field so it's not lost
-    const universityWithOrcid = internationalId ? `${university} (ORCID/Scopus: ${internationalId})` : university;
+    // Append the user's ORCID/Scopus ID and Discipline to the university field so it's not lost
+    const universityCombined = `${university}${internationalId ? ` (ORCID/Scopus: ${internationalId})` : ''}${discipline ? ` | Disiplin: ${discipline}` : ''}`;
 
     const { data: insertedData, error } = await supabase
       .from("membership_applications")
@@ -50,8 +50,7 @@ export async function POST(request: Request) {
           country: country,
           academic_level: academicLevel,
           international_id: finalInternationalId,
-          university: universityWithOrcid,
-          discipline: discipline, // Reverted back to discipline to match Supabase schema
+          university: universityCombined,
           bukti_transfer_url: buktiTransfer, // Base64 string
           status: 'Pending'
         }
