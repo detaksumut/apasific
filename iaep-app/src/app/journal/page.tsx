@@ -11,6 +11,8 @@ interface Member {
 interface BoardData {
   body_name: string;
   members: Member[];
+  skCurrent?: string;
+  skPast?: string;
 }
 
 const OFFICIAL_JOURNALS = [
@@ -54,18 +56,27 @@ export default function JournalPage() {
             })
             .map((row: any) => {
               let parsedMembers = [];
+              let skCurrent = "";
+              let skPast = "";
               try {
-                if (typeof row.members_json === 'string') {
-                  parsedMembers = JSON.parse(row.members_json);
-                } else if (row.members_json) {
-                  parsedMembers = row.members_json;
+                let parsed = row.members_json;
+                if (typeof parsed === 'string') parsed = JSON.parse(parsed);
+                
+                if (Array.isArray(parsed)) {
+                  parsedMembers = parsed;
+                } else if (parsed && typeof parsed === 'object') {
+                  parsedMembers = parsed.members || [];
+                  skCurrent = parsed.skCurrent || "";
+                  skPast = parsed.skPast || "";
                 }
               } catch (e) {
                 console.error("Error parsing", row.body_name, e);
               }
               return {
                 body_name: row.body_name.replace("Editorial Board - ", ""), // Extract just the journal name
-                members: parsedMembers
+                members: parsedMembers,
+                skCurrent,
+                skPast
               };
             });
             
@@ -132,27 +143,40 @@ export default function JournalPage() {
                   {/* SK Periode Sekarang (Kiri) */}
                   <button 
                     onClick={() => {
-                      const pdfPath = board.body_name.includes("AJCS") 
-                        ? "/SK JOURNAL INTERNATIONAL COMMUNITY SERVICES.pdf" 
-                        : "/SK FINAL JURNAL ASSOCIATION OF ASIA PACIFIC ACADEMICIAN.pdf";
-                      setViewPdf(pdfPath);
+                      if (board.skCurrent) {
+                        setViewPdf(board.skCurrent);
+                      } else {
+                        alert("File SK Periode Sekarang untuk jurnal ini belum diunggah oleh Admin.");
+                      }
                     }}
-                    className="flex w-full sm:w-auto items-center justify-center gap-2 bg-[#c9a84c]/10 text-[#c9a84c] border border-[#c9a84c]/30 hover:bg-[#c9a84c] hover:text-black transition-all px-4 py-2 rounded-lg text-[13px] font-bold tracking-wider"
+                    className={`flex w-full sm:w-auto items-center justify-center gap-2 transition-all px-4 py-2 rounded-lg text-[13px] font-bold tracking-wider ${
+                      board.skCurrent 
+                        ? "bg-[#c9a84c]/10 text-[#c9a84c] border border-[#c9a84c]/30 hover:bg-[#c9a84c] hover:text-black shadow-[0_0_15px_rgba(201,168,76,0.15)]" 
+                        : "bg-gray-800 text-gray-500 border border-gray-700 opacity-70 cursor-not-allowed"
+                    }`}
                   >
                     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                     </svg>
-                    SK PERIODE SEKARANG (2026-2029)
+                    {board.skCurrent ? "SK PERIODE SEKARANG (2026-2029)" : "SK SEKARANG BELUM TERSEDIA"}
                   </button>
 
                   {/* SK Periode Berlalu (Kanan) */}
                   <button 
                     onClick={() => {
-                      alert("File SK Periode Berlalu untuk jurnal ini belum tersedia di sistem.");
+                      if (board.skPast) {
+                        setViewPdf(board.skPast);
+                      } else {
+                        alert("File SK Periode Berlalu untuk jurnal ini belum diunggah oleh Admin.");
+                      }
                     }}
-                    className="flex w-full sm:w-auto items-center justify-center gap-2 bg-gray-800 text-gray-400 border border-gray-700 hover:bg-gray-700 hover:text-gray-200 transition-all px-4 py-2 rounded-lg text-[13px] font-bold tracking-wider"
+                    className={`flex w-full sm:w-auto items-center justify-center gap-2 transition-all px-4 py-2 rounded-lg text-[13px] font-bold tracking-wider ${
+                      board.skPast
+                        ? "bg-gray-700 text-white border border-gray-500 hover:bg-gray-600 hover:text-white shadow-lg"
+                        : "bg-gray-800 text-gray-500 border border-gray-700 opacity-70 cursor-not-allowed"
+                    }`}
                   >
-                    SK PERIODE BERLALU
+                    {board.skPast ? "SK PERIODE BERLALU" : "SK BERLALU BELUM TERSEDIA"}
                     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>

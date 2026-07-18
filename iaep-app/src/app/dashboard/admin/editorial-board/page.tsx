@@ -12,7 +12,14 @@ export default function EditorialBoardManagement() {
   const [selectedJournal, setSelectedJournal] = useState("");
   const [members, setMembers] = useState<EditorialMember[]>([]);
   const [saved, setSaved] = useState(false);
+  const [skCurrent, setSkCurrent] = useState("");
+  const [skPast, setSkPast] = useState("");
+  const [uploadingSkCurrent, setUploadingSkCurrent] = useState(false);
+  const [uploadingSkPast, setUploadingSkPast] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
+
+  const fileInputCurrent = useRef<HTMLInputElement>(null);
+  const fileInputPast = useRef<HTMLInputElement>(null);
 
   const showToast = (msg: string) => {
     setToastMessage(msg);
@@ -55,9 +62,13 @@ export default function EditorialBoardManagement() {
         } else {
           setMembers([]);
         }
+        setSkCurrent(data.skCurrent || "");
+        setSkPast(data.skPast || "");
       })
       .catch(() => {
         setMembers([]);
+        setSkCurrent("");
+        setSkPast("");
       });
   }, [selectedJournal]);
 
@@ -129,6 +140,44 @@ export default function EditorialBoardManagement() {
     setMembers(prev => prev.filter((_, i) => i !== index));
   };
 
+  const handleUploadSk = async (e: React.ChangeEvent<HTMLInputElement>, type: 'current' | 'past') => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.type !== "application/pdf") {
+      showToast("Hanya file PDF yang diperbolehkan!");
+      return;
+    }
+    if (type === 'current') setUploadingSkCurrent(true);
+    else setUploadingSkPast(true);
+
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("journalName", selectedJournal);
+    formData.append("type", type);
+
+    try {
+      const res = await fetch("/api/upload-sk", {
+        method: "POST",
+        body: formData,
+      });
+      const data = await res.json();
+      if (res.ok && data.url) {
+        if (type === 'current') setSkCurrent(data.url);
+        else setSkPast(data.url);
+        showToast("SK berhasil diunggah! Jangan lupa klik Simpan Data.");
+        setSaved(false);
+      } else {
+        throw new Error(data.error || "Gagal upload");
+      }
+    } catch (err: any) {
+      showToast(err.message);
+    } finally {
+      if (type === 'current') setUploadingSkCurrent(false);
+      else setUploadingSkPast(false);
+      e.target.value = "";
+    }
+  };
+
   const handleSave = async () => {
     if (!selectedJournal) {
       showToast("Pilih jurnal terlebih dahulu.");
@@ -139,6 +188,8 @@ export default function EditorialBoardManagement() {
       const payload = {
         bodyName: `Editorial Board - ${selectedJournal}`,
         members: members,
+        skCurrent: skCurrent,
+        skPast: skPast,
       };
 
       const payloadString = JSON.stringify(payload);
@@ -217,6 +268,59 @@ export default function EditorialBoardManagement() {
             <p style={{ fontSize: 10, color: "rgba(201,168,76,0.55)", letterSpacing: "1.5px", margin: "0 0 3px", fontWeight: 700 }}>STRUKTUR REDAKSI</p>
             <h2 style={{ fontSize: 15, fontWeight: 700, color: "#c9a84c", margin: 0 }}>📖 Editorial Board — {selectedJournal}</h2>
             <p style={{ fontSize: 11, color: "rgba(255,255,255,0.3)", margin: "4px 0 0" }}>Tambahkan anggota redaksi tanpa batas. Anda bebas menentukan nama jabatannya (misal: Editor in Chief, Reviewer, dll).</p>
+          </div>
+
+          <div style={{ padding: "24px 24px 10px", borderBottom: "1px solid rgba(201,168,76,0.15)" }}>
+            <h3 style={{ fontSize: 13, color: "#fff", marginBottom: 12, fontWeight: 700 }}>SURAT KEPUTUSAN (SK) DEWAN REDAKSI</h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {/* SK Current */}
+              <div className="bg-[#1a1a2e] border border-[#c9a84c]/20 p-4 rounded-lg flex flex-col justify-between">
+                <div>
+                  <label className="block text-[#c9a84c] text-[11px] font-bold mb-1">SK PERIODE SEKARANG (PDF)</label>
+                  <p className="text-[10px] text-gray-500 mb-3">Upload SK yang berlaku saat ini (berlaku 3 tahun)</p>
+                </div>
+                <div className="flex items-center gap-3">
+                  <button 
+                    onClick={() => fileInputCurrent.current?.click()}
+                    disabled={uploadingSkCurrent}
+                    className="bg-[#c9a84c]/10 text-[#c9a84c] border border-[#c9a84c]/30 hover:bg-[#c9a84c] hover:text-black px-3 py-1.5 rounded text-xs font-bold transition-all whitespace-nowrap"
+                  >
+                    {uploadingSkCurrent ? "Mengunggah..." : "Upload PDF"}
+                  </button>
+                  <input type="file" accept="application/pdf" className="hidden" ref={fileInputCurrent} onChange={(e) => handleUploadSk(e, 'current')} />
+                  {skCurrent && (
+                    <a href={skCurrent} target="_blank" rel="noreferrer" className="text-[11px] text-blue-400 hover:underline flex items-center gap-1 font-semibold whitespace-nowrap overflow-hidden text-ellipsis">
+                      <svg className="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
+                      Lihat SK
+                    </a>
+                  )}
+                </div>
+              </div>
+
+              {/* SK Past */}
+              <div className="bg-[#1a1a2e] border border-[#c9a84c]/20 p-4 rounded-lg flex flex-col justify-between">
+                <div>
+                  <label className="block text-gray-400 text-[11px] font-bold mb-1">SK PERIODE BERLALU (PDF)</label>
+                  <p className="text-[10px] text-gray-600 mb-3">Upload arsip SK dari periode sebelumnya</p>
+                </div>
+                <div className="flex items-center gap-3">
+                  <button 
+                    onClick={() => fileInputPast.current?.click()}
+                    disabled={uploadingSkPast}
+                    className="bg-gray-800 text-gray-300 border border-gray-600 hover:bg-gray-700 hover:text-white px-3 py-1.5 rounded text-xs font-bold transition-all whitespace-nowrap"
+                  >
+                    {uploadingSkPast ? "Mengunggah..." : "Upload PDF"}
+                  </button>
+                  <input type="file" accept="application/pdf" className="hidden" ref={fileInputPast} onChange={(e) => handleUploadSk(e, 'past')} />
+                  {skPast && (
+                    <a href={skPast} target="_blank" rel="noreferrer" className="text-[11px] text-blue-400 hover:underline flex items-center gap-1 font-semibold whitespace-nowrap overflow-hidden text-ellipsis">
+                      <svg className="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
+                      Lihat SK
+                    </a>
+                  )}
+                </div>
+              </div>
+            </div>
           </div>
 
           <div style={{ padding: "24px" }}>

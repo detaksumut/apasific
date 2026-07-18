@@ -42,20 +42,27 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
-  // Home org structure & Editorial Boards — return members array
+  // Home org structure & Editorial Boards — return members array and SK URLs
   if (body === HOME_BODY || body.startsWith("Editorial Board -")) {
     let members = [];
+    let skCurrent = "";
+    let skPast = "";
     try {
-      if (typeof data.members_json === 'string') {
-        members = JSON.parse(data.members_json);
-      } else if (data.members_json) {
-        members = data.members_json;
+      let parsed = data.members_json;
+      if (typeof parsed === 'string') parsed = JSON.parse(parsed);
+      
+      if (Array.isArray(parsed)) {
+        members = parsed;
+      } else if (parsed && typeof parsed === 'object') {
+        members = parsed.members || [];
+        skCurrent = parsed.skCurrent || "";
+        skPast = parsed.skPast || "";
       }
     } catch (e) { 
       console.error("Error parsing members_json:", e);
       members = []; 
     }
-    return NextResponse.json({ members, debug_data: data, debug_error: error });
+    return NextResponse.json({ members, skCurrent, skPast, debug_data: data, debug_error: error });
   }
 
   // Map database columns to the frontend state structure
@@ -81,7 +88,7 @@ export async function POST(request: NextRequest) {
     );
 
     const payload = await request.json();
-    const { bodyName, members } = payload;
+    const { bodyName, members, skCurrent, skPast } = payload;
 
     if (!bodyName) {
       return NextResponse.json({ error: "Missing bodyName" }, { status: 400 });
@@ -93,8 +100,12 @@ export async function POST(request: NextRequest) {
     };
 
     if (bodyName === HOME_BODY || bodyName.startsWith("Editorial Board -")) {
-      // Save as JSON
-      upsertPayload.members_json = JSON.stringify(members || []);
+      // Save as JSON object containing members and SKs to preserve backwards compatible column usage
+      upsertPayload.members_json = JSON.stringify({
+        members: members || [],
+        skCurrent: skCurrent || "",
+        skPast: skPast || ""
+      });
     } else {
       const {
         ketuaNama, ketuaJabatan, ketuaNegara, ketuaId, ketuaPhoto,
