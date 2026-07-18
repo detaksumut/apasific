@@ -29,7 +29,7 @@ export default function SubmissionControlPanel() {
   const [reviewerSearch, setReviewerSearch] = useState("");
   const [reviewerPage, setReviewerPage] = useState(1);
   const [onlineReviewerPage, setOnlineReviewerPage] = useState(1);
-  const REVIEWERS_PER_PAGE = 7;
+  const REVIEWERS_PER_PAGE = 10;
   const [isUploadingRevised, setIsUploadingRevised] = useState(false);
   const [isUploadingGalley, setIsUploadingGalley] = useState(false);
   const [boardMembers, setBoardMembers] = useState<any[]>([]);

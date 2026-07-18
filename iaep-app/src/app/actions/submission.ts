@@ -326,33 +326,68 @@ export async function sendReminderWa(submissionId: string) {
   );
 
   try {
-    const { data: submission } = await supabaseAdmin
-      .from('submissions')
-      .select('*, profiles:author_id(full_name, phone)')
-      .eq('submission_id', submissionId)
-      .single();
+    let submission = null;
+    try {
+      const { data } = await supabaseAdmin
+        .from('submissions')
+        .select('*, profiles:author_id(full_name, phone)')
+        .eq('submission_id', submissionId)
+        .single();
+      submission = data;
+    } catch(e) {}
 
     if (!submission) {
        // fallback check by 'id'
-       const { data: submission2 } = await supabaseAdmin
-         .from('submissions')
-         .select('*, profiles:author_id(full_name, phone)')
-         .eq('id', submissionId)
-         .single();
-       if (!submission2) return { success: false, error: "Submission not found." };
-       Object.assign(submission || {}, submission2);
+       try {
+         const { data: submission2 } = await supabaseAdmin
+           .from('submissions')
+           .select('*, profiles:author_id(full_name, phone)')
+           .eq('id', submissionId)
+           .single();
+         submission = submission2;
+       } catch(e) {}
     }
 
-    const phone = submission?.profiles?.phone;
+    let phone = "";
+    let authorName = "Penulis";
+    let title = "";
+
+    if (submission) {
+        const profile = Array.isArray(submission.profiles) ? submission.profiles[0] : submission.profiles;
+        phone = profile?.phone || "";
+        authorName = profile?.full_name || "Penulis";
+        title = submission.title || "";
+    } else {
+        // Fallback to Firestore
+        try {
+            const { getFirestore } = await import('@/utils/firebase/db');
+            const db = getFirestore();
+            const doc = await db.collection('submissions').doc(submissionId).get();
+            if (doc.exists) {
+                const fbData = doc.data();
+                title = fbData?.title || "";
+                if (fbData?.author_id) {
+                    const profileDoc = await db.collection('users').doc(fbData.author_id).get();
+                    if (profileDoc.exists) {
+                        phone = profileDoc.data()?.phone || "";
+                        authorName = profileDoc.data()?.full_name || "Penulis";
+                    }
+                }
+            }
+        } catch (fbErr) {
+            console.error("Firestore fallback in sendReminderWa failed", fbErr);
+        }
+    }
+
     if (!phone) {
        return { success: false, error: "Nomor handphone penulis tidak ditemukan." };
     }
 
-    const message = `Halo ${submission?.profiles?.full_name || 'Penulis'},
+    const message = `Halo ${authorName},
 
 Pesan dari Tim Editorial Asia Index & Metric (APASIFIC).
 Terdapat pembaruan informasi atau hal yang perlu dikonfirmasi terkait naskah Anda yang berjudul:
-"${submission?.title}"
+"${title}"
 
 Silakan login ke sistem APASIFIC untuk mengecek status terbaru.
 
