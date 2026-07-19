@@ -1148,8 +1148,8 @@ export default function SubmissionControlPanel() {
                     
                     {/* Publish Editor Staff */}
                     <div className="space-y-3 mb-6">
-                        {boardMembers.filter(m => m.jabatan.toLowerCase().includes('publish') || m.jabatan.toLowerCase().includes('editor') && !m.jabatan.toLowerCase().includes('layout') && !m.jabatan.toLowerCase().includes('copy') && !m.jabatan.toLowerCase().includes('in chief')).length > 0 ? (
-                          boardMembers.filter(m => m.jabatan.toLowerCase().includes('publish') || m.jabatan.toLowerCase().includes('editor') && !m.jabatan.toLowerCase().includes('layout') && !m.jabatan.toLowerCase().includes('copy') && !m.jabatan.toLowerCase().includes('in chief')).map((member, idx) => (
+                        {boardMembers.filter(m => m.jabatan.toLowerCase().includes('layout') || m.jabatan.toLowerCase().includes('cover') || m.jabatan.toLowerCase().includes('publish')).length > 0 ? (
+                          boardMembers.filter(m => m.jabatan.toLowerCase().includes('layout') || m.jabatan.toLowerCase().includes('cover') || m.jabatan.toLowerCase().includes('publish')).map((member, idx) => (
                             <label key={idx} className="flex items-center space-x-3 p-3 bg-blue-50 border border-blue-100 rounded cursor-pointer hover:bg-blue-100 transition-colors">
                               <input type="checkbox" className="form-checkbox h-5 w-5 text-blue-600 rounded focus:ring-blue-500" />
                               <div className="flex flex-col">
