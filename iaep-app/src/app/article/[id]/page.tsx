@@ -211,7 +211,7 @@ export default function ArticlePaywall() {
             <span className="font-bold text-gray-200 text-xl">{article.author}</span>
             <div className="flex flex-row flex-wrap items-center gap-4 mt-1 mb-1">
               <span className="text-sm font-semibold text-gray-400 mr-1">ID Akademik:</span>
-              <a href={article.orcid ? (article.orcid.startsWith('http') ? article.orcid : `https://orcid.org/${article.orcid}`) : "#"} target={article.orcid ? "_blank" : "_self"} rel="noopener noreferrer" className={`inline-flex items-center gap-2 text-sm text-[#A6CE39] hover:underline w-fit ${!article.orcid && 'opacity-50 cursor-not-allowed'}`}>
+              <a href="https://orcid.org/0009-0006-8416-6156" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-sm text-[#A6CE39] hover:underline w-fit">
                 <div className="bg-[#A6CE39] rounded-full p-1.5 flex items-center justify-center">
                   <svg className="w-8 h-8 text-white" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M12 0C5.372 0 0 5.372 0 12s5.372 12 12 12 12-5.372 12-12S18.628 0 12 0zM7.369 4.378c.525 0 .947.431.947.947s-.422.947-.947.947a.95.95 0 01-.947-.947c0-.525.422-.947.947-.947zm-.722 3.038h1.444v10.041H6.647V7.416zm3.562 0h3.9c3.712 0 5.344 2.653 5.344 5.025 0 2.578-2.016 5.025-5.325 5.025h-3.919V7.416zm1.444 1.303v7.44h2.297c3.272 0 4.022-2.484 4.022-3.72 0-2.016-1.284-3.72-4.097-3.72h-2.222z"/>
@@ -219,7 +219,7 @@ export default function ArticlePaywall() {
                 </div>
                 ORCID
               </a>
-              <a href={article.google_scholar || "#"} target={article.google_scholar ? "_blank" : "_self"} rel="noopener noreferrer" className={`inline-flex items-center gap-2 text-sm text-[#4285F4] hover:underline w-fit ${!article.google_scholar && 'opacity-50 cursor-not-allowed'}`}>
+              <a href="https://scholar.google.com/citations?user=EoHXXg0AAAAJ&hl=en" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-sm text-[#4285F4] hover:underline w-fit">
                 <div className="bg-[#4285F4] rounded-full p-1.5 flex items-center justify-center">
                   <svg className="w-8 h-8 text-white" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M12 24a7 7 0 1 1 0-14 7 7 0 0 1 0 14zm0-24L0 9.5l4.838 3.94A8 8 0 0 1 12 9a8 8 0 0 1 7.162 4.44L24 9.5z"/>
@@ -227,7 +227,7 @@ export default function ArticlePaywall() {
                 </div>
                 Google Scholar
               </a>
-              <a href={article.wos || "#"} target={article.wos ? "_blank" : "_self"} rel="noopener noreferrer" className={`inline-flex items-center gap-2 text-sm text-[#5c2d91] hover:underline w-fit ${!article.wos && 'opacity-50 cursor-not-allowed'}`}>
+              <a href="https://www.webofscience.com/wos/author/record/QKY-3514-2026" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-sm text-[#5c2d91] hover:underline w-fit">
                 <div className="bg-[#5c2d91] rounded-full p-1.5 flex items-center justify-center">
                   <svg className="w-8 h-8 text-white" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14.5v-9l6 4.5-6 4.5z"/>
@@ -235,7 +235,7 @@ export default function ArticlePaywall() {
                 </div>
                 Web of Science
               </a>
-              <a href={article.ssrn || "#"} target={article.ssrn ? "_blank" : "_self"} rel="noopener noreferrer" className={`inline-flex items-center gap-2 text-sm text-[#1D4F91] hover:underline w-fit ${!article.ssrn && 'opacity-50 cursor-not-allowed'}`}>
+              <a href="https://hq.ssrn.com/login/authentication.cfm?rectype=edit&perinf=y&partid=11897288" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-sm text-[#1D4F91] hover:underline w-fit">
                 <div className="bg-[#1D4F91] rounded-full p-1.5 flex items-center justify-center">
                   <svg className="w-8 h-8 text-white" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M12 0L0 7.5v9L12 24l12-7.5v-9L12 0zm0 3.5l8 5-8 5-8-5 8-5z"/>
