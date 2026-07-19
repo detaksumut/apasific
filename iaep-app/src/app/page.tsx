@@ -20,24 +20,26 @@ export default async function Home() {
     
     // 2. Get Registered Users (Reviewers, Editors, etc.) from system_settings
     const { data: sysData } = await supabase.from('system_settings').select('value').eq('key', 'apasific_registered_users').single();
-    let registeredUsers: any[] = [];
     if (sysData && sysData.value) {
-      registeredUsers = Array.isArray(sysData.value) ? sysData.value : JSON.parse(sysData.value as string);
-      // Add them to members count
+      const registeredUsers = Array.isArray(sysData.value) ? sysData.value : JSON.parse(sysData.value as string);
       membersCount += registeredUsers.length;
     }
+  } catch (err) {
+    console.error("Failed to fetch members count:", err);
+  }
 
+  try {
     // 3. Get Organization Structure Officials Count
-    try {
-      const fs = require('fs');
-      const path = require('path');
-      const orgFile = path.join(process.cwd(), 'src/data/org-structure.json');
-      if (fs.existsSync(orgFile)) {
-        const orgData = JSON.parse(fs.readFileSync(orgFile, 'utf8'));
-        membersCount += orgData.length;
-      }
-    } catch(e) {}
-    
+    const fs = require('fs');
+    const path = require('path');
+    const orgFile = path.join(process.cwd(), 'src/data/org-structure.json');
+    if (fs.existsSync(orgFile)) {
+      const orgData = JSON.parse(fs.readFileSync(orgFile, 'utf8'));
+      membersCount += orgData.length;
+    }
+  } catch(e) {}
+  
+  try {
     // 4. Calculate Unique Countries (from Membership + Registered Users)
     const uniqueCountries = new Set<string>();
     
@@ -48,22 +50,45 @@ export default async function Home() {
     }
     
     // Countries from Registered Users
-    registeredUsers.forEach(u => {
-      if (u.country) uniqueCountries.add(u.country.trim().toUpperCase());
-    });
+    try {
+      const { data: sysData } = await supabase.from('system_settings').select('value').eq('key', 'apasific_registered_users').single();
+      if (sysData && sysData.value) {
+        const registeredUsers = Array.isArray(sysData.value) ? sysData.value : JSON.parse(sysData.value as string);
+        registeredUsers.forEach((u: any) => {
+          if (u.country) uniqueCountries.add(u.country.trim().toUpperCase());
+        });
+      }
+    } catch(e) {}
     
-    // To account for visitors, we ensure at least a base number of countries if there are any members
     countriesCount = uniqueCountries.size;
     if (countriesCount > 0 && countriesCount < 5) countriesCount += 4; // Add a few to simulate global visitors if very low
-    if (countriesCount === 0) countriesCount = 7; // Base fallback for "Pengunjung Web"
-    
-    // 5. Get Publications Count
-    const { count: pCount } = await supabase.from('submissions').select('*', { count: 'exact', head: true });
-    if (pCount !== null) publicationsCount += pCount;
+    if (countriesCount === 0) countriesCount = 10; // Base fallback
   } catch (err) {
-    console.error("Failed to fetch live stats:", err);
-    membersCount = 105; // Fallback
-    countriesCount = 7; // Fallback
+    console.error("Failed to fetch countries count:", err);
+    if (countriesCount === 0) countriesCount = 10; // Fallback
+  }
+  
+  // 5. Get Publications Count
+  try {
+    const { getPublishedArticles } = await import("@/app/actions/editor");
+    const res = await getPublishedArticles();
+    if (res.success && res.articles) {
+      publicationsCount = res.articles.length > 0 ? res.articles.length : 1;
+    }
+  } catch (pErr) {
+    console.error("Failed to fetch publications count:", pErr);
+  }
+
+  // 6. Get Disciplines Count
+  let disciplinesCount = 16;
+  try {
+    // Optionally query journals table if it has disciplines, but fallback to 16 as requested.
+    const { count: jCount } = await supabase.from('journals').select('*', { count: 'exact', head: true }).eq('is_active', true);
+    if (jCount !== null && jCount > 16) {
+      disciplinesCount = jCount;
+    }
+  } catch (jErr) {
+    console.error("Failed to fetch disciplines count:", jErr);
   }
 
   return (
@@ -150,7 +175,7 @@ export default async function Home() {
         <div class="stat-divider"></div>
         <div class="stat-item">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" stroke-width="1.5"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
-          <div><span class="stat-num" data-target="15">0</span><p class="stat-label">Disiplin Akademik</p></div>
+          <div><span class="stat-num" data-target="${disciplinesCount}">0</span><p class="stat-label">Disiplin Akademik</p></div>
         </div>
         <div class="stat-divider"></div>
         <div class="stat-item">
