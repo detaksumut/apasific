@@ -985,7 +985,9 @@ export async function getPublishedArticles(journalId?: string) {
              };
         }));
 
-        return { success: true, articles: formatted };
+        const sorted = formatted.sort((a, b) => new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime());
+
+        return { success: true, articles: sorted };
     } catch (e: any) {
         return { success: false, error: e.message, articles: [] };
     }
