@@ -135,6 +135,12 @@ export async function updateSubmissionStage(submissionId: string, stage: string,
     try {
         const { getCurrentUser } = await import('./auth');
         const user: any = await getCurrentUser();
+        
+        const supabaseAdmin = (await import('@supabase/supabase-js')).createClient(
+          process.env.NEXT_PUBLIC_SUPABASE_URL!,
+          process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+        );
+
         const isFirestoreId = submissionId.startsWith('sub_') || !submissionId.includes('-');
 
         // 1. Update Firestore first (primary for Firestore-based submissions)
@@ -147,10 +153,6 @@ export async function updateSubmissionStage(submissionId: string, stage: string,
 
         // 2. Update Supabase (wrapped in try/catch to ignore UUID errors for Firestore IDs)
         try {
-            const supabaseAdmin = (await import('@supabase/supabase-js')).createClient(
-              process.env.NEXT_PUBLIC_SUPABASE_URL!,
-              process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-            );
             await supabaseAdmin.from('submissions').update({ stage, status, updated_at: new Date() }).eq('id', submissionId);
 
             // Insert into submission_history
