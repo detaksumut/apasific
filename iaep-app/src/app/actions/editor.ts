@@ -607,6 +607,41 @@ export async function getNextVolumeAndIssue(journalId: string) {
     }
 }
 
+export async function getAssignedVolumeAndIssue(submissionId: string, journalId: string) {
+    try {
+        const supabaseAdmin = (await import('@supabase/supabase-js')).createClient(
+          process.env.NEXT_PUBLIC_SUPABASE_URL!,
+          process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+        );
+        
+        // 1. Check if it already has a certificate
+        const { data: cert } = await supabaseAdmin.from('certificates')
+             .select('edition')
+             .eq('reference_id', submissionId)
+             .single();
+             
+        if (cert && cert.edition) {
+            return cert.edition.split(' (')[0]; 
+        }
+        
+        // Coba cek Firestore
+        try {
+            const { getFirestore } = await import('@/utils/firebase/db');
+            const db = getFirestore();
+            const snap = await db.collection('certificates').where('reference_id', '==', submissionId).get();
+            if (!snap.empty) {
+                const ed = snap.docs[0].data().edition || snap.docs[0].data().issue_volume;
+                if (ed) return ed.split(' (')[0];
+            }
+        } catch (e) {}
+
+        const res = await getNextVolumeAndIssue(journalId);
+        return `${res.volume} ${res.issue}`;
+    } catch(e) {
+        return "Vol 1 No 1";
+    }
+}
+
 export async function publishArticle(submissionId: string, journalId: string, customVolume: string = "", customIssue: string = "") {
     try {
         const supabaseAdmin = (await import('@supabase/supabase-js')).createClient(

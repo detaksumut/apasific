@@ -22,16 +22,16 @@ export default function CoverGenerator({ submission, generatedDoi }: CoverGenera
     async function fetchVol() {
        if (!journalId) return;
        try {
-         const { getNextVolumeAndIssue } = await import('@/app/actions/editor');
-         const res = await getNextVolumeAndIssue(journalId);
+         const { getAssignedVolumeAndIssue } = await import('@/app/actions/editor');
+         const text = await getAssignedVolumeAndIssue(submissionId, journalId);
          const today = new Date();
-         setDynamicVolText(`${res.volume} ${res.issue}, ${today.toLocaleString('default', { month: 'long' })} ${today.getFullYear()}`);
+         setDynamicVolText(`${text}, ${today.toLocaleString('default', { month: 'long' })} ${today.getFullYear()}`);
        } catch (e) {
          console.warn("Failed to fetch dynamic volume", e);
        }
     }
     fetchVol();
-  }, [journalId]);
+  }, [journalId, submissionId]);
   
   let extractedAuthor = submission?.author || 'Unknown Author';
   let scope = '';
