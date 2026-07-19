@@ -1371,7 +1371,10 @@ export default function SubmissionControlPanel() {
             </div>
           )}
 
-        </d      {/* Decision Modal */}
+        </div>
+      </div>
+
+      {/* Decision Modal */}
       {decisionModalOpen && (
         <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200 border border-slate-200">
