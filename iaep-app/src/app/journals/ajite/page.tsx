@@ -25,7 +25,7 @@ export default async function AJITEJournal() {
         doi,
         journals(name)
       `)
-      .eq("status", "Accepted")
+      .eq("status", "Published")
       .order("created_at", { ascending: false });
 
     if (!error && data) {
@@ -46,7 +46,7 @@ export default async function AJITEJournal() {
     try {
       const { getFirestore } = await import('@/utils/firebase/db');
       const db = getFirestore();
-      const fbSnap = await db.collection('submissions').where('status', '==', 'Accepted').get();
+      const fbSnap = await db.collection('submissions').where('status', '==', 'Published').get();
       
       const firestoreArticles = [];
       for (const doc of fbSnap.docs) {

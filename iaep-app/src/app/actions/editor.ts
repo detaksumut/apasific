@@ -915,7 +915,7 @@ export async function getPublishedArticles(journalId?: string) {
           let query = supabaseAdmin
               .from('submissions')
               .select('*, journals:journal_id(name)')
-              .eq('status', 'Accepted');
+              .eq('status', 'Published');
           if (journalId) {
               query = query.eq('journal_id', journalId);
           }
@@ -929,7 +929,7 @@ export async function getPublishedArticles(journalId?: string) {
         try {
           const { getFirestore } = await import('@/utils/firebase/db');
           const db = getFirestore();
-          let query = db.collection('submissions').where('status', '==', 'Accepted');
+          let query = db.collection('submissions').where('status', '==', 'Published');
           if (journalId) {
               query = query.where('journal_id', '==', journalId);
           }
