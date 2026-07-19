@@ -931,7 +931,7 @@ export async function getPublishedArticles(journalId?: string) {
         try {
           const { getFirestore } = await import('@/utils/firebase/db');
           const db = getFirestore();
-          let query = db.collection('submissions');
+          let query: any = db.collection('submissions');
           if (journalId) {
               query = query.where('journal_id', '==', journalId);
           }
