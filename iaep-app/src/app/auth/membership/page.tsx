@@ -122,12 +122,11 @@ export default function MajesticMembershipPage() {
     
     const executeDownload = () => {
       const card = document.getElementById(cardId);
-      if (card && (window as any).html2canvas) {
-        (window as any).html2canvas(card, { scale: 3, backgroundColor: null, useCORS: true }).then((canvas: any) => {
+      if (card && (window as any).domtoimage) {
+        (window as any).domtoimage.toJpeg(card, { quality: 0.95, bgcolor: '#000000' }).then((dataUrl: string) => {
           try {
-            const imgData = canvas.toDataURL('image/jpeg', 1.0);
             const link = document.createElement('a');
-            link.href = imgData;
+            link.href = dataUrl;
             link.download = `ASIA_Card_${side}_${selectedMemberCard?.id?.split('-')[0] || 'Member'}.jpg`;
             link.click();
           } catch (e) {
@@ -137,8 +136,8 @@ export default function MajesticMembershipPage() {
             if (btn) btn.innerHTML = originalText;
           }
         }).catch((err: any) => {
-          console.error("Canvas generation error:", err);
-          alert("Gagal memproses kartu.");
+          console.error("Image generation error:", err);
+          alert("Gagal memproses kartu. " + (err.message || ""));
           if (btn) btn.innerHTML = originalText;
         });
       } else {
@@ -146,14 +145,14 @@ export default function MajesticMembershipPage() {
       }
     };
 
-    if ((window as any).html2canvas) {
+    if ((window as any).domtoimage) {
       executeDownload();
     } else {
       const script = document.createElement('script');
-      script.src = "https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js";
+      script.src = "https://cdnjs.cloudflare.com/ajax/libs/dom-to-image/2.6.0/dom-to-image.min.js";
       script.onload = executeDownload;
       script.onerror = () => {
-        alert("Gagal memuat sistem pemrosesan gambar.");
+        alert("Gagal memuat library dom-to-image.");
         if (btn) btn.innerHTML = originalText;
       };
       document.body.appendChild(script);
