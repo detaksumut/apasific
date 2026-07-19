@@ -120,22 +120,44 @@ export default function MajesticMembershipPage() {
     const originalText = btn ? btn.innerHTML : '';
     if (btn) btn.innerHTML = "Memproses...";
     
-    const script = document.createElement('script');
-    script.src = "https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js";
-    script.onload = () => {
+    const executeDownload = () => {
       const card = document.getElementById(cardId);
-      if (card) {
+      if (card && (window as any).html2canvas) {
         (window as any).html2canvas(card, { scale: 3, backgroundColor: null, useCORS: true }).then((canvas: any) => {
-          const imgData = canvas.toDataURL('image/jpeg', 1.0);
-          const link = document.createElement('a');
-          link.href = imgData;
-          link.download = `ASIA_Card_${side}_${selectedMemberCard?.id?.split('-')[0] || 'Member'}.jpg`;
-          link.click();
+          try {
+            const imgData = canvas.toDataURL('image/jpeg', 1.0);
+            const link = document.createElement('a');
+            link.href = imgData;
+            link.download = `ASIA_Card_${side}_${selectedMemberCard?.id?.split('-')[0] || 'Member'}.jpg`;
+            link.click();
+          } catch (e) {
+            console.error("Download error:", e);
+            alert("Gagal mengunduh kartu. Coba gunakan perangkat lain atau muat ulang halaman.");
+          } finally {
+            if (btn) btn.innerHTML = originalText;
+          }
+        }).catch((err: any) => {
+          console.error("Canvas generation error:", err);
+          alert("Gagal memproses kartu.");
           if (btn) btn.innerHTML = originalText;
         });
+      } else {
+        if (btn) btn.innerHTML = originalText;
       }
     };
-    document.body.appendChild(script);
+
+    if ((window as any).html2canvas) {
+      executeDownload();
+    } else {
+      const script = document.createElement('script');
+      script.src = "https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js";
+      script.onload = executeDownload;
+      script.onerror = () => {
+        alert("Gagal memuat sistem pemrosesan gambar.");
+        if (btn) btn.innerHTML = originalText;
+      };
+      document.body.appendChild(script);
+    }
   };
 
 
@@ -509,7 +531,7 @@ export default function MajesticMembershipPage() {
                   {/* QR Code */}
                   <div className="absolute bg-white p-1 rounded-md shadow-xl flex items-center justify-center" style={{ bottom: '10%', right: '4%', width: '16%', aspectRatio: '1/1' }}>
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://www.apasific.org`} alt="QR Code" className="w-full h-full object-contain" />
+                    <img src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://www.apasific.org`} crossOrigin="anonymous" alt="QR Code" className="w-full h-full object-contain" />
                   </div>
 
                   {/* Footer Vision Removed */}
@@ -779,7 +801,7 @@ export default function MajesticMembershipPage() {
                 )}
 
               <div className="absolute bg-white rounded-md p-1 shadow-lg" style={{ bottom: '6%', right: '6%', width: '48px', height: '48px' }}>
-                <img src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://www.apasific.org`} alt="QR Code" className="w-full h-full object-contain" />
+                <img src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://www.apasific.org`} crossOrigin="anonymous" alt="QR Code" className="w-full h-full object-contain" />
               </div>
               </div>
 
