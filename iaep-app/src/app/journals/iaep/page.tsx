@@ -117,15 +117,6 @@ export default function IAEPArticles() {
                         className="w-full h-full object-cover"
                       />
                       
-                      {/* Overlay teks DOI pas di atas garis ____________ tabel cover */}
-                      {art.doi && (
-                        <div 
-                          className="absolute z-10 text-white font-bold font-sans tracking-tight"
-                          style={{ top: '49.5%', left: '77%', fontSize: '2.1cqw' }}
-                        >
-                          {art.doi.replace('10.5281/', '')}
-                        </div>
-                      )}
                       {/* Overlay DOI di atas gambar (bagian bawah gambar) agar tidak merusak file asli */}
                       {art.doi && (
                         <div className="absolute bottom-0 left-0 right-0 bg-black/80 backdrop-blur-sm p-3 border-t border-emerald-500/50 flex flex-col items-center justify-center transform translate-y-full group-hover:translate-y-0 transition-transform duration-300">

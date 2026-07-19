@@ -1,12 +1,20 @@
 import { NextResponse } from 'next/server';
 import fs from 'fs';
 import path from 'path';
+import { createClient } from '@supabase/supabase-js';
 
 const dataFilePath = path.join(process.cwd(), 'src', 'data', 'org-structure.json');
-const uploadDir = path.join(process.cwd(), 'public', 'images', 'org');
 
 export async function GET() {
   try {
+    const { getFirestore } = await import('@/utils/firebase/db');
+    const db = getFirestore();
+    const doc = await db.collection('settings').doc('org-structure').get();
+    
+    if (doc.exists && doc.data()?.data) {
+        return NextResponse.json(doc.data()?.data);
+    }
+
     if (!fs.existsSync(dataFilePath)) {
       return NextResponse.json([]);
     }
@@ -26,11 +34,21 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Member No is required' }, { status: 400 });
     }
 
-    if (!fs.existsSync(dataFilePath)) {
-      return NextResponse.json({ error: 'Database not found' }, { status: 404 });
+    const { getFirestore } = await import('@/utils/firebase/db');
+    const db = getFirestore();
+    const docRef = db.collection('settings').doc('org-structure');
+    const doc = await docRef.get();
+
+    let data: any[] = [];
+    if (doc.exists && doc.data()?.data) {
+        data = doc.data()?.data;
+    } else {
+        if (!fs.existsSync(dataFilePath)) {
+            return NextResponse.json({ error: 'Database not found' }, { status: 404 });
+        }
+        data = JSON.parse(fs.readFileSync(dataFilePath, 'utf8'));
     }
 
-    const data = JSON.parse(fs.readFileSync(dataFilePath, 'utf8'));
     const memberIndex = data.findIndex((m: any) => m.no === no);
 
     if (memberIndex === -1) {
@@ -40,23 +58,30 @@ export async function POST(req: Request) {
     // Handle photo upload if provided as base64
     let photoUrl = data[memberIndex].photo;
     if (photo && photo.startsWith('data:image/')) {
-      if (!fs.existsSync(uploadDir)) {
-        fs.mkdirSync(uploadDir, { recursive: true });
-      }
-
-      const matches = photo.match(/^data:image\/([a-zA-Z0-9]+);base64,(.+)$/);
-      if (matches && matches.length === 3) {
-        const ext = matches[1];
-        const base64Data = matches[2];
-        const buffer = Buffer.from(base64Data, 'base64');
-        const filename = `member-${no}-${Date.now()}.${ext}`;
-        const filepath = path.join(uploadDir, filename);
-        
-        fs.writeFileSync(filepath, buffer);
-        photoUrl = `/images/org/${filename}`;
-      }
+        const matches = photo.match(/^data:image\/([a-zA-Z0-9]+);base64,(.+)$/);
+        if (matches && matches.length === 3) {
+            const ext = matches[1];
+            const base64Data = matches[2];
+            const buffer = Buffer.from(base64Data, 'base64');
+            const filename = `org-structure/member-${no}-${Date.now()}.${ext}`;
+            
+            const supabaseAdmin = createClient(
+                process.env.NEXT_PUBLIC_SUPABASE_URL!,
+                process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+            );
+            
+            const { error: uploadError } = await supabaseAdmin.storage
+                .from('manuscripts')
+                .upload(filename, buffer, { contentType: `image/${ext}` });
+            
+            if (!uploadError) {
+                const { data: publicUrlData } = supabaseAdmin.storage
+                    .from('manuscripts')
+                    .getPublicUrl(filename);
+                photoUrl = publicUrlData.publicUrl;
+            }
+        }
     } else if (photo === '') {
-      // Allow clearing the photo
       photoUrl = '';
     } else if (photo) {
       photoUrl = photo;
@@ -71,8 +96,8 @@ export async function POST(req: Request) {
       photo: photoUrl
     };
 
-    // Save back to JSON
-    fs.writeFileSync(dataFilePath, JSON.stringify(data, null, 2), 'utf8');
+    // Save back to Firestore
+    await docRef.set({ data });
 
     return NextResponse.json({ success: true, member: data[memberIndex] });
 

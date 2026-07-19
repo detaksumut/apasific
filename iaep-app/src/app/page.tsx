@@ -30,12 +30,20 @@ export default async function Home() {
 
   try {
     // 3. Get Organization Structure Officials Count
-    const fs = require('fs');
-    const path = require('path');
-    const orgFile = path.join(process.cwd(), 'src/data/org-structure.json');
-    if (fs.existsSync(orgFile)) {
-      const orgData = JSON.parse(fs.readFileSync(orgFile, 'utf8'));
-      membersCount += orgData.length;
+    const { getFirestore } = await import('@/utils/firebase/db');
+    const db = getFirestore();
+    const doc = await db.collection('settings').doc('org-structure').get();
+    
+    if (doc.exists && doc.data()?.data) {
+       membersCount += doc.data()?.data.length;
+    } else {
+        const fs = require('fs');
+        const path = require('path');
+        const orgFile = path.join(process.cwd(), 'src/data/org-structure.json');
+        if (fs.existsSync(orgFile)) {
+          const orgData = JSON.parse(fs.readFileSync(orgFile, 'utf8'));
+          membersCount += orgData.length;
+        }
     }
   } catch(e) {}
   
