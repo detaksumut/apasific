@@ -25,7 +25,7 @@ export default async function AJITEJournal() {
         doi,
         journals(name)
       `)
-      .eq("status", "Published")
+      .eq("status", "Accepted")
       .order("created_at", { ascending: false });
 
     if (!error && data) {
@@ -46,11 +46,15 @@ export default async function AJITEJournal() {
     try {
       const { getFirestore } = await import('@/utils/firebase/db');
       const db = getFirestore();
-      const fbSnap = await db.collection('submissions').where('status', '==', 'Published').get();
+      const fbSnap = await db.collection('submissions').get();
       
       const firestoreArticles = [];
       for (const doc of fbSnap.docs) {
         const fbData = doc.data();
+        const validStatuses = ['Accepted', 'Assigned to Layout', 'Assigned to Cover', 'Assigned to Publish', 'Pending Supervisor', 'Production Completed', 'Published'];
+        const isAdvancedStage = ['Copyediting', 'Production', 'Published'].includes(fbData.stage);
+        if (!validStatuses.includes(fbData.status) && !isAdvancedStage) continue;
+
         let jName = '';
         if (fbData.journal_id) {
            const { data: jData } = await supabaseAdmin.from('journals').select('name').eq('id', fbData.journal_id).single();
@@ -62,7 +66,7 @@ export default async function AJITEJournal() {
             id: doc.id,
             ...fbData,
             journals: { name: jName },
-            created_at: fbData.created_at?.toDate ? fbData.created_at.toDate().toISOString() : new Date().toISOString()
+            created_at: fbData.created_at?.toDate ? fbData.created_at.toDate().toISOString() : (fbData.created_at || new Date().toISOString())
           });
         }
       }

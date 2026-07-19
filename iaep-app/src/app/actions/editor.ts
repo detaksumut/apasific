@@ -917,7 +917,7 @@ export async function getPublishedArticles(journalId?: string) {
           let query = supabaseAdmin
               .from('submissions')
               .select('*, journals:journal_id(name)')
-              .eq('status', 'Published');
+              .eq('status', 'Accepted');
           if (journalId) {
               query = query.eq('journal_id', journalId);
           }
@@ -931,20 +931,25 @@ export async function getPublishedArticles(journalId?: string) {
         try {
           const { getFirestore } = await import('@/utils/firebase/db');
           const db = getFirestore();
-          let query = db.collection('submissions').where('status', '==', 'Published');
+          let query = db.collection('submissions');
           if (journalId) {
               query = query.where('journal_id', '==', journalId);
           }
           const snapshot = await query.get();
+          
           const existingIds = new Set(articlesList.map(a => a.id || a.submission_id));
-           const fbArticles = snapshot.docs.map((doc: any) => {
+          const validStatuses = ['Accepted', 'Assigned to Layout', 'Assigned to Cover', 'Assigned to Publish', 'Pending Supervisor', 'Production Completed', 'Published'];
+          const fbArticles = snapshot.docs.map((doc: any) => {
             const data = doc.data();
             return {
               id: doc.id,
               ...data,
               created_at: data.created_at?.toDate ? data.created_at.toDate().toISOString() : data.created_at || new Date().toISOString()
             };
-          }).filter((c: any) => !existingIds.has(c.id));
+          }).filter((c: any) => {
+            const isAdvancedStage = ['Copyediting', 'Production', 'Published'].includes(c.stage);
+            return !existingIds.has(c.id) && (validStatuses.includes(c.status) || isAdvancedStage);
+          });
           articlesList = [...articlesList, ...fbArticles];
         } catch (fbErr) {
           console.error("Firestore published articles fetch failed", fbErr);
