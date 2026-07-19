@@ -169,9 +169,26 @@ export default function SubmissionControlPanel() {
       const creatorAffiliation = submission.profiles?.university || submission.university || undefined;
       const creatorOrcid = submission.profiles?.orcid || submission.orcid || undefined;
 
+      // Parse abstract JSON to HTML for Zenodo description
+      let formattedAbstract = submission.abstract;
+      try {
+        const parsed = JSON.parse(submission.abstract);
+        formattedAbstract = `
+          <h3>Abstrak</h3>
+          <p>${parsed.abstract || ''}</p>
+          <br/>
+          <h3>Abstract</h3>
+          <p>${parsed.abstract_en || ''}</p>
+          <br/>
+          <p><strong>Keywords:</strong> ${parsed.keywords || ''}</p>
+        `;
+      } catch (e) {
+        // Not a JSON string, leave as is
+      }
+
       const metadata: ZenodoMetadata = {
         title: submission.title,
-        description: submission.abstract,
+        description: formattedAbstract,
         upload_type: 'publication',
         publication_type: 'article',
         creators: [{ 
