@@ -250,7 +250,7 @@ export async function getSubmissionDetailsEditor(submissionId: string) {
         if (isUuid) {
             const { data } = await supabaseAdmin
                 .from('submissions')
-                .select('*, profiles:author_id(full_name), journals:journal_id(name)')
+                .select('*, profiles:author_id(full_name, phone), journals:journal_id(name)')
                 .eq('id', submissionId)
                 .single();
             if (data) subData = data;

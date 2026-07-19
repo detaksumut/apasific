@@ -72,6 +72,11 @@ export default function SubmissionControlPanel() {
         if (data.doi) setGeneratedDoi(data.doi);
         if (data.issn) setManualIssn(data.issn);
         
+        // Update author phone dynamically
+        if (data.phone) setAuthorPhone(data.phone);
+        else if (data.profiles?.phone) setAuthorPhone(data.profiles.phone);
+        else setAuthorPhone(""); // Clear dummy if no phone found
+        
         // Auto set active tab based on stage
         if (data.stage === 'Review') setActiveTab('review');
         else if (data.stage === 'Copyediting') setActiveTab('copyediting');
