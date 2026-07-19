@@ -184,6 +184,28 @@ export default function LeadershipManagementPage() {
     setHomeMembers(prev => prev.filter((_, i) => i !== index));
   };
 
+  const moveHomeMemberUp = (index: number) => {
+    if (index === 0) return;
+    setHomeMembers(prev => {
+      const next = [...prev];
+      const temp = next[index - 1];
+      next[index - 1] = next[index];
+      next[index] = temp;
+      return next;
+    });
+  };
+
+  const moveHomeMemberDown = (index: number) => {
+    setHomeMembers(prev => {
+      if (index === prev.length - 1) return prev;
+      const next = [...prev];
+      const temp = next[index + 1];
+      next[index + 1] = next[index];
+      next[index] = temp;
+      return next;
+    });
+  };
+
   const handleSave = async () => {
     if (!selectedBody) { showToast("Pilih badan terlebih dahulu."); return; }
 
@@ -352,12 +374,28 @@ export default function LeadershipManagementPage() {
                   <span style={{ fontSize: 12, fontWeight: 700, color: "#c9a84c", letterSpacing: "1px", textTransform: "uppercase" }}>
                     Anggota #{idx + 1}
                   </span>
-                  <button
-                    onClick={() => removeHomeMember(idx)}
-                    style={{ background: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.3)", color: "#ef4444", borderRadius: 6, padding: "4px 10px", fontSize: 12, cursor: "pointer", fontWeight: 600 }}
-                  >
-                    × Hapus
-                  </button>
+                  <div style={{ display: "flex", gap: "8px" }}>
+                    <button
+                      onClick={() => moveHomeMemberUp(idx)}
+                      disabled={idx === 0}
+                      style={{ background: idx === 0 ? "rgba(255,255,255,0.05)" : "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.2)", color: idx === 0 ? "rgba(255,255,255,0.3)" : "#fff", borderRadius: 6, padding: "4px 10px", fontSize: 12, cursor: idx === 0 ? "not-allowed" : "pointer", fontWeight: 600 }}
+                    >
+                      ↑ Naik
+                    </button>
+                    <button
+                      onClick={() => moveHomeMemberDown(idx)}
+                      disabled={idx === homeMembers.length - 1}
+                      style={{ background: idx === homeMembers.length - 1 ? "rgba(255,255,255,0.05)" : "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.2)", color: idx === homeMembers.length - 1 ? "rgba(255,255,255,0.3)" : "#fff", borderRadius: 6, padding: "4px 10px", fontSize: 12, cursor: idx === homeMembers.length - 1 ? "not-allowed" : "pointer", fontWeight: 600 }}
+                    >
+                      ↓ Turun
+                    </button>
+                    <button
+                      onClick={() => removeHomeMember(idx)}
+                      style={{ background: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.3)", color: "#ef4444", borderRadius: 6, padding: "4px 10px", fontSize: 12, cursor: "pointer", fontWeight: 600, marginLeft: 4 }}
+                    >
+                      × Hapus
+                    </button>
+                  </div>
                 </div>
 
                 <div style={{ display: "grid", gridTemplateColumns: "120px 1fr", gap: 16, alignItems: "start" }}>
