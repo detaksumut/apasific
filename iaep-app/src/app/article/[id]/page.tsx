@@ -289,27 +289,23 @@ export default function ArticlePaywall() {
           {/* Left Column: Abstract */}
           <div className="lg:col-span-2 space-y-8">
             <section className="bg-[#0d0d1a] rounded-2xl p-8 border border-gray-800 shadow-xl">
-              <h2 className="text-2xl font-bold text-[#c9a84c] mb-4">Abstrak</h2>
+              <h2 className="text-2xl font-bold text-[#c9a84c] mb-4">Abstract</h2>
               
               {(() => {
                 try {
                   // Try to parse if it's a JSON string
                   if (typeof article.abstract === 'string' && article.abstract.trim().startsWith('{')) {
                     const parsed = JSON.parse(article.abstract);
+                    
+                    // Prioritize English abstract, fallback to Indonesian if English is missing
+                    const abstractText = parsed.abstract_en || parsed.abstract || "";
+                    
                     return (
                       <div className="space-y-6">
-                        {parsed.abstract && (
+                        {abstractText && (
                           <div className="text-gray-300 leading-relaxed text-lg text-justify whitespace-pre-wrap">
-                            {parsed.abstract.replace(/^Abstrak\n?/i, '')}
+                            {abstractText.replace(/^(Abstract|Abstrak)\n?/i, '')}
                           </div>
-                        )}
-                        {parsed.abstract_en && (
-                          <>
-                            <h2 className="text-2xl font-bold text-[#c9a84c] mb-4 mt-8 border-t border-gray-800 pt-8">Abstract</h2>
-                            <div className="text-gray-300 leading-relaxed text-lg text-justify whitespace-pre-wrap italic">
-                              {parsed.abstract_en.replace(/^Abstract\n?/i, '')}
-                            </div>
-                          </>
                         )}
                       </div>
                     );
@@ -321,7 +317,7 @@ export default function ArticlePaywall() {
                 // Fallback for plain text abstract
                 return (
                   <p className="text-gray-300 leading-relaxed text-lg text-justify whitespace-pre-wrap">
-                    {article.abstract}
+                    {article.abstract.replace(/^(Abstract|Abstrak)\n?/i, '')}
                   </p>
                 );
               })()}
