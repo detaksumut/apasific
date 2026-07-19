@@ -11,7 +11,7 @@ export async function GET() {
       return NextResponse.json({ error: 'Document not found' });
     }
 
-    const data = doc.data();
+    const data = doc.data() || {};
     let phone = data.phone;
     
     if (!phone && data.author_id) {
