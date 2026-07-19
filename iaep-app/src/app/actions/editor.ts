@@ -133,6 +133,8 @@ export async function submitEditorialDecision(submissionId: string, authorId: st
 
 export async function updateSubmissionStage(submissionId: string, stage: string, status: string) {
     try {
+        const { getCurrentUser } = await import('./auth');
+        const user: any = await getCurrentUser();
         const isFirestoreId = submissionId.startsWith('sub_') || !submissionId.includes('-');
 
         // 1. Update Firestore first (primary for Firestore-based submissions)
@@ -152,8 +154,6 @@ export async function updateSubmissionStage(submissionId: string, stage: string,
             await supabaseAdmin.from('submissions').update({ stage, status, updated_at: new Date() }).eq('id', submissionId);
 
             // Insert into submission_history
-            const { getCurrentUser } = await import('./auth');
-            const user: any = await getCurrentUser();
             await supabaseAdmin.from('submission_history').insert({
                 submission_id: submissionId,
                 action: `Stage updated: ${stage} (${status})`,
