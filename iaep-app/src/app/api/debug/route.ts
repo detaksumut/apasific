@@ -18,7 +18,7 @@ export async function GET() {
       const d = doc.data();
       logs.push(`FS [${doc.id}]: status="${d.status}", stage="${d.stage}", journal_id="${d.journal_id}"`);
     });
-  } catch (e) {
+  } catch (e: any) {
     logs.push(`Firestore error: ${e.message}`);
   }
 
@@ -28,7 +28,7 @@ export async function GET() {
     data?.forEach(d => {
       logs.push(`SB [${d.id}]: status="${d.status}", journal_id="${d.journal_id}"`);
     });
-  } catch(e) {
+  } catch(e: any) {
     logs.push(`Supabase error: ${e.message}`);
   }
 
