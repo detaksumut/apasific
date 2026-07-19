@@ -551,7 +551,63 @@ export async function getPublicationsData(journalId: string) {
     }
 }
 
-export async function publishArticle(submissionId: string, journalId: string, volume: string = "Vol. 1", issue: string = "No. 1") {
+export async function getNextVolumeAndIssue(journalId: string) {
+    if (!journalId) return { volume: "Vol 1", issue: "No 1" };
+    
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = now.getMonth() + 1; // 1-12
+    const startYear = 2026;
+    const yearDiff = year - startYear;
+    const semester = month <= 6 ? 1 : 2;
+    const volumeNum = (yearDiff * 2) + semester;
+    const volume = `Vol ${volumeNum}`;
+    
+    const startMonth = semester === 1 ? 0 : 6;
+    const startDate = new Date(year, startMonth, 1).toISOString();
+    const endDate = new Date(year, startMonth + 6, 0, 23, 59, 59).toISOString();
+    
+    try {
+        const supabaseAdmin = (await import('@supabase/supabase-js')).createClient(
+          process.env.NEXT_PUBLIC_SUPABASE_URL!,
+          process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+        );
+        const { count, error } = await supabaseAdmin.from('submissions')
+            .select('*', { count: 'exact', head: true })
+            .eq('journal_id', journalId)
+            .eq('status', 'Published')
+            .gte('updated_at', startDate)
+            .lte('updated_at', endDate);
+            
+        let issueNum = (count || 0) + 1;
+        
+        // Coba periksa juga dari Firebase
+        try {
+            const { getFirestore } = await import('@/utils/firebase/db');
+            const db = getFirestore();
+            const snap = await db.collection('submissions')
+                .where('journal_id', '==', journalId)
+                .where('status', '==', 'Published')
+                .get();
+                
+            const fbCount = snap.docs.filter((d: any) => {
+                const date = d.data().updated_at?.toDate ? d.data().updated_at.toDate() : new Date(d.data().updated_at || d.data().created_at || 0);
+                return date >= new Date(startDate) && date <= new Date(endDate);
+            }).length;
+            
+            // Pilih mana yg lebih besar agar tidak bentrok
+            if (fbCount >= issueNum) {
+                issueNum = fbCount + 1;
+            }
+        } catch (e) {}
+        
+        return { volume, issue: `No ${issueNum}` };
+    } catch (err) {
+        return { volume, issue: "No 1" };
+    }
+}
+
+export async function publishArticle(submissionId: string, journalId: string, customVolume: string = "", customIssue: string = "") {
     try {
         const supabaseAdmin = (await import('@supabase/supabase-js')).createClient(
           process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -591,7 +647,12 @@ export async function publishArticle(submissionId: string, journalId: string, vo
              }
         }
 
-        const editionStr = `${volume} ${issue} (${new Date().getFullYear()})`;
+        // Calculate Volume and Issue dynamically
+        const dynamicVolIss = await getNextVolumeAndIssue(journalId);
+        const finalVolume = customVolume && customVolume !== "Vol. 1" ? customVolume : dynamicVolIss.volume;
+        const finalIssue = customIssue && customIssue !== "No. 1" ? customIssue : dynamicVolIss.issue;
+
+        const editionStr = `${finalVolume} ${finalIssue} (${new Date().getFullYear()})`;
         const dateStr = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
 
         // 2. Update status to Published

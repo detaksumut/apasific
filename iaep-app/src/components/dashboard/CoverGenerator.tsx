@@ -11,10 +11,27 @@ export default function CoverGenerator({ submission, generatedDoi }: CoverGenera
   const [theme, setTheme] = useState<'blue' | 'red' | 'gold'>('blue');
   const [customBgUrl, setCustomBgUrl] = useState<string | null>(null);
   const [generating, setGenerating] = useState(false);
+  const [dynamicVolText, setDynamicVolText] = useState<string>('');
   
   const title = submission?.title || 'Untitled Article';
   const journalName = submission?.journals?.name || submission?.journalName || 'INTERNATIONAL JOURNAL';
   const submissionId = submission?.id || 'Unknown';
+  const journalId = submission?.journal_id || submission?.journals?.id || '';
+
+  useEffect(() => {
+    async function fetchVol() {
+       if (!journalId) return;
+       try {
+         const { getNextVolumeAndIssue } = await import('@/app/actions/editor');
+         const res = await getNextVolumeAndIssue(journalId);
+         const today = new Date();
+         setDynamicVolText(`${res.volume} ${res.issue}, ${today.toLocaleString('default', { month: 'long' })} ${today.getFullYear()}`);
+       } catch (e) {
+         console.warn("Failed to fetch dynamic volume", e);
+       }
+    }
+    fetchVol();
+  }, [journalId]);
   
   let extractedAuthor = submission?.author || 'Unknown Author';
   let scope = '';
@@ -24,14 +41,12 @@ export default function CoverGenerator({ submission, generatedDoi }: CoverGenera
       if (parsed.scope) {
          scope = parsed.scope;
       } else if (parsed.keywords) {
-         // The keywords might be formatted as "Scope: Sistem Informasi, Kata Kunci: Keyword1, Keyword2"
          const kw = parsed.keywords;
          if (kw.includes('Scope:') && kw.includes(', Kata Kunci:')) {
              scope = kw.split(', Kata Kunci:')[0].replace('Scope:', '').trim();
          } else if (kw.includes('Scope:')) {
              scope = kw.split('Scope:')[1].split(',')[0].trim();
          } else {
-             // Fallback to first keyword if it's not explicitly labeled
              scope = kw.split(',')[0].trim();
          }
       }
@@ -49,7 +64,6 @@ export default function CoverGenerator({ submission, generatedDoi }: CoverGenera
     gold: { bg: '#c9a84c', accent: '#0d0d1a', text: '#0d0d1a' },
   };
 
-  // Helper to wrap text on canvas
   const wrapText = (ctx: CanvasRenderingContext2D, text: string, x: number, y: number, maxWidth: number, lineHeight: number) => {
     const words = text.split(' ');
     let line = '';
@@ -77,7 +91,6 @@ export default function CoverGenerator({ submission, generatedDoi }: CoverGenera
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    // Dimensions for A4 at 150dpi (approx 1240 x 1754)
     const width = 1240;
     const height = 1754;
     canvas.width = width;
@@ -85,7 +98,6 @@ export default function CoverGenerator({ submission, generatedDoi }: CoverGenera
 
     const currentTheme = themes[theme];
 
-    // 1. Background
     if (customBgUrl) {
       try {
         const bgImg = new Image();
@@ -104,113 +116,112 @@ export default function CoverGenerator({ submission, generatedDoi }: CoverGenera
       ctx.fillRect(0, 0, width, height);
     }
 
-    // 2. Decorative Top Header
-    ctx.fillStyle = currentTheme.accent;
-    ctx.fillRect(0, 0, width, 200);
-
-    // 3. Load and Draw Logo in Top Bar
-    try {
-      const img = new Image();
-      img.src = '/logo-apasific.png';
-      await new Promise((resolve, reject) => {
-        img.onload = resolve;
-        img.onerror = reject;
-      });
-      const maxLogoHeight = 170;
-      const logoScale = maxLogoHeight / img.height;
-      const logoWidth = img.width * logoScale;
-      // Draw in top bar (Y=15)
-      ctx.drawImage(img, (width - logoWidth) / 2, 15, logoWidth, maxLogoHeight);
-    } catch (err) {
-      console.warn("Logo not found or blocked, skipping logo draw.");
+    ctx.strokeStyle = 'rgba(255,255,255,0.05)';
+    ctx.lineWidth = 1;
+    for (let i = 0; i < width; i += 40) {
+      ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, height); ctx.stroke();
+    }
+    for (let i = 0; i < height; i += 40) {
+      ctx.beginPath(); ctx.moveTo(0, i); ctx.lineTo(width, i); ctx.stroke();
     }
 
-    // 4. Journal Name
+    ctx.fillStyle = currentTheme.accent;
+    ctx.fillRect(0, 0, width, 220);
+    
+    try {
+      const logoImg = new Image();
+      logoImg.src = '/apasific.png';
+      await new Promise((resolve, reject) => {
+        logoImg.onload = resolve;
+        logoImg.onerror = reject;
+      });
+      ctx.drawImage(logoImg, (width / 2) - 80, 30, 160, 160);
+    } catch(err) {
+      ctx.fillStyle = '#fff';
+      ctx.font = 'bold 32px Arial, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('LOGO', width / 2, 110);
+    }
+
     ctx.fillStyle = currentTheme.text;
     ctx.textAlign = 'center';
-    ctx.font = 'bold 60px "Times New Roman", serif';
-    ctx.fillText(journalName || 'INTERNATIONAL JOURNAL', width / 2, 310);
+    ctx.font = 'bold 54px "Times New Roman", serif';
+    const journalY = 320;
+    wrapText(ctx, journalName, width / 2, journalY, width - 100, 60);
 
-    // 4.5 Scope
     if (scope) {
+      ctx.fillStyle = '#ccc';
       ctx.font = 'italic 28px Arial, sans-serif';
-      ctx.fillStyle = theme === 'gold' ? '#444' : '#ccc';
-      ctx.fillText(`Focus & Scope: ${scope}`, width / 2, 360);
+      ctx.fillText(`Focus & Scope: ${scope}`, width / 2, 400);
     }
 
-    // 5. Article Title (Wrapped)
-    ctx.fillStyle = theme === 'gold' ? '#000' : '#fff';
-    ctx.font = 'bold 70px "Times New Roman", serif';
-    const titleStartY = 460;
-    // Only take the main title (before the colon) to avoid long subtitles/explanations
-    const displayTitle = (title || 'Untitled Article').split(':')[0].trim();
-    const endY = wrapText(ctx, displayTitle, width / 2, titleStartY, 1000, 85);
+    ctx.fillStyle = '#fff';
+    ctx.font = 'bold 72px "Times New Roman", serif';
+    const titleY = scope ? 500 : 450;
+    
+    ctx.shadowColor = 'rgba(0,0,0,0.5)';
+    ctx.shadowBlur = 10;
+    ctx.shadowOffsetX = 0;
+    ctx.shadowOffsetY = 4;
+    
+    const nextY = wrapText(ctx, title.trim(), width / 2, titleY, width - 160, 85);
+    
+    ctx.shadowColor = 'transparent';
+    ctx.shadowBlur = 0;
+    ctx.shadowOffsetX = 0;
+    ctx.shadowOffsetY = 0;
 
-    // 6. Author Name
     ctx.fillStyle = currentTheme.text;
     ctx.font = '40px Arial, sans-serif';
-    ctx.fillText(author || 'Author Name', width / 2, endY + 100);
+    wrapText(ctx, author, width / 2, nextY + 60, width - 200, 50);
 
-    // 7. Cool Volume & DOI Table
+    const tableY = nextY + 220;
     const tableWidth = 1000;
     const tableX = (width - tableWidth) / 2;
-    const headerHeight = 55;
-    const bodyHeight = 145; 
-    const tableHeight = headerHeight + bodyHeight;
-    const tableY = endY + 140;
+    const headerHeight = 60;
+    const bodyHeight = 120;
 
-    // Table Header Background
     ctx.fillStyle = currentTheme.accent;
     ctx.fillRect(tableX, tableY, tableWidth, headerHeight);
-
-    // Table Body Background
-    const tableBodyColors = {
-        blue: '#1b263b',
-        red: '#5a0004',
-        gold: '#d9b959'
-    };
-    ctx.fillStyle = tableBodyColors[theme as keyof typeof tableBodyColors] || '#333';
+    
+    ctx.fillStyle = 'rgba(0,0,0,0.4)';
     ctx.fillRect(tableX, tableY + headerHeight, tableWidth, bodyHeight);
 
-    // Borders
-    ctx.strokeStyle = theme === 'gold' ? '#000' : '#fff';
-    ctx.lineWidth = 4;
-    
-    // Outer Border
-    ctx.strokeRect(tableX, tableY, tableWidth, tableHeight);
-    
-    // Vertical Divider
+    ctx.strokeStyle = '#fff';
+    ctx.lineWidth = 3;
+    ctx.strokeRect(tableX, tableY, tableWidth, headerHeight + bodyHeight);
+
     const dividerX = tableX + (tableWidth * 0.65);
     ctx.beginPath();
     ctx.moveTo(dividerX, tableY);
-    ctx.lineTo(dividerX, tableY + tableHeight);
+    ctx.lineTo(dividerX, tableY + headerHeight + bodyHeight);
     ctx.stroke();
 
-    // Horizontal Divider (Header to Body)
     ctx.beginPath();
     ctx.moveTo(tableX, tableY + headerHeight);
     ctx.lineTo(tableX + tableWidth, tableY + headerHeight);
     ctx.stroke();
 
-    // Header Text
     ctx.fillStyle = '#fff';
     ctx.font = 'bold 24px Arial, sans-serif';
     ctx.textAlign = 'center';
-    ctx.fillText("PUBLICATION RECORD", tableX + (tableWidth * 0.65) / 2, tableY + 36);
-    ctx.fillText("DIGITAL OBJECT IDENTIFIER", dividerX + (tableWidth * 0.35) / 2, tableY + 36);
+    ctx.fillText("PUBLICATION RECORD", tableX + (tableWidth * 0.65) / 2, tableY + 40);
+    ctx.fillText("DIGITAL OBJECT IDENTIFIER", dividerX + (tableWidth * 0.35) / 2, tableY + 40);
 
-    // Left Body Text (Volume & Judul)
     const today = new Date();
     ctx.textAlign = 'left';
     ctx.fillStyle = theme === 'gold' ? '#000' : '#fff';
     ctx.font = 'italic 26px Arial, sans-serif';
-    const volText = `Volume 1, Issue 1, ${today.toLocaleString('default', { month: 'long' })} ${today.getFullYear()}`;
+    
+    const fallbackVolText = `Vol 1 No 1, ${today.toLocaleString('default', { month: 'long' })} ${today.getFullYear()}`;
+    const volText = dynamicVolText || fallbackVolText;
+    
     ctx.fillText(volText, tableX + 25, tableY + headerHeight + 45);
 
     ctx.font = 'bold 24px Arial, sans-serif';
+    const displayTitle = title.length > 70 ? title.substring(0, 67) + '...' : title;
     wrapText(ctx, `Judul: ${displayTitle}`, tableX + 25, tableY + headerHeight + 85, (tableWidth * 0.65) - 50, 32);
 
-    // Right Body Text (DOI)
     ctx.textAlign = 'left';
     ctx.fillStyle = theme === 'gold' ? '#000' : '#fff';
     ctx.font = 'bold 28px Arial, sans-serif';
@@ -220,10 +231,7 @@ export default function CoverGenerator({ submission, generatedDoi }: CoverGenera
       ctx.fillText("DOI: ______________", dividerX + 30, tableY + headerHeight + (bodyHeight / 2) + 10);
     }
 
-    // Reset textAlign
     ctx.textAlign = 'center';
-
-    // 8. Footer / Identifier
     ctx.fillStyle = currentTheme.accent;
     ctx.fillRect(0, height - 160, width, 160);
     
@@ -236,7 +244,7 @@ export default function CoverGenerator({ submission, generatedDoi }: CoverGenera
 
   useEffect(() => {
     drawCover();
-  }, [title, author, journalName, theme, scope, customBgUrl, generatedDoi]);
+  }, [title, author, journalName, theme, scope, customBgUrl, generatedDoi, dynamicVolText]);
 
   const attachCover = () => {
     const canvas = canvasRef.current;

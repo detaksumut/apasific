@@ -52,7 +52,16 @@ export default function ArticlePaywall() {
 
         if (res.success && res.article) {
           const data = res.article;
-          const authors = data.profiles?.full_name || data.author || "Penulis Tidak Diketahui";
+          let authors = data.profiles?.full_name || data.author || "Penulis Tidak Diketahui";
+          if (typeof data.abstract === 'string' && data.abstract.trim().startsWith('{')) {
+            try {
+              const parsedAbs = JSON.parse(data.abstract);
+              if (parsedAbs.authors && Array.isArray(parsedAbs.authors) && parsedAbs.authors.length > 0) {
+                authors = parsedAbs.authors.map((a: any) => a.full_name).join(', ');
+              }
+            } catch (e) {}
+          }
+
           const firstOrcid = data.profiles?.orcid || "";
           const googleScholar = data.profiles?.google_scholar || "";
           const wos = data.profiles?.wos || "";
