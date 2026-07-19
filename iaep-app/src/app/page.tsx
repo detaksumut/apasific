@@ -79,8 +79,9 @@ export default async function Home() {
     console.error("Failed to fetch publications count:", pErr);
   }
 
-  // 6. Get Disciplines Count
+  // 6. Get Disciplines and Scopes Count
   let disciplinesCount = 16;
+  let scopesCount = 88; // Total calculated exact scopes from all 16 journals
   try {
     // Optionally query journals table if it has disciplines, but fallback to 16 as requested.
     const { count: jCount } = await supabase.from('journals').select('*', { count: 'exact', head: true }).eq('is_active', true);
@@ -180,7 +181,7 @@ export default async function Home() {
         <div class="stat-divider"></div>
         <div class="stat-item">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/><line x1="21.17" y1="8" x2="12" y2="8"/><line x1="3.95" y1="6.06" x2="8.54" y2="14"/><line x1="10.88" y1="21.94" x2="15.46" y2="14"/></svg>
-          <div><span class="stat-num" data-target="100">0</span><span class="stat-plus">+</span><p class="stat-label">Scope</p></div>
+          <div><span class="stat-num" data-target="${scopesCount}">0</span><p class="stat-label">Scope</p></div>
         </div>
         <div class="stat-divider"></div>
         <div class="stat-item">
