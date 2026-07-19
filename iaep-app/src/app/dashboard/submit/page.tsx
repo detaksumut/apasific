@@ -166,6 +166,20 @@ export default function AuthorSubmit() {
     setFormData(prev => ({ ...prev, [name]: type === 'checkbox' ? checked : value }));
   };
 
+  const handleAbstractBlur = (e: React.FocusEvent<HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    if (!value) return;
+    
+    // Rapihkan teks hasil copy-paste dari PDF (hapus line-break tunggal tapi pertahankan paragraf)
+    const cleaned = value
+      .replace(/\r\n/g, '\n')
+      .split(/\n{2,}/)
+      .map(p => p.replace(/\n/g, ' ').replace(/\s+/g, ' ').trim())
+      .join('\n\n');
+      
+    setFormData(prev => ({ ...prev, [name]: cleaned }));
+  };
+
   const handleAuthorChange = (index: number, field: keyof AuthorData, value: string) => {
     const newAuthors = [...authors];
     newAuthors[index] = { ...newAuthors[index], [field]: value };
@@ -434,7 +448,7 @@ export default function AuthorSubmit() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
               <label className="block text-base font-bold text-[#c9a84c]">Abstrak (Bahasa Indonesia) <span className="text-red-500">*</span></label>
               <textarea 
-                name="abstract" required value={formData.abstract} onChange={handleChange} rows={8} style={{ padding: '1rem' }}
+                name="abstract" required value={formData.abstract} onChange={handleChange} onBlur={handleAbstractBlur} rows={8} style={{ padding: '1rem' }}
                 data-gramm="false" data-gramm_editor="false" data-enable-grammarly="false"
                 className="w-full bg-[#0a0a14] border border-zinc-700/80 rounded-xl px-5 py-4 text-white text-base leading-relaxed focus:border-[#c9a84c] focus:ring-1 focus:ring-[#c9a84c] transition-colors resize-none" 
                 placeholder="Tuliskan isi dari Abstrak naskah Anda berbahasa Indonesia..."
@@ -451,7 +465,7 @@ export default function AuthorSubmit() {
                 </button>
               </div>
               <textarea 
-                name="abstract_en" required value={formData.abstract_en} onChange={handleChange} rows={8} style={{ padding: '1rem' }}
+                name="abstract_en" required value={formData.abstract_en} onChange={handleChange} onBlur={handleAbstractBlur} rows={8} style={{ padding: '1rem' }}
                 data-gramm="false" data-gramm_editor="false" data-enable-grammarly="false"
                 className="w-full bg-[#0a0a14] border border-zinc-700/80 rounded-xl px-5 py-4 text-white text-base leading-relaxed focus:border-[#c9a84c] focus:ring-1 focus:ring-[#c9a84c] transition-colors resize-none" 
                 placeholder="Write your translated English abstract here..."

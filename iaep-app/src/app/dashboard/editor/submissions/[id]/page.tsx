@@ -1405,6 +1405,7 @@ export default function SubmissionControlPanel() {
                   rows={6}
                   value={emailText}
                   onChange={e => setEmailText(e.target.value)}
+                  data-gramm="false" data-gramm_editor="false" data-enable-grammarly="false" spellCheck={false}
                   className="w-full border border-gray-300 rounded p-3 text-sm text-gray-900 bg-white focus:border-[#c9a84c] font-mono focus:outline-none focus:ring-1 focus:ring-[#c9a84c] mb-4"
                 ></textarea>
 
