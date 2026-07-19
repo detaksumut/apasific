@@ -1,4 +1,4 @@
-export async function sendWa(target: string, message: string): Promise<boolean> {
+export async function sendWa(target: string, message: string, imageUrl?: string): Promise<boolean> {
   const token = "NuENajiEsZG5UWxZsAyE"; // Memaksa menggunakan token baru, mengabaikan token lama di Vercel
   
   if (!token) {
@@ -9,10 +9,14 @@ export async function sendWa(target: string, message: string): Promise<boolean> 
 
   try {
     const cleanTarget = target.replace(/[^0-9]/g, '');
-    const postData = new URLSearchParams({
+    const params: any = {
       target: cleanTarget,
       message: message,
-    }).toString();
+    };
+    if (imageUrl) {
+      params.url = imageUrl;
+    }
+    const postData = new URLSearchParams(params).toString();
 
     const https = require('https');
     const options = {

@@ -220,13 +220,11 @@ export async function submitManuscript(formData: FormData) {
         const isSinta = publicationType.startsWith('sinta_');
         const pkgName = isSinta ? 'Publikasi Jurnal SINTA' : 'Jurnal Internasional';
         
-        const waMessage = `Terimakasih telah Submit naskah di ASIA.
-Judul: ${title}
-
-Tim Redaksi kami akan segera memproses naskah Anda.`;
+        const waMessage = `Terimakasih telah Submit naskah di ASIA.\nJudul: ${title}\n\nTim Redaksi kami akan segera memproses naskah Anda.`;
+        const logoUrl = "https://apasific.org/logo-apasific.png";
 
         const { sendWa } = await import('@/utils/sendWa');
-        await sendWa(userPhone, waMessage);
+        await sendWa(userPhone, waMessage, logoUrl);
       } catch (waError) {
         console.error("WhatsApp notification failed:", waError);
       }

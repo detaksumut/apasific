@@ -2,10 +2,11 @@
 
 import { useState } from "react";
 import { CheckCircle, XCircle, Trash2, MessageCircle } from "lucide-react";
-import { updateSubmissionStatus, deleteSubmission, sendReminderWa } from "@/app/actions/submission";
+import { updateSubmissionStatus, deleteSubmission } from "@/app/actions/submission";
+import { resendWaAction } from "@/app/actions/resend-wa";
 import { useRouter } from "next/navigation";
 
-export default function IncomingActionButtons({ articleId, authorPhone }: { articleId: string, authorPhone?: string }) {
+export default function IncomingActionButtons({ articleId, authorPhone, articleTitle }: { articleId: string, authorPhone?: string, articleTitle?: string }) {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
@@ -45,13 +46,18 @@ export default function IncomingActionButtons({ articleId, authorPhone }: { arti
     if (!confirm("Kirim pesan otomatis via WhatsApp (Sistem APASIFIC) ke Penulis ini?")) return;
     setLoading(true);
     try {
-      let res = await sendReminderWa(articleId);
+      let targetPhone = authorPhone;
+      let res: any = { success: false, error: "Nomor WhatsApp tidak tersedia" };
+      
+      if (targetPhone && targetPhone !== '-') {
+          res = await resendWaAction(targetPhone, articleTitle || "Naskah ASIA");
+      }
       
       // Jika nomor HP benar-benar tidak ada di database, minta Editor memasukkannya secara manual
-      if (!res.success && res.error?.includes("tidak ditemukan")) {
+      if (!res.success && res.error?.includes("tidak tersedia")) {
          const manualPhone = prompt(res.error + "\n\nJika Anda mengetahuinya, silakan masukkan nomor WhatsApp penulis secara manual (Gunakan format 628...):");
          if (manualPhone && manualPhone.trim() !== "") {
-             res = await sendReminderWa(articleId, manualPhone.trim());
+             res = await resendWaAction(manualPhone.trim(), articleTitle || "Naskah ASIA");
          } else {
              setLoading(false);
              return; // Dibatalkan oleh pengguna
