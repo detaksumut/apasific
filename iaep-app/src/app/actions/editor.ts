@@ -345,11 +345,17 @@ export async function getActiveReviewers() {
             const { data: settings } = await supabaseAdmin
                 .from('system_settings')
                 .select('value')
-                .eq('key', 'apasific_registered_users')
-                .single();
-            if (settings && settings.value) {
-                const users = Array.isArray(settings.value) ? settings.value : JSON.parse(settings.value as string);
-                const sysReviewers = users.filter((u: any) => u.role && u.role.toLowerCase().includes('reviewer'));
+                .in('key', ['apasific_registered_users', 'registered_users']);
+                
+            if (settings && settings.length > 0) {
+                let allUsers: any[] = [];
+                settings.forEach((s: any) => {
+                    try {
+                        const parsed = Array.isArray(s.value) ? s.value : JSON.parse(s.value as string);
+                        allUsers = [...allUsers, ...parsed];
+                    } catch(err) {}
+                });
+                const sysReviewers = allUsers.filter((u: any) => u.role && u.role.toLowerCase().includes('reviewer'));
                 
                 for (const sr of sysReviewers) {
                     if (!reviewers.find(r => (r.email || '').toLowerCase() === (sr.email || '').toLowerCase())) {
@@ -1095,7 +1101,7 @@ export async function sendReviewerInviteWa(phone: string, name: string, submissi
     try {
         if (!phone) return { success: false, error: "Nomor telepon tidak tersedia" };
         const { sendWa } = await import('@/utils/sendWa');
-        const message = `Yth. ${name}, kami mengundang Anda untuk meninjau naskah #${submissionId} di platform APASIFIC.`;
+        const message = `Halo *${name}*,\n\nTim Editorial Asia Index & Metric (APASIFIC) mengundang Anda untuk menjadi *Reviewer* pada naskah berikut:\n\n*ID Naskah:* #${submissionId.substring(0,8).toUpperCase()}\n\nMohon konfirmasi kesediaan Anda.\n\n*Cara Merespon:*\nSilakan login ke *Dashboard Reviewer APASIFIC* melalui link di bawah ini untuk melihat detail naskah, lalu klik tombol *TERIMA* atau *TOLAK*:\n👉 https://apasific.org/dashboard/reviewer\n\nTerima kasih atas waktu dan dedikasi Anda.\n- Tim Editorial APASIFIC`;
         const logoUrl = "https://apasific.org/logo-apasific.png";
         const result = await sendWa(phone, message, logoUrl);
         
