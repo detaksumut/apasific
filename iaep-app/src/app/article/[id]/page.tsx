@@ -457,7 +457,8 @@ export default function ArticlePaywall() {
                               }
                             } catch(e) {}
                             const doiY = hasScope ? 440 : 370;
-                            return `${(doiY / 1754) * 100}%`;
+                            const topEdge = doiY - 32;
+                            return `${(topEdge / 1754) * 100}%`;
                           })(),
                           left: 0,
                           width: '100%',

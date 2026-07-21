@@ -1034,7 +1034,8 @@ export default function SubmissionControlPanel() {
                                     }
                                   } catch(e) {}
                                   const doiY = hasScope ? 440 : 370;
-                                  return `${(doiY / 1754) * 100}%`;
+                                  const topEdge = doiY - 32; // Offset by font size since canvas textBaseline is alphabetic
+                                  return `${(topEdge / 1754) * 100}%`;
                                 })(),
                                 left: 0,
                                 width: '100%',
@@ -1079,10 +1080,6 @@ export default function SubmissionControlPanel() {
                               <a 
                                 href={(() => {
                                   const doiVal = submission.doi || generatedDoi;
-                                  if (doiVal.includes('zenodo.')) {
-                                    const zenodoId = doiVal.split('zenodo.')[1];
-                                    return `https://zenodo.org/records/${zenodoId}`;
-                                  }
                                   return `https://doi.org/${doiVal}`;
                                 })()}
                                 target="_blank"
@@ -1188,7 +1185,8 @@ export default function SubmissionControlPanel() {
                                      }
                                    } catch(e) {}
                                    const doiY = hasScope ? 440 : 370;
-                                   return `${(doiY / 1754) * 100}%`;
+                                   const topEdge = doiY - 32;
+                                   return `${(topEdge / 1754) * 100}%`;
                                  })(),
                                  left: 0,
                                  width: '100%',
