@@ -240,11 +240,16 @@ export default function CoverGenerator({ submission, generatedDoi }: CoverGenera
 
     ctx.textAlign = 'left';
     ctx.fillStyle = theme === 'gold' ? '#000' : '#fff';
-    ctx.font = 'bold 28px Arial, sans-serif';
+    
     if (generatedDoi) {
-      ctx.fillText(`DOI: ${generatedDoi}`, dividerX + 30, tableY + headerHeight + (bodyHeight / 2) + 10);
+      ctx.font = 'bold 24px Arial, sans-serif';
+      ctx.fillText("DOI:", dividerX + 25, tableY + headerHeight + 45);
+      ctx.font = '24px Arial, sans-serif';
+      wrapText(ctx, generatedDoi, dividerX + 25, tableY + headerHeight + 85, (tableWidth * 0.35) - 40, 28);
     } else {
-      ctx.fillText("DOI: ______________", dividerX + 30, tableY + headerHeight + (bodyHeight / 2) + 10);
+      ctx.font = 'bold 24px Arial, sans-serif';
+      ctx.fillText("DOI:", dividerX + 25, tableY + headerHeight + 45);
+      ctx.fillText("_________________", dividerX + 25, tableY + headerHeight + 85);
     }
 
     ctx.textAlign = 'center';
