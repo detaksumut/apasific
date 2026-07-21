@@ -49,7 +49,7 @@ export default async function CoverEditorDashboard() {
       .not("cover_file_url", "is", null)
       .neq("status", "Assigned to Cover")
       .order("created_at", { ascending: false })
-      .limit(10);
+      .limit(50);
 
     if (doneSubmissions) completedArticles = [...doneSubmissions];
   } catch (e) {
@@ -162,25 +162,32 @@ export default async function CoverEditorDashboard() {
             <p className="text-zinc-500 text-sm">Belum ada riwayat pembuatan cover.</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-6">
+          <div className="divide-y divide-zinc-800/50">
             {completedArticles.map((article: any) => (
-              <div key={article.id} className="bg-zinc-800/30 border border-zinc-700/50 rounded-lg overflow-hidden group">
-                <div className="h-48 bg-zinc-800 relative overflow-hidden">
-                   {article.cover_file_url ? (
-                     <img src={article.cover_file_url} alt="Cover Preview" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                   ) : (
-                     <div className="w-full h-full flex items-center justify-center text-zinc-600">No Image</div>
-                   )}
-                   <div className="absolute top-2 right-2 bg-green-500/90 text-white text-[10px] font-bold px-2 py-1 rounded backdrop-blur-sm">
-                     Selesai
+              <div key={article.id} className="p-4 hover:bg-zinc-800/30 transition-colors flex flex-col md:flex-row md:items-center justify-between gap-4 group">
+                <div className="space-y-1">
+                   <div className="flex items-center gap-2 mb-1">
+                      <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">
+                         {article.journals?.name || "Unknown Journal"}
+                      </span>
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-green-500/20 text-green-400 border border-green-500/20">
+                         Selesai
+                      </span>
                    </div>
+                   <h3 className="text-sm font-semibold text-white group-hover:text-green-400 transition-colors line-clamp-2">
+                      {article.title}
+                   </h3>
                 </div>
-                <div className="p-4">
-                  <div className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider mb-1 line-clamp-1">{article.journals?.name}</div>
-                  <h3 className="text-sm font-semibold text-white line-clamp-2 mb-3" title={article.title}>{article.title}</h3>
-                  <Link href={`/dashboard/editor/submissions/${article.id}?tab=production`} className="text-xs text-purple-400 hover:text-purple-300 font-medium flex items-center gap-1">
-                    Lihat Naskah <ArrowRight className="w-3 h-3" />
-                  </Link>
+                
+                <div className="shrink-0 flex items-center gap-3">
+                   {article.cover_file_url && (
+                     <a href={article.cover_file_url} target="_blank" rel="noopener noreferrer" className="p-2 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 hover:text-white rounded-full transition-colors" title="Lihat Cover (Buka di tab baru)">
+                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                     </a>
+                   )}
+                   <Link href={`/dashboard/editor/submissions/${article.id}?tab=production`} className="text-xs bg-zinc-800 hover:bg-zinc-700 text-white font-medium py-2 px-3 rounded flex items-center gap-2 transition-colors">
+                      Lihat Naskah <ArrowRight className="w-3 h-3" />
+                   </Link>
                 </div>
               </div>
             ))}
