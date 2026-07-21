@@ -460,7 +460,7 @@ export default function ArticlePaywall() {
                               }
                             }
                           } catch(e) {}
-                          const author = (extractedAuthor === 'Unknown Author' && article?.profiles?.full_name) ? article.profiles.full_name : extractedAuthor;
+                          const author = extractedAuthor;
 
                           const titleY = hasScope ? 500 : 450;
                           const displayTitle = article.title || 'Untitled Article';
