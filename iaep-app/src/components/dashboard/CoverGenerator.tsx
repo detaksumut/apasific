@@ -107,6 +107,9 @@ export default function CoverGenerator({ submission, generatedDoi }: CoverGenera
           bgImg.onerror = reject;
         });
         ctx.drawImage(bgImg, 0, 0, width, height);
+        // Efek kaca hitam (black glass overlay) agar teks tetap terbaca jelas
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+        ctx.fillRect(0, 0, width, height);
       } catch (err) {
         ctx.fillStyle = currentTheme.bg;
         ctx.fillRect(0, 0, width, height);
