@@ -32,6 +32,7 @@ export default async function LayoutEditorDashboard() {
   if (!user) redirect("/auth/login");
 
   let articles: any[] = [];
+  let completedArticles: any[] = [];
   try {
     const { data: submissions, error } = await supabase
       .from("submissions")
@@ -44,7 +45,6 @@ export default async function LayoutEditorDashboard() {
         articles = [...submissions];
     }
     
-    let completedArticles: any[] = [];
     const { data: doneSubmissions } = await supabase
       .from("submissions")
       .select("*, journals(name), profiles:author_id(full_name)")
