@@ -1033,7 +1033,7 @@ export default function SubmissionControlPanel() {
                                       if (parsed.scope || (parsed.keywords && parsed.keywords.includes('Scope:'))) hasScope = true;
                                     }
                                   } catch(e) {}
-                                  const doiY = hasScope ? 450 : 380;
+                                  const doiY = hasScope ? 440 : 370;
                                   return `${(doiY / 1754) * 100}%`;
                                 })(),
                                 left: 0,
@@ -1041,7 +1041,7 @@ export default function SubmissionControlPanel() {
                                 backgroundColor: 'transparent',
                                 display: 'flex',
                                 justifyContent: 'center',
-                                fontSize: '1.4cqw',
+                                fontSize: '1.8cqw',
                                 whiteSpace: 'normal',
                                 color: '#fff',
                                 textDecoration: 'none',
@@ -1187,7 +1187,7 @@ export default function SubmissionControlPanel() {
                                        if (parsed.scope || (parsed.keywords && parsed.keywords.includes('Scope:'))) hasScope = true;
                                      }
                                    } catch(e) {}
-                                   const doiY = hasScope ? 450 : 380;
+                                   const doiY = hasScope ? 440 : 370;
                                    return `${(doiY / 1754) * 100}%`;
                                  })(),
                                  left: 0,
@@ -1195,7 +1195,7 @@ export default function SubmissionControlPanel() {
                                  backgroundColor: 'transparent',
                                  display: 'flex',
                                  justifyContent: 'center',
-                                 fontSize: '1.4cqw',
+                                 fontSize: '1.8cqw',
                                  whiteSpace: 'normal',
                                  color: '#fff',
                                  textDecoration: 'none',

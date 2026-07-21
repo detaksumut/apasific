@@ -142,7 +142,7 @@ export default async function AuthorSubmissionDetail({ params }: { params: Promi
                             if (parsed.scope || (parsed.keywords && parsed.keywords.includes('Scope:'))) hasScope = true;
                           }
                         } catch(e) {}
-                        const doiY = hasScope ? 450 : 380;
+                        const doiY = hasScope ? 440 : 370;
                         return `${(doiY / 1754) * 100}%`;
                       })(),
                       left: 0,
@@ -150,7 +150,7 @@ export default async function AuthorSubmissionDetail({ params }: { params: Promi
                       backgroundColor: 'transparent',
                       display: 'flex',
                       justifyContent: 'center',
-                      fontSize: '1.4cqw',
+                      fontSize: '1.8cqw',
                       textDecoration: 'none',
                       lineHeight: '1.2',
                       color: '#fff'
