@@ -2,6 +2,7 @@ import React from "react";
 import Link from "next/link";
 import { CheckCircle2, ChevronLeft, FileText, ArrowRight } from "lucide-react";
 import { createClient } from "@supabase/supabase-js";
+import DynamicCover from "@/components/DynamicCover";
 
 // Buat Supabase client dengan Service Role Key untuk bypass RLS (karena ini halaman publik)
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
@@ -154,37 +155,23 @@ export default async function AJITEJournal() {
                   SAMPUL DEPAN (COVER)
                 </div>
                 {pub.cover_file_url ? (
-                  <div 
-                    className="relative w-full aspect-[1/1.4] rounded-lg overflow-hidden border border-zinc-700 shadow-2xl group-hover:scale-105 transition-transform duration-500"
-                    style={{ containerType: 'inline-size' }}
-                  >
-                    <img 
-                      src={pub.cover_file_url} 
-                      alt={`Cover ${pub.title}`} 
-                      className="w-full h-full object-cover"
+                  <div className="w-full">
+                    <DynamicCover 
+                      journalName={pub.journals?.name || "AJITE"} 
+                      title={pub.title} 
+                      author={(() => {
+                        try {
+                          const abs = JSON.parse(pub.abstract);
+                          return abs.authors?.map((a:any) => a.full_name).join(', ') || "-";
+                        } catch(e) { return "-"; }
+                      })()} 
+                      doi={pub.doi} 
                     />
-                    
-                    {/* Overlay DOI di atas gambar (bagian bawah gambar) agar tidak merusak file asli */}
-                    {pub.doi && (
-                      <div className="absolute bottom-0 left-0 right-0 bg-black/80 backdrop-blur-sm p-3 border-t border-emerald-500/50 flex flex-col items-center justify-center transform translate-y-full group-hover:translate-y-0 transition-transform duration-300">
-                        <span className="text-[10px] text-zinc-400 font-bold uppercase tracking-wider mb-1">Digital Object Identifier</span>
-                        <span className="text-xs font-mono text-emerald-400 font-bold">{pub.doi}</span>
-                      </div>
-                    )}
                   </div>
                 ) : (
                   <div className="w-full aspect-[1/1.4] rounded-lg border border-dashed border-zinc-700 flex flex-col items-center justify-center bg-zinc-900">
                     <FileText className="w-12 h-12 text-zinc-700 mb-2" />
                     <span className="text-xs text-zinc-600 font-medium text-center px-4">Sampul belum diunggah</span>
-                  </div>
-                )}
-                {/* Teks DOI statis di bawah gambar sampul */}
-                {pub.doi && (
-                  <div className="mt-4 w-full bg-zinc-950 border border-zinc-800 rounded p-2 text-center">
-                    <span className="text-[10px] text-zinc-500 block uppercase font-bold tracking-wider mb-0.5">DOI Tertaud:</span>
-                    <a href={`https://doi.org/${pub.doi.trim()}`} target="_blank" rel="noopener noreferrer" className="text-xs font-mono text-emerald-500 hover:underline">
-                      {pub.doi}
-                    </a>
                   </div>
                 )}
               </div>
