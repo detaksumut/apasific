@@ -8,7 +8,7 @@ interface CoverGeneratorProps {
 
 export default function CoverGenerator({ submission, generatedDoi }: CoverGeneratorProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [theme, setTheme] = useState<'blue' | 'red' | 'gold'>('blue');
+  const [theme, setTheme] = useState<string>('blue');
   const [customBgUrl, setCustomBgUrl] = useState<string | null>(null);
   const [generating, setGenerating] = useState(false);
   const [dynamicVolText, setDynamicVolText] = useState<string>('');
@@ -58,10 +58,23 @@ export default function CoverGenerator({ submission, generatedDoi }: CoverGenera
   
   const author = extractedAuthor === 'Unknown Author' && submission?.profiles?.full_name ? submission.profiles.full_name : extractedAuthor;
   
-  const themes = {
+  const themes: Record<string, { bg: string, accent: string, text: string }> = {
     blue: { bg: '#0d1b2a', accent: '#415a77', text: '#e0e1dd' },
     red: { bg: '#370617', accent: '#9d0208', text: '#ffba08' },
     gold: { bg: '#c9a84c', accent: '#0d0d1a', text: '#0d0d1a' },
+    forest: { bg: '#1B4332', accent: '#2D6A4F', text: '#D8F3DC' },
+    purple: { bg: '#240046', accent: '#5A189A', text: '#E0AAFF' },
+    teal: { bg: '#004E64', accent: '#00A5CF', text: '#9FFFCB' },
+    orange: { bg: '#9C6644', accent: '#B08968', text: '#EDE0D4' },
+    slate: { bg: '#2B2D42', accent: '#8D99AE', text: '#EDF2F4' },
+    crimson: { bg: '#641220', accent: '#A11D33', text: '#F3DFE3' },
+    ocean: { bg: '#023047', accent: '#219EBC', text: '#8ECAE6' },
+    midnight: { bg: '#000000', accent: '#333333', text: '#FFFFFF' },
+    indigo: { bg: '#312244', accent: '#4D194D', text: '#E0B1CB' },
+    olive: { bg: '#4C5C68', accent: '#C5C3C6', text: '#46494C' },
+    maroon: { bg: '#590D22', accent: '#800F2F', text: '#FFB3C6' },
+    coffee: { bg: '#3C2F2F', accent: '#BE9B7B', text: '#FFF4E6' },
+    moss: { bg: '#283618', accent: '#606C38', text: '#FEFAE0' }
   };
 
   const wrapText = (ctx: CanvasRenderingContext2D, text: string, x: number, y: number, maxWidth: number, lineHeight: number) => {
@@ -296,30 +309,24 @@ export default function CoverGenerator({ submission, generatedDoi }: CoverGenera
         <div className="space-y-4">
           <div>
             <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Pilih Tema / Latar Belakang</label>
-            <div className="flex flex-wrap items-center gap-4">
-              <button 
-                onClick={() => { setTheme('blue'); setCustomBgUrl(null); }}
-                className={`w-12 h-12 rounded-full border-4 ${theme === 'blue' && !customBgUrl ? 'border-white scale-110 shadow-[0_0_15px_rgba(255,255,255,0.3)]' : 'border-transparent opacity-60 hover:opacity-100'} transition-all bg-[#0d1b2a]`}
-                title="Navy Blue (Solid)"
-              />
-              <button 
-                onClick={() => { setTheme('red'); setCustomBgUrl(null); }}
-                className={`w-12 h-12 rounded-full border-4 ${theme === 'red' && !customBgUrl ? 'border-white scale-110 shadow-[0_0_15px_rgba(255,255,255,0.3)]' : 'border-transparent opacity-60 hover:opacity-100'} transition-all bg-[#370617]`}
-                title="Crimson Red (Solid)"
-              />
-              <button 
-                onClick={() => { setTheme('gold'); setCustomBgUrl(null); }}
-                className={`w-12 h-12 rounded-full border-4 ${theme === 'gold' && !customBgUrl ? 'border-white scale-110 shadow-[0_0_15px_rgba(255,255,255,0.3)]' : 'border-transparent opacity-60 hover:opacity-100'} transition-all bg-[#c9a84c]`}
-                title="Royal Gold (Solid)"
-              />
+            <div className="flex flex-wrap items-center gap-2">
+              {Object.entries(themes).map(([key, val]) => (
+                <button 
+                  key={key}
+                  onClick={() => { setTheme(key); setCustomBgUrl(null); }}
+                  className={`w-8 h-8 rounded-full border-[3px] ${theme === key && !customBgUrl ? 'border-white scale-110 shadow-[0_0_10px_rgba(255,255,255,0.4)]' : 'border-transparent opacity-50 hover:opacity-100 hover:scale-105'} transition-all`}
+                  style={{ backgroundColor: val.bg }}
+                  title={`Theme: ${key.charAt(0).toUpperCase() + key.slice(1)}`}
+                />
+              ))}
               
-              <div className="w-px h-8 bg-gray-700 mx-1"></div>
+              <div className="w-px h-6 bg-gray-700 mx-1"></div>
               
               <label 
-                className={`flex items-center justify-center w-12 h-12 rounded-full border-4 cursor-pointer transition-all ${customBgUrl ? 'border-white scale-110 shadow-[0_0_15px_rgba(255,255,255,0.3)] bg-gray-600' : 'border-dashed border-gray-500 opacity-60 hover:opacity-100 hover:border-white bg-gray-800'}`}
+                className={`flex items-center justify-center w-8 h-8 rounded-full border-[3px] cursor-pointer transition-all ${customBgUrl ? 'border-white scale-110 shadow-[0_0_10px_rgba(255,255,255,0.4)] bg-gray-600' : 'border-dashed border-gray-500 opacity-60 hover:opacity-100 hover:border-white bg-gray-800'}`}
                 title="Unggah Pattern / Background Bebas"
               >
-                <span className="text-xl font-bold text-white">+</span>
+                <span className="text-sm font-bold text-white">+</span>
                 <input 
                   type="file" 
                   accept="image/*" 
