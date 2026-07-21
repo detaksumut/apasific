@@ -1027,61 +1027,22 @@ export default function SubmissionControlPanel() {
                               style={{
                                 top: (() => {
                                   let hasScope = false;
-                                  let extractedAuthor = submission?.author || 'Unknown Author';
                                   try {
                                     if (submission?.abstract) {
                                       const parsed = JSON.parse(submission.abstract);
                                       if (parsed.scope || (parsed.keywords && parsed.keywords.includes('Scope:'))) hasScope = true;
-                                      if (parsed.authors && Array.isArray(parsed.authors) && parsed.authors.length > 0) {
-                                         extractedAuthor = parsed.authors.map((a: any) => a.full_name || a.name).join(', ');
-                                      }
                                     }
                                   } catch(e) {}
-                                  const author = (extractedAuthor === 'Unknown Author' && submission?.profiles?.full_name) ? submission.profiles.full_name : extractedAuthor;
-
-                                  const titleY = hasScope ? 500 : 450;
-                                  const displayTitle = submission.title || 'Untitled Article';
-                                  
-                                  let titleLines = 1;
-                                  let currentLineLength = 0;
-                                  for (let word of displayTitle.split(' ')) {
-                                    if (currentLineLength + word.length > 30 && currentLineLength > 0) {
-                                      titleLines++;
-                                      currentLineLength = word.length + 1;
-                                    } else {
-                                      currentLineLength += word.length + 1;
-                                    }
-                                  }
-                                  const nextY = titleY + (titleLines - 1) * 85;
-
-                                  let authorLines = 1;
-                                  let currentAuthorLength = 0;
-                                  for (let word of author.split(' ')) {
-                                     if (currentAuthorLength + word.length > 50 && currentAuthorLength > 0) {
-                                        authorLines++;
-                                        currentAuthorLength = word.length + 1;
-                                     } else {
-                                        currentAuthorLength += word.length + 1;
-                                     }
-                                  }
-                                  const afterAuthorY = nextY + 60 + (authorLines - 1) * 50;
-
-                                  const tableY = afterAuthorY + 120;
-                                  const cellTop = tableY + 60; // Top of the cell body
-                                  return `${(cellTop / 1754) * 100}%`;
+                                  const doiY = hasScope ? 450 : 380;
+                                  return `${(doiY / 1754) * 100}%`;
                                 })(),
-                                left: '62.096%', // Exact divider line
-                                width: '28.225%', // Exact cell width
-                                height: '6.841%', // 120 / 1754
+                                left: 0,
+                                width: '100%',
                                 backgroundColor: 'transparent',
                                 display: 'flex',
-                                flexDirection: 'column',
                                 justifyContent: 'center',
-                                paddingLeft: '2%',
-                                paddingRight: '2%',
                                 fontSize: '1.4cqw',
                                 whiteSpace: 'normal',
-                                wordBreak: 'break-word',
                                 color: '#fff',
                                 textDecoration: 'none',
                                 lineHeight: '1.2'
@@ -1220,61 +1181,22 @@ export default function SubmissionControlPanel() {
                                style={{
                                  top: (() => {
                                    let hasScope = false;
-                                   let extractedAuthor = submission?.author || 'Unknown Author';
                                    try {
                                      if (submission?.abstract) {
                                        const parsed = JSON.parse(submission.abstract);
                                        if (parsed.scope || (parsed.keywords && parsed.keywords.includes('Scope:'))) hasScope = true;
-                                       if (parsed.authors && Array.isArray(parsed.authors) && parsed.authors.length > 0) {
-                                          extractedAuthor = parsed.authors.map((a: any) => a.full_name || a.name).join(', ');
-                                       }
                                      }
                                    } catch(e) {}
-                                   const author = (extractedAuthor === 'Unknown Author' && submission?.profiles?.full_name) ? submission.profiles.full_name : extractedAuthor;
-
-                                   const titleY = hasScope ? 500 : 450;
-                                   const displayTitle = submission.title || 'Untitled Article';
-                                   
-                                   let titleLines = 1;
-                                   let currentLineLength = 0;
-                                   for (let word of displayTitle.split(' ')) {
-                                     if (currentLineLength + word.length > 30 && currentLineLength > 0) {
-                                       titleLines++;
-                                       currentLineLength = word.length + 1;
-                                     } else {
-                                       currentLineLength += word.length + 1;
-                                     }
-                                   }
-                                   const nextY = titleY + (titleLines - 1) * 85;
-
-                                   let authorLines = 1;
-                                   let currentAuthorLength = 0;
-                                   for (let word of author.split(' ')) {
-                                      if (currentAuthorLength + word.length > 50 && currentAuthorLength > 0) {
-                                         authorLines++;
-                                         currentAuthorLength = word.length + 1;
-                                      } else {
-                                         currentAuthorLength += word.length + 1;
-                                      }
-                                   }
-                                   const afterAuthorY = nextY + 60 + (authorLines - 1) * 50;
-
-                                   const tableY = afterAuthorY + 120;
-                                   const cellTop = tableY + 60; // Top of the cell body
-                                   return `${(cellTop / 1754) * 100}%`;
+                                   const doiY = hasScope ? 450 : 380;
+                                   return `${(doiY / 1754) * 100}%`;
                                  })(),
-                                 left: '62.096%', // Exact divider line
-                                 width: '28.225%', // Exact cell width
-                                 height: '6.841%', // 120 / 1754
+                                 left: 0,
+                                 width: '100%',
                                  backgroundColor: 'transparent',
                                  display: 'flex',
-                                 flexDirection: 'column',
                                  justifyContent: 'center',
-                                 paddingLeft: '2%',
-                                 paddingRight: '2%',
                                  fontSize: '1.4cqw',
                                  whiteSpace: 'normal',
-                                 wordBreak: 'break-word',
                                  color: '#fff',
                                  textDecoration: 'none',
                                  lineHeight: '1.2'

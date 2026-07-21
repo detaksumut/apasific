@@ -172,8 +172,17 @@ export default function CoverGenerator({ submission, generatedDoi }: CoverGenera
     }
 
     ctx.fillStyle = '#fff';
+    ctx.font = 'bold 26px Arial, sans-serif';
+    const doiY = scope ? 450 : 380;
+    if (generatedDoi) {
+      ctx.fillText(`DOI: ${generatedDoi}`, width / 2, doiY);
+    } else {
+      ctx.fillText(`DOI: ________________________`, width / 2, doiY);
+    }
+
+    ctx.fillStyle = '#fff';
     ctx.font = 'bold 72px "Times New Roman", serif';
-    const titleY = scope ? 500 : 450;
+    const titleY = scope ? 510 : 440;
     
     ctx.shadowColor = 'rgba(0,0,0,0.5)';
     ctx.shadowBlur = 10;
@@ -207,12 +216,6 @@ export default function CoverGenerator({ submission, generatedDoi }: CoverGenera
     ctx.lineWidth = 3;
     ctx.strokeRect(tableX, tableY, tableWidth, headerHeight + bodyHeight);
 
-    const dividerX = tableX + (tableWidth * 0.65);
-    ctx.beginPath();
-    ctx.moveTo(dividerX, tableY);
-    ctx.lineTo(dividerX, tableY + headerHeight + bodyHeight);
-    ctx.stroke();
-
     ctx.beginPath();
     ctx.moveTo(tableX, tableY + headerHeight);
     ctx.lineTo(tableX + tableWidth, tableY + headerHeight);
@@ -221,8 +224,7 @@ export default function CoverGenerator({ submission, generatedDoi }: CoverGenera
     ctx.fillStyle = '#fff';
     ctx.font = 'bold 24px Arial, sans-serif';
     ctx.textAlign = 'center';
-    ctx.fillText("PUBLICATION RECORD", tableX + (tableWidth * 0.65) / 2, tableY + 40);
-    ctx.fillText("DIGITAL OBJECT IDENTIFIER", dividerX + (tableWidth * 0.35) / 2, tableY + 40);
+    ctx.fillText("PUBLICATION RECORD", tableX + (tableWidth / 2), tableY + 40);
 
     const today = new Date();
     ctx.textAlign = 'left';
@@ -232,25 +234,11 @@ export default function CoverGenerator({ submission, generatedDoi }: CoverGenera
     const fallbackVolText = `Vol 1 No 1, ${today.toLocaleString('default', { month: 'long' })} ${today.getFullYear()}`;
     const volText = dynamicVolText || fallbackVolText;
     
-    ctx.fillText(volText, tableX + 25, tableY + headerHeight + 45);
+    ctx.fillText(volText, tableX + 30, tableY + headerHeight + 45);
 
     ctx.font = 'bold 24px Arial, sans-serif';
-    const displayTitle = title.length > 70 ? title.substring(0, 67) + '...' : title;
-    wrapText(ctx, `Judul: ${displayTitle}`, tableX + 25, tableY + headerHeight + 85, (tableWidth * 0.65) - 50, 32);
-
-    ctx.textAlign = 'left';
-    ctx.fillStyle = theme === 'gold' ? '#000' : '#fff';
-    
-    if (generatedDoi) {
-      ctx.font = 'bold 24px Arial, sans-serif';
-      ctx.fillText("DOI:", dividerX + 25, tableY + headerHeight + 45);
-      ctx.font = '24px Arial, sans-serif';
-      wrapText(ctx, generatedDoi, dividerX + 25, tableY + headerHeight + 85, (tableWidth * 0.35) - 40, 28);
-    } else {
-      ctx.font = 'bold 24px Arial, sans-serif';
-      ctx.fillText("DOI:", dividerX + 25, tableY + headerHeight + 45);
-      // No longer drawing ____ so HTML overlay can be transparent
-    }
+    const displayTitle = title.length > 100 ? title.substring(0, 97) + '...' : title;
+    wrapText(ctx, `Judul: ${displayTitle}`, tableX + 30, tableY + headerHeight + 85, tableWidth - 60, 32);
 
     ctx.textAlign = 'center';
     ctx.fillStyle = currentTheme.accent;
