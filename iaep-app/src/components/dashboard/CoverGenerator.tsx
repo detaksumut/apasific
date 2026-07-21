@@ -249,7 +249,7 @@ export default function CoverGenerator({ submission, generatedDoi }: CoverGenera
     } else {
       ctx.font = 'bold 24px Arial, sans-serif';
       ctx.fillText("DOI:", dividerX + 25, tableY + headerHeight + 45);
-      ctx.fillText("_________________", dividerX + 25, tableY + headerHeight + 85);
+      // No longer drawing ____ so HTML overlay can be transparent
     }
 
     ctx.textAlign = 'center';

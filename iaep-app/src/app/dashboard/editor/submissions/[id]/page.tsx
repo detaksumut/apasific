@@ -1039,22 +1039,23 @@ export default function SubmissionControlPanel() {
                                     }
                                   }
                                   const endY = 460 + (lines - 1) * 85;
-                                  const tableY = endY + 140;
-                                  const cellTop = tableY + 55; // Header height is 55
-                                  return `calc(${(cellTop / 1754) * 100}% + 2px)`;
+                                  const tableY = endY + 120; // Correct tableY
+                                  const cellTop = tableY + 60 + 45; // Below the "DOI:" text in canvas
+                                  return `${(cellTop / 1754) * 100}%`;
                                 })(),
-                                left: 'calc(62.096% + 2px)', // Right of divider (770/1240)
-                                width: 'calc(28.225% - 4px)', // Cell width (350/1240)
-                                height: 'calc(8.266% - 4px)', // Cell height (145/1754)
-                                backgroundColor: '#1b263b', // Matches the blue theme table body
-                                fontSize: '1.75cqw',
-                                whiteSpace: 'nowrap',
+                                left: '63%', // Right of divider + some padding
+                                width: '25%', // Keep it within cell
+                                height: '5%',
+                                backgroundColor: 'transparent',
+                                fontSize: '1.6cqw',
+                                whiteSpace: 'normal',
+                                wordBreak: 'break-all',
                                 color: '#fff',
-                                paddingLeft: '0.5cqw',
-                                textDecoration: 'none'
+                                textDecoration: 'none',
+                                lineHeight: '1.2'
                               }}
                             >
-                              DOI: {submission.doi || generatedDoi}
+                              {submission.doi || generatedDoi}
                             </a>
                           )}
                         </div>
@@ -1206,15 +1207,17 @@ export default function SubmissionControlPanel() {
                                  left: 'calc(62.096% + 2px)', // Right of divider (770/1240)
                                  width: 'calc(28.225% - 4px)', // Cell width (350/1240)
                                  height: 'calc(8.266% - 4px)', // Cell height (145/1754)
-                                 backgroundColor: '#1b263b', // Matches the blue theme table body
+                                 backgroundColor: 'transparent',
                                  fontSize: '1.75cqw',
-                                 whiteSpace: 'nowrap',
+                                 whiteSpace: 'normal',
+                                 wordBreak: 'break-all',
                                  color: '#fff',
-                                 paddingLeft: '0.5cqw',
+                                 textDecoration: 'none',
+                                 lineHeight: '1.2'
                                }}
                              >
-                               DOI: {generatedDoi || submission.doi}
-                             </div>
+                               {generatedDoi || submission.doi}
+                             </a>
                            )}
                         </div>
                       ) : (

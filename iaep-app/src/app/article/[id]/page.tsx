@@ -462,22 +462,23 @@ export default function ArticlePaywall() {
                             }
                           }
                           const endY = 460 + (lines - 1) * 85;
-                          const tableY = endY + 140;
-                          const cellTop = tableY + 55;
-                          return `calc(${(cellTop / 1754) * 100}% + 2px)`;
+                          const tableY = endY + 120;
+                          const cellTop = tableY + 60 + 45; // Below the "DOI:" text in canvas
+                          return `${(cellTop / 1754) * 100}%`;
                         })(),
-                        left: 'calc(62.096% + 2px)',
-                        width: 'calc(28.225% - 4px)',
-                        height: 'calc(8.266% - 4px)',
-                        backgroundColor: '#1b263b',
-                        fontSize: '1.75cqw',
-                        whiteSpace: 'nowrap',
+                        left: '63%',
+                        width: '25%',
+                        height: '5%',
+                        backgroundColor: 'transparent',
+                        fontSize: '1.6cqw',
+                        whiteSpace: 'normal',
+                        wordBreak: 'break-all',
                         color: '#fff',
-                        paddingLeft: '0.5cqw',
-                        textDecoration: 'none'
+                        textDecoration: 'none',
+                        lineHeight: '1.2'
                       }}
                     >
-                      DOI: {article.doi}
+                      {article.doi}
                     </a>
                   )}
                 </div>
