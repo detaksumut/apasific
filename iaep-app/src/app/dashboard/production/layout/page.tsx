@@ -44,6 +44,7 @@ export default async function LayoutEditorDashboard() {
         articles = [...submissions];
     }
     
+    let completedArticles: any[] = [];
     const { data: doneSubmissions } = await supabase
       .from("submissions")
       .select("*, journals(name), profiles:author_id(full_name)")
