@@ -442,7 +442,6 @@ export default function ArticlePaywall() {
                 <span className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-4 w-full text-center">Sampul Depan (Cover)</span>
                 <div className="w-full max-w-[280px]">
                   <DynamicCover 
-                    coverUrl={article.cover_file_url} 
                     journalName={article.journal} 
                     title={article.title} 
                     author={article.author} 
