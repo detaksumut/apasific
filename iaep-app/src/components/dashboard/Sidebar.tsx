@@ -458,6 +458,13 @@ export default function Sidebar({ role }: SidebarProps) {
           </>
         )}
 
+        {normalizedRole !== "author" && (
+          <>
+            <div className="sidebar-section-label" style={{ marginTop: 24 }}>Area Penulis</div>
+            {authorLinks.map(link => <NavLink key={`author-${link.path}`} link={link} />)}
+          </>
+        )}
+
         {(normalizedRole === "superadmin" || normalizedRole === "layout editor" || normalizedRole === "cover editor" || normalizedRole === "publish editor" || normalizedRole === "supervisor" || normalizedRole === "admin editor") && (
           <>
             <div className="sidebar-section-label" style={{ marginTop: 24 }}>Menu Produksi</div>
