@@ -9,7 +9,7 @@ interface CoverGeneratorProps {
 
 export default function CoverGenerator({ submission, generatedDoi }: CoverGeneratorProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [theme, setTheme] = useState<string>('blue');
+  const [theme, setTheme] = useState<string>(submission?.cover_theme || 'forest');
   const [customBgUrl, setCustomBgUrl] = useState<string | null>(null);
   const [generating, setGenerating] = useState(false);
   const [dynamicVolText, setDynamicVolText] = useState<string>('');
@@ -172,7 +172,7 @@ export default function CoverGenerator({ submission, generatedDoi }: CoverGenera
     }
 
     ctx.fillStyle = '#fff';
-    ctx.font = 'bold 26px Arial, sans-serif';
+    ctx.font = 'bold 32px Arial, sans-serif';
     const doiY = scope ? 450 : 380;
     if (generatedDoi) {
       ctx.fillText(`DOI: ${generatedDoi}`, width / 2, doiY);
@@ -182,7 +182,7 @@ export default function CoverGenerator({ submission, generatedDoi }: CoverGenera
 
     ctx.fillStyle = '#fff';
     ctx.font = 'bold 72px "Times New Roman", serif';
-    const titleY = scope ? 510 : 440;
+    const titleY = scope ? 560 : 490;
     
     ctx.shadowColor = 'rgba(0,0,0,0.5)';
     ctx.shadowBlur = 10;
