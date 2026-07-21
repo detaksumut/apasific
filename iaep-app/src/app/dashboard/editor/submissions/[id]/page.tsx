@@ -1076,7 +1076,7 @@ export default function SubmissionControlPanel() {
                                 backgroundColor: 'transparent',
                                 display: 'flex',
                                 flexDirection: 'column',
-                                paddingTop: '14%', // Push it below "DOI:" text
+                                justifyContent: 'center',
                                 paddingLeft: '2%',
                                 paddingRight: '2%',
                                 fontSize: '1.4cqw',
@@ -1269,7 +1269,7 @@ export default function SubmissionControlPanel() {
                                  backgroundColor: 'transparent',
                                  display: 'flex',
                                  flexDirection: 'column',
-                                 paddingTop: '14%', // Push it below "DOI:" text
+                                 justifyContent: 'center',
                                  paddingLeft: '2%',
                                  paddingRight: '2%',
                                  fontSize: '1.4cqw',

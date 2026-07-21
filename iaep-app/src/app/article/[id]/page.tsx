@@ -493,16 +493,19 @@ export default function ArticlePaywall() {
                           const cellTop = tableY + 60; // Top of the cell body
                           return `${(cellTop / 1754) * 100}%`;
                         })(),
-                        left: '63%',
-                        width: '25%',
-                        height: '5%',
+                        left: '62.096%', // Exact divider line
+                        width: '28.225%', // Exact cell width
+                        height: '6.841%', // 120 / 1754
                         backgroundColor: 'transparent',
-                        fontSize: '1.6cqw',
-                        whiteSpace: 'normal',
-                        wordBreak: 'break-all',
-                        color: '#fff',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        justifyContent: 'center',
+                        paddingLeft: '2%',
+                        paddingRight: '2%',
+                        fontSize: '1.4cqw',
                         textDecoration: 'none',
-                        lineHeight: '1.2'
+                        lineHeight: '1.2',
+                        color: '#fff'
                       }}
                     >
                       {article.doi}
