@@ -1043,7 +1043,7 @@ export default function SubmissionControlPanel() {
                                 justifyContent: 'center',
                                 fontSize: '1.8cqw',
                                 whiteSpace: 'normal',
-                                color: '#fff',
+                                color: 'transparent',
                                 textDecoration: 'none',
                                 lineHeight: '1.2'
                               }}
@@ -1197,7 +1197,7 @@ export default function SubmissionControlPanel() {
                                  justifyContent: 'center',
                                  fontSize: '1.8cqw',
                                  whiteSpace: 'normal',
-                                 color: '#fff',
+                                 color: 'transparent',
                                  textDecoration: 'none',
                                  lineHeight: '1.2'
                                }}

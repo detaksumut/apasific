@@ -153,7 +153,7 @@ export default async function AuthorSubmissionDetail({ params }: { params: Promi
                       fontSize: '1.8cqw',
                       textDecoration: 'none',
                       lineHeight: '1.2',
-                      color: '#fff'
+                      color: 'transparent'
                     }}
                   >
                     {submission.doi}
