@@ -45,6 +45,21 @@ export async function handleReviewerDecision(assignmentId: string, submissionId:
         details: logDetails
     });
 
+    let reviewerName = 'Reviewer';
+    try {
+        const { data: profile } = await supabaseAdmin.from('profiles').select('full_name').eq('id', user.id).single();
+        if (profile && profile.full_name) {
+            reviewerName = profile.full_name;
+        } else {
+            const { getFirestore } = await import('@/utils/firebase/db');
+            const db = getFirestore();
+            const uDoc = await db.collection('users').doc(user.id).get();
+            if (uDoc.exists && (uDoc.data()?.full_name || uDoc.data()?.name)) {
+                reviewerName = uDoc.data()?.full_name || uDoc.data()?.name;
+            }
+        }
+    } catch(e) {}
+
     // Send WA based on decision
     if (decision === 'accepted') {
       try {
@@ -83,13 +98,19 @@ export async function handleReviewerDecision(assignmentId: string, submissionId:
             }
         }
         
+        const { sendWa } = await import('@/utils/sendWa');
         if (phoneNum) {
             const message = `Naskah anda mulai di review`;
-            const { sendWa } = await import('@/utils/sendWa');
-            await sendWa(phoneNum, message);
+            const logoUrl = "https://apasific.org/logo-apasific.png";
+            await sendWa(phoneNum, message, logoUrl);
         } else {
             console.warn("Could not find phone number for WA notification to author.");
         }
+        
+        // Kirim juga notifikasi ke HP Admin
+        const editorPhone = "+62811665212";
+        const editorMessage = `Kabar baik! Reviewer atas nama ${reviewerName} telah MENERIMA penugasan untuk naskah #${submissionId}.`;
+        await sendWa(editorPhone, editorMessage);
       } catch (waErr) {
         console.error("Failed to send WA on reviewer acceptance", waErr);
       }
@@ -97,7 +118,7 @@ export async function handleReviewerDecision(assignmentId: string, submissionId:
       try {
         // Send to Editor's phone number
         const editorPhone = "+62811665212";
-        const message = `Maaf, saya masih sibuk`;
+        const message = `Maaf, Reviewer atas nama ${reviewerName} menyatakan BELUM BERSEDIA meninjau naskah #${submissionId}. Mohon tugaskan reviewer lain.`;
         const { sendWa } = await import('@/utils/sendWa');
         await sendWa(editorPhone, message);
       } catch (waErr) {
@@ -157,6 +178,21 @@ export async function deleteAssignment(assignmentId: string, submissionId: strin
     
     if (!user) return { success: false, error: "Unauthorized" };
 
+    let reviewerName = 'Reviewer';
+    try {
+        const { data: profile } = await supabaseAdmin.from('profiles').select('full_name').eq('id', user.id).single();
+        if (profile && profile.full_name) {
+            reviewerName = profile.full_name;
+        } else {
+            const { getFirestore } = await import('@/utils/firebase/db');
+            const db = getFirestore();
+            const uDoc = await db.collection('users').doc(user.id).get();
+            if (uDoc.exists && (uDoc.data()?.full_name || uDoc.data()?.name)) {
+                reviewerName = uDoc.data()?.full_name || uDoc.data()?.name;
+            }
+        }
+    } catch(e) {}
+
     // 1. Delete assignment from Supabase
     await supabaseAdmin.from('review_assignments').delete().eq('id', assignmentId);
     
@@ -174,7 +210,7 @@ export async function deleteAssignment(assignmentId: string, submissionId: strin
     // Send WA when reviewer deletes (same as reject)
     try {
         const editorPhone = "+62811665212";
-        const message = `Maaf, saya masih sibuk`;
+        const message = `Maaf, Reviewer atas nama ${reviewerName} menyatakan BELUM BERSEDIA meninjau naskah #${submissionId}. Mohon tugaskan reviewer lain.`;
         const { sendWa } = await import('@/utils/sendWa');
         await sendWa(editorPhone, message);
     } catch (waErr) {

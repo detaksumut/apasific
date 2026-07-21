@@ -91,7 +91,8 @@ export async function submitEditorialDecision(submissionId: string, authorId: st
                 if (phoneNum) {
                     const message = `Halo ${fullName},\n\nKabar gembira dari Tim Editorial Asia Index & Metric (APASIFIC).\n\nNaskah Anda yang berjudul:\n"${sub?.title}"\n\nTelah dinyatakan *DITERIMA (ACCEPTED)* untuk dipublikasikan.\nSilakan login ke dashboard APASIFIC untuk melihat langkah selanjutnya atau mengunduh Letter of Acceptance (LoA) Anda.\n\nTerima kasih atas kontribusi Anda.\nhttps://apasific.org`;
                     const { sendWa } = await import('@/utils/sendWa');
-                    await sendWa(phoneNum, message);
+                    const logoUrl = "https://apasific.org/logo-apasific.png";
+                    await sendWa(phoneNum, message, logoUrl);
                 }
             } catch (waErr) {
                 console.error("Failed to send Accepted WA", waErr);
@@ -220,7 +221,8 @@ export async function updateSubmissionStage(submissionId: string, stage: string,
                 if (phoneNum) {
                     const message = `Halo ${fullName},\n\nPemberitahuan dari Tim Editorial Asia Index & Metric (APASIFIC).\n\nNaskah Anda yang berjudul:\n"${sub?.title}"\n\nTelah selesai ditinjau oleh Reviewer dan *MEMERLUKAN REVISI*.${reviewNotes ? '\n\nBerikut adalah catatan perbaikan dari Reviewer:' + reviewNotes : ''}\n\nNaskah beserta semua catatan perbaikan kini telah dikembalikan ke laci dashboard Anda. Silakan login ke dashboard APASIFIC, masuk ke menu Submisi -> Lacak Proses, untuk membaca catatan lengkapnya dan mengunggah naskah yang telah diperbaiki.\n\nTerima kasih.\nhttps://apasific.org`;
                     const { sendWa } = await import('@/utils/sendWa');
-                    await sendWa(phoneNum, message);
+                    const logoUrl = "https://apasific.org/logo-apasific.png";
+                    await sendWa(phoneNum, message, logoUrl);
                 }
             } catch (waErr) {
                 console.error("Failed to send Needs Revision WA", waErr);
@@ -1094,7 +1096,42 @@ export async function sendReviewerInviteWa(phone: string, name: string, submissi
         if (!phone) return { success: false, error: "Nomor telepon tidak tersedia" };
         const { sendWa } = await import('@/utils/sendWa');
         const message = `Yth. ${name}, kami mengundang Anda untuk meninjau naskah #${submissionId} di platform APASIFIC.`;
-        const result = await sendWa(phone, message);
+        const logoUrl = "https://apasific.org/logo-apasific.png";
+        const result = await sendWa(phone, message, logoUrl);
+        
+        // Log ke submission_history
+        if (result) {
+            try {
+                const supabaseAdmin = (await import('@supabase/supabase-js')).createClient(
+                  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+                  process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+                );
+                const { getCurrentUser } = await import('./auth');
+                const user: any = await getCurrentUser();
+                
+                await supabaseAdmin.from('submission_history').insert({
+                    submission_id: submissionId,
+                    action: 'Reviewer Invited via WA',
+                    performed_by: user?.id || null,
+                    details: `Editor mengirimkan undangan ulasan via WhatsApp kepada ${name}`
+                });
+                
+                // Fallback to Firestore
+                const { getFirestore } = await import('@/utils/firebase/db');
+                const db = getFirestore();
+                const histRef = db.collection('submission_history').doc();
+                await histRef.set({
+                    submission_id: submissionId,
+                    action: 'Reviewer Invited via WA',
+                    performed_by: user?.id || null,
+                    details: `Editor mengirimkan undangan ulasan via WhatsApp kepada ${name}`,
+                    created_at: new Date()
+                });
+            } catch (logErr) {
+                console.error("Gagal mencatat log invite WA:", logErr);
+            }
+        }
+        
         return { success: result, message: result ? "Pesan WA terkirim" : "Gagal mengirim pesan via Fonnte" };
     } catch (e: any) {
         return { success: false, error: e.message };
