@@ -89,6 +89,7 @@ export default async function AuthorDashboard() {
   if (role === 'supervisor') redirect('/dashboard/production/supervisor');
   if (role === 'editor') redirect('/dashboard/editor');
   if (role === 'admin') redirect('/dashboard/admin');
+  if (role === 'reviewer') redirect('/dashboard/reviews');
   if (role === 'co_admin' || role === 'co-admin') redirect('/dashboard/admin/users');
 
   // 3. Dual-Database Submissions Fetch: Try Supabase, fallback to Firestore

@@ -1101,7 +1101,7 @@ export async function sendReviewerInviteWa(phone: string, name: string, submissi
     try {
         if (!phone) return { success: false, error: "Nomor telepon tidak tersedia" };
         const { sendWa } = await import('@/utils/sendWa');
-        const message = `Halo *${name}*,\n\nTim Editorial Asia Index & Metric (APASIFIC) mengundang Anda untuk menjadi *Reviewer* pada naskah berikut:\n\n*ID Naskah:* #${submissionId.substring(0,8).toUpperCase()}\n\nMohon konfirmasi kesediaan Anda.\n\n*Cara Merespon:*\nSilakan login ke *Dashboard Reviewer APASIFIC* melalui link di bawah ini untuk melihat detail naskah, lalu klik tombol *TERIMA* atau *TOLAK*:\n👉 https://apasific.org/dashboard/reviewer\n\nTerima kasih atas waktu dan dedikasi Anda.\n- Tim Editorial APASIFIC`;
+        const message = `Halo *${name}*,\n\nTim Editorial Asia Index & Metric (APASIFIC) mengundang Anda untuk menjadi *Reviewer* pada naskah berikut:\n\n*ID Naskah:* #${submissionId.substring(0,8).toUpperCase()}\n\nMohon konfirmasi kesediaan Anda.\n\n*Cara Merespon:*\nSilakan login ke APASIFIC melalui link di bawah ini, lalu masuk ke menu *Dashboard* Anda untuk melihat detail naskah dan mengklik tombol *TERIMA* atau *TOLAK*:\n👉 https://apasific.org/login\n\nTerima kasih atas waktu dan dedikasi Anda.\n- Tim Editorial APASIFIC`;
         const logoUrl = "https://apasific.org/logo-apasific.png";
         const result = await sendWa(phone, message, logoUrl);
         

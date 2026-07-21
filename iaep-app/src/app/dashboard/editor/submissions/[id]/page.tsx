@@ -500,22 +500,31 @@ export default function SubmissionControlPanel() {
                                     </div>
                                   </div>
                                   <div className="flex items-center space-x-2">
-                                    <button 
                                       onClick={async () => {
-                                        if (window.confirm("Kirim pesan otomatis via WhatsApp (Sistem APASIFIC) ke Reviewer ini?")) {
-                                            setToastMessage("Mengirim pesan...");
+                                        if (window.confirm("Tugaskan reviewer ini dan kirim pesan otomatis via WhatsApp?")) {
+                                            setToastMessage("Menugaskan reviewer & mengirim pesan...");
                                             const m = await import("@/app/actions/editor");
-                                            const res = await m.sendReviewerInviteWa(rev.phone_number || '', rev.full_name, submission.id);
-                                            if (res.success) {
-                                                setToastMessage("Berhasil terkirim via Fonnte!");
+                                            
+                                            // 1. Assign to database first
+                                            const assignRes = await m.assignReviewer(submission.id, rev.id || rev.email, rev.full_name || rev.name);
+                                            
+                                            if (assignRes.success) {
+                                                // 2. Send WA message
+                                                const res = await m.sendReviewerInviteWa(rev.phone_number || '', rev.full_name, submission.id);
+                                                if (res.success) {
+                                                    setToastMessage("Reviewer ditugaskan & Pesan WA terkirim!");
+                                                } else {
+                                                    setToastMessage("Reviewer ditugaskan, tapi WA gagal: " + res.error);
+                                                }
+                                                setTimeout(() => window.location.reload(), 1500);
                                             } else {
-                                                setToastMessage("Gagal mengirim pesan: " + res.error);
+                                                setToastMessage("Gagal menugaskan reviewer: " + assignRes.error);
                                             }
                                         }
                                       }}
                                       className="text-xs bg-[#25D366] text-black font-semibold py-1 px-3 rounded hover:bg-[#22c35e] text-center"
                                     >
-                                      💬 Invite
+                                      💬 Assign & Invite
                                     </button>
                                     <button 
                                       onClick={async () => {
