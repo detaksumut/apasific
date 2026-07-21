@@ -1039,17 +1039,22 @@ export default function SubmissionControlPanel() {
                                     }
                                   }
                                   const endY = 460 + (lines - 1) * 85;
-                                  const tableY = endY + 120; // Correct tableY
-                                  const cellTop = tableY + 60 + 45; // Below the "DOI:" text in canvas
+                                  const tableY = endY + 120;
+                                  const cellTop = tableY + 60; // Top of the cell body
                                   return `${(cellTop / 1754) * 100}%`;
                                 })(),
-                                left: '63%', // Right of divider + some padding
-                                width: '25%', // Keep it within cell
-                                height: '5%',
+                                left: '62.096%', // Exact divider line
+                                width: '28.225%', // Exact cell width
+                                height: '6.841%', // 120 / 1754
                                 backgroundColor: 'transparent',
-                                fontSize: '1.6cqw',
+                                display: 'flex',
+                                flexDirection: 'column',
+                                paddingTop: '14%', // Push it below "DOI:" text
+                                paddingLeft: '2%',
+                                paddingRight: '2%',
+                                fontSize: '1.4cqw',
                                 whiteSpace: 'normal',
-                                wordBreak: 'break-all',
+                                wordBreak: 'break-word',
                                 color: '#fff',
                                 textDecoration: 'none',
                                 lineHeight: '1.2'
@@ -1200,24 +1205,29 @@ export default function SubmissionControlPanel() {
                                      }
                                    }
                                    const endY = 460 + (lines - 1) * 85;
-                                   const tableY = endY + 140;
-                                   const cellTop = tableY + 55; // Header height is 55
-                                   return `calc(${(cellTop / 1754) * 100}% + 2px)`;
+                                   const tableY = endY + 120;
+                                   const cellTop = tableY + 60; // Top of the cell body
+                                   return `${(cellTop / 1754) * 100}%`;
                                  })(),
-                                 left: 'calc(62.096% + 2px)', // Right of divider (770/1240)
-                                 width: 'calc(28.225% - 4px)', // Cell width (350/1240)
-                                 height: 'calc(8.266% - 4px)', // Cell height (145/1754)
+                                 left: '62.096%', // Exact divider line
+                                 width: '28.225%', // Exact cell width
+                                 height: '6.841%', // 120 / 1754
                                  backgroundColor: 'transparent',
-                                 fontSize: '1.75cqw',
+                                 display: 'flex',
+                                 flexDirection: 'column',
+                                 paddingTop: '14%', // Push it below "DOI:" text
+                                 paddingLeft: '2%',
+                                 paddingRight: '2%',
+                                 fontSize: '1.4cqw',
                                  whiteSpace: 'normal',
-                                 wordBreak: 'break-all',
+                                 wordBreak: 'break-word',
                                  color: '#fff',
                                  textDecoration: 'none',
                                  lineHeight: '1.2'
                                }}
                              >
                                {generatedDoi || submission.doi}
-                             </a>
+                             </div>
                            )}
                         </div>
                       ) : (
