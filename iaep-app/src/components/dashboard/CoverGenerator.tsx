@@ -298,17 +298,17 @@ export default function CoverGenerator({ submission, generatedDoi }: CoverGenera
   };
 
   return (
-    <div className="bg-[#11111a] border border-gray-800 p-6 rounded-xl shadow-xl flex flex-row gap-8 mt-6">
+    <div className="bg-white border border-gray-200 p-6 rounded-xl shadow-xl flex flex-row gap-8 mt-6">
       {/* Settings Panel */}
       <div className="flex-1 min-w-0 space-y-6">
         <div>
-          <h3 className="text-xl font-bold text-white mb-2">Auto-Cover Studio</h3>
-          <p className="text-sm text-gray-400">Generate cover jurnal profesional secara otomatis dari metadata artikel tanpa perlu aplikasi desain eksternal.</p>
+          <h3 className="text-xl font-bold text-gray-900 mb-2">Auto-Cover Studio</h3>
+          <p className="text-sm text-gray-600">Generate cover jurnal profesional secara otomatis dari metadata artikel tanpa perlu aplikasi desain eksternal.</p>
         </div>
 
         <div className="space-y-4">
           <div>
-            <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Pilih Tema / Latar Belakang</label>
+            <label className="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-3">Pilih Tema / Latar Belakang</label>
             <div className="flex flex-wrap items-center gap-2">
               {Object.entries(themes).map(([key, val]) => (
                 <button 
@@ -320,13 +320,13 @@ export default function CoverGenerator({ submission, generatedDoi }: CoverGenera
                 />
               ))}
               
-              <div className="w-px h-6 bg-gray-700 mx-1"></div>
+              <div className="w-px h-6 bg-gray-300 mx-1"></div>
               
               <label 
-                className={`flex items-center justify-center w-8 h-8 rounded-full border-[3px] cursor-pointer transition-all ${customBgUrl ? 'border-white scale-110 shadow-[0_0_10px_rgba(255,255,255,0.4)] bg-gray-600' : 'border-dashed border-gray-500 opacity-60 hover:opacity-100 hover:border-white bg-gray-800'}`}
+                className={`flex items-center justify-center w-8 h-8 rounded-full border-[3px] cursor-pointer transition-all ${customBgUrl ? 'border-indigo-500 scale-110 shadow-[0_0_10px_rgba(99,102,241,0.4)] bg-indigo-100' : 'border-dashed border-gray-300 opacity-60 hover:opacity-100 hover:border-gray-500 bg-gray-100'}`}
                 title="Unggah Pattern / Background Bebas"
               >
-                <span className="text-sm font-bold text-white">+</span>
+                <span className="text-sm font-bold text-gray-700">+</span>
                 <input 
                   type="file" 
                   accept="image/*" 
@@ -343,27 +343,27 @@ export default function CoverGenerator({ submission, generatedDoi }: CoverGenera
             </div>
           </div>
 
-          <div className="bg-[#0a0a0f] p-4 rounded-lg border border-gray-800">
+          <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
             <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Data Metadata (Ditarik Otomatis)</h4>
-            <ul className="text-sm text-gray-300 space-y-2">
-              <li className="flex gap-2"><span className="w-16 font-semibold text-gray-600 shrink-0">Jurnal:</span> <span className="flex-1 break-words line-clamp-2">{journalName || '-'}</span></li>
-              {scope && <li className="flex gap-2"><span className="w-16 font-semibold text-gray-600 shrink-0">Scope:</span> <span className="flex-1 break-words line-clamp-2">{scope}</span></li>}
-              <li className="flex gap-2"><span className="w-16 font-semibold text-gray-600 shrink-0">Judul:</span> <span className="flex-1 break-words line-clamp-2">{title || '-'}</span></li>
-              <li className="flex gap-2"><span className="w-16 font-semibold text-gray-600 shrink-0">Author:</span> <span className="flex-1 break-words line-clamp-1">{author || '-'}</span></li>
+            <ul className="text-sm text-gray-800 space-y-2">
+              <li className="flex gap-2"><span className="w-16 font-semibold text-gray-500 shrink-0">Jurnal:</span> <span className="flex-1 break-words line-clamp-2">{journalName || '-'}</span></li>
+              {scope && <li className="flex gap-2"><span className="w-16 font-semibold text-gray-500 shrink-0">Scope:</span> <span className="flex-1 break-words line-clamp-2">{scope}</span></li>}
+              <li className="flex gap-2"><span className="w-16 font-semibold text-gray-500 shrink-0">Judul:</span> <span className="flex-1 break-words line-clamp-2">{title || '-'}</span></li>
+              <li className="flex gap-2"><span className="w-16 font-semibold text-gray-500 shrink-0">Author:</span> <span className="flex-1 break-words line-clamp-1">{author || '-'}</span></li>
             </ul>
           </div>
           
-          <div className="bg-blue-900/30 border border-blue-700/50 p-3 rounded-lg text-blue-300 text-xs mt-4">
+          <div className="bg-blue-50 border border-blue-200 p-3 rounded-lg text-blue-800 text-xs mt-4">
              <span className="font-bold">Panduan:</span> Silakan lihat pratinjau (preview) hasil generate cover di sebelah kanan. Ubah tema warna jika perlu. Jika sudah pas dan cocok, klik tombol di bawah untuk menerapkan.
           </div>
           
           {submission?.cover_file_url && (
-             <div className="bg-green-900/30 border border-green-700/50 p-3 rounded-lg flex items-center justify-between text-green-400 text-sm">
+             <div className="bg-green-50 border border-green-200 p-3 rounded-lg flex items-center justify-between text-green-800 text-sm">
                 <div className="flex items-center gap-2">
                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"/></svg>
                    Cover Telah Diterapkan
                 </div>
-                <a href={submission.cover_file_url} target="_blank" rel="noopener noreferrer" className="hover:text-white underline">Lihat Cover</a>
+                <a href={submission.cover_file_url} target="_blank" rel="noopener noreferrer" className="hover:text-green-900 underline font-medium">Lihat Cover</a>
              </div>
           )}
         </div>
@@ -379,7 +379,7 @@ export default function CoverGenerator({ submission, generatedDoi }: CoverGenera
       </div>
 
       {/* Canvas Preview Area */}
-      <div className="flex-1 flex justify-center items-center bg-black/60 rounded-lg p-6 overflow-hidden border border-gray-800">
+      <div className="flex-1 flex justify-center items-center bg-gray-100 rounded-lg p-6 overflow-hidden border border-gray-200">
         <canvas 
           ref={canvasRef} 
           className="w-full h-auto max-w-[320px] object-contain shadow-[0_0_30px_rgba(0,0,0,0.5)] rounded"
