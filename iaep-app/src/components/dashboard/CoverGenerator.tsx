@@ -173,9 +173,9 @@ export default function CoverGenerator({ submission, generatedDoi }: CoverGenera
 
     ctx.fillStyle = currentTheme.text;
     ctx.font = '40px Arial, sans-serif';
-    wrapText(ctx, author, width / 2, nextY + 60, width - 200, 50);
+    const afterAuthorY = wrapText(ctx, author, width / 2, nextY + 60, width - 200, 50);
 
-    const tableY = nextY + 220;
+    const tableY = afterAuthorY + 120;
     const tableWidth = 1000;
     const tableX = (width - tableWidth) / 2;
     const headerHeight = 60;
