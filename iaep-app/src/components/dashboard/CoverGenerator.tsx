@@ -133,7 +133,7 @@ export default function CoverGenerator({ submission, generatedDoi }: CoverGenera
     
     try {
       const logoImg = new Image();
-      logoImg.src = '/apasific.png';
+      logoImg.src = '/logo-apasific.png';
       await new Promise((resolve, reject) => {
         logoImg.onload = resolve;
         logoImg.onerror = reject;
