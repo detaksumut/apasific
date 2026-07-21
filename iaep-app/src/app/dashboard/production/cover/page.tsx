@@ -46,6 +46,7 @@ export default async function CoverEditorDashboard() {
     const { data: doneSubmissions } = await supabase
       .from("submissions")
       .select("*, journals(name), profiles:author_id(full_name)")
+      .not("cover_file_url", "is", null)
       .neq("status", "Assigned to Cover")
       .order("created_at", { ascending: false })
       .limit(50);
@@ -83,7 +84,7 @@ export default async function CoverEditorDashboard() {
     }
 
     const existingDoneIds = new Set(completedArticles.map(a => a.id));
-    for (const fb of fbAllArticles.filter(a => a.status !== "Assigned to Cover")) {
+    for (const fb of fbAllArticles.filter(a => a.cover_file_url && a.status !== "Assigned to Cover")) {
         if (!existingDoneIds.has(fb.id)) {
             completedArticles.push(fb);
         }
