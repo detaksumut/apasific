@@ -500,6 +500,7 @@ export default function SubmissionControlPanel() {
                                     </div>
                                   </div>
                                   <div className="flex items-center space-x-2">
+                                    <button
                                       onClick={async () => {
                                         if (window.confirm("Tugaskan reviewer ini dan kirim pesan otomatis via WhatsApp?")) {
                                             setToastMessage("Menugaskan reviewer & mengirim pesan...");
