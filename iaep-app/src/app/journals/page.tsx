@@ -8,6 +8,9 @@ export default function JournalsRepository() {
   const [globalArticles, setGlobalArticles] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
+  const totalPages = Math.ceil(globalArticles.length / itemsPerPage);
 
   useEffect(() => {
     async function fetchData() {
@@ -79,52 +82,59 @@ export default function JournalsRepository() {
                 <p className="text-gray-400 mt-2">Kumpulan artikel ilmiah terbaru yang dipublikasikan lintas bidang akademik ASIA.</p>
               </div>
             </div>
-            <div className="grid md:grid-cols-2 gap-6">
-              {globalArticles.slice(0, 6).map((art, idx) => (
-                <div key={idx} className="bg-[#111120] border border-gray-800 rounded-xl p-6 hover:border-[#c9a84c]/50 transition-all flex flex-col justify-between shadow-lg">
-                  <div>
-                    <div className="text-xs text-[#c9a84c] mb-3 font-bold uppercase tracking-wider px-3 py-1 bg-[#c9a84c]/10 inline-block rounded-full">
-                      {art.journals?.name || 'ASIA Journal'}
-                    </div>
-                    <Link href={`/article/${art.id}`} className="hover:text-[#c9a84c] transition-colors">
-                      <h3 className="text-xl text-white font-bold mb-3 line-clamp-2 leading-snug">{art.title}</h3>
-                    </Link>
-                    <p className="text-sm text-gray-400 line-clamp-3 mb-4 leading-relaxed">
-                      {(() => {
-                        try {
-                          const abs = JSON.parse(art.abstract);
-                          return abs.abstract_en || abs.abstract || "";
-                        } catch(e) { return art.abstract; }
-                      })()}
-                    </p>
-                    {/* Author and DOI */}
-                    <div className="flex flex-col gap-1 mt-4 pt-4 border-t border-gray-800/50">
-                       <div className="text-xs text-gray-500 font-medium">
-                          Penulis: {(() => {
-                             try {
-                               const abs = JSON.parse(art.abstract);
-                               return abs.authors?.map((a:any) => a.full_name).join(', ') || "-";
-                             } catch(e) { return "-"; }
-                          })()}
-                       </div>
-                       {art.doi && (
-                         <div className="text-xs text-gray-400 font-medium mt-1">
-                            DOI: <a href={`https://doi.org/${art.doi.trim()}`} target="_blank" rel="noopener noreferrer" className="text-emerald-500 hover:underline">{art.doi}</a>
-                         </div>
-                       )}
-                    </div>
+            <div className="flex flex-col gap-6">
+              {globalArticles
+                .sort((a, b) => new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime())
+                .slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
+                .map((art, idx) => (
+                <div key={idx} className="pb-6 border-b border-gray-800/50 last:border-0 flex flex-col gap-2">
+                  <div className="text-xs text-[#c9a84c] font-bold uppercase tracking-wider">
+                    {art.journals?.name || 'ASIA Journal'}
                   </div>
-                  
-                  {/* View Details Button at the bottom */}
-                  <Link 
-                    href={`/article/${art.id}`} 
-                    className="mt-6 w-full block text-sm bg-transparent border border-[#c9a84c] text-[#c9a84c] px-4 py-2 rounded font-bold hover:bg-[#c9a84c]/10 transition-colors text-center"
-                  >
-                    View Details
+                  <Link href={`/article/${art.id}`} className="hover:text-[#c9a84c] transition-colors">
+                    <h3 className="text-xl text-white font-bold leading-snug">{art.title}</h3>
                   </Link>
+                  <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-2">
+                     <div className="text-sm text-gray-400">
+                        <span className="font-medium text-gray-500">Penulis:</span> {(() => {
+                           try {
+                             const abs = JSON.parse(art.abstract);
+                             return abs.authors?.map((a:any) => a.full_name).join(', ') || "-";
+                           } catch(e) { return "-"; }
+                        })()}
+                     </div>
+                     {art.doi && (
+                       <div className="text-sm text-gray-400">
+                          <span className="font-medium text-gray-500">DOI:</span> <a href={`https://doi.org/${art.doi.trim()}`} target="_blank" rel="noopener noreferrer" className="text-emerald-500 hover:underline">{art.doi}</a>
+                       </div>
+                     )}
+                  </div>
                 </div>
               ))}
             </div>
+
+            {/* Pagination Controls */}
+            {totalPages > 1 && (
+              <div className="flex justify-center items-center gap-4 mt-10">
+                <button 
+                  onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                  disabled={currentPage === 1}
+                  className="px-4 py-2 rounded-lg bg-[#111120] text-gray-400 border border-gray-800 hover:bg-[#c9a84c]/10 hover:text-[#c9a84c] hover:border-[#c9a84c]/50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                >
+                  Sebelumnya
+                </button>
+                <span className="text-sm font-medium text-gray-400">
+                  Halaman <span className="text-white">{currentPage}</span> dari <span className="text-white">{totalPages}</span>
+                </span>
+                <button 
+                  onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                  disabled={currentPage === totalPages}
+                  className="px-4 py-2 rounded-lg bg-[#111120] text-gray-400 border border-gray-800 hover:bg-[#c9a84c]/10 hover:text-[#c9a84c] hover:border-[#c9a84c]/50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                >
+                  Selanjutnya
+                </button>
+              </div>
+            )}
           </div>
         </section>
       )}

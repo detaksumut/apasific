@@ -10,7 +10,7 @@ const supabaseAdmin = createClient(supabaseUrl, supabaseKey);
 
 export const revalidate = 0; // Disable caching so it always fetches fresh data
 
-export default async function AJITEJournal() {
+export default async function AJAFJournal() {
   let articles: any[] = [];
   
   try {
@@ -32,7 +32,7 @@ export default async function AJITEJournal() {
       articles = data.filter((pub: any) => 
         pub.journals && 
         pub.journals.name && 
-        pub.journals.name.toUpperCase().includes("AJITE")
+        pub.journals.name.toUpperCase().includes("AJAF")
       );
     } else if (error) {
       console.error("Supabase Error:", error.message || error);
@@ -51,8 +51,8 @@ export default async function AJITEJournal() {
       const firestoreArticles = [];
       for (const doc of fbSnap.docs) {
         const fbData = doc.data();
-        const validStatuses = ['Accepted', 'Assigned to Layout', 'Assigned to Cover', 'Assigned to Publish', 'Pending Supervisor', 'Production Completed', 'Published'];
-        const isAdvancedStage = ['Copyediting', 'Production', 'Published'].includes(fbData.stage);
+        const validStatuses = ['Published'];
+        const isAdvancedStage = ['Published'].includes(fbData.stage);
         if (!validStatuses.includes(fbData.status) && !isAdvancedStage) continue;
 
         let jName = '';
@@ -61,7 +61,7 @@ export default async function AJITEJournal() {
            if (jData) jName = jData.name;
         }
         
-        if (jName.toUpperCase().includes("AJITE")) {
+        if (jName.toUpperCase().includes("AJAF")) {
           firestoreArticles.push({
             id: doc.id,
             ...fbData,
@@ -88,12 +88,12 @@ export default async function AJITEJournal() {
         </Link>
 
         <div className="mb-12 border-b border-zinc-800 pb-8">
-          <h1 className="text-4xl md:text-5xl font-bold mb-4 leading-tight text-white flex items-center gap-4">
-            <span className="bg-emerald-500/10 text-emerald-500 px-4 py-2 rounded-xl text-2xl font-black">AJITE</span>
-            Journal of IT & Engineering
+          <h1 className="text-4xl md:text-5xl font-bold mb-4 leading-tight text-white flex flex-wrap items-center gap-4">
+            <span className="bg-emerald-500/10 text-emerald-500 px-4 py-2 rounded-xl text-2xl font-black">AJAF</span>
+            Akuntansi, Audit & Perpajakan
           </h1>
           <p className="text-zinc-400 text-lg max-w-3xl">
-            Repositori resmi publikasi artikel ilmiah untuk <strong className="text-emerald-500">AJITE (APASIFIC Journal of IT & Engineering)</strong>. 
+            Repositori resmi publikasi artikel ilmiah untuk <strong className="text-emerald-500">AJAF - Akuntansi, Audit & Perpajakan</strong>. 
             Semua naskah di bawah ini telah melalui proses telaah sejawat (*peer-review*) dan dinyatakan sah untuk dipublikasikan.
           </p>
         </div>
@@ -109,7 +109,7 @@ export default async function AJITEJournal() {
                     #sub_{pub.id.substring(0,8)}
                   </span>
                   <span className="text-[10px] font-bold tracking-widest uppercase px-2 py-1 bg-emerald-500/10 text-emerald-400 rounded border border-emerald-500/20">
-                    {pub.journals?.name || "AJITE - JOURNAL OF IT & ENGINEERING"}
+                    {pub.journals?.name || "AJAF - AKUNTANSI, AUDIT & PERPAJAKAN"}
                   </span>
                 </div>
                 

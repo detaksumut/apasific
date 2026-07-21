@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
+import DynamicCover from "@/components/DynamicCover";
 
 export default function ArticlePaywall() {
   const params = useParams();
@@ -439,41 +440,14 @@ export default function ArticlePaywall() {
             {article.cover_file_url && (
               <div className="bg-[#0d0d1a] rounded-xl p-6 border border-gray-800 flex flex-col items-center shadow-xl">
                 <span className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-4 w-full text-center">Sampul Depan (Cover)</span>
-                <div className="rounded-xl overflow-hidden border border-gray-850 shadow-2xl w-full max-w-[240px] aspect-[1/1.414] relative bg-black/40" style={{ containerType: 'inline-size' }}>
-                  <img src={article.cover_file_url} alt="Cover Artikel" className="w-full h-full object-cover relative z-0" />
-                  {article.doi && (
-                    <a 
-                      href={article.doi.includes('zenodo.') ? `https://zenodo.org/records/${article.doi.split('zenodo.')[1]}` : `https://doi.org/${article.doi}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="absolute z-10 font-bold flex items-center hover:underline hover:text-emerald-300 transition-colors" 
-                      style={{
-                          top: (() => {
-                            let hasScope = false;
-                            try {
-                              if (article?.abstract) {
-                                const parsed = JSON.parse(article.abstract);
-                                if (parsed.scope || (parsed.keywords && parsed.keywords.includes('Scope:'))) hasScope = true;
-                              }
-                            } catch(e) {}
-                            const doiY = hasScope ? 440 : 370;
-                            const topEdge = doiY - 32;
-                            return `${(topEdge / 1754) * 100}%`;
-                          })(),
-                          left: 0,
-                          width: '100%',
-                          backgroundColor: 'transparent',
-                          display: 'flex',
-                          justifyContent: 'center',
-                          fontSize: '1.8cqw',
-                          textDecoration: 'none',
-                          lineHeight: '1.2',
-                          color: 'transparent'
-                      }}
-                    >
-                      {article.doi}
-                    </a>
-                  )}
+                <div className="w-full max-w-[280px]">
+                  <DynamicCover 
+                    coverUrl={article.cover_file_url} 
+                    journalName={article.journal} 
+                    title={article.title} 
+                    author={article.author} 
+                    doi={article.doi} 
+                  />
                 </div>
               </div>
             )}

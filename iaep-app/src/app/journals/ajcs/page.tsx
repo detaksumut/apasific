@@ -2,6 +2,7 @@ import React from "react";
 import Link from "next/link";
 import { CheckCircle2, ChevronLeft, FileText, ArrowRight } from "lucide-react";
 import { createClient } from "@supabase/supabase-js";
+import DynamicCover from "@/components/DynamicCover";
 
 // Buat Supabase client dengan Service Role Key untuk bypass RLS (karena ini halaman publik)
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
@@ -25,7 +26,7 @@ export default async function AJCSJournal() {
         doi,
         journals(name)
       `)
-      .eq("status", "Published")
+      .eq("status", "Accepted")
       .order("created_at", { ascending: false });
 
     if (!error && data) {
@@ -51,8 +52,8 @@ export default async function AJCSJournal() {
       const firestoreArticles = [];
       for (const doc of fbSnap.docs) {
         const fbData = doc.data();
-        const validStatuses = ['Published'];
-        const isAdvancedStage = ['Published'].includes(fbData.stage);
+        const validStatuses = ['Accepted', 'Assigned to Layout', 'Assigned to Cover', 'Assigned to Publish', 'Pending Supervisor', 'Production Completed', 'Published'];
+        const isAdvancedStage = ['Copyediting', 'Production', 'Published'].includes(fbData.stage);
         if (!validStatuses.includes(fbData.status) && !isAdvancedStage) continue;
 
         let jName = '';
@@ -153,32 +154,24 @@ export default async function AJCSJournal() {
                 <div className="text-[10px] font-bold tracking-widest text-emerald-500/70 uppercase mb-4 text-center">
                   SAMPUL DEPAN (COVER)
                 </div>
-                {pub.cover_file_url ? (
-                  <div 
-                    className="relative w-full aspect-[1/1.4] rounded-lg overflow-hidden border border-zinc-700 shadow-2xl group-hover:scale-105 transition-transform duration-500"
-                    style={{ containerType: 'inline-size' }}
-                  >
-                    <img 
-                      src={pub.cover_file_url} 
-                      alt={`Cover ${pub.title}`} 
-                      className="w-full h-full object-cover"
-                    />
-                    
-                    {/* Overlay DOI di atas gambar (bagian bawah gambar) agar tidak merusak file asli */}
-                    {pub.doi && (
-                      <div className="absolute bottom-0 left-0 right-0 bg-black/80 backdrop-blur-sm p-3 border-t border-emerald-500/50 flex flex-col items-center justify-center transform translate-y-full group-hover:translate-y-0 transition-transform duration-300">
-                        <span className="text-[10px] text-zinc-400 font-bold uppercase tracking-wider mb-1">Digital Object Identifier</span>
-                        <span className="text-xs font-mono text-emerald-400 font-bold">{pub.doi}</span>
-                      </div>
-                    )}
-                  </div>
-                ) : (
-                  <div className="w-full aspect-[1/1.4] rounded-lg border border-dashed border-zinc-700 flex flex-col items-center justify-center bg-zinc-900">
-                    <FileText className="w-12 h-12 text-zinc-700 mb-2" />
-                    <span className="text-xs text-zinc-600 font-medium text-center px-4">Sampul belum diunggah</span>
-                  </div>
-                )}
-                {/* Teks DOI statis di bawah gambar sampul */}
+                
+                <DynamicCover 
+                  title={pub.title}
+                  author={(() => {
+                    try {
+                      const abs = JSON.parse(pub.abstract);
+                      if (abs.authors && Array.isArray(abs.authors) && abs.authors.length > 0) {
+                        return abs.authors.map((a: any) => a.full_name).join(', ');
+                      }
+                    } catch(e) {}
+                    return pub.profiles?.full_name || pub.author || "Penulis Tidak Diketahui";
+                  })()}
+                  journalName={pub.journals?.name || "JOURNAL OF COMMUNITY SERVICE"}
+                  doi={pub.doi}
+                  hueRotate="hue-rotate-0" 
+                />
+
+                {/* Teks DOI statis di bawah gambar sampul tetap dipertahankan agar bisa diklik */}
                 {pub.doi && (
                   <div className="mt-4 w-full bg-zinc-950 border border-zinc-800 rounded p-2 text-center">
                     <span className="text-[10px] text-zinc-500 block uppercase font-bold tracking-wider mb-0.5">DOI Tertaud:</span>
