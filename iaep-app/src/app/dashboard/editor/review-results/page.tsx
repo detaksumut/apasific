@@ -1,7 +1,7 @@
 import { createClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import { ClipboardCheck, FileText, CheckCircle, Search, Eye } from "lucide-react";
+import { ClipboardCheck, FileText, CheckCircle, Search, Eye, UserPlus } from "lucide-react";
 import MakeDecisionAction from "@/components/dashboard/MakeDecisionAction";
 import { cookies } from "next/headers";
 
@@ -73,6 +73,61 @@ export default async function ReviewResultsPage() {
       console.warn("Firebase fetch failed", err);
   }
 
+  // --- NEW: Fetch all reviewers ---
+  let allReviewers: any[] = [];
+  try {
+    const { data: reviewers } = await supabase.from("profiles").select("*").eq("role", "reviewer");
+    allReviewers = reviewers || [];
+  } catch (e) {
+    console.warn("Supabase fetch for reviewers failed", e);
+  }
+  // Fallback for reviewers from JSON if needed
+  try {
+    const fs = await import('fs');
+    const path = await import('path');
+    const jsonPath = path.join(process.cwd(), 'apasific_registered_users.json');
+    if (fs.existsSync(jsonPath)) {
+      const usersData = JSON.parse(fs.readFileSync(jsonPath, 'utf8'));
+      const jsonReviewers = usersData.filter((u: any) => u.role === 'reviewer');
+      jsonReviewers.forEach((jr: any) => {
+        if (!allReviewers.find(r => r.email === jr.email)) {
+          allReviewers.push({ ...jr, role: 'reviewer' });
+        }
+      });
+    }
+  } catch (err) { }
+
+  // --- NEW: Fetch Review Assignments ---
+  let assignmentsMap: Record<string, any[]> = {};
+  try {
+    const articleIds = articles.map(a => a.id || a.submission_id).filter(Boolean);
+    if (articleIds.length > 0) {
+      const { data: assignmentsData } = await supabase
+        .from("review_assignments")
+        .select("*")
+        .in("submission_id", articleIds);
+        
+      if (assignmentsData) {
+        assignmentsData.forEach(assignment => {
+          if (!assignmentsMap[assignment.submission_id]) {
+            assignmentsMap[assignment.submission_id] = [];
+          }
+          assignmentsMap[assignment.submission_id].push(assignment);
+        });
+      }
+    }
+  } catch (e) {
+    console.warn("Supabase fetch for assignments failed", e);
+  }
+  
+  // Attach assignments
+  articles = articles.map(article => {
+     const articleAssignments = assignmentsMap[article.id || article.submission_id] || [];
+     // Find the active assignments (not rejected)
+     const activeAssignments = articleAssignments.filter(a => a.status !== 'rejected');
+     return { ...article, assignments: activeAssignments };
+  });
+
   return (
     <div className="max-w-7xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
       
@@ -138,6 +193,28 @@ export default async function ReviewResultsPage() {
                       Author: <span className="text-zinc-300">{article.profiles?.full_name || 'Penulis'}</span> &bull; 
                       Update terakhir: {new Date(article.updated_at || article.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}
                     </p>
+
+                    {article.assignments && article.assignments.length > 0 && (
+                      <div className="mt-3 space-y-2 border-t border-zinc-800/50 pt-3">
+                        {article.assignments.map((assignment: any) => {
+                          const rev = allReviewers.find(r => r.id === assignment.reviewer_id);
+                          const revName = rev ? rev.full_name : 'Reviewer Terhapus';
+                          return (
+                            <div key={assignment.id} className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 text-sm bg-zinc-800/30 p-2 rounded-lg border border-zinc-700/50 w-fit">
+                              <div className="flex items-center gap-2">
+                                <UserPlus className="w-3.5 h-3.5 text-[#c9a84c]" />
+                                <span className="text-zinc-300 font-medium">{revName}</span>
+                              </div>
+                              <div className="sm:border-l sm:border-zinc-700 sm:pl-2">
+                                {assignment.status === 'pending' && <span className="text-[10px] font-medium text-purple-400 bg-purple-500/10 px-2 py-0.5 rounded-full border border-purple-500/20">Menunggu Respons</span>}
+                                {assignment.status === 'accepted' && <span className="text-[10px] font-medium text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">Diterima / Mulai Review</span>}
+                                {assignment.status === 'completed' && <span className="text-[10px] font-medium text-blue-400 bg-blue-500/10 px-2 py-0.5 rounded-full border border-blue-500/20">Selesai Direview</span>}
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
                   </div>
                   
                   <div className="shrink-0 flex flex-wrap items-center justify-end gap-3">
