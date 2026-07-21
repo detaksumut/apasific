@@ -48,7 +48,7 @@ export default async function CoverEditorDashboard() {
       .select("*, journals(name), profiles:author_id(full_name)")
       .not("cover_file_url", "is", null)
       .neq("status", "Assigned to Cover")
-      .order("created_at", { ascending: false })
+      .order("updated_at", { ascending: false })
       .limit(50);
 
     if (doneSubmissions) completedArticles = [...doneSubmissions];
@@ -69,6 +69,7 @@ export default async function CoverEditorDashboard() {
           status: data.status,
           cover_file_url: data.cover_file_url,
           created_at: data.created_at && data.created_at.toDate ? data.created_at.toDate() : new Date(),
+          updated_at: data.updated_at && data.updated_at.toDate ? data.updated_at.toDate() : (data.created_at && data.created_at.toDate ? data.created_at.toDate() : new Date()),
           journals: data.journals || { name: 'Unknown Journal' },
           profiles: { full_name: data.author || 'Author' }
       };
@@ -91,6 +92,13 @@ export default async function CoverEditorDashboard() {
   } catch (fbErr) {
     console.error("Firestore fetch failed", fbErr);
   }
+  
+  // Urutkan berdasarkan yang paling baru di-update (selesai)
+  completedArticles.sort((a, b) => {
+    const timeA = new Date(a.updated_at || a.created_at).getTime();
+    const timeB = new Date(b.updated_at || b.created_at).getTime();
+    return timeB - timeA;
+  });
 
   return (
     <div className="max-w-7xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
