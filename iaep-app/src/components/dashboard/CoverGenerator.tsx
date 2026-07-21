@@ -1,5 +1,6 @@
 "use client";
 import { useState, useRef, useEffect } from 'react';
+import { getAssignedVolumeAndIssue } from '@/app/actions/editor';
 
 interface CoverGeneratorProps {
   submission: any;
@@ -22,7 +23,6 @@ export default function CoverGenerator({ submission, generatedDoi }: CoverGenera
     async function fetchVol() {
        if (!journalId) return;
        try {
-         const { getAssignedVolumeAndIssue } = await import('@/app/actions/editor');
          const text = await getAssignedVolumeAndIssue(submissionId, journalId);
          const today = new Date();
          setDynamicVolText(`${text}, ${today.toLocaleString('default', { month: 'long' })} ${today.getFullYear()}`);

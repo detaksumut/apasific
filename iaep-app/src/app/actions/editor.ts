@@ -565,11 +565,15 @@ export async function getNextVolumeAndIssue(journalId: string) {
     const now = new Date();
     const year = now.getFullYear();
     const month = now.getMonth() + 1; // 1-12
+    
+    // Aturan Publikasi Standar:
+    // Volume bertambah setiap berganti tahun.
+    // Issue (No) bertambah dalam tahun yang sama.
     const startYear = 2026;
-    const yearDiff = year - startYear;
-    const semester = month <= 6 ? 1 : 2;
-    const volumeNum = (yearDiff * 2) + semester;
+    const volumeNum = (year - startYear) + 1;
     const volume = `Vol ${volumeNum}`;
+    
+    const semester = month <= 6 ? 1 : 2;
     
     const startMonth = semester === 1 ? 0 : 6;
     const startDate = new Date(year, startMonth, 1).toISOString();
