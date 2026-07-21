@@ -85,7 +85,7 @@ export default function IAEPArticles() {
                     <div className="flex items-center gap-4">
                       <div className="flex items-center gap-1.5 text-sm font-semibold text-emerald-500">
                         <CheckCircle2 className="w-4 h-4" />
-                        Status: {art.status || "Published"}
+                        Status: Published
                       </div>
                       <span className="text-zinc-600 text-sm font-medium">
                         •
