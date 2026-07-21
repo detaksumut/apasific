@@ -1,5 +1,5 @@
 export async function sendWa(target: string, message: string, imageUrl?: string): Promise<boolean> {
-  const token = "NuENajiEsZG5UWxZsAyE"; // Memaksa menggunakan token baru, mengabaikan token lama di Vercel
+  const token = "VBmD5X6bZmgRBGD2Vfay"; // Memaksa menggunakan token baru, mengabaikan token lama di Vercel
   
   if (!token) {
     console.warn("[Apasific WA System] FONNTE_TOKEN is not set in environment variables. Message simulated:");
