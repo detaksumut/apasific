@@ -135,21 +135,48 @@ export default async function AuthorSubmissionDetail({ params }: { params: Promi
                     className="absolute z-10 font-bold flex items-center hover:underline hover:text-emerald-300 transition-colors" 
                     style={{
                       top: (() => {
-                        const displayTitle = (submission.title || 'Untitled Article').split(':')[0].trim();
-                        const words = displayTitle.split(' ');
-                        let lines = 1;
+                        let hasScope = false;
+                        let extractedAuthor = submission?.author || 'Unknown Author';
+                        try {
+                          if (submission?.abstract) {
+                            const parsed = JSON.parse(submission.abstract);
+                            if (parsed.scope || (parsed.keywords && parsed.keywords.includes('Scope:'))) hasScope = true;
+                            if (parsed.authors && Array.isArray(parsed.authors) && parsed.authors.length > 0) {
+                               extractedAuthor = parsed.authors.map((a: any) => a.full_name || a.name).join(', ');
+                            }
+                          }
+                        } catch(e) {}
+                        const author = (extractedAuthor === 'Unknown Author' && submission?.profiles?.full_name) ? submission.profiles.full_name : extractedAuthor;
+
+                        const titleY = hasScope ? 500 : 450;
+                        const displayTitle = submission.title || 'Untitled Article';
+                        
+                        let titleLines = 1;
                         let currentLineLength = 0;
-                        for (let word of words) {
-                          if (currentLineLength + word.length > 28 && currentLineLength > 0) {
-                            lines++;
+                        for (let word of displayTitle.split(' ')) {
+                          if (currentLineLength + word.length > 30 && currentLineLength > 0) {
+                            titleLines++;
                             currentLineLength = word.length + 1;
                           } else {
                             currentLineLength += word.length + 1;
                           }
                         }
-                        const endY = 460 + (lines - 1) * 85;
-                        const tableY = endY + 120;
-                        const cellTop = tableY + 60 + 45; // Below the "DOI:" text in canvas
+                        const nextY = titleY + (titleLines - 1) * 85;
+
+                        let authorLines = 1;
+                        let currentAuthorLength = 0;
+                        for (let word of author.split(' ')) {
+                           if (currentAuthorLength + word.length > 50 && currentAuthorLength > 0) {
+                              authorLines++;
+                              currentAuthorLength = word.length + 1;
+                           } else {
+                              currentAuthorLength += word.length + 1;
+                           }
+                        }
+                        const afterAuthorY = nextY + 60 + (authorLines - 1) * 50;
+
+                        const tableY = afterAuthorY + 120;
+                        const cellTop = tableY + 60; // Top of the cell body
                         return `${(cellTop / 1754) * 100}%`;
                       })(),
                       left: '63%', // Right of divider + some padding
