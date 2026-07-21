@@ -46,10 +46,9 @@ export default async function CoverEditorDashboard() {
     const { data: doneSubmissions } = await supabase
       .from("submissions")
       .select("*, journals(name), profiles:author_id(full_name)")
-      .not("cover_file_url", "is", null)
       .neq("status", "Assigned to Cover")
       .order("created_at", { ascending: false })
-      .limit(50);
+      .limit(100);
 
     if (doneSubmissions) completedArticles = [...doneSubmissions];
   } catch (e) {
@@ -83,12 +82,25 @@ export default async function CoverEditorDashboard() {
         }
     }
 
-    const existingDoneIds = new Set(completedArticles.map(a => a.id));
+    const finalCompletedArticles = [];
+    const existingDoneIds = new Set();
+
+    for (const supa of completedArticles) {
+       const fbMatch = fbAllArticles.find(a => a.id === supa.id);
+       if (fbMatch && fbMatch.cover_file_url) {
+           supa.cover_file_url = fbMatch.cover_file_url;
+           finalCompletedArticles.push(supa);
+           existingDoneIds.add(supa.id);
+       }
+    }
+
     for (const fb of fbAllArticles.filter(a => a.cover_file_url && a.status !== "Assigned to Cover")) {
         if (!existingDoneIds.has(fb.id)) {
-            completedArticles.push(fb);
+            finalCompletedArticles.push(fb);
+            existingDoneIds.add(fb.id);
         }
     }
+    completedArticles = finalCompletedArticles;
   } catch (fbErr) {
     console.error("Firestore fetch failed", fbErr);
   }

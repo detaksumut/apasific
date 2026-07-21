@@ -36,7 +36,13 @@ export async function POST(req: Request) {
     try {
       const { getFirestore } = await import('@/utils/firebase/db');
       const db = getFirestore();
-      await db.collection('submissions').doc(submissionId).update({ file_url_galley: galleyUrl });
+      const docRef = db.collection('submissions').doc(submissionId);
+      const doc = await docRef.get();
+      if (!doc.exists) {
+         await docRef.set({ file_url_galley: galleyUrl, created_at: new Date(), updated_at: new Date() });
+      } else {
+         await docRef.update({ file_url_galley: galleyUrl, updated_at: new Date() });
+      }
     } catch(fbErr) {
       console.warn("Firestore file_url_galley update failed", fbErr);
     }

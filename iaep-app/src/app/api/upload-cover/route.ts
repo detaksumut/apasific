@@ -45,7 +45,13 @@ export async function POST(req: Request) {
     try {
       const { getFirestore } = await import('@/utils/firebase/db');
       const db = getFirestore();
-      await db.collection('submissions').doc(submissionId).update({ cover_file_url: coverUrl });
+      const docRef = db.collection('submissions').doc(submissionId);
+      const doc = await docRef.get();
+      if (!doc.exists) {
+         await docRef.set({ cover_file_url: coverUrl, created_at: new Date(), updated_at: new Date() });
+      } else {
+         await docRef.update({ cover_file_url: coverUrl, updated_at: new Date() });
+      }
     } catch(fbErr) {
       console.warn("Firestore cover_file_url update failed", fbErr);
     }
