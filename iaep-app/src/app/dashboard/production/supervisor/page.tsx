@@ -1,6 +1,7 @@
 import { createClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
 import Link from "next/link";
+import DeleteSubmissionButton from "@/components/DeleteSubmissionButton";
 import { ArrowRight, ShieldCheck, CheckCircle2 } from "lucide-react";
 import { cookies } from "next/headers";
 
@@ -127,11 +128,12 @@ export default async function SupervisorDashboard() {
                     </h3>
                   </div>
                   
-                  <div className="shrink-0">
+                  <div className="shrink-0 flex items-center gap-2">
                     <Link href={`/dashboard/editor/submissions/${article.id}?tab=production`} className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2 px-4 rounded text-sm flex items-center gap-2 transition-colors">
                       Validasi & Sahkan
                       <ArrowRight className="w-4 h-4" />
                     </Link>
+                    <DeleteSubmissionButton id={article.id} />
                   </div>
                 </div>
               </div>
@@ -168,11 +170,12 @@ export default async function SupervisorDashboard() {
                     </h3>
                   </div>
                   
-                  <div className="shrink-0">
+                  <div className="shrink-0 flex items-center gap-2">
                     <Link href={`/dashboard/editor/submissions/${article.id}?tab=production`} className="bg-zinc-700 hover:bg-zinc-600 text-zinc-300 font-bold py-2 px-4 rounded text-sm flex items-center gap-2 transition-colors">
                       Lihat Detail
                       <ArrowRight className="w-4 h-4" />
                     </Link>
+                    <DeleteSubmissionButton id={article.id} />
                   </div>
                 </div>
               </div>
