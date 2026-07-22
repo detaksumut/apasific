@@ -1153,25 +1153,23 @@ export default function SubmissionControlPanel() {
                     <div className="lg:col-span-5 flex flex-col items-center">
                       <h4 className="text-xs font-bold text-zinc-500 uppercase tracking-widest mb-4 w-full">Sampul Depan (Cover)</h4>
                       {submission?.cover_file_url ? (
-                        <div className="border border-zinc-800 rounded-xl overflow-hidden shadow-2xl max-w-sm w-full relative" style={{ containerType: 'inline-size' }}>
-                          {(() => {
-                            let volStr = customVolume.replace(/Vol\.?\s*/i, '').trim();
-                            let edStr = customIssue.replace(/No\.?\s*/i, '').trim();
-                            
-                            // If user leaves them blank, try to parse from backend dynamicVolIss (which isn't easily available here, so we'll just fall back to empty)
-                            return (
-                              <DynamicCover 
-                                title={submission.title}
-                                author={submission.author || "Author"}
-                                journalName={submission.journals?.name || ""}
-                                doi={submission.doi || generatedDoi || ""}
-                                volume={volStr}
-                                edisi={edStr}
-                                month={new Date().toLocaleDateString('en-US', { month: 'long' }).toUpperCase()}
-                                year={new Date().getFullYear().toString()}
-                              />
-                            );
-                          })()}
+                        <div className="border border-zinc-800 rounded-xl overflow-hidden shadow-2xl max-w-sm w-full relative mx-auto">
+                          <img src={submission.cover_file_url} alt="Cover Preview" className="max-w-full h-auto object-contain" />
+                          <div 
+                            className="absolute font-serif font-bold leading-snug drop-shadow-md overflow-hidden"
+                            style={{
+                              color: '#c9a84c',
+                              top: '32%',
+                              left: '6%',
+                              width: '46%',
+                              display: '-webkit-box',
+                              WebkitLineClamp: 7,
+                              WebkitBoxOrient: 'vertical',
+                              fontSize: 'clamp(11px, 1.2vw, 17px)'
+                            }}
+                          >
+                            {submission.title || 'Judul tidak tersedia'}
+                          </div>
                         </div>
                       ) : (
                         <div className="border-2 border-dashed border-zinc-800 rounded-2xl p-12 w-full flex flex-col items-center justify-center text-center bg-zinc-900/30 text-zinc-500">
@@ -1317,23 +1315,23 @@ export default function SubmissionControlPanel() {
                     <div className="pt-4 border-t border-gray-200 space-y-4">
                       <h4 className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">Cover Naskah Final</h4>
                       {submission?.cover_file_url ? (
-                        <div className="mb-6 rounded-lg overflow-hidden border border-gray-200 shadow-sm max-w-xs mx-auto md:mx-0 relative" style={{ containerType: 'inline-size' }}>
-                          {(() => {
-                            let volStr = customVolume.replace(/Vol\.?\s*/i, '').trim();
-                            let edStr = customIssue.replace(/No\.?\s*/i, '').trim();
-                            return (
-                              <DynamicCover 
-                                title={submission.title}
-                                author={submission.author || "Author"}
-                                journalName={submission.journals?.name || ""}
-                                doi={submission.doi || generatedDoi || ""}
-                                volume={volStr}
-                                edisi={edStr}
-                                month={new Date().toLocaleDateString('en-US', { month: 'long' }).toUpperCase()}
-                                year={new Date().getFullYear().toString()}
-                              />
-                            );
-                          })()}
+                        <div className="mb-6 rounded-lg overflow-hidden border border-gray-200 shadow-sm max-w-xs mx-auto md:mx-0 relative">
+                          <img src={submission.cover_file_url} alt="Cover Preview" className="max-w-full h-auto object-contain" />
+                          <div 
+                            className="absolute font-serif font-bold leading-snug drop-shadow-md overflow-hidden"
+                            style={{
+                              color: '#c9a84c',
+                              top: '32%',
+                              left: '6%',
+                              width: '46%',
+                              display: '-webkit-box',
+                              WebkitLineClamp: 7,
+                              WebkitBoxOrient: 'vertical',
+                              fontSize: 'clamp(11px, 1.2vw, 17px)'
+                            }}
+                          >
+                            {submission.title || 'Judul tidak tersedia'}
+                          </div>
                         </div>
                       ) : (
                         <div className="mb-6 text-sm text-gray-500 bg-gray-50 p-3 rounded border border-gray-200">
