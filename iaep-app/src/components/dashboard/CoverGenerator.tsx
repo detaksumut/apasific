@@ -105,151 +105,87 @@ export default function CoverGenerator({ submission, generatedDoi }: CoverGenera
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
+    // Match aspect-[1/1.5] used in DynamicCover
     const width = 1240;
-    const height = 1754;
+    const height = 1860;
     canvas.width = width;
     canvas.height = height;
 
-    const currentTheme = themes[theme];
-
+    const journalCode = journalName ? journalName.split(' ')[0].toUpperCase() : '';
+    
+    let bgUrl = '/coverPKM.png';
     if (customBgUrl) {
-      try {
-        const bgImg = new Image();
-        bgImg.src = customBgUrl;
-        await new Promise((resolve, reject) => {
-          bgImg.onload = resolve;
-          bgImg.onerror = reject;
-        });
-        ctx.drawImage(bgImg, 0, 0, width, height);
-        // Efek kaca hitam (black glass overlay) agar teks tetap terbaca jelas
-        ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
-        ctx.fillRect(0, 0, width, height);
-      } catch (err) {
-        ctx.fillStyle = currentTheme.bg;
-        ctx.fillRect(0, 0, width, height);
-      }
-    } else {
-      ctx.fillStyle = currentTheme.bg;
+      bgUrl = customBgUrl;
+    } else if (journalCode === 'AJITE') {
+      bgUrl = '/coverAJITE.png';
+    } else if (journalCode === 'AJAF') {
+      bgUrl = '/coverAJAF.png';
+    }
+
+    try {
+      const bgImg = new Image();
+      bgImg.src = bgUrl;
+      await new Promise((resolve, reject) => {
+        bgImg.onload = resolve;
+        bgImg.onerror = reject;
+      });
+      ctx.drawImage(bgImg, 0, 0, width, height);
+      
+      // Black overlay 10%
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+      ctx.fillRect(0, 0, width, height);
+    } catch (err) {
+      ctx.fillStyle = '#06142e';
       ctx.fillRect(0, 0, width, height);
     }
 
-    ctx.strokeStyle = 'rgba(255,255,255,0.05)';
-    ctx.lineWidth = 1;
-    for (let i = 0; i < width; i += 40) {
-      ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, height); ctx.stroke();
-    }
-    for (let i = 0; i < height; i += 40) {
-      ctx.beginPath(); ctx.moveTo(0, i); ctx.lineTo(width, i); ctx.stroke();
-    }
-
-    ctx.fillStyle = currentTheme.accent;
-    ctx.fillRect(0, 0, width, 220);
-    
-    try {
-      const logoImg = new Image();
-      logoImg.src = '/logo-apasific.png';
-      await new Promise((resolve, reject) => {
-        logoImg.onload = resolve;
-        logoImg.onerror = reject;
-      });
-      ctx.drawImage(logoImg, (width / 2) - 80, 30, 160, 160);
-    } catch(err) {
-      ctx.fillStyle = '#fff';
-      ctx.font = 'bold 32px Arial, sans-serif';
-      ctx.textAlign = 'center';
-      ctx.fillText('LOGO', width / 2, 110);
-    }
-
-    ctx.fillStyle = currentTheme.text;
-    ctx.textAlign = 'center';
-    ctx.font = 'bold 54px "Times New Roman", serif';
-    const journalY = 320;
-    wrapText(ctx, journalName, width / 2, journalY, width - 100, 60);
-
-    if (scope) {
-      ctx.fillStyle = '#ccc';
-      ctx.font = 'italic 28px Arial, sans-serif';
-      ctx.fillText(`Focus & Scope: ${scope}`, width / 2, 400);
-    }
-
-    ctx.fillStyle = '#fff';
-    ctx.font = 'bold 32px Arial, sans-serif';
-    const doiY = scope ? 450 : 380;
-    if (generatedDoi) {
-      ctx.fillText(`DOI: ${generatedDoi}`, width / 2, doiY);
-    } else {
-      ctx.fillText(`DOI: ________________________`, width / 2, doiY);
-    }
-
-    ctx.fillStyle = '#fff';
-    ctx.font = 'bold 72px "Times New Roman", serif';
-    const titleY = scope ? 560 : 490;
-    
-    ctx.shadowColor = 'rgba(0,0,0,0.5)';
-    ctx.shadowBlur = 10;
-    ctx.shadowOffsetX = 0;
-    ctx.shadowOffsetY = 4;
-    
-    const nextY = wrapText(ctx, title.trim(), width / 2, titleY, width - 160, 85);
-    
-    ctx.shadowColor = 'transparent';
-    ctx.shadowBlur = 0;
-    ctx.shadowOffsetX = 0;
-    ctx.shadowOffsetY = 0;
-
-    ctx.fillStyle = currentTheme.text;
-    ctx.font = '40px Arial, sans-serif';
-    const afterAuthorY = wrapText(ctx, author, width / 2, nextY + 60, width - 200, 50);
-
-    const tableY = afterAuthorY + 120;
-    const tableWidth = 1000;
-    const tableX = (width - tableWidth) / 2;
-    const headerHeight = 60;
-    const bodyHeight = 120;
-
-    ctx.fillStyle = currentTheme.accent;
-    ctx.fillRect(tableX, tableY, tableWidth, headerHeight);
-    
-    ctx.fillStyle = 'rgba(0,0,0,0.4)';
-    ctx.fillRect(tableX, tableY + headerHeight, tableWidth, bodyHeight);
-
-    ctx.strokeStyle = '#fff';
-    ctx.lineWidth = 3;
-    ctx.strokeRect(tableX, tableY, tableWidth, headerHeight + bodyHeight);
-
-    ctx.beginPath();
-    ctx.moveTo(tableX, tableY + headerHeight);
-    ctx.lineTo(tableX + tableWidth, tableY + headerHeight);
-    ctx.stroke();
-
-    ctx.fillStyle = '#fff';
-    ctx.font = 'bold 24px Arial, sans-serif';
-    ctx.textAlign = 'center';
-    ctx.fillText("PUBLICATION RECORD", tableX + (tableWidth / 2), tableY + 40);
-
-    const today = new Date();
+    // Journal Name (top-[50cqw] left-[8cqw])
+    const jName = journalName ? journalName.split(' ')[0].toUpperCase() : '';
+    ctx.fillStyle = '#f0c05a';
+    ctx.font = 'bold 55px "Times New Roman", serif';
     ctx.textAlign = 'left';
-    ctx.fillStyle = theme === 'gold' ? '#000' : '#fff';
-    ctx.font = 'italic 26px Arial, sans-serif';
-    
-    const fallbackVolText = `Vol 1 No 1, ${today.toLocaleString('default', { month: 'long' })} ${today.getFullYear()}`;
-    const volText = dynamicVolText || fallbackVolText;
-    
-    ctx.fillText(volText, tableX + 30, tableY + headerHeight + 45);
+    ctx.shadowColor = 'rgba(0,0,0,0.5)';
+    ctx.shadowBlur = 4;
+    ctx.shadowOffsetY = 2;
+    ctx.fillText(jName, width * 0.08, width * 0.50 + 55);
 
-    ctx.font = 'bold 24px Arial, sans-serif';
-    const displayTitle = title.length > 100 ? title.substring(0, 97) + '...' : title;
-    wrapText(ctx, `Judul: ${displayTitle}`, tableX + 30, tableY + headerHeight + 85, tableWidth - 60, 32);
+    // Article Title (top-[58cqw] left-[8cqw] w-[38cqw])
+    ctx.fillStyle = '#ffffff';
+    ctx.font = '500 35px Arial, sans-serif';
+    ctx.shadowBlur = 8;
+    ctx.shadowOffsetY = 4;
+    wrapText(ctx, title || "Untitled Article", width * 0.08, width * 0.58 + 35, width * 0.38, 48);
 
-    ctx.textAlign = 'center';
-    ctx.fillStyle = currentTheme.accent;
-    ctx.fillRect(0, height - 160, width, 160);
+    // DOI (top-[17cqw] left-[33cqw])
+    if (generatedDoi) {
+      ctx.fillStyle = '#f0c05a';
+      ctx.font = 'bold 27px Arial, sans-serif';
+      ctx.shadowBlur = 2;
+      ctx.shadowOffsetY = 1;
+      const doiY = width * 0.17 + 27;
+      ctx.fillText("DOI", width * 0.33, doiY);
+      
+      ctx.fillStyle = '#e4e4e7'; // zinc-200
+      ctx.font = '32px monospace';
+      ctx.fillText(generatedDoi, width * 0.33, doiY + 40);
+    }
+
+    // Volume & Edition (top-[137.5cqw] left-[26cqw] / left-[52cqw])
+    // dynamicVolText is usually "Vol 1 No 1, July 2026"
+    const volParts = dynamicVolText ? dynamicVolText.split(',') : [];
+    let part1 = volParts[0] ? volParts[0].trim().toUpperCase() : "VOL 1 NO 1";
+    let part2 = volParts[1] ? volParts[1].trim().toUpperCase() : "JULY 2026";
     
-    ctx.fillStyle = '#fff';
-    ctx.font = 'bold 36px Arial, sans-serif';
-    ctx.fillText('ASSOCIATION OF ASIA PACIFIC ACADEMICIAN (APASIFIC)', width / 2, height - 85);
-    ctx.font = '28px Arial, sans-serif';
-    ctx.fillText(`ID: ${submissionId}`, width / 2, height - 35);
+    ctx.fillStyle = '#d4d4d8';
+    ctx.font = 'bold 22px Arial, sans-serif';
+    ctx.shadowBlur = 0;
+    ctx.shadowOffsetY = 0;
+    const botY = width * 1.375 + 22;
+    
+    // To match DynamicCover's two-line layout roughly, we'll split them if possible,
+    // but the canvas version can just render them side-by-side matching the grid
+    ctx.fillText(part1, width * 0.26, botY);
+    ctx.fillText(part2, width * 0.52, botY);
   };
 
   useEffect(() => {
