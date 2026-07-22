@@ -1071,13 +1071,13 @@ export default function SubmissionControlPanel() {
                                           className="absolute font-serif font-bold leading-snug drop-shadow-md overflow-hidden"
                                           style={{
                                             color: '#c9a84c',
-                                            top: '36%',
+                                            top: '32%',
                                             left: '6%',
                                             width: '60%',
                                             display: '-webkit-box',
                                             WebkitLineClamp: 5,
                                             WebkitBoxOrient: 'vertical',
-                                            fontSize: 'clamp(14px, 1.5vw, 22px)'
+                                            fontSize: 'clamp(11px, 1.1vw, 17px)'
                                           }}
                                         >
                                           {submission.title || 'Judul tidak tersedia'}
