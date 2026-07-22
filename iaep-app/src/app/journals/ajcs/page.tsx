@@ -49,6 +49,10 @@ export default async function AJCSJournal() {
       const db = getFirestore();
       const fbSnap = await db.collection('submissions').get();
       
+      // Pre-fetch jurnal AJCS via slug sebagai fallback jika journal_id sudah orphan
+      const { data: ajcsJournal } = await supabaseAdmin.from('journals').select('id, name').eq('slug', 'ajcs').single();
+      const ajcsJournalId = ajcsJournal?.id;
+
       const firestoreArticles = [];
       for (const doc of fbSnap.docs) {
         const fbData = doc.data();
@@ -58,8 +62,21 @@ export default async function AJCSJournal() {
 
         let jName = '';
         if (fbData.journal_id) {
+           // Lookup via journal_id
            const { data: jData } = await supabaseAdmin.from('journals').select('name').eq('id', fbData.journal_id).single();
-           if (jData) jName = jData.name;
+           if (jData) {
+             jName = jData.name;
+           } else if (ajcsJournalId && fbData.journal_id === ajcsJournalId) {
+             jName = ajcsJournal?.name || 'AJCS - Pengabdian Kepada Masyarakat (PKM)';
+           }
+        }
+
+        // Fallback: cek field journal_name / journal langsung di dokumen Firestore
+        if (!jName) {
+          const rawJName = (fbData.journal_name || fbData.journal || '').toUpperCase();
+          if (rawJName.includes('AJCS') || rawJName.includes('PKM') || rawJName.includes('COMMUNITY SERVICE')) {
+            jName = ajcsJournal?.name || 'AJCS - Pengabdian Kepada Masyarakat (PKM)';
+          }
         }
         
         if (jName.toUpperCase().includes("AJCS")) {

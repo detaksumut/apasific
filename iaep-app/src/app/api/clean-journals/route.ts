@@ -109,41 +109,75 @@ export async function GET() {
       process.env.SUPABASE_SERVICE_ROLE_KEY!
     );
 
-    // Delete existing scopes
-    await supabase.from('journal_scopes').delete().neq('name', 'non_existent');
-    
-    // Delete existing journals
-    await supabase.from('journals').delete().neq('name', 'non_existent');
-
     const results = [];
     
     for (const journal of JOURNALS) {
-      const { data: insertedJournal, error: insertError } = await supabase.from('journals').insert({
-        name: journal.name,
-        slug: journal.abbreviation.toLowerCase(),
-        description: 'Official ASIA Journal for ' + journal.abbreviation
-      }).select('id').single();
+      // PENTING: Cek apakah jurnal dengan slug ini sudah ada
+      // Jangan DELETE+INSERT karena UUID akan berubah dan membuat orphan references di submissions
+      const { data: existing } = await supabase
+        .from('journals')
+        .select('id, name')
+        .eq('slug', journal.abbreviation.toLowerCase())
+        .single();
 
-      if (insertError) {
-        results.push({ journal: journal.name, error: insertError });
-        continue;
+      let journalDbId: string;
+
+      if (existing) {
+        // UPDATE nama saja, UUID/id TIDAK diubah agar journal_id di submissions tetap valid
+        const { error: updateError } = await supabase
+          .from('journals')
+          .update({
+            name: journal.name,
+            description: 'Official ASIA Journal for ' + journal.abbreviation
+          })
+          .eq('id', existing.id);
+
+        if (updateError) {
+          results.push({ journal: journal.name, status: 'update_error', error: updateError.message });
+          continue;
+        }
+        journalDbId = existing.id;
+        results.push({ journal: journal.name, status: 'updated', id: existing.id });
+      } else {
+        // INSERT baru jika jurnal belum ada di database
+        const { data: insertedJournal, error: insertError } = await supabase
+          .from('journals')
+          .insert({
+            name: journal.name,
+            slug: journal.abbreviation.toLowerCase(),
+            description: 'Official ASIA Journal for ' + journal.abbreviation
+          })
+          .select('id')
+          .single();
+
+        if (insertError) {
+          results.push({ journal: journal.name, status: 'insert_error', error: insertError.message });
+          continue;
+        }
+        journalDbId = insertedJournal.id;
+        results.push({ journal: journal.name, status: 'inserted', id: insertedJournal.id });
       }
 
+      // Update scopes: hapus yang lama, insert ulang (scopes tidak direferensikan oleh tabel lain)
+      await supabase.from('journal_scopes').delete().eq('journal_id', journalDbId);
+      
       const scopesToInsert = journal.scopes.map(scope => ({
-        journal_id: insertedJournal.id,
+        journal_id: journalDbId,
         name: scope
       }));
 
       const { error: scopeError } = await supabase.from('journal_scopes').insert(scopesToInsert);
-      
-      results.push({ 
-        journal: journal.name, 
-        success: true,
-        scopeError: scopeError || null
-      });
+      if (scopeError) {
+        const last = results[results.length - 1] as any;
+        last.scopeError = scopeError.message;
+      }
     }
 
-    return NextResponse.json({ success: true, message: "Database seeded", results });
+    return NextResponse.json({ 
+      success: true, 
+      message: "Journals synced safely (UUIDs preserved - no orphan references)", 
+      results 
+    });
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
