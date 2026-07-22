@@ -76,6 +76,73 @@ export default async function ReviewHistoryPage() {
       <div>
         <h1 className="text-2xl font-bold text-white tracking-tight">Riwayat Review</h1>
         <p className="text-zinc-400 mt-2 text-sm">Daftar riwayat review artikel yang telah selesai Anda kerjakan.</p>
+        
+        {/* TEMPORARY RESTORE BUTTON ON REVIEWER DASHBOARD */}
+        <form action={async () => {
+          "use server";
+          const { createClient } = await import('@supabase/supabase-js');
+          const supabaseAdmin = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!);
+          const TARGET_TITLE = "THE IMPACT OF SUPPLY CHAIN TRANSPARENCY (LOGISTICS GOVERNANCE) ON THE EASE OF OBTAINING HALAL CERTIFICATION FOR FOOD AND BEVERAGE MSMEs";
+          let subId = null;
+
+          try {
+              // 1. Check Supabase
+              const { data: subs } = await supabaseAdmin.from('submissions').select('id').ilike('title', '%SUPPLY CHAIN TRANSPARENCY%');
+              if (subs && subs.length > 0) {
+                  subId = subs[0].id;
+                  await supabaseAdmin.from('submissions').update({ stage: 'Review', status: 'Under Review' }).eq('id', subId);
+              } else {
+                  const { data: inserted } = await supabaseAdmin.from('submissions').insert({ title: TARGET_TITLE, stage: 'Review', status: 'Under Review', author: 'Author', abstract: 'Restored article' }).select('id').single();
+                  if (inserted) subId = inserted.id;
+              }
+              
+              if (subId) {
+                  const { data: existingRev } = await supabaseAdmin.from('review_assignments').select('id').eq('submission_id', subId).eq('reviewer_id', userId);
+                  if (existingRev && existingRev.length > 0) {
+                     await supabaseAdmin.from('review_assignments').update({ status: 'accepted', completed_at: null }).eq('id', existingRev[0].id);
+                  } else {
+                     await supabaseAdmin.from('review_assignments').insert({ submission_id: subId, reviewer_id: userId, status: 'accepted' });
+                  }
+              }
+
+              // 2. Check Firestore
+              const { getFirestore } = await import('@/utils/firebase/db');
+              const db = getFirestore();
+              const snap = await db.collection('submissions').get();
+              let fbSubId = null;
+              snap.forEach(doc => {
+                  const t = doc.data().title || "";
+                  if (t.toUpperCase().includes("SUPPLY CHAIN TRANSPARENCY")) fbSubId = doc.id;
+              });
+              
+              if (!fbSubId && subId) {
+                  fbSubId = subId;
+                  await db.collection('submissions').doc(fbSubId).set({ title: TARGET_TITLE, stage: 'Review', status: 'Under Review', author: 'Author', abstract: 'Restored article', created_at: new Date(), updated_at: new Date() });
+              }
+              
+              if (fbSubId) {
+                  await db.collection('submissions').doc(fbSubId).update({ stage: 'Review', status: 'Under Review' });
+                  const reviewerIdToUse = user.json_id || userId;
+                  const revSnap = await db.collection('review_assignments').where('submission_id', '==', fbSubId).where('reviewer_id', '==', reviewerIdToUse).get();
+                  if (revSnap.empty) {
+                      await db.collection('review_assignments').doc().set({
+                          submission_id: fbSubId,
+                          reviewer_id: reviewerIdToUse,
+                          status: 'accepted',
+                          assigned_at: new Date()
+                      });
+                  } else {
+                      revSnap.forEach(async doc => {
+                          await db.collection('review_assignments').doc(doc.id).update({ status: 'accepted', completed_at: null });
+                      });
+                  }
+              }
+          } catch(e) { console.error(e); }
+        }}>
+          <button type="submit" className="mt-4 px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-lg text-sm border border-amber-500 shadow-lg shadow-amber-900/20">
+            [PENGATURAN DARURAT] Tarik Artikel Supply Chain ke Antrean Saya
+          </button>
+        </form>
       </div>
 
       <div className="bg-zinc-900/50 border border-zinc-800/80 rounded-xl overflow-hidden min-h-[300px]">

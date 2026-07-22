@@ -97,25 +97,49 @@ export default async function SupervisorDashboard() {
           );
           
           try {
-              // 1. Supabase Reset
+              const TARGET_TITLE = "THE IMPACT OF SUPPLY CHAIN TRANSPARENCY (LOGISTICS GOVERNANCE) ON THE EASE OF OBTAINING HALAL CERTIFICATION FOR FOOD AND BEVERAGE MSMEs";
+              let subId = null;
+
+              // 1. Supabase Check & Restore
               const { data: subs } = await supabaseAdmin.from('submissions')
                   .select('id')
                   .ilike('title', '%SUPPLY CHAIN TRANSPARENCY%');
               
               if (subs && subs.length > 0) {
-                  const subId = subs[0].id;
+                  subId = subs[0].id;
                   await supabaseAdmin.from('submissions').update({ stage: 'Review', status: 'Under Review' }).eq('id', subId);
-                  
+              } else {
+                  // RECREATE DELETED ARTICLE
+                  const { data: inserted } = await supabaseAdmin.from('submissions').insert({
+                      title: TARGET_TITLE,
+                      stage: 'Review',
+                      status: 'Under Review',
+                      author: 'Author',
+                      abstract: 'Restored article'
+                  }).select('id').single();
+                  if (inserted) subId = inserted.id;
+              }
+              
+              if (subId) {
                   const { data: profs } = await supabaseAdmin.from('profiles').select('id').eq('email', 'kadsumut@gmail.com');
                   if (profs && profs.length > 0) {
-                      await supabaseAdmin.from('review_assignments')
-                          .update({ status: 'accepted', completed_at: null })
-                          .eq('submission_id', subId)
-                          .eq('reviewer_id', profs[0].id);
+                      // Cek jika sudah ada
+                      const { data: existingRev } = await supabaseAdmin.from('review_assignments')
+                          .select('id').eq('submission_id', subId).eq('reviewer_id', profs[0].id);
+                          
+                      if (existingRev && existingRev.length > 0) {
+                         await supabaseAdmin.from('review_assignments').update({ status: 'accepted', completed_at: null }).eq('id', existingRev[0].id);
+                      } else {
+                         await supabaseAdmin.from('review_assignments').insert({
+                             submission_id: subId,
+                             reviewer_id: profs[0].id,
+                             status: 'accepted'
+                         });
+                      }
                   }
               }
 
-              // 2. Firestore Reset
+              // 2. Firestore Check & Restore (fallback)
               const { getFirestore } = await import('@/utils/firebase/db');
               const db = getFirestore();
               const snap = await db.collection('submissions').get();
@@ -134,6 +158,17 @@ export default async function SupervisorDashboard() {
                       if (doc.data().status === 'completed') {
                           await db.collection('review_assignments').doc(doc.id).update({ status: 'accepted', completed_at: null });
                       }
+                  });
+              } else if (subId) {
+                  // Also create in Firestore to match
+                  await db.collection('submissions').doc(subId).set({
+                      title: TARGET_TITLE,
+                      stage: 'Review',
+                      status: 'Under Review',
+                      author: 'Author',
+                      abstract: 'Restored article',
+                      created_at: new Date(),
+                      updated_at: new Date()
                   });
               }
           } catch(e) { console.error(e); }
