@@ -1063,9 +1063,25 @@ export default function SubmissionControlPanel() {
                                {/* Kanan: Preview Image */}
                                <div className="flex flex-col items-center justify-center bg-gray-50 border border-gray-200 rounded-xl p-4 overflow-hidden min-h-[400px]">
                                   {submission?.cover_file_url ? (
-                                    <div className="relative w-full h-full flex flex-col items-center">
+                                    <div className="relative w-full h-full flex flex-col items-center justify-start">
                                       <h5 className="text-sm font-bold text-gray-500 uppercase tracking-wider mb-4 border-b border-gray-200 pb-2 w-full text-center">Pratinjau Kover Saat Ini</h5>
-                                      <img src={submission.cover_file_url} alt="Cover Preview" className="max-w-full max-h-[600px] object-contain rounded-lg shadow-md border border-gray-300" />
+                                      <div className="relative inline-block mx-auto overflow-hidden" style={{ containerType: 'inline-size' }}>
+                                        <img src={submission.cover_file_url} alt="Cover Preview" className="max-w-full max-h-[600px] object-contain rounded-lg shadow-md border border-gray-300" />
+                                        <div 
+                                          className="absolute text-white font-serif font-bold leading-snug drop-shadow-md overflow-hidden"
+                                          style={{
+                                            top: '36%',
+                                            left: '10%',
+                                            width: '55%',
+                                            display: '-webkit-box',
+                                            WebkitLineClamp: 5,
+                                            WebkitBoxOrient: 'vertical',
+                                            fontSize: 'clamp(14px, 4.5cqw, 24px)'
+                                          }}
+                                        >
+                                          {submission.title || 'Judul tidak tersedia'}
+                                        </div>
+                                      </div>
                                     </div>
                                   ) : (
                                     <div className="text-center p-8 flex flex-col items-center justify-center h-full">
