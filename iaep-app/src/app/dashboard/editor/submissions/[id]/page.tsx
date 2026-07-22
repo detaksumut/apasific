@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { publishArticleToZenodo, ZenodoMetadata } from "@/utils/zenodo";
-import { getSubmissionDetailsEditor, updateIssn, updateDoi } from "@/app/actions/editor";
+import { getSubmissionDetailsEditor, updateIssn, updateDoi, removeCoverFile } from "@/app/actions/editor";
 import { createClient } from "@/utils/supabase/client";
 import DynamicCover from "@/components/DynamicCover";
 
@@ -972,54 +972,72 @@ export default function SubmissionControlPanel() {
                                 <svg className="w-5 h-5 text-[#c9a84c]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
                                 Unggah Kover Jurnal (Manual)
                              </h4>
-                             <label className="border-2 border-dashed border-[#c9a84c]/50 bg-yellow-50/30 hover:bg-yellow-50/50 p-8 rounded-xl flex flex-col items-center justify-center cursor-pointer transition-colors relative overflow-hidden group">
-                                <div className="p-4 bg-white rounded-full shadow-sm mb-4 group-hover:scale-110 transition-transform">
-                                  <svg className="w-8 h-8 text-[#c9a84c]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" /></svg>
-                                </div>
-                                <span className="text-gray-800 font-bold mb-1">Pilih File Gambar Kover (.PNG / .JPG)</span>
-                                <span className="text-sm text-gray-500 mb-4 text-center max-w-sm">Unggah file kover yang sudah didesain secara manual di luar sistem. Sistem lama telah ditiadakan sesuai instruksi.</span>
-                                
-                                {submission?.cover_file_url && (
-                                   <div className="bg-green-100 text-green-800 px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2 border border-green-200 w-full justify-between mt-2 relative z-10">
-                                     <span className="flex items-center gap-2">
-                                        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                                        Kover Berhasil Diunggah!
-                                     </span>
-                                     <button type="button" onClick={(e) => { e.preventDefault(); window.open(submission.cover_file_url, '_blank'); }} className="text-blue-600 hover:underline">Lihat File</button>
-                                   </div>
-                                )}
-                                
-                                <input 
-                                  type="file" 
-                                  accept="image/png, image/jpeg, image/jpg"
-                                  onChange={async (e) => {
-                                    if (!e.target.files || e.target.files.length === 0) return;
-                                    const file = e.target.files[0];
-                                    try {
-                                      showToast('Sedang mengunggah kover...');
-                                      const formData = new FormData();
-                                      formData.append('file', file);
-                                      formData.append('submissionId', submission.id);
-                                      
-                                      const res = await fetch('/api/upload-cover', {
-                                        method: 'POST',
-                                        body: formData
-                                      });
-                                      if (!res.ok) throw new Error('Upload failed');
-                                      const data = await res.json();
-                                      if(data.success) {
-                                        setSubmission({...submission, cover_file_url: data.url});
-                                        showToast('Kover berhasil diunggah!');
-                                      } else {
-                                        showToast('Gagal upload: ' + data.error);
+                             {submission?.cover_file_url ? (
+                               <div className="bg-green-50 border border-green-200 rounded-xl p-6 flex flex-col items-center justify-center text-center">
+                                 <svg className="w-12 h-12 text-green-500 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                 <h5 className="font-bold text-green-900 text-lg mb-1">Kover Saat Ini Sudah Tersimpan</h5>
+                                 <p className="text-sm text-green-700 mb-6">Naskah ini sudah memiliki file kover yang dilampirkan.</p>
+                                 <div className="flex gap-4">
+                                   <button type="button" onClick={() => window.open(submission.cover_file_url, '_blank')} className="bg-green-600 hover:bg-green-700 text-white font-bold py-2.5 px-6 rounded-lg shadow-md transition-all text-sm flex items-center gap-2">
+                                     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
+                                     Lihat Kover
+                                   </button>
+                                   <button type="button" onClick={async () => {
+                                     if(!confirm('Yakin ingin menghapus kover ini secara permanen?')) return;
+                                     showToast('Menghapus kover...');
+                                     const res = await removeCoverFile(submission.id);
+                                     if (res.success) {
+                                       setSubmission({...submission, cover_file_url: null});
+                                       showToast('Kover berhasil dihapus!');
+                                     } else {
+                                       showToast('Gagal menghapus kover: ' + res.error);
+                                     }
+                                   }} className="bg-red-50 hover:bg-red-100 text-red-600 font-bold py-2.5 px-6 rounded-lg border border-red-200 transition-all text-sm flex items-center gap-2">
+                                     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                                     Hapus Kover
+                                   </button>
+                                 </div>
+                               </div>
+                             ) : (
+                               <label className="border-2 border-dashed border-[#c9a84c]/50 bg-yellow-50/30 hover:bg-yellow-50/50 p-8 rounded-xl flex flex-col items-center justify-center cursor-pointer transition-colors relative overflow-hidden group">
+                                  <div className="p-4 bg-white rounded-full shadow-sm mb-4 group-hover:scale-110 transition-transform">
+                                    <svg className="w-8 h-8 text-[#c9a84c]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" /></svg>
+                                  </div>
+                                  <span className="text-gray-800 font-bold mb-1">Pilih File Gambar Kover (.PNG / .JPG)</span>
+                                  <span className="text-sm text-gray-500 mb-4 text-center max-w-sm">Unggah file kover yang sudah didesain secara manual di luar sistem. Sistem lama telah ditiadakan sesuai instruksi.</span>
+                                  
+                                  <input 
+                                    type="file" 
+                                    accept="image/png, image/jpeg, image/jpg"
+                                    onChange={async (e) => {
+                                      if (!e.target.files || e.target.files.length === 0) return;
+                                      const file = e.target.files[0];
+                                      try {
+                                        showToast('Sedang mengunggah kover...');
+                                        const formData = new FormData();
+                                        formData.append('file', file);
+                                        formData.append('submissionId', submission.id);
+                                        
+                                        const res = await fetch('/api/upload-cover', {
+                                          method: 'POST',
+                                          body: formData
+                                        });
+                                        if (!res.ok) throw new Error('Upload failed');
+                                        const data = await res.json();
+                                        if(data.success) {
+                                          setSubmission({...submission, cover_file_url: data.url});
+                                          showToast('Kover berhasil diunggah!');
+                                        } else {
+                                          showToast('Gagal upload: ' + data.error);
+                                        }
+                                      } catch(err: any) {
+                                        showToast('Error uploading file');
                                       }
-                                    } catch(err: any) {
-                                      showToast('Error uploading file');
-                                    }
-                                  }}
-                                  className="hidden" 
-                                />
-                             </label>
+                                    }}
+                                    className="hidden" 
+                                  />
+                               </label>
+                             )}
                              
                              {submission?.status === 'Assigned to Cover' && (
                                <div className="mt-6 p-4 bg-yellow-50/50 border border-yellow-100 rounded-xl flex items-center justify-between">

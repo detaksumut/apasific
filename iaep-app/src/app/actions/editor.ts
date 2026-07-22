@@ -1228,3 +1228,23 @@ export async function assignReviewer(submissionId: string, reviewerId: string, r
     }
 }
 
+export async function removeCoverFile(submissionId: string) {
+    try {
+        const { createClient } = await import('@supabase/supabase-js');
+        const supabaseAdmin = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!);
+        
+        await supabaseAdmin.from('submissions').update({ cover_file_url: null }).eq('id', submissionId);
+        
+        try {
+            const { getFirestore } = await import('@/utils/firebase/db');
+            const db = getFirestore();
+            await db.collection('submissions').doc(submissionId).update({ cover_file_url: null });
+        } catch(e) {
+            console.warn("Firestore update failed", e);
+        }
+        revalidatePath(`/dashboard/editor/submissions/${submissionId}`);
+        return { success: true };
+    } catch (e: any) {
+        return { success: false, error: e.message };
+    }
+}
