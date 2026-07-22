@@ -427,9 +427,15 @@ export async function submitReviewResults(
             updated_at: new Date()
         }).eq('id', assignmentId);
         
-        // 2. Update submission status in Supabase
-        await supabaseAdmin.from('submissions').update({ status: 'Reviewed' }).eq('id', submissionId);
-        await supabaseAdmin.from('submissions').update({ status: 'Reviewed' }).eq('submission_id', submissionId);
+        // Fetch current stage to avoid reverting a published article
+        const { data: subData } = await supabaseAdmin.from('submissions').select('stage').eq('id', submissionId).single();
+        const isAdvanced = subData?.stage && ['Copyediting', 'Production', 'Published'].includes(subData.stage);
+
+        // 2. Update submission status in Supabase only if not advanced
+        if (!isAdvanced) {
+            await supabaseAdmin.from('submissions').update({ status: 'Reviewed' }).eq('id', submissionId);
+            await supabaseAdmin.from('submissions').update({ status: 'Reviewed' }).eq('submission_id', submissionId);
+        }
 
         // 3. Insert history in Supabase
         await supabaseAdmin.from('submission_history').insert({
@@ -457,8 +463,14 @@ export async function submitReviewResults(
             updated_at: new Date()
         });
 
-        const subRef = db.collection('submissions').doc(submissionId);
-        batch.update(subRef, { status: 'Reviewed', updated_at: new Date() });
+        // Fetch current stage to avoid reverting a published article (re-fetch inside catch block just in case)
+        const { data: subDataFb } = await supabaseAdmin.from('submissions').select('stage').eq('id', submissionId).single();
+        const isAdvancedFb = subDataFb?.stage && ['Copyediting', 'Production', 'Published'].includes(subDataFb.stage);
+
+        if (!isAdvancedFb) {
+            const subRef = db.collection('submissions').doc(submissionId);
+            batch.update(subRef, { status: 'Reviewed', updated_at: new Date() });
+        }
 
         const histRef = db.collection('submission_history').doc();
         batch.set(histRef, {
@@ -552,9 +564,15 @@ export async function submitReviewResultsWithFile(formData: FormData) {
     try {
         await supabaseAdmin.from('review_assignments').update(updatePayload).eq('id', assignmentId);
         
-        // 2. Update submission status in Supabase
-        await supabaseAdmin.from('submissions').update({ status: 'Reviewed' }).eq('id', submissionId);
-        await supabaseAdmin.from('submissions').update({ status: 'Reviewed' }).eq('submission_id', submissionId);
+        // Fetch current stage to avoid reverting a published article
+        const { data: subData } = await supabaseAdmin.from('submissions').select('stage').eq('id', submissionId).single();
+        const isAdvanced = subData?.stage && ['Copyediting', 'Production', 'Published'].includes(subData.stage);
+
+        // 2. Update submission status in Supabase only if not advanced
+        if (!isAdvanced) {
+            await supabaseAdmin.from('submissions').update({ status: 'Reviewed' }).eq('id', submissionId);
+            await supabaseAdmin.from('submissions').update({ status: 'Reviewed' }).eq('submission_id', submissionId);
+        }
 
         // 3. Insert history in Supabase
         await supabaseAdmin.from('submission_history').insert({
@@ -575,8 +593,10 @@ export async function submitReviewResultsWithFile(formData: FormData) {
         const assignRef = db.collection('review_assignments').doc(assignmentId);
         batch.update(assignRef, updatePayload);
 
-        const subRef = db.collection('submissions').doc(submissionId);
-        batch.update(subRef, { status: 'Reviewed', updated_at: new Date() });
+        if (!isAdvanced) {
+            const subRef = db.collection('submissions').doc(submissionId);
+            batch.update(subRef, { status: 'Reviewed', updated_at: new Date() });
+        }
 
         const histRef = db.collection('submission_history').doc();
         batch.set(histRef, {

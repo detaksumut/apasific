@@ -702,15 +702,17 @@ export async function publishArticle(submissionId: string, journalId: string, cu
         const editionStr = `${finalVolume} ${finalIssue} (${new Date().getFullYear()})`;
         const dateStr = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
 
-        // 2. Update status to Published
+        // 2. Update status and stage to Published
         if (isFirestore) {
             await db.collection('submissions').doc(submissionId).update({
                 status: 'Published',
+                stage: 'Published',
                 updated_at: new Date()
             });
         }
         await supabaseAdmin.from('submissions').update({
             status: 'Published',
+            stage: 'Published',
             updated_at: new Date()
         }).eq('id', submissionId);
 
