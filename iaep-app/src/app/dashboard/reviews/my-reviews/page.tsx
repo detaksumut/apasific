@@ -22,7 +22,7 @@ export default async function MyReviewsPage() {
       .from("review_assignments")
       .select("*, submissions(*, journals(name))")
       .eq("reviewer_id", userId)
-      .in("status", ["accepted", "completed"])
+      .in("status", ["accepted", "pending"])  // hanya yang masih aktif, BUKAN completed
       .order("assigned_at", { ascending: false });
     if (error) throw error;
     if (data) {
@@ -38,7 +38,7 @@ export default async function MyReviewsPage() {
         const reviewerIdToUse = user.json_id || userId;
         const assignmentsSnapshot = await db.collection('review_assignments')
           .where('reviewer_id', '==', reviewerIdToUse)
-          .where('status', 'in', ['accepted', 'completed'])
+          .where('status', 'in', ['accepted', 'pending'])  // hanya aktif
           .get();
           
         for (const doc of assignmentsSnapshot.docs) {
@@ -77,13 +77,14 @@ export default async function MyReviewsPage() {
     <div className="max-w-5xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700 pb-20">
       <div>
         <h1 className="text-2xl font-bold text-white tracking-tight">Review Saya</h1>
-        <p className="text-zinc-400 mt-2 text-sm">Daftar review yang telah ditugaskan dan disubmit oleh Anda.</p>
+        <p className="text-zinc-400 mt-2 text-sm">Daftar naskah yang <strong className="text-zinc-200">sedang Anda review</strong>. Naskah yang sudah selesai tersimpan di <a href="/dashboard/reviews/history" className="text-emerald-400 underline hover:text-emerald-300">Riwayat Review</a>.</p>
       </div>
 
       <div className="bg-zinc-900/50 border border-zinc-800/80 rounded-xl overflow-hidden min-h-[300px]">
         {assignments.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-[300px] text-zinc-500">
-            <p>Belum ada naskah yang Anda reviu saat ini.</p>
+            <p>Tidak ada naskah yang sedang Anda review saat ini.</p>
+            <a href="/dashboard/reviews/history" className="mt-3 text-xs text-emerald-400 hover:underline">Lihat Riwayat Review →</a>
           </div>
         ) : (
           <div className="divide-y divide-zinc-800/80">
