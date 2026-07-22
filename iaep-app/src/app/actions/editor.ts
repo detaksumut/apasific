@@ -696,23 +696,27 @@ export async function publishArticle(submissionId: string, journalId: string, cu
 
         // Calculate Volume and Issue dynamically
         const dynamicVolIss = await getNextVolumeAndIssue(journalId);
-        const finalVolume = customVolume && customVolume !== "Vol. 1" ? customVolume : dynamicVolIss.volume;
-        const finalIssue = customIssue && customIssue !== "No. 1" ? customIssue : dynamicVolIss.issue;
+        const finalVolume = customVolume ? customVolume : dynamicVolIss.volume;
+        const finalIssue = customIssue ? customIssue : dynamicVolIss.issue;
 
         const editionStr = `${finalVolume} ${finalIssue} (${new Date().getFullYear()})`;
         const dateStr = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
 
-        // 2. Update status and stage to Published
+        // 2. Update status, stage, volume, and issue to Published
         if (isFirestore) {
             await db.collection('submissions').doc(submissionId).update({
                 status: 'Published',
                 stage: 'Published',
+                volume: finalVolume,
+                issue: finalIssue,
                 updated_at: new Date()
             });
         }
         await supabaseAdmin.from('submissions').update({
             status: 'Published',
             stage: 'Published',
+            volume: finalVolume,
+            issue: finalIssue,
             updated_at: new Date()
         }).eq('id', submissionId);
 
@@ -737,47 +741,74 @@ export async function publishArticle(submissionId: string, journalId: string, cu
             });
         }
 
-        // 3. Ensure Certificate exists
+        // 3. Ensure Certificate exists and is up to date
         // Check in Supabase
         const { data: certSupabase } = await supabaseAdmin.from('certificates').select('id').eq('reference_id', submissionId);
         let hasCert = certSupabase && certSupabase.length > 0;
 
         // Check in Firestore
-        if (!hasCert) {
+        let fbCertId = null;
+        if (!hasCert || isFirestore) {
             const fbCertSnapshot = await db.collection('certificates').where('reference_id', '==', submissionId).get();
-            hasCert = !fbCertSnapshot.empty;
+            hasCert = hasCert || !fbCertSnapshot.empty;
+            if (!fbCertSnapshot.empty) {
+                fbCertId = fbCertSnapshot.docs[0].id;
+            }
         }
 
-        if (!hasCert && authorId) {
-            // Create in Supabase
-            try {
-                await supabaseAdmin.from('certificates').insert({
-                    user_id: authorId,
-                    type: 'author_publication',
-                    reference_id: submissionId,
-                    title: `Sertifikat Publikasi Naskah: ${submissionTitle}`,
-                    journal: journalName,
-                    edition: editionStr,
-                    date: dateStr
-                });
-            } catch (err) {
-                console.error("Failed to insert certificate to Supabase", err);
-            }
+        if (authorId) {
+            if (!hasCert) {
+                // Create in Supabase
+                try {
+                    await supabaseAdmin.from('certificates').insert({
+                        user_id: authorId,
+                        type: 'author_publication',
+                        reference_id: submissionId,
+                        title: `Sertifikat Publikasi Naskah: ${submissionTitle}`,
+                        journal: journalName,
+                        edition: editionStr,
+                        date: dateStr
+                    });
+                } catch (err) {
+                    console.error("Failed to insert certificate to Supabase", err);
+                }
 
-            // Create in Firestore
-            try {
-                await db.collection('certificates').add({
-                    user_id: authorId,
-                    type: 'author_publication',
-                    reference_id: submissionId,
-                    title: `Sertifikat Publikasi Naskah: ${submissionTitle}`,
-                    journal: journalName,
-                    edition: editionStr,
-                    date: dateStr,
-                    created_at: new Date()
-                });
-            } catch (err) {
-                console.error("Failed to insert certificate to Firestore", err);
+                // Create in Firestore
+                try {
+                    await db.collection('certificates').add({
+                        user_id: authorId,
+                        type: 'author_publication',
+                        reference_id: submissionId,
+                        title: `Sertifikat Publikasi Naskah: ${submissionTitle}`,
+                        journal: journalName,
+                        edition: editionStr,
+                        date: dateStr,
+                        created_at: new Date()
+                    });
+                } catch (err) {
+                    console.error("Failed to insert certificate to Firestore", err);
+                }
+            } else {
+                // Update existing certificate
+                try {
+                    await supabaseAdmin.from('certificates').update({
+                        edition: editionStr,
+                        date: dateStr
+                    }).eq('reference_id', submissionId);
+                } catch (err) {
+                    console.error("Failed to update certificate in Supabase", err);
+                }
+
+                if (fbCertId) {
+                    try {
+                        await db.collection('certificates').doc(fbCertId).update({
+                            edition: editionStr,
+                            date: dateStr
+                        });
+                    } catch (err) {
+                        console.error("Failed to update certificate in Firestore", err);
+                    }
+                }
             }
         }
 
@@ -1013,14 +1044,16 @@ export async function getPublishedArticleDetails(articleId: string) {
         }
 
         try {
-            const volIss = await getAssignedVolumeAndIssue(articleId, subData.journal_id || '');
-            const match = volIss.match(/(Vol.*?)\s+(No.*)/i) || volIss.match(/(Vol.*?)\s+(Edisi.*)/i);
-            if (match) {
-                 subData.volume = match[1].trim();
-                 subData.issue = match[2].trim();
-            } else {
-                 subData.volume = volIss;
-                 subData.issue = "";
+            if (!subData.volume || !subData.issue) {
+                const volIss = await getAssignedVolumeAndIssue(articleId, subData.journal_id || '');
+                const match = volIss.match(/(Vol.*?)\s+(No.*)/i) || volIss.match(/(Vol.*?)\s+(Edisi.*)/i);
+                if (match) {
+                     subData.volume = match[1].trim();
+                     subData.issue = match[2].trim();
+                } else {
+                     subData.volume = volIss;
+                     subData.issue = "";
+                }
             }
         } catch(e) {
             subData.volume = "Vol. 1";

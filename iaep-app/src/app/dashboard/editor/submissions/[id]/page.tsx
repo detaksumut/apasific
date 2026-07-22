@@ -34,21 +34,12 @@ export default function SubmissionControlPanel() {
   const [isUploadingGalley, setIsUploadingGalley] = useState(false);
   const [boardMembers, setBoardMembers] = useState<any[]>([]);
   const [currentUserRole, setCurrentUserRole] = useState<string>("");
-  const [customVolume, setCustomVolume] = useState("Vol. 1");
+  const [customVolume, setCustomVolume] = useState("");
   const [customIssue, setCustomIssue] = useState("");
 
-  // Persist volume & issue to LocalStorage so it survives the redirect to Supervisor
+  // Save volume & issue to LocalStorage for draft purposes only
   useEffect(() => {
-    if (submissionId) {
-      const savedVol = localStorage.getItem(`draft_vol_${submissionId}`);
-      const savedIss = localStorage.getItem(`draft_iss_${submissionId}`);
-      if (savedVol) setCustomVolume(savedVol);
-      if (savedIss) setCustomIssue(savedIss);
-    }
-  }, [submissionId]);
-
-  useEffect(() => {
-    if (submissionId && customVolume !== "Vol. 1") {
+    if (submissionId && customVolume !== "") {
       localStorage.setItem(`draft_vol_${submissionId}`, customVolume);
     }
   }, [customVolume, submissionId]);
@@ -91,7 +82,12 @@ export default function SubmissionControlPanel() {
           status: data.status || 'Awaiting Reviewers',
           doi: data.doi,
           zenodo_id: data.zenodo_id,
-          journals: data.journals
+          journals: data.journals,
+          journal_id: data.journal_id,
+          issn: data.issn,
+          volume: data.volume,
+          issue: data.issue,
+          profiles: data.profiles,
         });
         if (data.doi) setGeneratedDoi(data.doi);
         if (data.issn) setManualIssn(data.issn);
@@ -99,7 +95,21 @@ export default function SubmissionControlPanel() {
         // Update author phone dynamically
         if (data.phone) setAuthorPhone(data.phone);
         else if (data.profiles?.phone) setAuthorPhone(data.profiles.phone);
-        else setAuthorPhone(""); // Clear dummy if no phone found
+
+        // Pre-fill volume and issue from database (database is always authoritative)
+        // Also clear stale localStorage so database value always wins
+        if (data.volume) {
+          setCustomVolume(data.volume);
+          localStorage.setItem(`draft_vol_${data.id}`, data.volume);
+        } else {
+          localStorage.removeItem(`draft_vol_${data.id}`);
+        }
+        if (data.issue) {
+          setCustomIssue(data.issue);
+          localStorage.setItem(`draft_iss_${data.id}`, data.issue);
+        } else {
+          localStorage.removeItem(`draft_iss_${data.id}`);
+        }
         
         // Auto set active tab based on stage
         if (data.stage === 'Review') setActiveTab('review');
@@ -1236,11 +1246,17 @@ export default function SubmissionControlPanel() {
                       </div>
 
 
-                      {submission?.status === 'Production Completed' ? (
+                      {(submission?.status === 'Production Completed' || submission?.status === 'Published') ? (
                         <div className="space-y-4 pt-4">
-                          <div className="p-4 bg-amber-500/10 border border-amber-500/20 text-amber-400 rounded-lg text-xs font-medium">
-                            ⚠️ Seluruh proses produksi (Layout, Cover, & API) telah disahkan oleh Supervisor. Anda sekarang dapat merilis naskah ini.
-                          </div>
+                          {submission?.status === 'Published' ? (
+                            <div className="p-4 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-lg text-xs font-medium">
+                              ✓ Naskah telah dipublikasikan. Anda dapat memperbarui data Volume & Edisi di bawah ini jika terdapat kesalahan, lalu klik tombol Perbarui.
+                            </div>
+                          ) : (
+                            <div className="p-4 bg-amber-500/10 border border-amber-500/20 text-amber-400 rounded-lg text-xs font-medium">
+                              ⚠️ Seluruh proses produksi (Layout, Cover, & API) telah disahkan oleh Supervisor. Anda sekarang dapat merilis naskah ini.
+                            </div>
+                          )}
                           
                           <div className="flex gap-4 mb-4">
                             <div className="flex-1">
@@ -1270,12 +1286,17 @@ export default function SubmissionControlPanel() {
 
                           <button
                             onClick={async () => {
-                              const confirmPublish = confirm("Apakah Anda yakin ingin menerbitkan naskah ini? Status naskah akan berubah menjadi Published dan Sertifikat Publikasi penulis akan diterbitkan secara otomatis.");
+                              const isRepublish = submission.status === 'Published';
+                              const confirmMsg = isRepublish 
+                                ? "Apakah Anda yakin ingin memperbarui metadata Volume dan Edisi untuk naskah yang sudah terbit ini?" 
+                                : "Apakah Anda yakin ingin menerbitkan naskah ini? Status naskah akan berubah menjadi Published dan Sertifikat Publikasi penulis akan diterbitkan secara otomatis.";
+                              
+                              const confirmPublish = confirm(confirmMsg);
                               if (!confirmPublish) return;
                               const m = await import("@/app/actions/editor");
                               const res = await m.publishArticle(submission.id, submission.journal_id || "", customVolume, customIssue);
                               if (res.success) {
-                                showToast("Naskah resmi diterbitkan!");
+                                showToast(isRepublish ? "Metadata Publikasi Berhasil Diperbarui!" : "Naskah resmi diterbitkan!");
                                 setTimeout(() => window.location.reload(), 1000);
                               } else {
                                 showToast("Gagal menerbitkan naskah.");
@@ -1284,23 +1305,26 @@ export default function SubmissionControlPanel() {
                             className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-4 px-6 rounded-xl shadow-lg transition-colors text-base flex justify-center items-center gap-2 border border-emerald-500/30"
                           >
                             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                            Mempublikasikan Naskah (Publish)
+                            {submission?.status === 'Published' ? 'Perbarui Metadata Terbitan' : 'Mempublikasikan Naskah (Publish)'}
                           </button>
+
+                          {submission?.status === 'Published' && (
+                            <Link
+                              href="/dashboard/certificates"
+                              target="_blank"
+                              className="w-full bg-zinc-800 hover:bg-zinc-700 text-zinc-200 font-bold py-4 px-6 rounded-xl transition-colors text-base flex justify-center items-center gap-2 border border-zinc-700 text-center mt-2"
+                              style={{ textDecoration: 'none' }}
+                            >
+                              <svg className="w-5 h-5 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                              Lihat Sertifikat Terbit
+                            </Link>
+                          )}
                         </div>
                       ) : (
                         <div className="space-y-4 pt-4">
-                          <div className="p-4 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-lg text-xs font-medium">
-                            ✓ Naskah telah dipublikasikan dan sertifikat penghargaan penulis telah aktif.
+                          <div className="p-4 bg-zinc-800 border border-zinc-700 text-zinc-400 rounded-lg text-xs font-medium">
+                            Naskah belum mencapai tahap produksi akhir.
                           </div>
-                          <Link
-                            href="/dashboard/certificates"
-                            target="_blank"
-                            className="w-full bg-zinc-800 hover:bg-zinc-700 text-zinc-200 font-bold py-4 px-6 rounded-xl transition-colors text-base flex justify-center items-center gap-2 border border-zinc-700 text-center"
-                            style={{ textDecoration: 'none' }}
-                          >
-                            <svg className="w-5 h-5 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-                            Lihat Sertifikat Terbit
-                          </Link>
                         </div>
                       )}
                     </div>

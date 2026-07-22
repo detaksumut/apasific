@@ -94,8 +94,8 @@ export default function DynamicCover({
 
         {/* VOLUME & EDISI (Di samping ikon kalender kiri) */}
         <div className="absolute top-[137.5cqw] left-[26cqw] w-[20cqw]">
-          {volume && <p className="text-[1.8cqw] font-bold text-zinc-300 tracking-wider uppercase mb-0.5">VOL {volume}</p>}
-          {edisi && <p className="text-[1.8cqw] font-bold text-zinc-300 tracking-wider uppercase">EDISI {edisi}</p>}
+          {volume && <p className="text-[1.8cqw] font-bold text-zinc-300 tracking-wider uppercase mb-0.5">VOL {volume.replace(/Vol\.?\s*/i, '').trim()}</p>}
+          {edisi && <p className="text-[1.8cqw] font-bold text-zinc-300 tracking-wider uppercase">EDISI {edisi.replace(/Edisi\s*|No\.?\s*/i, '').trim()}</p>}
         </div>
 
         {/* BULAN & TAHUN (Di samping ikon kalender tengah) */}

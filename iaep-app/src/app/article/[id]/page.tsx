@@ -450,7 +450,7 @@ export default function ArticlePaywall() {
                     author={article.author} 
                     doi={article.doi} 
                     volume={article.volume}
-                    issue={article.issue}
+                    edisi={article.issue}
                   />
                 </div>
               </div>
