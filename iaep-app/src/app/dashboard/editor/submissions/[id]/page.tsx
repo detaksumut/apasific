@@ -1177,38 +1177,22 @@ export default function SubmissionControlPanel() {
                       <h4 className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">Cover Naskah Final</h4>
                       {submission?.cover_file_url ? (
                         <div className="mb-6 rounded-lg overflow-hidden border border-gray-200 shadow-sm max-w-xs mx-auto md:mx-0 relative" style={{ containerType: 'inline-size' }}>
-                           <img src={submission.cover_file_url} alt="Cover Naskah" className="w-full h-auto object-contain relative z-0" />
-                           {(generatedDoi || submission.doi) && (
-                             <div 
-                               className="absolute z-10 font-bold flex items-center" 
-                               style={{
-                                 top: (() => {
-                                   let hasScope = false;
-                                   try {
-                                     if (submission?.abstract) {
-                                       const parsed = JSON.parse(submission.abstract);
-                                       if (parsed.scope || (parsed.keywords && parsed.keywords.includes('Scope:'))) hasScope = true;
-                                     }
-                                   } catch(e) {}
-                                   const doiY = hasScope ? 440 : 370;
-                                   const topEdge = doiY - 32;
-                                   return `${(topEdge / 1754) * 100}%`;
-                                 })(),
-                                 left: 0,
-                                 width: '100%',
-                                 backgroundColor: 'transparent',
-                                 display: 'flex',
-                                 justifyContent: 'center',
-                                 fontSize: '1.8cqw',
-                                 whiteSpace: 'normal',
-                                 color: 'transparent',
-                                 textDecoration: 'none',
-                                 lineHeight: '1.2'
-                               }}
-                             >
-                               {generatedDoi || submission.doi}
-                             </div>
-                           )}
+                          {(() => {
+                            let volStr = customVolume.replace(/Vol\.?\s*/i, '').trim();
+                            let edStr = customIssue.replace(/No\.?\s*/i, '').trim();
+                            return (
+                              <DynamicCover 
+                                title={submission.title}
+                                author={submission.author || "Author"}
+                                journalName={submission.journals?.name || ""}
+                                doi={submission.doi || generatedDoi || ""}
+                                volume={volStr}
+                                edisi={edStr}
+                                month={new Date().toLocaleDateString('en-US', { month: 'long' }).toUpperCase()}
+                                year={new Date().getFullYear().toString()}
+                              />
+                            );
+                          })()}
                         </div>
                       ) : (
                         <div className="mb-6 text-sm text-gray-500 bg-gray-50 p-3 rounded border border-gray-200">
@@ -1240,6 +1224,36 @@ export default function SubmissionControlPanel() {
                               Simpan ISSN
                            </button>
                          </div>
+                      </div>
+
+                      {/* Volume & Issue Inputs */}
+                      <div className="mt-4 p-4 bg-blue-50 border border-blue-100 rounded-lg flex flex-col gap-3">
+                         <h5 className="font-bold text-blue-900 text-sm">Penentuan Volume & Edisi Publikasi</h5>
+                         <div className="flex gap-4">
+                           <div className="flex-1">
+                             <label className="block text-xs font-bold text-gray-700 uppercase mb-1">Volume</label>
+                             <input 
+                               type="text" 
+                               value={customVolume} 
+                               onChange={(e) => setCustomVolume(e.target.value)}
+                               className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 outline-none text-sm" 
+                               placeholder="e.g. Vol. 1" 
+                             />
+                           </div>
+                           <div className="flex-1">
+                             <label className="block text-xs font-bold text-gray-700 uppercase mb-1">Edisi / Issue</label>
+                             <input 
+                               type="text" 
+                               value={customIssue} 
+                               onChange={(e) => setCustomIssue(e.target.value)}
+                               className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 outline-none text-sm" 
+                               placeholder="e.g. No. 2" 
+                             />
+                           </div>
+                         </div>
+                         <p className="text-[10px] text-gray-500 mt-1 leading-tight">
+                           *Jika dikosongkan, sistem akan mengurutkan otomatis. Ketik manual (contoh: <b>No. 2</b>) untuk memaksa ke edisi tertentu. (Perubahan akan otomatis terlihat di pratinjau Cover di atas).
+                         </p>
                       </div>
 
                       <div className="flex flex-col gap-3 mt-4">
