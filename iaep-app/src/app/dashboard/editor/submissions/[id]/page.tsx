@@ -34,6 +34,8 @@ export default function SubmissionControlPanel() {
   const [isUploadingGalley, setIsUploadingGalley] = useState(false);
   const [boardMembers, setBoardMembers] = useState<any[]>([]);
   const [currentUserRole, setCurrentUserRole] = useState<string>("");
+  const [customVolume, setCustomVolume] = useState("Vol. 1");
+  const [customIssue, setCustomIssue] = useState("");
 
   // Determine role cleanly
   const roleStr = currentUserRole.toLowerCase();
@@ -1101,12 +1103,39 @@ export default function SubmissionControlPanel() {
                           <div className="p-4 bg-amber-500/10 border border-amber-500/20 text-amber-400 rounded-lg text-xs font-medium">
                             ⚠️ Seluruh proses produksi (Layout, Cover, & API) telah disahkan oleh Supervisor. Anda sekarang dapat merilis naskah ini.
                           </div>
+                          
+                          <div className="flex gap-4 mb-4">
+                            <div className="flex-1">
+                              <label className="block text-xs font-bold text-gray-700 uppercase mb-1">Volume</label>
+                              <input 
+                                type="text" 
+                                value={customVolume} 
+                                onChange={(e) => setCustomVolume(e.target.value)}
+                                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none transition-all text-sm font-medium" 
+                                placeholder="e.g. Vol. 1" 
+                              />
+                            </div>
+                            <div className="flex-1">
+                              <label className="block text-xs font-bold text-gray-700 uppercase mb-1">Edisi / Issue</label>
+                              <input 
+                                type="text" 
+                                value={customIssue} 
+                                onChange={(e) => setCustomIssue(e.target.value)}
+                                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none transition-all text-sm font-medium" 
+                                placeholder="e.g. No. 2" 
+                              />
+                            </div>
+                          </div>
+                          <p className="text-[10px] text-gray-400 mt-[-10px] leading-tight">
+                            *Jika dikosongkan, sistem akan mengurutkan Volume/Edisi secara otomatis. (Untuk Edisi 2, ketik: <b>No. 2</b>)
+                          </p>
+
                           <button
                             onClick={async () => {
                               const confirmPublish = confirm("Apakah Anda yakin ingin menerbitkan naskah ini? Status naskah akan berubah menjadi Published dan Sertifikat Publikasi penulis akan diterbitkan secara otomatis.");
                               if (!confirmPublish) return;
                               const m = await import("@/app/actions/editor");
-                              const res = await m.publishArticle(submission.id, submission.journal_id || "");
+                              const res = await m.publishArticle(submission.id, submission.journal_id || "", customVolume, customIssue);
                               if (res.success) {
                                 showToast("Naskah resmi diterbitkan!");
                                 setTimeout(() => window.location.reload(), 1000);

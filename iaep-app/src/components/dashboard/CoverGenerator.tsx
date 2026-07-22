@@ -382,12 +382,43 @@ export default function CoverGenerator({ submission, generatedDoi }: CoverGenera
         
         {/* Preview menggunakan desain DynamicCover terbaru */}
         <div className="w-full max-w-[320px]">
-          <DynamicCover 
-            title={title}
-            author={author}
-            journalName={journalName}
-            doi={generatedDoi || ""}
-          />
+          {(() => {
+            // Parse dynamicVolText (e.g. "Vol 1 No 1, July 2026")
+            let vol = "1";
+            let ed = "1";
+            let mth = "JULY";
+            let yr = "2026";
+            
+            if (dynamicVolText) {
+              const volMatch = dynamicVolText.match(/Vol\s+(\d+)/i);
+              if (volMatch) vol = volMatch[1];
+              
+              const noMatch = dynamicVolText.match(/No\s+(\d+)/i);
+              if (noMatch) ed = noMatch[1];
+              
+              const parts = dynamicVolText.split(', ');
+              if (parts.length > 1) {
+                 const dateParts = parts[1].trim().split(' ');
+                 if (dateParts.length >= 2) {
+                    mth = dateParts[0].toUpperCase();
+                    yr = dateParts[1];
+                 }
+              }
+            }
+
+            return (
+              <DynamicCover 
+                title={title}
+                author={author}
+                journalName={journalName}
+                doi={generatedDoi || ""}
+                volume={vol}
+                edisi={ed}
+                month={mth}
+                year={yr}
+              />
+            );
+          })()}
         </div>
       </div>
     </div>
