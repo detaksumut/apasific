@@ -52,12 +52,14 @@ export default function DynamicCover({
           </h1>
         </div>
 
-        {/* AUTHOR (Digeser ke bawah ikon AUTHOR bawaan gambar yang ada di ~80cqw) */}
+        {/* AUTHOR (Disembunyikan sesuai permintaan) */}
+        {/*
         <div className="absolute top-[94cqw] left-[8cqw] w-[38cqw]">
           <p className="text-[1.8cqw] font-medium text-white line-clamp-5 drop-shadow-md leading-snug">
             {author || "Anonymous"}
           </p>
         </div>
+        */}
 
         {/* DOI (Dipindah ke atas di samping logo ASIA) */}
         {doi && (
