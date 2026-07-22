@@ -7,6 +7,7 @@ import { publishArticleToZenodo, ZenodoMetadata } from "@/utils/zenodo";
 import { getSubmissionDetailsEditor, updateIssn, updateDoi } from "@/app/actions/editor";
 import { createClient } from "@/utils/supabase/client";
 import CoverGenerator from "@/components/dashboard/CoverGenerator";
+import DynamicCover from "@/components/DynamicCover";
 
 export default function SubmissionControlPanel() {
   const params = useParams();
@@ -1012,48 +1013,24 @@ export default function SubmissionControlPanel() {
                       <h4 className="text-xs font-bold text-zinc-500 uppercase tracking-widest mb-4 w-full">Sampul Depan (Cover)</h4>
                       {submission?.cover_file_url ? (
                         <div className="border border-zinc-800 rounded-xl overflow-hidden shadow-2xl max-w-sm w-full relative" style={{ containerType: 'inline-size' }}>
-                          <img src={submission.cover_file_url} alt="Cover Naskah" className="w-full h-auto object-contain relative z-0" />
-                          {(submission.doi || generatedDoi) && (
-                            <a 
-                              href={(() => {
-                                const doiVal = submission.doi || generatedDoi;
-                                if (doiVal.includes('zenodo.')) {
-                                  const zenodoId = doiVal.split('zenodo.')[1];
-                                  return `https://zenodo.org/records/${zenodoId}`;
-                                }
-                                return `https://doi.org/${doiVal}`;
-                              })()}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="absolute z-10 font-bold flex items-center hover:underline hover:text-emerald-300 transition-colors" 
-                              style={{
-                                top: (() => {
-                                  let hasScope = false;
-                                  try {
-                                    if (submission?.abstract) {
-                                      const parsed = JSON.parse(submission.abstract);
-                                      if (parsed.scope || (parsed.keywords && parsed.keywords.includes('Scope:'))) hasScope = true;
-                                    }
-                                  } catch(e) {}
-                                  const doiY = hasScope ? 440 : 370;
-                                  const topEdge = doiY - 32; // Offset by font size since canvas textBaseline is alphabetic
-                                  return `${(topEdge / 1754) * 100}%`;
-                                })(),
-                                left: 0,
-                                width: '100%',
-                                backgroundColor: 'transparent',
-                                display: 'flex',
-                                justifyContent: 'center',
-                                fontSize: '1.8cqw',
-                                whiteSpace: 'normal',
-                                color: 'transparent',
-                                textDecoration: 'none',
-                                lineHeight: '1.2'
-                              }}
-                            >
-                              {submission.doi || generatedDoi}
-                            </a>
-                          )}
+                          {(() => {
+                            let volStr = customVolume.replace(/Vol\.?\s*/i, '').trim();
+                            let edStr = customIssue.replace(/No\.?\s*/i, '').trim();
+                            
+                            // If user leaves them blank, try to parse from backend dynamicVolIss (which isn't easily available here, so we'll just fall back to empty)
+                            return (
+                              <DynamicCover 
+                                title={submission.title}
+                                author={submission.author || "Author"}
+                                journalName={submission.journals?.name || ""}
+                                doi={submission.doi || generatedDoi || ""}
+                                volume={volStr}
+                                edisi={edStr}
+                                month={new Date().toLocaleDateString('en-US', { month: 'long' }).toUpperCase()}
+                                year={new Date().getFullYear().toString()}
+                              />
+                            );
+                          })()}
                         </div>
                       ) : (
                         <div className="border-2 border-dashed border-zinc-800 rounded-2xl p-12 w-full flex flex-col items-center justify-center text-center bg-zinc-900/30 text-zinc-500">
