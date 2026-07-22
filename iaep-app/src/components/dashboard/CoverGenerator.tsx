@@ -1,6 +1,7 @@
 "use client";
 import { useState, useRef, useEffect } from 'react';
 import { getAssignedVolumeAndIssue } from '@/app/actions/editor';
+import DynamicCover from '@/components/DynamicCover';
 
 interface CoverGeneratorProps {
   submission: any;
@@ -373,11 +374,21 @@ export default function CoverGenerator({ submission, generatedDoi }: CoverGenera
 
       {/* Canvas Preview Area */}
       <div className="flex-1 flex justify-center items-center bg-gray-100 rounded-lg p-6 overflow-hidden border border-gray-200">
+        {/* Canvas disembunyikan tapi tetap dipakai untuk upload file syarat sistem */}
         <canvas 
           ref={canvasRef} 
-          className="w-full h-auto max-w-[320px] object-contain shadow-[0_0_30px_rgba(0,0,0,0.5)] rounded"
-          style={{ aspectRatio: '1 / 1.414' }}
+          className="hidden"
         />
+        
+        {/* Preview menggunakan desain DynamicCover terbaru */}
+        <div className="w-full max-w-[320px]">
+          <DynamicCover 
+            title={title}
+            author={author}
+            journalName={journalName}
+            doi={generatedDoi || ""}
+          />
+        </div>
       </div>
     </div>
   );

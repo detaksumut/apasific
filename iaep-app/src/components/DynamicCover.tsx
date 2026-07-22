@@ -6,6 +6,10 @@ interface DynamicCoverProps {
   journalName: string;
   doi: string;
   hueRotate?: string; // e.g., "hue-rotate-[45deg]"
+  volume?: string;
+  edisi?: string;
+  month?: string;
+  year?: string;
 }
 
 export default function DynamicCover({
@@ -14,6 +18,10 @@ export default function DynamicCover({
   journalName,
   doi,
   hueRotate = "hue-rotate-0",
+  volume = "1",
+  edisi = "1",
+  month = "JULY",
+  year = "2026",
 }: DynamicCoverProps) {
   const journalCode = journalName ? journalName.split(' ')[0].toUpperCase() : '';
   let bgImage = "url('/coverPKM.png')";
@@ -75,6 +83,18 @@ export default function DynamicCover({
             </a>
           </div>
         )}
+
+        {/* VOLUME & EDISI (Di samping ikon kalender kiri) */}
+        <div className="absolute top-[137.5cqw] left-[26cqw] w-[20cqw]">
+          <p className="text-[1.8cqw] font-bold text-zinc-300 tracking-wider uppercase mb-0.5">VOL {volume}</p>
+          <p className="text-[1.8cqw] font-bold text-zinc-300 tracking-wider uppercase">EDISI {edisi}</p>
+        </div>
+
+        {/* BULAN & TAHUN (Di samping ikon kalender tengah) */}
+        <div className="absolute top-[137.5cqw] left-[52cqw] w-[20cqw]">
+          <p className="text-[1.8cqw] font-bold text-zinc-300 tracking-wider uppercase mb-0.5">{month}</p>
+          <p className="text-[1.8cqw] font-bold text-zinc-300 tracking-wider uppercase">{year}</p>
+        </div>
 
       </div>
     </div>
