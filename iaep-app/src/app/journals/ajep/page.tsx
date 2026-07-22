@@ -90,10 +90,10 @@ export default async function AJEPJournal() {
         <div className="mb-12 border-b border-zinc-800 pb-8">
           <h1 className="text-4xl md:text-5xl font-bold mb-4 leading-tight text-white flex flex-wrap items-center gap-4">
             <span className="bg-emerald-500/10 text-emerald-500 px-4 py-2 rounded-xl text-2xl font-black">AJEP</span>
-            Pendidikan Dasar, Menengah & Tinggi
+            Jurnal Pendidikan
           </h1>
           <p className="text-zinc-400 text-lg max-w-3xl">
-            Repositori resmi publikasi artikel ilmiah untuk <strong className="text-emerald-500">AJEP - Pendidikan Dasar, Menengah & Tinggi</strong>. 
+            Repositori resmi publikasi artikel ilmiah untuk <strong className="text-emerald-500">AJEP - Jurnal Pendidikan</strong>. 
             Semua naskah di bawah ini telah melalui proses telaah sejawat (*peer-review*) dan dinyatakan sah untuk dipublikasikan.
           </p>
         </div>

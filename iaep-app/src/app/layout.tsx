@@ -83,7 +83,7 @@ export default function RootLayout({
               <a href="/business.html"><span class="dd-icon">◈</span> Administrasi &amp; Manajemen Bisnis</a>
               <a href="/economics.html"><span class="dd-icon">◈</span> Ekonomi Pembangunan &amp; Keuangan</a>
               <a href="/law.html"><span class="dd-icon">◈</span> Ilmu Hukum &amp; Hak Asasi Manusia</a>
-              <a href="/education.html"><span class="dd-icon">◈</span> Pendidikan Dasar, Menengah &amp; Tinggi</a>
+              <a href="/education.html"><span class="dd-icon">◈</span> Jurnal Pendidikan</a>
               <a href="/medical.html"><span class="dd-icon">◈</span> Kedokteran, Kesehatan Masyarakat &amp; Keperawatan</a>
               <a href="/engineering.html"><span class="dd-icon">◈</span> Teknik Sipil, Mesin &amp; Elektro</a>
               <a href="/computer.html"><span class="dd-icon">◈</span> Ilmu Komputer &amp; Teknologi Informasi</a>

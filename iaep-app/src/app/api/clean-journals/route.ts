@@ -18,7 +18,7 @@ const JOURNALS = [
   },
   {
     id: 3,
-    name: 'AJEP - Pendidikan Dasar, Menengah & Tinggi',
+    name: 'AJEP - Jurnal Pendidikan',
     abbreviation: 'AJEP',
     scopes: ['Pendidikan Dasar', 'Pendidikan Menengah', 'Pendidikan Tinggi', 'Kurikulum', 'Teknologi Pendidikan', 'Evaluasi Pembelajaran']
   },

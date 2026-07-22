@@ -13,7 +13,7 @@ const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PU
 const updates = [
   { abbr: 'AJAF', name: 'AJAF - Akuntansi, Audit & Perpajakan' },
   { abbr: 'AJED', name: 'AJED - Ekonomi Pembangunan & Keuangan' },
-  { abbr: 'AJEP', name: 'AJEP - Pendidikan Dasar, Menengah & Tinggi' },
+  { abbr: 'AJEP', name: 'AJEP - Jurnal Pendidikan' },
   { abbr: 'AJCE', name: 'AJCE - Teknik Sipil, Mesin & Elektro' },
   { abbr: 'AJAFR', name: 'AJAFR - Pertanian, Kehutanan & Perikanan' },
   { abbr: 'AJADM', name: 'AJADM - Seni, Desain & Media Kreatif' },

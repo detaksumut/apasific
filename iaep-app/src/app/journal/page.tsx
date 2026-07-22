@@ -18,7 +18,7 @@ interface BoardData {
 const OFFICIAL_JOURNALS = [
   "AJAF - Akuntansi, Audit & Perpajakan",
   "AJED - Ekonomi Pembangunan & Keuangan",
-  "AJEP - Pendidikan Dasar, Menengah & Tinggi",
+  "AJEP - Jurnal Pendidikan",
   "AJCE - Teknik Sipil, Mesin & Elektro",
   "AJAFR - Pertanian, Kehutanan & Perikanan",
   "AJADM - Seni, Desain & Media Kreatif",

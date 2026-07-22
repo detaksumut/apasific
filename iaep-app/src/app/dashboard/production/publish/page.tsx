@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import DeleteSubmissionButton from "@/components/DeleteSubmissionButton";
 import UpdateMetadataButton from "@/components/dashboard/UpdateMetadataButton";
-import { FileText, ArrowRight, Share2 } from "lucide-react";
+import { ArrowRight, Share2, CheckCircle2, Clock } from "lucide-react";
 import { cookies } from "next/headers";
 
 export default async function PublishEditorDashboard() {
@@ -33,13 +33,18 @@ export default async function PublishEditorDashboard() {
   }
   if (!user) redirect("/auth/login");
 
+  // Semua status yang melewati tahap Publish Editor (aktif maupun selesai)
+  const ALL_PUBLISH_STATUSES = ["Assigned to Publish", "Pending Supervisor", "Published", "Production Completed"];
+
   let articles: any[] = [];
+
+  // 1. Fetch dari Supabase
   try {
-    const { data: submissions, error } = await supabase
+    const { data: submissions } = await supabase
       .from("submissions")
       .select("*, journals(name), profiles:author_id(full_name)")
       .eq("stage", "Production")
-      .in("status", ["Assigned to Publish", "Pending Supervisor", "Published"])
+      .in("status", ALL_PUBLISH_STATUSES)
       .order("created_at", { ascending: false });
     
     if (submissions && submissions.length > 0) {
@@ -49,6 +54,7 @@ export default async function PublishEditorDashboard() {
     console.error("Supabase fetch error", e);
   }
 
+  // 2. Fetch dari Firestore (merge, hindari duplikat)
   try {
     const { getFirestore } = await import('@/utils/firebase/db');
     const db = getFirestore();
@@ -61,12 +67,14 @@ export default async function PublishEditorDashboard() {
           stage: data.stage,
           status: data.status,
           created_at: data.created_at && data.created_at.toDate ? data.created_at.toDate() : new Date(),
-          journals: data.journals || { name: 'Unknown Journal' },
-          profiles: { full_name: data.author || 'Author' }
+          journals: data.journals || { name: data.journal_name || 'Unknown Journal' },
+          profiles: { full_name: data.author || 'Author' },
+          volume: data.volume,
+          issue: data.issue,
+          journal_id: data.journal_id,
       };
-    }).filter(article => article.stage === "Production" && ["Assigned to Publish", "Pending Supervisor", "Published"].includes(article.status));
+    }).filter(article => article.stage === "Production" && ALL_PUBLISH_STATUSES.includes(article.status));
     
-    // Merge avoiding duplicates if any
     const existingIds = new Set(articles.map(a => a.id));
     for (const fb of fbArticles) {
         if (!existingIds.has(fb.id)) {
@@ -77,6 +85,25 @@ export default async function PublishEditorDashboard() {
     console.error("Firestore fetch failed", fbErr);
   }
 
+  // Pisahkan: antrean aktif vs riwayat terbit
+  const activeArticles = articles.filter(a => ["Assigned to Publish", "Pending Supervisor"].includes(a.status));
+  const publishedArticles = articles.filter(a => ["Published", "Production Completed"].includes(a.status));
+
+  const getStatusBadge = (status: string) => {
+    switch (status) {
+      case 'Assigned to Publish':
+        return <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-500 border border-amber-500/20">Menunggu Proses</span>;
+      case 'Pending Supervisor':
+        return <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/20">Menunggu Supervisor</span>;
+      case 'Published':
+        return <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">✓ Terbit</span>;
+      case 'Production Completed':
+        return <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">✓ Produksi Selesai</span>;
+      default:
+        return <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-zinc-800 text-zinc-300 border border-zinc-700">{status}</span>;
+    }
+  };
+
   return (
     <div className="max-w-7xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-6 border-b border-zinc-800">
@@ -84,17 +111,23 @@ export default async function PublishEditorDashboard() {
           <h1 className="text-3xl font-bold text-white tracking-tight">Dashboard Publish Editor</h1>
           <p className="text-zinc-400 mt-2 text-sm">Daftar naskah yang siap diintegrasikan dengan mesin indeks (DOI, Crossref, Zenodo).</p>
         </div>
+        <div className="flex items-center gap-4 text-sm text-zinc-400">
+          <span className="flex items-center gap-1.5"><Clock className="w-4 h-4 text-amber-500" /> {activeArticles.length} Aktif</span>
+          <span className="flex items-center gap-1.5"><CheckCircle2 className="w-4 h-4 text-emerald-500" /> {publishedArticles.length} Terbit</span>
+        </div>
       </div>
 
+      {/* ─── Antrean Aktif ─── */}
       <div className="bg-zinc-900/50 border border-zinc-800/80 rounded-xl overflow-hidden">
         <div className="p-6 border-b border-zinc-800/80 flex items-center justify-between">
           <h2 className="text-lg font-bold text-white flex items-center gap-2">
             <Share2 className="w-5 h-5 text-amber-500" />
-            Antrean Indexing & Metadata
+            Antrean Indexing &amp; Metadata
           </h2>
+          <span className="text-xs text-zinc-500">{activeArticles.length} naskah</span>
         </div>
         
-        {articles.length === 0 ? (
+        {activeArticles.length === 0 ? (
           <div className="p-12 text-center">
             <div className="w-16 h-16 bg-zinc-800/50 rounded-full flex items-center justify-center mx-auto mb-4">
               <Share2 className="w-8 h-8 text-zinc-500" />
@@ -104,7 +137,7 @@ export default async function PublishEditorDashboard() {
           </div>
         ) : (
           <div className="divide-y divide-zinc-800/50">
-            {articles.map((article: any) => (
+            {activeArticles.map((article: any) => (
               <div key={article.id} className="p-6 hover:bg-zinc-800/30 transition-colors group">
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                   <div className="space-y-1">
@@ -112,15 +145,7 @@ export default async function PublishEditorDashboard() {
                       <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-zinc-800 text-zinc-300 border border-zinc-700">
                         {article.journals?.name || "Jurnal"}
                       </span>
-                      {article.status === 'Assigned to Publish' ? (
-                        <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-500 border border-amber-500/20">
-                          Menunggu Proses
-                        </span>
-                      ) : (
-                        <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
-                          Selesai (Di Supervisor)
-                        </span>
-                      )}
+                      {getStatusBadge(article.status)}
                     </div>
                     <h3 className="text-lg font-semibold text-white group-hover:text-amber-500 transition-colors line-clamp-1">
                       {article.title}
@@ -128,8 +153,63 @@ export default async function PublishEditorDashboard() {
                   </div>
                   
                   <div className="shrink-0 flex items-center gap-2">
-                    <Link href={`/dashboard/editor/submissions/${article.id}?tab=production`} className={`font-bold py-2 px-4 rounded text-sm flex items-center gap-2 transition-colors ${article.status === 'Assigned to Publish' ? 'bg-amber-600 hover:bg-amber-500 text-white' : 'bg-zinc-800 hover:bg-zinc-700 text-zinc-300'}`}>
-                      {article.status === 'Assigned to Publish' ? 'Proses Integrasi API' : 'Lihat Arsip Naskah'}
+                    <Link
+                      href={`/dashboard/editor/submissions/${article.id}?tab=production`}
+                      className={`font-bold py-2 px-4 rounded text-sm flex items-center gap-2 transition-colors ${
+                        article.status === 'Assigned to Publish'
+                          ? 'bg-amber-600 hover:bg-amber-500 text-white'
+                          : 'bg-zinc-800 hover:bg-zinc-700 text-zinc-300'
+                      }`}
+                    >
+                      {article.status === 'Assigned to Publish' ? 'Proses Integrasi API' : 'Lihat Naskah'}
+                      <ArrowRight className="w-4 h-4" />
+                    </Link>
+                    <DeleteSubmissionButton id={article.id} />
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* ─── Riwayat Terbit ─── */}
+      <div className="bg-zinc-900/50 border border-zinc-800/80 rounded-xl overflow-hidden">
+        <div className="p-6 border-b border-zinc-800/80 flex items-center justify-between">
+          <h2 className="text-lg font-bold text-white flex items-center gap-2">
+            <CheckCircle2 className="w-5 h-5 text-emerald-500" />
+            Riwayat Terbit
+          </h2>
+          <span className="text-xs text-zinc-500">{publishedArticles.length} naskah</span>
+        </div>
+        
+        {publishedArticles.length === 0 ? (
+          <div className="p-10 text-center">
+            <p className="text-zinc-500 text-sm">Belum ada naskah yang telah diterbitkan.</p>
+          </div>
+        ) : (
+          <div className="divide-y divide-zinc-800/50">
+            {publishedArticles.map((article: any) => (
+              <div key={article.id} className="p-6 hover:bg-zinc-800/30 transition-colors group">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-zinc-800 text-zinc-300 border border-zinc-700">
+                        {article.journals?.name || "Jurnal"}
+                      </span>
+                      {getStatusBadge(article.status)}
+                    </div>
+                    <h3 className="text-lg font-semibold text-white group-hover:text-emerald-400 transition-colors line-clamp-1">
+                      {article.title}
+                    </h3>
+                  </div>
+                  
+                  <div className="shrink-0 flex items-center gap-2">
+                    <Link
+                      href={`/dashboard/editor/submissions/${article.id}?tab=production`}
+                      className="bg-zinc-800 hover:bg-zinc-700 text-zinc-300 font-bold py-2 px-4 rounded text-sm flex items-center gap-2 transition-colors"
+                    >
+                      Lihat Arsip Naskah
                       <ArrowRight className="w-4 h-4" />
                     </Link>
                     {article.status === 'Published' && (
