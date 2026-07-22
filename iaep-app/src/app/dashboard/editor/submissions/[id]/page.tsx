@@ -970,8 +970,29 @@ export default function SubmissionControlPanel() {
                            <div className="mt-8 border-t pt-6">
                              <h4 className="text-md font-bold text-gray-800 uppercase mb-4 border-b pb-2 flex items-center gap-2">
                                 <svg className="w-5 h-5 text-[#c9a84c]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
-                                Unggah Kover Jurnal (Manual)
+                                Papan Kerja Cover Editor
                              </h4>
+                             
+                             <div className="bg-white border border-gray-200 rounded-xl p-5 mb-6 shadow-sm">
+                               <h5 className="text-sm font-bold text-gray-700 uppercase tracking-wider mb-4 border-b pb-2">Informasi Naskah (Bahan Desain)</h5>
+                               <div className="space-y-4">
+                                 <div>
+                                   <p className="text-xs text-gray-500 uppercase font-semibold">Judul Artikel</p>
+                                   <p className="text-sm font-bold text-gray-900 mt-1 bg-gray-50 p-3 rounded-lg border border-gray-100">{submission.title || 'Judul tidak tersedia'}</p>
+                                 </div>
+                                 {submission.file_url_galley && (
+                                   <div className="pt-2">
+                                     <p className="text-xs text-gray-500 uppercase font-semibold mb-2">Naskah Akhir (Galley)</p>
+                                     <a href={submission.file_url_galley} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 px-4 py-2 bg-blue-50 text-blue-700 border border-blue-200 rounded-lg text-sm font-bold hover:bg-blue-100 transition-colors">
+                                       <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+                                       Unduh File Galley (.DOCX / .PDF)
+                                     </a>
+                                   </div>
+                                 )}
+                               </div>
+                             </div>
+
+                             <h5 className="text-sm font-bold text-gray-700 uppercase tracking-wider mb-4">Unggah Kover Jurnal (Manual)</h5>
                              {submission?.cover_file_url ? (
                                <div className="bg-green-50 border border-green-200 rounded-xl p-6 flex flex-col items-center justify-center text-center">
                                  <svg className="w-12 h-12 text-green-500 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
