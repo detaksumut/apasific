@@ -2,6 +2,7 @@ import { createClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import DeleteSubmissionButton from "@/components/DeleteSubmissionButton";
+import UpdateMetadataButton from "@/components/dashboard/UpdateMetadataButton";
 import { FileText, ArrowRight, Share2 } from "lucide-react";
 import { cookies } from "next/headers";
 
@@ -131,6 +132,14 @@ export default async function PublishEditorDashboard() {
                       {article.status === 'Assigned to Publish' ? 'Proses Integrasi API' : 'Lihat Arsip Naskah'}
                       <ArrowRight className="w-4 h-4" />
                     </Link>
+                    {article.status === 'Published' && (
+                      <UpdateMetadataButton
+                        submissionId={article.id}
+                        journalId={article.journal_id || ''}
+                        currentVolume={article.volume || ''}
+                        currentIssue={article.issue || ''}
+                      />
+                    )}
                     <DeleteSubmissionButton id={article.id} />
                   </div>
                 </div>
