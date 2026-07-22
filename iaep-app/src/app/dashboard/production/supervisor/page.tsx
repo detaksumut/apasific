@@ -84,8 +84,64 @@ export default async function SupervisorDashboard() {
     <div className="max-w-7xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-6 border-b border-zinc-800">
         <div>
-          <h1 className="text-3xl font-bold text-white tracking-tight">Dashboard Supervisor</h1>
-          <p className="text-zinc-400 mt-2 text-sm">Pusat komando (supervisor) untuk mengawasi seluruh tahapan Copyediting, Layout, Cover, dan Publikasi akhir.</p>
+        <h1 className="text-2xl font-bold text-white tracking-tight">Dashboard Supervisor</h1>
+        <p className="text-zinc-400 mt-2 text-sm">Validasi akhir dari seluruh proses produksi sebelum naskah diterbitkan.</p>
+        
+        {/* TEMPORARY RESET BUTTON */}
+        <form action={async () => {
+          "use server";
+          const { createClient } = await import('@supabase/supabase-js');
+          const supabaseAdmin = createClient(
+              process.env.NEXT_PUBLIC_SUPABASE_URL!,
+              process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+          );
+          
+          try {
+              // 1. Supabase Reset
+              const { data: subs } = await supabaseAdmin.from('submissions')
+                  .select('id')
+                  .ilike('title', '%SUPPLY CHAIN TRANSPARENCY%');
+              
+              if (subs && subs.length > 0) {
+                  const subId = subs[0].id;
+                  await supabaseAdmin.from('submissions').update({ stage: 'Review', status: 'Under Review' }).eq('id', subId);
+                  
+                  const { data: profs } = await supabaseAdmin.from('profiles').select('id').eq('email', 'kadsumut@gmail.com');
+                  if (profs && profs.length > 0) {
+                      await supabaseAdmin.from('review_assignments')
+                          .update({ status: 'accepted', completed_at: null })
+                          .eq('submission_id', subId)
+                          .eq('reviewer_id', profs[0].id);
+                  }
+              }
+
+              // 2. Firestore Reset
+              const { getFirestore } = await import('@/utils/firebase/db');
+              const db = getFirestore();
+              const snap = await db.collection('submissions').get();
+              let fbSubId = null;
+              snap.forEach(doc => {
+                  const t = doc.data().title || "";
+                  if (t.toUpperCase().includes("SUPPLY CHAIN TRANSPARENCY")) {
+                      fbSubId = doc.id;
+                  }
+              });
+              
+              if (fbSubId) {
+                  await db.collection('submissions').doc(fbSubId).update({ stage: 'Review', status: 'Under Review' });
+                  const revSnap = await db.collection('review_assignments').where('submission_id', '==', fbSubId).get();
+                  revSnap.forEach(async doc => {
+                      if (doc.data().status === 'completed') {
+                          await db.collection('review_assignments').doc(doc.id).update({ status: 'accepted', completed_at: null });
+                      }
+                  });
+              }
+          } catch(e) { console.error(e); }
+        }}>
+          <button type="submit" className="mt-4 px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-bold rounded-lg text-sm border border-red-500 shadow-lg shadow-red-900/20">
+            [DARURAT] Kembalikan Artikel Supply Chain ke Reviewer
+          </button>
+        </form>
         </div>
       </div>
 

@@ -38,6 +38,28 @@ export default function SubmissionControlPanel() {
   const [customVolume, setCustomVolume] = useState("Vol. 1");
   const [customIssue, setCustomIssue] = useState("");
 
+  // Persist volume & issue to LocalStorage so it survives the redirect to Supervisor
+  useEffect(() => {
+    if (submissionId) {
+      const savedVol = localStorage.getItem(`draft_vol_${submissionId}`);
+      const savedIss = localStorage.getItem(`draft_iss_${submissionId}`);
+      if (savedVol) setCustomVolume(savedVol);
+      if (savedIss) setCustomIssue(savedIss);
+    }
+  }, [submissionId]);
+
+  useEffect(() => {
+    if (submissionId && customVolume !== "Vol. 1") {
+      localStorage.setItem(`draft_vol_${submissionId}`, customVolume);
+    }
+  }, [customVolume, submissionId]);
+
+  useEffect(() => {
+    if (submissionId && customIssue !== "") {
+      localStorage.setItem(`draft_iss_${submissionId}`, customIssue);
+    }
+  }, [customIssue, submissionId]);
+
   // Determine role cleanly
   const roleStr = currentUserRole.toLowerCase();
   const isLayoutEditor = roleStr.includes('layout');
