@@ -1173,9 +1173,9 @@ export default function SubmissionControlPanel() {
 
                             {/* DOI Overlay */}
                             {(submission.doi || generatedDoi) && (
-                              <div className="absolute z-10" style={{ top: '11.5%', left: '33%', width: '35%' }}>
-                                <p className="font-bold text-[#c9a84c] tracking-wider mb-0.5" style={{ fontSize: 'clamp(8px, 0.8vw, 12px)' }}>DOI</p>
-                                <p className="font-mono text-zinc-200 drop-shadow-md break-all leading-tight" style={{ fontSize: 'clamp(7px, 0.7vw, 11px)' }}>
+                              <div className="absolute z-10" style={{ top: '11.5%', left: '33%', width: '42%' }}>
+                                <p className="font-bold text-[#c9a84c] tracking-wider mb-0.5" style={{ fontSize: 'clamp(7px, 0.7vw, 11px)' }}>DOI</p>
+                                <p className="font-mono text-zinc-200 drop-shadow-md whitespace-nowrap leading-tight" style={{ fontSize: 'clamp(5px, 0.5vw, 8px)' }}>
                                   {submission.doi || generatedDoi}
                                 </p>
                               </div>
@@ -1357,9 +1357,9 @@ export default function SubmissionControlPanel() {
 
                           {/* DOI Overlay */}
                           {(submission.doi || generatedDoi) && (
-                            <div className="absolute z-10" style={{ top: '11.5%', left: '33%', width: '35%' }}>
-                              <p className="font-bold text-[#c9a84c] tracking-wider mb-0.5" style={{ fontSize: 'clamp(8px, 0.8vw, 12px)' }}>DOI</p>
-                              <p className="font-mono text-zinc-200 drop-shadow-md break-all leading-tight" style={{ fontSize: 'clamp(7px, 0.7vw, 11px)' }}>
+                            <div className="absolute z-10" style={{ top: '11.5%', left: '33%', width: '42%' }}>
+                              <p className="font-bold text-[#c9a84c] tracking-wider mb-0.5" style={{ fontSize: 'clamp(7px, 0.7vw, 11px)' }}>DOI</p>
+                              <p className="font-mono text-zinc-200 drop-shadow-md whitespace-nowrap leading-tight" style={{ fontSize: 'clamp(5px, 0.5vw, 8px)' }}>
                                 {submission.doi || generatedDoi}
                               </p>
                             </div>
