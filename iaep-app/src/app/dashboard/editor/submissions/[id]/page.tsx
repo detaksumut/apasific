@@ -1182,13 +1182,13 @@ export default function SubmissionControlPanel() {
                             )}
 
                             {/* Volume & Edisi */}
-                            <div className="absolute flex flex-col justify-center" style={{ top: '91.6%', left: '26%', width: '20%' }}>
+                            <div className="absolute flex flex-col justify-center" style={{ top: '89%', left: '26%', width: '20%' }}>
                               {customVolume && <p className="font-bold text-zinc-300 tracking-wider uppercase mb-0.5" style={{ fontSize: 'clamp(7px, 0.75vw, 11px)' }}>VOL {customVolume.replace(/Vol\.?\s*/i, '').trim()}</p>}
                               {customIssue && <p className="font-bold text-zinc-300 tracking-wider uppercase" style={{ fontSize: 'clamp(7px, 0.75vw, 11px)' }}>EDISI {customIssue.replace(/No\.?\s*/i, '').trim()}</p>}
                             </div>
 
                             {/* Month & Year */}
-                            <div className="absolute flex flex-col justify-center" style={{ top: '91.6%', left: '52%', width: '20%' }}>
+                            <div className="absolute flex flex-col justify-center" style={{ top: '89%', left: '52%', width: '20%' }}>
                               <p className="font-bold text-zinc-300 tracking-wider uppercase mb-0.5" style={{ fontSize: 'clamp(7px, 0.75vw, 11px)' }}>{new Date().toLocaleDateString('en-US', { month: 'short' }).toUpperCase()}</p>
                               <p className="font-bold text-zinc-300 tracking-wider uppercase" style={{ fontSize: 'clamp(7px, 0.75vw, 11px)' }}>{new Date().getFullYear().toString()}</p>
                             </div>
@@ -1366,13 +1366,13 @@ export default function SubmissionControlPanel() {
                           )}
 
                           {/* Volume & Edisi */}
-                          <div className="absolute flex flex-col justify-center" style={{ top: '91.6%', left: '26%', width: '20%' }}>
+                          <div className="absolute flex flex-col justify-center" style={{ top: '89%', left: '26%', width: '20%' }}>
                             {customVolume && <p className="font-bold text-zinc-300 tracking-wider uppercase mb-0.5" style={{ fontSize: 'clamp(7px, 0.75vw, 11px)' }}>VOL {customVolume.replace(/Vol\.?\s*/i, '').trim()}</p>}
                             {customIssue && <p className="font-bold text-zinc-300 tracking-wider uppercase" style={{ fontSize: 'clamp(7px, 0.75vw, 11px)' }}>EDISI {customIssue.replace(/No\.?\s*/i, '').trim()}</p>}
                           </div>
 
                           {/* Month & Year */}
-                          <div className="absolute flex flex-col justify-center" style={{ top: '91.6%', left: '52%', width: '20%' }}>
+                          <div className="absolute flex flex-col justify-center" style={{ top: '89%', left: '52%', width: '20%' }}>
                             <p className="font-bold text-zinc-300 tracking-wider uppercase mb-0.5" style={{ fontSize: 'clamp(7px, 0.75vw, 11px)' }}>{new Date().toLocaleDateString('en-US', { month: 'short' }).toUpperCase()}</p>
                             <p className="font-bold text-zinc-300 tracking-wider uppercase" style={{ fontSize: 'clamp(7px, 0.75vw, 11px)' }}>{new Date().getFullYear().toString()}</p>
                           </div>
