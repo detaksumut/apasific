@@ -26,7 +26,7 @@ export default async function AJITEJournal() {
         doi,
         journals(name)
       `)
-      .eq("status", "Accepted")
+      .eq("status", "Published")
       .order("created_at", { ascending: false });
 
     if (!error && data) {
@@ -52,8 +52,8 @@ export default async function AJITEJournal() {
       const firestoreArticles = [];
       for (const doc of fbSnap.docs) {
         const fbData = doc.data();
-        const validStatuses = ['Accepted', 'Assigned to Layout', 'Assigned to Cover', 'Assigned to Publish', 'Pending Supervisor', 'Production Completed', 'Published'];
-        const isAdvancedStage = ['Copyediting', 'Production', 'Published'].includes(fbData.stage);
+        const validStatuses = ['Published'];
+        const isAdvancedStage = ['Published'].includes(fbData.stage);
         if (!validStatuses.includes(fbData.status) && !isAdvancedStage) continue;
 
         let jName = '';

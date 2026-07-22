@@ -1173,6 +1173,10 @@ export async function assignReviewer(submissionId: string, reviewerId: string, r
           process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
         );
         let validReviewerId = reviewerId;
+
+        // Fetch current stage to avoid reverting a published article
+        const { data: subData } = await supabaseAdmin.from('submissions').select('stage').eq('id', submissionId).single();
+        const isAdvanced = subData?.stage && ['Copyediting', 'Production', 'Published'].includes(subData.stage);
         
         // 1. Try to find the existing profile by email first to get the REAL Supabase Auth UUID
         const emailToSearch = reviewerId.includes('@') ? reviewerId : null;
@@ -1235,8 +1239,10 @@ export async function assignReviewer(submissionId: string, reviewerId: string, r
             console.warn("Firestore assign reviewer failed", e);
         }
 
-        // Update submission status to Under Review
-        await updateSubmissionStage(submissionId, 'Review', 'Under Review');
+        // Update submission status to Under Review only if not advanced
+        if (!isAdvanced) {
+            await updateSubmissionStage(submissionId, 'Review', 'Under Review');
+        }
 
         revalidatePath(`/dashboard/editor/submissions/${submissionId}`);
         

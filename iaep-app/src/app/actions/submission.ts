@@ -429,6 +429,9 @@ export async function assignReviewerActionFunc(submissionId: string, reviewer: a
   }
 
   try {
+    // Fetch current stage to avoid reverting a published article
+    const { data: subData } = await supabaseAdmin.from('submissions').select('stage').eq('id', submissionId).single();
+    const isAdvanced = subData?.stage && ['Copyediting', 'Production', 'Published'].includes(subData.stage);
     // Ensure reviewer profile exists in Supabase to avoid foreign key violations
     await supabaseAdmin.from('profiles').upsert({
         id: validReviewerId,
@@ -445,8 +448,10 @@ export async function assignReviewerActionFunc(submissionId: string, reviewer: a
     });
 
     if (!assignError) {
-        await supabaseAdmin.from('submissions').update({ status: 'Pending Reviewer Approval' }).eq('submission_id', submissionId);
-        await supabaseAdmin.from('submissions').update({ status: 'Pending Reviewer Approval' }).eq('id', submissionId);
+        if (!isAdvanced) {
+            await supabaseAdmin.from('submissions').update({ status: 'Pending Reviewer Approval' }).eq('submission_id', submissionId);
+            await supabaseAdmin.from('submissions').update({ status: 'Pending Reviewer Approval' }).eq('id', submissionId);
+        }
         await supabaseAdmin.from('submission_history').insert({
             submission_id: submissionId,
             action: 'Reviewer Assigned',
@@ -467,8 +472,10 @@ export async function assignReviewerActionFunc(submissionId: string, reviewer: a
       
       const batch = db.batch();
       
-      const subRef = db.collection('submissions').doc(submissionId);
-      batch.update(subRef, { status: 'Pending Reviewer Approval', updated_at: new Date() });
+      if (!isAdvanced) {
+          const subRef = db.collection('submissions').doc(submissionId);
+          batch.update(subRef, { status: 'Pending Reviewer Approval', updated_at: new Date() });
+      }
       
       const assignRef = db.collection('review_assignments').doc();
       batch.set(assignRef, {
