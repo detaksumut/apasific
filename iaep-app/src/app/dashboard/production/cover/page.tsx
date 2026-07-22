@@ -1,6 +1,7 @@
 import { createClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
 import Link from "next/link";
+import DeleteSubmissionButton from "@/components/DeleteSubmissionButton";
 import { FileText, ArrowRight, Image as ImageIcon } from "lucide-react";
 import { cookies } from "next/headers";
 
@@ -156,11 +157,12 @@ export default async function CoverEditorDashboard() {
                     </h3>
                   </div>
                   
-                  <div className="shrink-0">
-                    <Link href={`/dashboard/editor/submissions/${article.id}?tab=copyediting`} className="bg-purple-600 hover:bg-purple-500 text-white font-bold py-2 px-4 rounded text-sm flex items-center gap-2 transition-colors">
-                      Buka Auto-Cover Studio
+                  <div className="shrink-0 flex items-center gap-2">
+                    <Link href={`/dashboard/editor/submissions/${article.id}?tab=production`} className="bg-purple-600 hover:bg-purple-500 text-white font-bold py-2 px-4 rounded text-sm flex items-center gap-2 transition-colors">
+                      Kerjakan Cover
                       <ArrowRight className="w-4 h-4" />
                     </Link>
+                    <DeleteSubmissionButton id={article.id} />
                   </div>
                 </div>
               </div>
@@ -205,9 +207,13 @@ export default async function CoverEditorDashboard() {
                         <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
                      </a>
                    )}
-                   <Link href={`/dashboard/editor/submissions/${article.id}?tab=production`} className="text-xs bg-zinc-800 hover:bg-zinc-700 text-white font-medium py-2 px-3 rounded flex items-center gap-2 transition-colors">
-                      Lihat Naskah <ArrowRight className="w-3 h-3" />
-                   </Link>
+                   <div className="shrink-0 flex items-center gap-2">
+                    <Link href={`/dashboard/editor/submissions/${article.id}?tab=production`} className="text-zinc-400 hover:text-white font-medium text-xs flex items-center gap-1 transition-colors bg-zinc-800/50 hover:bg-zinc-700 px-3 py-1.5 rounded-lg border border-zinc-700">
+                      <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
+                      Lihat Naskah &rarr;
+                    </Link>
+                    <DeleteSubmissionButton id={article.id} />
+                  </div>
                 </div>
               </div>
             ))}

@@ -1,6 +1,7 @@
 import { createClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
 import Link from "next/link";
+import DeleteSubmissionButton from "@/components/DeleteSubmissionButton";
 import { FileText, ArrowRight } from "lucide-react";
 import { cookies } from "next/headers";
 
@@ -164,11 +165,12 @@ export default async function LayoutEditorDashboard() {
                     </h3>
                   </div>
                   
-                  <div className="shrink-0">
+                  <div className="shrink-0 flex items-center gap-2">
                     <Link href={`/dashboard/editor/submissions/${article.id}?tab=copyediting`} className="bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 px-4 rounded text-sm flex items-center gap-2 transition-colors">
                       Kerjakan Layout
                       <ArrowRight className="w-4 h-4" />
                     </Link>
+                    <DeleteSubmissionButton id={article.id} />
                   </div>
                 </div>
               </div>
@@ -226,6 +228,7 @@ export default async function LayoutEditorDashboard() {
                    <Link href={`/dashboard/editor/submissions/${article.id}?tab=production`} className="text-xs bg-zinc-800 hover:bg-zinc-700 text-white font-medium py-2 px-3 rounded flex items-center gap-2 transition-colors">
                       Lihat Naskah <ArrowRight className="w-3 h-3" />
                    </Link>
+                   <DeleteSubmissionButton id={article.id} />
                   </div>
                 </div>
               </div>

@@ -1,6 +1,7 @@
 import { createClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
 import Link from "next/link";
+import DeleteSubmissionButton from "@/components/DeleteSubmissionButton";
 import { FileText, ArrowRight, Share2 } from "lucide-react";
 import { cookies } from "next/headers";
 
@@ -125,11 +126,12 @@ export default async function PublishEditorDashboard() {
                     </h3>
                   </div>
                   
-                  <div className="shrink-0">
+                  <div className="shrink-0 flex items-center gap-2">
                     <Link href={`/dashboard/editor/submissions/${article.id}?tab=production`} className={`font-bold py-2 px-4 rounded text-sm flex items-center gap-2 transition-colors ${article.status === 'Assigned to Publish' ? 'bg-amber-600 hover:bg-amber-500 text-white' : 'bg-zinc-800 hover:bg-zinc-700 text-zinc-300'}`}>
                       {article.status === 'Assigned to Publish' ? 'Proses Integrasi API' : 'Lihat Arsip Naskah'}
                       <ArrowRight className="w-4 h-4" />
                     </Link>
+                    <DeleteSubmissionButton id={article.id} />
                   </div>
                 </div>
               </div>
