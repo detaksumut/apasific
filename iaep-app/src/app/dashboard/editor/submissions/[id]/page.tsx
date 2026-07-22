@@ -6,7 +6,6 @@ import { useParams } from "next/navigation";
 import { publishArticleToZenodo, ZenodoMetadata } from "@/utils/zenodo";
 import { getSubmissionDetailsEditor, updateIssn, updateDoi } from "@/app/actions/editor";
 import { createClient } from "@/utils/supabase/client";
-import CoverGenerator from "@/components/dashboard/CoverGenerator";
 import DynamicCover from "@/components/DynamicCover";
 
 export default function SubmissionControlPanel() {
@@ -971,9 +970,56 @@ export default function SubmissionControlPanel() {
                            <div className="mt-8 border-t pt-6">
                              <h4 className="text-md font-bold text-gray-800 uppercase mb-4 border-b pb-2 flex items-center gap-2">
                                 <svg className="w-5 h-5 text-[#c9a84c]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
-                                Cover Generator
+                                Unggah Kover Jurnal (Manual)
                              </h4>
-                             <CoverGenerator submission={submission} generatedDoi={generatedDoi || submission.doi} />
+                             <label className="border-2 border-dashed border-[#c9a84c]/50 bg-yellow-50/30 hover:bg-yellow-50/50 p-8 rounded-xl flex flex-col items-center justify-center cursor-pointer transition-colors relative overflow-hidden group">
+                                <div className="p-4 bg-white rounded-full shadow-sm mb-4 group-hover:scale-110 transition-transform">
+                                  <svg className="w-8 h-8 text-[#c9a84c]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" /></svg>
+                                </div>
+                                <span className="text-gray-800 font-bold mb-1">Pilih File Gambar Kover (.PNG / .JPG)</span>
+                                <span className="text-sm text-gray-500 mb-4 text-center max-w-sm">Unggah file kover yang sudah didesain secara manual di luar sistem. Sistem lama telah ditiadakan sesuai instruksi.</span>
+                                
+                                {submission?.cover_file_url && (
+                                   <div className="bg-green-100 text-green-800 px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2 border border-green-200 w-full justify-between mt-2 relative z-10">
+                                     <span className="flex items-center gap-2">
+                                        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                        Kover Berhasil Diunggah!
+                                     </span>
+                                     <button type="button" onClick={(e) => { e.preventDefault(); window.open(submission.cover_file_url, '_blank'); }} className="text-blue-600 hover:underline">Lihat File</button>
+                                   </div>
+                                )}
+                                
+                                <input 
+                                  type="file" 
+                                  accept="image/png, image/jpeg, image/jpg"
+                                  onChange={async (e) => {
+                                    if (!e.target.files || e.target.files.length === 0) return;
+                                    const file = e.target.files[0];
+                                    try {
+                                      showToast('Sedang mengunggah kover...');
+                                      const formData = new FormData();
+                                      formData.append('file', file);
+                                      formData.append('submissionId', submission.id);
+                                      
+                                      const res = await fetch('/api/upload-cover', {
+                                        method: 'POST',
+                                        body: formData
+                                      });
+                                      if (!res.ok) throw new Error('Upload failed');
+                                      const data = await res.json();
+                                      if(data.success) {
+                                        setSubmission({...submission, cover_file_url: data.url});
+                                        showToast('Kover berhasil diunggah!');
+                                      } else {
+                                        showToast('Gagal upload: ' + data.error);
+                                      }
+                                    } catch(err: any) {
+                                      showToast('Error uploading file');
+                                    }
+                                  }}
+                                  className="hidden" 
+                                />
+                             </label>
                              
                              {submission?.status === 'Assigned to Cover' && (
                                <div className="mt-6 p-4 bg-yellow-50/50 border border-yellow-100 rounded-xl flex items-center justify-between">
