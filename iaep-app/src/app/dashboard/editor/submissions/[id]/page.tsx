@@ -1068,11 +1068,12 @@ export default function SubmissionControlPanel() {
                                       <div className="relative inline-block mx-auto overflow-hidden">
                                         <img src={submission.cover_file_url} alt="Cover Preview" className="max-w-full max-h-[600px] object-contain rounded-lg shadow-md border border-gray-300" />
                                         <div 
-                                          className="absolute text-white font-serif font-bold leading-snug drop-shadow-md overflow-hidden"
+                                          className="absolute font-serif font-bold leading-snug drop-shadow-md overflow-hidden"
                                           style={{
+                                            color: '#c9a84c',
                                             top: '36%',
-                                            left: '10%',
-                                            width: '55%',
+                                            left: '6%',
+                                            width: '60%',
                                             display: '-webkit-box',
                                             WebkitLineClamp: 5,
                                             WebkitBoxOrient: 'vertical',
