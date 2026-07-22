@@ -1073,9 +1073,9 @@ export default function SubmissionControlPanel() {
                                             color: '#c9a84c',
                                             top: '32%',
                                             left: '6%',
-                                            width: '60%',
+                                            width: '46%',
                                             display: '-webkit-box',
-                                            WebkitLineClamp: 5,
+                                            WebkitLineClamp: 7,
                                             WebkitBoxOrient: 'vertical',
                                             fontSize: 'clamp(11px, 1.1vw, 17px)'
                                           }}
