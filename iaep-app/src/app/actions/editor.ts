@@ -1005,6 +1005,26 @@ export async function getPublishedArticleDetails(articleId: string) {
         }
 
         if (!subData) return { success: false, error: "Not found" };
+
+        if (subData.status !== 'Published') {
+            return { success: false, error: "Artikel belum dipublikasikan secara publik. Naskah ini mungkin masih dalam proses editorial atau produksi." };
+        }
+
+        try {
+            const volIss = await getAssignedVolumeAndIssue(articleId, subData.journal_id || '');
+            const match = volIss.match(/(Vol.*?)\s+(No.*)/i) || volIss.match(/(Vol.*?)\s+(Edisi.*)/i);
+            if (match) {
+                 subData.volume = match[1].trim();
+                 subData.issue = match[2].trim();
+            } else {
+                 subData.volume = volIss;
+                 subData.issue = "";
+            }
+        } catch(e) {
+            subData.volume = "Vol. 1";
+            subData.issue = "No. 1";
+        }
+
         return { success: true, article: subData };
     } catch (e: any) {
         return { success: false, error: e.message };
