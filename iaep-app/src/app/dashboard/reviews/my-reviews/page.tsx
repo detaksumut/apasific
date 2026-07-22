@@ -25,7 +25,10 @@ export default async function MyReviewsPage() {
       .in("status", ["accepted", "completed"])
       .order("assigned_at", { ascending: false });
     if (error) throw error;
-    if (data) assignments = data;
+    if (data) {
+      // Filter out orphaned assignments where submissions is null (deleted submission)
+      assignments = data.filter(a => a.submissions != null);
+    }
   } catch (error) {
     console.warn("Supabase fetch my reviews failed, falling back to Firestore");
     try {
@@ -59,9 +62,9 @@ export default async function MyReviewsPage() {
                        status: subData.status,
                        journals: subData.journals || { name: 'Jurnal' }
                    };
+                   assignments.push(assignment);
                }
             }
-            assignments.push(assignment);
         }
         
         assignments.sort((a, b) => new Date(b.assigned_at).getTime() - new Date(a.assigned_at).getTime());
