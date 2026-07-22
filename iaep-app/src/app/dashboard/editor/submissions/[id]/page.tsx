@@ -1094,7 +1094,7 @@ export default function SubmissionControlPanel() {
                                </div>
                              </div>
                              
-                             {submission?.status === 'Assigned to Cover' && (
+                             {submission?.cover_file_url && (
                                <div className="mt-6 p-4 bg-yellow-50/50 border border-yellow-100 rounded-xl flex items-center justify-between">
                                  <div>
                                    <h5 className="font-bold text-yellow-900 text-sm">Tugas Cover Selesai?</h5>
