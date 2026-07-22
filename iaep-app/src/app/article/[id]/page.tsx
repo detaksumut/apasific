@@ -441,56 +441,19 @@ export default function ArticlePaywall() {
 
           {/* Right Column: Metrics & Citation */}
           <div className="space-y-6">
-            {article.cover_file_url && (
               <div className="bg-[#0d0d1a] rounded-xl p-6 border border-gray-800 flex flex-col items-center shadow-xl">
                 <span className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-4 w-full text-center">Sampul Depan (Cover)</span>
                 <div className="w-full max-w-[280px]">
-                  {/* Dynamic Cover Overlay for Uploaded Image */}
-                  <div className="relative w-full shadow-2xl rounded overflow-hidden border border-zinc-700/50" style={{ aspectRatio: '210/297' }}>
-                    <img src={article.cover_file_url} alt="Cover Preview" className="w-full h-full object-cover" />
-                    
-                    {/* Title Overlay */}
-                    <div className="absolute flex items-center justify-center" style={{ top: '23%', left: '10%', width: '80%', height: '24%' }}>
-                      <p className="font-bold text-white text-center leading-tight line-clamp-4" style={{ fontSize: 'clamp(10px, 1.2vw, 16px)', textShadow: '1px 1px 3px rgba(0,0,0,0.8)' }}>
-                        {article.title || "Judul Artikel Akan Tampil Di Sini"}
-                      </p>
-                    </div>
-
-                    {/* Author Overlay */}
-                    <div className="absolute flex flex-col justify-end items-center" style={{ top: '48%', left: '10%', width: '80%', height: '8%' }}>
-                      <p className="font-semibold text-yellow-400 text-center line-clamp-2" style={{ fontSize: 'clamp(8px, 0.9vw, 12px)', textShadow: '1px 1px 2px rgba(0,0,0,0.9)' }}>
-                        {article.author || "Nama Penulis"}
-                      </p>
-                    </div>
-
-                    {/* DOI Overlay */}
-                    {article.doi && (
-                      <div className="absolute z-10" style={{ top: '16.5%', left: '46%', width: '42%' }}>
-                        <p className="text-white font-bold whitespace-nowrap overflow-hidden text-ellipsis" style={{ fontSize: 'clamp(5px, 0.5vw, 8px)', textShadow: '1px 1px 2px rgba(0,0,0,0.8)' }}>
-                          {article.doi}
-                        </p>
-                      </div>
-                    )}
-
-                    {/* Volume & Edisi */}
-                    <div className="absolute flex flex-col justify-center" style={{ top: '89%', left: '26%', width: '20%' }}>
-                      {article.volume && <p className="font-bold text-zinc-300 tracking-wider uppercase mb-0.5" style={{ fontSize: 'clamp(7px, 0.75vw, 11px)' }}>VOL {article.volume.replace(/Vol\.?\s*/i, '').trim()}</p>}
-                      {article.issue && <p className="font-bold text-zinc-400 uppercase" style={{ fontSize: 'clamp(6px, 0.65vw, 9px)' }}>EDISI {article.issue.replace(/No\.?\s*|Edisi\s*/i, '').trim()}</p>}
-                    </div>
-
-                    {/* Month & Year */}
-                    <div className="absolute flex flex-col justify-center" style={{ top: '89%', left: '55%', width: '25%' }}>
-                      <p className="font-bold text-zinc-300 uppercase mb-0.5" style={{ fontSize: 'clamp(7px, 0.75vw, 11px)' }}>
-                        {new Date(article.date === "Baru saja dipublikasi" ? new Date() : article.date).toLocaleDateString('id-ID', { month: 'short' })}
-                      </p>
-                      <p className="font-bold text-zinc-400" style={{ fontSize: 'clamp(6px, 0.65vw, 9px)' }}>
-                        {new Date(article.date === "Baru saja dipublikasi" ? new Date() : article.date).getFullYear()}
-                      </p>
-                    </div>
-                  </div>
+                  <DynamicCover 
+                    journalName={article.journal} 
+                    title={article.title} 
+                    author={article.author} 
+                    doi={article.doi} 
+                    volume={article.volume}
+                    issue={article.issue}
+                  />
                 </div>
               </div>
-            )}
 
             <div className="bg-[#0d0d1a] rounded-xl p-6 border border-gray-800">
               <h3 className="text-[#c9a84c] font-bold mb-4 uppercase text-sm tracking-widest">Metrik</h3>
