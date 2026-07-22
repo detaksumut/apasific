@@ -393,6 +393,7 @@ export default function CoverGenerator({ submission, generatedDoi }: CoverGenera
                 edisi={""}
                 month={""}
                 year={""}
+                customBgUrl={customBgUrl}
               />
             );
           })()}

@@ -10,6 +10,7 @@ interface DynamicCoverProps {
   edisi?: string;
   month?: string;
   year?: string;
+  customBgUrl?: string | null;
 }
 
 export default function DynamicCover({
@@ -22,11 +23,18 @@ export default function DynamicCover({
   edisi = "1",
   month = "JULY",
   year = "2026",
+  customBgUrl = null,
 }: DynamicCoverProps) {
   const journalCode = journalName ? journalName.split(' ')[0].toUpperCase() : '';
+  
   let bgImage = "url('/coverPKM.png')";
-  if (journalCode === 'AJITE') bgImage = "url('/coverAJITE.png')";
-  else if (journalCode === 'AJAF') bgImage = "url('/coverAJAF.png')";
+  if (customBgUrl) {
+    bgImage = `url('${customBgUrl}')`;
+  } else if (journalCode === 'AJITE') {
+    bgImage = "url('/coverAJITE.png')";
+  } else if (journalCode === 'AJAF') {
+    bgImage = "url('/coverAJAF.png')";
+  }
 
   return (
     <div 
