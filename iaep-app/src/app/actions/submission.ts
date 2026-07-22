@@ -428,10 +428,14 @@ export async function assignReviewerActionFunc(submissionId: string, reviewer: a
       validReviewerId = `${hex.slice(0,8)}-${hex.slice(8,12)}-${hex.slice(12,16)}-${hex.slice(16,20)}-${hex.slice(20,32)}`;
   }
 
+  // Fetch current stage to avoid reverting a published article
+  let isAdvanced = false;
   try {
-    // Fetch current stage to avoid reverting a published article
-    const { data: subData } = await supabaseAdmin.from('submissions').select('stage').eq('id', submissionId).single();
-    const isAdvanced = subData?.stage && ['Copyediting', 'Production', 'Published'].includes(subData.stage);
+    const { data: subDataStage } = await supabaseAdmin.from('submissions').select('stage').eq('id', submissionId).single();
+    isAdvanced = !!(subDataStage?.stage && ['Copyediting', 'Production', 'Published'].includes(subDataStage.stage));
+  } catch (_) {}
+
+  try {
     // Ensure reviewer profile exists in Supabase to avoid foreign key violations
     await supabaseAdmin.from('profiles').upsert({
         id: validReviewerId,

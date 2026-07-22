@@ -560,13 +560,16 @@ export async function submitReviewResultsWithFile(formData: FormData) {
         updatePayload.annotated_file_url = annotatedFileUrl;
     }
 
+    // Fetch current stage to avoid reverting a published article
+    let isAdvanced = false;
+    try {
+        const { data: subDataStage } = await supabaseAdmin.from('submissions').select('stage').eq('id', submissionId).single();
+        isAdvanced = !!(subDataStage?.stage && ['Copyediting', 'Production', 'Published'].includes(subDataStage.stage));
+    } catch (_) {}
+
     // Supabase updates (wrapped in try/catch)
     try {
         await supabaseAdmin.from('review_assignments').update(updatePayload).eq('id', assignmentId);
-        
-        // Fetch current stage to avoid reverting a published article
-        const { data: subData } = await supabaseAdmin.from('submissions').select('stage').eq('id', submissionId).single();
-        const isAdvanced = subData?.stage && ['Copyediting', 'Production', 'Published'].includes(subData.stage);
 
         // 2. Update submission status in Supabase only if not advanced
         if (!isAdvanced) {
