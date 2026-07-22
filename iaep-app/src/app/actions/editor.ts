@@ -1045,7 +1045,7 @@ export async function getPublishedArticles(journalId?: string) {
           let query = supabaseAdmin
               .from('submissions')
               .select('*, journals:journal_id(name)')
-              .eq('status', 'Accepted');
+              .eq('status', 'Published');
           if (journalId) {
               query = query.eq('journal_id', journalId);
           }
@@ -1066,7 +1066,6 @@ export async function getPublishedArticles(journalId?: string) {
           const snapshot = await query.get();
           
           const existingIds = new Set(articlesList.map(a => a.id || a.submission_id));
-          const validStatuses = ['Accepted', 'Assigned to Layout', 'Assigned to Cover', 'Assigned to Publish', 'Pending Supervisor', 'Production Completed', 'Published'];
           const fbArticles = snapshot.docs.map((doc: any) => {
             const data = doc.data();
             return {
@@ -1075,8 +1074,7 @@ export async function getPublishedArticles(journalId?: string) {
               created_at: data.created_at?.toDate ? data.created_at.toDate().toISOString() : data.created_at || new Date().toISOString()
             };
           }).filter((c: any) => {
-            const isAdvancedStage = ['Copyediting', 'Production', 'Published'].includes(c.stage);
-            return !existingIds.has(c.id) && (validStatuses.includes(c.status) || isAdvancedStage);
+            return !existingIds.has(c.id) && c.status === 'Published';
           });
           articlesList = [...articlesList, ...fbArticles];
         } catch (fbErr) {
