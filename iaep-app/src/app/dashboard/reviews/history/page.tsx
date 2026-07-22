@@ -137,6 +137,12 @@ export default async function ReviewHistoryPage() {
                       });
                   }
               }
+              
+              const { revalidatePath } = await import('next/cache');
+              const { redirect } = await import('next/navigation');
+              revalidatePath('/dashboard/reviews/my-reviews');
+              revalidatePath('/dashboard/reviews/history');
+              redirect('/dashboard/reviews/my-reviews');
           } catch(e) { console.error(e); }
         }}>
           <button type="submit" className="mt-4 px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-lg text-sm border border-amber-500 shadow-lg shadow-amber-900/20">
