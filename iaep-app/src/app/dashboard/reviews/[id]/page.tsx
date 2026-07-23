@@ -315,7 +315,7 @@ export default function ReviewEvaluation({ params }: { params: any }) {
                 <div className="rev-pdf-body">
                   {submission.file_url ? (
                     <div style={{ display: 'flex', flexDirection: 'column', height: '100%', minHeight: '600px' }}>
-                      <div style={{ background: 'rgba(201,168,76,0.1)', borderBottom: '1px solid rgba(201,168,76,0.2)', padding: '8px 15px', display: 'flex', justifyBetween: 'space-between', alignItems: 'center', fontSize: '12px', color: '#c9a84c' }}>
+                      <div style={{ background: 'rgba(201,168,76,0.1)', borderBottom: '1px solid rgba(201,168,76,0.2)', padding: '8px 15px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '12px', color: '#c9a84c' }}>
                         <span>📄 File Naskah Tersedia ({submission.file_url.includes('.docx') ? 'Dokumen Word .docx' : 'Dokumen PDF'})</span>
                         <a href={submission.file_url} target="_blank" rel="noreferrer" style={{ color: '#ffffff', textDecoration: 'underline', fontWeight: 'bold' }}>
                           Klik disini jika iFrame tidak terbuka ➔
