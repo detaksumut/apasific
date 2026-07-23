@@ -45,8 +45,14 @@ function unhexUuid(uuidStr: string): string {
   return uuidStr;
 }
 
-  // Fetch submissions that are in Review stage or relevant statuses
-  const { data: submissions } = await supabase
+  const { createClient: createSupabaseAdmin } = await import('@supabase/supabase-js');
+  const supabaseAdmin = createSupabaseAdmin(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  );
+
+  // Fetch submissions that are in Review stage or relevant statuses (bypassing RLS with admin client)
+  const { data: submissions } = await supabaseAdmin
     .from("submissions")
     .select("*, journals(name), profiles:author_id(full_name)")
     .or("stage.eq.Review,status.in.(Under Review,Reviewed,Revision Required,Review,Pending Review,submitted)")
@@ -57,7 +63,7 @@ function unhexUuid(uuidStr: string): string {
   // --- Fetch all reviewers ---
   let allReviewers: any[] = [];
   try {
-    const { data: reviewers } = await supabase.from("profiles").select("*").eq("role", "reviewer");
+    const { data: reviewers } = await supabaseAdmin.from("profiles").select("*").eq("role", "reviewer");
     allReviewers = reviewers || [];
   } catch (e) {
     console.warn("Supabase fetch for reviewers failed", e);
@@ -66,7 +72,7 @@ function unhexUuid(uuidStr: string): string {
   // --- Fetch Review Assignments ---
   let assignmentsMap: Record<string, any[]> = {};
   try {
-    const { data: assignmentsData } = await supabase
+    const { data: assignmentsData } = await supabaseAdmin
       .from("review_assignments")
       .select("*");
       
@@ -146,70 +152,73 @@ function unhexUuid(uuidStr: string): string {
           </div>
         ) : (
           <div className="divide-y divide-zinc-800/50">
-            {articles.map((article: any) => (
-              <div key={article.id} className="p-6 hover:bg-zinc-800/30 transition-colors group">
-                <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
-                  <div className="space-y-2 flex-1">
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-zinc-800 text-zinc-300 border border-zinc-700">
-                        {article.journals?.name || "Jurnal Tidak Diketahui"}
-                      </span>
-                      {article.status === 'Reviewed' ? (
-                        <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                          Selesai Direview
+            {articles.map((article: any) => {
+              const isCompleted = article.status === 'Reviewed' || (article.assignments && article.assignments.some((a: any) => a.status === 'completed'));
+              return (
+                <div key={article.id} className="p-6 hover:bg-zinc-800/30 transition-colors group">
+                  <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+                    <div className="space-y-2 flex-1">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-zinc-800 text-zinc-300 border border-zinc-700">
+                          {article.journals?.name || "Jurnal Tidak Diketahui"}
                         </span>
-                      ) : article.status === 'Revision Required' ? (
-                        <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-orange-500/10 text-orange-400 border border-orange-500/20">
-                          Menunggu Revisi Author
-                        </span>
-                      ) : (
-                        <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/20">
-                          Sedang Direview
-                        </span>
+                        {isCompleted ? (
+                          <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                            Selesai Direview
+                          </span>
+                        ) : article.status === 'Revision Required' ? (
+                          <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-orange-500/10 text-orange-400 border border-orange-500/20">
+                            Menunggu Revisi Author
+                          </span>
+                        ) : (
+                          <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/20">
+                            Sedang Direview
+                          </span>
+                        )}
+                      </div>
+                      <h3 className="text-lg font-semibold text-white group-hover:text-[#c9a84c] transition-colors">
+                        {article.title}
+                      </h3>
+                      <p className="text-sm text-zinc-400">
+                        Author: <span className="text-zinc-300">{article.profiles?.full_name || 'Penulis'}</span> &bull; 
+                        Update terakhir: {new Date(article.updated_at || article.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}
+                      </p>
+
+                      {article.assignments && article.assignments.length > 0 && (
+                        <div className="mt-3 space-y-2 border-t border-zinc-800/50 pt-3">
+                          {article.assignments.map((assignment: any) => {
+                            const rev = allReviewers.find(r => r.id === assignment.reviewer_id);
+                            const revName = rev ? rev.full_name : 'Reviewer Terhapus';
+                            return (
+                              <div key={assignment.id} className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 text-sm bg-zinc-800/30 p-2 rounded-lg border border-zinc-700/50 w-fit">
+                                <div className="flex items-center gap-2">
+                                  <UserPlus className="w-3.5 h-3.5 text-[#c9a84c]" />
+                                  <span className="text-zinc-300 font-medium">{revName}</span>
+                                </div>
+                                <div className="sm:border-l sm:border-zinc-700 sm:pl-2">
+                                  {assignment.status === 'pending' && <span className="text-[10px] font-medium text-purple-400 bg-purple-500/10 px-2 py-0.5 rounded-full border border-purple-500/20">Menunggu Respons</span>}
+                                  {assignment.status === 'accepted' && <span className="text-[10px] font-medium text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">Diterima / Mulai Review</span>}
+                                  {assignment.status === 'completed' && <span className="text-[10px] font-medium text-blue-400 bg-blue-500/10 px-2 py-0.5 rounded-full border border-blue-500/20">Selesai Direview</span>}
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
                       )}
                     </div>
-                    <h3 className="text-lg font-semibold text-white group-hover:text-[#c9a84c] transition-colors">
-                      {article.title}
-                    </h3>
-                    <p className="text-sm text-zinc-400">
-                      Author: <span className="text-zinc-300">{article.profiles?.full_name || 'Penulis'}</span> &bull; 
-                      Update terakhir: {new Date(article.updated_at || article.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}
-                    </p>
-
-                    {article.assignments && article.assignments.length > 0 && (
-                      <div className="mt-3 space-y-2 border-t border-zinc-800/50 pt-3">
-                        {article.assignments.map((assignment: any) => {
-                          const rev = allReviewers.find(r => r.id === assignment.reviewer_id);
-                          const revName = rev ? rev.full_name : 'Reviewer Terhapus';
-                          return (
-                            <div key={assignment.id} className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 text-sm bg-zinc-800/30 p-2 rounded-lg border border-zinc-700/50 w-fit">
-                              <div className="flex items-center gap-2">
-                                <UserPlus className="w-3.5 h-3.5 text-[#c9a84c]" />
-                                <span className="text-zinc-300 font-medium">{revName}</span>
-                              </div>
-                              <div className="sm:border-l sm:border-zinc-700 sm:pl-2">
-                                {assignment.status === 'pending' && <span className="text-[10px] font-medium text-purple-400 bg-purple-500/10 px-2 py-0.5 rounded-full border border-purple-500/20">Menunggu Respons</span>}
-                                {assignment.status === 'accepted' && <span className="text-[10px] font-medium text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">Diterima / Mulai Review</span>}
-                                {assignment.status === 'completed' && <span className="text-[10px] font-medium text-blue-400 bg-blue-500/10 px-2 py-0.5 rounded-full border border-blue-500/20">Selesai Direview</span>}
-                              </div>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    )}
-                  </div>
-                  
-                  <div className="shrink-0 flex flex-wrap items-center justify-end gap-3">
-                    <Link href={`/dashboard/editor/submissions/${article.id || article.submission_id}`} className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-zinc-800 hover:bg-zinc-700 rounded-lg transition-colors border border-zinc-700">
-                      <Eye className="w-4 h-4 text-zinc-400" /> Lihat Detail
-                    </Link>
-                    {article.status === 'Reviewed' && (
-                      <MakeDecisionAction article={article} />
-                    )}
+                    
+                    <div className="shrink-0 flex flex-wrap items-center justify-end gap-3">
+                      <Link href={`/dashboard/editor/submissions/${article.id || article.submission_id}`} className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-zinc-800 hover:bg-zinc-700 rounded-lg transition-colors border border-zinc-700">
+                        <Eye className="w-4 h-4 text-zinc-400" /> Lihat Detail
+                      </Link>
+                      {isCompleted && (
+                        <MakeDecisionAction article={article} />
+                      )}
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>
