@@ -26,7 +26,7 @@ export async function GET() {
     let fbProfile = null;
     const profilesSnapshot = await db.collection('profiles').get();
     const fbProfiles = profilesSnapshot.docs.map((doc: any) => ({ id: doc.id, ...doc.data() as any }));
-    fbProfile = fbProfiles.find(p => p.id === user.id || (user.email && p.email?.toLowerCase() === user.email.toLowerCase()));
+    fbProfile = fbProfiles.find((p: any) => p.id === user.id || (user.email && p.email?.toLowerCase() === user.email.toLowerCase()));
 
     return NextResponse.json({
       loggedIn: true,
