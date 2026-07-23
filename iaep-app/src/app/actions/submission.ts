@@ -187,6 +187,28 @@ export async function submitManuscript(formData: FormData) {
 
           if (fileError) console.warn("Supabase submission_files insert failed:", fileError.message);
       }
+
+      // Generate public URL and update main submission record
+      try {
+        const { data: pubData } = supabaseAdmin.storage.from('manuscripts').getPublicUrl(filePath);
+        const filePublicUrl = pubData?.publicUrl || "";
+        if (filePublicUrl) {
+          if (savedToSupabase) {
+            await supabaseAdmin.from('submissions').update({
+              file_url: filePublicUrl,
+              manuscript_url: filePublicUrl
+            }).or(`submission_id.eq.${finalSubmissionId},id.eq.${finalSubmissionId}`);
+          }
+          try {
+            const { getFirestore } = require('@/utils/firebase/db');
+            const db = getFirestore();
+            await db.collection('submissions').doc(finalSubmissionId).update({
+              file_url: filePublicUrl,
+              manuscript_url: filePublicUrl
+            });
+          } catch(e) {}
+        }
+      } catch(e) {}
     };
 
     // 2. Upload Title Page

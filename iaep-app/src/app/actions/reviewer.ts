@@ -362,6 +362,63 @@ export async function getAssignmentDetails(assignmentId: string) {
       }
     }
 
+    // Robust file URL resolution
+    let fileUrl = sub?.file_url || sub?.manuscript_url || sub?.anonymous_file_url || assignData.file_url || "";
+
+    if (!fileUrl && (targetSubId || sub?.id)) {
+      const subIdToSearch = targetSubId || sub?.id;
+      // 1. Try submission_files table in Supabase
+      try {
+        const { data: sfFiles } = await supabaseAdmin
+          .from('submission_files')
+          .select('*')
+          .or(`submission_id.eq.${subIdToSearch},submission_id.eq.${sub?.id}`)
+          .order('created_at', { ascending: false });
+
+        if (sfFiles && sfFiles.length > 0) {
+          const selected = sfFiles.find((f: any) => f.file_name?.includes('anonymous')) || sfFiles[0];
+          if (selected?.storage_path) {
+            const { data: pUrl } = supabaseAdmin.storage.from('manuscripts').getPublicUrl(selected.storage_path);
+            if (pUrl?.publicUrl) fileUrl = pUrl.publicUrl;
+          }
+        }
+      } catch(e) {}
+
+      // 2. Try listing storage files directly from Supabase Storage bucket 'manuscripts'
+      if (!fileUrl && subIdToSearch) {
+        try {
+          const { data: storageList } = await supabaseAdmin.storage.from('manuscripts').list(subIdToSearch);
+          if (storageList && storageList.length > 0) {
+            const selectedFile = storageList.find((f: any) => f.name.includes('anonymous')) || storageList[0];
+            const { data: pUrl } = supabaseAdmin.storage.from('manuscripts').getPublicUrl(`${subIdToSearch}/${selectedFile.name}`);
+            if (pUrl?.publicUrl) fileUrl = pUrl.publicUrl;
+          }
+        } catch(e) {}
+      }
+
+      // 3. Try Firestore fallback
+      if (!fileUrl && subIdToSearch) {
+        try {
+          const { getFirestore } = await import('@/utils/firebase/db');
+          const db = getFirestore();
+          if (db) {
+            const subDoc = await db.collection('submissions').doc(subIdToSearch).get();
+            if (subDoc.exists) {
+              const sd = subDoc.data();
+              fileUrl = sd?.file_url || sd?.manuscript_url || sd?.anonymous_file_url || sd?.storage_path || "";
+            }
+          }
+        } catch(e) {}
+      }
+    }
+
+    if (fileUrl && !fileUrl.startsWith('http://') && !fileUrl.startsWith('https://')) {
+      try {
+        const { data: pUrl } = supabaseAdmin.storage.from('manuscripts').getPublicUrl(fileUrl);
+        if (pUrl?.publicUrl) fileUrl = pUrl.publicUrl;
+      } catch(e) {}
+    }
+
     const dueDateStr = assignData.deadline
       ? new Date(assignData.deadline?.toDate ? assignData.deadline.toDate() : assignData.deadline).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })
       : "Batas Waktu Standar (14 Hari)";
@@ -375,7 +432,7 @@ export async function getAssignmentDetails(assignmentId: string) {
       journal: String(sub?.journals?.name || assignData.journal_name || "JURNAL"),
       dueDate: String(dueDateStr),
       round: Number(assignData.round || 1),
-      file_url: String(sub?.file_url || sub?.manuscript_url || assignData.file_url || ""),
+      file_url: String(fileUrl),
       status: String(assignData.status || 'pending'),
       recommendation: String(assignData.recommendation || ''),
       comments_for_author: String(assignData.comments_for_author || ''),

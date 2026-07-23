@@ -315,9 +315,9 @@ export default function ReviewEvaluation({ params }: { params: any }) {
                 <div className="rev-pdf-body">
                   {submission.file_url ? (
                     <iframe 
-                        src={submission.file_url} 
+                        src={submission.file_url.toLowerCase().endsWith('.pdf') ? submission.file_url : `https://docs.google.com/gview?url=${encodeURIComponent(submission.file_url)}&embedded=true`} 
                         style={{ width: '100%', height: '100%', minHeight: '600px', border: 'none' }} 
-                        title="Manuscript PDF"
+                        title="Manuscript Document"
                     />
                   ) : (
                     <div className="rev-pdf-mock">
