@@ -44,7 +44,7 @@ export async function GET(request: NextRequest) {
 
   // Home org structure & Editorial Boards — return members array and SK URLs
   if (body === HOME_BODY || body.startsWith("Editorial Board -")) {
-    let members = [];
+    let members: any[] = [];
     let skCurrent = "";
     let skPast = "";
     try {

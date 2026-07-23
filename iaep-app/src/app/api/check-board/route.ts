@@ -12,7 +12,7 @@ export async function GET() {
   
   data.forEach(board => {
      result += `\n--- ${board.body_name} ---\n`;
-     let members = [];
+     let members: any[] = [];
      if (typeof board.members_json === 'string') {
         try { members = JSON.parse(board.members_json); } catch(e) {}
      } else {

@@ -1,10 +1,11 @@
 import { NextResponse } from "next/server";
-import { supabase } from "@/utils/supabase/client";
+import { createClient } from "@/utils/supabase/client";
 
 export const dynamic = 'force-dynamic';
 
 export async function GET() {
   try {
+    const supabase = createClient();
     const result: any = { supabase_users: null };
     
     // Check if there is a profiles table in Supabase

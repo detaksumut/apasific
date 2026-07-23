@@ -59,7 +59,7 @@ export async function GET() {
       .eq('key', 'apasific_registered_users')
       .single();
 
-    let existingUsers = [];
+    let existingUsers: any[] = [];
     if (settingsData && settingsData.value) {
       existingUsers = typeof settingsData.value === 'string' ? JSON.parse(settingsData.value) : settingsData.value;
     }

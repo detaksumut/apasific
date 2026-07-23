@@ -8,7 +8,7 @@ export async function GET() {
     const db = getFirestore();
     const snap = await db.collection('review_assignments').get();
     
-    let all = [];
+    let all: any[] = [];
     snap.docs.forEach(doc => {
        all.push({id: doc.id, reviewer_id: doc.data().reviewer_id, email: doc.data().reviewer_email});
     });

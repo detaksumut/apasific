@@ -1,11 +1,12 @@
 import { NextResponse } from "next/server";
 import { getFirestore } from "@/utils/firebase/db";
-import { supabase } from "@/utils/supabase/client";
+import { createClient } from "@/utils/supabase/client";
 
 export const dynamic = 'force-dynamic';
 
 export async function GET() {
   try {
+    const supabase = createClient();
     const result: any = { 
        firestore_settings: [],
        supabase_settings: null
