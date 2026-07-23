@@ -34,18 +34,27 @@ export default async function ReviewResultsPage() {
     redirect("/auth/login");
   }
 
-  // Fetch submissions that have been reviewed or are under review
-  const { data: submissions, error } = await supabase
+function unhexUuid(uuidStr: string): string {
+  if (!uuidStr) return "";
+  try {
+    const hex = uuidStr.replace(/-/g, "").replace(/0+$/, "");
+    if (/^[0-9a-f]+$/i.test(hex) && hex.length >= 8) {
+      return Buffer.from(hex, "hex").toString("utf8");
+    }
+  } catch(e) {}
+  return uuidStr;
+}
+
+  // Fetch submissions that are in Review stage or relevant statuses
+  const { data: submissions } = await supabase
     .from("submissions")
     .select("*, journals(name), profiles:author_id(full_name)")
-    .in("status", ["Under Review", "Reviewed", "Revision Required"])
+    .or("stage.eq.Review,status.in.(Under Review,Reviewed,Revision Required,Review,Pending Review,submitted)")
     .order("updated_at", { ascending: false });
 
   let articles = submissions || [];
 
-  // Pure Supabase SSOT Read (No Firestore read lag)
-
-  // --- NEW: Fetch all reviewers ---
+  // --- Fetch all reviewers ---
   let allReviewers: any[] = [];
   try {
     const { data: reviewers } = await supabase.from("profiles").select("*").eq("role", "reviewer");
@@ -54,24 +63,28 @@ export default async function ReviewResultsPage() {
     console.warn("Supabase fetch for reviewers failed", e);
   }
 
-  // --- NEW: Fetch Review Assignments ---
+  // --- Fetch Review Assignments ---
   let assignmentsMap: Record<string, any[]> = {};
   try {
-    const articleIds = articles.map(a => a.id || a.submission_id).filter(Boolean);
-    if (articleIds.length > 0) {
-      const { data: assignmentsData } = await supabase
-        .from("review_assignments")
-        .select("*")
-        .in("submission_id", articleIds);
-        
-      if (assignmentsData) {
-        assignmentsData.forEach(assignment => {
-          if (!assignmentsMap[assignment.submission_id]) {
-            assignmentsMap[assignment.submission_id] = [];
+    const { data: assignmentsData } = await supabase
+      .from("review_assignments")
+      .select("*");
+      
+    if (assignmentsData) {
+      assignmentsData.forEach(assignment => {
+        const k1 = String(assignment.submission_id || '');
+        const k2 = unhexUuid(k1);
+        const k3 = String(assignment.id || '');
+
+        [k1, k2, k3].forEach(k => {
+          if (k) {
+            if (!assignmentsMap[k]) assignmentsMap[k] = [];
+            if (!assignmentsMap[k].some((a: any) => a.id === assignment.id)) {
+              assignmentsMap[k].push(assignment);
+            }
           }
-          assignmentsMap[assignment.submission_id].push(assignment);
         });
-      }
+      });
     }
   } catch (e) {
     console.warn("Supabase fetch for assignments failed", e);
@@ -79,8 +92,20 @@ export default async function ReviewResultsPage() {
   
   // Attach assignments
   articles = articles.map(article => {
-     const articleAssignments = assignmentsMap[article.id || article.submission_id] || [];
-     // Find the active assignments (not rejected)
+     const candKeys = [
+       String(article.id || ''),
+       String(article.submission_id || ''),
+       unhexUuid(String(article.id || ''))
+     ].filter(Boolean);
+
+     let articleAssignments: any[] = [];
+     for (const k of candKeys) {
+       if (assignmentsMap[k] && assignmentsMap[k].length > 0) {
+         articleAssignments = assignmentsMap[k];
+         break;
+       }
+     }
+
      const activeAssignments = articleAssignments.filter(a => a.status !== 'rejected');
      return { ...article, assignments: activeAssignments };
   });

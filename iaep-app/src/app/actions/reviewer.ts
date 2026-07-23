@@ -464,29 +464,38 @@ export async function submitReviewResults(
     
     if (!user) return { success: false, error: "Unauthorized" };
 
-    // Supabase updates (wrapped in try/catch to not block Firestore)
+    // Supabase updates
     try {
-        // 1. Update assignment status in Supabase
-        await supabaseAdmin.from('review_assignments').update({ 
+        const isAssignUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(assignmentId);
+        let assignQ = supabaseAdmin.from('review_assignments').update({ 
             status: 'completed',
             recommendation: results.recommendation,
             comments_for_editor: results.commentsForEditor,
             comments_for_author: results.commentsForAuthor,
             correction_notes: results.correctionNotes,
             updated_at: new Date()
-        }).eq('id', assignmentId);
+        });
+        if (isAssignUuid) {
+            assignQ = assignQ.or(`id.eq.${assignmentId},submission_id.eq.${assignmentId}`);
+        } else {
+            assignQ = assignQ.eq('id', assignmentId);
+        }
+        await assignQ;
         
         // Fetch current stage to avoid reverting a published article
-        const { data: subData } = await supabaseAdmin.from('submissions').select('stage').eq('id', submissionId).single();
+        const { data: subData } = await supabaseAdmin.from('submissions').select('stage').eq('id', submissionId).maybeSingle();
         const isAdvanced = subData?.stage && ['Copyediting', 'Production', 'Published'].includes(subData.stage);
 
-        // 2. Update submission status in Supabase only if not advanced
+        // Update submission status in Supabase only if not advanced
         if (!isAdvanced) {
-            await supabaseAdmin.from('submissions').update({ status: 'Reviewed' }).eq('id', submissionId);
-            await supabaseAdmin.from('submissions').update({ status: 'Reviewed' }).eq('submission_id', submissionId);
+            await supabaseAdmin.from('submissions').update({ status: 'Reviewed', updated_at: new Date() }).eq('id', submissionId);
+            const unhexedSubId = unhexUuid(submissionId);
+            if (unhexedSubId && unhexedSubId !== submissionId) {
+                await supabaseAdmin.from('submissions').update({ status: 'Reviewed', updated_at: new Date() }).eq('id', unhexedSubId);
+            }
         }
 
-        // 3. Insert history in Supabase
+        // Insert history in Supabase
         await supabaseAdmin.from('submission_history').insert({
             submission_id: submissionId,
             action: `Review Completed`,
@@ -612,21 +621,31 @@ export async function submitReviewResultsWithFile(formData: FormData) {
     // Fetch current stage to avoid reverting a published article
     let isAdvanced = false;
     try {
-        const { data: subDataStage } = await supabaseAdmin.from('submissions').select('stage').eq('id', submissionId).single();
+        const { data: subDataStage } = await supabaseAdmin.from('submissions').select('stage').eq('id', submissionId).maybeSingle();
         isAdvanced = !!(subDataStage?.stage && ['Copyediting', 'Production', 'Published'].includes(subDataStage.stage));
     } catch (_) {}
 
-    // Supabase updates (wrapped in try/catch)
+    // Supabase updates
     try {
-        await supabaseAdmin.from('review_assignments').update(updatePayload).eq('id', assignmentId);
+        const isAssignUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(assignmentId);
+        let assignQ = supabaseAdmin.from('review_assignments').update(updatePayload);
+        if (isAssignUuid) {
+            assignQ = assignQ.or(`id.eq.${assignmentId},submission_id.eq.${assignmentId}`);
+        } else {
+            assignQ = assignQ.eq('id', assignmentId);
+        }
+        await assignQ;
 
-        // 2. Update submission status in Supabase only if not advanced
+        // Update submission status in Supabase only if not advanced
         if (!isAdvanced) {
-            await supabaseAdmin.from('submissions').update({ status: 'Reviewed' }).eq('id', submissionId);
-            await supabaseAdmin.from('submissions').update({ status: 'Reviewed' }).eq('submission_id', submissionId);
+            await supabaseAdmin.from('submissions').update({ status: 'Reviewed', updated_at: new Date() }).eq('id', submissionId);
+            const unhexedSubId = unhexUuid(submissionId);
+            if (unhexedSubId && unhexedSubId !== submissionId) {
+                await supabaseAdmin.from('submissions').update({ status: 'Reviewed', updated_at: new Date() }).eq('id', unhexedSubId);
+            }
         }
 
-        // 3. Insert history in Supabase
+        // Insert history in Supabase
         await supabaseAdmin.from('submission_history').insert({
             submission_id: submissionId,
             action: `Review Completed`,
