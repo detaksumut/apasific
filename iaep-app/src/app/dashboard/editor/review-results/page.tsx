@@ -116,6 +116,13 @@ function unhexUuid(uuidStr: string): string {
      return { ...article, assignments: activeAssignments };
   });
 
+  // Filter ONLY articles that have completed reviews or are in Reviewed/Revision Required status
+  articles = articles.filter(article => {
+    const hasCompletedReview = article.assignments && article.assignments.some((a: any) => a.status === 'completed');
+    const isReviewedStatus = ['Reviewed', 'Revision Required'].includes(article.status);
+    return hasCompletedReview || isReviewedStatus;
+  });
+
   return (
     <div className="max-w-7xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
       
