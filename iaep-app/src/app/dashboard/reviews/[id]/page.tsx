@@ -301,24 +301,32 @@ export default function ReviewEvaluation({ params }: { params: any }) {
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                       <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" /><polyline points="14 2 14 8 20 8" />
                     </svg>
-                    {submission.file_url ? 'Manuscript.pdf' : 'No File Attached'}
+                    {submission.file_url ? (submission.file_url.includes('.docx') ? 'Manuscript.docx' : 'Manuscript.pdf') : 'No File Attached'}
                   </div>
                   {submission.file_url && (
-                      <a href={submission.file_url} target="_blank" rel="noreferrer" className="rev-download-btn">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                           <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7" />
+                      <a href={submission.file_url} target="_blank" rel="noreferrer" className="rev-download-btn" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: '#c9a84c', color: '#080810', fontWeight: 'bold', padding: '6px 14px', borderRadius: '4px', textDecoration: 'none' }}>
+                        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                           <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3" />
                         </svg>
-                        Full Layar
+                        Unduh / Buka Naskah
                       </a>
                   )}
                 </div>
                 <div className="rev-pdf-body">
                   {submission.file_url ? (
-                    <iframe 
-                        src={submission.file_url.toLowerCase().endsWith('.pdf') ? submission.file_url : `https://docs.google.com/gview?url=${encodeURIComponent(submission.file_url)}&embedded=true`} 
-                        style={{ width: '100%', height: '100%', minHeight: '600px', border: 'none' }} 
-                        title="Manuscript Document"
-                    />
+                    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', minHeight: '600px' }}>
+                      <div style={{ background: 'rgba(201,168,76,0.1)', borderBottom: '1px solid rgba(201,168,76,0.2)', padding: '8px 15px', display: 'flex', justifyBetween: 'space-between', alignItems: 'center', fontSize: '12px', color: '#c9a84c' }}>
+                        <span>📄 File Naskah Tersedia ({submission.file_url.includes('.docx') ? 'Dokumen Word .docx' : 'Dokumen PDF'})</span>
+                        <a href={submission.file_url} target="_blank" rel="noreferrer" style={{ color: '#ffffff', textDecoration: 'underline', fontWeight: 'bold' }}>
+                          Klik disini jika iFrame tidak terbuka ➔
+                        </a>
+                      </div>
+                      <iframe 
+                          src={submission.file_url.toLowerCase().includes('.pdf') ? submission.file_url : `https://docs.google.com/gview?url=${encodeURIComponent(submission.file_url)}&embedded=true`} 
+                          style={{ width: '100%', flex: 1, minHeight: '560px', border: 'none' }} 
+                          title="Manuscript Document"
+                      />
+                    </div>
                   ) : (
                     <div className="rev-pdf-mock">
                       <div className="rev-pdf-icon">📄</div>

@@ -283,6 +283,17 @@ export async function deleteAssignment(assignmentId: string, submissionId: strin
   }
 }
 
+function unhexUuid(uuidStr: string): string {
+  if (!uuidStr) return "";
+  try {
+    const hex = uuidStr.replace(/-/g, "").replace(/0+$/, "");
+    if (/^[0-9a-f]+$/i.test(hex) && hex.length >= 8) {
+      return Buffer.from(hex, "hex").toString("utf8");
+    }
+  } catch(e) {}
+  return uuidStr;
+}
+
 export async function getAssignmentDetails(assignmentId: string) {
   try {
     const supabaseAdmin = (await import('@supabase/supabase-js')).createClient(
@@ -332,7 +343,7 @@ export async function getAssignmentDetails(assignmentId: string) {
           if (isSubUuid) {
             subQ = subQ.or(`id.eq.${targetSubId},submission_id.eq.${targetSubId}`);
           } else {
-            subQ = subQ.eq('submission_id', targetSubId);
+            subQ = subQ.eq('id', targetSubId);
           }
           const { data: subData } = await subQ.maybeSingle();
           if (subData) sub = subData;
@@ -356,48 +367,53 @@ export async function getAssignmentDetails(assignmentId: string) {
     };
 
     // 3. Resolve file URL 100% via Supabase (DB + Storage)
-    const candidateIds = Array.from(new Set([
+    const rawCandidateIds = [
       targetSubId,
       sub?.submission_id,
       sub?.id,
       assignData?.submission_id,
       assignData?.id,
       assignmentId
-    ].filter(Boolean)));
+    ].filter(Boolean);
+
+    const candidateIds: string[] = [];
+    for (const cid of rawCandidateIds) {
+      const strCid = String(cid);
+      candidateIds.push(strCid);
+      const unhexed = unhexUuid(strCid);
+      if (unhexed && unhexed !== strCid) {
+        candidateIds.push(unhexed);
+      }
+    }
+
+    const uniqueCandidates = Array.from(new Set(candidateIds));
 
     let rawFileUrl = sub?.file_url || sub?.manuscript_url || sub?.anonymous_file_url || assignData?.file_url || assignData?.manuscript_url || "";
     let fileUrl = await getStorageUrl(rawFileUrl);
 
-    // If empty, search submission_files in Supabase across all candidate IDs
-    if (!fileUrl && candidateIds.length > 0) {
+    // If still empty, search Supabase Storage bucket 'manuscripts' directly using candidates and prefix matching
+    if (!fileUrl && uniqueCandidates.length > 0) {
       try {
-        const { data: sfFiles } = await supabaseAdmin
-          .from('submission_files')
-          .select('*')
-          .in('submission_id', candidateIds)
-          .order('created_at', { ascending: false });
+        const { data: rootList } = await supabaseAdmin.storage.from('manuscripts').list();
+        if (rootList && rootList.length > 0) {
+          for (const cand of uniqueCandidates) {
+            const matchedFolderObj = rootList.find((item: any) => 
+              item.name === cand || 
+              item.name.startsWith(cand) || 
+              cand.startsWith(item.name)
+            );
 
-        if (sfFiles && sfFiles.length > 0) {
-          const selected = sfFiles.find((f: any) => f.file_name?.toLowerCase().includes('anonymous')) || sfFiles[0];
-          if (selected?.storage_path) {
-            fileUrl = await getStorageUrl(selected.storage_path);
+            if (matchedFolderObj) {
+              const { data: folderFiles } = await supabaseAdmin.storage.from('manuscripts').list(matchedFolderObj.name);
+              if (folderFiles && folderFiles.length > 0) {
+                const selectedFile = folderFiles.find((f: any) => f.name.toLowerCase().includes('anonymous')) || folderFiles[0];
+                fileUrl = await getStorageUrl(`${matchedFolderObj.name}/${selectedFile.name}`);
+                if (fileUrl) break;
+              }
+            }
           }
         }
       } catch(e) {}
-    }
-
-    // If still empty, search Supabase Storage bucket 'manuscripts' directly
-    if (!fileUrl && candidateIds.length > 0) {
-      for (const idToSearch of candidateIds) {
-        try {
-          const { data: storageList } = await supabaseAdmin.storage.from('manuscripts').list(String(idToSearch));
-          if (storageList && storageList.length > 0) {
-            const selectedFile = storageList.find((f: any) => f.name.toLowerCase().includes('anonymous')) || storageList[0];
-            fileUrl = await getStorageUrl(`${idToSearch}/${selectedFile.name}`);
-            if (fileUrl) break;
-          }
-        } catch(e) {}
-      }
     }
 
     const dueDateStr = assignData.deadline
