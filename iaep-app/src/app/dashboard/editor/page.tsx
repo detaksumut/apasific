@@ -100,8 +100,9 @@ export default async function EditorDashboard() {
   // Helper: Cek apakah artikel terbit (status Published/Production Completed ATAU memiliki DOI/Zenodo ID)
   const checkIsPublished = (a: any) => ['Published', 'Production Completed'].includes(a.status) || Boolean(a.doi || a.zenodo_id);
 
-  // Pisahkan: naskah aktif (belum Published) vs riwayat terbit
-  const activeArticles = uniqueArticles.filter(a => !checkIsPublished(a));
+  // Pisahkan: naskah aktif dalam proses editorial (sudah diterima dari Artikel Entri, belum Published) vs riwayat terbit
+  const isRawSubmission = (a: any) => ['submitted', 'Submitted', 'queued', 'pending'].includes(a.status);
+  const activeArticles = uniqueArticles.filter(a => !checkIsPublished(a) && !isRawSubmission(a));
   const publishedCount = uniqueArticles.filter(a => checkIsPublished(a)).length;
 
   const totalArticles = uniqueArticles.length;

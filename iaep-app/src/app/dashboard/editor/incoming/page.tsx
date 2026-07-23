@@ -48,7 +48,7 @@ export default async function IncomingArticles() {
     const { data: submissions } = await supabaseAdmin
       .from("submissions")
       .select("*, journals(name), profiles:author_id(full_name, phone)")
-      .in("status", ["queued", "submitted", "pending", "Awaiting Reviewers"])
+      .in("status", ["queued", "submitted", "Submitted", "pending"])
       .order("created_at", { ascending: false });
       
     if (submissions && submissions.length > 0) {
@@ -65,8 +65,8 @@ export default async function IncomingArticles() {
       
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-6 border-b border-zinc-800">
         <div>
-          <h1 className="text-3xl font-bold text-white tracking-tight">Artikel Masuk (Incoming)</h1>
-          <p className="text-zinc-400 mt-2 text-sm">Daftar naskah baru yang siap diproses dan ditugaskan ke reviewer.</p>
+          <h1 className="text-3xl font-bold text-white tracking-tight">Artikel Entri</h1>
+          <p className="text-zinc-400 mt-2 text-sm">Daftar semua naskah yang baru saja disubmit oleh penulis dan siap untuk diproses editorial.</p>
         </div>
       </div>
 
