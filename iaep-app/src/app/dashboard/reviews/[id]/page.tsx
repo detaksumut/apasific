@@ -481,7 +481,7 @@ export default function ReviewEvaluation({ params }: { params: any }) {
                   try {
                     setIsSubmitting(true);
                     const formData = new FormData();
-                    formData.append('assignmentId', unwrappedParams.id);
+                    formData.append('assignmentId', assignmentId);
                     formData.append('submissionId', submission.id);
                     formData.append('recommendation', recommendation);
                     formData.append('commentsForEditor', commentsForEditor);
