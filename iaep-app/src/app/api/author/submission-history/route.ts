@@ -30,7 +30,7 @@ export async function GET(req: Request) {
         .where('submission_id', '==', submissionId)
         .orderBy('created_at', 'asc')
         .get();
-      history = fbSnap.docs.map(doc => {
+      history = fbSnap.docs.map((doc: any) => {
         const d = doc.data() as Record<string, any>;
         return {
           id: doc.id,
