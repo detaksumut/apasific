@@ -36,7 +36,7 @@ export default async function IncomingArticles() {
     redirect("/auth/login");
   }
 
-  // Fetch submissions that are newly submitted or awaiting reviewers
+  // Fetch submissions that are newly submitted or awaiting reviewers (Primary SSOT: Supabase)
   let articles: any[] = [];
   try {
     const { createClient: createSupabaseClient } = await import('@supabase/supabase-js');
@@ -45,62 +45,20 @@ export default async function IncomingArticles() {
       process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ""
     );
 
-    const { data: submissions, error } = await supabaseAdmin
+    const { data: submissions } = await supabaseAdmin
       .from("submissions")
       .select("*, journals(name), profiles:author_id(full_name, phone)")
       .in("status", ["queued", "submitted", "pending", "Awaiting Reviewers"])
       .order("created_at", { ascending: false });
       
-    if (error) throw error;
-    articles = submissions || [];
-  } catch (e) {
-    console.warn("Supabase fetch failed in IncomingArticles, falling back to Firestore");
-    try {
-      const { createClient: createSupabaseClient } = await import('@supabase/supabase-js');
-      const supabaseAdmin = createSupabaseClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL || "https://aroasmlrlpjbjokvxlgo.supabase.co",
-        process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ""
-      );
-
-      // Pre-fetch semua jurnal dari Supabase untuk lookup nama jurnal via journal_id
-      const { data: allJournals } = await supabaseAdmin.from('journals').select('id, name, slug');
-      const journalMap: Record<string, string> = {};
-      if (allJournals) {
-        allJournals.forEach((j: any) => { journalMap[j.id] = j.name; });
-      }
-
-      const { getFirestore } = await import('@/utils/firebase/db');
-      const db = getFirestore();
-      
-      // Fetch all submissions ordered by created_at, then filter in memory
-      // This avoids the FAILED_PRECONDITION composite index error in Firestore
-      const submissionsSnapshot = await db.collection('submissions')
-        .orderBy('created_at', 'desc')
-        .get();
-        
-      const allowedStatuses = ["queued", "submitted", "pending", "Awaiting Reviewers"];
-      
-      articles = submissionsSnapshot.docs
-        .map(doc => {
-          const data = doc.data();
-          // Lookup nama jurnal dari map; fallback ke field journal_name atau 'Jurnal Tidak Diketahui'
-          const journalName = journalMap[data.journal_id] || data.journal_name || 'Jurnal Tidak Diketahui';
-          return {
-              id: doc.id,
-              title: data.title,
-              status: data.status,
-              created_at: data.created_at ? data.created_at.toDate() : new Date(),
-              journal_id: data.journal_id,
-              journals: { name: journalName },
-              profiles: { full_name: data.author_name || 'Penulis', phone: data.phone || '' },
-              phone: data.phone || ''
-          };
-        })
-        .filter(article => allowedStatuses.includes(article.status));
-    } catch (fbErr) {
-      console.error("Firestore fallback failed", fbErr);
+    if (submissions && submissions.length > 0) {
+      articles = [...submissions];
     }
+  } catch (e: any) {
+    console.warn("Supabase fetch failed in IncomingArticles:", e?.message || e);
   }
+
+  // Pure Supabase SSOT Read (No Firestore read lag)
 
   return (
     <div className="max-w-7xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">

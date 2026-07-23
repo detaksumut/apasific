@@ -10,17 +10,24 @@ export function getFirebaseAdmin() {
         serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_KEY);
       } else {
         const serviceAccountPath = path.join(process.cwd(), 'firebase-admin-key.json');
-        serviceAccount = JSON.parse(fs.readFileSync(serviceAccountPath, 'utf8'));
+        if (fs.existsSync(serviceAccountPath)) {
+          serviceAccount = JSON.parse(fs.readFileSync(serviceAccountPath, 'utf8'));
+        }
       }
       
-      admin.initializeApp({
-        credential: admin.credential.cert(serviceAccount),
-      });
-      console.log('Firebase Admin initialized successfully.');
+      if (serviceAccount) {
+        admin.initializeApp({
+          credential: admin.credential.cert(serviceAccount),
+        });
+        console.log('Firebase Admin initialized successfully.');
+      } else {
+        console.warn('Firebase Admin key not found, skipping Firestore admin init.');
+        return null;
+      }
     } catch (error: any) {
-      console.error('Firebase Admin initialization error', error);
-      throw new Error(`Firebase Admin Init Error: ${error.message}`);
+      console.warn('Firebase Admin initialization skipped:', error.message);
+      return null;
     }
   }
-  return admin;
+  return admin.apps.length ? admin : null;
 }

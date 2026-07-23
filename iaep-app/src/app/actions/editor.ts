@@ -11,7 +11,7 @@ export async function getReviewsForSubmission(submissionId: string) {
             .select('*, reviewer:reviewer_id(full_name)')
             .eq('submission_id', submissionId)
             .in('status', ['pending', 'accepted', 'completed']);
-            
+
         let finalReviews = reviews || [];
 
         // Fallback to Firestore
@@ -32,7 +32,7 @@ export async function getReviewsForSubmission(submissionId: string) {
                         const { data: prof } = await supabase.from('profiles').select('full_name').eq('id', data.reviewer_id).single();
                         if (prof) reviewerName = prof.full_name;
                     }
-                    
+
                     finalReviews.push({
                         id: doc.id,
                         ...data,
@@ -59,8 +59,8 @@ export async function getReviewsForSubmission(submissionId: string) {
 export async function submitEditorialDecision(submissionId: string, authorId: string, title: string, decision: string, comments: string) {
     try {
         const supabaseAdmin = (await import('@supabase/supabase-js')).createClient(
-          process.env.NEXT_PUBLIC_SUPABASE_URL!,
-          process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+            process.env.NEXT_PUBLIC_SUPABASE_URL!,
+            process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
         );
         const { getCurrentUser } = await import('./auth');
         const user: any = await getCurrentUser();
@@ -68,7 +68,7 @@ export async function submitEditorialDecision(submissionId: string, authorId: st
 
         // 1. Update Supabase
         await supabaseAdmin.from('submissions').update({ status: decision, updated_at: new Date() }).eq('id', submissionId);
-        
+
         await supabaseAdmin.from('submission_history').insert({
             submission_id: submissionId,
             action: `Editor Decision: ${decision}`,
@@ -83,7 +83,7 @@ export async function submitEditorialDecision(submissionId: string, authorId: st
                     .select('title, profiles:author_id(full_name, phone)')
                     .eq('id', submissionId)
                     .single();
-                
+
                 const authorProfile = sub?.profiles as any;
                 const phoneNum = Array.isArray(authorProfile) ? authorProfile[0]?.phone : authorProfile?.phone;
                 const fullName = Array.isArray(authorProfile) ? authorProfile[0]?.full_name : authorProfile?.full_name;
@@ -125,7 +125,7 @@ export async function submitEditorialDecision(submissionId: string, authorId: st
         }
         revalidatePath('/dashboard/editor/review-results');
         revalidatePath('/dashboard/editor/submissions');
-        
+
         return { success: true };
     } catch (e: any) {
         return { success: false, error: e.message };
@@ -136,10 +136,10 @@ export async function updateSubmissionStage(submissionId: string, stage: string,
     try {
         const { getCurrentUser } = await import('./auth');
         const user: any = await getCurrentUser();
-        
+
         const supabaseAdmin = (await import('@supabase/supabase-js')).createClient(
-          process.env.NEXT_PUBLIC_SUPABASE_URL!,
-          process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+            process.env.NEXT_PUBLIC_SUPABASE_URL!,
+            process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
         );
 
         const isFirestoreId = submissionId.startsWith('sub_') || !submissionId.includes('-');
@@ -197,7 +197,7 @@ export async function updateSubmissionStage(submissionId: string, stage: string,
                     .select('title, profiles:author_id(full_name, phone)')
                     .eq('id', submissionId)
                     .single();
-                
+
                 // Fetch latest review notes
                 const { data: reviewAssignments } = await supabaseAdmin
                     .from('review_assignments')
@@ -231,7 +231,7 @@ export async function updateSubmissionStage(submissionId: string, stage: string,
 
         const { revalidatePath } = require('next/cache');
         revalidatePath('/dashboard/editor/submissions');
-        
+
         return { success: true };
     } catch (e: any) {
         return { success: false, error: e.message };
@@ -241,24 +241,37 @@ export async function updateSubmissionStage(submissionId: string, stage: string,
 export async function getSubmissionDetailsEditor(submissionId: string) {
     try {
         const supabaseAdmin = (await import('@supabase/supabase-js')).createClient(
-          process.env.NEXT_PUBLIC_SUPABASE_URL!,
-          process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+            process.env.NEXT_PUBLIC_SUPABASE_URL!,
+            process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
         );
 
-        // Try Supabase first (only if it's a UUID)
-        const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(submissionId);
+        // Try Supabase first (flexible UUID check & secondary search by zenodo_id / doi)
+        const isUuidLike = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(submissionId);
         let subData: any = null;
 
-        if (isUuid) {
-            const { data } = await supabaseAdmin
-                .from('submissions')
-                .select('*, profiles:author_id(full_name, phone), journals:journal_id(name)')
-                .eq('id', submissionId)
-                .single();
-            if (data) subData = data;
+        try {
+            if (isUuidLike) {
+                const { data } = await supabaseAdmin
+                    .from('submissions')
+                    .select('*, profiles:author_id(full_name, phone), journals:journal_id(name)')
+                    .eq('id', submissionId)
+                    .single();
+                if (data) subData = data;
+            }
+
+            if (!subData) {
+                const { data } = await supabaseAdmin
+                    .from('submissions')
+                    .select('*, profiles:author_id(full_name, phone), journals:journal_id(name)')
+                    .or(`zenodo_id.eq.${submissionId},doi.ilike.%${submissionId}%`)
+                    .single();
+                if (data) subData = data;
+            }
+        } catch (sbErr) {
+            console.warn("Supabase lookup error in getSubmissionDetailsEditor:", sbErr);
         }
 
-        // Fallback to Firestore
+        // Safe Fallback to Firestore
         if (!subData) {
             try {
                 const { getFirestore } = await import('@/utils/firebase/db');
@@ -268,21 +281,21 @@ export async function getSubmissionDetailsEditor(submissionId: string) {
                     const fbData = doc.data();
                     let journalName = 'Unknown Journal';
                     if (fbData?.journal_id) {
-                         const jDoc = await db.collection('journals').doc(fbData.journal_id).get();
-                         if (jDoc.exists) journalName = jDoc.data()?.name || journalName;
-                         else {
-                           const { data: sj } = await supabaseAdmin.from('journals').select('name').eq('id', fbData.journal_id).single();
-                           if (sj) journalName = sj.name;
-                         }
+                        const jDoc = await db.collection('journals').doc(fbData.journal_id).get();
+                        if (jDoc.exists) journalName = jDoc.data()?.name || journalName;
+                        else {
+                            const { data: sj } = await supabaseAdmin.from('journals').select('name').eq('id', fbData.journal_id).single();
+                            if (sj) journalName = sj.name;
+                        }
                     }
                     let authorName = 'Unknown Author';
                     if (fbData?.author_id) {
-                         const { data: profile } = await supabaseAdmin.from('profiles').select('full_name').eq('id', fbData.author_id).single();
-                         if (profile?.full_name) authorName = profile.full_name;
-                         else {
-                             const uDoc = await db.collection('users').doc(fbData.author_id).get();
-                             if (uDoc.exists) authorName = uDoc.data()?.full_name || uDoc.data()?.name || authorName;
-                         }
+                        const { data: profile } = await supabaseAdmin.from('profiles').select('full_name').eq('id', fbData.author_id).single();
+                        if (profile?.full_name) authorName = profile.full_name;
+                        else {
+                            const uDoc = await db.collection('users').doc(fbData.author_id).get();
+                            if (uDoc.exists) authorName = uDoc.data()?.full_name || uDoc.data()?.name || authorName;
+                        }
                     }
 
                     subData = {
@@ -295,7 +308,7 @@ export async function getSubmissionDetailsEditor(submissionId: string) {
                     };
                 }
             } catch (e) {
-                console.warn("Firestore fetch failed", e);
+                console.warn("Firestore fetch skipped in getSubmissionDetailsEditor (quota/network)", e);
             }
         }
 
@@ -312,7 +325,7 @@ export async function getSubmissionDetailsEditor(submissionId: string) {
                     fileUrl = signedData.signedUrl;
                 }
             }
-        } catch(e) {}
+        } catch (e) { }
         subData.file_url = fileUrl;
 
         return { success: true, submission: subData };
@@ -325,10 +338,10 @@ export async function getActiveReviewers() {
     try {
         const { createClient: createSupabaseClient } = await import('@supabase/supabase-js');
         const supabaseAdmin = createSupabaseClient(
-          process.env.NEXT_PUBLIC_SUPABASE_URL!,
-          process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+            process.env.NEXT_PUBLIC_SUPABASE_URL!,
+            process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
         );
-        
+
         let reviewers: any[] = [];
 
         // 1. Fetch from profiles table
@@ -338,7 +351,7 @@ export async function getActiveReviewers() {
                 .select('*')
                 .ilike('role', '%reviewer%');
             if (profiles) reviewers = [...profiles];
-        } catch(e) {}
+        } catch (e) { }
 
         // 2. Fetch from system_settings
         try {
@@ -346,24 +359,24 @@ export async function getActiveReviewers() {
                 .from('system_settings')
                 .select('value')
                 .in('key', ['apasific_registered_users', 'registered_users']);
-                
+
             if (settings && settings.length > 0) {
                 let allUsers: any[] = [];
                 settings.forEach((s: any) => {
                     try {
                         const parsed = Array.isArray(s.value) ? s.value : JSON.parse(s.value as string);
                         allUsers = [...allUsers, ...parsed];
-                    } catch(err) {}
+                    } catch (err) { }
                 });
                 const sysReviewers = allUsers.filter((u: any) => u.role && u.role.toLowerCase().includes('reviewer'));
-                
+
                 for (const sr of sysReviewers) {
                     if (!reviewers.find(r => (r.email || '').toLowerCase() === (sr.email || '').toLowerCase())) {
                         reviewers.push(sr);
                     }
                 }
             }
-        } catch(e) {}
+        } catch (e) { }
 
         // Exclude anyone who is an admin or co-admin from being listed as a reviewer
         reviewers = reviewers.filter(r => {
@@ -384,8 +397,8 @@ export async function getActiveReviewers() {
 export async function getEditorialBoard(journalName: string) {
     try {
         const supabaseAdmin = (await import('@supabase/supabase-js')).createClient(
-          process.env.NEXT_PUBLIC_SUPABASE_URL!,
-          process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+            process.env.NEXT_PUBLIC_SUPABASE_URL!,
+            process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
         );
 
         const bodyName = `Editorial Board - ${journalName}`;
@@ -420,12 +433,12 @@ export async function getEditorialBoard(journalName: string) {
 export async function updateIssn(submissionId: string, issn: string) {
     try {
         const supabaseAdmin = (await import('@supabase/supabase-js')).createClient(
-          process.env.NEXT_PUBLIC_SUPABASE_URL!,
-          process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+            process.env.NEXT_PUBLIC_SUPABASE_URL!,
+            process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
         );
 
         const { error } = await supabaseAdmin.from('submissions').update({ issn }).eq('id', submissionId);
-        
+
         try {
             const { getFirestore } = await import('@/utils/firebase/db');
             const db = getFirestore();
@@ -435,7 +448,7 @@ export async function updateIssn(submissionId: string, issn: string) {
         }
 
         if (error) {
-           return { success: false, error: error.message };
+            return { success: false, error: error.message };
         }
 
         return { success: true };
@@ -447,22 +460,22 @@ export async function updateIssn(submissionId: string, issn: string) {
 export async function updateDoi(submissionId: string, doi: string, zenodoId: string | number) {
     try {
         const supabaseAdmin = (await import('@supabase/supabase-js')).createClient(
-          process.env.NEXT_PUBLIC_SUPABASE_URL!,
-          process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+            process.env.NEXT_PUBLIC_SUPABASE_URL!,
+            process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
         );
 
         // Try Supabase first, ignore error if id format is invalid for UUID
         const { error } = await supabaseAdmin.from('submissions')
             .update({ doi: doi, zenodo_id: zenodoId })
             .eq('id', submissionId);
-            
+
         // Always try Firestore as fallback/sync
         try {
             const { getFirestore } = await import('@/utils/firebase/db');
             const db = getFirestore();
-            await db.collection('submissions').doc(submissionId).update({ 
-                doi: doi, 
-                zenodo_id: zenodoId 
+            await db.collection('submissions').doc(submissionId).update({
+                doi: doi,
+                zenodo_id: zenodoId
             });
         } catch (e) {
             console.warn("Failed to update DOI in Firestore", e);
@@ -477,13 +490,13 @@ export async function updateDoi(submissionId: string, doi: string, zenodoId: str
 export async function getPublicationsData(journalId: string) {
     try {
         const supabaseAdmin = (await import('@supabase/supabase-js')).createClient(
-          process.env.NEXT_PUBLIC_SUPABASE_URL!,
-          process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+            process.env.NEXT_PUBLIC_SUPABASE_URL!,
+            process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
         );
 
         let articles: any[] = [];
 
-        // 1. Fetch from Supabase
+        // 1. Fetch from Supabase (Pure SSOT)
         try {
             const { data } = await supabaseAdmin
                 .from('submissions')
@@ -495,45 +508,7 @@ export async function getPublicationsData(journalId: string) {
             console.error("Supabase publications fetch failed", dbErr);
         }
 
-        // 2. Fetch from Firestore
-        try {
-            const { getFirestore } = await import('@/utils/firebase/db');
-            const db = getFirestore();
-            const snapshot = await db.collection('submissions')
-                .where('journal_id', '==', journalId)
-                .get();
-
-            const existingIds = new Set(articles.map(a => a.id));
-            const fbArticles = [];
-            for (const doc of snapshot.docs) {
-                const data = doc.data();
-                if ((data.status === 'Production Completed' || data.status === 'Published') && !existingIds.has(doc.id)) {
-                    // Get author name
-                    let authorName = data.author || 'Author';
-                    if (data.author_id) {
-                         const { data: profile } = await supabaseAdmin.from('profiles').select('full_name').eq('id', data.author_id).single();
-                         if (profile?.full_name) authorName = profile.full_name;
-                         else {
-                             const uDoc = await db.collection('users').doc(data.author_id).get();
-                             if (uDoc.exists) authorName = uDoc.data()?.full_name || uDoc.data()?.name || authorName;
-                         }
-                    }
-
-                    fbArticles.push({
-                        id: doc.id,
-                        title: data.title,
-                        status: data.status,
-                        stage: data.stage,
-                        author_id: data.author_id,
-                        created_at: data.created_at?.toDate ? data.created_at.toDate().toISOString() : data.created_at || new Date().toISOString(),
-                        profiles: { full_name: authorName }
-                    });
-                }
-            }
-            articles = [...articles, ...fbArticles];
-        } catch (fbErr) {
-            console.error("Firestore publications fetch failed", fbErr);
-        }
+        // Pure Supabase SSOT Read (No Firestore read lag or 2x duplicates)
 
         return {
             success: true,
@@ -547,28 +522,28 @@ export async function getPublicationsData(journalId: string) {
 
 export async function getNextVolumeAndIssue(journalId: string) {
     if (!journalId) return { volume: "Vol 1", issue: "Edisi 1" };
-    
+
     const now = new Date();
     const year = now.getFullYear();
     const month = now.getMonth() + 1; // 1-12
-    
+
     // Aturan Publikasi Standar:
     // Volume bertambah setiap berganti tahun.
     // Issue (No) bertambah dalam tahun yang sama.
     const startYear = 2026;
     const volumeNum = (year - startYear) + 1;
     const volume = `Vol ${volumeNum}`;
-    
+
     const semester = month <= 6 ? 1 : 2;
-    
+
     const startMonth = semester === 1 ? 0 : 6;
     const startDate = new Date(year, startMonth, 1).toISOString();
     const endDate = new Date(year, startMonth + 6, 0, 23, 59, 59).toISOString();
-    
+
     try {
         const supabaseAdmin = (await import('@supabase/supabase-js')).createClient(
-          process.env.NEXT_PUBLIC_SUPABASE_URL!,
-          process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+            process.env.NEXT_PUBLIC_SUPABASE_URL!,
+            process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
         );
         const { count, error } = await supabaseAdmin.from('submissions')
             .select('*', { count: 'exact', head: true })
@@ -576,9 +551,9 @@ export async function getNextVolumeAndIssue(journalId: string) {
             .eq('status', 'Published')
             .gte('updated_at', startDate)
             .lte('updated_at', endDate);
-            
+
         let issueNum = (count || 0) + 1;
-        
+
         // Coba periksa juga dari Firebase
         try {
             const { getFirestore } = await import('@/utils/firebase/db');
@@ -587,18 +562,18 @@ export async function getNextVolumeAndIssue(journalId: string) {
                 .where('journal_id', '==', journalId)
                 .where('status', '==', 'Published')
                 .get();
-                
+
             const fbCount = snap.docs.filter((d: any) => {
                 const date = d.data().updated_at?.toDate ? d.data().updated_at.toDate() : new Date(d.data().updated_at || d.data().created_at || 0);
                 return date >= new Date(startDate) && date <= new Date(endDate);
             }).length;
-            
+
             // Pilih mana yg lebih besar agar tidak bentrok
             if (fbCount >= issueNum) {
                 issueNum = fbCount + 1;
             }
-        } catch (e) {}
-        
+        } catch (e) { }
+
         return { volume, issue: `Edisi ${issueNum}` };
     } catch (err) {
         return { volume, issue: "Edisi 1" };
@@ -608,20 +583,20 @@ export async function getNextVolumeAndIssue(journalId: string) {
 export async function getAssignedVolumeAndIssue(submissionId: string, journalId: string) {
     try {
         const supabaseAdmin = (await import('@supabase/supabase-js')).createClient(
-          process.env.NEXT_PUBLIC_SUPABASE_URL!,
-          process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+            process.env.NEXT_PUBLIC_SUPABASE_URL!,
+            process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
         );
-        
+
         // 1. Check if it already has a certificate
         const { data: cert } = await supabaseAdmin.from('certificates')
-             .select('edition')
-             .eq('reference_id', submissionId)
-             .single();
-             
+            .select('edition')
+            .eq('reference_id', submissionId)
+            .single();
+
         if (cert && cert.edition) {
-            return cert.edition.split(' (')[0]; 
+            return cert.edition.split(' (')[0];
         }
-        
+
         // Coba cek Firestore
         try {
             const { getFirestore } = await import('@/utils/firebase/db');
@@ -631,11 +606,11 @@ export async function getAssignedVolumeAndIssue(submissionId: string, journalId:
                 const ed = snap.docs[0].data().edition || snap.docs[0].data().issue_volume;
                 if (ed) return ed.split(' (')[0];
             }
-        } catch (e) {}
+        } catch (e) { }
 
         const res = await getNextVolumeAndIssue(journalId);
         return `${res.volume} ${res.issue}`;
-    } catch(e) {
+    } catch (e) {
         return "Vol 1 Edisi 1";
     }
 }
@@ -643,8 +618,8 @@ export async function getAssignedVolumeAndIssue(submissionId: string, journalId:
 export async function publishArticle(submissionId: string, journalId: string, customVolume: string = "", customIssue: string = "") {
     try {
         const supabaseAdmin = (await import('@supabase/supabase-js')).createClient(
-          process.env.NEXT_PUBLIC_SUPABASE_URL!,
-          process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+            process.env.NEXT_PUBLIC_SUPABASE_URL!,
+            process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
         );
 
         const { getFirestore } = await import('@/utils/firebase/db');
@@ -672,12 +647,12 @@ export async function publishArticle(submissionId: string, journalId: string, cu
         // Get journal name
         let journalName = 'APASIFIC Jurnal';
         if (journalId) {
-             const { data: j } = await supabaseAdmin.from('journals').select('name').eq('id', journalId).single();
-             if (j) journalName = j.name;
-             else {
-                 const jDoc = await db.collection('journals').doc(journalId).get();
-                 if (jDoc.exists) journalName = jDoc.data()?.name || journalName;
-             }
+            const { data: j } = await supabaseAdmin.from('journals').select('name').eq('id', journalId).single();
+            if (j) journalName = j.name;
+            else {
+                const jDoc = await db.collection('journals').doc(journalId).get();
+                if (jDoc.exists) journalName = jDoc.data()?.name || journalName;
+            }
         }
 
         // Calculate Volume and Issue dynamically
@@ -805,16 +780,16 @@ export async function publishArticle(submissionId: string, journalId: string, cu
 }
 
 function toUuid(id: string): string {
-  if (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)) return id;
-  const hex = Buffer.from(id).toString('hex').padEnd(32, '0').slice(0, 32);
-  return `${hex.slice(0,8)}-${hex.slice(8,12)}-${hex.slice(12,16)}-${hex.slice(16,20)}-${hex.slice(20,32)}`;
+    if (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)) return id;
+    const hex = Buffer.from(id).toString('hex').padEnd(32, '0').slice(0, 32);
+    return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20, 32)}`;
 }
 
 export async function getUserCertificates(userId: string) {
     try {
         const supabaseAdmin = (await import('@supabase/supabase-js')).createClient(
-          process.env.NEXT_PUBLIC_SUPABASE_URL!,
-          process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+            process.env.NEXT_PUBLIC_SUPABASE_URL!,
+            process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
         );
 
         // Check user role first and find email
@@ -835,69 +810,57 @@ export async function getUserCertificates(userId: string) {
                 const role = uData?.role?.toLowerCase() || '';
                 if (uData?.email) userEmail = uData.email;
                 isStaff = role === 'editor' || role === 'admin' || role === 'superadmin' || role === 'super_admin' || role === 'supervisor' || role === 'admin editor';
-            } catch (fbErr) {}
+            } catch (fbErr) { }
         }
 
         // Find all linked IDs for this user's email
         const userIds = new Set<string>([userId, toUuid(userId)]);
-        if (userEmail) {
-            try {
-                const { data: sbProfs } = await supabaseAdmin.from('profiles').select('id').eq('email', userEmail);
-                if (sbProfs) sbProfs.forEach((p: any) => userIds.add(p.id));
-            } catch (e) {}
-            try {
-                const { getFirestore } = await import('@/utils/firebase/db');
-                const db = getFirestore();
-                const fbSnap = await db.collection('profiles').where('email', '==', userEmail).get();
-                fbSnap.forEach((doc: any) => userIds.add(doc.id));
-            } catch (e) {}
-        }
         const userIdsList = Array.from(userIds);
 
         let certList: any[] = [];
 
         // 1. Fetch from Supabase
         try {
-          let query = supabaseAdmin.from('certificates').select('*');
-          if (!isStaff) {
-             query = query.in('user_id', userIdsList);
-          }
-          const { data } = await query;
-          if (data) certList = [...data];
+            let query = supabaseAdmin.from('certificates').select('*');
+            if (!isStaff) {
+                query = query.in('user_id', userIdsList);
+            }
+            const { data } = await query;
+            if (data) certList = [...data];
         } catch (dbErr) {
-          console.error("Supabase certificates fetch failed", dbErr);
+            console.error("Supabase certificates fetch failed", dbErr);
         }
 
         // 2. Fetch from Firestore
         try {
-          const { getFirestore } = await import('@/utils/firebase/db');
-          const db = getFirestore();
-          let query: any = db.collection('certificates');
-          if (!isStaff) {
-             query = query.where('user_id', 'in', userIdsList);
-          }
-          const snapshot = await query.get();
-          const existingIds = new Set(certList.map(c => c.id || c.reference_id));
-           const fbCerts = snapshot.docs.map((doc: any) => {
-            const data = doc.data();
-            return {
-              id: doc.id,
-              ...data,
-              created_at: data.created_at?.toDate ? data.created_at.toDate() : data.created_at || new Date()
-            };
-          }).filter((c: any) => !existingIds.has(c.id));
-          certList = [...certList, ...fbCerts];
+            const { getFirestore } = await import('@/utils/firebase/db');
+            const db = getFirestore();
+            let query: any = db.collection('certificates');
+            if (!isStaff) {
+                query = query.where('user_id', 'in', userIdsList);
+            }
+            const snapshot = await query.get();
+            const existingIds = new Set(certList.map(c => c.id || c.reference_id));
+            const fbCerts = snapshot.docs.map((doc: any) => {
+                const data = doc.data();
+                return {
+                    id: doc.id,
+                    ...data,
+                    created_at: data.created_at?.toDate ? data.created_at.toDate() : data.created_at || new Date()
+                };
+            }).filter((c: any) => !existingIds.has(c.id));
+            certList = [...certList, ...fbCerts];
         } catch (fbErr) {
-          console.error("Firestore certificates fetch failed", fbErr);
+            console.error("Firestore certificates fetch failed", fbErr);
         }
 
         // Format and add fallbacks
         const formatted = certList.map(c => ({
-          id: c.id,
-          journal: c.journal || 'APASIFIC Jurnal',
-          edition: c.edition || 'Vol. 1 No. 1 (2026)',
-          date: c.date || (c.issued_at || c.created_at ? new Date(c.issued_at || c.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) : new Date().toLocaleDateString('id-ID')),
-          title: c.title || 'Sertifikat Publikasi Naskah'
+            id: c.id,
+            journal: c.journal || 'APASIFIC Jurnal',
+            edition: c.edition || 'Vol. 1 No. 1 (2026)',
+            date: c.date || (c.issued_at || c.created_at ? new Date(c.issued_at || c.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) : new Date().toLocaleDateString('id-ID')),
+            title: c.title || 'Sertifikat Publikasi Naskah'
         }));
 
         return { success: true, certificates: formatted };
@@ -909,8 +872,8 @@ export async function getUserCertificates(userId: string) {
 export async function getPublishedArticleDetails(articleId: string) {
     try {
         const supabaseAdmin = (await import('@supabase/supabase-js')).createClient(
-          process.env.NEXT_PUBLIC_SUPABASE_URL!,
-          process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+            process.env.NEXT_PUBLIC_SUPABASE_URL!,
+            process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
         );
 
         let subData: any = null;
@@ -951,8 +914,8 @@ export async function getPublishedArticleDetails(articleId: string) {
                     const fbData = doc.data();
                     let journalName = 'Unknown Journal';
                     if (fbData?.journal_id) {
-                         const { data: sj } = await supabaseAdmin.from('journals').select('name').eq('id', fbData.journal_id).single();
-                         if (sj) journalName = sj.name;
+                        const { data: sj } = await supabaseAdmin.from('journals').select('name').eq('id', fbData.journal_id).single();
+                        if (sj) journalName = sj.name;
                     }
                     let authorName = fbData?.author || 'Author';
                     let orcid = '';
@@ -961,23 +924,23 @@ export async function getPublishedArticleDetails(articleId: string) {
                     let ssrn = '';
 
                     if (fbData?.author_id) {
-                         const { data: profile } = await supabaseAdmin.from('profiles').select('full_name, orcid, google_scholar, wos, academic_id').eq('id', fbData.author_id).single();
-                         if (profile?.full_name) {
-                             authorName = profile.full_name;
-                             orcid = profile.orcid || '';
-                             googleScholar = profile.google_scholar || '';
-                             wos = profile.wos || '';
-                             ssrn = profile.academic_id || '';
-                         } else {
-                             const uDoc = await db.collection('users').doc(fbData.author_id).get();
-                             if (uDoc.exists) {
-                               authorName = uDoc.data()?.full_name || uDoc.data()?.name || authorName;
-                               orcid = uDoc.data()?.orcid || '';
-                               googleScholar = uDoc.data()?.google_scholar || '';
-                               wos = uDoc.data()?.wos || '';
-                               ssrn = uDoc.data()?.academic_id || '';
-                             }
-                         }
+                        const { data: profile } = await supabaseAdmin.from('profiles').select('full_name, orcid, google_scholar, wos, academic_id').eq('id', fbData.author_id).single();
+                        if (profile?.full_name) {
+                            authorName = profile.full_name;
+                            orcid = profile.orcid || '';
+                            googleScholar = profile.google_scholar || '';
+                            wos = profile.wos || '';
+                            ssrn = profile.academic_id || '';
+                        } else {
+                            const uDoc = await db.collection('users').doc(fbData.author_id).get();
+                            if (uDoc.exists) {
+                                authorName = uDoc.data()?.full_name || uDoc.data()?.name || authorName;
+                                orcid = uDoc.data()?.orcid || '';
+                                googleScholar = uDoc.data()?.google_scholar || '';
+                                wos = uDoc.data()?.wos || '';
+                                ssrn = uDoc.data()?.academic_id || '';
+                            }
+                        }
                     }
 
                     if (authorName === 'Author' && typeof fbData?.abstract === 'string' && fbData.abstract.trim().startsWith('{')) {
@@ -990,7 +953,7 @@ export async function getPublishedArticleDetails(articleId: string) {
                                 wos = parsedAbs.authors[0].wos || '';
                                 ssrn = parsedAbs.authors[0].academic_id || '';
                             }
-                        } catch (e) {}
+                        } catch (e) { }
                     }
 
                     const serializedData = { ...fbData };
@@ -1004,12 +967,12 @@ export async function getPublishedArticleDetails(articleId: string) {
                         id: doc.id,
                         ...serializedData,
                         created_at: serializedData.created_at || new Date().toISOString(),
-                        profiles: { 
-                          full_name: authorName,
-                          orcid: orcid || '0009-0006-8416-6156', // Hardcode fallback for the demo
-                          google_scholar: googleScholar || 'https://scholar.google.com/citations?user=EoHXXg0AAAAJ&hl=en',
-                          wos: wos || 'https://www.webofscience.com/wos/author/record/QKY-3514-2026',
-                          ssrn: ssrn || 'https://hq.ssrn.com/Participant.cfm?rectype=edit&perinf=y&partid=11897288'
+                        profiles: {
+                            full_name: authorName,
+                            orcid: orcid || '0009-0006-8416-6156', // Hardcode fallback for the demo
+                            google_scholar: googleScholar || 'https://scholar.google.com/citations?user=EoHXXg0AAAAJ&hl=en',
+                            wos: wos || 'https://www.webofscience.com/wos/author/record/QKY-3514-2026',
+                            ssrn: ssrn || 'https://hq.ssrn.com/Participant.cfm?rectype=edit&perinf=y&partid=11897288'
                         },
                         journals: { name: journalName }
                     };
@@ -1022,22 +985,22 @@ export async function getPublishedArticleDetails(articleId: string) {
 
         // Try to fetch author name if missing
         if (subData && subData.author_id) {
-             let queryId = subData.author_id;
-             if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(queryId)) {
-                 const hex = Buffer.from(queryId).toString('hex').padEnd(32, '0').slice(0, 32);
-                 queryId = `${hex.slice(0,8)}-${hex.slice(8,12)}-${hex.slice(12,16)}-${hex.slice(16,20)}-${hex.slice(20,32)}`;
-             }
-             try {
-                 const { data: profile } = await supabaseAdmin.from('profiles').select('full_name, orcid').eq('id', queryId).single();
-                 if (profile?.full_name) {
-                      subData.profiles = { 
-                          full_name: profile.full_name,
-                          orcid: profile.orcid
-                      };
-                 }
-             } catch (err) {
-                 console.warn("Failed to fetch author profile for public view:", err);
-             }
+            let queryId = subData.author_id;
+            if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(queryId)) {
+                const hex = Buffer.from(queryId).toString('hex').padEnd(32, '0').slice(0, 32);
+                queryId = `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20, 32)}`;
+            }
+            try {
+                const { data: profile } = await supabaseAdmin.from('profiles').select('full_name, orcid').eq('id', queryId).single();
+                if (profile?.full_name) {
+                    subData.profiles = {
+                        full_name: profile.full_name,
+                        orcid: profile.orcid
+                    };
+                }
+            } catch (err) {
+                console.warn("Failed to fetch author profile for public view:", err);
+            }
         }
 
         if (!subData) return { success: false, error: "Not found" };
@@ -1051,14 +1014,14 @@ export async function getPublishedArticleDetails(articleId: string) {
                 const volIss = await getAssignedVolumeAndIssue(articleId, subData.journal_id || '');
                 const match = volIss.match(/(Vol.*?)\s+(No.*)/i) || volIss.match(/(Vol.*?)\s+(Edisi.*)/i);
                 if (match) {
-                     subData.volume = match[1].trim();
-                     subData.issue = match[2].trim();
+                    subData.volume = match[1].trim();
+                    subData.issue = match[2].trim();
                 } else {
-                     subData.volume = volIss;
-                     subData.issue = "";
+                    subData.volume = volIss;
+                    subData.issue = "";
                 }
             }
-        } catch(e) {
+        } catch (e) {
             subData.volume = "Vol. 1";
             subData.issue = "No. 1";
         }
@@ -1072,86 +1035,74 @@ export async function getPublishedArticleDetails(articleId: string) {
 export async function getPublishedArticles(journalId?: string) {
     try {
         const supabaseAdmin = (await import('@supabase/supabase-js')).createClient(
-          process.env.NEXT_PUBLIC_SUPABASE_URL!,
-          process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+            process.env.NEXT_PUBLIC_SUPABASE_URL!,
+            process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
         );
 
         let articlesList: any[] = [];
 
         // 1. Fetch from Supabase — order by zenodo_id DESC (angka lebih besar = terbaru)
         try {
-          let query = supabaseAdmin
-              .from('submissions')
-              .select('*, journals:journal_id(name)')
-              .in('status', ['Published', 'Accepted', 'Production Completed'])
-              .order('zenodo_id', { ascending: false, nullsFirst: false });
-          if (journalId) {
-              query = query.eq('journal_id', journalId);
-          }
-          const { data } = await query;
-          if (data) articlesList = [...data];
+            let query = supabaseAdmin
+                .from('submissions')
+                .select('*, journals:journal_id(name)')
+                .in('status', ['Published', 'Accepted', 'Production Completed'])
+                .order('zenodo_id', { ascending: false, nullsFirst: false });
+            if (journalId) {
+                query = query.eq('journal_id', journalId);
+            }
+            const { data } = await query;
+            if (data) articlesList = [...data];
         } catch (dbErr) {
-          console.error("Supabase published articles fetch failed", dbErr);
+            console.error("Supabase published articles fetch failed", dbErr);
         }
 
 
-        // 2. Fetch from Firestore
-        try {
-          const { getFirestore } = await import('@/utils/firebase/db');
-          const db = getFirestore();
-          let query: any = db.collection('submissions');
-          if (journalId) {
-              query = query.where('journal_id', '==', journalId);
-          }
-          const snapshot = await query.get();
-          
-          const existingIds = new Set(articlesList.map(a => a.id || a.submission_id));
-          const fbArticles = snapshot.docs.map((doc: any) => {
-            const data = doc.data();
-            return {
-              id: doc.id,
-              ...data,
-              created_at: data.created_at?.toDate ? data.created_at.toDate().toISOString() : data.created_at || new Date().toISOString()
-            };
-          }).filter((c: any) => {
-            return !existingIds.has(c.id) && c.status === 'Published';
-          });
-          articlesList = [...articlesList, ...fbArticles];
-        } catch (fbErr) {
-          console.error("Firestore published articles fetch failed", fbErr);
-        }
+        // 2. Pure Supabase SSOT Read (No Firestore read lag)
 
         // Fetch authors if missing
         const formatted = await Promise.all(articlesList.map(async (a) => {
-             let authorName = a.author || 'Author';
-             if (a.author_id) {
-                  let queryId = a.author_id;
-                  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(queryId)) {
-                      const hex = Buffer.from(queryId).toString('hex').padEnd(32, '0').slice(0, 32);
-                      queryId = `${hex.slice(0,8)}-${hex.slice(8,12)}-${hex.slice(12,16)}-${hex.slice(16,20)}-${hex.slice(20,32)}`;
-                  }
-                  try {
-                      const { data: profile } = await supabaseAdmin.from('profiles').select('full_name').eq('id', queryId).single();
-                      if (profile?.full_name) {
-                           authorName = profile.full_name;
-                      }
-                  } catch (err) {
-                      console.warn("Failed to fetch author profile for list view:", err);
-                  }
-             }
-             return {
-                 id: a.id || a.submission_id,
-                 title: a.title,
-                 abstract: a.abstract,
-                 author: authorName,
-                 doi: a.doi,
-                 cover_file_url: a.cover_file_url,
-                 created_at: a.created_at,
-                 journal: a.journals?.name || 'APASIFIC IAEP'
-             };
+            let authorName = a.author || 'Author';
+            if (a.author_id) {
+                let queryId = a.author_id;
+                if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(queryId)) {
+                    const hex = Buffer.from(queryId).toString('hex').padEnd(32, '0').slice(0, 32);
+                    queryId = `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20, 32)}`;
+                }
+                try {
+                    const { data: profile } = await supabaseAdmin.from('profiles').select('full_name').eq('id', queryId).single();
+                    if (profile?.full_name) {
+                        authorName = profile.full_name;
+                    }
+                } catch (err) {
+                    console.warn("Failed to fetch author profile for list view:", err);
+                }
+            }
+            return {
+                id: a.id || a.submission_id,
+                title: a.title,
+                abstract: a.abstract,
+                author: authorName,
+                doi: a.doi,
+                cover_file_url: a.cover_file_url,
+                created_at: a.created_at,
+                journal: a.journals?.name || 'APASIFIC IAEP'
+            };
         }));
 
-        const sorted = formatted.sort((a, b) => new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime());
+        // Strict Title Deduplication to guarantee no 2x duplicates on /journals
+        const seenTitles = new Set<string>();
+        const uniqueArticles: any[] = [];
+
+        for (const art of formatted) {
+            const cleanTitle = (art.title || '').trim().toLowerCase();
+            if (cleanTitle && !seenTitles.has(cleanTitle)) {
+                seenTitles.add(cleanTitle);
+                uniqueArticles.push(art);
+            }
+        }
+
+        const sorted = uniqueArticles.sort((a, b) => new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime());
 
         return { success: true, articles: sorted };
     } catch (e: any) {
@@ -1163,27 +1114,27 @@ export async function sendReviewerInviteWa(phone: string, name: string, submissi
     try {
         if (!phone) return { success: false, error: "Nomor telepon tidak tersedia" };
         const { sendWa } = await import('@/utils/sendWa');
-        const message = `Halo *${name}*,\n\nTim Editorial Asia Index & Metric (APASIFIC) mengundang Anda untuk menjadi *Reviewer* pada naskah berikut:\n\n*ID Naskah:* #${submissionId.substring(0,8).toUpperCase()}\n\nMohon konfirmasi kesediaan Anda.\n\n*Cara Merespon:*\nSilakan login ke APASIFIC melalui link di bawah ini, lalu masuk ke menu *Dashboard* Anda untuk melihat detail naskah dan mengklik tombol *TERIMA* atau *TOLAK*:\n👉 https://apasific.org/auth/login\n\nTerima kasih atas waktu dan dedikasi Anda.\n- Tim Editorial APASIFIC`;
+        const message = `Halo *${name}*,\n\nTim Editorial Asia Index & Metric (APASIFIC) mengundang Anda untuk menjadi *Reviewer* pada naskah berikut:\n\n*ID Naskah:* #${submissionId.substring(0, 8).toUpperCase()}\n\nMohon konfirmasi kesediaan Anda.\n\n*Cara Merespon:*\nSilakan login ke APASIFIC melalui link di bawah ini, lalu masuk ke menu *Dashboard* Anda untuk melihat detail naskah dan mengklik tombol *TERIMA* atau *TOLAK*:\n👉 https://apasific.org/auth/login\n\nTerima kasih atas waktu dan dedikasi Anda.\n- Tim Editorial APASIFIC`;
         const logoUrl = "https://apasific.org/logo-apasific.png";
         const result = await sendWa(phone, message, logoUrl);
-        
+
         // Log ke submission_history
         if (result) {
             try {
                 const supabaseAdmin = (await import('@supabase/supabase-js')).createClient(
-                  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-                  process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+                    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+                    process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
                 );
                 const { getCurrentUser } = await import('./auth');
                 const user: any = await getCurrentUser();
-                
+
                 await supabaseAdmin.from('submission_history').insert({
                     submission_id: submissionId,
                     action: 'Reviewer Invited via WA',
                     performed_by: user?.id || null,
                     details: `Editor mengirimkan undangan ulasan via WhatsApp kepada ${name}`
                 });
-                
+
                 // Fallback to Firestore
                 const { getFirestore } = await import('@/utils/firebase/db');
                 const db = getFirestore();
@@ -1199,35 +1150,35 @@ export async function sendReviewerInviteWa(phone: string, name: string, submissi
                 console.error("Gagal mencatat log invite WA:", logErr);
             }
         }
-        
+
         return { success: result, message: result ? "Pesan WA terkirim" : "Gagal mengirim pesan via Fonnte" };
     } catch (e: any) {
         return { success: false, error: e.message };
     }
 }
 
-export async function assignReviewer(submissionId: string, reviewerId: string, reviewerName: string) {
+export async function assignReviewer(submissionId: string, reviewerId: string, reviewerName: string, reviewerEmail?: string) {
     try {
         const supabaseAdmin = (await import('@supabase/supabase-js')).createClient(
-          process.env.NEXT_PUBLIC_SUPABASE_URL!,
-          process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+            process.env.NEXT_PUBLIC_SUPABASE_URL!,
+            process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
         );
         let validReviewerId = reviewerId;
 
         // Fetch current stage to avoid reverting a published article
         const { data: subData } = await supabaseAdmin.from('submissions').select('stage').eq('id', submissionId).single();
         const isAdvanced = subData?.stage && ['Copyediting', 'Production', 'Published'].includes(subData.stage);
-        
+
         // 1. Try to find the existing profile by email first to get the REAL Supabase Auth UUID
-        const emailToSearch = reviewerId.includes('@') ? reviewerId : null;
+        // 1. Try to find the existing profile by ID or UUID
         let profileFound = false;
-        if (emailToSearch) {
+        if (reviewerId) {
             const { data: existingProfile } = await supabaseAdmin
                 .from('profiles')
                 .select('id')
-                .eq('email', emailToSearch)
+                .eq('id', reviewerId)
                 .single();
-            
+
             if (existingProfile && existingProfile.id) {
                 validReviewerId = existingProfile.id;
                 profileFound = true;
@@ -1237,7 +1188,7 @@ export async function assignReviewer(submissionId: string, reviewerId: string, r
         // 2. If not found and it's not a UUID, normalize it (fallback)
         if (!profileFound && !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(validReviewerId)) {
             const hex = Buffer.from(validReviewerId).toString('hex').padEnd(32, '0').slice(0, 32);
-            validReviewerId = `${hex.slice(0,8)}-${hex.slice(8,12)}-${hex.slice(12,16)}-${hex.slice(16,20)}-${hex.slice(20,32)}`;
+            validReviewerId = `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20, 32)}`;
         }
 
         // 3. Ensure reviewer profile exists in Supabase
@@ -1245,21 +1196,40 @@ export async function assignReviewer(submissionId: string, reviewerId: string, r
             await supabaseAdmin.from('profiles').upsert({
                 id: validReviewerId,
                 full_name: reviewerName || 'Reviewer',
-                email: reviewerId.includes('@') ? reviewerId : `${validReviewerId}@reviewer.local`,
                 role: 'reviewer'
             }, { onConflict: 'id' });
         }
-        
-        const assignmentDataSupabase = {
+
+        // 3. Resolve reviewer email — try from auth.users if not passed from UI
+        let resolvedEmail = reviewerEmail || null;
+        if (!resolvedEmail) {
+            try {
+                // Try getting email from auth.users by UUID
+                const { data: authUserData } = await supabaseAdmin.auth.admin.getUserById(validReviewerId);
+                if (authUserData?.user?.email) {
+                    resolvedEmail = authUserData.user.email;
+                }
+            } catch (e) { }
+        }
+        // Also try if reviewerId looks like an email directly
+        if (!resolvedEmail && reviewerId && reviewerId.includes('@')) {
+            resolvedEmail = reviewerId;
+        }
+
+        const assignmentDataSupabase: any = {
             submission_id: submissionId,
             reviewer_id: validReviewerId,
+            reviewer_email: resolvedEmail,
+            reviewer_name: reviewerName || null,
             status: 'pending',
             assigned_at: new Date()
         };
 
-        const assignmentDataFirestore = {
+        const assignmentDataFirestore: any = {
             submission_id: submissionId,
             reviewer_id: reviewerId, // Keep original ID for Firestore (e.g. demo-user-178...)
+            reviewer_email: resolvedEmail,
+            reviewer_name: reviewerName || null,
             status: 'pending',
             assigned_at: new Date()
         };
@@ -1269,7 +1239,15 @@ export async function assignReviewer(submissionId: string, reviewerId: string, r
         if (sbError) {
             console.error("Supabase assign reviewer failed (likely UUID mismatch, continuing to Firestore):", sbError);
         }
-        
+
+        // Sinkron reviewer_email ke tabel submissions juga
+        if (resolvedEmail) {
+            await supabaseAdmin
+                .from('submissions')
+                .update({ reviewer_email: resolvedEmail, reviewer_name: reviewerName || null })
+                .eq('id', submissionId);
+        }
+
         // Insert to Firestore review_assignments
         try {
             const { getFirestore } = await import('@/utils/firebase/db');
@@ -1285,7 +1263,7 @@ export async function assignReviewer(submissionId: string, reviewerId: string, r
         }
 
         revalidatePath(`/dashboard/editor/submissions/${submissionId}`);
-        
+
         return { success: true };
     } catch (e: any) {
         return { success: false, error: e.message };
@@ -1296,14 +1274,14 @@ export async function removeCoverFile(submissionId: string) {
     try {
         const { createClient } = await import('@supabase/supabase-js');
         const supabaseAdmin = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!);
-        
+
         await supabaseAdmin.from('submissions').update({ cover_file_url: null }).eq('id', submissionId);
-        
+
         try {
             const { getFirestore } = await import('@/utils/firebase/db');
             const db = getFirestore();
             await db.collection('submissions').doc(submissionId).update({ cover_file_url: null });
-        } catch(e) {
+        } catch (e) {
             console.warn("Firestore update failed", e);
         }
         revalidatePath(`/dashboard/editor/submissions/${submissionId}`);

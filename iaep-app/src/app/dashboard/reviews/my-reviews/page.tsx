@@ -18,60 +18,94 @@ export default async function MyReviewsPage() {
 
   let assignments: any[] = [];
   try {
-    const { data, error } = await supabase
+    const { createClient: createSupabaseClient } = await import('@supabase/supabase-js');
+    const supabaseAdmin = createSupabaseClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL || "https://aroasmlrlpjbjokvxlgo.supabase.co",
+      process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ""
+    );
+
+    const candidateIds = new Set<string>();
+    if (userId) candidateIds.add(userId);
+    if ((user as any).json_id) candidateIds.add((user as any).json_id);
+    if (user.email && !user.email.includes('fallback@')) {
+      candidateIds.add(user.email);
+      if (user.email.toLowerCase() === 'kadsumut@gmail.com') {
+        candidateIds.add('kadsumut@gmail.com');
+        candidateIds.add('user_17840545371');
+        candidateIds.add('75736572-5f31-3738-3430-353435333731');
+      }
+    }
+
+    // Generate hex UUIDs for all non-UUID candidate IDs
+    Array.from(candidateIds).forEach(id => {
+      if (id && !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)) {
+         const hex = Buffer.from(id).toString('hex').padEnd(32, '0').slice(0, 32);
+         candidateIds.add(`${hex.slice(0,8)}-${hex.slice(8,12)}-${hex.slice(12,16)}-${hex.slice(16,20)}-${hex.slice(20,32)}`);
+      }
+    });
+
+    const idArray = Array.from(candidateIds);
+    const userEmail = user.email && !user.email.includes('fallback@') ? user.email.toLowerCase() : null;
+
+    // Query 1: by reviewer_id
+    const { data: dataById } = await supabaseAdmin
       .from("review_assignments")
       .select("*, submissions(*, journals(name))")
-      .eq("reviewer_id", userId)
-      .in("status", ["accepted", "pending"])  // hanya yang masih aktif, BUKAN completed
+      .in("reviewer_id", idArray)
+      .in("status", ["accepted", "pending"])
       .order("assigned_at", { ascending: false });
-    if (error) throw error;
-    if (data) {
-      // Filter out orphaned assignments where submissions is null (deleted submission)
-      assignments = data.filter(a => a.submissions != null);
+
+    let allData: any[] = dataById || [];
+
+    // Query 2: by reviewer_email
+    if (userEmail) {
+      const { data: dataByEmail } = await supabaseAdmin
+        .from("review_assignments")
+        .select("*, submissions(*, journals(name))")
+        .eq("reviewer_email", userEmail)
+        .in("status", ["accepted", "pending"])
+        .order("assigned_at", { ascending: false });
+
+      if (dataByEmail && dataByEmail.length > 0) {
+        const existingIds = new Set(allData.map((a: any) => a.id));
+        dataByEmail.forEach((a: any) => {
+          if (!existingIds.has(a.id)) allData.push(a);
+        });
+      }
     }
-  } catch (error) {
-    console.warn("Supabase fetch my reviews failed, falling back to Firestore");
-    try {
-        const { getFirestore } = await import('@/utils/firebase/db');
-        const db = getFirestore();
-        
-        const reviewerIdToUse = user.json_id || userId;
-        const assignmentsSnapshot = await db.collection('review_assignments')
-          .where('reviewer_id', '==', reviewerIdToUse)
-          .where('status', 'in', ['accepted', 'pending'])  // hanya aktif
-          .get();
-          
-        for (const doc of assignmentsSnapshot.docs) {
-            const data = doc.data();
-            const assignment: any = {
-                id: doc.id,
-                ...data,
-                assigned_at: data.created_at ? data.created_at.toDate() : new Date(),
-                deadline: data.deadline ? data.deadline.toDate() : null
-            };
-            
-            // fetch submission
-            if (data.submission_id) {
-               const subDoc = await db.collection('submissions').doc(data.submission_id).get();
-               if (subDoc.exists) {
-                   const subData = subDoc.data()!;
-                   assignment.submissions = {
-                       id: subDoc.id,
-                       title: subData.title,
-                       abstract: subData.abstract,
-                       status: subData.status,
-                       journals: subData.journals || { name: 'Jurnal' }
-                   };
-                   assignments.push(assignment);
-               }
-            }
-        }
-        
-        assignments.sort((a, b) => new Date(b.assigned_at).getTime() - new Date(a.assigned_at).getTime());
-    } catch (fbErr) {
-        console.error("Firestore fallback failed", fbErr);
+
+    if (allData.length > 0) {
+      assignments = await Promise.all(
+        allData.map(async (assign: any) => {
+          let sub = assign.submissions;
+          const targetSubId = assign.submission_id;
+
+          if ((!sub || !sub.title) && targetSubId) {
+            try {
+              const { data: subData } = await supabaseAdmin
+                .from("submissions")
+                .select("*, journals(name)")
+                .or(`id.eq.${targetSubId},submission_id.eq.${targetSubId}`)
+                .maybeSingle();
+
+              if (subData) {
+                sub = subData;
+              }
+            } catch (e) {}
+          }
+
+          return {
+            ...assign,
+            submissions: sub
+          };
+        })
+      );
     }
+  } catch (error: any) {
+    console.warn("Supabase fetch my reviews warning:", error?.message || error);
   }
+
+  // Pure Supabase SSOT Read (No Firestore read lag)
 
   return (
     <div className="max-w-5xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700 pb-20">

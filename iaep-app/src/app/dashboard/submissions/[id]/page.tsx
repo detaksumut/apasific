@@ -24,34 +24,6 @@ export default async function AuthorSubmissionDetail({ params }: { params: Promi
 
   if (sbSub) {
     submission = sbSub;
-  } else {
-    // Firestore fallback
-    try {
-      const { getFirestore } = await import('@/utils/firebase/db');
-      const db = getFirestore();
-      const doc = await db.collection('submissions').doc(id).get();
-      if (doc.exists) {
-        const fbData = doc.data() as Record<string, any>;
-        let jName = 'APASIFIC Jurnal';
-        if (fbData.journal_id) {
-          const { data: jData } = await supabase.from('journals').select('name').eq('id', fbData.journal_id).single();
-          if (jData) jName = jData.name;
-        }
-        // Parse abstract JSON if it's stored as stringified JSON
-        let parsedAbstract = fbData.abstract || '';
-        try { parsedAbstract = JSON.parse(parsedAbstract); } catch(e) {}
-        submission = {
-          id: doc.id,
-          ...fbData,
-          abstract: parsedAbstract,
-          journals: { name: jName },
-          created_at: fbData.created_at?.toDate ? fbData.created_at.toDate().toISOString() : new Date().toISOString(),
-          updated_at: fbData.updated_at?.toDate ? fbData.updated_at.toDate().toISOString() : new Date().toISOString(),
-        };
-      }
-    } catch (fbErr) {
-      console.error('Firestore fetch failed:', fbErr);
-    }
   }
 
   if (!submission) return notFound();

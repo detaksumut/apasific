@@ -56,60 +56,6 @@ export default async function CoverEditorDashboard() {
   } catch (e) {
     console.error("Supabase fetch error", e);
   }
-
-  try {
-    const { getFirestore } = await import('@/utils/firebase/db');
-    const db = getFirestore();
-    // PERBAIKAN: Query terfilter — hanya ambil stage=Copyediting, hemat kuota Firebase
-    const submissionsSnapshot = await db.collection('submissions')
-      .where('stage', '==', 'Copyediting')
-      .orderBy('created_at', 'desc')
-      .get();
-    const fbAllArticles = submissionsSnapshot.docs.map(doc => {
-      const data = doc.data();
-      return {
-          id: doc.id,
-          title: data.title,
-          stage: data.stage,
-          status: data.status,
-          cover_file_url: data.cover_file_url,
-          created_at: data.created_at && data.created_at.toDate ? data.created_at.toDate() : new Date(),
-          updated_at: data.updated_at && data.updated_at.toDate ? data.updated_at.toDate() : (data.created_at && data.created_at.toDate ? data.created_at.toDate() : new Date()),
-          journals: data.journals || { name: 'Unknown Journal' },
-          profiles: { full_name: data.author || 'Author' }
-      };
-    });
-    
-    // Merge avoiding duplicates
-    const existingIds = new Set(articles.map(a => a.id));
-    for (const fb of fbAllArticles.filter(a => a.stage === "Copyediting" && a.status === "Assigned to Cover")) {
-        if (!existingIds.has(fb.id)) {
-            articles.push(fb);
-        }
-    }
-
-    const finalCompletedArticles = [];
-    const existingDoneIds = new Set();
-
-    for (const supa of completedArticles) {
-       const fbMatch = fbAllArticles.find(a => a.id === supa.id);
-       if (fbMatch && fbMatch.cover_file_url) {
-           supa.cover_file_url = fbMatch.cover_file_url;
-       }
-       finalCompletedArticles.push(supa);
-       existingDoneIds.add(supa.id);
-    }
-
-    for (const fb of fbAllArticles.filter(a => (a.status === "Assigned to Publish" || a.status === "Published" || a.status === "Production Completed"))) {
-        if (!existingDoneIds.has(fb.id)) {
-            finalCompletedArticles.push(fb);
-            existingDoneIds.add(fb.id);
-        }
-    }
-    completedArticles = finalCompletedArticles;
-  } catch (fbErr) {
-    console.error("Firestore fetch failed", fbErr);
-  }
   
   // Urutkan berdasarkan yang paling baru di-update (selesai)
   completedArticles.sort((a, b) => {

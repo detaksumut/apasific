@@ -26,32 +26,7 @@ export default async function AcceptanceLetter() {
 
   let loas = supabaseSubmissions ? [...supabaseSubmissions] : [];
 
-  // Fallback to Firestore
-  try {
-    const { getFirestore } = await import('@/utils/firebase/db');
-    const db = getFirestore();
-    const fbSnap = await db.collection('submissions').where('author_id', 'in', [user.id, searchId]).get();
-    for (const doc of fbSnap.docs) {
-       if (!loas.find(s => s.id === doc.id)) {
-           const fbData = doc.data();
-           let jName = 'APASIFIC Jurnal';
-           if (fbData.journal_id) {
-               try {
-                  const { data: jData } = await supabase.from('journals').select('name').eq('id', fbData.journal_id).single();
-                  if (jData) jName = jData.name;
-               } catch(e) {}
-           }
-           loas.push({
-               id: doc.id,
-               ...fbData,
-               journals: { name: jName },
-               created_at: fbData.created_at?.toDate ? fbData.created_at.toDate().toISOString() : new Date().toISOString()
-           });
-       }
-    }
-  } catch (err) {
-      console.warn("Firestore LOA fetch error", err);
-  }
+  // Pure Supabase SSOT Read (No Firestore read lag)
 
   loas.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
 

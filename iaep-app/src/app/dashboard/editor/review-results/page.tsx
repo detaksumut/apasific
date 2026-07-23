@@ -43,35 +43,7 @@ export default async function ReviewResultsPage() {
 
   let articles = submissions || [];
 
-  // Fallback to Firestore for submissions
-  try {
-      const { getFirestore } = await import('@/utils/firebase/db');
-      const db = getFirestore();
-      const fbSubmissions = await db.collection('submissions')
-        .where('status', 'in', ['Under Review', 'Reviewed', 'Revision Required'])
-        .get();
-
-      for (const doc of fbSubmissions.docs) {
-          const data = doc.data();
-          // Avoid duplicates if it's already in Supabase
-          if (!articles.find((a: any) => a.id === doc.id || a.submission_id === doc.id)) {
-              articles.push({
-                  id: doc.id,
-                  submission_id: doc.id,
-                  ...data,
-                  created_at: data.created_at ? data.created_at.toDate().toISOString() : new Date().toISOString(),
-                  updated_at: data.updated_at ? data.updated_at.toDate().toISOString() : new Date().toISOString(),
-                  journals: data.journals || { name: 'Jurnal' },
-                  profiles: { full_name: 'Author' } // Note: In a real app we'd fetch the author profile too
-              });
-          }
-      }
-      
-      // Sort by updated_at descending
-      articles.sort((a: any, b: any) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime());
-  } catch (err) {
-      console.warn("Firebase fetch failed", err);
-  }
+  // Pure Supabase SSOT Read (No Firestore read lag)
 
   // --- NEW: Fetch all reviewers ---
   let allReviewers: any[] = [];

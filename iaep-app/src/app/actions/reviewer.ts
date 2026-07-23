@@ -1,6 +1,7 @@
 "use server";
 
 import { createClient } from "@/utils/supabase/server";
+import { revalidatePath } from "next/cache";
 
 export async function handleReviewerDecision(assignmentId: string, submissionId: string, decision: 'accepted' | 'rejected') {
   try {
@@ -38,13 +39,27 @@ export async function handleReviewerDecision(assignmentId: string, submissionId:
     // 1. Update assignment status in Supabase
     await supabaseAdmin.from('review_assignments').update(updatePayload).eq('id', assignmentId);
     
-    // 2. Update submission status in Supabase
+    // 2. Update assignment status in Firestore
+    try {
+      const { getFirestore } = await import('@/utils/firebase/db');
+      const db = getFirestore();
+      const fsPayload: any = { status: decision, updated_at: new Date() };
+      if (decision === 'accepted') {
+        fsPayload.accepted_at = acceptedAt;
+        fsPayload.deadline = deadline;
+      }
+      await db.collection('review_assignments').doc(assignmentId).set(fsPayload, { merge: true });
+    } catch (e) {
+      console.warn("Firestore review_assignments update failed", e);
+    }
+
+    // 3. Update submission status in Supabase
     if (!isAdvanced) {
       await supabaseAdmin.from('submissions').update({ status: newSubmissionStatus }).eq('id', submissionId);
       await supabaseAdmin.from('submissions').update({ status: newSubmissionStatus }).eq('submission_id', submissionId);
     }
 
-    // 3. Insert history in Supabase
+    // 4. Insert history in Supabase
     await supabaseAdmin.from('submission_history').insert({
         submission_id: submissionId,
         action: `Assignment ${decision}`,
@@ -275,122 +290,102 @@ export async function getAssignmentDetails(assignmentId: string) {
       process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
     );
 
-    // Try Supabase first
-    const { data: assignment, error } = await supabaseAdmin
-        .from("review_assignments")
-        .select("*, submissions(*, journals(name))")
-        .eq("id", assignmentId)
-        .single();
+    let assignData: any = null;
+    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(assignmentId);
 
-    if (assignment && assignment.submissions && !error) {
-        const submissionId = assignment.submissions.id;
-        
-        // Find file in Supabase storage since it might not be in the database column
-        let fileUrl = assignment.submissions.file_url || "";
+    // 1. Fetch assignment from Supabase (only if UUID)
+    if (isUuid) {
+      try {
+        const { data } = await supabaseAdmin
+          .from('review_assignments')
+          .select('*, submissions(*, journals(name))')
+          .or(`id.eq.${assignmentId},submission_id.eq.${assignmentId}`)
+          .maybeSingle();
+
+        if (data) assignData = data;
+      } catch(e) {}
+    }
+
+    // 2. Fetch assignment from Firestore fallback
+    if (!assignData) {
+      try {
+        const { getFirestore } = await import('@/utils/firebase/db');
+        const db = getFirestore();
+        if (db) {
+          const doc = await db.collection('review_assignments').doc(assignmentId).get();
+          if (doc.exists) {
+            assignData = { id: doc.id, ...doc.data() };
+          }
+        }
+      } catch(e) {}
+    }
+
+    if (!assignData) return null;
+
+    // 3. Fetch submission data if missing
+    let sub = assignData.submissions;
+    const targetSubId = assignData.submission_id;
+
+    if (!sub || !sub.title) {
+      if (targetSubId) {
         try {
-            const { data: files } = await supabaseAdmin.storage.from('manuscripts').list(submissionId + '/');
-            if (files && files.length > 0) {
-                const titlePage = files.find((f: any) => f.name.includes('title_page')) || files[0];
-                const { data: signedData } = await supabaseAdmin.storage.from('manuscripts').createSignedUrl(`${submissionId}/${titlePage.name}`, 60 * 60 * 24);
-                if (signedData?.signedUrl) {
-                    fileUrl = signedData.signedUrl;
-                }
-            }
+          const isSubUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(targetSubId);
+          let subQ = supabaseAdmin.from('submissions').select('*, journals(name)');
+          if (isSubUuid) {
+            subQ = subQ.or(`id.eq.${targetSubId},submission_id.eq.${targetSubId}`);
+          } else {
+            subQ = subQ.eq('submission_id', targetSubId);
+          }
+          const { data: subData } = await subQ.maybeSingle();
+          if (subData) sub = subData;
         } catch(e) {}
+      }
 
-        // Compute deadline: stored deadline or accepted_at + 3 days or created_at + 3 days
-        let dueDateStr = 'Tidak ditentukan';
-        if (assignment.deadline) {
-          const d = new Date(assignment.deadline);
-          if (!isNaN(d.getTime())) dueDateStr = d.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
-        } else if (assignment.accepted_at) {
-          const d = new Date(assignment.accepted_at);
-          d.setDate(d.getDate() + 7);
-          if (!isNaN(d.getTime())) dueDateStr = d.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
-        } else if (assignment.created_at) {
-          const d = new Date(assignment.created_at);
-          d.setDate(d.getDate() + 7);
-          if (!isNaN(d.getTime())) dueDateStr = d.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
-        } else if (assignment.assigned_at) {
-          const d = new Date(assignment.assigned_at);
-          d.setDate(d.getDate() + 7);
-          if (!isNaN(d.getTime())) dueDateStr = d.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
-        }
-
-        return {
-            id: submissionId,
-            title: assignment.submissions.title,
-            abstract: assignment.submissions.abstract,
-            type: assignment.submissions.manuscript_type || "Articles",
-            journal: assignment.submissions.journals?.name || "Journal",
-            dueDate: dueDateStr,
-            round: 1,
-            file_url: fileUrl
-        };
-    }
-
-    // Fallback to Firestore
-    const { getFirestore } = await import('@/utils/firebase/db');
-    const db = getFirestore();
-    const fbDoc = await db.collection('review_assignments').doc(assignmentId).get();
-    
-    if (fbDoc.exists) {
-        const fbData = fbDoc.data();
-        if (fbData && fbData.submission_id) {
-            const subDoc = await db.collection('submissions').doc(fbData.submission_id).get();
+      if ((!sub || !sub.title) && targetSubId) {
+        try {
+          const { getFirestore } = await import('@/utils/firebase/db');
+          const db = getFirestore();
+          if (db) {
+            const subDoc = await db.collection('submissions').doc(targetSubId).get();
             if (subDoc.exists) {
-                const subData = subDoc.data() || {};
-                const submissionId = subDoc.id;
-
-                // Find file in Supabase storage for Firestore fallback
-                let fileUrl = subData.file_url || "";
-                try {
-                    const { data: files } = await supabaseAdmin.storage.from('manuscripts').list(submissionId + '/');
-                    if (files && files.length > 0) {
-                        const titlePage = files.find((f: any) => f.name.includes('title_page')) || files[0];
-                        const { data: signedData } = await supabaseAdmin.storage.from('manuscripts').createSignedUrl(`${submissionId}/${titlePage.name}`, 60 * 60 * 24);
-                        if (signedData?.signedUrl) {
-                            fileUrl = signedData.signedUrl;
-                        }
-                    }
-                } catch(e) {}
-
-                // Compute deadline for Firestore path
-                let dueDateStr = 'Tidak ditentukan';
-                if (fbData.deadline) {
-                  const d = fbData.deadline.toDate ? fbData.deadline.toDate() : new Date(fbData.deadline);
-                  if (!isNaN(d.getTime())) dueDateStr = d.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
-                } else if (fbData.accepted_at) {
-                  const d = fbData.accepted_at.toDate ? fbData.accepted_at.toDate() : new Date(fbData.accepted_at);
-                  d.setDate(d.getDate() + 7);
-                  if (!isNaN(d.getTime())) dueDateStr = d.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
-                } else if (fbData.created_at) {
-                  const d = fbData.created_at.toDate ? fbData.created_at.toDate() : new Date(fbData.created_at);
-                  d.setDate(d.getDate() + 7);
-                  if (!isNaN(d.getTime())) dueDateStr = d.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
-                } else if (fbData.assigned_at) {
-                  const d = fbData.assigned_at.toDate ? fbData.assigned_at.toDate() : new Date(fbData.assigned_at);
-                  d.setDate(d.getDate() + 7);
-                  if (!isNaN(d.getTime())) dueDateStr = d.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
-                }
-
-                return {
-                    id: submissionId,
-                    title: subData.title || "Untitled",
-                    abstract: subData.abstract || "No abstract",
-                    type: subData.manuscript_type || "Articles",
-                    journal: subData.journals?.name || "Journal",
-                    dueDate: dueDateStr,
-                    round: 1,
-                    file_url: fileUrl
-                };
+              const sd = subDoc.data();
+              sub = {
+                id: subDoc.id,
+                title: sd?.title,
+                abstract: sd?.abstract,
+                file_url: sd?.file_url || sd?.manuscript_url || sd?.cover_file_url,
+                journals: sd?.journals || { name: 'Jurnal' }
+              };
             }
-        }
+          }
+        } catch(e) {}
+      }
     }
-    
-    return null;
+
+    const dueDateStr = assignData.deadline
+      ? new Date(assignData.deadline?.toDate ? assignData.deadline.toDate() : assignData.deadline).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })
+      : "Batas Waktu Standar (14 Hari)";
+
+    const result = {
+      id: String(assignData.id || assignmentId),
+      submission_id: String(targetSubId || ""),
+      title: String(sub?.title || assignData.title || "Judul Naskah Tidak Ditemukan"),
+      abstract: String(sub?.abstract || assignData.abstract || "Tidak ada abstrak tersedia."),
+      type: String(sub?.type || "Articles"),
+      journal: String(sub?.journals?.name || assignData.journal_name || "JURNAL"),
+      dueDate: String(dueDateStr),
+      round: Number(assignData.round || 1),
+      file_url: String(sub?.file_url || sub?.manuscript_url || assignData.file_url || ""),
+      status: String(assignData.status || 'pending'),
+      recommendation: String(assignData.recommendation || ''),
+      comments_for_author: String(assignData.comments_for_author || ''),
+      comments_for_editor: String(assignData.comments_for_editor || ''),
+      correction_notes: String(assignData.correction_notes || '')
+    };
+
+    return JSON.parse(JSON.stringify(result));
   } catch (e) {
-    console.error("Error fetching assignment details", e);
+    console.error("Error in getAssignmentDetails:", e);
     return null;
   }
 }
@@ -614,7 +609,6 @@ export async function submitReviewResultsWithFile(formData: FormData) {
         console.error("Firestore update failed", fbErr);
     }
 
-    const { revalidatePath } = require('next/cache');
     revalidatePath('/dashboard/reviews/my-reviews');
     revalidatePath('/dashboard/editor/review-results');
     

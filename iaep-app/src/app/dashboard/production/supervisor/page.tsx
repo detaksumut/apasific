@@ -52,37 +52,7 @@ export default async function SupervisorDashboard() {
     console.error("Supabase fetch error", e);
   }
 
-  // Fetch from Firestore and merge
-  try {
-    const { getFirestore } = await import('@/utils/firebase/db');
-    const db = getFirestore();
-    // PERBAIKAN: Query terfilter — hanya ambil stage=Production, hemat kuota Firebase
-    const submissionsSnapshot = await db.collection('submissions')
-      .where('stage', '==', 'Production')
-      .orderBy('created_at', 'desc')
-      .get();
-    const existingIds = new Set([...pendingArticles, ...completedArticles].map(a => a.id));
-
-    const fbArticles = submissionsSnapshot.docs.map(doc => {
-      const data = doc.data();
-      return {
-          id: doc.id,
-          title: data.title,
-          stage: data.stage,
-          status: data.status,
-          created_at: data.created_at && data.created_at.toDate ? data.created_at.toDate() : new Date(),
-          journals: data.journals || { name: 'Unknown Journal' },
-          profiles: { full_name: data.author || 'Author' }
-      };
-    }).filter(article => !existingIds.has(article.id));
-
-    for (const fb of fbArticles) {
-      if (fb.status === "Pending Supervisor") pendingArticles.push(fb);
-      else if (fb.status === "Production Completed") completedArticles.push(fb);
-    }
-  } catch (fbErr) {
-    console.error("Firestore fetch failed", fbErr);
-  }
+  // Pure Supabase SSOT Read (No Firestore read lag)
 
   return (
     <div className="max-w-7xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">

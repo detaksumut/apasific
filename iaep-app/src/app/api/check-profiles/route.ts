@@ -1,22 +1,23 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@/utils/supabase/server";
+import { createClient } from "@supabase/supabase-js";
 
 export const dynamic = 'force-dynamic';
 
 export async function GET() {
   try {
-    const supabase = await createClient();
+    const supabaseAdmin = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    );
     
-    // Try inserting a dummy profile to see if status column exists
-    const { error: upsertError } = await supabase.from('profiles').upsert({
-      id: "00000000-0000-0000-0000-000000000000",
-      email: "test@example.com",
-      status: "Pending"
-    });
+    // Get profiles
+    const { data: profiles } = await supabaseAdmin.from('profiles').select('*');
 
-    return NextResponse.json({ success: true, upsertError });
+    // Also get system_settings users
+    const { data: sysSettings } = await supabaseAdmin.from('system_settings').select('*');
+
+    return NextResponse.json({ success: true, count: profiles?.length, profiles, sysSettings });
   } catch (error: any) {
-    console.error(error);
-    return NextResponse.json({ error: error.message, fullError: error }, { status: 200 });
+    return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }

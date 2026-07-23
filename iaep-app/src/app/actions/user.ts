@@ -32,13 +32,6 @@ export async function getCurrentUserRole() {
       if (profile) return profile;
   } catch(e) {}
 
-  // Fallback to Firestore
-  try {
-      const db = getFirestore();
-      const profileDoc = await db.collection('profiles').doc(userId).get();
-      if (profileDoc.exists) return profileDoc.data();
-  } catch(fbErr) {}
-
   return { full_name: "User", role: "author" }; // Default fallback
 }
 

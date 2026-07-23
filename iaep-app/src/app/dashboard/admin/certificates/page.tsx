@@ -10,46 +10,7 @@ export default async function AdminCertificates() {
   const { data: sbCerts } = await supabase.from("certificates").select("*");
   let certificates = sbCerts || [];
 
-  // Direct Firestore Fetch
-  try {
-    const { getFirestore } = await import('@/utils/firebase/db');
-    const db = getFirestore();
-    const snap = await db.collection('certificates').get();
-    const fbCerts = snap.docs.map(doc => {
-      const d = doc.data();
-      return {
-        id: doc.id,
-        user_id: d.user_id,
-        ...d,
-        created_at: d.created_at?.toDate ? d.created_at.toDate() : new Date(),
-        author_name: d.author_name || "Unknown Author",
-        author_email: d.author_email || d.user_id || "Unknown Email",
-        article_title: d.title || d.article_title || "",
-        journal_name: d.journal || d.journal_name || "",
-        issue_volume: d.edition || d.issue_volume || ""
-      };
-    });
-    
-    // Attempt to enrich with emails if profiles exist in Supabase
-    try {
-      const { data: profSnap } = await supabase.from('profiles').select('id, full_name, name, email');
-      const profileMap = new Map();
-      if (profSnap) {
-        profSnap.forEach(p => profileMap.set(p.id, p));
-      }
-      fbCerts.forEach((c: any) => {
-        if (c.user_id && profileMap.has(c.user_id)) {
-          const p = profileMap.get(c.user_id);
-          if (p.full_name || p.name) c.author_name = p.full_name || p.name;
-          if (p.email) c.author_email = p.email;
-        }
-      });
-    } catch(e) {}
-
-    certificates = [...certificates, ...fbCerts];
-  } catch (fbErr) {
-    console.error("Firestore Error", fbErr);
-  }
+  // Pure Supabase SSOT Read (No Firestore read lag)
 
   // Sort descending
   certificates.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());

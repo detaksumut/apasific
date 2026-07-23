@@ -541,7 +541,7 @@ export default function SubmissionControlPanel() {
                                             const m = await import("@/app/actions/editor");
                                             
                                             // 1. Assign to database first
-                                            const assignRes = await m.assignReviewer(submission.id, rev.id || rev.email, rev.full_name || rev.name);
+                                            const assignRes = await m.assignReviewer(submission.id, rev.id || rev.email, rev.full_name || rev.name, rev.email);
                                             
                                             if (assignRes.success) {
                                                 // 2. Send WA message
@@ -566,7 +566,7 @@ export default function SubmissionControlPanel() {
                                         if (window.confirm(`Tugaskan ${rev.full_name} sebagai reviewer?`)) {
                                           setToastMessage("Menugaskan reviewer...");
                                           const m = await import("@/app/actions/editor");
-                                          const res = await m.assignReviewer(submission.id, rev.id || rev.email, rev.full_name || rev.name);
+                                          const res = await m.assignReviewer(submission.id, rev.id || rev.email, rev.full_name || rev.name, rev.email);
                                           if (res.success) {
                                             setToastMessage("Reviewer berhasil ditugaskan!");
                                             setTimeout(() => window.location.reload(), 1500);
@@ -1763,7 +1763,7 @@ export default function SubmissionControlPanel() {
                               onClick={async () => {
                                 setToastMessage("Menugaskan reviewer...");
                                 const m = await import("@/app/actions/editor");
-                                const res = await m.assignReviewer(submissionId, rev.id || rev.email, rev.full_name || rev.name);
+                                const res = await m.assignReviewer(submissionId, rev.id || rev.email, rev.full_name || rev.name, rev.email);
                                 if (res.success) {
                                   setToastMessage("Reviewer berhasil ditugaskan!");
                                   setIsAddReviewerOpen(false);

@@ -1,9 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@/utils/supabase/server";
+import { createClient } from "@supabase/supabase-js";
+
+function getSupabaseAdmin() {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL || "https://aroasmlrlpjbjokvxlgo.supabase.co",
+    process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ""
+  );
+}
 
 export async function GET(request: NextRequest) {
   try {
-    const supabase = await createClient();
+    const supabase = getSupabaseAdmin();
     const { data, error } = await supabase
       .from("certification_candidates")
       .select("*")
@@ -14,7 +21,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Map DB columns to Frontend states
-    const mapped = data.map(c => ({
+    const mapped = (data || []).map(c => ({
       id: c.id,
       name: c.name,
       email: c.email,
@@ -38,16 +45,13 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const supabase = await createClient();
+    const supabase = getSupabaseAdmin();
     const payload = await request.json();
     const { id, name, email, phone, academicField, cert, method, schedule, status, zoomLink, assessorAccessCode, buktiTransfer } = payload;
 
     if (!name || !email || !cert) {
       return NextResponse.json({ error: "Missing required candidate info" }, { status: 400 });
     }
-
-    console.log("RECEIVED PAYLOAD FOR:", name);
-    console.log("BUKTI TRANSFER LENGTH:", buktiTransfer ? buktiTransfer.length : "NO BUKTI TRANSFER");
 
     // Parse schedule: if not a valid date, fallback to 1 year from now
     const parsedDate = new Date(schedule);
@@ -97,7 +101,7 @@ export async function POST(request: NextRequest) {
 
 export async function DELETE(request: NextRequest) {
   try {
-    const supabase = await createClient();
+    const supabase = getSupabaseAdmin();
     const url = new URL(request.url);
     const id = url.searchParams.get("id");
 

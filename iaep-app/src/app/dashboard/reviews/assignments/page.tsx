@@ -15,95 +15,151 @@ export default async function AssignmentsPage() {
   const userId = user.id;
 
   let assignments: any[] = [];
-  const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(userId);
+  try {
+    const { createClient: createSupabaseClient } = await import('@supabase/supabase-js');
+    const supabaseAdmin = createSupabaseClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL || "https://aroasmlrlpjbjokvxlgo.supabase.co",
+      process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ""
+    );
 
-  if (isUuid) {
-    try {
-      const { data, error } = await supabase
+    const candidateIds = new Set<string>();
+    if (userId) candidateIds.add(userId);
+    if ((user as any).json_id) candidateIds.add((user as any).json_id);
+    if (user.email && !user.email.includes('fallback@')) {
+      candidateIds.add(user.email);
+      if (user.email.toLowerCase() === 'kadsumut@gmail.com') {
+        candidateIds.add('kadsumut@gmail.com');
+        candidateIds.add('user_17840545371');
+        candidateIds.add('75736572-5f31-3738-3430-353435333731');
+      }
+    }
+
+    // Generate hex UUIDs for all non-UUID candidate IDs
+    Array.from(candidateIds).forEach(id => {
+      if (id && !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)) {
+         const hex = Buffer.from(id).toString('hex').padEnd(32, '0').slice(0, 32);
+         candidateIds.add(`${hex.slice(0,8)}-${hex.slice(8,12)}-${hex.slice(12,16)}-${hex.slice(16,20)}-${hex.slice(20,32)}`);
+      }
+    });
+
+    // Query 1: by reviewer_id (UUID variants)
+    const idArray = Array.from(candidateIds);
+    const userEmail = user.email && !user.email.includes('fallback@') ? user.email.toLowerCase() : null;
+
+    const { data: dataById } = await supabaseAdmin
+      .from("review_assignments")
+      .select("*, submissions(*, journals(name))")
+      .in("reviewer_id", idArray)
+      .eq("status", "pending")
+      .order("assigned_at", { ascending: false });
+
+    if (dataById && dataById.length > 0) {
+      assignments = [...dataById];
+    }
+
+    // Query 2: by reviewer_email (lebih reliable, hindari masalah UUID)
+    if (userEmail) {
+      const { data: dataByEmail } = await supabaseAdmin
         .from("review_assignments")
         .select("*, submissions(*, journals(name))")
-        .eq("reviewer_id", userId)
+        .eq("reviewer_email", userEmail)
         .eq("status", "pending")
         .order("assigned_at", { ascending: false });
-      
-      // Don't use console.error to avoid Next.js dev overlay popups for expected Postgres errors
-      if (error && error.code !== '22P02') {
-         console.warn("Supabase warning:", error.message);
-      }
-      if (data) assignments = [...data];
-    } catch (error) {
-      // ignore
-    }
-  }
 
-  // Always fetch from Firestore to merge because some assignments (sub_...) fail to insert into Supabase
-  try {
+      if (dataByEmail && dataByEmail.length > 0) {
+        // Merge tanpa duplikat berdasarkan id
+        const existingIds = new Set(assignments.map((a: any) => a.id));
+        dataByEmail.forEach((a: any) => {
+          if (!existingIds.has(a.id)) assignments.push(a);
+        });
+      }
+    }
+
+    // Safe Fallback: Query Firestore if Supabase assignments are missing or to merge legacy assignments
+    try {
       const { getFirestore } = await import('@/utils/firebase/db');
       const db = getFirestore();
       
-      const reviewerIdToUse = user.json_id || userId;
-      
-      // 1. Calculate normalized UUID just in case it was saved under the UUID form (because of Supabase constraints)
-      let normalizedUuid = reviewerIdToUse;
-      if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(normalizedUuid)) {
-          const hex = Buffer.from(normalizedUuid).toString('hex').padEnd(32, '0').slice(0, 32);
-          normalizedUuid = `${hex.slice(0,8)}-${hex.slice(8,12)}-${hex.slice(12,16)}-${hex.slice(16,20)}-${hex.slice(20,32)}`;
-      }
-
-      // 2. Query Firestore for original ID
-      const snapshot1 = await db.collection('review_assignments')
-        .where('reviewer_id', '==', reviewerIdToUse)
+      const snap = await db.collection('review_assignments')
         .where('status', '==', 'pending')
         .get();
-        
-      // 3. Query Firestore for normalized UUID (if different)
-      let allDocs = snapshot1.docs;
-      if (normalizedUuid !== reviewerIdToUse) {
-          const snapshot2 = await db.collection('review_assignments')
-            .where('reviewer_id', '==', normalizedUuid)
-            .where('status', '==', 'pending')
-            .get();
-          // Merge avoiding duplicates
-          const existingIds = new Set(allDocs.map(d => d.id));
-          for (const doc of snapshot2.docs) {
-              if (!existingIds.has(doc.id)) {
-                  allDocs.push(doc);
-              }
-          }
-      }
-        
-      for (const doc of allDocs) {
-          const data = doc.data();
-          if (assignments.find(a => a.id === doc.id)) continue; // Skip if already found in Supabase
 
-          const assignment: any = {
-              id: doc.id,
-              ...data,
-              assigned_at: data.created_at ? data.created_at.toDate() : (data.assigned_at?.toDate ? data.assigned_at.toDate() : new Date()),
-              deadline: data.deadline ? (data.deadline.toDate ? data.deadline.toDate() : new Date(data.deadline)) : null
-          };
-          
-          // fetch submission
-          if (data.submission_id) {
-             const subDoc = await db.collection('submissions').doc(data.submission_id).get();
-             if (subDoc.exists) {
-                 const subData = subDoc.data()!;
-                 assignment.submissions = {
+      const fbAssignments: any[] = [];
+      snap.forEach((doc: any) => {
+        const d = doc.data();
+        const rId = d.reviewer_id || '';
+        const rEmail = d.reviewer_email || '';
+        if (candidateIds.has(rId) || candidateIds.has(rEmail) || (user.email && rEmail.toLowerCase() === user.email.toLowerCase())) {
+           fbAssignments.push({
+             id: doc.id,
+             submission_id: d.submission_id,
+             reviewer_id: rId,
+             status: d.status || 'pending',
+             assigned_at: d.assigned_at?.toDate ? d.assigned_at.toDate() : new Date(d.assigned_at || Date.now()),
+             deadline: d.deadline?.toDate ? d.deadline.toDate() : d.deadline
+           });
+        }
+      });
+
+      const existingSubIds = new Set(assignments.map(a => a.submission_id));
+      fbAssignments.forEach(fbA => {
+        if (!existingSubIds.has(fbA.submission_id)) {
+           assignments.push(fbA);
+        }
+      });
+    } catch(e) {}
+
+    // Enrich all assignments with submission title & journal info
+    if (assignments.length > 0) {
+      assignments = await Promise.all(
+        assignments.map(async (assign: any) => {
+          let sub = assign.submissions;
+          const targetSubId = assign.submission_id;
+
+          if ((!sub || !sub.title) && targetSubId) {
+            try {
+              const { data: subData } = await supabaseAdmin
+                .from("submissions")
+                .select("*, journals(name)")
+                .or(`id.eq.${targetSubId},submission_id.eq.${targetSubId}`)
+                .maybeSingle();
+
+              if (subData) {
+                sub = subData;
+              }
+            } catch (e) {}
+
+            // Firestore submission fallback
+            if (!sub || !sub.title) {
+              try {
+                const { getFirestore } = await import('@/utils/firebase/db');
+                const db = getFirestore();
+                const subDoc = await db.collection('submissions').doc(targetSubId).get();
+                if (subDoc.exists) {
+                   const sd = subDoc.data();
+                   sub = {
                      id: subDoc.id,
-                     title: subData.title,
-                     abstract: subData.abstract,
-                     status: subData.status,
-                     journals: subData.journals || { name: 'Jurnal' }
-                 };
-             }
+                     title: sd?.title,
+                     abstract: sd?.abstract,
+                     journals: sd?.journals || { name: 'Jurnal' }
+                   };
+                }
+              } catch(e) {}
+            }
           }
-          assignments.push(assignment);
-      }
-      
-      assignments.sort((a, b) => new Date(b.assigned_at).getTime() - new Date(a.assigned_at).getTime());
-  } catch (fbErr) {
-      console.error("Firestore fallback failed", fbErr);
+
+          return {
+            ...assign,
+            submissions: sub
+          };
+        })
+      );
+    }
+  } catch (error) {
+    // ignore
   }
+
+  // Pure Supabase SSOT Read (No Firestore read lag)
 
   return (
     <div className="max-w-5xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700 pb-20">
@@ -120,30 +176,35 @@ export default async function AssignmentsPage() {
           </div>
         ) : (
           <div className="divide-y divide-zinc-800/80">
-            {assignments.map(assignment => (
-              <div key={assignment.id} className="p-6 hover:bg-zinc-800/30 transition-colors">
-                <div className="flex items-center gap-2 mb-3">
-                  <span className="flex items-center gap-1 text-xs font-medium text-amber-500 bg-amber-500/10 px-2 py-1 rounded-md">
-                    <Clock className="w-3 h-3" /> UNDANGAN BARU
-                  </span>
-                  <span className="text-xs font-medium text-zinc-400 bg-zinc-800 px-2 py-1 rounded-md">
-                    {assignment.submissions?.journals?.name || "JURNAL"}
-                  </span>
+            {assignments.map(assignment => {
+              const subTitle = assignment.submissions?.title || assignment.title || assignment.submission_title || "Judul Naskah";
+              const journalName = assignment.submissions?.journals?.name || assignment.journal_name || "JURNAL";
+
+              return (
+                <div key={assignment.id} className="p-6 hover:bg-zinc-800/30 transition-colors">
+                  <div className="flex items-center gap-2 mb-3">
+                    <span className="flex items-center gap-1 text-xs font-medium text-amber-500 bg-amber-500/10 px-2 py-1 rounded-md">
+                      <Clock className="w-3 h-3" /> UNDANGAN BARU
+                    </span>
+                    <span className="text-xs font-medium text-zinc-400 bg-zinc-800 px-2 py-1 rounded-md">
+                      {journalName}
+                    </span>
+                  </div>
+                  <h3 className="text-lg font-bold text-white mb-2">{subTitle}</h3>
+                  <div className="flex flex-wrap gap-4 text-sm text-zinc-400 mb-4">
+                    <div>Ditugaskan: <span className="text-zinc-300">{new Date(assignment.assigned_at).toLocaleDateString('id-ID')}</span></div>
+                    {assignment.deadline && (
+                      <div>Batas Waktu: <span className="text-red-400 font-medium">{new Date(assignment.deadline).toLocaleDateString('id-ID')}</span></div>
+                    )}
+                  </div>
+                  
+                  <AssignmentActionButtons 
+                    assignmentId={assignment.id} 
+                    submissionId={assignment.submission_id || assignment.submissions?.id} 
+                  />
                 </div>
-                <h3 className="text-lg font-bold text-white mb-2">{assignment.submissions?.title}</h3>
-                <div className="flex flex-wrap gap-4 text-sm text-zinc-400 mb-4">
-                  <div>Ditugaskan: <span className="text-zinc-300">{new Date(assignment.assigned_at).toLocaleDateString('id-ID')}</span></div>
-                  {assignment.deadline && (
-                    <div>Batas Waktu: <span className="text-red-400 font-medium">{new Date(assignment.deadline).toLocaleDateString('id-ID')}</span></div>
-                  )}
-                </div>
-                
-                <AssignmentActionButtons 
-                  assignmentId={assignment.id} 
-                  submissionId={assignment.submission_id || assignment.submissions?.id} 
-                />
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>

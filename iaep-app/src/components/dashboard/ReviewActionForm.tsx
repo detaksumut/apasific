@@ -14,31 +14,21 @@ export default function ReviewActionForm({ assignment }: { assignment: any }) {
   const [isUploading, setIsUploading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
-  const supabase = createClient();
 
   const handleAcceptAssignment = async () => {
     setIsSubmitting(true);
     try {
-      const { error } = await supabase
-        .from('review_assignments')
-        .update({ status: 'accepted' })
-        .eq('id', assignment.id);
-      
-      if (error) throw error;
-      
-      // Log history
-      await supabase.from('submission_history').insert({
-        submission_id: assignment.submission_id,
-        action: 'Reviewer Accepted Assignment',
-        performed_by: assignment.reviewer_id,
-        details: 'Reviewer has agreed to review the manuscript.'
-      });
-
-      setStatus('accepted');
-      router.refresh();
-    } catch (e) {
+      const { handleReviewerDecision } = await import('@/app/actions/reviewer');
+      const res = await handleReviewerDecision(assignment.id, assignment.submission_id || assignment.submissions?.id, 'accepted');
+      if (res.success) {
+        setStatus('accepted');
+        router.refresh();
+      } else {
+        alert(res.error || 'Gagal menerima tugas.');
+      }
+    } catch (e: any) {
       console.error(e);
-      alert('Gagal menerima tugas.');
+      alert('Gagal menerima tugas: ' + (e.message || e));
     } finally {
       setIsSubmitting(false);
     }
@@ -47,14 +37,16 @@ export default function ReviewActionForm({ assignment }: { assignment: any }) {
   const handleRejectAssignment = async () => {
     setIsSubmitting(true);
     try {
-      const { error } = await supabase
-        .from('review_assignments')
-        .update({ status: 'rejected' })
-        .eq('id', assignment.id);
-      if (error) throw error;
-      router.refresh();
-    } catch (e) {
-      alert('Gagal menolak tugas.');
+      const { handleReviewerDecision } = await import('@/app/actions/reviewer');
+      const res = await handleReviewerDecision(assignment.id, assignment.submission_id || assignment.submissions?.id, 'rejected');
+      if (res.success) {
+        setStatus('rejected');
+        router.refresh();
+      } else {
+        alert(res.error || 'Gagal menolak tugas.');
+      }
+    } catch (e: any) {
+      alert('Gagal menolak tugas: ' + (e.message || e));
     } finally {
       setIsSubmitting(false);
     }

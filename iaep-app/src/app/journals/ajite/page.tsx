@@ -59,46 +59,6 @@ export default async function AJITEJournal() {
     console.error("Fetch Error:", err);
   }
 
-  // 2. Fallback ke Firestore HANYA jika Supabase tidak ada data
-  // PERBAIKAN BUG #7: Gunakan .where() untuk filter di server, BUKAN scan seluruh collection
-  if (articles.length === 0) {
-    try {
-      const { getFirestore } = await import('@/utils/firebase/db');
-      const db = getFirestore();
-      
-      // Query hanya dokumen Published — hemat kuota Firebase secara drastis
-      const fbSnap = await db.collection('submissions')
-        .where('status', '==', 'Published')
-        .orderBy('created_at', 'desc')
-        .get();
-      
-      const firestoreArticles: any[] = [];
-      for (const doc of fbSnap.docs) {
-        const fbData = doc.data();
-
-        let jName = '';
-        if (fbData.journal_id) {
-           const { data: jData } = await supabaseAdmin.from('journals').select('name').eq('id', fbData.journal_id).single();
-           if (jData) jName = jData.name;
-        }
-        
-        if (jName.toUpperCase().includes("AJITE")) {
-          firestoreArticles.push({
-            id: doc.id,
-            ...fbData,
-            journals: { name: jName },
-            created_at: fbData.created_at?.toDate ? fbData.created_at.toDate().toISOString() : (fbData.created_at || new Date().toISOString())
-          });
-        }
-      }
-      if (firestoreArticles.length > 0) {
-        articles = firestoreArticles.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
-      }
-    } catch (e) {
-      console.warn("Firestore fetch error (non-critical, Supabase is primary):", e);
-    }
-  }
-
 
   return (
     <div className="min-h-screen text-[#e8e8f0] font-sans pt-24 pb-20 bg-[#0a0a0a]">

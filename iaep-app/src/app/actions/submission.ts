@@ -440,7 +440,6 @@ export async function assignReviewerActionFunc(submissionId: string, reviewer: a
     await supabaseAdmin.from('profiles').upsert({
         id: validReviewerId,
         full_name: reviewer.full_name || 'Reviewer',
-        email: reviewer.email || '',
         role: 'reviewer'
     }, { onConflict: 'id' });
 

@@ -17,59 +17,39 @@ export default async function ReviewHistoryPage() {
 
   let assignments: any[] = [];
   try {
-    const { data, error } = await supabase
+    const { createClient: createSupabaseClient } = await import('@supabase/supabase-js');
+    const supabaseAdmin = createSupabaseClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL || "https://aroasmlrlpjbjokvxlgo.supabase.co",
+      process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ""
+    );
+
+    const candidateIds = new Set<string>();
+    if (userId) candidateIds.add(userId);
+    if ((user as any).json_id) candidateIds.add((user as any).json_id);
+    if (user.email && !user.email.includes('fallback@')) candidateIds.add(user.email);
+
+    // Generate hex UUIDs for all non-UUID candidate IDs
+    Array.from(candidateIds).forEach(id => {
+      if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)) {
+         const hex = Buffer.from(id).toString('hex').padEnd(32, '0').slice(0, 32);
+         candidateIds.add(`${hex.slice(0,8)}-${hex.slice(8,12)}-${hex.slice(12,16)}-${hex.slice(16,20)}-${hex.slice(20,32)}`);
+      }
+    });
+
+    const { data, error } = await supabaseAdmin
       .from("review_assignments")
       .select("*, submissions(*, journals(name))")
-      .eq("reviewer_id", userId)
+      .in("reviewer_id", Array.from(candidateIds))
       .eq("status", "completed")
       .order("completed_at", { ascending: false });
-    if (error) throw error;
+
     if (data) {
-      // Filter out orphaned assignments where submissions is null (deleted submission)
       assignments = data.filter(a => a.submissions != null);
     }
-  } catch (error) {
-    console.warn("Supabase fetch history failed, falling back to Firestore");
-    try {
-        const { getFirestore } = await import('@/utils/firebase/db');
-        const db = getFirestore();
-        
-        const reviewerIdToUse = user.json_id || userId;
-        const assignmentsSnapshot = await db.collection('review_assignments')
-          .where('reviewer_id', '==', reviewerIdToUse)
-          .where('status', '==', 'completed')
-          .get();
-          
-        for (const doc of assignmentsSnapshot.docs) {
-            const data = doc.data();
-            const assignment: any = {
-                id: doc.id,
-                ...data,
-                completed_at: data.completed_at ? data.completed_at.toDate() : new Date(),
-            };
-            
-            // fetch submission
-            if (data.submission_id) {
-               const subDoc = await db.collection('submissions').doc(data.submission_id).get();
-               if (subDoc.exists) {
-                   const subData = subDoc.data()!;
-                   assignment.submissions = {
-                       id: subDoc.id,
-                       title: subData.title,
-                       abstract: subData.abstract,
-                       status: subData.status,
-                       journals: subData.journals || { name: 'Jurnal' }
-                   };
-                   assignments.push(assignment);
-               }
-            }
-        }
-        
-        assignments.sort((a, b) => new Date(b.completed_at).getTime() - new Date(a.completed_at).getTime());
-    } catch (fbErr) {
-        console.error("Firestore fallback failed", fbErr);
-    }
+  } catch (error: any) {
+    console.warn("Supabase fetch history warning:", error?.message || error);
   }
+  // Pure Supabase SSOT Read (No Firestore read lag)
 
   return (
     <div className="max-w-5xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700 pb-20">

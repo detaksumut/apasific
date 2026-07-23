@@ -54,40 +54,7 @@ export default async function PublishEditorDashboard() {
     console.error("Supabase fetch error", e);
   }
 
-  // 2. Fetch dari Firestore (merge, hindari duplikat)
-  try {
-    const { getFirestore } = await import('@/utils/firebase/db');
-    const db = getFirestore();
-    // PERBAIKAN: Query terfilter — hanya ambil stage=Production, hemat kuota Firebase
-    const submissionsSnapshot = await db.collection('submissions')
-      .where('stage', '==', 'Production')
-      .orderBy('created_at', 'desc')
-      .get();
-    const fbArticles = submissionsSnapshot.docs.map(doc => {
-      const data = doc.data();
-      return {
-          id: doc.id,
-          title: data.title,
-          stage: data.stage,
-          status: data.status,
-          created_at: data.created_at && data.created_at.toDate ? data.created_at.toDate() : new Date(),
-          journals: data.journals || { name: data.journal_name || 'Unknown Journal' },
-          profiles: { full_name: data.author || 'Author' },
-          volume: data.volume,
-          issue: data.issue,
-          journal_id: data.journal_id,
-      };
-    }).filter(article => ALL_PUBLISH_STATUSES.includes(article.status));
-    
-    const existingIds = new Set(articles.map(a => a.id));
-    for (const fb of fbArticles) {
-        if (!existingIds.has(fb.id)) {
-            articles.push(fb);
-        }
-    }
-  } catch (fbErr) {
-    console.error("Firestore fetch failed", fbErr);
-  }
+  // Pure Supabase SSOT Read (No Firestore read lag)
 
   // Pisahkan: antrean aktif vs riwayat terbit
   const activeArticles = articles.filter(a => ["Assigned to Publish", "Pending Supervisor"].includes(a.status));

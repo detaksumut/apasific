@@ -27,7 +27,14 @@ export default function JournalsRepository() {
         const { getPublishedArticles } = await import("@/app/actions/editor");
         const res = await getPublishedArticles();
         if (res.success && res.articles) {
-          setGlobalArticles(res.articles);
+          const seen = new Set<string>();
+          const unique = res.articles.filter((a: any) => {
+             const t = (a.title || '').trim().toLowerCase();
+             if (!t || seen.has(t)) return false;
+             seen.add(t);
+             return true;
+          });
+          setGlobalArticles(unique);
         }
       } catch (err) {
         console.error("Gagal memuat jurnal atau artikel:", err);

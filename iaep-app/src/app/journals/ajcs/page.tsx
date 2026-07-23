@@ -61,60 +61,16 @@ export default async function AJCSJournal() {
 
   // 2. Fallback ke Firestore HANYA jika Supabase tidak ada data
   // PERBAIKAN BUG #7: Gunakan .where() untuk filter di server, BUKAN scan seluruh collection
-  if (articles.length === 0) {
-    try {
-      const { getFirestore } = await import('@/utils/firebase/db');
-      const db = getFirestore();
-      
-      // Pre-fetch jurnal AJCS via nama sebagai fallback
-      const { data: ajcsJournal } = await supabaseAdmin.from('journals').select('id, name').ilike('name', '%AJCS%').limit(1).single();
-      const ajcsJournalId = ajcsJournal?.id;
+  // Pure Supabase SSOT Read (No Firestore read lag)
 
-      // Query hanya dokumen Published — hemat kuota Firebase secara drastis
-      const fbSnap = await db.collection('submissions')
-        .where('status', '==', 'Published')
-        .orderBy('created_at', 'desc')
-        .get();
-      
-      const firestoreArticles: any[] = [];
-      for (const doc of fbSnap.docs) {
-        const fbData = doc.data();
-
-        let jName = '';
-        if (fbData.journal_id) {
-           const { data: jData } = await supabaseAdmin.from('journals').select('name').eq('id', fbData.journal_id).single();
-           if (jData) {
-             jName = jData.name;
-           } else if (ajcsJournalId && fbData.journal_id === ajcsJournalId) {
-             jName = ajcsJournal?.name || 'AJCS - Pengabdian Kepada Masyarakat (PKM)';
-           }
-        }
-
-        // Fallback: cek field journal_name / journal langsung di dokumen Firestore
-        if (!jName) {
-          const rawJName = (fbData.journal_name || fbData.journal || '').toUpperCase();
-          if (rawJName.includes('AJCS') || rawJName.includes('PKM') || rawJName.includes('COMMUNITY SERVICE')) {
-            jName = ajcsJournal?.name || 'AJCS - Pengabdian Kepada Masyarakat (PKM)';
-          }
-        }
-
-        
-        if (jName.toUpperCase().includes("AJCS")) {
-          firestoreArticles.push({
-            id: doc.id,
-            ...fbData,
-            journals: { name: jName },
-            created_at: fbData.created_at?.toDate ? fbData.created_at.toDate().toISOString() : (fbData.created_at || new Date().toISOString())
-          });
-        }
-      }
-      if (firestoreArticles.length > 0) {
-        articles = firestoreArticles.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
-      }
-    } catch (e) {
-      console.warn("Firestore fetch error:", e);
-    }
-  }
+  // Deduplicate by title
+  const seenTitles = new Set<string>();
+  articles = articles.filter(a => {
+    const clean = (a.title || '').trim().toLowerCase();
+    if (!clean || seenTitles.has(clean)) return false;
+    seenTitles.add(clean);
+    return true;
+  });
 
   return (
     <div className="min-h-screen text-[#e8e8f0] font-sans pt-24 pb-20 bg-[#0a0a0a]">

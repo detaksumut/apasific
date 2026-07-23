@@ -41,42 +41,7 @@ export default async function AJESJournal() {
     console.error("Fetch Error:", err);
   }
 
-  // Fallback to Firestore if empty, just like in other pages
-  if (articles.length === 0) {
-    try {
-      const { getFirestore } = await import('@/utils/firebase/db');
-      const db = getFirestore();
-      const fbSnap = await db.collection('submissions').get();
-      
-      const firestoreArticles = [];
-      for (const doc of fbSnap.docs) {
-        const fbData = doc.data();
-        const validStatuses = ['Published'];
-        const isAdvancedStage = ['Published'].includes(fbData.stage);
-        if (!validStatuses.includes(fbData.status) && !isAdvancedStage) continue;
-
-        let jName = '';
-        if (fbData.journal_id) {
-           const { data: jData } = await supabaseAdmin.from('journals').select('name').eq('id', fbData.journal_id).single();
-           if (jData) jName = jData.name;
-        }
-        
-        if (jName.toUpperCase().includes("AJES")) {
-          firestoreArticles.push({
-            id: doc.id,
-            ...fbData,
-            journals: { name: jName },
-            created_at: fbData.created_at?.toDate ? fbData.created_at.toDate().toISOString() : (fbData.created_at || new Date().toISOString())
-          });
-        }
-      }
-      if (firestoreArticles.length > 0) {
-        articles = firestoreArticles.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
-      }
-    } catch (e) {
-      console.warn("Firestore fetch error:", e);
-    }
-  }
+  // Pure Supabase SSOT Read (No Firestore read lag)
 
   return (
     <div className="min-h-screen text-[#e8e8f0] font-sans pt-24 pb-20 bg-[#0a0a0a]">

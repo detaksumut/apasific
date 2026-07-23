@@ -33,14 +33,39 @@ export default async function DecisionsHistoryPage() {
     redirect("/auth/login");
   }
 
-  // Fetch submissions that have a final or intermediate decision
-  const { data: submissions, error } = await supabase
-    .from("submissions")
-    .select("*, journals(name), profiles:author_id(full_name)")
-    .in("status", ["Accepted", "accepted", "Rejected", "Published"])
-    .order("updated_at", { ascending: false });
+  // Fetch submissions that have a final or intermediate decision using supabaseAdmin
+  let articles: any[] = [];
+  try {
+    const { createClient: createSupabaseClient } = await import('@supabase/supabase-js');
+    const supabaseAdmin = createSupabaseClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL || "https://aroasmlrlpjbjokvxlgo.supabase.co",
+      process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ""
+    );
 
-  const articles = submissions || [];
+    const { data: supaData } = await supabaseAdmin
+      .from("submissions")
+      .select("*, journals(name)")
+      .order("updated_at", { ascending: false });
+
+    if (supaData) {
+      const isDecisionDoc = (a: any) => 
+        ["Accepted", "accepted", "Rejected", "Published", "Production Completed"].includes(a.status) || 
+        Boolean(a.doi || a.zenodo_id);
+
+      const filtered = supaData.filter(isDecisionDoc);
+
+      // Title Deduplication
+      const seenTitles = new Set<string>();
+      articles = filtered.filter(a => {
+        const clean = (a.title || '').trim().toLowerCase();
+        if (!clean || seenTitles.has(clean)) return false;
+        seenTitles.add(clean);
+        return true;
+      });
+    }
+  } catch (e) {
+    console.error("Fetch error in DecisionsHistoryPage:", e);
+  }
 
   return (
     <div className="max-w-7xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">

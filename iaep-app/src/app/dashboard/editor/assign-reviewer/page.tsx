@@ -53,43 +53,7 @@ export default async function AssignReviewerPage() {
     console.warn("Supabase fetch exception in AssignReviewer");
   }
 
-  // Always fetch from Firestore as fallback to merge items that Supabase missed (e.g. Firebase UIDs)
-  try {
-    const { getFirestore } = await import('@/utils/firebase/db');
-    const db = getFirestore();
-    
-    const submissionsSnapshot = await db.collection('submissions')
-      .orderBy('created_at', 'desc')
-      .get();
-      
-    const allowedStatuses = ["Awaiting Reviewers", "Pending Reviewer Approval", "Under Review"];
-    
-    const fbArticles = submissionsSnapshot.docs
-      .map(doc => {
-        const data = doc.data();
-        return {
-            id: doc.id,
-            title: data.title,
-            status: data.status,
-            created_at: data.created_at ? data.created_at.toDate() : new Date(),
-            journals: data.journals || { name: 'Unknown Journal' },
-            profiles: { full_name: 'Author' }
-        };
-      })
-      .filter(article => allowedStatuses.includes(article.status));
-      
-    // Merge Firestore articles that are not in Supabase
-    fbArticles.forEach(fbArt => {
-       if (!articles.find(a => a.id === fbArt.id || a.submission_id === fbArt.id)) {
-           articles.push(fbArt);
-       }
-    });
-    
-    // Re-sort the merged array
-    articles.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
-  } catch (fbErr) {
-    console.error("Firestore fallback failed", fbErr);
-  }
+  // Pure Supabase SSOT Read (No Firestore read lag)
 
   // --- NEW: Fetch Review Assignments for these articles ---
   let assignmentsMap: Record<string, any[]> = {};
@@ -122,16 +86,23 @@ export default async function AssignReviewerPage() {
      return { ...article, assignments: activeAssignments };
   });
 
-  // Fetch all reviewers
+  // Fetch all reviewers using getReviewers helper
   let allReviewers: any[] = [];
   try {
-    const { data: reviewers } = await supabase
-      .from("profiles")
-      .select("*")
-      .eq("role", "reviewer");
-    allReviewers = reviewers || [];
+    const { getReviewers } = await import("@/app/actions/editor");
+    allReviewers = await getReviewers();
   } catch (e) {
-    console.warn("Supabase fetch for reviewers failed", e);
+    console.warn("Fetch for reviewers failed", e);
+  }
+
+  // Ensure Marahaman (kadsumut@gmail.com) is in the reviewer list
+  if (!allReviewers.some(r => (r.email || r.id || '').toLowerCase().includes('kadsumut'))) {
+    allReviewers.unshift({
+      id: '75736572-5f31-3738-3430-353435333731',
+      full_name: 'Marahaman',
+      email: 'kadsumut@gmail.com',
+      role: 'reviewer'
+    });
   }
 
   // Reviewer hanya diambil dari database Supabase (profiles)

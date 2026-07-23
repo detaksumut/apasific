@@ -47,10 +47,10 @@ export default async function EditorDashboard() {
       }
   }
 
-  // Fetch all submissions for the editor (Dual-Database: Supabase + Firestore merged)
+  // Fetch all submissions for the editor (Primary: Supabase SSOT, Fallback: Firestore safe merge)
   let articles: any[] = [];
   
-  // 1. Try Supabase
+  // 1. Primary SSOT: Fetch all submissions from Supabase
   try {
     const { createClient: createSupabaseClient } = await import('@supabase/supabase-js');
     const supabaseAdmin = createSupabaseClient(
@@ -60,49 +60,16 @@ export default async function EditorDashboard() {
 
     const { data: submissions } = await supabaseAdmin
       .from("submissions")
-      .select("*, journals(name), profiles(full_name, phone)")
+      .select("*, journals(name)")
       .order("created_at", { ascending: false });
     if (submissions && submissions.length > 0) {
       articles = [...submissions];
     }
-  } catch (e) {
-    console.warn("Supabase fetch failed in Editor Dashboard");
+  } catch (e: any) {
+    console.warn("Supabase fetch failed in Editor Dashboard:", e?.message || e);
   }
 
-  // 2. Always also query Firestore and merge (avoid duplicates)
-  try {
-    const { getFirestore } = await import('@/utils/firebase/db');
-    const db = getFirestore();
-    const submissionsSnapshot = await db.collection('submissions')
-      .orderBy('created_at', 'desc')
-      .get();
-    
-    const usersSnapshot = await db.collection('users').get();
-    const fbUsers: any = {};
-    usersSnapshot.docs.forEach((doc: any) => fbUsers[doc.id] = doc.data());
-
-    const existingIds = new Set(articles.map(a => a.id));
-    const fbArticles = submissionsSnapshot.docs
-      .map(doc => {
-        const data = doc.data();
-        return {
-          submission_id: doc.id,
-          id: doc.id,
-          title: data.title,
-          status: data.status,
-          stage: data.stage,
-          abstract: data.abstract,
-          phone: data.phone,
-          created_at: data.created_at ? data.created_at.toDate() : new Date(),
-          journals: data.journals || { name: 'Unknown Journal' },
-          profiles: fbUsers[data.author_id] ? { full_name: fbUsers[data.author_id].full_name, phone: fbUsers[data.author_id].phone } : null
-        };
-      })
-      .filter(a => !existingIds.has(a.id));
-    articles = [...articles, ...fbArticles];
-  } catch (fbErr) {
-    console.error("Firestore fetch failed in Editor Dashboard", fbErr);
-  }
+  // Pure Supabase SSOT Read (No Firestore background read lag or double counting)
 
   // 3. Fetch Registered Users from system_settings to get accurate phone numbers
   let registeredUsers: any[] = [];
@@ -118,15 +85,26 @@ export default async function EditorDashboard() {
     }
   } catch (e) {}
 
+  // Deduplicate articles by title to ensure 100% accurate metrics
+  const seenTitles = new Set<string>();
+  const uniqueArticles = articles.filter(a => {
+    const clean = (a.title || '').trim().toLowerCase();
+    if (!clean || seenTitles.has(clean)) return false;
+    seenTitles.add(clean);
+    return true;
+  });
+
   // Sort merged results by created_at desc
-  articles.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+  uniqueArticles.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+
+  // Helper: Cek apakah artikel terbit (status Published/Production Completed ATAU memiliki DOI/Zenodo ID)
+  const checkIsPublished = (a: any) => ['Published', 'Production Completed'].includes(a.status) || Boolean(a.doi || a.zenodo_id);
 
   // Pisahkan: naskah aktif (belum Published) vs riwayat terbit
-  const PUBLISHED_STATUSES = ['Published', 'Production Completed'];
-  const activeArticles = articles.filter(a => !PUBLISHED_STATUSES.includes(a.status));
-  const publishedCount = articles.filter(a => PUBLISHED_STATUSES.includes(a.status)).length;
+  const activeArticles = uniqueArticles.filter(a => !checkIsPublished(a));
+  const publishedCount = uniqueArticles.filter(a => checkIsPublished(a)).length;
 
-  const totalArticles = articles.length;
+  const totalArticles = uniqueArticles.length;
   const pendingReview = activeArticles.filter(a => ['queued', 'Awaiting Reviewers', 'Under Review'].includes(a.status)).length;
   const acceptedArticles = activeArticles.filter(a => a.status === 'Accepted' || a.status === 'accepted').length;
 

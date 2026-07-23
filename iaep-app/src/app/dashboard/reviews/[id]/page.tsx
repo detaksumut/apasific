@@ -1,11 +1,11 @@
 "use client";
 
-import { useState, useEffect, use } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { getAssignmentDetails, submitReviewResultsWithFile } from "@/app/actions/reviewer";
 
-export default function ReviewEvaluation({ params }: { params: Promise<{ id: string }> }) {
-  const unwrappedParams = use(params);
+export default function ReviewEvaluation({ params }: { params: any }) {
+  const [assignmentId, setAssignmentId] = useState<string>('');
   const [step, setStep] = useState(1);
   const [agreed, setAgreed] = useState(false);
   const [commentsForEditor, setCommentsForEditor] = useState("");
@@ -19,7 +19,7 @@ export default function ReviewEvaluation({ params }: { params: Promise<{ id: str
   const steps = ["Request", "Guidelines", "Review", "Submit"];
 
   const [submission, setSubmission] = useState<any>({
-    id: unwrappedParams.id,
+    id: "",
     title: "Loading...",
     abstract: "Loading...",
     type: "Articles",
@@ -31,16 +31,27 @@ export default function ReviewEvaluation({ params }: { params: Promise<{ id: str
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    Promise.resolve(params).then((p: any) => {
+      if (p && p.id) setAssignmentId(p.id);
+    });
+  }, [params]);
+
+  useEffect(() => {
+    if (!assignmentId) return;
     async function fetchData() {
-        const data = await getAssignmentDetails(unwrappedParams.id);
-            
-        if (data) {
-            setSubmission(data);
+        setIsLoading(true);
+        try {
+          const data = await getAssignmentDetails(assignmentId);
+          if (data) {
+              setSubmission(data);
+          }
+        } catch(e) {
+          console.error("fetchData error:", e);
         }
         setIsLoading(false);
     }
     fetchData();
-  }, [unwrappedParams.id]);
+  }, [assignmentId]);
 
   const recommendations = [
     { value: "accept", label: "Accept Submission", color: "#34d399", bg: "rgba(52,211,153,0.08)", border: "rgba(52,211,153,0.2)" },
@@ -66,7 +77,7 @@ export default function ReviewEvaluation({ params }: { params: Promise<{ id: str
           <div className="rev-success-detail">
             <div className="rev-sd-row">
               <span>Manuscript</span>
-              <strong>{submission.title.slice(0, 50)}...</strong>
+              <strong>{(submission?.title || '').slice(0, 50)}...</strong>
             </div>
             <div className="rev-sd-row">
               <span>Recommendation</span>
@@ -77,7 +88,7 @@ export default function ReviewEvaluation({ params }: { params: Promise<{ id: str
             ← Back to Pending Reviews
           </Link>
         </div>
-        <style jsx>{`
+        <style>{`
           .rev-enterprise { max-width: 700px; margin: 0 auto; padding-bottom: 60px; }
           .rev-success-wrap {
             display: flex; flex-direction: column; align-items: center;
@@ -959,7 +970,7 @@ export default function ReviewEvaluation({ params }: { params: Promise<{ id: str
         .rev-form-section-title.confidential { color: #f87171; }
         .rev-form-section-title svg { width: 14px; height: 14px; }
         .rev-form-hint { font-size: 11.5px; color: rgba(255,255,255,0.25); line-height: 1.5; }
-        :global(.rev-textarea) {
+        .rev-textarea {
           background: rgba(255,255,255,0.04);
           border: 1px solid rgba(255,255,255,0.1);
           border-radius: 10px;
@@ -973,11 +984,11 @@ export default function ReviewEvaluation({ params }: { params: Promise<{ id: str
           transition: border-color 0.2s;
           line-height: 1.6;
         }
-        :global(.rev-textarea:focus) { border-color: rgba(201,168,76,0.4); background: rgba(201,168,76,0.03); }
-        :global(.rev-textarea.warning-style) { border-color: rgba(245,158,11,0.12); }
-        :global(.rev-textarea.warning-style:focus) { border-color: rgba(245,158,11,0.35); background: rgba(245,158,11,0.02); }
-        :global(.rev-textarea.confidential-style) { border-color: rgba(248,113,113,0.12); }
-        :global(.rev-textarea.confidential-style:focus) { border-color: rgba(248,113,113,0.3); background: rgba(248,113,113,0.02); }
+        .rev-textarea:focus { border-color: rgba(201,168,76,0.4); background: rgba(201,168,76,0.03); }
+        .rev-textarea.warning-style { border-color: rgba(245,158,11,0.12); }
+        .rev-textarea.warning-style:focus { border-color: rgba(245,158,11,0.35); background: rgba(245,158,11,0.02); }
+        .rev-textarea.confidential-style { border-color: rgba(248,113,113,0.12); }
+        .rev-textarea.confidential-style:focus { border-color: rgba(248,113,113,0.3); background: rgba(248,113,113,0.02); }
         .rev-upload-zone {
           display: flex;
           align-items: center;
@@ -993,7 +1004,7 @@ export default function ReviewEvaluation({ params }: { params: Promise<{ id: str
         }
         .rev-upload-zone:hover { border-color: rgba(255,255,255,0.15); }
         .rev-upload-zone svg { width: 16px; height: 16px; flex-shrink: 0; }
-        :global(.rev-browse-link) { color: #c9a84c; cursor: pointer; font-weight: 600; }
+        .rev-browse-link { color: #c9a84c; cursor: pointer; font-weight: 600; }
         .rev-file-input { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
 
         /* Recommendation */

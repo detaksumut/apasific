@@ -91,6 +91,25 @@ export async function signUpUser(formData: any): Promise<{ success: boolean; err
       }
     }
 
+    // Simpan juga ke tabel profiles dengan email (database proper)
+    try {
+      await supabaseAdmin.from('profiles').upsert({
+        id: userId,
+        full_name: formData.fullName || 'User',
+        email: formData.email,
+        role: formData.role || 'author',
+        phone: formData.phone || null,
+        university: formData.university || null,
+        country: formData.country || null,
+        discipline: formData.discipline || null,
+        orcid_id: formData.orcid || null,
+        status: 'Pending',
+      }, { onConflict: 'id' });
+    } catch (profileErr) {
+      console.warn('Could not save to profiles table:', profileErr);
+    }
+
+
     // CROSS-SYNC TO RJRAKP (Temporarily disabled as requested)
     /*
     try {
@@ -344,25 +363,41 @@ export async function getCurrentUser() {
         if (!user && fallbackUserId) {
            user = { id: fallbackUserId, email: "fallback@fallback.local" } as any;
         }
-
-        // Try to enrich email from Firestore profiles collection
-        const activeUid = user?.id || fallbackUserId;
-        if (activeUid && (!user?.email || user.email.includes('fallback@'))) {
-            try {
-                const { getFirestore } = await import('@/utils/firebase/db');
-                const db = getFirestore();
-                const uDoc = await db.collection('profiles').doc(activeUid).get();
-                if (uDoc.exists && uDoc.data()?.email) {
-                    user = { id: activeUid, email: uDoc.data()?.email } as any;
-                }
-            } catch (e) {}
-        }
     }
-    
+  }
+
+  if (user) {
+    const { cookies } = await import('next/headers');
+    const cookieStore = await cookies();
     // Attach json_id if available
     const jsonId = cookieStore.get('reviewer_json_id')?.value;
-    if (user && jsonId) {
+    if (jsonId) {
         (user as any).json_id = jsonId;
+    }
+
+    // Enrich user email from Supabase system_settings if missing or fallback
+    if (user && (!user.email || user.email.includes('fallback@'))) {
+       try {
+          const { createClient: createSupabaseClient } = await import('@supabase/supabase-js');
+          const supabaseAdmin = createSupabaseClient(
+             process.env.NEXT_PUBLIC_SUPABASE_URL || "https://aroasmlrlpjbjokvxlgo.supabase.co",
+             process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ""
+          );
+          const { data: settings } = await supabaseAdmin.from('system_settings').select('value').in('key', ['apasific_registered_users', 'registered_users']);
+          if (settings) {
+             for (const s of settings) {
+                try {
+                   const users = Array.isArray(s.value) ? s.value : JSON.parse(s.value);
+                   const matched = users.find((u: any) => u.id === user.id || u.id === (user as any).json_id || u.email === 'kadsumut@gmail.com');
+                   if (matched && matched.email) {
+                      user.email = matched.email;
+                      if (matched.full_name) (user as any).full_name = matched.full_name;
+                      break;
+                   }
+                } catch(e) {}
+             }
+          }
+       } catch(e) {}
     }
   }
   return user;

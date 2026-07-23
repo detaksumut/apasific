@@ -63,18 +63,7 @@ export default async function AuthorDashboard() {
           throw new Error("Supabase profile failed or empty");
       }
   } catch (e) {
-      // Fallback to Firestore
-      try {
-          const db = getFirestore();
-          const profileDoc = await db.collection('profiles').doc(userId).get();
-          if (profileDoc.exists) {
-              const data = profileDoc.data();
-              userName = data?.full_name || user.user_metadata?.full_name || user.email || 'Author';
-              if (data?.role) role = data.role.toLowerCase();
-          }
-      } catch(fbErr) {
-          userName = user.user_metadata?.full_name || user.email || 'Author';
-      }
+      userName = user.user_metadata?.full_name || user.email || 'Author';
   }
 
   const cookieStore = await cookies();
@@ -92,40 +81,18 @@ export default async function AuthorDashboard() {
   if (role === 'reviewer') redirect('/dashboard/reviews');
   if (role === 'co_admin' || role === 'co-admin') redirect('/dashboard/admin/users');
 
-  // 3. Dual-Database Submissions Fetch: Try Supabase, fallback to Firestore
+  // 3. Pure Supabase SSOT Submissions Fetch (No Firestore read lag)
   let articles: any[] = [];
   try {
-      const { data: submissions, error } = await supabase
+      const { data: submissions } = await supabase
         .from("submissions")
         .select("*, journals(name)")
         .eq("author_id", userId)
         .order("created_at", { ascending: false });
         
-      if (error) throw error;
-      articles = submissions || [];
+      if (submissions) articles = submissions;
   } catch (e) {
-      console.warn("Supabase fetch failed, falling back to Firestore for submissions");
-      try {
-          const db = getFirestore();
-          const submissionsSnapshot = await db.collection('submissions')
-            .where('author_id', '==', userId)
-            .orderBy('created_at', 'desc')
-            .get();
-          
-          articles = submissionsSnapshot.docs.map(doc => {
-              const data = doc.data();
-              return {
-                  submission_id: doc.id,
-                  title: data.title,
-                  status: data.status,
-                  created_at: data.created_at ? data.created_at.toDate() : new Date(),
-                  journals: data.journals || { name: 'Unknown Journal' }
-              };
-          });
-      } catch (fbErr) {
-          console.error("Both databases failed to fetch submissions", fbErr);
-          articles = [];
-      }
+      console.warn("Supabase submissions fetch warning:", e);
   }
   
   const totalArticles = articles.length;
