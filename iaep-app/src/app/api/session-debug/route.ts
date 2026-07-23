@@ -25,7 +25,7 @@ export async function GET() {
     // Find profile in Firestore by ID or Email
     let fbProfile = null;
     const profilesSnapshot = await db.collection('profiles').get();
-    const fbProfiles = profilesSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() as any }));
+    const fbProfiles = profilesSnapshot.docs.map((doc: any) => ({ id: doc.id, ...doc.data() as any }));
     fbProfile = fbProfiles.find(p => p.id === user.id || (user.email && p.email?.toLowerCase() === user.email.toLowerCase()));
 
     return NextResponse.json({

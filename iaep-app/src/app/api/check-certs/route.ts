@@ -13,7 +13,7 @@ export async function GET() {
 
     const db = getFirestore();
     const fbProfilesSnap = await db.collection('profiles').get();
-    const fbProfiles = fbProfilesSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    const fbProfiles = fbProfilesSnap.docs.map((doc: any) => ({ id: doc.id, ...doc.data() }));
     const list = fbProfiles.map((p: any) => ({ id: p.id, email: p.email, name: p.full_name }));
 
     return NextResponse.json({

@@ -7,7 +7,7 @@ export async function GET() {
 
     // Get the specific assignment for Dr. Eko
     const snap = await db.collection('review_assignments').get();
-    const results = snap.docs.map(doc => ({
+    const results = snap.docs.map((doc: any) => ({
       id: doc.id,
       ...doc.data(),
       // convert timestamps to readable strings

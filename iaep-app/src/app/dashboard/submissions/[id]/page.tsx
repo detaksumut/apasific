@@ -50,7 +50,7 @@ export default async function AuthorSubmissionDetail({ params }: { params: Promi
       const { getFirestore } = await import('@/utils/firebase/db');
       const db = getFirestore();
       const fbHistSnap = await db.collection('submission_history').where('submission_id', '==', id).orderBy('created_at', 'asc').get();
-      historyData = fbHistSnap.docs.map(doc => ({
+      historyData = fbHistSnap.docs.map((doc: any) => ({
         id: doc.id,
         ...doc.data(),
         created_at: doc.data().created_at?.toDate ? doc.data().created_at.toDate().toISOString() : new Date().toISOString()

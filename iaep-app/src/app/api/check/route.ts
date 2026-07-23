@@ -17,7 +17,7 @@ export async function GET() {
     const { getFirestore } = await import('@/utils/firebase/db');
     const db = getFirestore();
     const snap = await db.collection('certificates').get();
-    firestoreCerts = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    firestoreCerts = snap.docs.map((doc: any) => ({ id: doc.id, ...doc.data() }));
   } catch (e: any) {
     firestoreCerts = [{ error: e.message }];
   }

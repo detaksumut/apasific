@@ -22,7 +22,7 @@ export async function GET() {
     const { getFirestore } = await import('@/utils/firebase/db');
     const db = getFirestore();
     const snapshot = await db.collection('submissions').get();
-    firestoreData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    firestoreData = snapshot.docs.map((doc: any) => ({ id: doc.id, ...doc.data() }));
   } catch (e: any) {
     firestoreData = { error: e.message };
   }

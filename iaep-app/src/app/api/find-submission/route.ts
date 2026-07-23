@@ -8,7 +8,7 @@ export async function GET() {
     // Find all submissions
     const snap = await db.collection('submissions').orderBy('created_at', 'desc').get();
 
-    const results = snap.docs.map(doc => {
+    const results = snap.docs.map((doc: any) => {
       const d = doc.data();
       return {
         id: doc.id,

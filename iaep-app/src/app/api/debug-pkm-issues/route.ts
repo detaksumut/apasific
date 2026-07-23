@@ -26,7 +26,7 @@ export async function GET() {
   try {
     const db = getFirestore();
     const snap = await db.collection('journal_issues').where('journal_id', '==', '6e3a2c2c-0e6c-4e18-82bd-e0fdc2d1ac5d').get();
-    const issues = snap.docs.map(doc => ({id: doc.id, ...doc.data()}));
+    const issues = snap.docs.map((doc: any) => ({id: doc.id, ...doc.data()}));
     result.issues_in_firestore = issues;
   } catch(e: any) {
     result.firestore_error = e.message;
