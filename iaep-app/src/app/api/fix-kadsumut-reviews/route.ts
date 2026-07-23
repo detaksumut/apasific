@@ -51,7 +51,7 @@ export async function GET() {
       const fbAssignmentsSnap = await db.collection('review_assignments').get();
       const batch = db.batch();
 
-      fbAssignmentsSnap.docs.forEach(doc => {
+      fbAssignmentsSnap.docs.forEach((doc: any) => {
         const data = doc.data();
         const rId = (data.reviewer_id || '').toLowerCase();
         const rEmail = (data.reviewer_email || '').toLowerCase();

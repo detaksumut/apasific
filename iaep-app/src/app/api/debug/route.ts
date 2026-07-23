@@ -14,7 +14,7 @@ export async function GET() {
     const fbSnap = await db.collection('submissions').get();
     
     logs.push(`Firestore total docs: ${fbSnap.size}`);
-    fbSnap.forEach(doc => {
+    fbSnap.forEach((doc: any) => {
       const d = doc.data();
       logs.push(`FS [${doc.id}]: status="${d.status}", stage="${d.stage}", journal_id="${d.journal_id}"`);
     });

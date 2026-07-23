@@ -9,7 +9,7 @@ export async function GET() {
     const snap = await db.collection('review_assignments').get();
     
     let all: any[] = [];
-    snap.docs.forEach(doc => {
+    snap.docs.forEach((doc: any) => {
        all.push({id: doc.id, reviewer_id: doc.data().reviewer_id, email: doc.data().reviewer_email});
     });
     

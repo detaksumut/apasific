@@ -35,7 +35,7 @@ export async function GET() {
         const fetchAll = async (collectionName: string) => {
           const snap = await db.collection(collectionName).get();
           const docs: any[] = [];
-          snap.forEach(doc => {
+          snap.forEach((doc: any) => {
             const d = doc.data();
             if (JSON.stringify(d).toLowerCase().includes(keyword.toLowerCase())) docs.push({id: doc.id, ...d});
           });

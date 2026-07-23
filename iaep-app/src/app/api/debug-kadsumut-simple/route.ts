@@ -10,7 +10,7 @@ export async function GET() {
     
     const snap = await db.collection('profiles').get();
     
-    snap.docs.forEach(doc => {
+    snap.docs.forEach((doc: any) => {
        const data = doc.data();
        if (data.email === 'kadsumut@gmail.com') {
           result.profiles.push({ id: doc.id, ...data });
