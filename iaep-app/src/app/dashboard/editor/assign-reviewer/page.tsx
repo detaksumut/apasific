@@ -134,33 +134,8 @@ export default async function AssignReviewerPage() {
     console.warn("Supabase fetch for reviewers failed", e);
   }
 
-  // Fallback / Merge from local JSON if Supabase is missing reviewers
-  try {
-    const fs = await import('fs');
-    const path = await import('path');
-    const jsonPath = path.join(process.cwd(), 'apasific_registered_users.json');
-    if (fs.existsSync(jsonPath)) {
-      const usersData = JSON.parse(fs.readFileSync(jsonPath, 'utf8'));
-      const jsonReviewers = usersData.filter((u: any) => u.role === 'reviewer');
-      
-      jsonReviewers.forEach((jr: any) => {
-        // Only add if not already in allReviewers (matching by email)
-        if (!allReviewers.find(r => r.email === jr.email)) {
-          allReviewers.push({
-            id: jr.id,
-            full_name: jr.full_name,
-            email: jr.email,
-            role: 'reviewer',
-            academic_field: jr.journal || 'General',
-            university: jr.university,
-            country: jr.country
-          });
-        }
-      });
-    }
-  } catch (err) {
-    console.error("Failed to load fallback reviewers from JSON", err);
-  }
+  // Reviewer hanya diambil dari database Supabase (profiles)
+  // Tidak ada lagi dummy JSON file sebagai fallback
 
   return (
     <div className="max-w-7xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">

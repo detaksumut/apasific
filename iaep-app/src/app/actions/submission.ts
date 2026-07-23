@@ -103,7 +103,7 @@ export async function submitManuscript(formData: FormData) {
             author_id: userId,
             title,
             abstract,
-            status: 'Awaiting Reviewers',
+            status: 'queued',
             phone: formPhone || null
           })
           .select()
@@ -131,7 +131,7 @@ export async function submitManuscript(formData: FormData) {
            title,
            abstract,
            phone: formPhone || null,
-           status: 'Awaiting Reviewers',
+           status: 'queued',
            created_at: admin.firestore.FieldValue.serverTimestamp(),
            updated_at: admin.firestore.FieldValue.serverTimestamp()
        });
@@ -440,7 +440,7 @@ export async function assignReviewerActionFunc(submissionId: string, reviewer: a
     await supabaseAdmin.from('profiles').upsert({
         id: validReviewerId,
         full_name: reviewer.full_name || 'Reviewer',
-        email: reviewer.email || `${validReviewerId}@reviewer.local`,
+        email: reviewer.email || '',
         role: 'reviewer'
     }, { onConflict: 'id' });
 

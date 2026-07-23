@@ -368,26 +368,12 @@ export async function getActiveReviewers() {
         // Exclude anyone who is an admin or co-admin from being listed as a reviewer
         reviewers = reviewers.filter(r => {
             const roleLower = (r.role || '').toLowerCase();
-            return !roleLower.includes('admin') && !roleLower.includes('co-admin') && !roleLower.includes('co_admin');
+            const isAdmin = roleLower.includes('admin') && roleLower !== 'co-admin' && roleLower !== 'co_admin';
+            return !isAdmin;
         });
 
-        // 3. Fallback to hardcoded mock just in case DB is empty for demo
-        if (reviewers.length === 0) {
-            reviewers.push({
-                id: 'rev-demo-1',
-                full_name: 'Dr. Jane Doe',
-                email: 'janedoe@example.com',
-                university: 'National University',
-                country: 'Malaysia'
-            });
-            reviewers.push({
-                id: 'rev-demo-2',
-                full_name: 'Prof. Ahmad',
-                email: 'ahmad@example.com',
-                university: 'Universiti Malaya',
-                country: 'Malaysia'
-            });
-        }
+        // Tidak ada dummy reviewer — jika kosong, kembalikan array kosong
+        // Sistem akan menampilkan pesan "Belum ada reviewer terdaftar" di UI
 
         return { success: true, reviewers };
     } catch (e: any) {
@@ -560,7 +546,7 @@ export async function getPublicationsData(journalId: string) {
 }
 
 export async function getNextVolumeAndIssue(journalId: string) {
-    if (!journalId) return { volume: "Vol 1", issue: "No 1" };
+    if (!journalId) return { volume: "Vol 1", issue: "Edisi 1" };
     
     const now = new Date();
     const year = now.getFullYear();
@@ -613,9 +599,9 @@ export async function getNextVolumeAndIssue(journalId: string) {
             }
         } catch (e) {}
         
-        return { volume, issue: `No ${issueNum}` };
+        return { volume, issue: `Edisi ${issueNum}` };
     } catch (err) {
-        return { volume, issue: "No 1" };
+        return { volume, issue: "Edisi 1" };
     }
 }
 
@@ -650,7 +636,7 @@ export async function getAssignedVolumeAndIssue(submissionId: string, journalId:
         const res = await getNextVolumeAndIssue(journalId);
         return `${res.volume} ${res.issue}`;
     } catch(e) {
-        return "Vol 1 No 1";
+        return "Vol 1 Edisi 1";
     }
 }
 
@@ -928,16 +914,33 @@ export async function getPublishedArticleDetails(articleId: string) {
         );
 
         let subData: any = null;
-        const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(articleId);
+        // Cek format UUID (longgar) — termasuk UUID yang digenerate dari Firebase ID
+        const isUuidLike = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(articleId);
 
-        if (isUuid) {
-            const { data } = await supabaseAdmin
-                .from('submissions')
-                .select('*, journals:journal_id(name)')
-                .eq('id', articleId)
-                .single();
-            if (data) subData = data;
+        // 1. Selalu coba Supabase dulu — by ID jika UUID-like, atau by zenodo_id / doi
+        try {
+            if (isUuidLike) {
+                const { data } = await supabaseAdmin
+                    .from('submissions')
+                    .select('*, journals:journal_id(name)')
+                    .eq('id', articleId)
+                    .single();
+                if (data) subData = data;
+            }
+
+            // Jika belum ketemu by ID, coba by zenodo_id (format sub_xxx atau angka)
+            if (!subData) {
+                const { data } = await supabaseAdmin
+                    .from('submissions')
+                    .select('*, journals:journal_id(name)')
+                    .or(`zenodo_id.eq.${articleId},doi.ilike.%${articleId}%`)
+                    .single();
+                if (data) subData = data;
+            }
+        } catch (sbErr) {
+            // Supabase error — lanjut ke Firebase
         }
+
 
         if (!subData) {
             try {
@@ -1075,12 +1078,13 @@ export async function getPublishedArticles(journalId?: string) {
 
         let articlesList: any[] = [];
 
-        // 1. Fetch from Supabase
+        // 1. Fetch from Supabase — order by zenodo_id DESC (angka lebih besar = terbaru)
         try {
           let query = supabaseAdmin
               .from('submissions')
               .select('*, journals:journal_id(name)')
-              .eq('status', 'Published');
+              .in('status', ['Published', 'Accepted', 'Production Completed'])
+              .order('zenodo_id', { ascending: false, nullsFirst: false });
           if (journalId) {
               query = query.eq('journal_id', journalId);
           }
@@ -1089,6 +1093,7 @@ export async function getPublishedArticles(journalId?: string) {
         } catch (dbErr) {
           console.error("Supabase published articles fetch failed", dbErr);
         }
+
 
         // 2. Fetch from Firestore
         try {

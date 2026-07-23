@@ -108,12 +108,12 @@ export default function UpdateMetadataButton({
                 />
               </div>
               <div>
-                <label className="block text-[10px] font-bold text-zinc-400 uppercase tracking-wider mb-1.5">Edisi / Issue</label>
+                <label className="block text-[10px] font-bold text-zinc-400 uppercase tracking-wider mb-1.5">Edisi</label>
                 <input
                   type="text"
                   value={issue}
                   onChange={(e) => setIssue(e.target.value)}
-                  placeholder="cth: 2  atau  No. 2"
+                  placeholder="cth: 1  atau  Edisi 1"
                   className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2.5 text-sm text-white placeholder-zinc-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500"
                 />
               </div>

@@ -84,7 +84,14 @@ export default function JournalsRepository() {
             </div>
             <div className="flex flex-col gap-6">
               {globalArticles
-                .sort((a, b) => new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime())
+                .sort((a, b) => {
+                  // Urut berdasarkan zenodo_id (angka lebih besar = lebih baru terbit)
+                  const zA = parseInt(a.zenodo_id || '0', 10);
+                  const zB = parseInt(b.zenodo_id || '0', 10);
+                  if (zB !== zA) return zB - zA;
+                  // Fallback: berdasarkan created_at
+                  return new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime();
+                })
                 .slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
                 .map((art, idx) => (
                 <div key={idx} className="pb-6 border-b border-gray-800/50 last:border-0 flex flex-col gap-2">

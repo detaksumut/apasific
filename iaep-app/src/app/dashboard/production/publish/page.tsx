@@ -58,7 +58,11 @@ export default async function PublishEditorDashboard() {
   try {
     const { getFirestore } = await import('@/utils/firebase/db');
     const db = getFirestore();
-    const submissionsSnapshot = await db.collection('submissions').orderBy('created_at', 'desc').get();
+    // PERBAIKAN: Query terfilter — hanya ambil stage=Production, hemat kuota Firebase
+    const submissionsSnapshot = await db.collection('submissions')
+      .where('stage', '==', 'Production')
+      .orderBy('created_at', 'desc')
+      .get();
     const fbArticles = submissionsSnapshot.docs.map(doc => {
       const data = doc.data();
       return {
@@ -73,7 +77,7 @@ export default async function PublishEditorDashboard() {
           issue: data.issue,
           journal_id: data.journal_id,
       };
-    }).filter(article => article.stage === "Production" && ALL_PUBLISH_STATUSES.includes(article.status));
+    }).filter(article => ALL_PUBLISH_STATUSES.includes(article.status));
     
     const existingIds = new Set(articles.map(a => a.id));
     for (const fb of fbArticles) {

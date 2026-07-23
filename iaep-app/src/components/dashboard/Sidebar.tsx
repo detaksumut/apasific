@@ -20,7 +20,7 @@ export default function Sidebar({ role }: SidebarProps) {
         if (r === 'layout editor') return '/dashboard/production/layout';
         if (r === 'cover editor') return '/dashboard/production/cover';
         if (r === 'publish editor') return '/dashboard/production/publish';
-        if (r === 'co_admin' || r === 'co-admin') return '/dashboard/admin/users';
+        if (r === 'co_admin' || r === 'co-admin') return '/dashboard/reviews';
         return '/dashboard';
       })(),
       icon: (
@@ -384,7 +384,7 @@ export default function Sidebar({ role }: SidebarProps) {
       case "reviewer": return reviewerLinks;
       case "editor":   return editorLinks;
       case "admin":    return adminLinks;
-      case "co_admin": return coAdminLinks;
+      case "co_admin": return reviewerLinks;
       default:         return [];
     }
   };

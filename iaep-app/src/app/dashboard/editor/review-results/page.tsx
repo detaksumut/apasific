@@ -81,21 +81,6 @@ export default async function ReviewResultsPage() {
   } catch (e) {
     console.warn("Supabase fetch for reviewers failed", e);
   }
-  // Fallback for reviewers from JSON if needed
-  try {
-    const fs = await import('fs');
-    const path = await import('path');
-    const jsonPath = path.join(process.cwd(), 'apasific_registered_users.json');
-    if (fs.existsSync(jsonPath)) {
-      const usersData = JSON.parse(fs.readFileSync(jsonPath, 'utf8'));
-      const jsonReviewers = usersData.filter((u: any) => u.role === 'reviewer');
-      jsonReviewers.forEach((jr: any) => {
-        if (!allReviewers.find(r => r.email === jr.email)) {
-          allReviewers.push({ ...jr, role: 'reviewer' });
-        }
-      });
-    }
-  } catch (err) { }
 
   // --- NEW: Fetch Review Assignments ---
   let assignmentsMap: Record<string, any[]> = {};

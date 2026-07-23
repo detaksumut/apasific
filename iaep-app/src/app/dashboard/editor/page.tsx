@@ -121,11 +121,14 @@ export default async function EditorDashboard() {
   // Sort merged results by created_at desc
   articles.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
 
+  // Pisahkan: naskah aktif (belum Published) vs riwayat terbit
+  const PUBLISHED_STATUSES = ['Published', 'Production Completed'];
+  const activeArticles = articles.filter(a => !PUBLISHED_STATUSES.includes(a.status));
+  const publishedCount = articles.filter(a => PUBLISHED_STATUSES.includes(a.status)).length;
 
-  
   const totalArticles = articles.length;
-  const pendingReview = articles.filter(a => ['queued', 'Awaiting Reviewers', 'Under Review'].includes(a.status)).length;
-  const acceptedArticles = articles.filter(a => a.status === 'Accepted' || a.status === 'accepted').length;
+  const pendingReview = activeArticles.filter(a => ['queued', 'Awaiting Reviewers', 'Under Review'].includes(a.status)).length;
+  const acceptedArticles = activeArticles.filter(a => a.status === 'Accepted' || a.status === 'accepted').length;
 
   return (
     <div className="max-w-7xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
@@ -139,7 +142,7 @@ export default async function EditorDashboard() {
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <div className="bg-zinc-900/50 border border-zinc-800/80 p-6 rounded-xl hover:border-emerald-500/30 transition-colors relative group">
           <div className="flex justify-between items-start mb-4">
             <h3 className="text-zinc-400 text-xs font-semibold uppercase tracking-wider">Total Naskah</h3>
@@ -169,28 +172,41 @@ export default async function EditorDashboard() {
           </div>
           <div className="text-3xl font-bold text-white group-hover:text-emerald-400 transition-colors">{acceptedArticles}</div>
         </div>
+
+        {/* Kotak Riwayat Terbit — klik langsung ke halaman publications */}
+        <Link href="/dashboard/editor/publications" className="bg-teal-900/20 border border-teal-800/40 p-6 rounded-xl hover:border-teal-500/50 transition-colors relative group block">
+          <div className="flex justify-between items-start mb-4">
+            <h3 className="text-teal-400 text-xs font-semibold uppercase tracking-wider">Sudah Terbit</h3>
+            <div className="p-2 bg-teal-800/20 rounded-lg group-hover:bg-teal-500/20 transition-colors">
+              <CheckCircle className="w-4 h-4 text-teal-400" />
+            </div>
+          </div>
+          <div className="text-3xl font-bold text-teal-300 group-hover:text-teal-200 transition-colors">{publishedCount}</div>
+          <p className="text-[10px] text-teal-600 mt-2 font-medium">Lihat Riwayat Terbit →</p>
+        </Link>
       </div>
 
-      {/* Submissions List */}
+      {/* Submissions List — hanya naskah AKTIF (belum Published) */}
       <div className="bg-zinc-900/50 border border-zinc-800/80 rounded-xl overflow-hidden">
         <div className="p-6 border-b border-zinc-800/80 flex items-center justify-between">
           <h2 className="text-lg font-bold text-white flex items-center gap-2">
             <ShieldCheck className="w-5 h-5 text-emerald-500" />
-            Semua Naskah Masuk
+            Naskah Aktif (Dalam Proses)
           </h2>
+          <span className="text-xs text-zinc-500">{activeArticles.length} naskah</span>
         </div>
         
-        {articles.length === 0 ? (
+        {activeArticles.length === 0 ? (
           <div className="p-12 text-center">
             <div className="w-16 h-16 bg-zinc-800/50 rounded-full flex items-center justify-center mx-auto mb-4">
               <FileText className="w-8 h-8 text-zinc-500" />
             </div>
-            <h3 className="text-white font-medium mb-1">Belum ada naskah</h3>
-            <p className="text-zinc-500 text-sm">Belum ada *author* yang mengirimkan naskah.</p>
+            <h3 className="text-white font-medium mb-1">Tidak ada naskah aktif</h3>
+            <p className="text-zinc-500 text-sm">Semua naskah sudah diproses. Lihat <Link href="/dashboard/editor/publications" className="text-teal-400 underline">Riwayat Terbit</Link>.</p>
           </div>
         ) : (
           <div className="divide-y divide-zinc-800/50">
-            {articles.map((article: any) => {
+            {activeArticles.map((article: any) => {
               let senderName = article.profiles?.full_name || 'Penulis Tidak Diketahui';
               let senderPhone = article.phone || article.profiles?.phone || '-';
               let senderEmail = 'N/A';
@@ -217,17 +233,37 @@ export default async function EditorDashboard() {
               <div key={article.id || article.submission_id} className="p-6 hover:bg-zinc-800/30 transition-colors group">
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                   <div className="space-y-1">
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-zinc-800 text-zinc-300 border border-zinc-700">
+                    <div className="flex items-center gap-2 mb-1 flex-wrap">
+                      {/* Kode singkat jurnal — warna berbeda per disiplin ilmu */}
+                      {(() => {
+                        const jName = (article.journals?.name || '').toUpperCase();
+                        let code = '';
+                        let colorClass = '';
+                        if (jName.includes('AJITE')) { code = 'AJITE'; colorClass = 'bg-blue-500/15 text-blue-400 border-blue-500/30'; }
+                        else if (jName.includes('AJAF')) { code = 'AJAF'; colorClass = 'bg-amber-500/15 text-amber-400 border-amber-500/30'; }
+                        else if (jName.includes('AJCS')) { code = 'AJCS'; colorClass = 'bg-purple-500/15 text-purple-400 border-purple-500/30'; }
+                        else if (jName.includes('AJES')) { code = 'AJES'; colorClass = 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30'; }
+                        else if (jName.includes('AJAF') || jName.includes('AKUNTANSI')) { code = 'AJAF'; colorClass = 'bg-amber-500/15 text-amber-400 border-amber-500/30'; }
+                        else { code = jName.split(' ')[0] || 'JRL'; colorClass = 'bg-zinc-700/50 text-zinc-300 border-zinc-600/50'; }
+                        return code ? (
+                          <span className={`text-[10px] font-black tracking-widest uppercase px-2.5 py-1 rounded-lg border ${colorClass}`}>
+                            {code}
+                          </span>
+                        ) : null;
+                      })()}
+                      <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-zinc-800 text-zinc-400 border border-zinc-700">
                         {article.journals?.name || "Jurnal Tidak Diketahui"}
                       </span>
                       <span className={`text-xs font-medium px-2 py-0.5 rounded-full border ${
-                        ['Awaiting Reviewers', 'queued'].includes(article.status) ? 'bg-amber-500/10 text-amber-500 border-amber-500/20' :
+                        article.status === 'queued' ? 'bg-orange-500/10 text-orange-400 border-orange-500/20' :
+                        ['Awaiting Reviewers'].includes(article.status) ? 'bg-amber-500/10 text-amber-500 border-amber-500/20' :
                         ['Under Review', 'under_review'].includes(article.status) ? 'bg-blue-500/10 text-blue-400 border-blue-500/20' :
                         ['Accepted', 'accepted'].includes(article.status) ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' :
+                        ['Pending Reviewer Approval'].includes(article.status) ? 'bg-violet-500/10 text-violet-400 border-violet-500/20' :
+                        ['Published'].includes(article.status) ? 'bg-teal-500/10 text-teal-400 border-teal-500/20' :
                         'bg-zinc-500/10 text-zinc-400 border-zinc-500/20'
                       }`}>
-                        {article.status}
+                        {article.status === 'queued' ? '⏳ Antrian Masuk' : article.status}
                       </span>
                     </div>
                     <h3 className="text-base font-semibold text-white group-hover:text-emerald-400 transition-colors">

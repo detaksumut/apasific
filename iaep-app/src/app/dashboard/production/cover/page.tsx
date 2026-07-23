@@ -60,7 +60,11 @@ export default async function CoverEditorDashboard() {
   try {
     const { getFirestore } = await import('@/utils/firebase/db');
     const db = getFirestore();
-    const submissionsSnapshot = await db.collection('submissions').orderBy('created_at', 'desc').get();
+    // PERBAIKAN: Query terfilter — hanya ambil stage=Copyediting, hemat kuota Firebase
+    const submissionsSnapshot = await db.collection('submissions')
+      .where('stage', '==', 'Copyediting')
+      .orderBy('created_at', 'desc')
+      .get();
     const fbAllArticles = submissionsSnapshot.docs.map(doc => {
       const data = doc.data();
       return {

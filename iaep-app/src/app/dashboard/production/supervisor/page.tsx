@@ -56,7 +56,11 @@ export default async function SupervisorDashboard() {
   try {
     const { getFirestore } = await import('@/utils/firebase/db');
     const db = getFirestore();
-    const submissionsSnapshot = await db.collection('submissions').orderBy('created_at', 'desc').get();
+    // PERBAIKAN: Query terfilter — hanya ambil stage=Production, hemat kuota Firebase
+    const submissionsSnapshot = await db.collection('submissions')
+      .where('stage', '==', 'Production')
+      .orderBy('created_at', 'desc')
+      .get();
     const existingIds = new Set([...pendingArticles, ...completedArticles].map(a => a.id));
 
     const fbArticles = submissionsSnapshot.docs.map(doc => {
@@ -70,7 +74,7 @@ export default async function SupervisorDashboard() {
           journals: data.journals || { name: 'Unknown Journal' },
           profiles: { full_name: data.author || 'Author' }
       };
-    }).filter(article => article.stage === "Production" && !existingIds.has(article.id));
+    }).filter(article => !existingIds.has(article.id));
 
     for (const fb of fbArticles) {
       if (fb.status === "Pending Supervisor") pendingArticles.push(fb);

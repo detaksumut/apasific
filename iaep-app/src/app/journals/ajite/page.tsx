@@ -14,27 +14,44 @@ export const revalidate = 0; // Disable caching so it always fetches fresh data
 export default async function AJITEJournal() {
   let articles: any[] = [];
   
+  // 1. Coba ambil dari Supabase terlebih dahulu (primary database)
   try {
-    const { data, error } = await supabaseAdmin
+    // Pertama, cari journal_id untuk AJITE
+    const { data: journals } = await supabaseAdmin
+      .from('journals')
+      .select('id, name')
+      .ilike('name', '%AJITE%');
+    
+    const ajiteJournalIds = journals?.map((j: any) => j.id) || [];
+    
+    let supabaseQuery = supabaseAdmin
       .from("submissions")
-      .select(`
-        id,
-        title,
-        abstract,
-        status,
-        created_at,
-        doi,
-        journals(name)
-      `)
+      .select(`id, title, abstract, status, created_at, doi, volume, issue, cover_file_url, journal_id, journals(name)`)
       .eq("status", "Published")
       .order("created_at", { ascending: false });
 
-    if (!error && data) {
-      articles = data.filter((pub: any) => 
-        pub.journals && 
-        pub.journals.name && 
-        pub.journals.name.toUpperCase().includes("AJITE")
-      );
+    // Filter by journal_id jika tersedia (lebih akurat)
+    if (ajiteJournalIds.length > 0) {
+      supabaseQuery = supabaseQuery.in('journal_id', ajiteJournalIds);
+    }
+
+    const { data, error } = await supabaseQuery;
+
+    if (!error && data && data.length > 0) {
+      articles = data;
+    } else if (!error && data && data.length === 0 && ajiteJournalIds.length === 0) {
+      // Fallback: filter by nama jurnal jika journal_id tidak ditemukan
+      const { data: allData } = await supabaseAdmin
+        .from("submissions")
+        .select(`id, title, abstract, status, created_at, doi, volume, issue, cover_file_url, journal_id, journals(name)`)
+        .eq("status", "Published")
+        .order("created_at", { ascending: false });
+      
+      if (allData) {
+        articles = allData.filter((pub: any) =>
+          pub.journals?.name?.toUpperCase().includes("AJITE")
+        );
+      }
     } else if (error) {
       console.error("Supabase Error:", error.message || error);
     }
@@ -42,19 +59,22 @@ export default async function AJITEJournal() {
     console.error("Fetch Error:", err);
   }
 
-  // Fallback to Firestore if empty, just like in other pages
+  // 2. Fallback ke Firestore HANYA jika Supabase tidak ada data
+  // PERBAIKAN BUG #7: Gunakan .where() untuk filter di server, BUKAN scan seluruh collection
   if (articles.length === 0) {
     try {
       const { getFirestore } = await import('@/utils/firebase/db');
       const db = getFirestore();
-      const fbSnap = await db.collection('submissions').get();
       
-      const firestoreArticles = [];
+      // Query hanya dokumen Published — hemat kuota Firebase secara drastis
+      const fbSnap = await db.collection('submissions')
+        .where('status', '==', 'Published')
+        .orderBy('created_at', 'desc')
+        .get();
+      
+      const firestoreArticles: any[] = [];
       for (const doc of fbSnap.docs) {
         const fbData = doc.data();
-        const validStatuses = ['Published'];
-        const isAdvancedStage = ['Published'].includes(fbData.stage);
-        if (!validStatuses.includes(fbData.status) && !isAdvancedStage) continue;
 
         let jName = '';
         if (fbData.journal_id) {
@@ -75,9 +95,10 @@ export default async function AJITEJournal() {
         articles = firestoreArticles.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
       }
     } catch (e) {
-      console.warn("Firestore fetch error:", e);
+      console.warn("Firestore fetch error (non-critical, Supabase is primary):", e);
     }
   }
+
 
   return (
     <div className="min-h-screen text-[#e8e8f0] font-sans pt-24 pb-20 bg-[#0a0a0a]">
@@ -155,23 +176,34 @@ export default async function AJITEJournal() {
                   SAMPUL DEPAN (COVER)
                 </div>
                 {pub.cover_file_url ? (
-                  <div className="w-full">
-                    <DynamicCover 
-                      journalName={pub.journals?.name || "AJITE"} 
-                      title={pub.title} 
-                      author={(() => {
-                        try {
-                          const abs = JSON.parse(pub.abstract);
-                          return abs.authors?.map((a:any) => a.full_name).join(', ') || "-";
-                        } catch(e) { return "-"; }
-                      })()} 
-                      doi={pub.doi} 
+                  <div className="relative w-full aspect-[1/1.4] rounded-lg overflow-hidden border border-zinc-700 shadow-2xl group-hover:scale-105 transition-transform duration-500">
+                    <img
+                      src={pub.cover_file_url}
+                      alt={`Cover ${pub.title}`}
+                      className="w-full h-full object-cover"
                     />
+                    {pub.doi && (
+                      <div className="absolute bottom-0 left-0 right-0 bg-black/80 backdrop-blur-sm p-3 border-t border-emerald-500/50 flex flex-col items-center justify-center transform translate-y-full group-hover:translate-y-0 transition-transform duration-300">
+                        <span className="text-[10px] text-zinc-400 font-bold uppercase tracking-wider mb-1">DOI</span>
+                        <span className="text-xs font-mono text-emerald-400 font-bold">{pub.doi}</span>
+                      </div>
+                    )}
                   </div>
                 ) : (
-                  <div className="w-full aspect-[1/1.4] rounded-lg border border-dashed border-zinc-700 flex flex-col items-center justify-center bg-zinc-900">
-                    <FileText className="w-12 h-12 text-zinc-700 mb-2" />
-                    <span className="text-xs text-zinc-600 font-medium text-center px-4">Sampul belum diunggah</span>
+                  <div className="w-full">
+                    <DynamicCover
+                      journalName={pub.journals?.name || "AJITE - Ilmu Komputer & Teknologi Informasi"}
+                      title={pub.title}
+                      author={(() => {
+                        try {
+                          const abs = JSON.parse(pub.abstract || '{}');
+                          return abs.authors?.map((a: any) => a.full_name).join(', ') || 'APASIFIC Author';
+                        } catch(e) { return 'APASIFIC Author'; }
+                      })()}
+                      doi={pub.doi || ''}
+                      volume={pub.volume || '1'}
+                      edisi={pub.issue || '1'}
+                    />
                   </div>
                 )}
               </div>

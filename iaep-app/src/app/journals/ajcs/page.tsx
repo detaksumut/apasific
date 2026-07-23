@@ -14,27 +14,44 @@ export const revalidate = 0; // Disable caching so it always fetches fresh data
 export default async function AJCSJournal() {
   let articles: any[] = [];
   
+  // 1. Coba ambil dari Supabase terlebih dahulu (primary database)
   try {
-    const { data, error } = await supabaseAdmin
+    // Pertama, cari journal_id untuk AJCS
+    const { data: journals } = await supabaseAdmin
+      .from('journals')
+      .select('id, name')
+      .ilike('name', '%AJCS%');
+    
+    const ajcsJournalIds = journals?.map((j: any) => j.id) || [];
+    
+    let supabaseQuery = supabaseAdmin
       .from("submissions")
-      .select(`
-        id,
-        title,
-        abstract,
-        status,
-        created_at,
-        doi,
-        journals(name)
-      `)
+      .select(`id, title, abstract, status, created_at, doi, volume, issue, cover_file_url, journal_id, journals(name)`)
       .eq("status", "Published")
       .order("created_at", { ascending: false });
 
-    if (!error && data) {
-      articles = data.filter((pub: any) => 
-        pub.journals && 
-        pub.journals.name && 
-        pub.journals.name.toUpperCase().includes("AJCS")
-      );
+    // Filter by journal_id jika tersedia (lebih akurat)
+    if (ajcsJournalIds.length > 0) {
+      supabaseQuery = supabaseQuery.in('journal_id', ajcsJournalIds);
+    }
+
+    const { data, error } = await supabaseQuery;
+
+    if (!error && data && data.length > 0) {
+      articles = data;
+    } else if (!error && data && data.length === 0 && ajcsJournalIds.length === 0) {
+      // Fallback: filter by nama jurnal jika journal_id tidak ditemukan
+      const { data: allData } = await supabaseAdmin
+        .from("submissions")
+        .select(`id, title, abstract, status, created_at, doi, volume, issue, cover_file_url, journal_id, journals(name)`)
+        .eq("status", "Published")
+        .order("created_at", { ascending: false });
+      
+      if (allData) {
+        articles = allData.filter((pub: any) =>
+          pub.journals?.name?.toUpperCase().includes("AJCS")
+        );
+      }
     } else if (error) {
       console.error("Supabase Error:", error.message || error);
     }
@@ -42,27 +59,29 @@ export default async function AJCSJournal() {
     console.error("Fetch Error:", err);
   }
 
-  // Fallback to Firestore if empty, just like in other pages
+  // 2. Fallback ke Firestore HANYA jika Supabase tidak ada data
+  // PERBAIKAN BUG #7: Gunakan .where() untuk filter di server, BUKAN scan seluruh collection
   if (articles.length === 0) {
     try {
       const { getFirestore } = await import('@/utils/firebase/db');
       const db = getFirestore();
-      const fbSnap = await db.collection('submissions').get();
       
-      // Pre-fetch jurnal AJCS via slug sebagai fallback jika journal_id sudah orphan
-      const { data: ajcsJournal } = await supabaseAdmin.from('journals').select('id, name').eq('slug', 'ajcs').single();
+      // Pre-fetch jurnal AJCS via nama sebagai fallback
+      const { data: ajcsJournal } = await supabaseAdmin.from('journals').select('id, name').ilike('name', '%AJCS%').limit(1).single();
       const ajcsJournalId = ajcsJournal?.id;
 
-      const firestoreArticles = [];
+      // Query hanya dokumen Published — hemat kuota Firebase secara drastis
+      const fbSnap = await db.collection('submissions')
+        .where('status', '==', 'Published')
+        .orderBy('created_at', 'desc')
+        .get();
+      
+      const firestoreArticles: any[] = [];
       for (const doc of fbSnap.docs) {
         const fbData = doc.data();
-        const validStatuses = ['Published'];
-        const isAdvancedStage = ['Published'].includes(fbData.stage);
-        if (!validStatuses.includes(fbData.status) && !isAdvancedStage) continue;
 
         let jName = '';
         if (fbData.journal_id) {
-           // Lookup via journal_id
            const { data: jData } = await supabaseAdmin.from('journals').select('name').eq('id', fbData.journal_id).single();
            if (jData) {
              jName = jData.name;
@@ -78,6 +97,7 @@ export default async function AJCSJournal() {
             jName = ajcsJournal?.name || 'AJCS - Pengabdian Kepada Masyarakat (PKM)';
           }
         }
+
         
         if (jName.toUpperCase().includes("AJCS")) {
           firestoreArticles.push({

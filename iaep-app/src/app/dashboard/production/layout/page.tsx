@@ -61,7 +61,11 @@ export default async function LayoutEditorDashboard() {
   try {
     const { getFirestore } = await import('@/utils/firebase/db');
     const db = getFirestore();
-    const submissionsSnapshot = await db.collection('submissions').orderBy('created_at', 'desc').get();
+    // PERBAIKAN: Query terfilter — hanya ambil stage=Copyediting, hemat kuota Firebase
+    const submissionsSnapshot = await db.collection('submissions')
+      .where('stage', '==', 'Copyediting')
+      .orderBy('created_at', 'desc')
+      .get();
     const fbArticles = submissionsSnapshot.docs.map(doc => {
       const data = doc.data();
       return {
@@ -73,7 +77,7 @@ export default async function LayoutEditorDashboard() {
           journals: data.journals || { name: 'Unknown Journal' },
           profiles: { full_name: data.author || 'Author' }
       };
-    }).filter(article => article.stage === "Copyediting" && article.status === "Assigned to Layout");
+    }).filter(article => article.status === "Assigned to Layout");
     
     // Merge avoiding duplicates if any for Queue
     const existingIds = new Set(articles.map(a => a.id));

@@ -1270,7 +1270,7 @@ export default function SubmissionControlPanel() {
                               />
                             </div>
                             <div className="flex-1">
-                              <label className="block text-xs font-bold text-gray-700 uppercase mb-1">Edisi / Issue</label>
+                              <label className="block text-xs font-bold text-gray-700 uppercase mb-1">Edisi</label>
                               <input 
                                 type="text" 
                                 value={customIssue} 

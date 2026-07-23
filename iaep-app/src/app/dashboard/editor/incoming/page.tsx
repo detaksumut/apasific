@@ -56,6 +56,19 @@ export default async function IncomingArticles() {
   } catch (e) {
     console.warn("Supabase fetch failed in IncomingArticles, falling back to Firestore");
     try {
+      const { createClient: createSupabaseClient } = await import('@supabase/supabase-js');
+      const supabaseAdmin = createSupabaseClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL || "https://aroasmlrlpjbjokvxlgo.supabase.co",
+        process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ""
+      );
+
+      // Pre-fetch semua jurnal dari Supabase untuk lookup nama jurnal via journal_id
+      const { data: allJournals } = await supabaseAdmin.from('journals').select('id, name, slug');
+      const journalMap: Record<string, string> = {};
+      if (allJournals) {
+        allJournals.forEach((j: any) => { journalMap[j.id] = j.name; });
+      }
+
       const { getFirestore } = await import('@/utils/firebase/db');
       const db = getFirestore();
       
@@ -70,13 +83,17 @@ export default async function IncomingArticles() {
       articles = submissionsSnapshot.docs
         .map(doc => {
           const data = doc.data();
+          // Lookup nama jurnal dari map; fallback ke field journal_name atau 'Jurnal Tidak Diketahui'
+          const journalName = journalMap[data.journal_id] || data.journal_name || 'Jurnal Tidak Diketahui';
           return {
               id: doc.id,
               title: data.title,
               status: data.status,
               created_at: data.created_at ? data.created_at.toDate() : new Date(),
-              journals: data.journals || { name: 'Unknown Journal' },
-              profiles: { full_name: 'Author', phone: data.phone || '' } // Cannot easily join Firestore profiles here without multiple queries
+              journal_id: data.journal_id,
+              journals: { name: journalName },
+              profiles: { full_name: data.author_name || 'Penulis', phone: data.phone || '' },
+              phone: data.phone || ''
           };
         })
         .filter(article => allowedStatuses.includes(article.status));

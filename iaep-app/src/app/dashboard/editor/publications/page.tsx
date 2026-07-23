@@ -101,9 +101,9 @@ export default function PublicationsPage() {
           </select>
         </div>
         <div className="bg-zinc-900/50 border border-zinc-800/80 p-4 rounded-xl">
-          <label className="block text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-2">Pilih Nomor/Issue</label>
+          <label className="block text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-2">Pilih Edisi</label>
           <select className="w-full bg-zinc-800/50 border border-zinc-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-[#c9a84c] focus:ring-1 focus:ring-[#c9a84c] transition-all">
-            <option>No. 1 - Edisi Perdana Januari-Juni 2026</option>
+            <option>Edisi 1 - Perdana Januari-Juni 2026</option>
           </select>
         </div>
       </div>

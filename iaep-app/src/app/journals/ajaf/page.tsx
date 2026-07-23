@@ -2,6 +2,7 @@ import React from "react";
 import Link from "next/link";
 import { CheckCircle2, ChevronLeft, FileText, ArrowRight } from "lucide-react";
 import { createClient } from "@supabase/supabase-js";
+import DynamicCover from "@/components/DynamicCover";
 
 // Buat Supabase client dengan Service Role Key untuk bypass RLS (karena ini halaman publik)
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
@@ -14,39 +15,58 @@ export default async function AJAFJournal() {
   let articles: any[] = [];
   
   try {
-    const { data, error } = await supabaseAdmin
+    // Cari journal_id AJAF dulu
+    const { data: ajafJournals } = await supabaseAdmin
+      .from('journals')
+      .select('id, name')
+      .ilike('name', '%AJAF%');
+    const ajafIds = (ajafJournals || []).map((j: any) => j.id);
+
+    // Query: status Published OR Accepted, filter by journal AJAF
+    let query = supabaseAdmin
       .from("submissions")
-      .select(`
-        id,
-        title,
-        abstract,
-        status,
-        created_at,
-        doi,
-        journals(name)
-      `)
-      .eq("status", "Accepted")
+      .select(`id, title, abstract, status, created_at, doi, volume, issue, cover_file_url, journal_id, journals(name)`)
+      .in("status", ["Published", "Accepted", "Production Completed"])
       .order("created_at", { ascending: false });
 
-    if (!error && data) {
-      articles = data.filter((pub: any) => 
-        pub.journals && 
-        pub.journals.name && 
-        pub.journals.name.toUpperCase().includes("AJAF")
-      );
-    } else if (error) {
-      console.error("Supabase Error:", error.message || error);
+    if (ajafIds.length > 0) {
+      query = query.in('journal_id', ajafIds);
+    }
+
+    const { data, error } = await query;
+
+    if (!error && data && data.length > 0) {
+      articles = data;
+    } else if (!error) {
+      // Fallback: cari tanpa filter journal_id, filter by nama
+      const { data: allData } = await supabaseAdmin
+        .from("submissions")
+        .select(`id, title, abstract, status, created_at, doi, volume, issue, cover_file_url, journal_id, journals(name)`)
+        .in("status", ["Published", "Accepted", "Production Completed"])
+        .order("created_at", { ascending: false });
+      if (allData) {
+        articles = allData.filter((pub: any) =>
+          pub.journals?.name?.toUpperCase().includes("AJAF")
+        );
+      }
+    } else {
+      console.error("Supabase Error:", error?.message || error);
     }
   } catch (err) {
     console.error("Fetch Error:", err);
   }
+
 
   // Fallback to Firestore if empty, just like in other pages
   if (articles.length === 0) {
     try {
       const { getFirestore } = await import('@/utils/firebase/db');
       const db = getFirestore();
-      const fbSnap = await db.collection('submissions').get();
+      // PERBAIKAN: query terfilter, hindari full scan
+      const fbSnap = await db.collection('submissions')
+        .where('status', '==', 'Published')
+        .orderBy('created_at', 'desc')
+        .get();
       
       const firestoreArticles = [];
       for (const doc of fbSnap.docs) {
@@ -173,9 +193,21 @@ export default async function AJAFJournal() {
                     )}
                   </div>
                 ) : (
-                  <div className="w-full aspect-[1/1.4] rounded-lg border border-dashed border-zinc-700 flex flex-col items-center justify-center bg-zinc-900">
-                    <FileText className="w-12 h-12 text-zinc-700 mb-2" />
-                    <span className="text-xs text-zinc-600 font-medium text-center px-4">Sampul belum diunggah</span>
+                  <div className="relative w-full aspect-[1/1.4] rounded-lg overflow-hidden border border-zinc-700 shadow-2xl group-hover:scale-105 transition-transform duration-500">
+                    <DynamicCover
+                      title={pub.title}
+                      author={(() => {
+                        try {
+                          const abs = JSON.parse(pub.abstract || '{}');
+                          if (abs.authors?.length) return abs.authors.map((a: any) => a.full_name).join(', ');
+                        } catch(e) {}
+                        return 'APASIFIC Author';
+                      })()}
+                      journalName={pub.journals?.name || 'AJAF - Akuntansi, Audit & Perpajakan'}
+                      doi={pub.doi || ''}
+                      volume={pub.volume || '1'}
+                      edisi={pub.issue || '1'}
+                    />
                   </div>
                 )}
                 {/* Teks DOI statis di bawah gambar sampul */}
