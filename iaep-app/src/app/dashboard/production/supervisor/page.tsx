@@ -128,7 +128,7 @@ export default async function SupervisorDashboard() {
               if (fbSubId) {
                   await db.collection('submissions').doc(fbSubId).update({ stage: 'Review', status: 'Under Review' });
                   const revSnap = await db.collection('review_assignments').where('submission_id', '==', fbSubId).get();
-                  revSnap.forEach(async doc => {
+                  revSnap.forEach(async (doc: any) => {
                       if (doc.data().status === 'completed') {
                           await db.collection('review_assignments').doc(doc.id).update({ status: 'accepted', completed_at: null });
                       }

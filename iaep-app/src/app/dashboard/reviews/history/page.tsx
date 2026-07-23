@@ -112,7 +112,7 @@ export default async function ReviewHistoryPage() {
                           assigned_at: new Date()
                       });
                   } else {
-                      revSnap.forEach(async doc => {
+                      revSnap.forEach(async (doc: any) => {
                           await db.collection('review_assignments').doc(doc.id).update({ status: 'accepted', completed_at: null });
                       });
                   }
