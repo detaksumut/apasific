@@ -451,7 +451,7 @@ export default async function Home() {
           <div class="div-icon">🎓</div>
           <h3>Pendidikan</h3>
           <p>Meningkatkan pedagogi, desain kurikulum, dan kepemimpinan pendidikan untuk abad ke-21.</p>
-          <a href="economics.html" class="div-link">Jelajahi Divisi →</a>
+          <a href="education.html" class="div-link">Jelajahi Divisi →</a>
         </div>
         <div class="division-card" id="div-law" style="animation-delay:0.3s">
           <div class="div-num">07</div>
@@ -472,21 +472,21 @@ export default async function Home() {
           <div class="div-icon">⚙️</div>
           <h3>Teknik</h3>
           <p>Memajukan ilmu teknik, teknologi terapan, dan solusi infrastruktur berkelanjutan.</p>
-          <a href="it.html" class="div-link">Jelajahi Divisi →</a>
+          <a href="engineering.html" class="div-link">Jelajahi Divisi →</a>
         </div>
         <div class="division-card" id="div-social" style="animation-delay:0.45s">
           <div class="div-num">10</div>
           <div class="div-icon">🌐</div>
           <h3>Ilmu Sosial</h3>
           <p>Menjelajahi masyarakat manusia, dinamika budaya, dan penelitian sosial interdisipliner.</p>
-          <a href="engineering.html" class="div-link">Jelajahi Divisi →</a>
+          <a href="social.html" class="div-link">Jelajahi Divisi →</a>
         </div>
         <div class="division-card" id="div-tourism" style="animation-delay:0.5s">
           <div class="div-num">11</div>
           <div class="div-icon">✈️</div>
           <h3>Pariwisata</h3>
           <p>Memajukan pariwisata berkelanjutan, manajemen perhotelan, dan pelestarian warisan budaya.</p>
-          <a href="social.html" class="div-link">Jelajahi Divisi →</a>
+          <a href="tourism.html" class="div-link">Jelajahi Divisi →</a>
         </div>
         <div class="division-card" id="div-health" style="animation-delay:0.55s">
           <div class="div-num">12</div>
