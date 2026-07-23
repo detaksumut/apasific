@@ -6,6 +6,7 @@ import path from 'path';
 export async function GET() {
   try {
     const admin = getFirebaseAdmin();
+    if (!admin) return NextResponse.json({ success: false, message: 'Firebase admin not available' });
     const usersPath = path.join(process.cwd(), 'apasific_registered_users.json');
     
     if (!fs.existsSync(usersPath)) {

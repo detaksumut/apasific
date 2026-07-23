@@ -6,6 +6,7 @@ export const dynamic = 'force-dynamic';
 export async function GET() {
   try {
     const admin = getFirebaseAdmin();
+    if (!admin) return NextResponse.json({ error: 'Firebase admin not available' }, { status: 503 });
     const result: any = { all_auth_users: [] };
     
     // Fetch all users
