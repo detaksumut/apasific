@@ -18,7 +18,7 @@ export async function GET() {
     const { getFirestore } = await import('@/utils/firebase/db');
     const db = getFirestore();
     const fbAssignmentsSnap = await db.collection('review_assignments').orderBy('assigned_at', 'desc').limit(5).get();
-    const fbAssignments = fbAssignmentsSnap.docs.map(d => ({id: d.id, ...d.data()}));
+    const fbAssignments = fbAssignmentsSnap.docs.map((d: any) => ({id: d.id, ...d.data()}));
 
     return NextResponse.json({
       eko_auth_id: ekoAuth ? ekoAuth.id : null,

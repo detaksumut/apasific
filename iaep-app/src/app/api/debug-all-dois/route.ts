@@ -15,7 +15,7 @@ export async function GET() {
     for (const col of collections) {
       if (['submissions', 'published_articles', 'articles', 'issues', 'journal_issues'].includes(col.id)) {
         const snap = await col.get();
-        const docsWithDoi = snap.docs.map(d => ({id: d.id, ...d.data()})).filter((d: any) => d.doi);
+        const docsWithDoi = snap.docs.map((d: any) => ({id: d.id, ...d.data()})).filter((d: any) => d.doi);
         result[col.id] = {
            total: snap.size,
            with_doi: docsWithDoi.length,

@@ -37,7 +37,7 @@ export async function GET() {
     
     // Also let's check who kadsumut@gmail.com is in profiles
     const profilesSnap = await db.collection('profiles').where('email', '==', 'kadsumut@gmail.com').get();
-    result.kadsumut_profile = profilesSnap.docs.map(d => ({id: d.id, ...d.data()}));
+    result.kadsumut_profile = profilesSnap.docs.map((d: any) => ({id: d.id, ...d.data()}));
     
     return NextResponse.json(result);
   } catch (error: any) {
