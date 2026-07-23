@@ -90,7 +90,7 @@ export default async function ReviewHistoryPage() {
               const db = getFirestore();
               const snap = await db.collection('submissions').get();
               let fbSubId = null;
-              snap.forEach(doc => {
+              snap.forEach((doc: any) => {
                   const t = doc.data().title || "";
                   if (t.toUpperCase().includes("SUPPLY CHAIN TRANSPARENCY")) fbSubId = doc.id;
               });
