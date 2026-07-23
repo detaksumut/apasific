@@ -25,12 +25,12 @@ export async function GET() {
 
     // 3. Read Firestore review_assignments and sync into Supabase
     let syncedFromFirestore = 0;
+    const resolvedProfileId = kadsumutProfile?.id || kadsumutAuth?.id;
     try {
       const { getFirestore } = await import('@/utils/firebase/db');
       const db = getFirestore();
       const fbSnap = await db.collection('review_assignments').get();
       
-      const resolvedProfileId = kadsumutProfile?.id || kadsumutAuth?.id;
       for (const doc of fbSnap.docs) {
          const data = doc.data();
          const targetReviewerId = resolvedProfileId || data.reviewer_id || 'demo-user-1784054537519';
