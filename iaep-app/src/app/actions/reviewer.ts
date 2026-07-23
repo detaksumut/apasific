@@ -293,38 +293,36 @@ export async function getAssignmentDetails(assignmentId: string) {
     let assignData: any = null;
     const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(assignmentId);
 
-    // 1. Fetch assignment from Supabase (only if UUID)
-    if (isUuid) {
-      try {
-        const { data } = await supabaseAdmin
-          .from('review_assignments')
-          .select('*, submissions(*, journals(name))')
-          .or(`id.eq.${assignmentId},submission_id.eq.${assignmentId}`)
-          .maybeSingle();
+    // 1. Fetch assignment from Supabase
+    try {
+      let q = supabaseAdmin.from('review_assignments').select('*, submissions(*, journals(name))');
+      if (isUuid) {
+        q = q.or(`id.eq.${assignmentId},submission_id.eq.${assignmentId}`);
+      } else {
+        q = q.eq('id', assignmentId);
+      }
+      const { data } = await q.maybeSingle();
+      if (data) assignData = data;
+    } catch(e) {}
 
-        if (data) assignData = data;
-      } catch(e) {}
-    }
-
-    // 2. Fetch assignment from Firestore fallback
+    // Fallback query if maybeSingle didn't match
     if (!assignData) {
       try {
-        const { getFirestore } = await import('@/utils/firebase/db');
-        const db = getFirestore();
-        if (db) {
-          const doc = await db.collection('review_assignments').doc(assignmentId).get();
-          if (doc.exists) {
-            assignData = { id: doc.id, ...doc.data() };
-          }
+        const { data: list } = await supabaseAdmin
+          .from('review_assignments')
+          .select('*, submissions(*, journals(name))')
+          .limit(50);
+        if (list) {
+          assignData = list.find((a: any) => String(a.id) === String(assignmentId) || String(a.submission_id) === String(assignmentId));
         }
       } catch(e) {}
     }
 
     if (!assignData) return null;
 
-    // 3. Fetch submission data if missing
+    // 2. Fetch submission data if missing or incomplete
     let sub = assignData.submissions;
-    const targetSubId = assignData.submission_id;
+    const targetSubId = assignData.submission_id || assignmentId;
 
     if (!sub || !sub.title) {
       if (targetSubId) {
@@ -340,75 +338,44 @@ export async function getAssignmentDetails(assignmentId: string) {
           if (subData) sub = subData;
         } catch(e) {}
       }
-
-      if ((!sub || !sub.title) && targetSubId) {
-        try {
-          const { getFirestore } = await import('@/utils/firebase/db');
-          const db = getFirestore();
-          if (db) {
-            const subDoc = await db.collection('submissions').doc(targetSubId).get();
-            if (subDoc.exists) {
-              const sd = subDoc.data();
-              sub = {
-                id: subDoc.id,
-                title: sd?.title,
-                abstract: sd?.abstract,
-                file_url: sd?.file_url || sd?.manuscript_url || sd?.cover_file_url,
-                journals: sd?.journals || { name: 'Jurnal' }
-              };
-            }
-          }
-        } catch(e) {}
-      }
     }
 
-    // Robust file URL resolution
-    let fileUrl = sub?.file_url || sub?.manuscript_url || sub?.anonymous_file_url || assignData.file_url || "";
+    // 3. Resolve file URL 100% via Supabase (DB + Storage)
+    let fileUrl = sub?.file_url || sub?.manuscript_url || sub?.anonymous_file_url || assignData?.file_url || assignData?.manuscript_url || "";
 
-    if (!fileUrl && (targetSubId || sub?.id)) {
-      const subIdToSearch = targetSubId || sub?.id;
-      // 1. Try submission_files table in Supabase
-      try {
-        const { data: sfFiles } = await supabaseAdmin
-          .from('submission_files')
-          .select('*')
-          .or(`submission_id.eq.${subIdToSearch},submission_id.eq.${sub?.id}`)
-          .order('created_at', { ascending: false });
-
-        if (sfFiles && sfFiles.length > 0) {
-          const selected = sfFiles.find((f: any) => f.file_name?.includes('anonymous')) || sfFiles[0];
-          if (selected?.storage_path) {
-            const { data: pUrl } = supabaseAdmin.storage.from('manuscripts').getPublicUrl(selected.storage_path);
-            if (pUrl?.publicUrl) fileUrl = pUrl.publicUrl;
-          }
-        }
-      } catch(e) {}
-
-      // 2. Try listing storage files directly from Supabase Storage bucket 'manuscripts'
-      if (!fileUrl && subIdToSearch) {
+    if (!fileUrl) {
+      const subIdToSearch = targetSubId || sub?.id || assignmentId;
+      if (subIdToSearch) {
+        // A. Try submission_files table in Supabase
         try {
-          const { data: storageList } = await supabaseAdmin.storage.from('manuscripts').list(subIdToSearch);
-          if (storageList && storageList.length > 0) {
-            const selectedFile = storageList.find((f: any) => f.name.includes('anonymous')) || storageList[0];
-            const { data: pUrl } = supabaseAdmin.storage.from('manuscripts').getPublicUrl(`${subIdToSearch}/${selectedFile.name}`);
-            if (pUrl?.publicUrl) fileUrl = pUrl.publicUrl;
+          let sfQ = supabaseAdmin.from('submission_files').select('*');
+          if (sub?.id && sub.id !== subIdToSearch) {
+            sfQ = sfQ.or(`submission_id.eq.${subIdToSearch},submission_id.eq.${sub.id}`);
+          } else {
+            sfQ = sfQ.eq('submission_id', subIdToSearch);
           }
-        } catch(e) {}
-      }
+          const { data: sfFiles } = await sfQ.order('created_at', { ascending: false });
 
-      // 3. Try Firestore fallback
-      if (!fileUrl && subIdToSearch) {
-        try {
-          const { getFirestore } = await import('@/utils/firebase/db');
-          const db = getFirestore();
-          if (db) {
-            const subDoc = await db.collection('submissions').doc(subIdToSearch).get();
-            if (subDoc.exists) {
-              const sd = subDoc.data();
-              fileUrl = sd?.file_url || sd?.manuscript_url || sd?.anonymous_file_url || sd?.storage_path || "";
+          if (sfFiles && sfFiles.length > 0) {
+            const selected = sfFiles.find((f: any) => f.file_name?.toLowerCase().includes('anonymous')) || sfFiles[0];
+            if (selected?.storage_path) {
+              const { data: pUrl } = supabaseAdmin.storage.from('manuscripts').getPublicUrl(selected.storage_path);
+              if (pUrl?.publicUrl) fileUrl = pUrl.publicUrl;
             }
           }
         } catch(e) {}
+
+        // B. Try listing storage files directly from Supabase Storage bucket 'manuscripts'
+        if (!fileUrl) {
+          try {
+            const { data: storageList } = await supabaseAdmin.storage.from('manuscripts').list(subIdToSearch);
+            if (storageList && storageList.length > 0) {
+              const selectedFile = storageList.find((f: any) => f.name.toLowerCase().includes('anonymous')) || storageList[0];
+              const { data: pUrl } = supabaseAdmin.storage.from('manuscripts').getPublicUrl(`${subIdToSearch}/${selectedFile.name}`);
+              if (pUrl?.publicUrl) fileUrl = pUrl.publicUrl;
+            }
+          } catch(e) {}
+        }
       }
     }
 
