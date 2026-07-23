@@ -10,7 +10,7 @@ export async function GET() {
     
     // Check if there are other collections like 'articles', 'published_articles', 'pkm'
     const collections = await db.listCollections();
-    result.collections = collections.map(c => c.id);
+    result.collections = collections.map((c: any) => c.id);
     
     for (const col of collections) {
       if (['submissions', 'published_articles', 'articles', 'issues', 'journal_issues'].includes(col.id)) {
