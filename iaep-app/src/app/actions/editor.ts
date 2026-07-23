@@ -1245,13 +1245,7 @@ export async function assignReviewer(submissionId: string, reviewerId: string, r
             console.error("Supabase assign reviewer failed (likely UUID mismatch, continuing to Firestore):", sbError);
         }
 
-        // Sinkron reviewer_email ke tabel submissions juga
-        if (resolvedEmail) {
-            await supabaseAdmin
-                .from('submissions')
-                .update({ reviewer_email: resolvedEmail, reviewer_name: reviewerName || null })
-                .eq('id', submissionId);
-        }
+        // Reviewer assignment tracking is isolated strictly within the review_assignments table
 
         // Insert to Firestore review_assignments
         try {

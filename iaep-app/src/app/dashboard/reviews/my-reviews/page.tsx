@@ -47,12 +47,12 @@ export default async function MyReviewsPage() {
     const idArray = Array.from(candidateIds);
     const userEmail = user.email && !user.email.includes('fallback@') ? user.email.toLowerCase() : null;
 
-    // Query 1: by reviewer_id
+    // Query 1: by reviewer_id (Hanya penugasan yang SUDAH DITERIMA/ACCEPTED oleh Reviewer)
     const { data: dataById } = await supabaseAdmin
       .from("review_assignments")
       .select("*, submissions(*, journals(name))")
       .in("reviewer_id", idArray)
-      .in("status", ["accepted", "pending"])
+      .eq("status", "accepted")
       .order("assigned_at", { ascending: false });
 
     let allData: any[] = dataById || [];
@@ -63,7 +63,7 @@ export default async function MyReviewsPage() {
         .from("review_assignments")
         .select("*, submissions(*, journals(name))")
         .eq("reviewer_email", userEmail)
-        .in("status", ["accepted", "pending"])
+        .eq("status", "accepted")
         .order("assigned_at", { ascending: false });
 
       if (dataByEmail && dataByEmail.length > 0) {
