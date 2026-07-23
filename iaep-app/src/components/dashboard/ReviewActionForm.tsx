@@ -14,6 +14,7 @@ export default function ReviewActionForm({ assignment }: { assignment: any }) {
   const [isUploading, setIsUploading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
+  const supabase = createClient();
 
   const handleAcceptAssignment = async () => {
     setIsSubmitting(true);
