@@ -340,50 +340,64 @@ export async function getAssignmentDetails(assignmentId: string) {
       }
     }
 
+    // Helper to obtain a working URL from Supabase Storage
+    const getStorageUrl = async (pathStr: string): Promise<string> => {
+      if (!pathStr) return "";
+      if (pathStr.startsWith('http://') || pathStr.startsWith('https://')) return pathStr;
+      try {
+        const { data: signedData } = await supabaseAdmin.storage.from('manuscripts').createSignedUrl(pathStr, 86400);
+        if (signedData?.signedUrl) return signedData.signedUrl;
+      } catch(e) {}
+      try {
+        const { data: pubData } = supabaseAdmin.storage.from('manuscripts').getPublicUrl(pathStr);
+        if (pubData?.publicUrl) return pubData.publicUrl;
+      } catch(e) {}
+      return "";
+    };
+
     // 3. Resolve file URL 100% via Supabase (DB + Storage)
-    let fileUrl = sub?.file_url || sub?.manuscript_url || sub?.anonymous_file_url || assignData?.file_url || assignData?.manuscript_url || "";
+    const candidateIds = Array.from(new Set([
+      targetSubId,
+      sub?.submission_id,
+      sub?.id,
+      assignData?.submission_id,
+      assignData?.id,
+      assignmentId
+    ].filter(Boolean)));
 
-    if (!fileUrl) {
-      const subIdToSearch = targetSubId || sub?.id || assignmentId;
-      if (subIdToSearch) {
-        // A. Try submission_files table in Supabase
-        try {
-          let sfQ = supabaseAdmin.from('submission_files').select('*');
-          if (sub?.id && sub.id !== subIdToSearch) {
-            sfQ = sfQ.or(`submission_id.eq.${subIdToSearch},submission_id.eq.${sub.id}`);
-          } else {
-            sfQ = sfQ.eq('submission_id', subIdToSearch);
+    let rawFileUrl = sub?.file_url || sub?.manuscript_url || sub?.anonymous_file_url || assignData?.file_url || assignData?.manuscript_url || "";
+    let fileUrl = await getStorageUrl(rawFileUrl);
+
+    // If empty, search submission_files in Supabase across all candidate IDs
+    if (!fileUrl && candidateIds.length > 0) {
+      try {
+        const { data: sfFiles } = await supabaseAdmin
+          .from('submission_files')
+          .select('*')
+          .in('submission_id', candidateIds)
+          .order('created_at', { ascending: false });
+
+        if (sfFiles && sfFiles.length > 0) {
+          const selected = sfFiles.find((f: any) => f.file_name?.toLowerCase().includes('anonymous')) || sfFiles[0];
+          if (selected?.storage_path) {
+            fileUrl = await getStorageUrl(selected.storage_path);
           }
-          const { data: sfFiles } = await sfQ.order('created_at', { ascending: false });
-
-          if (sfFiles && sfFiles.length > 0) {
-            const selected = sfFiles.find((f: any) => f.file_name?.toLowerCase().includes('anonymous')) || sfFiles[0];
-            if (selected?.storage_path) {
-              const { data: pUrl } = supabaseAdmin.storage.from('manuscripts').getPublicUrl(selected.storage_path);
-              if (pUrl?.publicUrl) fileUrl = pUrl.publicUrl;
-            }
-          }
-        } catch(e) {}
-
-        // B. Try listing storage files directly from Supabase Storage bucket 'manuscripts'
-        if (!fileUrl) {
-          try {
-            const { data: storageList } = await supabaseAdmin.storage.from('manuscripts').list(subIdToSearch);
-            if (storageList && storageList.length > 0) {
-              const selectedFile = storageList.find((f: any) => f.name.toLowerCase().includes('anonymous')) || storageList[0];
-              const { data: pUrl } = supabaseAdmin.storage.from('manuscripts').getPublicUrl(`${subIdToSearch}/${selectedFile.name}`);
-              if (pUrl?.publicUrl) fileUrl = pUrl.publicUrl;
-            }
-          } catch(e) {}
         }
-      }
+      } catch(e) {}
     }
 
-    if (fileUrl && !fileUrl.startsWith('http://') && !fileUrl.startsWith('https://')) {
-      try {
-        const { data: pUrl } = supabaseAdmin.storage.from('manuscripts').getPublicUrl(fileUrl);
-        if (pUrl?.publicUrl) fileUrl = pUrl.publicUrl;
-      } catch(e) {}
+    // If still empty, search Supabase Storage bucket 'manuscripts' directly
+    if (!fileUrl && candidateIds.length > 0) {
+      for (const idToSearch of candidateIds) {
+        try {
+          const { data: storageList } = await supabaseAdmin.storage.from('manuscripts').list(String(idToSearch));
+          if (storageList && storageList.length > 0) {
+            const selectedFile = storageList.find((f: any) => f.name.toLowerCase().includes('anonymous')) || storageList[0];
+            fileUrl = await getStorageUrl(`${idToSearch}/${selectedFile.name}`);
+            if (fileUrl) break;
+          }
+        } catch(e) {}
+      }
     }
 
     const dueDateStr = assignData.deadline
