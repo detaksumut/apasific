@@ -394,6 +394,11 @@ export async function getActiveReviewers() {
     }
 }
 
+export async function getReviewers() {
+    const res = await getActiveReviewers();
+    return res.reviewers || [];
+}
+
 export async function getEditorialBoard(journalName: string) {
     try {
         const supabaseAdmin = (await import('@supabase/supabase-js')).createClient(
