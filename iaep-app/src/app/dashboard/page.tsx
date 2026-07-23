@@ -22,7 +22,7 @@ export default async function AuthorDashboard() {
     if (fbToken || fallbackUserId) {
         try {
             const admin = getFirebaseAdmin();
-            if (fbToken) {
+            if (fbToken && admin) {
                // fbToken is a Custom Token (JWT), not an ID Token. Decode it manually to get UID.
                const payloadBase64 = fbToken.split('.')[1];
                const payload = JSON.parse(Buffer.from(payloadBase64, 'base64').toString());

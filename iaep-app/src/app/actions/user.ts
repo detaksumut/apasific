@@ -15,6 +15,7 @@ export async function getCurrentUserRole() {
     if (fbToken) {
         try {
             const admin = getFirebaseAdmin();
+            if (!admin) throw new Error('Firebase admin not available');
             const payloadBase64 = fbToken.split('.')[1];
             const payload = JSON.parse(Buffer.from(payloadBase64, 'base64').toString());
             const fbUser = await admin.auth().getUser(payload.uid);
