@@ -30,9 +30,10 @@ export async function GET() {
       const db = getFirestore();
       const fbSnap = await db.collection('review_assignments').get();
       
+      const resolvedProfileId = kadsumutProfile?.id || kadsumutAuth?.id;
       for (const doc of fbSnap.docs) {
          const data = doc.data();
-         const targetReviewerId = activeProfileId || data.reviewer_id || 'demo-user-1784054537519';
+         const targetReviewerId = resolvedProfileId || data.reviewer_id || 'demo-user-1784054537519';
          
          const { error: insErr } = await supabaseAdmin.from('review_assignments').upsert({
             id: doc.id.includes('-') ? doc.id : undefined,
@@ -56,7 +57,7 @@ export async function GET() {
       success: true,
       kadsumut_auth: kadsumutAuth ? { id: kadsumutAuth.id, email: kadsumutAuth.email } : null,
       kadsumut_profile: kadsumutProfile,
-      activeProfileId,
+      activeProfileId: resolvedProfileId ?? null,
       syncedFromFirestore,
       assignments_in_db: finalAssignments?.length || 0,
       finalAssignments
