@@ -14,6 +14,15 @@ export default function CoverGenerator({ submission, generatedDoi }: CoverGenera
   const [customBgUrl, setCustomBgUrl] = useState<string | null>(null);
   const [generating, setGenerating] = useState(false);
   const [dynamicVolText, setDynamicVolText] = useState<string>('');
+
+  // Interactive Typography Controls for Main Title & Subtitle
+  const [mainTitleSize, setMainTitleSize] = useState<number>(3.1);
+  const [mainTitleColor, setMainTitleColor] = useState<string>('#f0c05a');
+  const [mainTitleFont, setMainTitleFont] = useState<string>('sans-serif');
+
+  const [subTitleSize, setSubTitleSize] = useState<number>(1.8);
+  const [subTitleColor, setSubTitleColor] = useState<string>('#e4e4e7');
+  const [subTitleFont, setSubTitleFont] = useState<string>('sans-serif');
   
   const title = submission?.title || 'Untitled Article';
   const journalName = submission?.journals?.name || submission?.journalName || 'INTERNATIONAL JOURNAL';
@@ -154,30 +163,33 @@ export default function CoverGenerator({ submission, generatedDoi }: CoverGenera
     let currentY = width * 0.58 + 35;
     const maxTitleW = width * 0.38;
 
+    const mainPx = Math.round(mainTitleSize * 12.3);
+    const subPx = Math.round(subTitleSize * 12.3);
+
     if (title && title.includes(':')) {
       const parts = title.split(':');
       const mainTitle = parts[0].trim() + ':';
       const subTitle = parts.slice(1).join(':').trim();
 
-      ctx.fillStyle = '#f0c05a';
-      ctx.font = 'bold 38px Arial, sans-serif';
+      ctx.fillStyle = mainTitleColor;
+      ctx.font = `bold ${mainPx}px "${mainTitleFont}", sans-serif`;
       ctx.shadowBlur = 8;
       ctx.shadowOffsetY = 4;
-      currentY = wrapText(ctx, mainTitle, titleX, currentY, maxTitleW, 48);
+      currentY = wrapText(ctx, mainTitle, titleX, currentY, maxTitleW, mainPx + 10);
 
       currentY += 12; // Gap antara judul utama dan sub-judul
 
-      ctx.fillStyle = '#e4e4e7';
-      ctx.font = '23px Arial, sans-serif';
+      ctx.fillStyle = subTitleColor;
+      ctx.font = `${subPx}px "${subTitleFont}", sans-serif`;
       ctx.shadowBlur = 4;
       ctx.shadowOffsetY = 2;
-      wrapText(ctx, subTitle, titleX, currentY, maxTitleW, 32);
+      wrapText(ctx, subTitle, titleX, currentY, maxTitleW, subPx + 8);
     } else {
-      ctx.fillStyle = '#ffffff';
-      ctx.font = '500 35px Arial, sans-serif';
+      ctx.fillStyle = mainTitleColor;
+      ctx.font = `bold ${mainPx}px "${mainTitleFont}", sans-serif`;
       ctx.shadowBlur = 8;
       ctx.shadowOffsetY = 4;
-      wrapText(ctx, title || "Untitled Article", titleX, currentY, maxTitleW, 48);
+      wrapText(ctx, title || "Untitled Article", titleX, currentY, maxTitleW, mainPx + 10);
     }
 
     // DOI (top-[17cqw] left-[33cqw])
@@ -214,7 +226,7 @@ export default function CoverGenerator({ submission, generatedDoi }: CoverGenera
 
   useEffect(() => {
     drawCover();
-  }, [title, author, journalName, theme, scope, customBgUrl, generatedDoi, dynamicVolText]);
+  }, [title, author, journalName, theme, scope, customBgUrl, generatedDoi, dynamicVolText, mainTitleSize, mainTitleColor, mainTitleFont, subTitleSize, subTitleColor, subTitleFont]);
 
   const attachCover = () => {
     const canvas = canvasRef.current;
@@ -297,6 +309,113 @@ export default function CoverGenerator({ submission, generatedDoi }: CoverGenera
             </div>
           </div>
 
+          {/* Panel Pengaturan Tipografi Judul & Subjudul */}
+          <div className="bg-white p-4 rounded-lg border border-gray-200 space-y-4">
+            <h4 className="text-xs font-bold text-gray-700 uppercase tracking-wider border-b pb-2 flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-amber-500"></span>
+              Pengaturan Tipografi Judul Naskah
+            </h4>
+            
+            <div className="space-y-3">
+              <div>
+                <label className="text-xs font-medium text-gray-600 flex justify-between">
+                  <span>Ukuran Huruf Judul:</span>
+                  <span className="font-bold text-gray-900">{mainTitleSize} cqw</span>
+                </label>
+                <input 
+                  type="range" 
+                  min="2.0" 
+                  max="4.5" 
+                  step="0.1" 
+                  value={mainTitleSize} 
+                  onChange={(e) => setMainTitleSize(parseFloat(e.target.value))}
+                  className="w-full h-1.5 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-amber-500 mt-1"
+                />
+              </div>
+
+              <div className="flex items-center justify-between gap-3">
+                <div className="flex-1">
+                  <label className="text-xs font-medium text-gray-600 block mb-1">Jenis Huruf Judul:</label>
+                  <select 
+                    value={mainTitleFont} 
+                    onChange={(e) => setMainTitleFont(e.target.value)}
+                    className="w-full text-xs p-1.5 bg-gray-50 border border-gray-300 rounded text-gray-800 focus:outline-none focus:border-amber-500"
+                  >
+                    <option value="sans-serif">Arial / Sans-Serif</option>
+                    <option value="serif">Times New Roman / Serif</option>
+                    <option value="Georgia">Georgia</option>
+                    <option value="Montserrat">Montserrat</option>
+                    <option value="Roboto">Roboto</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="text-xs font-medium text-gray-600 block mb-1">Warna Judul:</label>
+                  <div className="flex items-center gap-2">
+                    <input 
+                      type="color" 
+                      value={mainTitleColor} 
+                      onChange={(e) => setMainTitleColor(e.target.value)}
+                      className="w-8 h-8 rounded cursor-pointer border border-gray-300 p-0.5"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <h4 className="text-xs font-bold text-gray-700 uppercase tracking-wider border-b pt-2 pb-2 flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-blue-500"></span>
+              Pengaturan Tipografi Subjudul Naskah
+            </h4>
+
+            <div className="space-y-3">
+              <div>
+                <label className="text-xs font-medium text-gray-600 flex justify-between">
+                  <span>Ukuran Huruf Subjudul:</span>
+                  <span className="font-bold text-gray-900">{subTitleSize} cqw</span>
+                </label>
+                <input 
+                  type="range" 
+                  min="1.0" 
+                  max="3.0" 
+                  step="0.1" 
+                  value={subTitleSize} 
+                  onChange={(e) => setSubTitleSize(parseFloat(e.target.value))}
+                  className="w-full h-1.5 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-500 mt-1"
+                />
+              </div>
+
+              <div className="flex items-center justify-between gap-3">
+                <div className="flex-1">
+                  <label className="text-xs font-medium text-gray-600 block mb-1">Jenis Huruf Subjudul:</label>
+                  <select 
+                    value={subTitleFont} 
+                    onChange={(e) => setSubTitleFont(e.target.value)}
+                    className="w-full text-xs p-1.5 bg-gray-50 border border-gray-300 rounded text-gray-800 focus:outline-none focus:border-blue-500"
+                  >
+                    <option value="sans-serif">Arial / Sans-Serif</option>
+                    <option value="serif">Times New Roman / Serif</option>
+                    <option value="Georgia">Georgia</option>
+                    <option value="Montserrat">Montserrat</option>
+                    <option value="Roboto">Roboto</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="text-xs font-medium text-gray-600 block mb-1">Warna Subjudul:</label>
+                  <div className="flex items-center gap-2">
+                    <input 
+                      type="color" 
+                      value={subTitleColor} 
+                      onChange={(e) => setSubTitleColor(e.target.value)}
+                      className="w-8 h-8 rounded cursor-pointer border border-gray-300 p-0.5"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
             <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Data Metadata (Ditarik Otomatis)</h4>
             <ul className="text-sm text-gray-800 space-y-2">
@@ -308,7 +427,7 @@ export default function CoverGenerator({ submission, generatedDoi }: CoverGenera
           </div>
           
           <div className="bg-blue-50 border border-blue-200 p-3 rounded-lg text-blue-800 text-xs mt-4">
-             <span className="font-bold">Panduan:</span> Silakan lihat pratinjau (preview) hasil generate cover di sebelah kanan. Ubah tema warna jika perlu. Jika sudah pas dan cocok, klik tombol di bawah untuk menerapkan.
+             <span className="font-bold">Panduan:</span> Sesuaikan ukuran huruf, warna, dan jenis font judul & subjudul di atas. Pratinjau kover di kanan akan langsung berubah secara real-time. Jika sudah pas, klik tombol di bawah.
           </div>
           
           {submission?.cover_file_url && (
@@ -354,6 +473,12 @@ export default function CoverGenerator({ submission, generatedDoi }: CoverGenera
                 month={""}
                 year={""}
                 customBgUrl={customBgUrl}
+                mainTitleFontSize={mainTitleSize}
+                mainTitleColor={mainTitleColor}
+                mainTitleFontFamily={mainTitleFont}
+                subtitleFontSize={subTitleSize}
+                subtitleColor={subTitleColor}
+                subtitleFontFamily={subTitleFont}
               />
             );
           })()}

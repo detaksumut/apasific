@@ -11,6 +11,12 @@ interface DynamicCoverProps {
   month?: string;
   year?: string;
   customBgUrl?: string | null;
+  mainTitleFontSize?: number;
+  mainTitleColor?: string;
+  mainTitleFontFamily?: string;
+  subtitleFontSize?: number;
+  subtitleColor?: string;
+  subtitleFontFamily?: string;
 }
 
 export default function DynamicCover({
@@ -24,6 +30,12 @@ export default function DynamicCover({
   month = "JULY",
   year = "2026",
   customBgUrl = null,
+  mainTitleFontSize = 3.1,
+  mainTitleColor = "#f0c05a",
+  mainTitleFontFamily = "sans-serif",
+  subtitleFontSize = 1.8,
+  subtitleColor = "#e4e4e7",
+  subtitleFontFamily = "sans-serif",
 }: DynamicCoverProps) {
   const journalCode = journalName ? journalName.split(' ')[0].toUpperCase() : '';
   
@@ -61,19 +73,40 @@ export default function DynamicCover({
           </h2>
         </div>
 
-        {/* JUDUL ARTIKEL & SUBJUDUL (Pemisahan font otomatis jika terdapat titik dua :) */}
+        {/* JUDUL ARTIKEL & SUBJUDUL (Pemisahan font & style dinamis) */}
         <div className="absolute top-[58cqw] left-[8cqw] w-[38cqw]">
           {title && title.includes(":") ? (
             <>
-              <h1 className="text-[3.1cqw] font-bold text-[#f0c05a] leading-tight text-shadow-lg drop-shadow-md mb-[1cqw]">
+              <h1 
+                className="font-bold leading-tight text-shadow-lg drop-shadow-md mb-[1cqw]"
+                style={{ 
+                  fontSize: `${mainTitleFontSize}cqw`, 
+                  color: mainTitleColor,
+                  fontFamily: mainTitleFontFamily
+                }}
+              >
                 {title.split(":")[0].trim()}:
               </h1>
-              <h2 className="text-[1.8cqw] font-normal text-zinc-200 leading-relaxed line-clamp-5 text-shadow-md">
+              <h2 
+                className="font-normal leading-relaxed line-clamp-5 text-shadow-md"
+                style={{ 
+                  fontSize: `${subtitleFontSize}cqw`, 
+                  color: subtitleColor,
+                  fontFamily: subtitleFontFamily
+                }}
+              >
                 {title.split(":").slice(1).join(":").trim()}
               </h2>
             </>
           ) : (
-            <h1 className="text-[2.8cqw] font-medium text-white leading-snug line-clamp-6 text-shadow-lg drop-shadow-md">
+            <h1 
+              className="font-medium leading-snug line-clamp-6 text-shadow-lg drop-shadow-md"
+              style={{ 
+                fontSize: `${mainTitleFontSize}cqw`, 
+                color: mainTitleColor,
+                fontFamily: mainTitleFontFamily
+              }}
+            >
               {title || "Untitled Article"}
             </h1>
           )}
