@@ -2,7 +2,6 @@ import React from "react";
 import Link from "next/link";
 import { CheckCircle2, ChevronLeft, FileText, ArrowRight } from "lucide-react";
 import { createClient } from "@supabase/supabase-js";
-import DynamicCover from "@/components/DynamicCover";
 
 // Buat Supabase client dengan Service Role Key untuk bypass RLS (karena ini halaman publik)
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
@@ -134,43 +133,66 @@ export default async function AJAFJournal() {
                 <div className="text-[10px] font-bold tracking-widest text-emerald-500/70 uppercase mb-4 text-center">
                   SAMPUL DEPAN (COVER)
                 </div>
-                {pub.cover_file_url ? (
+                <div 
+                  className="relative w-full aspect-[1/1.4] rounded-lg overflow-hidden border border-zinc-700 shadow-2xl group-hover:scale-105 transition-transform duration-500 bg-[#06142e]"
+                  style={{ containerType: 'inline-size' }}
+                >
+                  <img 
+                    src={pub.cover_file_url || "/coverAJAF.png"} 
+                    alt={`Cover ${pub.title}`} 
+                    className="w-full h-full object-cover"
+                  />
+                  {/* Synchronized Title Overlay */}
                   <div 
-                    className="relative w-full aspect-[1/1.4] rounded-lg overflow-hidden border border-zinc-700 shadow-2xl group-hover:scale-105 transition-transform duration-500"
-                    style={{ containerType: 'inline-size' }}
+                    className="absolute font-serif drop-shadow-md overflow-hidden"
+                    style={{
+                      top: '34.5%',
+                      left: '6%',
+                      width: '46%',
+                      maxHeight: '59.5%',
+                    }}
                   >
-                    <img 
-                      src={pub.cover_file_url} 
-                      alt={`Cover ${pub.title}`} 
-                      className="w-full h-full object-cover"
-                    />
-                    
-                    {/* Overlay DOI di atas gambar (bagian bawah gambar) agar tidak merusak file asli */}
-                    {pub.doi && (
-                      <div className="absolute bottom-0 left-0 right-0 bg-black/80 backdrop-blur-sm p-3 border-t border-emerald-500/50 flex flex-col items-center justify-center transform translate-y-full group-hover:translate-y-0 transition-transform duration-300">
-                        <span className="text-[10px] text-zinc-400 font-bold uppercase tracking-wider mb-1">Digital Object Identifier</span>
-                        <span className="text-xs font-mono text-emerald-400 font-bold">{pub.doi}</span>
+                    <div className="mb-1.5">
+                      <span 
+                        className="inline-block font-sans font-extrabold text-[#f0c05a] bg-black/75 border border-[#f0c05a]/60 px-1.5 py-0.5 rounded tracking-wider uppercase shadow-md"
+                        style={{ fontSize: 'clamp(6px, 0.6vw, 9px)' }}
+                      >
+                        AJAF - ACCOUNTING, AUDITING & TAXATION
+                      </span>
+                    </div>
+                    {pub.title && pub.title.includes(":") ? (
+                      <>
+                        <div 
+                          className="font-bold leading-tight mb-1" 
+                          style={{ color: '#c9a84c', fontSize: 'clamp(9.5px, 0.95vw, 14px)' }}
+                        >
+                          {pub.title.split(":")[0].trim()}:
+                        </div>
+                        <div 
+                          className="font-normal text-gray-200" 
+                          style={{ fontSize: 'clamp(7px, 0.7vw, 10.5px)', lineHeight: '1.3' }}
+                        >
+                          {pub.title.split(":").slice(1).join(":").trim()}
+                        </div>
+                      </>
+                    ) : (
+                      <div 
+                        className="font-bold leading-snug text-[#c9a84c]" 
+                        style={{ fontSize: 'clamp(9.5px, 0.95vw, 14px)' }}
+                      >
+                        {pub.title}
                       </div>
                     )}
                   </div>
-                ) : (
-                  <div className="relative w-full aspect-[1/1.4] rounded-lg overflow-hidden border border-zinc-700 shadow-2xl group-hover:scale-105 transition-transform duration-500">
-                    <DynamicCover
-                      title={pub.title}
-                      author={(() => {
-                        try {
-                          const abs = JSON.parse(pub.abstract || '{}');
-                          if (abs.authors?.length) return abs.authors.map((a: any) => a.full_name).join(', ');
-                        } catch(e) {}
-                        return 'APASIFIC Author';
-                      })()}
-                      journalName={pub.journals?.name || 'AJAF - Akuntansi, Audit & Perpajakan'}
-                      doi={pub.doi || ''}
-                      volume={pub.volume || '1'}
-                      edisi={pub.issue || '1'}
-                    />
-                  </div>
-                )}
+                  
+                  {/* Overlay DOI di atas gambar (bagian bawah gambar) agar tidak merusak file asli */}
+                  {pub.doi && (
+                    <div className="absolute bottom-0 left-0 right-0 bg-black/80 backdrop-blur-sm p-3 border-t border-emerald-500/50 flex flex-col items-center justify-center transform translate-y-full group-hover:translate-y-0 transition-transform duration-300">
+                      <span className="text-[10px] text-zinc-400 font-bold uppercase tracking-wider mb-1">Digital Object Identifier</span>
+                      <span className="text-xs font-mono text-emerald-400 font-bold">{pub.doi}</span>
+                    </div>
+                  )}
+                </div>
                 {/* Teks DOI statis di bawah gambar sampul */}
                 {pub.doi && (
                   <div className="mt-4 w-full bg-zinc-950 border border-zinc-800 rounded p-2 text-center">

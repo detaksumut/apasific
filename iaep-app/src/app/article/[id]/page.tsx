@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
-import DynamicCover from "@/components/DynamicCover";
+import SecurePdfViewer from "@/components/ui/SecurePdfViewer";
 
 export default function ArticlePaywall() {
   const params = useParams();
@@ -85,7 +85,7 @@ export default function ArticlePaywall() {
             abstract: data.abstract || "Abstrak tidak tersedia.",
             keywords: data.keywords ? data.keywords.split(',') : [],
             price: 50000,
-            pdf_url: data.file_url || "",
+            pdf_url: data.file_url_galley || data.file_url || "",
             orcid: firstOrcid,
             google_scholar: googleScholar,
             wos: wos,
@@ -262,7 +262,20 @@ export default function ArticlePaywall() {
               <svg className="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
               </svg>
-              APASIFIC IAEP, Indonesia
+              {article.journal}, Indonesia
+              {(article.volume || article.issue) && (
+                <>
+                  <span className="mx-1 font-bold text-gray-500">•</span>
+                  <span className="text-[#c9a84c]">
+                    Vol. {article.volume ? article.volume.replace(/^(Vol\.?|Volume)\s*/i, '') : '-'} Edisi {article.issue ? article.issue.replace(/^(No\.?|Nomor|Edisi|Issue)\s*/i, '') : '-'} 
+                    {article.date && article.date !== "Baru saja dipublikasi" && (
+                      <span className="ml-1">
+                        ({new Date(article.date.split('/').reverse().join('-')).toLocaleDateString('id-ID', { month: 'long', year: 'numeric' })})
+                      </span>
+                    )}
+                  </span>
+                </>
+              )}
             </span>
             
             {article.doi && (
@@ -329,9 +342,18 @@ export default function ArticlePaywall() {
                 }
                 
                 // Fallback for plain text abstract
+                const cleanAbstract = article.abstract.replace(/^(Abstract|Abstrak)\n?/i, '');
+                if (cleanAbstract.trim().startsWith('<')) {
+                  return (
+                    <div 
+                      className="text-gray-300 leading-relaxed text-lg text-justify space-y-4"
+                      dangerouslySetInnerHTML={{ __html: cleanAbstract }}
+                    />
+                  );
+                }
                 return (
                   <p className="text-gray-300 leading-relaxed text-lg text-justify whitespace-pre-wrap">
-                    {article.abstract.replace(/^(Abstract|Abstrak)\n?/i, '')}
+                    {cleanAbstract}
                   </p>
                 );
               })()}
@@ -350,15 +372,20 @@ export default function ArticlePaywall() {
               )}
             </section>
             
-            {/* Blurred Content Teaser */}
-            <section className="relative rounded-2xl p-8 border border-gray-800 overflow-hidden bg-[#0d0d1a]">
-              <div className="blur-sm opacity-50 select-none">
-                <h2 className="text-xl font-bold mb-4">1. Pendahuluan</h2>
-                <p className="mb-4">Kemajuan pesat teknologi kecerdasan buatan telah secara mendasar mengubah lanskap ekonomi global. Dalam konteks Perhimpunan Bangsa-Bangsa Asia Tenggara (ASEAN)...</p>
-                <p>Lebih lanjut, pengadopsi awal analitik berbasis AI telah melaporkan peningkatan signifikan dalam efisiensi operasional. Makalah ini berusaha untuk mengukur peningkatan ini di berbagai sektor...</p>
+            {/* Embedded PDF Viewer */}
+            <section className="relative rounded-2xl border border-gray-800 overflow-hidden bg-white shadow-2xl">
+              <div className="w-full h-[800px]">
+                {article.pdf_url ? (
+                  <SecurePdfViewer url={article.pdf_url} />
+                ) : (
+                  <div className="w-full h-full flex flex-col items-center justify-center text-gray-500 bg-gray-100">
+                    <svg className="w-16 h-16 mb-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                    <span className="text-lg font-semibold text-gray-600">Dokumen PDF belum tersedia untuk artikel ini.</span>
+                  </div>
+                )}
               </div>
               
-              {/* Waiting for Admin Overlay */}
+              {/* Waiting for Admin Overlay (Only if applicable) */}
               {isWaitingAdmin && !hasPaid && (
                 <div className="absolute inset-0 flex flex-col items-center justify-center bg-[#05050a]/90 backdrop-blur-sm z-40">
                   <div className="bg-[#12121f] p-8 rounded-2xl border border-[#c9a84c]/50 text-center shadow-2xl max-w-md mx-auto relative overflow-hidden">
@@ -375,67 +402,6 @@ export default function ArticlePaywall() {
                   </div>
                 </div>
               )}
-
-              {/* Paywall Overlay */}
-              {!hasPaid && !isWaitingAdmin && (
-                <div className="absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-t from-[#05050a] via-[#05050a]/80 to-transparent">
-                  <div className="bg-[#12121f] p-8 rounded-2xl border border-[#c9a84c]/30 text-center shadow-2xl max-w-md mx-auto mt-20">
-                    <svg className="w-12 h-12 text-[#c9a84c] mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                    </svg>
-                    <h3 className="text-xl font-bold text-white mb-2">Baca Artikel Lengkap</h3>
-                    <p className="text-gray-400 text-sm mb-6">
-                      Beli artikel ini untuk membuka PDF teks lengkap. Pendapatan secara langsung mendukung penulis dan APASIFIC.
-                    </p>
-                    <button 
-                      onClick={handlePayment}
-                      disabled={isProcessing}
-                      className="w-full bg-[#c9a84c] text-black font-bold py-3 rounded-lg hover:bg-[#e8c97a] transition-all transform hover:scale-105 disabled:opacity-50 disabled:scale-100 flex items-center justify-center"
-                    >
-                      {isProcessing ? (
-                        "Memproses Pembayaran Aman..."
-                      ) : (
-                        `Beli Artikel (Rp ${article.price.toLocaleString('id-ID')})`
-                      )}
-                    </button>
-                    <div className="mt-4 flex items-center justify-center gap-2 text-xs text-gray-500">
-                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                      </svg>
-                      Gerbang Aman APASIFIC
-                    </div>
-                  </div>
-                </div>
-              )}
-              
-              {hasPaid && (
-                <div className="absolute inset-0 flex flex-col items-center justify-center bg-[#05050a]/90 backdrop-blur-sm">
-                  <div className="bg-green-900/20 p-8 rounded-2xl border border-green-500/30 text-center shadow-2xl max-w-md mx-auto">
-                    <svg className="w-16 h-16 text-green-400 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    <h3 className="text-2xl font-bold text-white mb-2">Akses Diberikan</h3>
-                    <p className="text-green-200 text-sm mb-6">
-                      Terima kasih atas pembelian Anda. Penulis telah dikreditkan.
-                    </p>
-                    <button 
-                      onClick={() => {
-                        if ((article as any).pdf_url) {
-                          window.open((article as any).pdf_url, '_blank');
-                        } else {
-                          alert('Dokumen PDF tidak ditemukan untuk artikel ini.');
-                        }
-                      }}
-                      className="w-full bg-green-600 text-white font-bold py-3 rounded-lg hover:bg-green-500 transition-colors flex items-center justify-center"
-                    >
-                      <svg className="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                      </svg>
-                      Unduh PDF Lengkap
-                    </button>
-                  </div>
-                </div>
-              )}
             </section>
           </div>
 
@@ -444,14 +410,61 @@ export default function ArticlePaywall() {
               <div className="bg-[#0d0d1a] rounded-xl p-6 border border-gray-800 flex flex-col items-center shadow-xl">
                 <span className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-4 w-full text-center">Sampul Depan (Cover)</span>
                 <div className="w-full max-w-[280px]">
-                  <DynamicCover 
-                    journalName={article.journal} 
-                    title={article.title} 
-                    author={article.author} 
-                    doi={article.doi} 
-                    volume={article.volume}
-                    edisi={article.issue}
-                  />
+                  <div className="relative inline-block w-full overflow-hidden rounded-xl shadow-2xl border border-gray-800">
+                    <img 
+                      src={article.cover_file_url || (article.journal.includes('AJAF') ? '/coverAJAF.png' : article.journal.includes('AJITE') ? '/coverAJITE.png' : '/coverPKM.png')} 
+                      alt={article.title} 
+                      className="w-full aspect-[1/1.5] object-contain bg-[#06142e]" 
+                    />
+                    <div 
+                      className="absolute font-serif drop-shadow-md overflow-hidden"
+                      style={{
+                        top: '34.5%',
+                        left: '6%',
+                        width: '46%',
+                        maxHeight: '59.5%',
+                      }}
+                    >
+                      <div className="mb-1.5">
+                        <span 
+                          className="inline-block font-sans font-extrabold text-[#f0c05a] bg-black/75 border border-[#f0c05a]/60 px-1.5 py-0.5 rounded tracking-wider uppercase shadow-md"
+                          style={{ fontSize: 'clamp(6px, 0.6vw, 9px)' }}
+                        >
+                          {article.journal}
+                        </span>
+                      </div>
+                      {article.title && article.title.includes(":") ? (
+                        <>
+                          <div 
+                            className="font-bold leading-tight mb-1" 
+                            style={{ color: '#c9a84c', fontSize: 'clamp(9.5px, 0.95vw, 14px)' }}
+                          >
+                            {article.title.split(":")[0].trim()}:
+                          </div>
+                          <div 
+                            className="font-normal text-gray-200" 
+                            style={{ fontSize: 'clamp(7px, 0.7vw, 10.5px)', lineHeight: '1.3' }}
+                          >
+                            {article.title.split(":").slice(1).join(":").trim()}
+                          </div>
+                        </>
+                      ) : (
+                        <div 
+                          className="font-bold text-[#c9a84c]" 
+                          style={{ 
+                            fontSize: article.title && article.title.length > 110
+                              ? 'clamp(6px, 0.6vw, 9px)'
+                              : article.title && article.title.length > 80 
+                                ? 'clamp(7.5px, 0.75vw, 11px)' 
+                                : 'clamp(9.5px, 0.95vw, 14px)',
+                            lineHeight: '1.2'
+                          }}
+                        >
+                          {article.title}
+                        </div>
+                      )}
+                    </div>
+                  </div>
                 </div>
               </div>
 

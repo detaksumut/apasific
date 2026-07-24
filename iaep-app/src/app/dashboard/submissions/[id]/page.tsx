@@ -96,9 +96,50 @@ export default async function AuthorSubmissionDetail({ params }: { params: Promi
           <div className="md:col-span-4 flex flex-col items-center">
             <div className="bg-black/40 border border-zinc-800 rounded-2xl p-4 w-full flex flex-col items-center shadow-2xl">
               <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-3">Sampul Depan (Cover)</span>
-              <div className="rounded-xl overflow-hidden border border-zinc-800 shadow-lg w-full max-w-[200px] aspect-[1/1.414] relative" style={{ containerType: 'inline-size' }}>
+              <div className="rounded-xl overflow-hidden border border-zinc-800 shadow-lg w-full max-w-[200px] aspect-[1/1.5] relative" style={{ containerType: 'inline-size' }}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={submission.cover_file_url} alt="Cover Artikel" className="w-full h-full object-cover relative z-0" />
+                <div 
+                  className="absolute font-serif drop-shadow-md overflow-hidden"
+                  style={{
+                    top: '34.5%',
+                    left: '6%',
+                    width: '46%',
+                    maxHeight: '59.5%',
+                  }}
+                >
+                  <div className="mb-1">
+                    <span 
+                      className="inline-block font-sans font-extrabold text-[#f0c05a] bg-black/80 border border-[#f0c05a]/60 px-1 py-0.5 rounded tracking-wider uppercase shadow-md"
+                      style={{ fontSize: 'clamp(5.5px, 0.55vw, 8px)' }}
+                    >
+                      AJAF - ACCOUNTING, AUDITING & TAXATION
+                    </span>
+                  </div>
+                  {submission.title && submission.title.includes(":") ? (
+                    <>
+                      <div 
+                        className="font-bold leading-tight mb-0.5 text-[#c9a84c]" 
+                        style={{ fontSize: 'clamp(8.5px, 0.85vw, 12px)' }}
+                      >
+                        {submission.title.split(":")[0].trim()}:
+                      </div>
+                      <div 
+                        className="font-normal text-gray-200" 
+                        style={{ fontSize: 'clamp(6.5px, 0.65vw, 9.5px)', lineHeight: '1.25' }}
+                      >
+                        {submission.title.split(":").slice(1).join(":").trim()}
+                      </div>
+                    </>
+                  ) : (
+                    <div 
+                      className="font-bold leading-snug text-[#c9a84c]" 
+                      style={{ fontSize: 'clamp(8.5px, 0.85vw, 12px)' }}
+                    >
+                      {submission.title}
+                    </div>
+                  )}
+                </div>
                 {submission.doi && (
                   <a 
                     href={submission.doi.includes('zenodo.') ? `https://zenodo.org/records/${submission.doi.split('zenodo.')[1]}` : `https://doi.org/${submission.doi}`}
@@ -106,27 +147,10 @@ export default async function AuthorSubmissionDetail({ params }: { params: Promi
                     rel="noopener noreferrer"
                     className="absolute z-10 font-bold flex items-center hover:underline hover:text-emerald-300 transition-colors" 
                     style={{
-                      top: (() => {
-                        let hasScope = false;
-                        try {
-                          if (submission?.abstract) {
-                            const parsed = JSON.parse(submission.abstract);
-                            if (parsed.scope || (parsed.keywords && parsed.keywords.includes('Scope:'))) hasScope = true;
-                          }
-                        } catch(e) {}
-                        const doiY = hasScope ? 440 : 370;
-                        const topEdge = doiY - 32;
-                        return `${(topEdge / 1754) * 100}%`;
-                      })(),
-                      left: 0,
-                      width: '100%',
-                      backgroundColor: 'transparent',
-                      display: 'flex',
-                      justifyContent: 'center',
-                      fontSize: '1.8cqw',
-                      textDecoration: 'none',
-                      lineHeight: '1.2',
-                      color: 'transparent'
+                      top: '11.5%',
+                      left: '33%',
+                      fontSize: 'clamp(5px, 0.5vw, 8px)',
+                      color: '#fff'
                     }}
                   >
                     {submission.doi}

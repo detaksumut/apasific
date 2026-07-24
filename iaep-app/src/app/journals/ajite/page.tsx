@@ -2,7 +2,6 @@ import React from "react";
 import Link from "next/link";
 import { CheckCircle2, ChevronLeft, FileText, ArrowRight } from "lucide-react";
 import { createClient } from "@supabase/supabase-js";
-import DynamicCover from "@/components/DynamicCover";
 
 // Buat Supabase client dengan Service Role Key untuk bypass RLS (karena ini halaman publik)
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
@@ -150,19 +149,11 @@ export default async function AJITEJournal() {
                     )}
                   </div>
                 ) : (
-                  <div className="w-full">
-                    <DynamicCover
-                      journalName={pub.journals?.name || "AJITE - Ilmu Komputer & Teknologi Informasi"}
-                      title={pub.title}
-                      author={(() => {
-                        try {
-                          const abs = JSON.parse(pub.abstract || '{}');
-                          return abs.authors?.map((a: any) => a.full_name).join(', ') || 'APASIFIC Author';
-                        } catch(e) { return 'APASIFIC Author'; }
-                      })()}
-                      doi={pub.doi || ''}
-                      volume={pub.volume || '1'}
-                      edisi={pub.issue || '1'}
+                  <div className="w-full relative aspect-[1/1.5] rounded-xl overflow-hidden shadow-lg bg-[#06142e]">
+                    <img 
+                      src="/coverAJITE.png" 
+                      alt={pub.title} 
+                      className="w-full h-full object-cover" 
                     />
                   </div>
                 )}

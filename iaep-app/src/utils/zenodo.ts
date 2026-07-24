@@ -101,7 +101,8 @@ export async function publishDeposition(depositionId: number) {
 export async function publishArticleToZenodo(
   metadata: ZenodoMetadata, 
   fileUrl: string, 
-  fileName: string
+  fileName: string,
+  coverUrl?: string
 ) {
   try {
     const deposition = await createDeposition(metadata);
@@ -109,6 +110,11 @@ export async function publishArticleToZenodo(
     
     if (fileUrl) {
       await uploadFileToDeposition(depositionId, fileUrl, fileName);
+    }
+
+    if (coverUrl) {
+      const coverName = coverUrl.split('/').pop()?.split('?')[0] || 'cover.png';
+      await uploadFileToDeposition(depositionId, coverUrl, coverName);
     }
     
     const publishedDeposition = await publishDeposition(depositionId);

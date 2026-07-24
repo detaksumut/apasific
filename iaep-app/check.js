@@ -1,23 +1,15 @@
-const admin = require('firebase-admin');
-const fs = require('fs');
-const path = require('path');
+require('dotenv').config({ path: '.env.local' });
+const { createClient } = require('@supabase/supabase-js');
 
-const serviceAccount = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'firebase-admin-key.json'), 'utf8'));
-admin.initializeApp({ credential: admin.credential.cert(serviceAccount) });
-const db = admin.firestore();
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL,
+  process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+);
 
-async function main() {
-    const snap = await db.collection('profiles').get();
-    let found = [];
-    snap.docs.forEach(doc => {
-       const data = doc.data();
-       if (data.email === 'kadsumut@gmail.com' || (data.full_name && data.full_name.includes('Marahaman'))) {
-           found.push({id: doc.id, ...data});
-       }
-    });
-    console.log("Found profiles:", JSON.stringify(found, null, 2));
-
-    const u = await admin.auth().getUserByEmail('kadsumut@gmail.com');
-    console.log("Auth user:", u.toJSON());
+async function run() {
+  const { data, error } = await supabase.from('submissions').select('*').eq('id', '7375625f-3137-3834-3532-323331373834').single();
+  if (error) console.error(error);
+  console.log(JSON.stringify(data, null, 2));
 }
-main().catch(console.error);
+
+run();

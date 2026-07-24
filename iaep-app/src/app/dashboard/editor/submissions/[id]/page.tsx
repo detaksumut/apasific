@@ -6,7 +6,6 @@ import { useParams } from "next/navigation";
 import { publishArticleToZenodo, ZenodoMetadata } from "@/utils/zenodo";
 import { getSubmissionDetailsEditor, updateIssn, updateDoi, removeCoverFile } from "@/app/actions/editor";
 import { createClient } from "@/utils/supabase/client";
-import DynamicCover from "@/components/DynamicCover";
 
 export default function SubmissionControlPanel() {
   const params = useParams();
@@ -235,10 +234,11 @@ export default function SubmissionControlPanel() {
         keywords: ['Artificial Intelligence', 'Education']
       };
 
-      const fileUrl = submission.file_url || ""; 
+      const fileUrl = submission.file_url_galley || submission.file_url || ""; 
       const fileName = fileUrl ? fileUrl.split('/').pop()?.split('?')[0] : `Manuscript_${submission.id}.pdf`;
+      const coverUrl = submission.cover_file_url || "";
 
-      const result = await publishArticleToZenodo(metadata, fileUrl, fileName);
+      const result = await publishArticleToZenodo(metadata, fileUrl, fileName, coverUrl);
 
       if (!result.success) {
         throw new Error(result.error);
@@ -984,27 +984,36 @@ export default function SubmissionControlPanel() {
                              </h4>
                              
                              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-6">
-                               {/* Kiri: Form & Info */}
-                               <div>
-                                 <div className="bg-white border border-gray-200 rounded-xl p-5 mb-6 shadow-sm">
-                                   <h5 className="text-sm font-bold text-gray-700 uppercase tracking-wider mb-4 border-b pb-2">Informasi Naskah (Bahan Desain)</h5>
-                                   <div className="space-y-4">
-                                     <div>
-                                       <p className="text-xs text-gray-500 uppercase font-semibold">Judul Artikel</p>
-                                       <p className="text-sm font-bold text-gray-900 mt-1 bg-gray-50 p-3 rounded-lg border border-gray-100">{submission.title || 'Judul tidak tersedia'}</p>
-                                     </div>
-                                     {submission.file_url_galley && (
-                                       <div className="pt-2">
-                                         <p className="text-xs text-gray-500 uppercase font-semibold mb-2">Naskah Akhir (Galley)</p>
-                                         <a href={submission.file_url_galley} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 px-4 py-2 bg-blue-50 text-blue-700 border border-blue-200 rounded-lg text-sm font-bold hover:bg-blue-100 transition-colors">
-                                           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
-                                           Unduh File Galley (.DOCX / .PDF)
-                                         </a>
-                                       </div>
-                                     )}
-                                   </div>
-                                 </div>
+                                {/* Kiri: Form & Info */}
+                                <div>
+                                  <div className="bg-white border border-gray-200 rounded-xl p-5 mb-6 shadow-sm">
+                                    <h5 className="text-sm font-bold text-gray-700 uppercase tracking-wider mb-4 border-b pb-2">Informasi Naskah (Bahan Desain)</h5>
+                                    <div className="space-y-4">
+                                      <div>
+                                        <p className="text-xs text-gray-500 uppercase font-semibold mb-1">Judul Artikel</p>
+                                        <div className="bg-gray-50 p-3 rounded-lg border border-gray-100 space-y-2">
+                                          <div>
+                                            <span className="inline-block bg-[#18182e] text-[#f0c05a] text-xs font-bold px-2.5 py-1 rounded border border-[#c9a84c]/40 uppercase tracking-wider font-mono">
+                                              AJAF - ACCOUNTING, AUDITING & TAXATION
+                                            </span>
+                                          </div>
+                                          <p className="text-sm font-bold text-gray-900 leading-snug">{submission.title || 'Judul tidak tersedia'}</p>
+                                        </div>
+                                      </div>
+                                      {submission.file_url_galley && (
+                                        <div className="pt-2">
+                                          <p className="text-xs text-gray-500 uppercase font-semibold mb-2">Naskah Akhir (Galley)</p>
+                                          <a href={submission.file_url_galley} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 px-4 py-2 bg-blue-50 text-blue-700 border border-blue-200 rounded-lg text-sm font-bold hover:bg-blue-100 transition-colors">
+                                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+                                            Unduh File Galley (.DOCX / .PDF)
+                                          </a>
+                                        </div>
+                                      )}
+                                    </div>
+                                  </div>
+                                </div>
 
+                                <div className="space-y-6">
                                  <h5 className="text-sm font-bold text-gray-700 uppercase tracking-wider mb-4">Unggah Kover Jurnal (Manual)</h5>
                                  {submission?.cover_file_url ? (
                                    <div className="bg-green-50 border border-green-200 rounded-xl p-6 flex flex-col items-center justify-center text-center">
@@ -1077,21 +1086,47 @@ export default function SubmissionControlPanel() {
                                       <h5 className="text-sm font-bold text-gray-500 uppercase tracking-wider mb-4 border-b border-gray-200 pb-2 w-full text-center">Pratinjau Kover Saat Ini</h5>
                                       <div className="relative inline-block mx-auto overflow-hidden">
                                         <img src={submission.cover_file_url} alt="Cover Preview" className="max-w-full max-h-[600px] object-contain rounded-lg shadow-md border border-gray-300" />
-                                        <div 
-                                          className="absolute font-serif font-bold leading-snug drop-shadow-md overflow-hidden"
-                                          style={{
-                                            color: '#c9a84c',
-                                            top: '32%',
-                                            left: '6%',
-                                            width: '46%',
-                                            display: '-webkit-box',
-                                            WebkitLineClamp: 7,
-                                            WebkitBoxOrient: 'vertical',
-                                            fontSize: 'clamp(11px, 1.1vw, 17px)'
-                                          }}
-                                        >
-                                          {submission.title || 'Judul tidak tersedia'}
-                                        </div>
+                                         <div 
+                                           className="absolute font-serif drop-shadow-md overflow-hidden"
+                                           style={{
+                                             top: '34.5%',
+                                             left: '6%',
+                                             width: '46%',
+                                             maxHeight: '57%',
+                                           }}
+                                         >
+                                           <div className="mb-1.5">
+                                             <span 
+                                               className="inline-block font-sans font-extrabold text-[#f0c05a] bg-black/75 border border-[#f0c05a]/60 px-1.5 py-0.5 rounded tracking-wider uppercase shadow-md"
+                                               style={{ fontSize: 'clamp(6.5px, 0.65vw, 9.5px)' }}
+                                             >
+                                               AJAF - ACCOUNTING, AUDITING & TAXATION
+                                             </span>
+                                           </div>
+                                           {submission.title && submission.title.includes(":") ? (
+                                             <>
+                                               <div 
+                                                 className="font-bold leading-tight mb-1" 
+                                                 style={{ color: '#c9a84c', fontSize: 'clamp(10px, 1.0vw, 15px)' }}
+                                               >
+                                                 {submission.title.split(":")[0].trim()}:
+                                               </div>
+                                               <div 
+                                                 className="font-normal text-gray-200" 
+                                                 style={{ fontSize: 'clamp(7.5px, 0.72vw, 11px)', lineHeight: '1.3' }}
+                                               >
+                                                 {submission.title.split(":").slice(1).join(":").trim()}
+                                               </div>
+                                             </>
+                                           ) : (
+                                             <div 
+                                               className="font-bold leading-snug" 
+                                               style={{ color: '#c9a84c', fontSize: 'clamp(10px, 1.0vw, 15px)' }}
+                                             >
+                                               {submission.title || 'Judul tidak tersedia'}
+                                             </div>
+                                           )}
+                                         </div>
                                       </div>
                                     </div>
                                   ) : (
@@ -1166,19 +1201,45 @@ export default function SubmissionControlPanel() {
                           <div className="border border-zinc-800 rounded-xl overflow-hidden shadow-2xl max-w-sm w-full relative mx-auto">
                             <img src={submission.cover_file_url} alt="Cover Preview" className="max-w-full h-auto object-contain w-full" />
                             <div 
-                              className="absolute font-serif font-bold leading-snug drop-shadow-md overflow-hidden"
+                              className="absolute font-serif drop-shadow-md overflow-hidden"
                               style={{
-                                color: '#c9a84c',
-                                top: '32%',
+                                top: '34.5%',
                                 left: '6%',
                                 width: '46%',
-                                display: '-webkit-box',
-                                WebkitLineClamp: 7,
-                                WebkitBoxOrient: 'vertical',
-                                fontSize: 'clamp(11px, 1.2vw, 17px)'
+                                maxHeight: '59.5%',
                               }}
                             >
-                              {submission.title || 'Judul tidak tersedia'}
+                              <div className="mb-1.5">
+                                <span 
+                                  className="inline-block font-sans font-extrabold text-[#f0c05a] bg-black/75 border border-[#f0c05a]/60 px-1.5 py-0.5 rounded tracking-wider uppercase shadow-md"
+                                  style={{ fontSize: 'clamp(6.5px, 0.65vw, 9.5px)' }}
+                                >
+                                  AJAF - ACCOUNTING, AUDITING & TAXATION
+                                </span>
+                              </div>
+                              {submission.title && submission.title.includes(":") ? (
+                                <>
+                                  <div 
+                                    className="font-bold leading-tight mb-1" 
+                                    style={{ color: '#c9a84c', fontSize: 'clamp(10px, 1.0vw, 15px)' }}
+                                  >
+                                    {submission.title.split(":")[0].trim()}:
+                                  </div>
+                                  <div 
+                                    className="font-normal text-gray-200" 
+                                    style={{ fontSize: 'clamp(7.5px, 0.72vw, 11px)', lineHeight: '1.3' }}
+                                  >
+                                    {submission.title.split(":").slice(1).join(":").trim()}
+                                  </div>
+                                </>
+                              ) : (
+                                <div 
+                                  className="font-bold leading-snug" 
+                                  style={{ color: '#c9a84c', fontSize: 'clamp(10px, 1.0vw, 15px)' }}
+                                >
+                                  {submission.title || 'Judul tidak tersedia'}
+                                </div>
+                              )}
                             </div>
 
                             {/* DOI Overlay */}
@@ -1364,19 +1425,45 @@ export default function SubmissionControlPanel() {
                         <div className="mb-6 rounded-lg overflow-hidden border border-gray-200 shadow-sm max-w-xs mx-auto md:mx-0 relative">
                           <img src={submission.cover_file_url} alt="Cover Preview" className="max-w-full h-auto object-contain w-full" />
                           <div 
-                            className="absolute font-serif font-bold leading-snug drop-shadow-md overflow-hidden"
+                            className="absolute font-serif drop-shadow-md overflow-hidden"
                             style={{
-                              color: '#c9a84c',
-                              top: '32%',
+                              top: '34.5%',
                               left: '6%',
                               width: '46%',
-                              display: '-webkit-box',
-                              WebkitLineClamp: 7,
-                              WebkitBoxOrient: 'vertical',
-                              fontSize: 'clamp(11px, 1.2vw, 17px)'
+                              maxHeight: '59.5%',
                             }}
                           >
-                            {submission.title || 'Judul tidak tersedia'}
+                            <div className="mb-1.5">
+                              <span 
+                                className="inline-block font-sans font-extrabold text-[#f0c05a] bg-black/75 border border-[#f0c05a]/60 px-1.5 py-0.5 rounded tracking-wider uppercase shadow-md"
+                                style={{ fontSize: 'clamp(6.5px, 0.65vw, 9.5px)' }}
+                              >
+                                AJAF - ACCOUNTING, AUDITING & TAXATION
+                              </span>
+                            </div>
+                            {submission.title && submission.title.includes(":") ? (
+                              <>
+                                <div 
+                                  className="font-bold leading-tight mb-1" 
+                                  style={{ color: '#c9a84c', fontSize: 'clamp(10px, 1.0vw, 15px)' }}
+                                >
+                                  {submission.title.split(":")[0].trim()}:
+                                </div>
+                                <div 
+                                  className="font-normal text-gray-200" 
+                                  style={{ fontSize: 'clamp(7.5px, 0.72vw, 11px)', lineHeight: '1.3' }}
+                                >
+                                  {submission.title.split(":").slice(1).join(":").trim()}
+                                </div>
+                              </>
+                            ) : (
+                              <div 
+                                className="font-bold leading-snug" 
+                                style={{ color: '#c9a84c', fontSize: 'clamp(10px, 1.0vw, 15px)' }}
+                              >
+                                {submission.title || 'Judul tidak tersedia'}
+                              </div>
+                            )}
                           </div>
 
                           {/* DOI Overlay */}

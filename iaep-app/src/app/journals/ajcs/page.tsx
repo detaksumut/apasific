@@ -2,7 +2,6 @@ import React from "react";
 import Link from "next/link";
 import { CheckCircle2, ChevronLeft, FileText, ArrowRight } from "lucide-react";
 import { createClient } from "@supabase/supabase-js";
-import DynamicCover from "@/components/DynamicCover";
 
 // Buat Supabase client dengan Service Role Key untuk bypass RLS (karena ini halaman publik)
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
@@ -148,21 +147,13 @@ export default async function AJCSJournal() {
                   SAMPUL DEPAN (COVER)
                 </div>
                 
-                <DynamicCover 
-                  title={pub.title}
-                  author={(() => {
-                    try {
-                      const abs = JSON.parse(pub.abstract);
-                      if (abs.authors && Array.isArray(abs.authors) && abs.authors.length > 0) {
-                        return abs.authors.map((a: any) => a.full_name).join(', ');
-                      }
-                    } catch(e) {}
-                    return pub.profiles?.full_name || pub.author || "Penulis Tidak Diketahui";
-                  })()}
-                  journalName={pub.journals?.name || "JOURNAL OF COMMUNITY SERVICE"}
-                  doi={pub.doi}
-                  hueRotate="hue-rotate-0" 
-                />
+                <div className="w-full relative aspect-[1/1.5] rounded-xl overflow-hidden shadow-lg bg-[#06142e]">
+                  <img 
+                    src={pub.cover_file_url || '/coverPKM.png'} 
+                    alt={pub.title} 
+                    className="w-full h-full object-cover" 
+                  />
+                </div>
 
                 {/* Teks DOI statis di bawah gambar sampul tetap dipertahankan agar bisa diklik */}
                 {pub.doi && (
