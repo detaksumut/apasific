@@ -149,12 +149,36 @@ export default function CoverGenerator({ submission, generatedDoi }: CoverGenera
     ctx.shadowOffsetY = 2;
     ctx.fillText(jName, width * 0.08, width * 0.50 + 55);
 
-    // Article Title (top-[58cqw] left-[8cqw] w-[38cqw])
-    ctx.fillStyle = '#ffffff';
-    ctx.font = '500 35px Arial, sans-serif';
-    ctx.shadowBlur = 8;
-    ctx.shadowOffsetY = 4;
-    wrapText(ctx, title || "Untitled Article", width * 0.08, width * 0.58 + 35, width * 0.38, 48);
+    // Article Title & Subtitle (top-[58cqw] left-[8cqw] w-[38cqw])
+    const titleX = width * 0.08;
+    let currentY = width * 0.58 + 35;
+    const maxTitleW = width * 0.38;
+
+    if (title && title.includes(':')) {
+      const parts = title.split(':');
+      const mainTitle = parts[0].trim() + ':';
+      const subTitle = parts.slice(1).join(':').trim();
+
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 35px Arial, sans-serif';
+      ctx.shadowBlur = 8;
+      ctx.shadowOffsetY = 4;
+      currentY = wrapText(ctx, mainTitle, titleX, currentY, maxTitleW, 46);
+
+      currentY += 12; // Gap antara judul utama dan sub-judul
+
+      ctx.fillStyle = '#e4e4e7';
+      ctx.font = '26px Arial, sans-serif';
+      ctx.shadowBlur = 4;
+      ctx.shadowOffsetY = 2;
+      wrapText(ctx, subTitle, titleX, currentY, maxTitleW, 36);
+    } else {
+      ctx.fillStyle = '#ffffff';
+      ctx.font = '500 35px Arial, sans-serif';
+      ctx.shadowBlur = 8;
+      ctx.shadowOffsetY = 4;
+      wrapText(ctx, title || "Untitled Article", titleX, currentY, maxTitleW, 48);
+    }
 
     // DOI (top-[17cqw] left-[33cqw])
     if (generatedDoi) {

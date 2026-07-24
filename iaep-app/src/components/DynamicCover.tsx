@@ -61,11 +61,22 @@ export default function DynamicCover({
           </h2>
         </div>
 
-        {/* JUDUL ARTIKEL (Dibatasi lebarnya sangat ketat agar tidak menabrak globe & gedung) */}
+        {/* JUDUL ARTIKEL & SUBJUDUL (Pemisahan font otomatis jika terdapat titik dua :) */}
         <div className="absolute top-[58cqw] left-[8cqw] w-[38cqw]">
-          <h1 className="text-[2.8cqw] font-medium text-white leading-snug line-clamp-6 text-shadow-lg drop-shadow-md">
-            {title || "Untitled Article"}
-          </h1>
+          {title && title.includes(":") ? (
+            <>
+              <h1 className="text-[2.7cqw] font-bold text-white leading-tight text-shadow-lg drop-shadow-md mb-[1cqw]">
+                {title.split(":")[0].trim()}:
+              </h1>
+              <h2 className="text-[2.0cqw] font-normal text-zinc-200 leading-snug line-clamp-5 text-shadow-md">
+                {title.split(":").slice(1).join(":").trim()}
+              </h2>
+            </>
+          ) : (
+            <h1 className="text-[2.8cqw] font-medium text-white leading-snug line-clamp-6 text-shadow-lg drop-shadow-md">
+              {title || "Untitled Article"}
+            </h1>
+          )}
         </div>
 
         {/* AUTHOR (Disembunyikan sesuai permintaan) */}
