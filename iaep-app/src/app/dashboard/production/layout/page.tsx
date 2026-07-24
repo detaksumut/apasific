@@ -35,25 +35,43 @@ export default async function LayoutEditorDashboard() {
   let articles: any[] = [];
   let completedArticles: any[] = [];
   try {
-    const { data: submissions, error } = await supabase
+    const { data: submissions } = await supabase
       .from("submissions")
       .select("*, journals(name), profiles:author_id(full_name)")
-      .eq("stage", "Copyediting")
-      .eq("status", "Assigned to Layout")
+      .in("status", ["Assigned to Layout", "In Layout"])
       .order("created_at", { ascending: false });
     
     if (submissions && submissions.length > 0) {
         articles = [...submissions];
     }
     
+    // Riwayat / Pertinggal Layout Editor: HANYA naskah yang benar-benar pernah melewati proses Layout
+    const layoutDoneStatuses = [
+      "Layout Completed", 
+      "Assigned to Cover", 
+      "Cover Completed", 
+      "Assigned to Publisher", 
+      "Published", 
+      "Production Completed"
+    ];
+
     const { data: doneSubmissions } = await supabase
       .from("submissions")
       .select("*, journals(name), profiles:author_id(full_name)")
-      .neq("status", "Assigned to Layout")
-      .order("created_at", { ascending: false })
+      .in("status", layoutDoneStatuses)
+      .order("updated_at", { ascending: false })
       .limit(100);
 
-    if (doneSubmissions) completedArticles = [...doneSubmissions];
+    if (doneSubmissions) {
+      // Title Deduplication for completed articles
+      const seenTitles = new Set<string>();
+      completedArticles = doneSubmissions.filter(a => {
+        const clean = (a.title || '').trim().toLowerCase();
+        if (!clean || seenTitles.has(clean)) return false;
+        seenTitles.add(clean);
+        return true;
+      });
+    }
   } catch (e) {
     console.error("Supabase fetch error", e);
   }

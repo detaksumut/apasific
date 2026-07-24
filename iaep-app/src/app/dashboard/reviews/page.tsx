@@ -73,37 +73,39 @@ export default async function ReviewerDashboard() {
       }
     }
 
-    // Safe Fallback: Query Firestore for legacy assignments
-    try {
-      const { getFirestore } = await import('@/utils/firebase/db');
-      const db = getFirestore();
-      
-      const snap = await db.collection('review_assignments').get();
+    // Safe Fallback: Query Firestore ONLY if Supabase returned 0 assignments
+    if (assignments.length === 0) {
+      try {
+        const { getFirestore } = await import('@/utils/firebase/db');
+        const db = getFirestore();
+        
+        const snap = await db.collection('review_assignments').get();
 
-      const fbAssignments: any[] = [];
-      snap.forEach((doc: any) => {
-        const d = doc.data();
-        const rId = d.reviewer_id || '';
-        const rEmail = d.reviewer_email || '';
-        if (candidateIds.has(rId) || candidateIds.has(rEmail) || (user.email && rEmail.toLowerCase() === user.email.toLowerCase())) {
-           fbAssignments.push({
-             id: doc.id,
-             submission_id: d.submission_id,
-             reviewer_id: rId,
-             status: d.status || 'pending',
-             assigned_at: d.assigned_at?.toDate ? d.assigned_at.toDate() : new Date(d.assigned_at || Date.now()),
-             deadline: d.deadline?.toDate ? d.deadline.toDate() : d.deadline
-           });
-        }
-      });
+        const fbAssignments: any[] = [];
+        snap.forEach((doc: any) => {
+          const d = doc.data();
+          const rId = d.reviewer_id || '';
+          const rEmail = d.reviewer_email || '';
+          if (candidateIds.has(rId) || candidateIds.has(rEmail) || (user.email && rEmail.toLowerCase() === user.email.toLowerCase())) {
+             fbAssignments.push({
+               id: doc.id,
+               submission_id: d.submission_id,
+               reviewer_id: rId,
+               status: d.status || 'pending',
+               assigned_at: d.assigned_at?.toDate ? d.assigned_at.toDate() : new Date(d.assigned_at || Date.now()),
+               deadline: d.deadline?.toDate ? d.deadline.toDate() : d.deadline
+             });
+          }
+        });
 
-      const existingSubIds = new Set(assignments.map(a => a.submission_id));
-      fbAssignments.forEach(fbA => {
-        if (!existingSubIds.has(fbA.submission_id)) {
-           assignments.push(fbA);
-        }
-      });
-    } catch(e) {}
+        const existingSubIds = new Set(assignments.map(a => a.submission_id));
+        fbAssignments.forEach(fbA => {
+          if (!existingSubIds.has(fbA.submission_id)) {
+             assignments.push(fbA);
+          }
+        });
+      } catch(e) {}
+    }
 
     // Enrich all assignments with submission title & journal info
     if (assignments.length > 0) {

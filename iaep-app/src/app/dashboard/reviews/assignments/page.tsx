@@ -75,14 +75,15 @@ export default async function AssignmentsPage() {
       }
     }
 
-    // Safe Fallback: Query Firestore if Supabase assignments are missing or to merge legacy assignments
-    try {
-      const { getFirestore } = await import('@/utils/firebase/db');
-      const db = getFirestore();
-      
-      const snap = await db.collection('review_assignments')
-        .where('status', '==', 'pending')
-        .get();
+    // Safe Fallback: Query Firestore ONLY if Supabase returned 0 assignments
+    if (assignments.length === 0) {
+      try {
+        const { getFirestore } = await import('@/utils/firebase/db');
+        const db = getFirestore();
+        
+        const snap = await db.collection('review_assignments')
+          .where('status', '==', 'pending')
+          .get();
 
       const fbAssignments: any[] = [];
       snap.forEach((doc: any) => {
@@ -108,6 +109,7 @@ export default async function AssignmentsPage() {
         }
       });
     } catch(e) {}
+    }
 
     // Enrich all assignments with submission title & journal info
     if (assignments.length > 0) {
