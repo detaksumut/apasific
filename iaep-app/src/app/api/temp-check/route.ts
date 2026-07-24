@@ -3,15 +3,14 @@ import { createClient } from '@supabase/supabase-js';
 
 export async function GET() {
   try {
-    const supabaseAdmin = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL || '',
-      process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
-    );
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
+    const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
+    const supabase = createClient(supabaseUrl, supabaseKey);
     
-    // Update both volume and issue so getPublishedArticleDetails won't override it
-    await supabaseAdmin.from('submissions').update({ volume: '1', issue: '2' }).eq('id', '7375625f-3137-3834-3433-303532353631');
-
-    return NextResponse.json({ success: true });
+    const { data, error } = await supabase.from('submissions').select('*').limit(1);
+    const columns = data && data.length > 0 ? Object.keys(data[0]) : [];
+    
+    return NextResponse.json({ columns, error });
   } catch (e: any) {
     return NextResponse.json({ error: e.message });
   }

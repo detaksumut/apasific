@@ -4,9 +4,10 @@ import React, { useEffect, useRef, useState } from 'react';
 
 interface SecurePdfViewerProps {
   url: string;
+  onDownload?: () => void;
 }
 
-export default function SecurePdfViewer({ url }: SecurePdfViewerProps) {
+export default function SecurePdfViewer({ url, onDownload }: SecurePdfViewerProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -108,6 +109,7 @@ export default function SecurePdfViewer({ url }: SecurePdfViewerProps) {
   const handleDownload = async () => {
     try {
       setIsDownloading(true);
+      onDownload?.();
       
       // Load pdf-lib from CDN
       if (!(window as any).PDFLib) {

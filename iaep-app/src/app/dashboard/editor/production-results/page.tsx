@@ -53,13 +53,45 @@ export default async function ProductionResultsPage() {
 
       const filtered = supaData.filter(isProductionResult);
 
-      // Title Deduplication
+      // Fetch registered users for phone fallback
+      let registeredUsers: any[] = [];
+      try {
+        const { data: setting } = await supabaseAdmin.from('system_settings').select('value').eq('key', 'registered_users').single();
+        if (setting && setting.value) {
+          registeredUsers = Array.isArray(setting.value) ? setting.value : JSON.parse(setting.value);
+        }
+      } catch(e) {}
+
+      // Extract sender information and deduplicate titles
       const seenTitles = new Set<string>();
       productionArticles = filtered.filter(a => {
         const clean = (a.title || '').trim().toLowerCase();
         if (!clean || seenTitles.has(clean)) return false;
         seenTitles.add(clean);
         return true;
+      }).map(article => {
+        let senderName = article.profiles?.full_name || 'Penulis Tidak Diketahui';
+        let senderPhone = article.phone || article.profiles?.phone || '-';
+        let senderEmail = 'N/A';
+
+        try {
+          const parsedAbstract = JSON.parse(article.abstract || '{}');
+          if (parsedAbstract.authors && parsedAbstract.authors.length > 0) {
+            const primary = parsedAbstract.authors[0];
+            if (primary.full_name && senderName === 'Penulis Tidak Diketahui') senderName = primary.full_name;
+            if (primary.email) senderEmail = primary.email;
+          }
+          if (parsedAbstract.phone && senderPhone === '-') senderPhone = parsedAbstract.phone;
+        } catch(e) {}
+
+        if (senderPhone === '-' && senderEmail !== 'N/A') {
+          const match = registeredUsers.find(u => u.email?.toLowerCase() === senderEmail.toLowerCase());
+          if (match && (match.phone_number || match.phone)) {
+            senderPhone = match.phone_number || match.phone;
+          }
+        }
+
+        return { ...article, senderName, senderEmail, senderPhone };
       });
     }
   } catch (e) {
@@ -201,9 +233,21 @@ export default async function ProductionResultsPage() {
                     <h2 className="text-lg font-bold text-white leading-snug hover:text-emerald-400 transition-colors">
                       {article.title}
                     </h2>
-                    <p className="text-xs text-zinc-400 mt-1">
-                      Penulis: <span className="text-zinc-200 font-semibold">{article.profiles?.full_name || article.author || 'Penulis'}</span>
-                    </p>
+                    <div className="flex flex-col gap-1 mt-1">
+                      <p className="text-xs text-zinc-400">
+                        Penulis: <span className="text-zinc-200 font-semibold">{article.senderName || article.profiles?.full_name || article.author || 'Penulis'}</span>
+                      </p>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <div className="flex items-center gap-1 text-[10px] font-mono text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
+                          <span>HP: {article.senderPhone || '-'}</span>
+                        </div>
+                        {article.senderEmail && article.senderEmail !== 'N/A' && (
+                          <div className="flex items-center gap-1 text-[10px] text-zinc-400 bg-zinc-800/60 px-2 py-0.5 rounded border border-zinc-700/50">
+                            <span>{article.senderEmail}</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
                   </div>
 
                   <div className="grid grid-cols-2 gap-4 text-xs text-zinc-400 bg-zinc-950/60 p-3 rounded-xl border border-zinc-800">

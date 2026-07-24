@@ -159,11 +159,43 @@ function unhexUuid(uuidStr: string): string {
      return { ...article, assignments: activeAssignments };
   });
 
+  // 3. Extract senderName, senderEmail, senderPhone
+  let registeredUsers: any[] = [];
+  try {
+    const { data: setting } = await supabaseAdmin.from('system_settings').select('value').eq('key', 'registered_users').single();
+    if (setting && setting.value) {
+      registeredUsers = Array.isArray(setting.value) ? setting.value : JSON.parse(setting.value);
+    }
+  } catch(e) {}
+
   // Filter ONLY articles that have completed reviews or are in Reviewed/Revision Required status
   articles = articles.filter(article => {
     const hasCompletedReview = article.assignments && article.assignments.some((a: any) => a.status === 'completed');
     const isReviewedStatus = ['Reviewed', 'Revision Required'].includes(article.status);
     return hasCompletedReview || isReviewedStatus;
+  }).map(article => {
+    let senderName = article.profiles?.full_name || 'Penulis Tidak Diketahui';
+    let senderPhone = article.phone || article.profiles?.phone || '-';
+    let senderEmail = 'N/A';
+
+    try {
+      const parsedAbstract = JSON.parse(article.abstract || '{}');
+      if (parsedAbstract.authors && parsedAbstract.authors.length > 0) {
+        const primary = parsedAbstract.authors[0];
+        if (primary.full_name && senderName === 'Penulis Tidak Diketahui') senderName = primary.full_name;
+        if (primary.email) senderEmail = primary.email;
+      }
+      if (parsedAbstract.phone && senderPhone === '-') senderPhone = parsedAbstract.phone;
+    } catch(e) {}
+
+    if (senderPhone === '-' && senderEmail !== 'N/A') {
+      const match = registeredUsers.find(u => u.email?.toLowerCase() === senderEmail.toLowerCase());
+      if (match && (match.phone_number || match.phone)) {
+        senderPhone = match.phone_number || match.phone;
+      }
+    }
+
+    return { ...article, senderName, senderEmail, senderPhone };
   });
 
   return (
@@ -229,10 +261,22 @@ function unhexUuid(uuidStr: string): string {
                       <h3 className="text-lg font-semibold text-white group-hover:text-[#c9a84c] transition-colors">
                         {article.title}
                       </h3>
-                      <p className="text-sm text-zinc-400">
-                        Author: <span className="text-zinc-300">{article.profiles?.full_name || 'Penulis'}</span> &bull; 
-                        Update terakhir: {new Date(article.updated_at || article.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}
-                      </p>
+                      <div className="flex flex-col gap-1">
+                        <p className="text-sm text-zinc-400">
+                          Author: <span className="text-zinc-300">{article.senderName}</span> &bull; 
+                          Update terakhir: {new Date(article.updated_at || article.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}
+                        </p>
+                        <div className="flex flex-wrap items-center gap-2 mt-1">
+                          <div className="flex items-center gap-1 text-xs font-mono text-emerald-400 bg-emerald-500/10 px-2 py-1 rounded border border-emerald-500/20">
+                            <span>HP: {article.senderPhone}</span>
+                          </div>
+                          {article.senderEmail !== 'N/A' && (
+                            <div className="flex items-center gap-1 text-xs text-zinc-400 bg-zinc-800/60 px-2 py-1 rounded border border-zinc-700/50">
+                              <span>{article.senderEmail}</span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
 
                       {article.assignments && article.assignments.length > 0 && (
                         <div className="mt-3 space-y-2 border-t border-zinc-800/50 pt-3">

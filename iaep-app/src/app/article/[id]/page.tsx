@@ -10,14 +10,11 @@ export default function ArticlePaywall() {
   const params = useParams();
   const id = params?.id as string;
   
-  const [isProcessing, setIsProcessing] = useState(false);
-  const [hasPaid, setHasPaid] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [showBankPopup, setShowBankPopup] = useState(false);
-  const [isWaitingAdmin, setIsWaitingAdmin] = useState(false);
-  const [proofFile, setProofFile] = useState<File | null>(null);
   const [scopusCitations, setScopusCitations] = useState<number | null>(null);
   const [crossrefCitations, setCrossrefCitations] = useState<number | null>(null);
+  
+  const [metrics, setMetrics] = useState({ views: 0, downloads: 0 });
   
   const [article, setArticle] = useState({
     title: "",
@@ -32,8 +29,6 @@ export default function ArticlePaywall() {
     wos: "",
     ssrn: "",
     doi: "",
-    views: 0,
-    downloads: 0,
     pdf_url: "",
     cover_file_url: "",
     volume: "",
@@ -154,29 +149,21 @@ export default function ArticlePaywall() {
     fetchCrossrefCitations();
   }, [article.doi]);
 
+  // Fetch and track metrics
   useEffect(() => {
-    // Listen for admin approval from another tab
-    const handleStorageChange = (e: StorageEvent) => {
-      if (e.key === 'apasific_payment_approved') {
-        setIsWaitingAdmin(false);
-        setHasPaid(true);
-        // Automatically download or alert
-        alert("Persetujuan diterima dari Admin! Mengunduh PDF...");
-      }
-    };
-
-    window.addEventListener('storage', handleStorageChange);
-    return () => window.removeEventListener('storage', handleStorageChange);
-  }, []);
-
-  const handlePayment = () => {
-    setShowBankPopup(true);
-  };
-
-  const handleConfirmTransfer = () => {
-    setShowBankPopup(false);
-    setIsWaitingAdmin(true);
-  };
+    if (!id || id === '1045') return;
+    
+    // Fetch current metrics
+    fetch(`/api/metrics?id=${id}`)
+      .then(res => res.json())
+      .then(data => {
+        setMetrics({ views: data.views || 0, downloads: data.downloads || 0 });
+      })
+      .catch(console.error);
+      
+    // Track view
+    fetch(`/api/metrics?id=${id}&type=view`, { method: 'POST' }).catch(console.error);
+  }, [id]);
 
   if (loading) {
     return <div className="min-h-screen pt-32 text-center text-[#c9a84c] bg-[#05050a] font-bold animate-pulse">Memuat detail artikel...</div>;
@@ -376,7 +363,13 @@ export default function ArticlePaywall() {
             <section className="relative rounded-2xl border border-gray-800 overflow-hidden bg-white shadow-2xl">
               <div className="w-full h-[800px]">
                 {article.pdf_url ? (
-                  <SecurePdfViewer url={article.pdf_url} />
+                  <SecurePdfViewer 
+                    url={article.pdf_url} 
+                    onDownload={() => {
+                      fetch(`/api/metrics?id=${id}&type=download`, { method: 'POST' }).catch(console.error);
+                      setMetrics(prev => ({ ...prev, downloads: prev.downloads + 1 }));
+                    }}
+                  />
                 ) : (
                   <div className="w-full h-full flex flex-col items-center justify-center text-gray-500 bg-gray-100">
                     <svg className="w-16 h-16 mb-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
@@ -384,24 +377,6 @@ export default function ArticlePaywall() {
                   </div>
                 )}
               </div>
-              
-              {/* Waiting for Admin Overlay (Only if applicable) */}
-              {isWaitingAdmin && !hasPaid && (
-                <div className="absolute inset-0 flex flex-col items-center justify-center bg-[#05050a]/90 backdrop-blur-sm z-40">
-                  <div className="bg-[#12121f] p-8 rounded-2xl border border-[#c9a84c]/50 text-center shadow-2xl max-w-md mx-auto relative overflow-hidden">
-                    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-[#c9a84c] to-transparent animate-pulse"></div>
-                    <div className="inline-block p-4 rounded-full bg-[#1a1a2e] mb-6">
-                      <svg className="w-10 h-10 text-[#c9a84c] animate-spin" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                      </svg>
-                    </div>
-                    <h3 className="text-xl font-bold text-white mb-2">Menunggu Verifikasi Admin</h3>
-                    <p className="text-gray-400 text-sm mb-4">
-                      Kami sedang memverifikasi bukti transfer Anda. Mohon jangan tutup halaman ini. Akses akan terbuka otomatis sesaat lagi.
-                    </p>
-                  </div>
-                </div>
-              )}
             </section>
           </div>
 
@@ -473,15 +448,15 @@ export default function ArticlePaywall() {
               <div className="space-y-4">
                 <div className="flex justify-between items-center pb-3 border-b border-gray-800">
                   <span className="text-gray-400">Pemandangan</span>
-                  <span className="font-bold text-white">{article.views.toLocaleString('id-ID')}</span>
+                  <span className="font-bold text-white">{metrics.views.toLocaleString('id-ID')}</span>
                 </div>
                 <div className="flex justify-between items-center pb-3 border-b border-gray-800">
                   <span className="text-gray-400">Unduhan</span>
-                  <span className="font-bold text-white">{article.downloads.toLocaleString('id-ID')}</span>
+                  <span className="font-bold text-white">{metrics.downloads.toLocaleString('id-ID')}</span>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-gray-400">Kutipan</span>
-                  <span className="font-bold text-white">0</span>
+                  <span className="font-bold text-white">{(scopusCitations || 0) + (crossrefCitations || 0)}</span>
                 </div>
               </div>
             </div>
@@ -500,92 +475,6 @@ export default function ArticlePaywall() {
             </div>
           </div>
         </div>
-        
-        {/* Bank Transfer Modal Popup */}
-        {showBankPopup && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-            <div className="bg-[#12121f] rounded-2xl border border-[#c9a84c]/40 shadow-2xl max-w-lg w-full p-8 animate-in fade-in zoom-in duration-300">
-              <div className="text-center mb-6">
-                <svg className="w-12 h-12 text-[#c9a84c] mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
-                </svg>
-                <h3 className="text-2xl font-bold text-white mb-2">Instruksi Pembayaran</h3>
-                <p className="text-gray-400 text-sm">
-                  Silakan lakukan transfer sebesar <span className="font-bold text-[#c9a84c]">Rp {(article.price || 50000).toLocaleString('id-ID')}</span> ke rekening resmi kami di bawah ini:
-                </p>
-              </div>
-
-              <div className="bg-[#0a0a0f] rounded-xl p-6 border border-gray-800 mb-6 space-y-4">
-                <div>
-                  <div className="text-xs text-gray-500 uppercase font-bold mb-1">Nama Pemilik Rekening</div>
-                  <div className="text-lg font-bold text-white">Association of Asia Pacific Academician</div>
-                </div>
-                <div className="border-t border-gray-800 pt-4">
-                  <div className="text-xs text-gray-500 uppercase font-bold mb-1">Bank Tujuan</div>
-                  <div className="text-lg font-bold text-white">Bank Negara Indonesia (BNI)</div>
-                </div>
-                <div className="border-t border-gray-800 pt-4">
-                  <div className="text-xs text-gray-500 uppercase font-bold mb-1">Nomor Rekening (A/C No)</div>
-                  <div className="text-2xl font-black text-[#c9a84c] tracking-wider">7006002218</div>
-                </div>
-                <div className="border-t border-gray-800 pt-4">
-                  <div className="text-xs text-gray-500 uppercase font-bold mb-1">Swift Code</div>
-                  <div className="text-lg font-bold text-white tracking-widest">BNINIDJA</div>
-                </div>
-              </div>
-
-              {/* Upload Bukti Transfer */}
-              <div className="mb-8">
-                <label className="block text-sm font-bold text-gray-200 mb-3">Unggah Bukti Transfer (Wajib)</label>
-                <div className="border-2 border-dashed border-[#c9a84c]/60 bg-[#1a1a2e] rounded-xl p-8 text-center hover:bg-[#c9a84c]/10 hover:border-[#c9a84c] transition-all duration-300 relative group cursor-pointer shadow-inner">
-                  <input 
-                    type="file" 
-                    accept="image/*"
-                    onChange={(e) => setProofFile(e.target.files ? e.target.files[0] : null)}
-                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
-                  />
-                  {proofFile ? (
-                    <div className="text-[#c9a84c] font-bold text-base flex flex-col items-center justify-center gap-3">
-                      <div className="p-3 bg-green-500/20 rounded-full">
-                        <svg className="w-8 h-8 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                      </div>
-                      {proofFile.name}
-                      <span className="text-xs text-gray-400 font-normal">Klik untuk mengganti file</span>
-                    </div>
-                  ) : (
-                    <div className="text-gray-300 flex flex-col items-center group-hover:text-white transition-colors">
-                      <div className="p-4 bg-[#c9a84c]/10 rounded-full mb-3 group-hover:bg-[#c9a84c]/20 transition-colors border border-[#c9a84c]/30">
-                        <svg className="w-8 h-8 text-[#c9a84c]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
-                        </svg>
-                      </div>
-                      <span className="font-bold text-base mb-1">Bukti Transfer!</span>
-                      <span className="text-xs text-gray-400">Maksimal 5MB (JPG/PNG)</span>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              <div className="flex gap-4">
-                <button 
-                  onClick={() => setShowBankPopup(false)}
-                  className="flex-1 bg-transparent border border-gray-600 text-gray-400 font-bold py-3 rounded-lg hover:bg-gray-800 transition-colors"
-                >
-                  Batal
-                </button>
-                <button 
-                  onClick={handleConfirmTransfer}
-                  disabled={!proofFile}
-                  className="flex-1 bg-[#c9a84c] text-black font-bold py-3 rounded-lg hover:bg-[#e8c97a] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  Saya Sudah Transfer
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );

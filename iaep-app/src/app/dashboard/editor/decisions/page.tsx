@@ -76,6 +76,40 @@ export default async function DecisionsHistoryPage() {
         });
       }
     }
+    // Fetch registered users for phone fallback
+    let registeredUsers: any[] = [];
+    try {
+      const { data: setting } = await supabaseAdmin.from('system_settings').select('value').eq('key', 'registered_users').single();
+      if (setting && setting.value) {
+        registeredUsers = Array.isArray(setting.value) ? setting.value : JSON.parse(setting.value);
+      }
+    } catch(e) {}
+
+    // Extract sender information
+    articles = articles.map(article => {
+      let senderName = article.profiles?.full_name || 'Penulis Tidak Diketahui';
+      let senderPhone = article.phone || article.profiles?.phone || '-';
+      let senderEmail = 'N/A';
+
+      try {
+        const parsedAbstract = JSON.parse(article.abstract || '{}');
+        if (parsedAbstract.authors && parsedAbstract.authors.length > 0) {
+          const primary = parsedAbstract.authors[0];
+          if (primary.full_name && senderName === 'Penulis Tidak Diketahui') senderName = primary.full_name;
+          if (primary.email) senderEmail = primary.email;
+        }
+        if (parsedAbstract.phone && senderPhone === '-') senderPhone = parsedAbstract.phone;
+      } catch(e) {}
+
+      if (senderPhone === '-' && senderEmail !== 'N/A') {
+        const match = registeredUsers.find(u => u.email?.toLowerCase() === senderEmail.toLowerCase());
+        if (match && (match.phone_number || match.phone)) {
+          senderPhone = match.phone_number || match.phone;
+        }
+      }
+
+      return { ...article, senderName, senderEmail, senderPhone };
+    });
   } catch (e) {
     console.error("Fetch error in DecisionsHistoryPage:", e);
   }

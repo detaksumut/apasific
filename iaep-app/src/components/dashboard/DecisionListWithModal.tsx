@@ -78,10 +78,22 @@ export default function DecisionListWithModal({ articles }: { articles: any[] })
                     <h3 className="text-lg font-semibold text-white group-hover:text-[#c9a84c] transition-colors line-clamp-1">
                       {article.title}
                     </h3>
-                    <p className="text-sm text-zinc-400">
-                      Penulis: <span className="text-zinc-300">{article.profiles?.full_name || 'Penulis'}</span> &bull; 
-                      Tanggal Keputusan: {new Date(article.updated_at || article.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}
-                    </p>
+                    <div className="flex flex-col gap-1">
+                      <p className="text-sm text-zinc-400">
+                        Penulis: <span className="text-zinc-300">{article.senderName || article.profiles?.full_name || 'Penulis'}</span> &bull; 
+                        Tanggal Keputusan: {new Date(article.updated_at || article.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}
+                      </p>
+                      <div className="flex flex-wrap items-center gap-2 mt-1">
+                        <div className="flex items-center gap-1 text-xs font-mono text-emerald-400 bg-emerald-500/10 px-2 py-1 rounded border border-emerald-500/20">
+                          <span>HP: {article.senderPhone || '-'}</span>
+                        </div>
+                        {article.senderEmail && article.senderEmail !== 'N/A' && (
+                          <div className="flex items-center gap-1 text-xs text-zinc-400 bg-zinc-800/60 px-2 py-1 rounded border border-zinc-700/50">
+                            <span>{article.senderEmail}</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
                   </div>
                   
                   <div className="shrink-0 flex items-center gap-3">

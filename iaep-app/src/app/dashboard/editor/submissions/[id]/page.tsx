@@ -387,6 +387,81 @@ export default function SubmissionControlPanel() {
                 )}
               </div>
 
+              {/* Metadata & Author Information */}
+              <div>
+                <h3 className="text-lg font-bold text-gray-800 border-b pb-2 mb-4">Metadata & Informasi Penulis</h3>
+                <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
+                  {(() => {
+                    let metadata: any = {};
+                    try {
+                      metadata = JSON.parse(submission.abstract || "{}");
+                    } catch (e) {
+                      metadata = { abstract_id: submission.abstract };
+                    }
+                    return (
+                      <div className="space-y-6">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div>
+                            <span className="text-xs font-bold text-gray-500 uppercase tracking-wider block mb-1">Scope Jurnal</span>
+                            <div className="text-sm text-gray-800 font-medium bg-gray-50 p-2 border border-gray-200 rounded">{metadata.scope || "-"}</div>
+                          </div>
+                          <div>
+                            <span className="text-xs font-bold text-gray-500 uppercase tracking-wider block mb-1">Paket Publikasi</span>
+                            <div className="text-sm text-gray-800 font-medium bg-gray-50 p-2 border border-gray-200 rounded">{metadata.paket || "-"}</div>
+                          </div>
+                          <div>
+                            <span className="text-xs font-bold text-gray-500 uppercase tracking-wider block mb-1">Nomor WhatsApp (Aktif)</span>
+                            <div className="text-sm text-gray-800 font-medium bg-gray-50 p-2 border border-gray-200 rounded">{metadata.phone || "-"}</div>
+                          </div>
+                          <div>
+                            <span className="text-xs font-bold text-gray-500 uppercase tracking-wider block mb-1">Kata Kunci (Keywords)</span>
+                            <div className="text-sm text-gray-800 font-medium bg-gray-50 p-2 border border-gray-200 rounded">{metadata.keywords || "-"}</div>
+                          </div>
+                        </div>
+
+                        <div>
+                          <span className="text-xs font-bold text-gray-500 uppercase tracking-wider block mb-1">Abstrak (Bahasa Indonesia)</span>
+                          <div className="text-sm text-gray-800 bg-gray-50 p-3 border border-gray-200 rounded leading-relaxed whitespace-pre-wrap">{metadata.abstract_id || metadata.abstract || "-"}</div>
+                        </div>
+
+                        <div>
+                          <span className="text-xs font-bold text-gray-500 uppercase tracking-wider block mb-1">Abstract (English)</span>
+                          <div className="text-sm text-gray-800 bg-gray-50 p-3 border border-gray-200 rounded leading-relaxed whitespace-pre-wrap">{metadata.abstract_en || "-"}</div>
+                        </div>
+
+                        <div>
+                          <span className="text-xs font-bold text-gray-500 uppercase tracking-wider block mb-2 border-b pb-1">Daftar Penulis (Authors)</span>
+                          {metadata.authors && Array.isArray(metadata.authors) && metadata.authors.length > 0 ? (
+                            <div className="space-y-3 mt-3">
+                              {metadata.authors.map((author: any, idx: number) => (
+                                <div key={idx} className="bg-gray-50 border border-gray-200 rounded p-3">
+                                  <div className="font-bold text-gray-800 mb-1">
+                                    {idx === 0 ? "Penulis Pertama (Koresponden): " : `Penulis ${idx + 1}: `}
+                                    {author.full_name}
+                                  </div>
+                                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 text-xs">
+                                    <div><span className="font-semibold text-gray-600">Email:</span> {author.email || "-"}</div>
+                                    <div><span className="font-semibold text-gray-600">Afiliasi:</span> {author.affiliation || "-"}</div>
+                                    <div><span className="font-semibold text-gray-600">NIDN/ID Akademik:</span> {author.nidn || "-"}</div>
+                                    <div><span className="font-semibold text-gray-600">ORCID:</span> {author.orcid || "-"}</div>
+                                    <div><span className="font-semibold text-gray-600">Scholar ID:</span> {author.scholar_id || "-"}</div>
+                                    <div><span className="font-semibold text-gray-600">SINTA ID:</span> {author.sinta_id || "-"}</div>
+                                    <div><span className="font-semibold text-gray-600">SCOPUS ID:</span> {author.scopus_id || "-"}</div>
+                                    <div><span className="font-semibold text-gray-600">WoS ID:</span> {author.wos_id || "-"}</div>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          ) : (
+                            <div className="text-sm text-gray-500 italic">Data penulis detail tidak ditemukan.</div>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })()}
+                </div>
+              </div>
+
               <div>
                 <h3 className="text-lg font-bold text-gray-800 border-b pb-2 mb-4">Action</h3>
                 <button 
