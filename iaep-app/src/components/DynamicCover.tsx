@@ -11,6 +11,7 @@ interface DynamicCoverProps {
   month?: string;
   year?: string;
   customBgUrl?: string | null;
+  disciplineCode?: string;
   mainTitleFontSize?: number;
   mainTitleColor?: string;
   mainTitleFontFamily?: string;
@@ -30,6 +31,7 @@ export default function DynamicCover({
   month = "JULY",
   year = "2026",
   customBgUrl = null,
+  disciplineCode = "",
   mainTitleFontSize = 3.1,
   mainTitleColor = "#f0c05a",
   mainTitleFontFamily = "sans-serif",
@@ -74,7 +76,14 @@ export default function DynamicCover({
         </div>
 
         {/* JUDUL ARTIKEL & SUBJUDUL (Pemisahan font & style dinamis) */}
-        <div className="absolute top-[58cqw] left-[8cqw] w-[38cqw]">
+        <div className="absolute top-[56cqw] left-[8cqw] w-[38cqw]">
+          {disciplineCode && (
+            <div className="mb-[1cqw]">
+              <span className="text-[1.7cqw] font-bold text-[#f0c05a] bg-black/60 border border-[#f0c05a]/60 px-[1.2cqw] py-[0.3cqw] rounded tracking-wide uppercase inline-block drop-shadow-md">
+                {disciplineCode}
+              </span>
+            </div>
+          )}
           {title && title.includes(":") ? (
             <>
               <h1 

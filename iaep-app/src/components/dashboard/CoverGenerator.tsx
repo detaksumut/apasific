@@ -16,6 +16,15 @@ export default function CoverGenerator({ submission, generatedDoi }: CoverGenera
   const [dynamicVolText, setDynamicVolText] = useState<string>('');
 
   // Interactive Typography Controls for Main Title & Subtitle
+  const [disciplineCode, setDisciplineCode] = useState<string>(() => {
+    const jName = submission?.journals?.name || submission?.journalName || '';
+    if (jName.includes('-')) {
+      return `[${jName.split('-')[1].trim()}]`;
+    }
+    if (jName) return `[${jName.split(' ')[0]}]`;
+    return '[DISIPLIN ILMU]';
+  });
+
   const [mainTitleSize, setMainTitleSize] = useState<number>(3.1);
   const [mainTitleColor, setMainTitleColor] = useState<string>('#f0c05a');
   const [mainTitleFont, setMainTitleFont] = useState<string>('sans-serif');
@@ -160,8 +169,18 @@ export default function CoverGenerator({ submission, generatedDoi }: CoverGenera
 
     // Article Title & Subtitle (top-[58cqw] left-[8cqw] w-[38cqw])
     const titleX = width * 0.08;
-    let currentY = width * 0.58 + 35;
+    let currentY = width * 0.56 + 35;
     const maxTitleW = width * 0.38;
+
+    // Kode Disiplin Ilmu
+    if (disciplineCode) {
+      ctx.fillStyle = '#f0c05a';
+      ctx.font = 'bold 22px Arial, sans-serif';
+      ctx.shadowBlur = 4;
+      ctx.shadowOffsetY = 2;
+      ctx.fillText(disciplineCode.toUpperCase(), titleX, currentY);
+      currentY += 32;
+    }
 
     const mainPx = Math.round(mainTitleSize * 12.3);
     const subPx = Math.round(subTitleSize * 12.3);
@@ -226,7 +245,7 @@ export default function CoverGenerator({ submission, generatedDoi }: CoverGenera
 
   useEffect(() => {
     drawCover();
-  }, [title, author, journalName, theme, scope, customBgUrl, generatedDoi, dynamicVolText, mainTitleSize, mainTitleColor, mainTitleFont, subTitleSize, subTitleColor, subTitleFont]);
+  }, [title, author, journalName, theme, scope, customBgUrl, generatedDoi, dynamicVolText, disciplineCode, mainTitleSize, mainTitleColor, mainTitleFont, subTitleSize, subTitleColor, subTitleFont]);
 
   const attachCover = () => {
     const canvas = canvasRef.current;
@@ -313,10 +332,21 @@ export default function CoverGenerator({ submission, generatedDoi }: CoverGenera
           <div className="bg-white p-4 rounded-lg border border-gray-200 space-y-4">
             <h4 className="text-xs font-bold text-gray-700 uppercase tracking-wider border-b pb-2 flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-amber-500"></span>
-              Pengaturan Tipografi Judul Naskah
+              Kode Disiplin Ilmu & Tipografi Judul
             </h4>
             
             <div className="space-y-3">
+              <div>
+                <label className="text-xs font-semibold text-amber-900 block mb-1">Kode Disiplin Ilmu Artikel:</label>
+                <input 
+                  type="text"
+                  value={disciplineCode}
+                  onChange={(e) => setDisciplineCode(e.target.value)}
+                  placeholder="Contoh: [Pengabdian Kepada Masyarakat] / [AJCS]"
+                  className="w-full text-xs p-2 bg-amber-50 border border-amber-300 rounded font-bold text-amber-900 focus:outline-none focus:border-amber-500"
+                />
+              </div>
+
               <div>
                 <label className="text-xs font-medium text-gray-600 flex justify-between">
                   <span>Ukuran Huruf Judul:</span>
@@ -473,6 +503,7 @@ export default function CoverGenerator({ submission, generatedDoi }: CoverGenera
                 month={""}
                 year={""}
                 customBgUrl={customBgUrl}
+                disciplineCode={disciplineCode}
                 mainTitleFontSize={mainTitleSize}
                 mainTitleColor={mainTitleColor}
                 mainTitleFontFamily={mainTitleFont}
