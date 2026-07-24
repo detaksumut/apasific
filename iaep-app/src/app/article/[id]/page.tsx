@@ -86,8 +86,6 @@ export default function ArticlePaywall() {
             wos: wos,
             ssrn: ssrn,
             doi: hiddenDoi,
-            views: 0,
-            downloads: 0,
             cover_file_url: data.cover_file_url || "",
             volume: data.volume || "",
             issue: data.issue || ""
