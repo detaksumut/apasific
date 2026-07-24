@@ -49,7 +49,8 @@ export default async function DecisionsHistoryPage() {
 
     if (supaData) {
       const isDecisionDoc = (a: any) => 
-        ["Accepted", "accepted", "Rejected", "rejected", "Desk Reject", "Published", "Production Completed"].includes(a.status);
+        ["Accepted", "accepted", "Rejected", "rejected", "Desk Reject", "Published", "Production Completed"].includes(a.status) ||
+        Boolean(a.doi || a.zenodo_id);
 
       const filtered = supaData.filter(isDecisionDoc);
 
