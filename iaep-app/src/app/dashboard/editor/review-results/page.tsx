@@ -51,11 +51,10 @@ function unhexUuid(uuidStr: string): string {
     process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
   );
 
-  // Fetch submissions that are in Review stage or relevant statuses (bypassing RLS with admin client)
+  // Fetch submissions from Supabase Admin (bypassing RLS)
   const { data: submissions } = await supabaseAdmin
     .from("submissions")
     .select("*, journals(name), profiles:author_id(full_name)")
-    .or("stage.eq.Review,status.in.(Under Review,Reviewed,Revision Required,Review,Pending Review,submitted)")
     .order("updated_at", { ascending: false });
 
   let articles = submissions || [];
@@ -69,8 +68,10 @@ function unhexUuid(uuidStr: string): string {
     console.warn("Supabase fetch for reviewers failed", e);
   }
 
-  // --- Fetch Review Assignments ---
+  // --- Fetch Review Assignments (Primary SSOT: Supabase + Firestore Fallback Merge) ---
   let assignmentsMap: Record<string, any[]> = {};
+  
+  // 1. Supabase assignments
   try {
     const { data: assignmentsData } = await supabaseAdmin
       .from("review_assignments")
@@ -94,6 +95,48 @@ function unhexUuid(uuidStr: string): string {
     }
   } catch (e) {
     console.warn("Supabase fetch for assignments failed", e);
+  }
+
+  // 2. Firestore assignments fallback merge
+  try {
+    const { getFirestore } = await import('@/utils/firebase/db');
+    const db = getFirestore();
+    const snap = await db.collection('review_assignments').get();
+    
+    snap.forEach((doc: any) => {
+      const d = doc.data();
+      const assignment = {
+        id: doc.id,
+        submission_id: d.submission_id,
+        reviewer_id: d.reviewer_id,
+        reviewer_email: d.reviewer_email,
+        reviewer_name: d.reviewer_name || d.reviewer_email,
+        status: d.status || 'pending',
+        recommendation: d.recommendation || d.decision,
+        comments_for_editor: d.comments_for_editor || d.commentsForEditor,
+        comments_for_author: d.comments_for_author || d.commentsForAuthor,
+        annotated_file_url: d.annotated_file_url || d.fileUrl,
+        updated_at: d.updated_at?.toDate ? d.updated_at.toDate() : d.updated_at
+      };
+
+      const k1 = String(assignment.submission_id || '');
+      const k2 = unhexUuid(k1);
+      const k3 = String(assignment.id || '');
+
+      [k1, k2, k3].forEach(k => {
+        if (k) {
+          if (!assignmentsMap[k]) assignmentsMap[k] = [];
+          const existingIdx = assignmentsMap[k].findIndex((a: any) => a.id === assignment.id || a.submission_id === assignment.submission_id);
+          if (existingIdx === -1) {
+            assignmentsMap[k].push(assignment);
+          } else if (assignment.status === 'completed' && assignmentsMap[k][existingIdx].status !== 'completed') {
+            assignmentsMap[k][existingIdx] = { ...assignmentsMap[k][existingIdx], ...assignment };
+          }
+        }
+      });
+    });
+  } catch (e) {
+    console.warn("Firestore assignments fetch failed", e);
   }
   
   // Attach assignments

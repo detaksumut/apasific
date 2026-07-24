@@ -467,20 +467,27 @@ export async function submitReviewResults(
     // Supabase updates
     try {
         const isAssignUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(assignmentId);
-        let assignQ = supabaseAdmin.from('review_assignments').update({ 
+        const updatePayload: any = {
             status: 'completed',
             recommendation: results.recommendation,
             comments_for_editor: results.commentsForEditor,
             comments_for_author: results.commentsForAuthor,
             correction_notes: results.correctionNotes,
+            completed_at: new Date(),
             updated_at: new Date()
-        });
+        };
+
         if (isAssignUuid) {
-            assignQ = assignQ.or(`id.eq.${assignmentId},submission_id.eq.${assignmentId}`);
+            await supabaseAdmin.from('review_assignments').update(updatePayload).or(`id.eq.${assignmentId},submission_id.eq.${assignmentId}`);
         } else {
-            assignQ = assignQ.eq('id', assignmentId);
+            await supabaseAdmin.from('review_assignments').update(updatePayload).eq('id', assignmentId);
         }
-        await assignQ;
+        if (submissionId) {
+            await supabaseAdmin.from('review_assignments').update(updatePayload).eq('submission_id', submissionId);
+        }
+        if (user.email) {
+            await supabaseAdmin.from('review_assignments').update(updatePayload).eq('reviewer_email', user.email.toLowerCase()).eq('submission_id', submissionId);
+        }
         
         // Fetch current stage to avoid reverting a published article
         const { data: subData } = await supabaseAdmin.from('submissions').select('stage').eq('id', submissionId).maybeSingle();
@@ -628,13 +635,17 @@ export async function submitReviewResultsWithFile(formData: FormData) {
     // Supabase updates
     try {
         const isAssignUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(assignmentId);
-        let assignQ = supabaseAdmin.from('review_assignments').update(updatePayload);
         if (isAssignUuid) {
-            assignQ = assignQ.or(`id.eq.${assignmentId},submission_id.eq.${assignmentId}`);
+            await supabaseAdmin.from('review_assignments').update(updatePayload).or(`id.eq.${assignmentId},submission_id.eq.${assignmentId}`);
         } else {
-            assignQ = assignQ.eq('id', assignmentId);
+            await supabaseAdmin.from('review_assignments').update(updatePayload).eq('id', assignmentId);
         }
-        await assignQ;
+        if (submissionId) {
+            await supabaseAdmin.from('review_assignments').update(updatePayload).eq('submission_id', submissionId);
+        }
+        if (user.email) {
+            await supabaseAdmin.from('review_assignments').update(updatePayload).eq('reviewer_email', user.email.toLowerCase()).eq('submission_id', submissionId);
+        }
 
         // Update submission status in Supabase only if not advanced
         if (!isAdvanced) {

@@ -49,8 +49,7 @@ export default async function DecisionsHistoryPage() {
 
     if (supaData) {
       const isDecisionDoc = (a: any) => 
-        ["Accepted", "accepted", "Rejected", "Published", "Production Completed"].includes(a.status) || 
-        Boolean(a.doi || a.zenodo_id);
+        ["Accepted", "accepted", "Rejected", "rejected", "Desk Reject", "Published", "Production Completed"].includes(a.status);
 
       const filtered = supaData.filter(isDecisionDoc);
 
@@ -111,13 +110,17 @@ export default async function DecisionsHistoryPage() {
                       <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-zinc-800 text-zinc-300 border border-zinc-700">
                         {article.journals?.name || "Jurnal Tidak Diketahui"}
                       </span>
-                      {article.status.toLowerCase() === 'accepted' ? (
+                      {['accepted', 'Accepted'].includes(article.status) ? (
                         <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
                           Accepted
                         </span>
-                      ) : article.status === 'Published' ? (
+                      ) : ['Published', 'Production Completed'].includes(article.status) ? (
                         <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/20">
                           Published
+                        </span>
+                      ) : ['Reviewed', 'Revision Required'].includes(article.status) ? (
+                        <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/20">
+                          Reviewed
                         </span>
                       ) : (
                         <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-rose-500/10 text-rose-400 border border-rose-500/20">
