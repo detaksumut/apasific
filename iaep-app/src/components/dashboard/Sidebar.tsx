@@ -11,10 +11,11 @@ export default function Sidebar({ role }: SidebarProps) {
 
   const commonLinks = [
     {
-      label: "Ringkasan",
+      label: "Dashboard",
       path: (() => {
         const r = (role || '').toLowerCase();
         if (r === 'editor') return '/dashboard/editor';
+        if (r === 'reviewer') return '/dashboard/reviews';
         if (r === 'admin editor') return '/dashboard/production/supervisor';
         if (r === 'admin' || r === 'superadmin' || r === 'super_admin') return '/dashboard/admin';
         if (r === 'layout editor') return '/dashboard/production/layout';
@@ -91,16 +92,6 @@ export default function Sidebar({ role }: SidebarProps) {
   ];
 
   const reviewerLinks = [
-    {
-      label: "Dashboard",
-      path: "/dashboard/reviews",
-      icon: (
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
-          <rect x="3" y="3" width="7" height="7" rx="1.5" /><rect x="14" y="3" width="7" height="7" rx="1.5" />
-          <rect x="3" y="14" width="7" height="7" rx="1.5" /><rect x="14" y="14" width="7" height="7" rx="1.5" />
-        </svg>
-      ),
-    },
     {
       label: "Artikel Ditugaskan",
       path: "/dashboard/reviews/assignments",
