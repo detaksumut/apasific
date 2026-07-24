@@ -561,6 +561,55 @@ export async function submitReviewResults(
   }
 }
 
+export async function autoRepairSubmissionFile(submissionId: string) {
+  try {
+    const { createClient } = await import('@supabase/supabase-js');
+    const { revalidatePath } = require('next/cache');
+    const supabaseAdmin = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    );
+
+    // Get the submission to check created_at
+    const { data: sub } = await supabaseAdmin.from('submissions').select('created_at').eq('id', submissionId).single();
+    if (!sub) return { success: false, error: 'Submission not found' };
+
+    const subDate = new Date(sub.created_at).getTime();
+
+    // List files in undefined folder
+    const { data: files, error } = await supabaseAdmin.storage.from('manuscripts').list('undefined', { limit: 100 });
+    if (error || !files || files.length === 0) return { success: false, error: 'No orphaned files found' };
+
+    const anonFiles = files.filter((f: any) => f.name.toLowerCase().includes('anonymous'));
+    
+    let bestMatch = null;
+    let minDiff = 5 * 60 * 1000; // 5 minutes max difference
+    
+    for (const file of anonFiles) {
+        const fileDate = new Date(file.created_at).getTime();
+        const diff = Math.abs(subDate - fileDate);
+        if (diff < minDiff) {
+            minDiff = diff;
+            bestMatch = file;
+        }
+    }
+    
+    if (!bestMatch) {
+      return { success: false, error: 'No matching file found within the timeframe' };
+    }
+
+    const rawPath = `undefined/${bestMatch.name}`;
+    await supabaseAdmin.from('submissions').update({
+        file_url: rawPath
+    }).eq('id', submissionId);
+    
+    revalidatePath(`/dashboard/reviews/${submissionId}`);
+    return { success: true, url: rawPath };
+  } catch (e: any) {
+    return { success: false, error: e.message };
+  }
+}
+
 export async function submitReviewResultsWithFile(formData: FormData) {
   try {
     const assignmentId = formData.get('assignmentId') as string;

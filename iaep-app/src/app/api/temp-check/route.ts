@@ -7,10 +7,31 @@ export async function GET() {
     const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
     const supabase = createClient(supabaseUrl, supabaseKey);
     
-    const { data, error } = await supabase.from('submissions').select('*').limit(1);
-    const columns = data && data.length > 0 ? Object.keys(data[0]) : [];
-    
-    return NextResponse.json({ columns, error });
+    // 1. Check specific submission
+    const { data: specific, error: specificErr } = await supabase
+      .from('submissions')
+      .select('id, title, file_url, blind_manuscript_url, status')
+      .eq('id', '8f8ddddb-d5a2-460e-ab21-f5d59ad8e6a0');
+
+    // 2. Check all submissions in Editor that are not reviewed yet (Under Review or Editor Assigned)
+    const { data: underReview, error: underReviewErr } = await supabase
+      .from('submissions')
+      .select('id, title, file_url, blind_manuscript_url, status')
+      .in('status', ['Editor Assigned', 'Under Review'])
+      .order('created_at', { ascending: false })
+      .limit(10);
+      
+    // 3. Check reviews for the specific submission
+    const { data: reviews } = await supabase
+      .from('reviews')
+      .select('id, manuscript_file, submission_id, status')
+      .eq('submission_id', '8f8ddddb-d5a2-460e-ab21-f5d59ad8e6a0');
+
+    return NextResponse.json({ 
+      specific, specificErr, 
+      underReview, underReviewErr,
+      reviews
+    });
   } catch (e: any) {
     return NextResponse.json({ error: e.message });
   }

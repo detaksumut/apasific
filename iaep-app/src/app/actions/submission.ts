@@ -111,7 +111,7 @@ export async function submitManuscript(formData: FormData) {
           .single();
 
         if (!submissionError && submission) {
-           finalSubmissionId = submission.submission_id;
+           finalSubmissionId = submission.id || submission.submission_id || finalSubmissionId;
            savedToSupabase = true;
         } else {
            console.warn("Supabase submission insert failed (FK violation?), falling back to Firestore:", submissionError?.message);
@@ -188,16 +188,13 @@ export async function submitManuscript(formData: FormData) {
           if (fileError) console.warn("Supabase submission_files insert failed:", fileError.message);
       }
 
-      // Generate public URL and update main submission record
+      // Save the raw storage path to file_url so signed URLs can be generated later
       try {
-        const { data: pubData } = supabaseAdmin.storage.from('manuscripts').getPublicUrl(filePath);
-        const filePublicUrl = pubData?.publicUrl || "";
-        if (filePublicUrl) {
+        if (filePath) {
           if (savedToSupabase) {
             await supabaseAdmin.from('submissions').update({
-              file_url: filePublicUrl,
-              manuscript_url: filePublicUrl
-            }).or(`submission_id.eq.${finalSubmissionId},id.eq.${finalSubmissionId}`);
+              file_url: filePath
+            }).or(`id.eq.${finalSubmissionId}`);
           }
           try {
             const { getFirestore } = require('@/utils/firebase/db');

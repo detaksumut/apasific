@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { getAssignmentDetails, submitReviewResultsWithFile } from "@/app/actions/reviewer";
+import { getAssignmentDetails, submitReviewResultsWithFile, autoRepairSubmissionFile } from "@/app/actions/reviewer";
 
 export default function ReviewEvaluation({ params }: { params: any }) {
   const [assignmentId, setAssignmentId] = useState<string>('');
@@ -15,6 +15,25 @@ export default function ReviewEvaluation({ params }: { params: any }) {
   const [submitted, setSubmitted] = useState(false);
   const [annotatedFile, setAnnotatedFile] = useState<File | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [repairing, setRepairing] = useState(false);
+
+  const handleAutoRepair = async () => {
+    if (!submission?.submission_id) return;
+    setRepairing(true);
+    try {
+      const res = await autoRepairSubmissionFile(submission.submission_id);
+      if (res.success && res.url) {
+        setSubmission((prev: any) => ({ ...prev, file_url: res.url }));
+        alert("File berhasil ditemukan dan disambungkan secara otomatis!");
+      } else {
+        alert("Gagal menemukan file: " + (res.error || "Tidak ada file PDF/DOCX yang cocok dalam rentang waktu terdekat."));
+      }
+    } catch(e) {
+      alert("Terjadi kesalahan sistem.");
+    } finally {
+      setRepairing(false);
+    }
+  };
 
   const steps = ["Request", "Guidelines", "Review", "Submit"];
 
@@ -331,7 +350,14 @@ export default function ReviewEvaluation({ params }: { params: any }) {
                     <div className="rev-pdf-mock">
                       <div className="rev-pdf-icon">📄</div>
                       <div className="rev-pdf-mock-title">Anonymous Manuscript</div>
-                      <div className="rev-pdf-mock-sub">Blind review document · No file provided</div>
+                      <div className="rev-pdf-mock-sub" style={{ marginBottom: '15px' }}>Blind review document · No file provided</div>
+                      <button 
+                        onClick={handleAutoRepair} 
+                        disabled={repairing} 
+                        style={{ padding: '8px 16px', background: 'rgba(201,168,76,0.15)', color: '#c9a84c', border: '1px solid rgba(201,168,76,0.3)', borderRadius: '6px', cursor: repairing ? 'not-allowed' : 'pointer', fontWeight: 'bold', fontSize: '13px', transition: 'all 0.2s' }}
+                      >
+                        {repairing ? 'Mencari File...' : 'File Hilang? Cari Otomatis (Auto-Repair)'}
+                      </button>
                     </div>
                   )}
                 </div>

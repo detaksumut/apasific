@@ -197,7 +197,7 @@ export default function ReviewActionForm({ assignment }: { assignment: any }) {
                 formData.append('file', e.target.files[0]);
                 formData.append('submissionId', assignment.submission_id);
                 try {
-                  const res = await fetch('/api/upload-revised-manuscript', { method: 'POST', body: formData });
+                  const res = await fetch('/api/upload-review-file', { method: 'POST', body: formData });
                   const data = await res.json();
                   if(data.success) {
                     setReviewFileUrl(data.url);
