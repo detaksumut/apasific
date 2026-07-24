@@ -159,19 +159,19 @@ export default function CoverGenerator({ submission, generatedDoi }: CoverGenera
       const mainTitle = parts[0].trim() + ':';
       const subTitle = parts.slice(1).join(':').trim();
 
-      ctx.fillStyle = '#ffffff';
-      ctx.font = 'bold 35px Arial, sans-serif';
+      ctx.fillStyle = '#f0c05a';
+      ctx.font = 'bold 38px Arial, sans-serif';
       ctx.shadowBlur = 8;
       ctx.shadowOffsetY = 4;
-      currentY = wrapText(ctx, mainTitle, titleX, currentY, maxTitleW, 46);
+      currentY = wrapText(ctx, mainTitle, titleX, currentY, maxTitleW, 48);
 
       currentY += 12; // Gap antara judul utama dan sub-judul
 
       ctx.fillStyle = '#e4e4e7';
-      ctx.font = '26px Arial, sans-serif';
+      ctx.font = '23px Arial, sans-serif';
       ctx.shadowBlur = 4;
       ctx.shadowOffsetY = 2;
-      wrapText(ctx, subTitle, titleX, currentY, maxTitleW, 36);
+      wrapText(ctx, subTitle, titleX, currentY, maxTitleW, 32);
     } else {
       ctx.fillStyle = '#ffffff';
       ctx.font = '500 35px Arial, sans-serif';

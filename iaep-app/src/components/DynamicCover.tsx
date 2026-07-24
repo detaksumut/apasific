@@ -65,10 +65,10 @@ export default function DynamicCover({
         <div className="absolute top-[58cqw] left-[8cqw] w-[38cqw]">
           {title && title.includes(":") ? (
             <>
-              <h1 className="text-[2.7cqw] font-bold text-white leading-tight text-shadow-lg drop-shadow-md mb-[1cqw]">
+              <h1 className="text-[3.1cqw] font-bold text-[#f0c05a] leading-tight text-shadow-lg drop-shadow-md mb-[1cqw]">
                 {title.split(":")[0].trim()}:
               </h1>
-              <h2 className="text-[2.0cqw] font-normal text-zinc-200 leading-snug line-clamp-5 text-shadow-md">
+              <h2 className="text-[1.8cqw] font-normal text-zinc-200 leading-relaxed line-clamp-5 text-shadow-md">
                 {title.split(":").slice(1).join(":").trim()}
               </h2>
             </>
