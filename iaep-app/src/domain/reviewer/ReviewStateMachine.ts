@@ -1,59 +1,51 @@
-import { ReviewStatus } from "./ReviewStatus";
+import { ReviewStatus, ReviewAction } from "./ReviewStatus";
+
+const TRANSITIONS: Record<ReviewStatus, readonly ReviewStatus[]> = {
+  [ReviewStatus.Pending]: [ReviewStatus.Accepted, ReviewStatus.Rejected],
+  [ReviewStatus.Accepted]: [ReviewStatus.Reviewing, ReviewStatus.Completed, ReviewStatus.Rejected],
+  [ReviewStatus.Reviewing]: [ReviewStatus.Completed, ReviewStatus.Rejected],
+  [ReviewStatus.Completed]: [ReviewStatus.RevisionPending],
+  [ReviewStatus.RevisionPending]: [ReviewStatus.Completed, ReviewStatus.Rejected],
+  [ReviewStatus.Rejected]: []
+};
 
 export class ReviewStateMachine {
-  static getNextState(
-    currentState: ReviewStatus,
-    action: 'accept' | 'reject' | 'submit_review' | 'receive_revision'
-  ): ReviewStatus {
+  static getNextState(currentState: ReviewStatus, action: ReviewAction): ReviewStatus {
+    let nextState: ReviewStatus = currentState;
+
     switch (currentState) {
       case ReviewStatus.Pending:
-        if (action === 'accept') return ReviewStatus.Accepted;
-        if (action === 'reject') return ReviewStatus.Rejected;
+        if (action === ReviewAction.Accept) nextState = ReviewStatus.Accepted;
+        if (action === ReviewAction.Reject) nextState = ReviewStatus.Rejected;
         break;
       case ReviewStatus.Accepted:
-        if (action === 'submit_review') return ReviewStatus.Completed;
-        if (action === 'reject') return ReviewStatus.Rejected;
+        if (action === ReviewAction.StartReview) nextState = ReviewStatus.Reviewing;
+        if (action === ReviewAction.SubmitReview) nextState = ReviewStatus.Completed;
+        if (action === ReviewAction.Reject) nextState = ReviewStatus.Rejected;
         break;
-      case ReviewStatus.Completed:
-        if (action === 'receive_revision') return ReviewStatus.RevisionPending;
-        break;
-      case ReviewStatus.RevisionPending:
-        if (action === 'submit_review') return ReviewStatus.Completed;
-        if (action === 'reject') return ReviewStatus.Rejected;
-        break;
-    }
-    return currentState;
-  }
-
-  static canAccept(currentState: ReviewStatus): boolean {
-    return currentState === ReviewStatus.Pending;
-  }
-
-  static canReject(currentState: ReviewStatus): boolean {
-    return [ReviewStatus.Pending, ReviewStatus.Accepted, ReviewStatus.RevisionPending].includes(currentState);
-  }
-
-  static canSubmitReview(currentState: ReviewStatus): boolean {
-    return [ReviewStatus.Accepted, ReviewStatus.RevisionPending].includes(currentState);
-  }
-
-  static resolveReviewStep(status: string): number {
-    const { ReviewStep } = require("./ReviewStatus");
-    switch (status) {
-      case ReviewStatus.Pending:
-        return ReviewStep.REQUEST;
-      case ReviewStatus.Accepted:
       case ReviewStatus.Reviewing:
-      case ReviewStatus.RevisionPending:
-        return ReviewStep.REVIEW;
+        if (action === ReviewAction.SubmitReview) nextState = ReviewStatus.Completed;
+        if (action === ReviewAction.Reject) nextState = ReviewStatus.Rejected;
+        break;
       case ReviewStatus.Completed:
-        return ReviewStep.SUBMIT;
-      default:
-        return ReviewStep.REQUEST;
+        if (action === ReviewAction.ReceiveRevision) nextState = ReviewStatus.RevisionPending;
+        break;
+      case ReviewStatus.RevisionPending:
+        if (action === ReviewAction.SubmitReview) nextState = ReviewStatus.Completed;
+        if (action === ReviewAction.Reject) nextState = ReviewStatus.Rejected;
+        break;
     }
+
+    if (nextState !== currentState && !this.canTransition(currentState, nextState)) {
+      throw new Error(`Invalid review transition from ${currentState} to ${nextState} with action ${action}`);
+    }
+
+    return nextState;
   }
 
-  static isAgreementAccepted(status: string): boolean {
-    return status !== ReviewStatus.Pending && status !== ReviewStatus.Rejected;
+  static canTransition(from: ReviewStatus, to: ReviewStatus): boolean {
+    if (from === to) return true;
+    const allowed = TRANSITIONS[from];
+    return allowed ? allowed.includes(to) : false;
   }
 }

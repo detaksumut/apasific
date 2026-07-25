@@ -3,8 +3,8 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { getAssignmentDetails, submitReviewResultsWithFile, autoRepairSubmissionFile, submitFinalAnnotatedFile } from "@/app/actions/reviewer";
-import { ReviewStep } from "@/domain/reviewer/ReviewStatus";
-import { ReviewStateMachine } from "@/domain/reviewer/ReviewStateMachine";
+import { ReviewStep, ReviewStatus } from "@/domain/reviewer/ReviewStatus";
+import { ReviewStatusPolicy } from "@/domain/reviewer/ReviewStatusPolicy";
 
 export default function ReviewEvaluation({ params }: { params: any }) {
   const [assignmentId, setAssignmentId] = useState<string>('');
@@ -69,8 +69,8 @@ export default function ReviewEvaluation({ params }: { params: any }) {
           const data = await getAssignmentDetails(assignmentId);
           if (data) {
               setSubmission(data);
-              setStep(ReviewStateMachine.resolveReviewStep(data.status));
-              setAgreed(ReviewStateMachine.isAgreementAccepted(data.status));
+              setStep(ReviewStatusPolicy.resolveReviewStep(data.status as ReviewStatus));
+              setAgreed(ReviewStatusPolicy.hasAcceptedReviewInvitation(data.status as ReviewStatus));
           }
         } catch(e) {
           console.error("fetchData error:", e);
