@@ -105,11 +105,9 @@ export default function ReviewAssignmentAction({ assignment, showDelete = false 
   // 2. ACCEPTED / REVISION_PENDING: Active review state
   if (
     status === 'accepted' || 
-    status === 'revision_pending' || 
-    status === ReviewStatus.Accepted || 
-    status === ReviewStatus.RevisionPending
+    status === 'revision_pending'
   ) {
-    const isRevision = status === 'revision_pending' || status === ReviewStatus.RevisionPending;
+    const isRevision = status === 'revision_pending';
     return (
       <div className="flex justify-end items-center gap-3 mt-4">
         {isRevision && (
