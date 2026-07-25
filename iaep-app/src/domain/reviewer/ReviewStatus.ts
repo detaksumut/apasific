@@ -33,3 +33,8 @@ export const ACTIVE_REVIEW_STATUSES: readonly ReviewStatus[] = [
   ReviewStatus.Reviewing,
   ReviewStatus.RevisionPending
 ];
+
+export const TERMINAL_REVIEW_STATUSES: readonly ReviewStatus[] = [
+  ReviewStatus.Completed,
+  ReviewStatus.Rejected
+];

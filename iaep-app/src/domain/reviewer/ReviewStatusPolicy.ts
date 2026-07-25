@@ -1,4 +1,4 @@
-import { ReviewStatus, ReviewStep, ACTIVE_REVIEW_STATUSES } from "./ReviewStatus";
+import { ReviewStatus, ReviewStep, ACTIVE_REVIEW_STATUSES, TERMINAL_REVIEW_STATUSES } from "./ReviewStatus";
 
 export class ReviewStatusPolicy {
   static resolveReviewStep(status: ReviewStatus): ReviewStep {
@@ -25,6 +25,6 @@ export class ReviewStatusPolicy {
   }
 
   static isTerminal(status: ReviewStatus): boolean {
-    return [ReviewStatus.Completed, ReviewStatus.Rejected].includes(status);
+    return TERMINAL_REVIEW_STATUSES.includes(status);
   }
 }
