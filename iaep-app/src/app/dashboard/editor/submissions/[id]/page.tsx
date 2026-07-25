@@ -267,33 +267,42 @@ export default function SubmissionControlPanel() {
   const handleForwardToReviewersFonnte = async () => {
     setIsSendingFonnte(true);
     try {
-      const targetReviews = reviews.filter(r => ['major_revision', 'revisions_major', 'minor_revision', 'revisions_minor'].includes(r.recommendation));
+      const targetReviews = reviews.filter(r => ['major_revision', 'revisions_major', 'minor_revision', 'revisions_minor', 'accepted'].includes(r.recommendation));
       
       if (targetReviews.length === 0) {
-        showToast("Tidak ada reviewer yang memberikan rekomendasi revisi.");
+        showToast("Tidak ada reviewer yang perlu diteruskan file revisi ini.");
         return;
       }
 
-      let successCount = 0;
       const m = await import("@/app/actions/editor");
-      
-      for (const rev of targetReviews) {
-        const phone = rev.reviewer?.phone;
-        const name = rev.reviewer?.full_name || 'Reviewer';
-        if (phone) {
-          const res = await m.sendRevisionForwardWaFonnte(phone, name, submission.title, submission.revised_file_url);
-          if (res.success) successCount++;
-        }
-      }
-      
-      if (successCount > 0) {
-        showToast(`Berhasil mengirim notifikasi Fonnte ke ${successCount} Reviewer.`);
+
+      // Collect assignment IDs and reviewer phones for the new server action
+      const assignmentIds = targetReviews.map((r: any) => r.id).filter(Boolean);
+      const reviewerPhones = targetReviews.map((r: any) => ({
+        phone: r.reviewer?.phone || '',
+        name: r.reviewer?.full_name || 'Reviewer'
+      }));
+      const revisedFileUrl = submission.revised_file_url || submission.file_url || '';
+
+      // Call the new comprehensive server action (updates DB status + sends WA)
+      const res = await m.forwardRevisionToReviewer(
+        submission.id,
+        assignmentIds,
+        reviewerPhones,
+        submission.title,
+        revisedFileUrl
+      );
+
+      if (res.success) {
+        // Update local state to reflect new status
+        setSubmission({ ...submission, status: 'Revision Under Review' });
+        showToast(`Revisi berhasil diteruskan ke ${res.waCount ?? 0} Reviewer via WhatsApp.`);
       } else {
-        showToast("Gagal mengirim pesan atau tidak ada nomor telepon yang valid.");
+        showToast("Terjadi kesalahan: " + (res.error || "Unknown error"));
       }
     } catch (err) {
       console.error(err);
-      showToast("Terjadi kesalahan sistem saat menghubungi Fonnte.");
+      showToast("Terjadi kesalahan sistem saat meneruskan revisi.");
     } finally {
       setIsSendingFonnte(false);
     }

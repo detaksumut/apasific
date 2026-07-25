@@ -1198,6 +1198,92 @@ export async function sendRevisionForwardWaFonnte(phone: string, name: string, t
     }
 }
 
+/**
+ * Forward author revision to reviewer — updates status in DB AND sends WA notification.
+ * Fixes Bug #5: previously only sent WA without updating any DB state.
+ */
+export async function forwardRevisionToReviewer(submissionId: string, assignmentIds: string[], reviewerPhones: { phone: string; name: string }[], submissionTitle: string, revisedFileUrl: string) {
+    try {
+        const supabaseAdmin = (await import('@supabase/supabase-js')).createClient(
+            process.env.NEXT_PUBLIC_SUPABASE_URL!,
+            process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+        );
+        const { getCurrentUser } = await import('./auth');
+        const user: any = await getCurrentUser();
+
+        // 1. Update submission status → 'Revision Under Review'
+        await supabaseAdmin.from('submissions')
+            .update({ status: 'Revision Under Review', updated_at: new Date() })
+            .eq('id', submissionId);
+
+        // 2. Update each review_assignment status to signal revision is ready
+        for (const aid of assignmentIds) {
+            await supabaseAdmin.from('review_assignments')
+                .update({ status: 'revision_pending', revised_file_url: revisedFileUrl, updated_at: new Date() })
+                .eq('id', aid);
+        }
+
+        // 3. Update Firestore
+        try {
+            const { getFirestore } = await import('@/utils/firebase/db');
+            const db = getFirestore();
+            const batch = db.batch();
+
+            const subRef = db.collection('submissions').doc(submissionId);
+            batch.update(subRef, { status: 'Revision Under Review', updated_at: new Date() });
+
+            for (const aid of assignmentIds) {
+                const aRef = db.collection('review_assignments').doc(aid);
+                batch.set(aRef, { status: 'revision_pending', revised_file_url: revisedFileUrl, updated_at: new Date() }, { merge: true });
+            }
+
+            const histRef = db.collection('submission_history').doc();
+            batch.set(histRef, {
+                submission_id: submissionId,
+                action: 'Revision Forwarded to Reviewer',
+                performed_by: user?.id || null,
+                details: `Editor meneruskan file revisi penulis ke reviewer untuk diperiksa kembali.`,
+                created_at: new Date()
+            });
+
+            await batch.commit();
+        } catch (e) {
+            console.warn("Firestore forward revision update failed", e);
+        }
+
+        // 4. Log history in Supabase
+        await supabaseAdmin.from('submission_history').insert({
+            submission_id: submissionId,
+            action: 'Revision Forwarded to Reviewer',
+            performed_by: user?.id || null,
+            details: `Editor meneruskan file revisi penulis ke reviewer untuk diperiksa kembali.`
+        });
+
+        // 5. Send WA notification to each reviewer
+        let waSuccessCount = 0;
+        try {
+            const { sendWa } = await import('@/utils/sendWa');
+            for (const rv of reviewerPhones) {
+                if (rv.phone) {
+                    const message = `Halo *${rv.name}*,\n\n📋 *Pemberitahuan Revisi Naskah*\n\nNaskah yang Anda review berjudul:\n*"${submissionTitle}"*\n\ntelah *selesai direvisi oleh Penulis* dan sudah tersedia untuk Anda periksa kembali.\n\nSilakan buka *Dashboard APASIFIC* Anda → Menu *Revision* di bagian Reviewer untuk mengunduh dan memeriksa file revisi tersebut.\n\nTerima kasih,\n- Tim Editorial APASIFIC\nhttps://apasific.org`;
+                    const sent = await sendWa(rv.phone, message);
+                    if (sent) waSuccessCount++;
+                }
+            }
+        } catch (waErr) {
+            console.warn("WA send failed during forwardRevisionToReviewer", waErr);
+        }
+
+        revalidatePath('/dashboard/editor/submissions');
+        revalidatePath(`/dashboard/editor/submissions/${submissionId}`);
+        revalidatePath('/dashboard/reviews/revisions');
+
+        return { success: true, waCount: waSuccessCount };
+    } catch (e: any) {
+        return { success: false, error: e.message };
+    }
+}
+
 export async function assignReviewer(submissionId: string, reviewerId: string, reviewerName: string, reviewerEmail?: string) {
     try {
         const supabaseAdmin = (await import('@supabase/supabase-js')).createClient(
@@ -1257,12 +1343,25 @@ export async function assignReviewer(submissionId: string, reviewerId: string, r
             resolvedEmail = reviewerId;
         }
 
+        // --- Calculate round number (how many existing assignments for this submission) ---
+        let currentRound = 1;
+        try {
+            const { count } = await supabaseAdmin
+                .from('review_assignments')
+                .select('*', { count: 'exact', head: true })
+                .eq('submission_id', submissionId);
+            currentRound = (count || 0) + 1;
+        } catch (e) {
+            currentRound = 1;
+        }
+
         const assignmentDataSupabase: any = {
             submission_id: submissionId,
             reviewer_id: validReviewerId,
             reviewer_email: resolvedEmail,
             reviewer_name: reviewerName || null,
             status: 'pending',
+            round: currentRound,
             assigned_at: new Date()
         };
 
@@ -1272,22 +1371,34 @@ export async function assignReviewer(submissionId: string, reviewerId: string, r
             reviewer_email: resolvedEmail,
             reviewer_name: reviewerName || null,
             status: 'pending',
+            round: currentRound,
             assigned_at: new Date()
         };
 
-        // Insert to Supabase review_assignments
-        const { error: sbError } = await supabaseAdmin.from('review_assignments').insert(assignmentDataSupabase);
+        // Insert to Supabase review_assignments — capture returned ID for ID bridging
+        let newAssignmentId: string | null = null;
+        const { data: insertedAssignment, error: sbError } = await supabaseAdmin
+            .from('review_assignments')
+            .insert(assignmentDataSupabase)
+            .select('id')
+            .single();
         if (sbError) {
             console.error("Supabase assign reviewer failed (likely UUID mismatch, continuing to Firestore):", sbError);
+        } else if (insertedAssignment?.id) {
+            newAssignmentId = insertedAssignment.id;
         }
 
-        // Reviewer assignment tracking is isolated strictly within the review_assignments table
-
-        // Insert to Firestore review_assignments
+        // Insert to Firestore review_assignments using the SAME ID as Supabase (ID bridging)
         try {
             const { getFirestore } = await import('@/utils/firebase/db');
             const db = getFirestore();
-            await db.collection('review_assignments').add(assignmentDataFirestore);
+            if (newAssignmentId) {
+                // Use Supabase UUID as Firestore document ID — solves ID mismatch bug
+                await db.collection('review_assignments').doc(newAssignmentId).set(assignmentDataFirestore);
+            } else {
+                // Fallback: let Firestore auto-generate if Supabase insert failed
+                await db.collection('review_assignments').add(assignmentDataFirestore);
+            }
         } catch (e) {
             console.warn("Firestore assign reviewer failed", e);
         }

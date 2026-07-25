@@ -566,16 +566,15 @@ export async function submitAuthorRevision(submissionId: string, formData: FormD
     }
 
     // Update Supabase
-    // We update file_url because it's the main file now, but also save revised_file_url just in case
+    // Save revised file to revised_file_url — do NOT overwrite file_url (the original manuscript)
+    // so that the reviewer can still compare both versions if needed.
     await supabaseAdmin.from('submissions').update({ 
-      file_url: revisedFileUrl,
       revised_file_url: revisedFileUrl,
       status: 'Revision Submitted',
       updated_at: new Date() 
     }).eq('id', submissionId);
     
     await supabaseAdmin.from('submissions').update({ 
-      file_url: revisedFileUrl,
       revised_file_url: revisedFileUrl,
       status: 'Revision Submitted',
       updated_at: new Date() 
@@ -593,7 +592,6 @@ export async function submitAuthorRevision(submissionId: string, formData: FormD
         const db = getFirestore();
         const subRef = db.collection('submissions').doc(submissionId);
         await subRef.update({ 
-          file_url: revisedFileUrl,
           revised_file_url: revisedFileUrl,
           status: 'Revision Submitted', 
           updated_at: new Date() 
@@ -602,8 +600,37 @@ export async function submitAuthorRevision(submissionId: string, formData: FormD
         console.warn("Firestore update revision failed", e);
     }
 
+    // Send WA notification to editors so they know to review and forward the revised file
+    try {
+        const { data: editors } = await supabaseAdmin
+            .from('profiles')
+            .select('full_name, phone')
+            .eq('role', 'editor')
+            .not('phone', 'is', null);
+
+        if (editors && editors.length > 0) {
+            const { sendWa } = await import('@/utils/sendWa');
+            // Fetch submission title for the message
+            let subTitle = submissionId;
+            try {
+                const { data: subInfo } = await supabaseAdmin
+                    .from('submissions').select('title').eq('id', submissionId).single();
+                if (subInfo?.title) subTitle = subInfo.title;
+            } catch (e) {}
+
+            const message = `📝 *Pemberitahuan Revisi Naskah*\n\nHalo Tim Editor,\n\nPenulis telah mengunggah *File Revisi* untuk naskah:\n\n"${subTitle}"\n\nSilakan buka Dashboard Editor → Menu *Hasil Review* untuk memeriksa file revisi dan meneruskannya ke Reviewer.\n\nTerima kasih,\n- Sistem APASIFIC`;
+            for (const editor of editors) {
+                if (editor.phone) await sendWa(editor.phone, message);
+            }
+        }
+    } catch (waErr) {
+        console.warn("WA notification to editor on revision submit failed:", waErr);
+    }
+
     const { revalidatePath } = require('next/cache');
     revalidatePath(`/dashboard/submissions/${submissionId}`);
+    revalidatePath('/dashboard/editor/review-results');
+    revalidatePath('/dashboard/editor/submissions');
     
     return { success: true };
   } catch (e: any) {
@@ -611,3 +638,4 @@ export async function submitAuthorRevision(submissionId: string, formData: FormD
     return { success: false, error: e.message };
   }
 }
+

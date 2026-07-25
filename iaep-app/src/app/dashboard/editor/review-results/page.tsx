@@ -57,7 +57,49 @@ function unhexUuid(uuidStr: string): string {
     .select("*, journals(name), profiles:author_id(full_name)")
     .order("updated_at", { ascending: false });
 
-  let articles = submissions || [];
+  let articles: any[] = submissions || [];
+  const articleIdSet = new Set(articles.map((a: any) => String(a.id || '')));
+
+  // --- Bug #1 Fix: Also fetch Firestore submissions and merge them in ---
+  try {
+    const { getFirestore } = await import('@/utils/firebase/db');
+    const db = getFirestore();
+    const fsSnap = await db.collection('submissions').get();
+    for (const doc of fsSnap.docs) {
+      if (articleIdSet.has(doc.id)) continue; // already in list from Supabase
+      const d = doc.data();
+      // Only include submissions that are in a review-relevant stage
+      const reviewStatuses = ['Under Review', 'Reviewed', 'Needs Revision', 'Revision Submitted', 'Revision Under Review', 'Revision Required'];
+      if (!reviewStatuses.includes(d.status || '')) continue;
+
+      let journalName = 'JURNAL';
+      let authorName = 'Penulis';
+      let authorPhone = '';
+      try {
+        if (d.journal_id) {
+          const { data: j } = await supabaseAdmin.from('journals').select('name').eq('id', d.journal_id).single();
+          if (j) journalName = j.name;
+        }
+        if (d.author_id) {
+          const { data: prof } = await supabaseAdmin.from('profiles').select('full_name, phone').eq('id', d.author_id).single();
+          if (prof?.full_name) authorName = prof.full_name;
+          if (prof?.phone) authorPhone = prof.phone;
+        }
+      } catch (e) {}
+
+      articles.push({
+        id: doc.id,
+        ...d,
+        created_at: d.created_at?.toDate ? d.created_at.toDate().toISOString() : d.created_at || new Date().toISOString(),
+        updated_at: d.updated_at?.toDate ? d.updated_at.toDate().toISOString() : d.updated_at || new Date().toISOString(),
+        journals: { name: journalName },
+        profiles: { full_name: authorName, phone: authorPhone },
+        _source: 'firestore'
+      });
+    }
+  } catch (e) {
+    console.warn("Firestore submissions merge in review-results failed", e);
+  }
 
   // --- Fetch all reviewers ---
   let allReviewers: any[] = [];
@@ -168,10 +210,16 @@ function unhexUuid(uuidStr: string): string {
     }
   } catch(e) {}
 
-  // Filter ONLY articles that have completed reviews or are in Reviewed/Revision Required status
+  // Filter ONLY articles that have completed reviews or are in a review-result-relevant status.
+  // Bug #3 Fix: 'Revision Required' → 'Needs Revision'; added 'Revision Submitted' & 'Revision Under Review'
   articles = articles.filter(article => {
     const hasCompletedReview = article.assignments && article.assignments.some((a: any) => a.status === 'completed');
-    const isReviewedStatus = ['Reviewed', 'Revision Required'].includes(article.status);
+    const isReviewedStatus = [
+      'Reviewed',
+      'Needs Revision',
+      'Revision Submitted',
+      'Revision Under Review'
+    ].includes(article.status);
     return hasCompletedReview || isReviewedStatus;
   }).map(article => {
     let senderName = article.profiles?.full_name || 'Penulis Tidak Diketahui';

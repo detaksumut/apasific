@@ -317,13 +317,28 @@ export async function getAssignmentDetails(assignmentId: string) {
       if (data) assignData = data;
     } catch(e) {}
 
-    // Fallback query if maybeSingle didn't match
+    // Fallback query if maybeSingle didn't match — filter by current user to prevent data leakage
     if (!assignData) {
       try {
-        const { data: list } = await supabaseAdmin
+        const { getCurrentUser } = await import('./auth');
+        const currentUser: any = await getCurrentUser();
+        const currentUserId = currentUser?.id;
+        const currentUserEmail = currentUser?.email?.toLowerCase();
+
+        let fallbackQ = supabaseAdmin
           .from('review_assignments')
-          .select('*, submissions(*, journals(name))')
-          .limit(50);
+          .select('*, submissions(*, journals(name))');
+
+        // Apply user filter on fallback to avoid loading other reviewers' assignments
+        if (currentUserId && currentUserEmail) {
+          fallbackQ = fallbackQ.or(`reviewer_id.eq.${currentUserId},reviewer_email.eq.${currentUserEmail}`);
+        } else if (currentUserId) {
+          fallbackQ = fallbackQ.eq('reviewer_id', currentUserId);
+        } else if (currentUserEmail) {
+          fallbackQ = fallbackQ.eq('reviewer_email', currentUserEmail);
+        }
+
+        const { data: list } = await fallbackQ.limit(100);
         if (list) {
           assignData = list.find((a: any) => String(a.id) === String(assignmentId) || String(a.submission_id) === String(assignmentId));
         }
