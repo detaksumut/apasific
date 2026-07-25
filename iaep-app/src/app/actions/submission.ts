@@ -200,8 +200,8 @@ export async function submitManuscript(formData: FormData) {
             const { getFirestore } = require('@/utils/firebase/db');
             const db = getFirestore();
             await db.collection('submissions').doc(finalSubmissionId).update({
-              file_url: filePublicUrl,
-              manuscript_url: filePublicUrl
+              file_url: filePath,
+              manuscript_url: filePath
             });
           } catch(e) {}
         }
