@@ -180,6 +180,7 @@ export async function handleReviewerDecision(assignmentId: string, submissionId:
     }
 
     const { revalidatePath } = require('next/cache');
+    revalidatePath('/dashboard/reviews');
     revalidatePath('/dashboard/reviews/assignments');
     revalidatePath('/dashboard/reviews/my-reviews');
     
@@ -683,12 +684,11 @@ export async function submitReviewResultsWithFile(formData: FormData) {
 
     // Supabase updates
     try {
-        const isAssignUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(assignmentId);
-        if (isAssignUuid) {
-            await supabaseAdmin.from('review_assignments').update(updatePayload).or(`id.eq.${assignmentId},submission_id.eq.${assignmentId}`);
-        } else {
-            await supabaseAdmin.from('review_assignments').update(updatePayload).eq('id', assignmentId);
+        const { error: supaUpdateErr } = await supabaseAdmin.from('review_assignments').update(updatePayload).eq('id', assignmentId);
+        if (supaUpdateErr) {
+            console.error("Supabase update error:", supaUpdateErr);
         }
+
         if (submissionId) {
             await supabaseAdmin.from('review_assignments').update(updatePayload).eq('submission_id', submissionId);
         }
@@ -722,11 +722,11 @@ export async function submitReviewResultsWithFile(formData: FormData) {
         const batch = db.batch();
 
         const assignRef = db.collection('review_assignments').doc(assignmentId);
-        batch.update(assignRef, updatePayload);
+        batch.set(assignRef, updatePayload, { merge: true });
 
-        if (!isAdvanced) {
+        if (!isAdvanced && submissionId) {
             const subRef = db.collection('submissions').doc(submissionId);
-            batch.update(subRef, { status: 'Reviewed', updated_at: new Date() });
+            batch.set(subRef, { status: 'Reviewed', updated_at: new Date() }, { merge: true });
         }
 
         const histRef = db.collection('submission_history').doc();
@@ -748,6 +748,94 @@ export async function submitReviewResultsWithFile(formData: FormData) {
     return { success: true };
   } catch (e: any) {
     console.error("Submit review with file error", e);
+    return { success: false, error: e.message };
+  }
+}
+
+// Reviewer uploads final annotated file after author revision and notifies Editor
+export async function submitFinalAnnotatedFile(formData: FormData) {
+  try {
+    const assignmentId = formData.get('assignmentId') as string;
+    const submissionId = formData.get('submissionId') as string;
+    const file = formData.get('file') as File | null;
+    const notes = formData.get('notes') as string || "";
+
+    if (!assignmentId || !submissionId) return { success: false, error: "Data tidak lengkap" };
+    if (!file || file.size === 0) return { success: false, error: "File tidak ditemukan" };
+
+    const supabaseAdmin = (await import('@supabase/supabase-js')).createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    );
+
+    // 1. Upload file to Supabase Storage
+    const bytes = await file.arrayBuffer();
+    const buffer = Buffer.from(bytes);
+    const fileName = `final_review_${Date.now()}_${file.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
+    const filePath = `${submissionId}/${fileName}`;
+
+    const { error: uploadError } = await supabaseAdmin.storage
+      .from('manuscripts')
+      .upload(filePath, buffer, { contentType: file.type, upsert: false });
+
+    if (uploadError) return { success: false, error: uploadError.message };
+
+    const { data: signedData } = await supabaseAdmin.storage
+      .from('manuscripts')
+      .createSignedUrl(filePath, 60 * 60 * 24 * 365);
+
+    const finalFileUrl = signedData?.signedUrl || "";
+
+    // 2. Save to review_assignment — store as final_review_file_url
+    await supabaseAdmin.from('review_assignments').update({
+      final_review_file_url: finalFileUrl,
+      final_review_notes: notes,
+      final_review_submitted_at: new Date(),
+      updated_at: new Date()
+    }).eq('id', assignmentId);
+
+    // 3. Fetch submission title and reviewer name
+    const { data: assignmentData } = await supabaseAdmin
+      .from('review_assignments')
+      .select('*, submissions(title), reviewer:profiles!review_assignments_reviewer_id_fkey(full_name)')
+      .eq('id', assignmentId)
+      .single();
+
+    const submissionTitle = assignmentData?.submissions?.title || "Naskah";
+    const reviewerName = assignmentData?.reviewer?.full_name || "Reviewer";
+
+    // 4. Log history
+    await supabaseAdmin.from('submission_history').insert({
+      submission_id: submissionId,
+      action: 'Final Review File Submitted',
+      details: `Reviewer ${reviewerName} telah mengumpulkan file review final setelah memeriksa revisi penulis.`
+    });
+
+    // 5. Send WA notification to all editors
+    try {
+      const { data: editors } = await supabaseAdmin
+        .from('profiles')
+        .select('full_name, phone')
+        .eq('role', 'editor')
+        .not('phone', 'is', null);
+
+      if (editors && editors.length > 0) {
+        const { sendWa } = await import('@/utils/sendWa');
+        const message = `📋 *Notifikasi Review Final*\n\nHalo Tim Editor,\n\nReviewer *${reviewerName}* telah menyelesaikan pemeriksaan file revisi dan mengumpulkan *File Review Final* untuk naskah:\n\n"${submissionTitle}"\n\n${notes ? `*Catatan Reviewer:*\n${notes}\n\n` : ''}Silakan cek file review final tersebut di dashboard Editor → Menu *Revisi Author*.\n\nTerima kasih,\n- Sistem APASIFIC`;
+        for (const editor of editors) {
+          if (editor.phone) await sendWa(editor.phone, message, finalFileUrl);
+        }
+      }
+    } catch (waErr) {
+      console.warn("WA notification to editor failed:", waErr);
+    }
+
+    revalidatePath('/dashboard/editor/revisions');
+    revalidatePath('/dashboard/reviews/revisions');
+
+    return { success: true, url: finalFileUrl };
+  } catch (e: any) {
+    console.error("submitFinalAnnotatedFile error:", e);
     return { success: false, error: e.message };
   }
 }

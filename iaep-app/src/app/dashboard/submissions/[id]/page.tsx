@@ -102,7 +102,7 @@ export default async function AuthorSubmissionDetail({ params }: { params: Promi
                 <div 
                   className="absolute font-serif drop-shadow-md overflow-hidden"
                   style={{
-                    top: '34.5%',
+                    top: '31%',
                     left: '6%',
                     width: '46%',
                     maxHeight: '59.5%',
@@ -110,10 +110,10 @@ export default async function AuthorSubmissionDetail({ params }: { params: Promi
                 >
                   <div className="mb-1">
                     <span 
-                      className="inline-block font-sans font-extrabold text-[#f0c05a] bg-black/80 border border-[#f0c05a]/60 px-1 py-0.5 rounded tracking-wider uppercase shadow-md"
+                      className="inline-block font-sans font-extrabold text-[#f0c05a] tracking-wider uppercase"
                       style={{ fontSize: 'clamp(5.5px, 0.55vw, 8px)' }}
                     >
-                      AJAF - ACCOUNTING, AUDITING & TAXATION
+                      {submission.journals?.name ? submission.journals.name.split('-')[0].trim() : ''}
                     </span>
                   </div>
                   {submission.title && submission.title.includes(":") ? (

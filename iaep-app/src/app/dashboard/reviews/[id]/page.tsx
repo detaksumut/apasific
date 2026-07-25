@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { getAssignmentDetails, submitReviewResultsWithFile, autoRepairSubmissionFile } from "@/app/actions/reviewer";
+import { getAssignmentDetails, submitReviewResultsWithFile, autoRepairSubmissionFile, submitFinalAnnotatedFile } from "@/app/actions/reviewer";
 
 export default function ReviewEvaluation({ params }: { params: any }) {
   const [assignmentId, setAssignmentId] = useState<string>('');
@@ -16,6 +16,10 @@ export default function ReviewEvaluation({ params }: { params: any }) {
   const [annotatedFile, setAnnotatedFile] = useState<File | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [repairing, setRepairing] = useState(false);
+  const [finalFile, setFinalFile] = useState<File | null>(null);
+  const [finalNotes, setFinalNotes] = useState('');
+  const [isSendingFinal, setIsSendingFinal] = useState(false);
+  const [finalSent, setFinalSent] = useState(false);
 
   const handleAutoRepair = async () => {
     if (!submission?.submission_id) return;
@@ -150,13 +154,13 @@ export default function ReviewEvaluation({ params }: { params: any }) {
       <div className="rev-header">
         <div>
           <h1 className="rev-page-title">Tinjau Naskah</h1>
-          <p className="rev-page-sub">Naskah #{submission.id} · {submission.journal} · Putaran {submission.round}</p>
+          <p className="rev-page-sub">{`Naskah #${submission.id || ''} · ${submission.journal || 'Loading...'} · Putaran ${submission.round || 1}`}</p>
         </div>
         <div className="rev-deadline">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
             <circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" />
           </svg>
-          Batas Waktu: {submission.dueDate || 'Tidak ditentukan'}
+          {`Batas Waktu: ${submission.dueDate || 'Tidak ditentukan'}`}
         </div>
       </div>
 
@@ -327,21 +331,29 @@ export default function ReviewEvaluation({ params }: { params: any }) {
                         <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3" />
                         </svg>
-                        Unduh / Buka Naskah
+                        Unduh / Buka Naskah Asli
+                      </a>
+                  )}
+                  {submission.revised_file_url && (
+                      <a href={submission.revised_file_url} target="_blank" rel="noreferrer" className="rev-download-btn" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: '#34d399', color: '#080810', fontWeight: 'bold', padding: '6px 14px', borderRadius: '4px', textDecoration: 'none', marginLeft: '10px' }}>
+                        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                           <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3" />
+                        </svg>
+                        Unduh Naskah REVISI Terbaru
                       </a>
                   )}
                 </div>
                 <div className="rev-pdf-body">
-                  {submission.file_url ? (
+                  {submission.file_url || submission.revised_file_url ? (
                     <div style={{ display: 'flex', flexDirection: 'column', height: '100%', minHeight: '600px' }}>
                       <div style={{ background: 'rgba(201,168,76,0.1)', borderBottom: '1px solid rgba(201,168,76,0.2)', padding: '8px 15px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '12px', color: '#c9a84c' }}>
-                        <span>📄 File Naskah Tersedia ({submission.file_url.includes('.docx') ? 'Dokumen Word .docx' : 'Dokumen PDF'})</span>
-                        <a href={submission.file_url} target="_blank" rel="noreferrer" style={{ color: '#ffffff', textDecoration: 'underline', fontWeight: 'bold' }}>
+                        <span>📄 File Naskah Tersedia ({(submission.revised_file_url || submission.file_url).includes('.docx') ? 'Dokumen Word .docx' : 'Dokumen PDF'}) {submission.revised_file_url && <strong style={{color: '#34d399'}}> - MENAMPILKAN VERSI REVISI TERBARU</strong>}</span>
+                        <a href={submission.revised_file_url || submission.file_url} target="_blank" rel="noreferrer" style={{ color: '#ffffff', textDecoration: 'underline', fontWeight: 'bold' }}>
                           Klik disini jika iFrame tidak terbuka ➔
                         </a>
                       </div>
                       <iframe 
-                          src={submission.file_url.toLowerCase().includes('.pdf') ? submission.file_url : `https://docs.google.com/gview?url=${encodeURIComponent(submission.file_url)}&embedded=true`} 
+                          src={(submission.revised_file_url || submission.file_url).toLowerCase().includes('.pdf') ? (submission.revised_file_url || submission.file_url) : `https://docs.google.com/gview?url=${encodeURIComponent(submission.revised_file_url || submission.file_url)}&embedded=true`} 
                           style={{ width: '100%', flex: 1, minHeight: '560px', border: 'none' }} 
                           title="Manuscript Document"
                       />
@@ -362,6 +374,96 @@ export default function ReviewEvaluation({ params }: { params: any }) {
                   )}
                 </div>
               </div>
+
+              {/* === FINAL REVIEW FILE UPLOAD (muncul jika author sudah upload revisi) === */}
+              {submission.revised_file_url && (
+                <div style={{ margin: '24px 0', background: 'rgba(52,211,153,0.04)', border: '1.5px solid rgba(52,211,153,0.25)', borderRadius: '14px', padding: '24px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px' }}>
+                    <div style={{ width: '36px', height: '36px', background: 'rgba(52,211,153,0.12)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                      <svg viewBox="0 0 24 24" fill="none" stroke="#34d399" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{width:18,height:18}}><path d="M21.2 15c.7-1.2 1-2.5.7-3.9-.6-2-2.4-3.5-4.4-3.5h-1.2c-.7-3-3.2-5.2-6.2-5.6-3-.3-5.9 1.3-7.3 4-1.2 2.5-1 6.5.5 8.8m8.7-1.6V21"/><path d="M16 16l-4-4-4 4"/></svg>
+                    </div>
+                    <div>
+                      <div style={{ fontWeight: 700, color: '#34d399', fontSize: '15px' }}>Penulis Sudah Upload Revisi</div>
+                      <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.4)', marginTop: '2px' }}>Silakan unduh & periksa file revisi, lalu upload file review final Anda dan kirim ke Editor.</div>
+                    </div>
+                  </div>
+
+                  {finalSent ? (
+                    <div style={{ background: 'rgba(52,211,153,0.1)', border: '1px solid rgba(52,211,153,0.3)', borderRadius: '10px', padding: '16px 20px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                      <svg viewBox="0 0 24 24" fill="none" stroke="#34d399" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{width:20,height:20}}><polyline points="20 6 9 17 4 12"/></svg>
+                      <span style={{ color: '#34d399', fontWeight: 600 }}>File review final berhasil dikirim ke Editor!</span>
+                    </div>
+                  ) : (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                      <div>
+                        <label style={{ fontSize: '12px', fontWeight: 600, color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', letterSpacing: '0.5px', display: 'block', marginBottom: '8px' }}>
+                          Upload File Review Final (PDF / DOCX)
+                        </label>
+                        <input
+                          type="file"
+                          accept=".pdf,.docx,.doc"
+                          onChange={e => setFinalFile(e.target.files?.[0] || null)}
+                          style={{ width: '100%', padding: '10px 14px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(52,211,153,0.2)', borderRadius: '8px', color: '#fff', fontSize: '13px' }}
+                        />
+                        {finalFile && <div style={{ fontSize: '11px', color: '#34d399', marginTop: '6px' }}>✓ File dipilih: {finalFile.name}</div>}
+                      </div>
+
+                      <div>
+                        <label style={{ fontSize: '12px', fontWeight: 600, color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', letterSpacing: '0.5px', display: 'block', marginBottom: '8px' }}>
+                          Catatan untuk Editor (opsional)
+                        </label>
+                        <textarea
+                          value={finalNotes}
+                          onChange={e => setFinalNotes(e.target.value)}
+                          placeholder="Tulis catatan atau ringkasan hasil review Anda..."
+                          rows={3}
+                          style={{ width: '100%', padding: '10px 14px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', color: '#fff', fontSize: '13px', resize: 'vertical', outline: 'none' }}
+                        />
+                      </div>
+
+                      <button
+                        disabled={!finalFile || isSendingFinal}
+                        onClick={async () => {
+                          if (!finalFile) return;
+                          setIsSendingFinal(true);
+                          try {
+                            const fd = new FormData();
+                            fd.append('assignmentId', assignmentId);
+                            fd.append('submissionId', submission.id || submission.submission_id || '');
+                            fd.append('file', finalFile);
+                            fd.append('notes', finalNotes);
+                            const res = await submitFinalAnnotatedFile(fd);
+                            if (res.success) {
+                              setFinalSent(true);
+                            } else {
+                              alert('Gagal mengirim: ' + (res.error || 'Error tidak diketahui'));
+                            }
+                          } catch(err: any) {
+                            alert('Terjadi kesalahan: ' + err.message);
+                          } finally {
+                            setIsSendingFinal(false);
+                          }
+                        }}
+                        style={{
+                          display: 'inline-flex', alignItems: 'center', gap: '8px',
+                          background: finalFile ? '#34d399' : 'rgba(52,211,153,0.2)',
+                          color: finalFile ? '#050510' : 'rgba(52,211,153,0.5)',
+                          fontWeight: 700, fontSize: '14px', padding: '10px 22px',
+                          borderRadius: '8px', border: 'none', cursor: finalFile ? 'pointer' : 'not-allowed',
+                          transition: 'all 0.2s', alignSelf: 'flex-start'
+                        }}
+                      >
+                        {isSendingFinal ? (
+                          <svg className="animate-spin" viewBox="0 0 24 24" style={{width:16,height:16}}><circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" opacity="0.25"/><path fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" opacity="0.75"/></svg>
+                        ) : (
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{width:16,height:16}}><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                        )}
+                        {isSendingFinal ? 'Mengirim...' : 'Kirim File Review Final ke Editor'}
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
 
               {/* Review Forms */}
               <div className="rev-forms-panel">

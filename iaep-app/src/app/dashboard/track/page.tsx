@@ -25,11 +25,11 @@ const STAGES = [
 function matchStage(action: string): number {
   const a = action.toLowerCase();
   if (a.includes("submitted") || a.includes("disubmit")) return 0;
-  if (a.includes("assigned to reviewer") || a.includes("reviewer assigned")) return 2;
-  if (a.includes("review") && a.includes("completed")) return 4;
+  if (a.includes("assigned to reviewer") || a.includes("reviewer assigned") || a.includes("reviewer invited") || a.includes("assignment accepted")) return 2;
+  if (a.includes("review") && (a.includes("completed") || a.includes("submitted"))) return 4;
   if (a.includes("review")) return 3;
   if (a.includes("editor decision") && a.includes("accepted")) return 6;
-  if (a.includes("editor decision")) return 5;
+  if (a.includes("editor decision") || a.includes("decision")) return 5;
   if (a.includes("stage updated") && a.includes("layout")) return 7;
   if (a.includes("stage updated") && a.includes("cover")) return 8;
   if (a.includes("stage updated") && a.includes("publish")) return 9;
@@ -47,8 +47,11 @@ function getImpliedStage(status: string): number {
   if (s === "production completed") return 10;
   if (s === "production") return 9;
   if (s === "copyediting") return 7;
-  if (s === "accepted") return 6;
-  if (s === "in review") return 3;
+  if (s === "accepted" || s.includes("loa")) return 6;
+  if (s === "needs revision" || s === "revisions required" || s === "rejected") return 5;
+  if (s === "review completed") return 4;
+  if (s === "in review" || s === "under review") return 3;
+  if (s === "awaiting reviewers" || s === "reviewer assigned") return 1;
   return 0;
 }
 

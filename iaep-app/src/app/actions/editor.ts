@@ -8,7 +8,7 @@ export async function getReviewsForSubmission(submissionId: string) {
         const supabase = await createClient();
         const { data: reviews, error } = await supabase
             .from('review_assignments')
-            .select('*, reviewer:reviewer_id(full_name)')
+            .select('*, reviewer:reviewer_id(full_name, phone)')
             .eq('submission_id', submissionId)
             .in('status', ['pending', 'accepted', 'completed']);
 
@@ -28,15 +28,19 @@ export async function getReviewsForSubmission(submissionId: string) {
                 if (!finalReviews.find((r: any) => r.id === doc.id)) {
                     // Try to fetch reviewer name from Supabase profiles
                     let reviewerName = 'Anonim';
+                    let reviewerPhone = '';
                     if (data.reviewer_id) {
-                        const { data: prof } = await supabase.from('profiles').select('full_name').eq('id', data.reviewer_id).single();
-                        if (prof) reviewerName = prof.full_name;
+                        const { data: prof } = await supabase.from('profiles').select('full_name, phone').eq('id', data.reviewer_id).single();
+                        if (prof) {
+                           reviewerName = prof.full_name;
+                           reviewerPhone = prof.phone || '';
+                        }
                     }
 
                     finalReviews.push({
                         id: doc.id,
                         ...data,
-                        reviewer: { full_name: reviewerName },
+                        reviewer: { full_name: reviewerName, phone: reviewerPhone },
                         created_at: data.created_at?.toDate ? data.created_at.toDate().toISOString() : new Date().toISOString(),
                         updated_at: data.updated_at?.toDate ? data.updated_at.toDate().toISOString() : new Date().toISOString(),
                         assigned_at: data.assigned_at?.toDate ? data.assigned_at.toDate().toISOString() : null,
@@ -48,6 +52,24 @@ export async function getReviewsForSubmission(submissionId: string) {
             }
         } catch (e) {
             console.warn("Firestore fetch reviews failed", e);
+        }
+
+        // Augment any reviews that are missing phone numbers but have reviewer_email
+        for (let i = 0; i < finalReviews.length; i++) {
+            const rev = finalReviews[i];
+            if ((!rev.reviewer || !rev.reviewer.phone) && rev.reviewer_email) {
+                const { data: prof } = await supabase.from('profiles').select('full_name, phone').eq('email', rev.reviewer_email).single();
+                if (prof) {
+                    rev.reviewer = {
+                        full_name: prof.full_name || rev.reviewer_name || rev.reviewer?.full_name || 'Anonim',
+                        phone: prof.phone || ''
+                    };
+                } else if (!rev.reviewer) {
+                    rev.reviewer = { full_name: rev.reviewer_name || 'Anonim', phone: '' };
+                }
+            } else if (!rev.reviewer) {
+                rev.reviewer = { full_name: rev.reviewer_name || 'Anonim', phone: '' };
+            }
         }
 
         return { success: true, reviews: finalReviews };
@@ -245,7 +267,6 @@ export async function getSubmissionDetailsEditor(submissionId: string) {
             process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
         );
 
-        // Try Supabase first (flexible UUID check & secondary search by zenodo_id / doi)
         const isUuidLike = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(submissionId);
         let subData: any = null;
 
@@ -289,12 +310,15 @@ export async function getSubmissionDetailsEditor(submissionId: string) {
                         }
                     }
                     let authorName = 'Unknown Author';
+                    let authorPhone = '';
                     if (fbData?.author_id) {
-                        const { data: profile } = await supabaseAdmin.from('profiles').select('full_name').eq('id', fbData.author_id).single();
+                        const { data: profile } = await supabaseAdmin.from('profiles').select('full_name, phone').eq('id', fbData.author_id).single();
                         if (profile?.full_name) authorName = profile.full_name;
-                        else {
+                        if (profile?.phone) authorPhone = profile.phone;
+                        if (!profile?.full_name) {
                             const uDoc = await db.collection('users').doc(fbData.author_id).get();
                             if (uDoc.exists) authorName = uDoc.data()?.full_name || uDoc.data()?.name || authorName;
+                            if (uDoc.exists && !authorPhone) authorPhone = uDoc.data()?.phone || uDoc.data()?.whatsapp || '';
                         }
                     }
 
@@ -303,7 +327,7 @@ export async function getSubmissionDetailsEditor(submissionId: string) {
                         ...fbData,
                         created_at: fbData?.created_at?.toDate ? fbData.created_at.toDate().toISOString() : fbData?.created_at || new Date().toISOString(),
                         updated_at: fbData?.updated_at?.toDate ? fbData.updated_at.toDate().toISOString() : fbData?.updated_at || new Date().toISOString(),
-                        profiles: { full_name: authorName },
+                        profiles: { full_name: authorName, phone: authorPhone },
                         journals: { name: journalName }
                     };
                 }
@@ -1157,6 +1181,18 @@ export async function sendReviewerInviteWa(phone: string, name: string, submissi
         }
 
         return { success: result, message: result ? "Pesan WA terkirim" : "Gagal mengirim pesan via Fonnte" };
+    } catch (e: any) {
+        return { success: false, error: e.message };
+    }
+}
+
+export async function sendRevisionForwardWaFonnte(phone: string, name: string, title: string, fileUrl: string) {
+    try {
+        if (!phone) return { success: false, error: "Nomor telepon tidak tersedia" };
+        const { sendWa } = await import('@/utils/sendWa');
+        const message = `Halo *${name}*,\n\n📋 *Pemberitahuan Revisi Naskah*\n\nNaskah yang Anda review berjudul:\n*"${title}"*\n\ntelah *selesai direvisi oleh Penulis* dan sudah tersedia untuk Anda periksa kembali.\n\nSilakan buka *Dashboard APASIFIC* Anda → Menu *Revision* di bagian Reviewer untuk mengunduh dan memeriksa file revisi tersebut.\n\nTerima kasih,\n- Tim Editorial APASIFIC\nhttps://apasific.org`;
+        const result = await sendWa(phone, message);
+        return { success: result, message: result ? "Pesan WA terkirim via Fonnte" : "Gagal mengirim pesan via Fonnte" };
     } catch (e: any) {
         return { success: false, error: e.message };
     }

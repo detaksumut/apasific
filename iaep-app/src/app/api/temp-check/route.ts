@@ -1,38 +1,25 @@
 import { NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
 
 export async function GET() {
+  let results: any[] = [];
   try {
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
-    const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
-    const supabase = createClient(supabaseUrl, supabaseKey);
-    
-    // 1. Check specific submission
-    const { data: specific, error: specificErr } = await supabase
-      .from('submissions')
-      .select('id, title, file_url, blind_manuscript_url, status')
-      .eq('id', '8f8ddddb-d5a2-460e-ab21-f5d59ad8e6a0');
-
-    // 2. Check all submissions in Editor that are not reviewed yet (Under Review or Editor Assigned)
-    const { data: underReview, error: underReviewErr } = await supabase
-      .from('submissions')
-      .select('id, title, file_url, blind_manuscript_url, status')
-      .in('status', ['Editor Assigned', 'Under Review'])
-      .order('created_at', { ascending: false })
-      .limit(10);
-      
-    // 3. Check reviews for the specific submission
-    const { data: reviews } = await supabase
-      .from('reviews')
-      .select('id, manuscript_file, submission_id, status')
-      .eq('submission_id', '8f8ddddb-d5a2-460e-ab21-f5d59ad8e6a0');
-
-    return NextResponse.json({ 
-      specific, specificErr, 
-      underReview, underReviewErr,
-      reviews
-    });
-  } catch (e: any) {
-    return NextResponse.json({ error: e.message });
+    const { getFirestore } = await import('@/utils/firebase/db');
+    const db = getFirestore();
+    if (db) {
+      const collections = ['submissions', 'review_assignments', 'reviews'];
+      for (const col of collections) {
+        const snap = await db.collection(col).get();
+        snap.forEach(doc => {
+          const data = doc.data();
+          const str = JSON.stringify(data);
+          if (str.toUpperCase().includes('CARBON SEQUESTRATION') || str.toUpperCase().includes('ENHALUS')) {
+            results.push({ collection: col, id: doc.id, data });
+          }
+        });
+      }
+    }
+  } catch(e: any) {
+    results.push({ error: e.message });
   }
+  return NextResponse.json({ results });
 }

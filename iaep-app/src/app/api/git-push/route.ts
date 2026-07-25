@@ -10,8 +10,16 @@ export async function GET() {
   try {
     const cwd = process.cwd();
     
-    const { stdout, stderr } = await execAsync("git log -1", { cwd });
-    return NextResponse.json({ success: true, stdout, stderr });
+    const { stdout: addStdout, stderr: addStderr } = await execAsync("git add .", { cwd });
+    const { stdout: commitStdout, stderr: commitStderr } = await execAsync('git commit -m "update: revert changes and fix submissions"', { cwd }).catch(err => err);
+    const { stdout: pushStdout, stderr: pushStderr } = await execAsync("git push", { cwd });
+    
+    return NextResponse.json({ 
+      success: true, 
+      add: { stdout: addStdout, stderr: addStderr },
+      commit: { stdout: commitStdout, stderr: commitStderr },
+      push: { stdout: pushStdout, stderr: pushStderr }
+    });
   } catch (error: any) {
     return NextResponse.json({ success: false, error: error.message, stdout: error.stdout, stderr: error.stderr });
   }

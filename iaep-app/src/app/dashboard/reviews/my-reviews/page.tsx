@@ -29,11 +29,6 @@ export default async function MyReviewsPage() {
     if ((user as any).json_id) candidateIds.add((user as any).json_id);
     if (user.email && !user.email.includes('fallback@')) {
       candidateIds.add(user.email);
-      if (user.email.toLowerCase() === 'kadsumut@gmail.com') {
-        candidateIds.add('kadsumut@gmail.com');
-        candidateIds.add('user_17840545371');
-        candidateIds.add('75736572-5f31-3738-3430-353435333731');
-      }
     }
 
     // Generate hex UUIDs for all non-UUID candidate IDs

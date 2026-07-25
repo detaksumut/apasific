@@ -63,6 +63,17 @@ export default function Sidebar({ role }: SidebarProps) {
       ),
     },
     {
+      label: "Revisi Author",
+      path: "/dashboard/revisions",
+      icon: (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+          <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+        </svg>
+      ),
+      badge: "Revisi",
+    },
+    {
       label: "Lacak Proses",
       path: "/dashboard/track",
       icon: (
@@ -121,6 +132,17 @@ export default function Sidebar({ role }: SidebarProps) {
         </svg>
       ),
     },
+    {
+      label: "Revision",
+      path: "/dashboard/reviews/revisions",
+      icon: (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+          <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+        </svg>
+      ),
+      badge: "REVISION",
+    },
   ];
 
   const editorLinks = [
@@ -159,6 +181,17 @@ export default function Sidebar({ role }: SidebarProps) {
           <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /><path d="M9 15l2 2 4-4" />
         </svg>
       ),
+    },
+    {
+      label: "Revisi Author",
+      path: "/dashboard/editor/revisions",
+      icon: (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+          <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+        </svg>
+      ),
+      badge: "Revisi",
     },
     {
       label: "Riwayat Keputusan",

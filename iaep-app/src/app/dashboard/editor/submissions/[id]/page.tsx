@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { publishArticleToZenodo, ZenodoMetadata } from "@/utils/zenodo";
-import { getSubmissionDetailsEditor, updateIssn, updateDoi, removeCoverFile } from "@/app/actions/editor";
+import { getSubmissionDetailsEditor, updateIssn, updateDoi, removeCoverFile, sendRevisionForwardWaFonnte } from "@/app/actions/editor";
 import { createClient } from "@/utils/supabase/client";
 
 export default function SubmissionControlPanel() {
@@ -16,8 +16,8 @@ export default function SubmissionControlPanel() {
   const [activeTab, setActiveTab] = useState("submission");
   const [decisionModalOpen, setDecisionModalOpen] = useState(false);
   const [decision, setDecision] = useState("");
-  const [emailText, setEmailText] = useState("Dear Jane Doe,\n\nWe have reached a decision regarding your submission to APASIFIC IAEP: The Impact of Artificial Intelligence on Southeast Asian Higher Education.\n\nOur decision is: ");
-  const [authorPhone, setAuthorPhone] = useState("+6281370062009");
+  const [emailText, setEmailText] = useState("");
+  const [authorPhone, setAuthorPhone] = useState("");
   const [toastMessage, setToastMessage] = useState("");
   const [isPublishingZenodo, setIsPublishingZenodo] = useState(false);
   const [generatedDoi, setGeneratedDoi] = useState("");
@@ -36,6 +36,7 @@ export default function SubmissionControlPanel() {
   const [customVolume, setCustomVolume] = useState("");
   const [customIssue, setCustomIssue] = useState("");
   const [uploadingReviewId, setUploadingReviewId] = useState<string | null>(null);
+  const [isSendingFonnte, setIsSendingFonnte] = useState(false);
 
   // Save volume & issue to LocalStorage for draft purposes only
   useEffect(() => {
@@ -95,6 +96,10 @@ export default function SubmissionControlPanel() {
         // Update author phone dynamically
         if (data.phone) setAuthorPhone(data.phone);
         else if (data.profiles?.phone) setAuthorPhone(data.profiles.phone);
+
+        // Dynamically build the email text based on actual author and title
+        const authorFirstName = data.profiles?.full_name ? data.profiles.full_name.split(' ')[0] : 'Author';
+        setEmailText(`Dear ${authorFirstName},\n\nWe have reached a decision regarding your submission to APASIFIC IAEP: ${data.title}.\n\nOur decision is: `);
 
         // Pre-fill volume and issue from database (database is always authoritative)
         // Also clear stale localStorage so database value always wins
@@ -259,6 +264,41 @@ export default function SubmissionControlPanel() {
     }
   };
 
+  const handleForwardToReviewersFonnte = async () => {
+    setIsSendingFonnte(true);
+    try {
+      const targetReviews = reviews.filter(r => ['major_revision', 'revisions_major', 'minor_revision', 'revisions_minor'].includes(r.recommendation));
+      
+      if (targetReviews.length === 0) {
+        showToast("Tidak ada reviewer yang memberikan rekomendasi revisi.");
+        return;
+      }
+
+      let successCount = 0;
+      const m = await import("@/app/actions/editor");
+      
+      for (const rev of targetReviews) {
+        const phone = rev.reviewer?.phone;
+        const name = rev.reviewer?.full_name || 'Reviewer';
+        if (phone) {
+          const res = await m.sendRevisionForwardWaFonnte(phone, name, submission.title, submission.revised_file_url);
+          if (res.success) successCount++;
+        }
+      }
+      
+      if (successCount > 0) {
+        showToast(`Berhasil mengirim notifikasi Fonnte ke ${successCount} Reviewer.`);
+      } else {
+        showToast("Gagal mengirim pesan atau tidak ada nomor telepon yang valid.");
+      }
+    } catch (err) {
+      console.error(err);
+      showToast("Terjadi kesalahan sistem saat menghubungi Fonnte.");
+    } finally {
+      setIsSendingFonnte(false);
+    }
+  };
+
   const handleRecordDecision = async (isWa: boolean) => {
     if (!decision) return;
     
@@ -292,6 +332,8 @@ export default function SubmissionControlPanel() {
       setDecisionModalOpen(false);
     }
   };
+
+  const membersArray = Array.isArray(boardMembers) ? boardMembers : [];
 
   return (
     <div className="max-w-6xl mx-auto space-y-6 pb-20 relative">
@@ -513,13 +555,13 @@ export default function SubmissionControlPanel() {
                         <div className="flex items-center gap-2">
                           <span className={`px-3 py-1 text-xs font-bold rounded-full ${
                             rev.recommendation === 'accept' ? 'bg-green-100 text-green-800' :
-                            rev.recommendation === 'minor_revision' ? 'bg-yellow-100 text-yellow-800' :
-                            rev.recommendation === 'major_revision' ? 'bg-orange-100 text-orange-800' :
+                            (rev.recommendation === 'minor_revision' || rev.recommendation === 'revisions_minor') ? 'bg-yellow-100 text-yellow-800' :
+                            (rev.recommendation === 'major_revision' || rev.recommendation === 'revisions_major') ? 'bg-orange-100 text-orange-800' :
                             'bg-red-100 text-red-800'
                           }`}>
                             {rev.recommendation === 'accept' ? '✅ Accept' :
-                             rev.recommendation === 'minor_revision' ? '🟡 Revisi Minor' :
-                             rev.recommendation === 'major_revision' ? '🟠 Revisi Mayor' :
+                             (rev.recommendation === 'minor_revision' || rev.recommendation === 'revisions_minor') ? '🟡 Revisi Minor' :
+                             (rev.recommendation === 'major_revision' || rev.recommendation === 'revisions_major') ? '🟠 Revisi Mayor' :
                              rev.recommendation === 'resubmit' ? '🔄 Resubmit' :
                              rev.recommendation === 'reject' ? '❌ Decline' : rev.recommendation}
                           </span>
@@ -747,7 +789,7 @@ export default function SubmissionControlPanel() {
                 </div>
 
                 {/* Right Column: Revision Management */}
-                {reviews.some(r => r.recommendation === 'major_revision' || r.recommendation === 'minor_revision') && (
+                {reviews.some(r => ['major_revision', 'revisions_major', 'minor_revision', 'revisions_minor'].includes(r.recommendation)) && (
                   <div>
                     <h3 className="text-lg font-bold text-gray-800 border-b pb-2 mb-4">Manajemen Revisi</h3>
                     <div className="bg-orange-50 p-5 border border-orange-200 rounded-xl shadow-sm">
@@ -773,66 +815,93 @@ export default function SubmissionControlPanel() {
 
                       {/* Revised Manuscript Block (Moved here) */}
                       <div className="bg-white border border-orange-100 rounded-xl p-4 shadow-sm">
-                         <label className="flex items-center gap-2 text-sm font-bold text-gray-900 mb-2">
-                           <svg className="w-4 h-4 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" /></svg>
-                           Upload Naskah Hasil Revisi (Dari Penulis)
-                         </label>
-                         <p className="text-[10px] text-gray-500 mb-4 leading-relaxed">
-                           Jika Penulis sudah mengirim file revisinya (misal via WA), unggah file tersebut di sini agar tersimpan ke sistem.
-                         </p>
-                         
-                         <div className="relative">
-                           <input 
-                             type="file" 
-                             accept=".doc,.docx,.rtf,.pdf"
-                             onChange={async (e) => {
-                               if(!e.target.files || !e.target.files[0]) return;
-                               setIsUploadingRevised(true);
-                               const formData = new FormData();
-                               formData.append('file', e.target.files[0]);
-                               formData.append('submissionId', submission.id);
-                               try {
-                                 const res = await fetch('/api/upload-revised-manuscript', { method: 'POST', body: formData });
-                                 const data = await res.json();
-                                 if(data.success) {
-                                   showToast('Berhasil upload naskah revisi!');
-                                   setSubmission({...submission, revised_file_url: data.url});
-                                 } else {
-                                   showToast('Gagal upload: ' + data.error);
-                                 }
-                               } catch(err) {
-                                 showToast('Error uploading file');
-                               } finally {
-                                 setIsUploadingRevised(false);
-                               }
-                             }}
-                             disabled={isUploadingRevised || !isPureEditor}
-                             className="block w-full text-xs text-gray-600 file:mr-3 file:py-1.5 file:px-3 file:rounded file:border-0 file:text-xs file:font-bold file:bg-orange-100 file:text-orange-800 hover:file:bg-orange-200 disabled:opacity-50 cursor-pointer border border-gray-200 rounded focus:outline-none" 
-                           />
-                           {isUploadingRevised && (
-                             <div className="absolute inset-0 bg-white/80 backdrop-blur-sm rounded flex items-center justify-center">
-                                <div className="flex items-center gap-2 text-orange-600 font-bold text-xs">
-                                  <svg className="w-3 h-3 animate-spin" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
-                                  Mengunggah...
-                                </div>
-                             </div>
-                           )}
-                         </div>
-
-                         {submission?.revised_file_url && (
-                           <div className="mt-3 p-3 bg-green-50 border border-green-100 rounded-lg flex justify-between items-center">
-                              <div className="text-xs text-green-800 font-semibold flex items-center gap-1.5">
-                                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" /></svg>
-                                File Revisi Tersedia
+                         {submission?.revised_file_url ? (
+                           <div className="flex flex-col items-center justify-center p-4 text-center">
+                              <div className="w-12 h-12 bg-green-100 text-green-600 rounded-full flex items-center justify-center mb-3">
+                                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" /></svg>
                               </div>
+                              <h4 className="font-bold text-gray-900 mb-1">File Revisi Telah Diterima!</h4>
+                              <p className="text-xs text-gray-500 mb-4">Penulis telah berhasil mengunggah naskah hasil perbaikan.</p>
                               <a 
                                 href={submission.revised_file_url} 
                                 target="_blank" 
                                 rel="noopener noreferrer"
-                                className="text-[10px] bg-green-600 text-white hover:bg-green-700 font-bold py-1 px-3 rounded shadow-sm"
+                                className="w-full bg-green-600 text-white hover:bg-green-700 font-bold py-2 px-4 rounded shadow-sm inline-flex justify-center items-center gap-2 mb-2"
                               >
-                                Download
+                                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" /></svg>
+                                Download Naskah Revisi
                               </a>
+                              <button
+                                onClick={handleForwardToReviewersFonnte}
+                                disabled={isSendingFonnte}
+                                className="flex items-center justify-center gap-2 w-full bg-[#25D366] hover:bg-[#1ebd5a] disabled:opacity-50 text-white font-bold py-2 px-4 rounded shadow-sm transition-colors"
+                              >
+                                {isSendingFonnte ? (
+                                  <svg className="animate-spin w-4 h-4 text-white" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg>
+                                ) : (
+                                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
+                                )}
+                                {isSendingFonnte ? "Mengirim..." : "Teruskan ke Reviewer (Fonnte)"}
+                              </button>
+                           </div>
+                         ) : (
+                           <div>
+                             <div className="flex flex-col items-center justify-center p-4 text-center bg-gray-50 rounded-lg border border-gray-100 mb-3">
+                                <div className="w-10 h-10 bg-orange-100 text-orange-600 rounded-full flex items-center justify-center mb-2">
+                                  <svg className="w-5 h-5 animate-pulse" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                </div>
+                                <h4 className="font-bold text-gray-700 text-sm">Menunggu Author...</h4>
+                                <p className="text-[10px] text-gray-500">Sistem sedang menunggu Author untuk mengunggah file revisi dari dashboard mereka.</p>
+                             </div>
+                             
+                             <details className="group">
+                               <summary className="text-[11px] font-semibold text-blue-600 hover:text-blue-800 cursor-pointer list-none flex items-center justify-center gap-1">
+                                 <span>Upload Manual (Opsional)</span>
+                                 <svg className="w-3 h-3 transition-transform group-open:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" /></svg>
+                               </summary>
+                               <div className="pt-3 mt-3 border-t border-gray-100">
+                                 <p className="text-[10px] text-gray-500 mb-2 leading-relaxed">
+                                   Gunakan fitur ini <b>hanya</b> jika Author kesulitan mengakses sistem dan mengirimkan file revisi secara langsung kepada Editor (misal via WhatsApp).
+                                 </p>
+                                 <div className="relative">
+                                   <input 
+                                     type="file" 
+                                     accept=".doc,.docx,.rtf,.pdf"
+                                     onChange={async (e) => {
+                                       if(!e.target.files || !e.target.files[0]) return;
+                                       setIsUploadingRevised(true);
+                                       const formData = new FormData();
+                                       formData.append('file', e.target.files[0]);
+                                       formData.append('submissionId', submission.id);
+                                       try {
+                                         const res = await fetch('/api/upload-revised-manuscript', { method: 'POST', body: formData });
+                                         const data = await res.json();
+                                         if(data.success) {
+                                           showToast('Berhasil upload naskah revisi!');
+                                           setSubmission({...submission, revised_file_url: data.url});
+                                         } else {
+                                           showToast('Gagal upload: ' + data.error);
+                                         }
+                                       } catch(err) {
+                                         showToast('Error uploading file');
+                                       } finally {
+                                         setIsUploadingRevised(false);
+                                       }
+                                     }}
+                                     disabled={isUploadingRevised || !isPureEditor}
+                                     className="block w-full text-xs text-gray-600 file:mr-3 file:py-1.5 file:px-3 file:rounded file:border-0 file:text-xs file:font-bold file:bg-orange-100 file:text-orange-800 hover:file:bg-orange-200 disabled:opacity-50 cursor-pointer border border-gray-200 rounded focus:outline-none" 
+                                   />
+                                   {isUploadingRevised && (
+                                     <div className="absolute inset-0 bg-white/80 backdrop-blur-sm rounded flex items-center justify-center">
+                                        <div className="flex items-center gap-2 text-orange-600 font-bold text-xs">
+                                          <svg className="w-3 h-3 animate-spin" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
+                                          Mengunggah...
+                                        </div>
+                                     </div>
+                                   )}
+                                 </div>
+                               </div>
+                             </details>
                            </div>
                          )}
                       </div>
@@ -892,8 +961,8 @@ export default function SubmissionControlPanel() {
                         </div>
                         
                         <div className="space-y-3">
-                          {boardMembers.filter(m => m.jabatan.toLowerCase().includes('admin') || m.jabatan.toLowerCase().includes('copy') || m.jabatan.toLowerCase().includes('layout') || m.jabatan.toLowerCase().includes('cover') || m.jabatan.toLowerCase().includes('publish')).length > 0 ? (
-                            boardMembers.filter(m => m.jabatan.toLowerCase().includes('admin') || m.jabatan.toLowerCase().includes('copy') || m.jabatan.toLowerCase().includes('layout') || m.jabatan.toLowerCase().includes('cover') || m.jabatan.toLowerCase().includes('publish')).map((member, idx) => (
+                          {membersArray.filter(m => m.jabatan && m.jabatan.toLowerCase().includes('admin') || m.jabatan && m.jabatan.toLowerCase().includes('copy') || m.jabatan && m.jabatan.toLowerCase().includes('layout') || m.jabatan && m.jabatan.toLowerCase().includes('cover') || m.jabatan && m.jabatan.toLowerCase().includes('publish')).length > 0 ? (
+                            membersArray.filter(m => m.jabatan && m.jabatan.toLowerCase().includes('admin') || m.jabatan && m.jabatan.toLowerCase().includes('copy') || m.jabatan && m.jabatan.toLowerCase().includes('layout') || m.jabatan && m.jabatan.toLowerCase().includes('cover') || m.jabatan && m.jabatan.toLowerCase().includes('publish')).map((member, idx) => (
                               <label key={idx} className="group flex items-center space-x-3 p-3 bg-white border border-gray-200 rounded-lg cursor-pointer hover:border-[#c9a84c] hover:shadow-md transition-all duration-200">
                                 <div className="relative flex items-center justify-center">
                                   <input type="checkbox" className="peer form-checkbox h-4 w-4 text-[#18182e] border-gray-300 rounded focus:ring-[#c9a84c] focus:ring-offset-1 transition-all" />
@@ -1231,7 +1300,7 @@ export default function SubmissionControlPanel() {
                                          <div 
                                            className="absolute font-serif drop-shadow-md overflow-hidden"
                                            style={{
-                                             top: '34.5%',
+                                             top: '31%',
                                              left: '6%',
                                              width: '46%',
                                              maxHeight: '57%',
@@ -1239,10 +1308,10 @@ export default function SubmissionControlPanel() {
                                          >
                                            <div className="mb-1.5">
                                              <span 
-                                               className="inline-block font-sans font-extrabold text-[#f0c05a] bg-black/75 border border-[#f0c05a]/60 px-1.5 py-0.5 rounded tracking-wider uppercase shadow-md"
+                                               className="inline-block font-sans font-extrabold text-[#f0c05a] tracking-wider uppercase"
                                                style={{ fontSize: 'clamp(6.5px, 0.65vw, 9.5px)' }}
                                              >
-                                               AJAF - ACCOUNTING, AUDITING & TAXATION
+                                               {submission.journals?.name ? submission.journals.name.split('-')[0].trim() : ''}
                                              </span>
                                            </div>
                                            {submission.title && submission.title.includes(":") ? (
@@ -1353,10 +1422,10 @@ export default function SubmissionControlPanel() {
                             >
                               <div className="mb-1.5">
                                 <span 
-                                  className="inline-block font-sans font-extrabold text-[#f0c05a] bg-black/75 border border-[#f0c05a]/60 px-1.5 py-0.5 rounded tracking-wider uppercase shadow-md"
+                                  className="inline-block font-sans font-extrabold text-[#f0c05a] tracking-wider uppercase"
                                   style={{ fontSize: 'clamp(6.5px, 0.65vw, 9.5px)' }}
                                 >
-                                  AJAF - ACCOUNTING, AUDITING & TAXATION
+                                  {submission.journals?.name ? submission.journals.name.split('-')[0].trim() : ''}
                                 </span>
                               </div>
                               {submission.title && submission.title.includes(":") ? (
@@ -1483,8 +1552,9 @@ export default function SubmissionControlPanel() {
                               />
                             </div>
                           </div>
-                          <p className="text-[10px] text-gray-400 mt-[-10px] leading-tight">
-                            *Jika dikosongkan, sistem akan mengurutkan Volume/Edisi secara otomatis. (Untuk Edisi 2, ketik: <b>No. 2</b>)
+                          <p className="text-[10px] text-gray-400 mt-[-10px] leading-relaxed">
+                            *Jika dikosongkan, sistem akan mengurutkan Volume/Edisi secara otomatis. (Untuk Edisi 2, ketik: <b>No. 2</b>)<br/>
+                            <span className="text-emerald-500 font-medium">Aturan Jurnal: Mulai dari Vol 1 No 1 untuk setiap disiplin ilmu. Volume mengacu pada tahun terbit (2 Volume per tahun jika terbit 2 kali). Edisi tidak dibatasi.</span>
                           </p>
 
                           <button
@@ -1543,8 +1613,8 @@ export default function SubmissionControlPanel() {
                     
                     {/* Publish Editor Staff */}
                     <div className="space-y-3 mb-6">
-                        {boardMembers.filter(m => m.jabatan.toLowerCase().includes('layout') || m.jabatan.toLowerCase().includes('cover') || m.jabatan.toLowerCase().includes('publish')).length > 0 ? (
-                          boardMembers.filter(m => m.jabatan.toLowerCase().includes('layout') || m.jabatan.toLowerCase().includes('cover') || m.jabatan.toLowerCase().includes('publish')).map((member, idx) => (
+                        {membersArray.filter(m => m.jabatan && m.jabatan.toLowerCase().includes('layout') || m.jabatan && m.jabatan.toLowerCase().includes('cover') || m.jabatan && m.jabatan.toLowerCase().includes('publish')).length > 0 ? (
+                          membersArray.filter(m => m.jabatan && m.jabatan.toLowerCase().includes('layout') || m.jabatan && m.jabatan.toLowerCase().includes('cover') || m.jabatan && m.jabatan.toLowerCase().includes('publish')).map((member, idx) => (
                             <label key={idx} className="flex items-center space-x-3 p-3 bg-blue-50 border border-blue-100 rounded cursor-pointer hover:bg-blue-100 transition-colors">
                               <input type="checkbox" className="form-checkbox h-5 w-5 text-blue-600 rounded focus:ring-blue-500" />
                               <div className="flex flex-col">
@@ -1577,10 +1647,10 @@ export default function SubmissionControlPanel() {
                           >
                             <div className="mb-1.5">
                               <span 
-                                className="inline-block font-sans font-extrabold text-[#f0c05a] bg-black/75 border border-[#f0c05a]/60 px-1.5 py-0.5 rounded tracking-wider uppercase shadow-md"
+                                className="inline-block font-sans font-extrabold text-[#f0c05a] tracking-wider uppercase"
                                 style={{ fontSize: 'clamp(6.5px, 0.65vw, 9.5px)' }}
                               >
-                                AJAF - ACCOUNTING, AUDITING & TAXATION
+                                {submission.journals?.name ? submission.journals.name.split('-')[0].trim() : ''}
                               </span>
                             </div>
                             {submission.title && submission.title.includes(":") ? (
@@ -1687,9 +1757,10 @@ export default function SubmissionControlPanel() {
                              />
                            </div>
                          </div>
-                         <p className="text-[10px] text-gray-500 mt-1 leading-tight">
-                           *Jika dikosongkan, sistem akan mengurutkan otomatis. Ketik manual (contoh: <b>No. 2</b>) untuk memaksa ke edisi tertentu. (Perubahan akan otomatis terlihat di pratinjau Cover di atas).
-                         </p>
+                         <p className="text-[10px] text-gray-500 mt-1 leading-relaxed">
+                            *Jika dikosongkan, sistem akan mengurutkan otomatis. Ketik manual (contoh: <b>No. 2</b>) untuk memaksa ke edisi tertentu. (Perubahan akan otomatis terlihat di pratinjau Cover di atas).<br/>
+                            <span className="text-blue-700 font-medium">Aturan Jurnal: Mulai dari Vol 1 No 1 untuk setiap disiplin ilmu. Volume mengacu pada tahun terbit (2 Volume per tahun jika terbit 2 kali). Edisi tidak dibatasi.</span>
+                          </p>
                       </div>
 
                       <div className="flex flex-col gap-3 mt-4">
@@ -1768,8 +1839,8 @@ export default function SubmissionControlPanel() {
                       
                       {/* Admin Produksi Staff */}
                       <div className="space-y-3 mb-6">
-                          {boardMembers.filter(m => m.jabatan.toLowerCase().includes('admin')).length > 0 ? (
-                            boardMembers.filter(m => m.jabatan.toLowerCase().includes('admin')).map((member, idx) => (
+                          {membersArray.filter(m => m.jabatan && m.jabatan.toLowerCase().includes('admin')).length > 0 ? (
+                            membersArray.filter(m => m.jabatan && m.jabatan.toLowerCase().includes('admin')).map((member, idx) => (
                               <label key={idx} className="flex items-center space-x-3 p-3 bg-yellow-50 border border-yellow-200 rounded cursor-pointer hover:bg-yellow-100 transition-colors">
                                 <input type="checkbox" className="form-checkbox h-5 w-5 text-[#c9a84c] rounded focus:ring-[#c9a84c]" />
                                 <div className="flex flex-col">
@@ -1907,11 +1978,17 @@ export default function SubmissionControlPanel() {
                       type="tel"
                       value={authorPhone}
                       onChange={e => setAuthorPhone(e.target.value)}
-                      placeholder="+62 813-7006-2009"
+                      placeholder="Belum ada no HP — isi manual dengan kode negara, contoh: +62812xxxx"
                       className="block w-full rounded-md border border-gray-300 py-2.5 pl-10 pr-3 text-gray-900 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500 sm:text-sm"
                     />
                   </div>
-                  <p className="text-xs text-gray-500">Include country code for WhatsApp integration.</p>
+                  {!authorPhone && (
+                    <p className="text-xs text-red-500 font-medium">⚠️ No HP Author tidak ditemukan di database. Isi manual sebelum kirim WA.</p>
+                  )}
+                  {authorPhone && (
+                    <p className="text-xs text-green-600 font-medium">✓ No HP Author terdeteksi: {authorPhone}</p>
+                  )}
+                  <p className="text-xs text-gray-500">Sertakan kode negara untuk integrasi WhatsApp (contoh: +62812xxxx).</p>
                 </div>
               </div>
             </div>
