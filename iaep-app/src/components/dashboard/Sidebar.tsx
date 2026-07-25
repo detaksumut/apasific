@@ -156,15 +156,6 @@ export default function Sidebar({ role }: SidebarProps) {
       ),
     },
     {
-      label: "Dashboard",
-      path: "/dashboard/editor",
-      icon: (
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
-          <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
-        </svg>
-      ),
-    },
-    {
       label: "Assign Reviewer",
       path: "/dashboard/editor/assign-reviewer",
       icon: (
