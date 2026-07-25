@@ -3,10 +3,12 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { getAssignmentDetails, submitReviewResultsWithFile, autoRepairSubmissionFile, submitFinalAnnotatedFile } from "@/app/actions/reviewer";
+import { ReviewStep } from "@/domain/reviewer/ReviewStatus";
+import { ReviewStateMachine } from "@/domain/reviewer/ReviewStateMachine";
 
 export default function ReviewEvaluation({ params }: { params: any }) {
   const [assignmentId, setAssignmentId] = useState<string>('');
-  const [step, setStep] = useState(1);
+  const [step, setStep] = useState<number>(ReviewStep.REQUEST);
   const [agreed, setAgreed] = useState(false);
   const [commentsForEditor, setCommentsForEditor] = useState("");
   const [commentsForAuthor, setCommentsForAuthor] = useState("");
@@ -67,6 +69,8 @@ export default function ReviewEvaluation({ params }: { params: any }) {
           const data = await getAssignmentDetails(assignmentId);
           if (data) {
               setSubmission(data);
+              setStep(ReviewStateMachine.resolveReviewStep(data.status));
+              setAgreed(ReviewStateMachine.isAgreementAccepted(data.status));
           }
         } catch(e) {
           console.error("fetchData error:", e);
@@ -183,7 +187,7 @@ export default function ReviewEvaluation({ params }: { params: any }) {
       <div className="rev-panel">
 
         {/* Step 1: Request */}
-        {step === 1 && (
+        {step === ReviewStep.REQUEST && (
           <div className="rev-step-body">
             <div className="rev-step-heading">
               <div className="rev-step-num">Step 1</div>
@@ -258,7 +262,7 @@ export default function ReviewEvaluation({ params }: { params: any }) {
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
                 Decline Review
               </button>
-              <button className="rev-btn-primary" onClick={() => setStep(2)}>
+              <button className="rev-btn-primary" onClick={() => setStep(ReviewStep.GUIDELINES)}>
                 Accept & Continue
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
               </button>
@@ -267,7 +271,7 @@ export default function ReviewEvaluation({ params }: { params: any }) {
         )}
 
         {/* Step 2: Guidelines */}
-        {step === 2 && (
+        {step === ReviewStep.GUIDELINES && (
           <div className="rev-step-body">
             <div className="rev-step-heading">
               <div className="rev-step-num">Step 2</div>
@@ -300,8 +304,8 @@ export default function ReviewEvaluation({ params }: { params: any }) {
             </label>
 
             <div className="rev-actions-between">
-              <button className="rev-btn-ghost" onClick={() => setStep(1)}>← Back</button>
-              <button className="rev-btn-primary" onClick={() => setStep(3)} disabled={!agreed}>
+              <button className="rev-btn-ghost" onClick={() => setStep(ReviewStep.REQUEST)}>← Back</button>
+              <button className="rev-btn-primary" onClick={() => setStep(ReviewStep.REVIEW)} disabled={!agreed}>
                 Proceed to Review →
               </button>
             </div>
@@ -309,7 +313,7 @@ export default function ReviewEvaluation({ params }: { params: any }) {
         )}
 
         {/* Step 3: Review */}
-        {step === 3 && (
+        {step === ReviewStep.REVIEW && (
           <div className="rev-step-body">
             <div className="rev-step-heading">
               <div className="rev-step-num">Step 3</div>
@@ -559,8 +563,8 @@ export default function ReviewEvaluation({ params }: { params: any }) {
             </div>
 
             <div className="rev-actions-between" style={{ marginTop: 24 }}>
-              <button className="rev-btn-ghost" onClick={() => setStep(2)}>← Back</button>
-              <button className="rev-btn-primary" onClick={() => setStep(4)}>
+              <button className="rev-btn-ghost" onClick={() => setStep(ReviewStep.GUIDELINES)}>← Back</button>
+              <button className="rev-btn-primary" onClick={() => setStep(ReviewStep.SUBMIT)}>
                 Save & Continue →
               </button>
             </div>
@@ -568,7 +572,7 @@ export default function ReviewEvaluation({ params }: { params: any }) {
         )}
 
         {/* Step 4: Submit */}
-        {step === 4 && (
+        {step === ReviewStep.SUBMIT && (
           <div className="rev-step-body">
             <div className="rev-step-heading">
               <div className="rev-step-num">Step 4</div>
@@ -609,7 +613,7 @@ export default function ReviewEvaluation({ params }: { params: any }) {
             )}
 
             <div className="rev-actions-between" style={{ marginTop: 24 }}>
-              <button className="rev-btn-ghost" onClick={() => setStep(3)}>← Back</button>
+              <button className="rev-btn-ghost" onClick={() => setStep(ReviewStep.REVIEW)}>← Back</button>
               <button
                 className="rev-btn-success"
                 disabled={!recommendation || isSubmitting}

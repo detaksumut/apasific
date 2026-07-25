@@ -36,4 +36,24 @@ export class ReviewStateMachine {
   static canSubmitReview(currentState: ReviewStatus): boolean {
     return [ReviewStatus.Accepted, ReviewStatus.RevisionPending].includes(currentState);
   }
+
+  static resolveReviewStep(status: string): number {
+    const { ReviewStep } = require("./ReviewStatus");
+    switch (status) {
+      case ReviewStatus.Pending:
+        return ReviewStep.REQUEST;
+      case ReviewStatus.Accepted:
+      case ReviewStatus.Reviewing:
+      case ReviewStatus.RevisionPending:
+        return ReviewStep.REVIEW;
+      case ReviewStatus.Completed:
+        return ReviewStep.SUBMIT;
+      default:
+        return ReviewStep.REQUEST;
+    }
+  }
+
+  static isAgreementAccepted(status: string): boolean {
+    return status !== ReviewStatus.Pending && status !== ReviewStatus.Rejected;
+  }
 }
