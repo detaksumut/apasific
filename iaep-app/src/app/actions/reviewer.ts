@@ -587,6 +587,7 @@ export async function autoRepairSubmissionFile(submissionId: string) {
     let minDiff = 5 * 60 * 1000; // 5 minutes max difference
     
     for (const file of anonFiles) {
+        if (!file.created_at) continue;
         const fileDate = new Date(file.created_at).getTime();
         const diff = Math.abs(subDate - fileDate);
         if (diff < minDiff) {

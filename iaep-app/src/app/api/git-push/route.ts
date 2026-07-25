@@ -11,7 +11,7 @@ export async function GET() {
     const cwd = process.cwd();
     
     const { stdout: addStdout, stderr: addStderr } = await execAsync("git add .", { cwd });
-    const { stdout: commitStdout, stderr: commitStderr } = await execAsync('git commit -m "update: revert changes and fix submissions"', { cwd }).catch(err => err);
+    const { stdout: commitStdout, stderr: commitStderr } = await execAsync('git commit -m "fix: resolve typescript build error in reviewer.ts"', { cwd }).catch(err => err);
     const { stdout: pushStdout, stderr: pushStderr } = await execAsync("git push", { cwd });
     
     return NextResponse.json({ 
