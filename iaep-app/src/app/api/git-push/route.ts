@@ -16,7 +16,7 @@ export async function GET() {
     logs.push(`Add stdout: ${addRes.stdout}, stderr: ${addRes.stderr}`);
     
     logs.push("Running: git commit");
-    const commitRes = await execAsync('git commit -m "Pembaruan metadata artikel, teks berjalan nama penulis, penyembunyian penulis tidak diketahui, dan eliminasi modul ekstraksi"', { cwd }).catch(e => e);
+    const commitRes = await execAsync('git commit -m "Fix TypeScript module compilation error for debug-check-article route"', { cwd }).catch(e => e);
     logs.push(`Commit stdout: ${commitRes.stdout || commitRes.message}, stderr: ${commitRes.stderr || ""}`);
     
     logs.push("Running: git push");

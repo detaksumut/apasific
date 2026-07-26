@@ -1,1 +1,5 @@
-// File cleared to fix Turbopack cache issue
+import { NextResponse } from 'next/server';
+
+export async function GET() {
+  return NextResponse.json({ ok: true });
+}
