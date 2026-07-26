@@ -16,7 +16,7 @@ export async function GET() {
     logs.push(`Add stdout: ${addRes.stdout}, stderr: ${addRes.stderr}`);
     
     logs.push("Running: git commit");
-    const commitRes = await execAsync('git commit -m "Fix undefined ajafIds and broken query in AJAF journal page"', { cwd }).catch(e => e);
+    const commitRes = await execAsync('git commit -m "Add author metadata input field to Editor Production tab for running text configuration"', { cwd }).catch(e => e);
     logs.push(`Commit stdout: ${commitRes.stdout || commitRes.message}, stderr: ${commitRes.stderr || ""}`);
     
     logs.push("Running: git push origin main");

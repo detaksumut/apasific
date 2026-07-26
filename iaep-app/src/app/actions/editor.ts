@@ -650,7 +650,7 @@ export async function getAssignedVolumeAndIssue(submissionId: string, journalId:
     }
 }
 
-export async function publishArticle(submissionId: string, journalId: string, customVolume: string = "", customIssue: string = "") {
+export async function publishArticle(submissionId: string, journalId: string, customVolume: string = "", customIssue: string = "", customAuthor: string = "") {
     try {
         const supabaseAdmin = (await import('@supabase/supabase-js')).createClient(
             process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -699,22 +699,22 @@ export async function publishArticle(submissionId: string, journalId: string, cu
         const dateStr = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
 
         // 2. Update status, stage, volume, and issue to Published
-        if (isFirestore) {
-            await db.collection('submissions').doc(submissionId).update({
-                status: 'Published',
-                stage: 'Published',
-                volume: finalVolume,
-                issue: finalIssue,
-                updated_at: new Date()
-            });
-        }
-        await supabaseAdmin.from('submissions').update({
+        const updatePayload: any = {
             status: 'Published',
             stage: 'Published',
             volume: finalVolume,
             issue: finalIssue,
             updated_at: new Date()
-        }).eq('id', submissionId);
+        };
+
+        if (customAuthor !== undefined) {
+            updatePayload.author = customAuthor;
+        }
+
+        if (isFirestore) {
+            await db.collection('submissions').doc(submissionId).update(updatePayload);
+        }
+        await supabaseAdmin.from('submissions').update(updatePayload).eq('id', submissionId);
 
         // Insert history
         const { getCurrentUser } = await import('./auth');

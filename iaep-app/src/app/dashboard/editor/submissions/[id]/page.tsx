@@ -36,6 +36,7 @@ export default function SubmissionControlPanel() {
   const [currentUserRole, setCurrentUserRole] = useState<string>("");
   const [customVolume, setCustomVolume] = useState("");
   const [customIssue, setCustomIssue] = useState("");
+  const [customAuthor, setCustomAuthor] = useState("");
   const [uploadingReviewId, setUploadingReviewId] = useState<string | null>(null);
   const [isSendingFonnte, setIsSendingFonnte] = useState(false);
 
@@ -115,6 +116,12 @@ export default function SubmissionControlPanel() {
           localStorage.setItem(`draft_iss_${data.id}`, data.issue);
         } else {
           localStorage.removeItem(`draft_iss_${data.id}`);
+        }
+        
+        if (data.author) {
+          setCustomAuthor(data.author);
+        } else if (data.profiles?.full_name) {
+          setCustomAuthor(data.profiles.full_name);
         }
         
         // Auto set active tab based on stage
@@ -1527,7 +1534,7 @@ export default function SubmissionControlPanel() {
                                 type="text" 
                                 value={customVolume} 
                                 onChange={(e) => setCustomVolume(e.target.value)}
-                                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none transition-all text-sm font-medium" 
+                                className="w-full p-3 border border-zinc-800 bg-[#0c0c16] text-[#e8e8f0] rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none transition-all text-sm font-medium" 
                                 placeholder="e.g. Vol. 1" 
                               />
                             </div>
@@ -1537,7 +1544,7 @@ export default function SubmissionControlPanel() {
                                 type="text" 
                                 value={customIssue} 
                                 onChange={(e) => setCustomIssue(e.target.value)}
-                                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none transition-all text-sm font-medium" 
+                                className="w-full p-3 border border-zinc-800 bg-[#0c0c16] text-[#e8e8f0] rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none transition-all text-sm font-medium" 
                                 placeholder="e.g. No. 2" 
                               />
                             </div>
@@ -1546,6 +1553,20 @@ export default function SubmissionControlPanel() {
                             *Jika dikosongkan, sistem akan mengurutkan Volume/Edisi secara otomatis. (Untuk Edisi 2, ketik: <b>No. 2</b>)<br/>
                             <span className="text-emerald-500 font-medium">Aturan Jurnal: Mulai dari Vol 1 No 1 untuk setiap disiplin ilmu. Volume mengacu pada tahun terbit (2 Volume per tahun jika terbit 2 kali). Edisi tidak dibatasi.</span>
                           </p>
+
+                          <div className="mb-4">
+                            <label className="block text-xs font-bold text-gray-700 uppercase mb-1">Nama-Nama Penulis (Teks Berjalan)</label>
+                            <input 
+                              type="text" 
+                              value={customAuthor} 
+                              onChange={(e) => setCustomAuthor(e.target.value)}
+                              className="w-full p-3 border border-zinc-800 bg-[#0c0c16] text-[#e8e8f0] focus:border-[#c9a84c] rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none transition-all text-sm font-medium" 
+                              placeholder="Pisahkan dengan koma, misal: Nur Alim Natsir, Jamilah, Muhammad Rijal" 
+                            />
+                            <p className="text-[10px] text-zinc-400 mt-1">
+                              *Nama-nama ini akan langsung di-marquee di halaman publish artikel. Pisahkan masing-masing nama dengan koma.
+                            </p>
+                          </div>
 
                           <button
                             onClick={async () => {
@@ -1557,7 +1578,7 @@ export default function SubmissionControlPanel() {
                               const confirmPublish = confirm(confirmMsg);
                               if (!confirmPublish) return;
                               const m = await import("@/app/actions/editor");
-                              const res = await m.publishArticle(submission.id, submission.journal_id || "", customVolume, customIssue);
+                              const res = await m.publishArticle(submission.id, submission.journal_id || "", customVolume, customIssue, customAuthor);
                               if (res.success) {
                                 showToast(isRepublish ? "Metadata Publikasi Berhasil Diperbarui!" : "Naskah resmi diterbitkan!");
                                 setTimeout(() => window.location.reload(), 1000);
