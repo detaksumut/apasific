@@ -14,30 +14,26 @@ export default async function AJAFJournal() {
   let articles: any[] = [];
   
   try {
-    // Cari journal_id AJAF dulu
-    const { data: ajafJournals } = await supabaseAdmin
+    // Pertama, cari journal_id untuk AJAF
+    const { data: journals } = await supabaseAdmin
       .from('journals')
-      .select(`
-        id,
-        title,
-        abstract,
-        status,
-        created_at,
-        doi,
-        volume,
-        issue,
-        cover_file_url,
-        journal_id,
-        journals(name)
-      `)
+      .select('id, name')
+      .ilike('name', '%AJAF%');
+    
+    const ajafJournalIds = journals?.map((j: any) => j.id) || [];
+    
+    let supabaseQuery = supabaseAdmin
+      .from("submissions")
+      .select(`id, title, abstract, status, created_at, doi, volume, issue, cover_file_url, journal_id, journals(name)`)
       .in("status", ["Published", "Accepted", "Production Completed"])
       .order("created_at", { ascending: false });
 
-    if (ajafIds.length > 0) {
-      query = query.in('journal_id', ajafIds);
+    // Filter by journal_id jika tersedia (lebih akurat)
+    if (ajafJournalIds.length > 0) {
+      supabaseQuery = supabaseQuery.in('journal_id', ajafJournalIds);
     }
 
-    const { data, error } = await query;
+    const { data, error } = await supabaseQuery;
 
     if (!error && data && data.length > 0) {
       articles = data;
