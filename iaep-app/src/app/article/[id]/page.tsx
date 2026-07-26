@@ -681,83 +681,99 @@ export default function ArticlePaywall() {
                 </span>
               </div>
 
-              {/* Pie/Donut Chart Area */}
-              <div className="flex flex-col items-center justify-center py-2 relative">
-                <div className="w-[160px] h-[160px] relative">
-                  <svg viewBox="0 0 42 42" className="w-full h-full transform -rotate-90">
-                    {/* Base Background Circle */}
-                    <circle cx="21" cy="21" r="15.91549430918954" fill="transparent" stroke="#121224" strokeWidth="4.5" />
+              {/* Row Grid Layout */}
+              <div className="grid grid-cols-12 gap-2 items-center py-2">
+                
+                {/* 1. Left Column: Country Names List */}
+                <div className="col-span-4 flex flex-col justify-between h-[90px] sm:h-[100px] min-w-0">
+                  {paginatedCountries.map(([country, count]) => {
+                    const sector = pieSectors.find(s => s.country === country);
+                    return (
+                      <div key={country} className="flex items-center gap-1.5 min-w-0 h-6">
+                        <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: sector?.color || '#c9a84c' }} />
+                        <span className="font-semibold text-gray-200 text-[10px] sm:text-[11px] truncate" title={country}>
+                          {country}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* 2. Center Column: Donut/Pie Chart */}
+                <div className="col-span-4 flex justify-center">
+                  <div className="w-[90px] h-[90px] sm:w-[100px] sm:h-[100px] relative">
+                    <svg viewBox="0 0 42 42" className="w-full h-full transform -rotate-90">
+                      {/* Base Background Circle */}
+                      <circle cx="21" cy="21" r="15.91549430918954" fill="transparent" stroke="#121224" strokeWidth="4.5" />
+                      
+                      {/* Dynamic Sectors */}
+                      {pieSectors.map((sector) => (
+                        <circle
+                          key={sector.country}
+                          cx="21"
+                          cy="21"
+                          r="15.91549430918954"
+                          fill="transparent"
+                          stroke={sector.color}
+                          strokeWidth="5.2"
+                          strokeDasharray={sector.strokeDasharray}
+                          strokeDashoffset={sector.strokeDashoffset}
+                          className="transition-all duration-500 ease-out hover:stroke-[6px] cursor-pointer"
+                        >
+                          <title>{`${sector.country}: ${sector.count} views (${sector.percentage}%)`}</title>
+                        </circle>
+                      ))}
+                    </svg>
                     
-                    {/* Dynamic Sectors */}
-                    {pieSectors.map((sector, i) => (
-                      <circle
-                        key={sector.country}
-                        cx="21"
-                        cy="21"
-                        r="15.91549430918954"
-                        fill="transparent"
-                        stroke={sector.color}
-                        strokeWidth="5"
-                        strokeDasharray={sector.strokeDasharray}
-                        strokeDashoffset={sector.strokeDashoffset}
-                        className="transition-all duration-500 ease-out hover:stroke-[6px] cursor-pointer"
-                      >
-                        <title>{`${sector.country}: ${sector.count} views (${sector.percentage}%)`}</title>
-                      </circle>
-                    ))}
-                  </svg>
-                  
-                  {/* Center Text inside Donut */}
-                  <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                    <span className="text-2xl font-black text-white font-serif">{totalCountryViews}</span>
-                    <span className="text-[9px] font-bold text-gray-500 uppercase tracking-widest">Total Views</span>
+                    {/* Center Text inside Donut */}
+                    <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                      <span className="text-base sm:text-lg font-black text-white font-serif leading-none">{totalCountryViews}</span>
+                      <span className="text-[6px] sm:text-[7px] font-bold text-gray-500 uppercase tracking-wider mt-0.5">Views</span>
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              {/* Paginated Countries List */}
-              <div className="space-y-2.5 pt-2">
-                {paginatedCountries.map(([country, count], i) => {
-                  const sector = pieSectors.find(s => s.country === country);
-                  return (
-                    <div key={country} className="flex justify-between items-center text-xs bg-black/40 border border-gray-800/80 rounded-lg p-2.5 transition-all hover:border-gray-700/80">
-                      <div className="flex items-center gap-2">
-                        <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: sector?.color || '#c9a84c' }} />
-                        <span className="font-semibold text-gray-200">{country}</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <span className="text-gray-400 font-medium">{count} views</span>
-                        <span className="text-[10px] font-bold text-[#c9a84c] bg-[#c9a84c]/10 px-1.5 py-0.5 rounded">
+                {/* 3. Right Column: Views / Percentage */}
+                <div className="col-span-4 flex flex-col justify-between items-end h-[90px] sm:h-[100px]">
+                  {paginatedCountries.map(([country, count]) => {
+                    const sector = pieSectors.find(s => s.country === country);
+                    return (
+                      <div key={country} className="flex flex-col items-end justify-center h-6 leading-none">
+                        <span className="font-bold text-gray-200 text-[10px] sm:text-[11px] whitespace-nowrap">
+                          {count} views
+                        </span>
+                        <span className="text-[8px] sm:text-[9px] font-extrabold text-[#c9a84c] mt-0.5">
                           {sector?.percentage}%
                         </span>
                       </div>
-                    </div>
-                  );
-                })}
+                    );
+                  })}
+                </div>
 
-                {/* Pagination Controls */}
-                {totalCountryPages > 1 && (
-                  <div className="flex justify-between items-center pt-2.5 text-xs select-none">
-                    <button
-                      onClick={() => setCountryPage(p => Math.max(1, p - 1))}
-                      disabled={safeCountryPage === 1}
-                      className="px-2.5 py-1.5 rounded-md border border-gray-800 bg-[#0c0c1b] text-gray-400 hover:text-white disabled:opacity-40 disabled:hover:text-gray-400 font-semibold transition-all"
-                    >
-                      Sebelumnya
-                    </button>
-                    <span className="text-gray-500 font-medium">
-                      Halaman {safeCountryPage} dari {totalCountryPages}
-                    </span>
-                    <button
-                      onClick={() => setCountryPage(p => Math.min(totalCountryPages, p + 1))}
-                      disabled={safeCountryPage === totalCountryPages}
-                      className="px-2.5 py-1.5 rounded-md border border-gray-800 bg-[#0c0c1b] text-gray-400 hover:text-white disabled:opacity-40 disabled:hover:text-gray-400 font-semibold transition-all"
-                    >
-                      Berikutnya
-                    </button>
-                  </div>
-                )}
               </div>
+
+              {/* Pagination Controls */}
+              {totalCountryPages > 1 && (
+                <div className="flex justify-between items-center pt-2.5 text-xs select-none border-t border-gray-800/40">
+                  <button
+                    onClick={() => setCountryPage(p => Math.max(1, p - 1))}
+                    disabled={safeCountryPage === 1}
+                    className="px-2.5 py-1.5 rounded-md border border-gray-800 bg-[#0c0c1b] text-gray-400 hover:text-white disabled:opacity-40 disabled:hover:text-gray-400 font-semibold transition-all"
+                  >
+                    Sebelumnya
+                  </button>
+                  <span className="text-gray-500 font-medium">
+                    Halaman {safeCountryPage} dari {totalCountryPages}
+                  </span>
+                  <button
+                    onClick={() => setCountryPage(p => Math.min(totalCountryPages, p + 1))}
+                    disabled={safeCountryPage === totalCountryPages}
+                    className="px-2.5 py-1.5 rounded-md border border-gray-800 bg-[#0c0c1b] text-gray-400 hover:text-white disabled:opacity-40 disabled:hover:text-gray-400 font-semibold transition-all"
+                  >
+                    Berikutnya
+                  </button>
+                </div>
+              )}
             </div>
 
             {/* Grafik Sitasi & H-Index Jurnal */}
