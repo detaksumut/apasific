@@ -11,8 +11,17 @@ export async function GET() {
     const cwd = process.cwd();
     const logs: string[] = [];
     
-    logs.push("Running: git add .");
-    const addRes = await execAsync("git add .", { cwd });
+    const gitDir = await execAsync("git rev-parse --show-toplevel", { cwd }).catch(e => e);
+    logs.push(`Git top level: ${gitDir.stdout || gitDir.message}`);
+    
+    const gitStatus = await execAsync("git status --porcelain", { cwd }).catch(e => e);
+    logs.push(`Git porcelain status: ${gitStatus.stdout || gitStatus.message}`);
+    
+    const gitDiff = await execAsync("git diff", { cwd }).catch(e => e);
+    logs.push(`Git diff length: ${gitDiff.stdout?.length || 0}`);
+    
+    logs.push("Running: git add -A");
+    const addRes = await execAsync("git add -A", { cwd });
     logs.push(`Add stdout: ${addRes.stdout}, stderr: ${addRes.stderr}`);
     
     logs.push("Running: git commit");
