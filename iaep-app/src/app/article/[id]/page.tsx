@@ -365,8 +365,22 @@ export default function ArticlePaywall() {
     displayAuthors = "Dr. Andi Wawo, S.E., M.Si, Adelia Nindya Putri, S.Ak, Izzatul Muzakkirah Qurani, Andi Indah Wajid Putri, Athiqah Athira Binti Md. Ruslan, Uqail Irfanuddin Bin Waliuddin Nejatullah, Dr. Lince Bulotoding, S.E., M.Si., Ak., CA, Berkah Rahmawati, S.Ak";
   }
 
-  // Calculate total views of countries
-  const totalCountryViews = Object.values(visitorCountries).reduce((a, b) => a + b, 0) || 1;
+  // Combine APASIFIC visitor countries and Zenodo views proportionally
+  const zViews = zenodoMetrics.views || 0;
+  
+  // Calculate total APASIFIC country views first
+  const totalApasificCountryViews = Object.values(visitorCountries).reduce((a, b) => a + b, 0) || 1;
+  
+  // Distribute Zenodo views proportionally
+  const combinedCountries: Record<string, number> = {};
+  Object.entries(visitorCountries).forEach(([country, count]) => {
+    const proportion = count / totalApasificCountryViews;
+    // Add proportional Zenodo views to the count
+    combinedCountries[country] = Math.round(count + (zViews * proportion));
+  });
+
+  // Calculate total views of countries (APASIFIC + Zenodo)
+  const totalCountryViews = Object.values(combinedCountries).reduce((a, b) => a + b, 0) || 1;
   
   // Custom premium colors for sectors
   const sectorColors = [
@@ -380,7 +394,7 @@ export default function ArticlePaywall() {
   ];
 
   let accumulatedPercentage = 0;
-  const pieSectors = Object.entries(visitorCountries)
+  const pieSectors = Object.entries(combinedCountries)
     .sort((a, b) => b[1] - a[1])
     .map(([country, count], index) => {
       const percentage = (count / totalCountryViews) * 100;
@@ -399,7 +413,7 @@ export default function ArticlePaywall() {
 
   // Country Origin list pagination
   const itemsPerPage = 3;
-  const sortedCountries = Object.entries(visitorCountries).sort((a, b) => b[1] - a[1]);
+  const sortedCountries = Object.entries(combinedCountries).sort((a, b) => b[1] - a[1]);
   const totalCountryPages = Math.ceil(sortedCountries.length / itemsPerPage) || 1;
   
   // Ensure page range safety
