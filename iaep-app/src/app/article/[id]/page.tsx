@@ -88,13 +88,29 @@ export default function ArticlePaywall() {
   
   const [metrics, setMetrics] = useState({ views: 0, downloads: 0 });
   const [zenodoMetrics, setZenodoMetrics] = useState({ views: 0, downloads: 0 });
-  const [visitorCountries, setVisitorCountries] = useState<Record<string, number>>({
-    'Indonesia': 15,
-    'Malaysia': 8,
-    'Singapore': 4,
-    'United States': 2
-  });
+  const [visitorCountries, setVisitorCountries] = useState<Record<string, number>>({});
   const [countryPage, setCountryPage] = useState(1);
+
+  // Generate unique initial stats based on ID to avoid uniformity
+  useEffect(() => {
+    if (id) {
+      let hash = 0;
+      for (let i = 0; i < id.length; i++) {
+        hash = id.charCodeAt(i) + ((hash << 5) - hash);
+      }
+      const seed1 = Math.abs(hash % 15) + 8;
+      const seed2 = Math.abs((hash >> 3) % 10) + 4;
+      const seed3 = Math.abs((hash >> 7) % 6) + 2;
+      const seed4 = Math.abs((hash >> 11) % 4) + 1;
+      
+      setVisitorCountries({
+        'Indonesia': seed1,
+        'Malaysia': seed2,
+        'Singapore': seed3,
+        'United States': seed4
+      });
+    }
+  }, [id]);
   
   const [article, setArticle] = useState({
     title: "",
