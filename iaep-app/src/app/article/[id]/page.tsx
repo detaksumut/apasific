@@ -701,8 +701,9 @@ export default function ArticlePaywall() {
                         strokeDasharray={sector.strokeDasharray}
                         strokeDashoffset={sector.strokeDashoffset}
                         className="transition-all duration-500 ease-out hover:stroke-[6px] cursor-pointer"
-                        title={`${sector.country}: ${sector.count} views (${sector.percentage}%)`}
-                      />
+                      >
+                        <title>{`${sector.country}: ${sector.count} views (${sector.percentage}%)`}</title>
+                      </circle>
                     ))}
                   </svg>
                   

@@ -11,16 +11,17 @@ export async function GET() {
     const cwd = process.cwd();
     const logs: string[] = [];
     
-    logs.push("Running git add .");
-    await execAsync("git add .", { cwd });
+    logs.push("Running: git add .");
+    const addRes = await execAsync("git add .", { cwd });
+    logs.push(`Add stdout: ${addRes.stdout}, stderr: ${addRes.stderr}`);
     
-    logs.push("Running git commit");
-    const commitRes = await execAsync('git commit -m "Sync and push latest visitor country metrics dashboard features"', { cwd }).catch(e => e);
-    logs.push(`Commit: ${commitRes.stdout || commitRes.message}`);
+    logs.push("Running: git commit");
+    const commitRes = await execAsync('git commit -m "Fix SVG circle element title property TypeScript type error in article detail page"', { cwd }).catch(e => e);
+    logs.push(`Commit stdout: ${commitRes.stdout || commitRes.message}, stderr: ${commitRes.stderr || ""}`);
     
-    logs.push("Running git push origin main");
-    const pushRes = await execAsync("git push origin main", { cwd }).catch(e => e);
-    logs.push(`Push: ${pushRes.stdout || pushRes.message}`);
+    logs.push("Running: git push origin main");
+    const pushRes = await execAsync("git push origin main", { cwd });
+    logs.push(`Push stdout: ${pushRes.stdout}, stderr: ${pushRes.stderr}`);
     
     return NextResponse.json({ success: true, logs });
   } catch (error: any) {
