@@ -16,7 +16,7 @@ export async function GET() {
     logs.push(`Add: ${addRes.stdout}, ${addRes.stderr}`);
     
     logs.push("Running: git commit");
-    const commitRes = await execAsync('git commit -m "Integrate Zenodo live views into combined metrics chart"', { cwd }).catch(e => e);
+    const commitRes = await execAsync('git commit -m "Distribute untracked/Zenodo views proportionally to Indonesia, Malaysia, Singapore and US"', { cwd }).catch(e => e);
     logs.push(`Commit: ${commitRes.stdout || commitRes.message}`);
     
     logs.push("Running: git pull --rebase origin main");

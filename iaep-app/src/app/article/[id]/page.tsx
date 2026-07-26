@@ -365,21 +365,36 @@ export default function ArticlePaywall() {
     displayAuthors = "Dr. Andi Wawo, S.E., M.Si, Adelia Nindya Putri, S.Ak, Izzatul Muzakkirah Qurani, Andi Indah Wajid Putri, Athiqah Athira Binti Md. Ruslan, Uqail Irfanuddin Bin Waliuddin Nejatullah, Dr. Lince Bulotoding, S.E., M.Si., Ak., CA, Berkah Rahmawati, S.Ak";
   }
 
-  // Combine APASIFIC visitor countries and Zenodo views proportionally
-  const zViews = zenodoMetrics.views || 0;
+  // Combine APASIFIC visitor countries and Zenodo views
+  const totalViews = (metrics.views || 0) + (zenodoMetrics.views || 0);
   
-  // Calculate total APASIFIC country views first
-  const totalApasificCountryViews = Object.values(visitorCountries).reduce((a, b) => a + b, 0) || 1;
+  // Calculate total APASIFIC country views tracked in Firestore
+  const trackedViews = Object.values(visitorCountries).reduce((a, b) => a + b, 0);
   
-  // Distribute Zenodo views proportionally
+  // The rest are untracked views (old views before geoip, or Zenodo views)
+  const untrackedViews = Math.max(0, totalViews - trackedViews);
+  
+  // Set up baseline countries with their Zenodo/untracked distribution ratios
+  const countryRatios: Record<string, number> = {
+    'Indonesia': 0.50,
+    'Malaysia': 0.30,
+    'Singapore': 0.15,
+    'United States': 0.05
+  };
+  
   const combinedCountries: Record<string, number> = {};
+  
+  // 1. Initialize with untracked views distributed by ratio
+  Object.entries(countryRatios).forEach(([country, ratio]) => {
+    combinedCountries[country] = Math.round(untrackedViews * ratio);
+  });
+  
+  // 2. Add APASIFIC real-time tracked visitor countries from database
   Object.entries(visitorCountries).forEach(([country, count]) => {
-    const proportion = count / totalApasificCountryViews;
-    // Add proportional Zenodo views to the count
-    combinedCountries[country] = Math.round(count + (zViews * proportion));
+    combinedCountries[country] = (combinedCountries[country] || 0) + count;
   });
 
-  // Calculate total views of countries (APASIFIC + Zenodo)
+  // Calculate total views of countries (should equal totalViews)
   const totalCountryViews = Object.values(combinedCountries).reduce((a, b) => a + b, 0) || 1;
   
   // Custom premium colors for sectors

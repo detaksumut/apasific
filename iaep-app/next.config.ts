@@ -1,4 +1,4 @@
-// Trigger server restart comment to clear cache version 39
+// Trigger server restart comment to clear cache version 41
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
