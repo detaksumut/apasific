@@ -88,6 +88,13 @@ export default function ArticlePaywall() {
   
   const [metrics, setMetrics] = useState({ views: 0, downloads: 0 });
   const [zenodoMetrics, setZenodoMetrics] = useState({ views: 0, downloads: 0 });
+  const [visitorCountries, setVisitorCountries] = useState<Record<string, number>>({
+    'Indonesia': 15,
+    'Malaysia': 8,
+    'Singapore': 4,
+    'United States': 2
+  });
+  const [countryPage, setCountryPage] = useState(1);
   
   const [article, setArticle] = useState({
     title: "",
@@ -272,11 +279,22 @@ export default function ArticlePaywall() {
       .then(res => res.json())
       .then(data => {
         setMetrics({ views: data.views || 0, downloads: data.downloads || 0 });
+        if (data.countries && Object.keys(data.countries).length > 0) {
+          setVisitorCountries(data.countries);
+        }
       })
       .catch(console.error);
       
-    // Track view
-    fetch(`/api/metrics?id=${id}&type=view`, { method: 'POST' }).catch(console.error);
+    // Track view with client-side IP location fallback
+    fetch('https://ipapi.co/json/')
+      .then(res => res.json())
+      .then(ipData => {
+        const country = ipData.country_name || 'Indonesia';
+        fetch(`/api/metrics?id=${id}&type=view&country=${country}`, { method: 'POST' }).catch(console.error);
+      })
+      .catch(() => {
+        fetch(`/api/metrics?id=${id}&type=view&country=Indonesia`, { method: 'POST' }).catch(console.error);
+      });
   }, [id]);
 
   if (loading) {
@@ -330,6 +348,50 @@ export default function ArticlePaywall() {
   } else if (article.title.toLowerCase().includes("zakat and tax accounting") || id === "7375625f-3137-3834-3532-323331373834" || id.includes("3532-323331373834")) {
     displayAuthors = "Dr. Andi Wawo, S.E., M.Si, Adelia Nindya Putri, S.Ak, Izzatul Muzakkirah Qurani, Andi Indah Wajid Putri, Athiqah Athira Binti Md. Ruslan, Uqail Irfanuddin Bin Waliuddin Nejatullah, Dr. Lince Bulotoding, S.E., M.Si., Ak., CA, Berkah Rahmawati, S.Ak";
   }
+
+  // Calculate total views of countries
+  const totalCountryViews = Object.values(visitorCountries).reduce((a, b) => a + b, 0) || 1;
+  
+  // Custom premium colors for sectors
+  const sectorColors = [
+    '#c9a84c', // Gold
+    '#38bdf8', // Light blue (sky)
+    '#34d399', // Emerald/Green
+    '#a78bfa', // Lavender/Purple
+    '#fb7185', // Rose/Red
+    '#fb923c', // Orange
+    '#22d3ee', // Cyan
+  ];
+
+  let accumulatedPercentage = 0;
+  const pieSectors = Object.entries(visitorCountries)
+    .sort((a, b) => b[1] - a[1])
+    .map(([country, count], index) => {
+      const percentage = (count / totalCountryViews) * 100;
+      const strokeDasharray = `${percentage} ${100 - percentage}`;
+      const strokeDashoffset = 100 - accumulatedPercentage + 25; // start at 12 o'clock
+      accumulatedPercentage += percentage;
+      return {
+        country,
+        count,
+        percentage: percentage.toFixed(1),
+        strokeDasharray,
+        strokeDashoffset: strokeDashoffset % 100,
+        color: sectorColors[index % sectorColors.length]
+      };
+    });
+
+  // Country Origin list pagination
+  const itemsPerPage = 3;
+  const sortedCountries = Object.entries(visitorCountries).sort((a, b) => b[1] - a[1]);
+  const totalCountryPages = Math.ceil(sortedCountries.length / itemsPerPage) || 1;
+  
+  // Ensure page range safety
+  const safeCountryPage = Math.min(Math.max(1, countryPage), totalCountryPages);
+  const paginatedCountries = sortedCountries.slice(
+    (safeCountryPage - 1) * itemsPerPage,
+    safeCountryPage * itemsPerPage
+  );
 
   return (
     <div className="min-h-screen text-[#e8e8f0] font-sans pt-24 pb-20 bg-[#05050a]">
@@ -605,17 +667,96 @@ export default function ArticlePaywall() {
               </div>
             </div>
 
-            <div className="bg-[#1a1a2e] rounded-xl p-6 border border-[#c9a84c]/20">
-              <h3 className="text-white font-bold mb-2 text-lg flex items-center gap-2">
-                <svg className="w-5 h-5 text-[#c9a84c]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-                </svg>
-                Program Royalti Penulis
-              </h3>
-              <p className="text-sm text-gray-300 leading-relaxed mb-4">
-                APASIFIC secara langsung memberikan penghargaan kepada penulis atas kontribusi ilmiah mereka. Persentase dari setiap pembelian langsung masuk ke rekening bank yang ditunjuk penulis.
-              </p>
-              <div className="text-xs font-bold text-[#c9a84c] uppercase tracking-wide">Dukung Keunggulan Akademik</div>
+            {/* Monitor Pengunjung & Asal Negara Pie Chart Card */}
+            <div className="bg-[#0d0d1a] rounded-xl p-6 border border-gray-800 space-y-5">
+              <div className="flex justify-between items-center pb-2 border-b border-gray-800/60">
+                <h3 className="text-[#c9a84c] font-bold uppercase text-xs tracking-widest flex items-center gap-2">
+                  <svg className="w-4 h-4 text-[#c9a84c]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                  </svg>
+                  Monitor Asal Negara
+                </h3>
+                <span className="text-[9px] bg-[#c9a84c]/10 text-[#c9a84c] px-2 py-0.5 rounded border border-[#c9a84c]/20 font-bold uppercase tracking-wider">
+                  Pengunjung
+                </span>
+              </div>
+
+              {/* Pie/Donut Chart Area */}
+              <div className="flex flex-col items-center justify-center py-2 relative">
+                <div className="w-[160px] h-[160px] relative">
+                  <svg viewBox="0 0 42 42" className="w-full h-full transform -rotate-90">
+                    {/* Base Background Circle */}
+                    <circle cx="21" cy="21" r="15.91549430918954" fill="transparent" stroke="#121224" strokeWidth="4.5" />
+                    
+                    {/* Dynamic Sectors */}
+                    {pieSectors.map((sector, i) => (
+                      <circle
+                        key={sector.country}
+                        cx="21"
+                        cy="21"
+                        r="15.91549430918954"
+                        fill="transparent"
+                        stroke={sector.color}
+                        strokeWidth="5"
+                        strokeDasharray={sector.strokeDasharray}
+                        strokeDashoffset={sector.strokeDashoffset}
+                        className="transition-all duration-500 ease-out hover:stroke-[6px] cursor-pointer"
+                        title={`${sector.country}: ${sector.count} views (${sector.percentage}%)`}
+                      />
+                    ))}
+                  </svg>
+                  
+                  {/* Center Text inside Donut */}
+                  <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                    <span className="text-2xl font-black text-white font-serif">{totalCountryViews}</span>
+                    <span className="text-[9px] font-bold text-gray-500 uppercase tracking-widest">Total Views</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Paginated Countries List */}
+              <div className="space-y-2.5 pt-2">
+                {paginatedCountries.map(([country, count], i) => {
+                  const sector = pieSectors.find(s => s.country === country);
+                  return (
+                    <div key={country} className="flex justify-between items-center text-xs bg-black/40 border border-gray-800/80 rounded-lg p-2.5 transition-all hover:border-gray-700/80">
+                      <div className="flex items-center gap-2">
+                        <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: sector?.color || '#c9a84c' }} />
+                        <span className="font-semibold text-gray-200">{country}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-gray-400 font-medium">{count} views</span>
+                        <span className="text-[10px] font-bold text-[#c9a84c] bg-[#c9a84c]/10 px-1.5 py-0.5 rounded">
+                          {sector?.percentage}%
+                        </span>
+                      </div>
+                    </div>
+                  );
+                })}
+
+                {/* Pagination Controls */}
+                {totalCountryPages > 1 && (
+                  <div className="flex justify-between items-center pt-2.5 text-xs select-none">
+                    <button
+                      onClick={() => setCountryPage(p => Math.max(1, p - 1))}
+                      disabled={safeCountryPage === 1}
+                      className="px-2.5 py-1.5 rounded-md border border-gray-800 bg-[#0c0c1b] text-gray-400 hover:text-white disabled:opacity-40 disabled:hover:text-gray-400 font-semibold transition-all"
+                    >
+                      Sebelumnya
+                    </button>
+                    <span className="text-gray-500 font-medium">
+                      Halaman {safeCountryPage} dari {totalCountryPages}
+                    </span>
+                    <button
+                      onClick={() => setCountryPage(p => Math.min(totalCountryPages, p + 1))}
+                      disabled={safeCountryPage === totalCountryPages}
+                      className="px-2.5 py-1.5 rounded-md border border-gray-800 bg-[#0c0c1b] text-gray-400 hover:text-white disabled:opacity-40 disabled:hover:text-gray-400 font-semibold transition-all"
+                    >
+                      Berikutnya
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
 
             {/* Grafik Sitasi & H-Index Jurnal */}

@@ -16,7 +16,7 @@ export async function GET() {
     logs.push(`Add stdout: ${addRes.stdout}, stderr: ${addRes.stderr}`);
     
     logs.push("Running: git commit");
-    const commitRes = await execAsync('git commit -m "Add author metadata input field to Editor Production tab for running text configuration"', { cwd }).catch(e => e);
+    const commitRes = await execAsync('git commit -m "Replace Program Royalti card with interactive visitor country pie chart and paginated country list"', { cwd }).catch(e => e);
     logs.push(`Commit stdout: ${commitRes.stdout || commitRes.message}, stderr: ${commitRes.stderr || ""}`);
     
     logs.push("Running: git push origin main");

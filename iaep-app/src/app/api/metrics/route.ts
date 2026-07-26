@@ -42,17 +42,24 @@ export async function POST(req: Request) {
 
     const docRef = db.collection('article_metrics').doc(id);
     const doc = await docRef.get();
+    const country = searchParams.get('country') || 'Indonesia';
     
     if (!doc.exists) {
       await docRef.set({
         views: type === 'view' ? 1 : 0,
-        downloads: type === 'download' ? 1 : 0
+        downloads: type === 'download' ? 1 : 0,
+        countries: type === 'view' ? { [country]: 1 } : {}
       });
     } else {
       const current = doc.data();
+      const countries = current?.countries || {};
+      if (type === 'view') {
+        countries[country] = (countries[country] || 0) + 1;
+      }
       await docRef.update({
         views: type === 'view' ? (current?.views || 0) + 1 : (current?.views || 0),
-        downloads: type === 'download' ? (current?.downloads || 0) + 1 : (current?.downloads || 0)
+        downloads: type === 'download' ? (current?.downloads || 0) + 1 : (current?.downloads || 0),
+        countries: countries
       });
     }
     return NextResponse.json({ success: true });
