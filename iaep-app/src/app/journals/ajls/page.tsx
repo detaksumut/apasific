@@ -23,9 +23,13 @@ export default async function AJLSJournal() {
         status,
         created_at,
         doi,
+        volume,
+        issue,
+        cover_file_url,
+        journal_id,
         journals(name)
       `)
-      .eq("status", "Accepted")
+      .eq("status", "Published")
       .order("created_at", { ascending: false });
 
     if (!error && data) {

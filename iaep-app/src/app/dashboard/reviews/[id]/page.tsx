@@ -433,7 +433,7 @@ export default function ReviewEvaluation({ params }: { params: any }) {
                           try {
                             const fd = new FormData();
                             fd.append('assignmentId', assignmentId);
-                            fd.append('submissionId', submission.id || submission.submission_id || '');
+                            fd.append('submissionId', submission.submission_id || '');
                             fd.append('file', finalFile);
                             fd.append('notes', finalNotes);
                             const res = await submitFinalAnnotatedFile(fd);
@@ -622,7 +622,7 @@ export default function ReviewEvaluation({ params }: { params: any }) {
                     setIsSubmitting(true);
                     const formData = new FormData();
                     formData.append('assignmentId', assignmentId);
-                    formData.append('submissionId', submission.id);
+                    formData.append('submissionId', submission.submission_id || '');
                     formData.append('recommendation', recommendation);
                     formData.append('commentsForEditor', commentsForEditor);
                     formData.append('commentsForAuthor', commentsForAuthor);

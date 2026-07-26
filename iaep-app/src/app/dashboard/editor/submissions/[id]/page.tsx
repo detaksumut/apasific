@@ -6,6 +6,7 @@ import { useParams } from "next/navigation";
 import { publishArticleToZenodo, ZenodoMetadata } from "@/utils/zenodo";
 import { getSubmissionDetailsEditor, updateIssn, updateDoi, removeCoverFile, sendRevisionForwardWaFonnte } from "@/app/actions/editor";
 import { createClient } from "@/utils/supabase/client";
+import { renderCoverTitle } from "@/utils/coverHelper";
 
 export default function SubmissionControlPanel() {
   const params = useParams();
@@ -1023,6 +1024,30 @@ export default function SubmissionControlPanel() {
                         <h4 className="font-bold text-gray-800 text-xs tracking-wider uppercase">BAHAN NASKAH (DARI EDITOR)</h4>
                       </div>
                       <div className="p-6 space-y-6">
+
+                        {/* File Naskah Utama (Bahan Layout) */}
+                        <div className="bg-orange-50/40 border border-orange-100/80 rounded-xl p-4 flex items-center justify-between shadow-sm">
+                          <div className="flex items-center gap-3">
+                            <div className="bg-orange-100 p-2.5 rounded-lg text-orange-600">
+                              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                            </div>
+                            <div>
+                              <h5 className="text-xs font-bold text-gray-900 uppercase tracking-wide">File Naskah Utama (Bahan Layout)</h5>
+                              <p className="text-[10px] text-gray-500 mt-0.5">
+                                {submission?.revised_file_url ? 'Unduh file revisi terbaru dari penulis untuk ditata letak.' : 'Gunakan file naskah awal (penulis belum mengunggah revisi).'}
+                              </p>
+                            </div>
+                          </div>
+                          <a
+                            href={submission?.revised_file_url || submission?.file_url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-xs bg-orange-600 text-white px-4 py-2 rounded-lg hover:bg-orange-700 font-bold transition-all shadow-sm flex items-center gap-1.5"
+                          >
+                            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+                            Download Naskah
+                          </a>
+                        </div>
                         
                         {/* Reviewer Notes Section */}
                         <div>
@@ -1309,7 +1334,7 @@ export default function SubmissionControlPanel() {
                                          <div 
                                            className="absolute font-serif drop-shadow-md overflow-hidden"
                                            style={{
-                                             top: '31%',
+                                             top: '29%',
                                              left: '6%',
                                              width: '46%',
                                              maxHeight: '57%',
@@ -1323,29 +1348,7 @@ export default function SubmissionControlPanel() {
                                                {submission.journals?.name ? submission.journals.name.split('-')[0].trim() : ''}
                                              </span>
                                            </div>
-                                           {submission.title && submission.title.includes(":") ? (
-                                             <>
-                                               <div 
-                                                 className="font-bold leading-tight mb-1" 
-                                                 style={{ color: '#c9a84c', fontSize: 'clamp(10px, 1.0vw, 15px)' }}
-                                               >
-                                                 {submission.title.split(":")[0].trim()}:
-                                               </div>
-                                               <div 
-                                                 className="font-normal text-gray-200" 
-                                                 style={{ fontSize: 'clamp(7.5px, 0.72vw, 11px)', lineHeight: '1.3' }}
-                                               >
-                                                 {submission.title.split(":").slice(1).join(":").trim()}
-                                               </div>
-                                             </>
-                                           ) : (
-                                             <div 
-                                               className="font-bold leading-snug" 
-                                               style={{ color: '#c9a84c', fontSize: 'clamp(10px, 1.0vw, 15px)' }}
-                                             >
-                                               {submission.title || 'Judul tidak tersedia'}
-                                             </div>
-                                           )}
+                                           {renderCoverTitle(submission.title, 1.0)}
                                          </div>
                                       </div>
                                     </div>
@@ -1423,7 +1426,7 @@ export default function SubmissionControlPanel() {
                             <div 
                               className="absolute font-serif drop-shadow-md overflow-hidden"
                               style={{
-                                top: '34.5%',
+                                top: '32.5%',
                                 left: '6%',
                                 width: '46%',
                                 maxHeight: '59.5%',
@@ -1437,29 +1440,7 @@ export default function SubmissionControlPanel() {
                                   {submission.journals?.name ? submission.journals.name.split('-')[0].trim() : ''}
                                 </span>
                               </div>
-                              {submission.title && submission.title.includes(":") ? (
-                                <>
-                                  <div 
-                                    className="font-bold leading-tight mb-1" 
-                                    style={{ color: '#c9a84c', fontSize: 'clamp(10px, 1.0vw, 15px)' }}
-                                  >
-                                    {submission.title.split(":")[0].trim()}:
-                                  </div>
-                                  <div 
-                                    className="font-normal text-gray-200" 
-                                    style={{ fontSize: 'clamp(7.5px, 0.72vw, 11px)', lineHeight: '1.3' }}
-                                  >
-                                    {submission.title.split(":").slice(1).join(":").trim()}
-                                  </div>
-                                </>
-                              ) : (
-                                <div 
-                                  className="font-bold leading-snug" 
-                                  style={{ color: '#c9a84c', fontSize: 'clamp(10px, 1.0vw, 15px)' }}
-                                >
-                                  {submission.title || 'Judul tidak tersedia'}
-                                </div>
-                              )}
+                              {renderCoverTitle(submission.title, 1.0)}
                             </div>
 
                             {/* DOI Overlay */}
@@ -1648,7 +1629,7 @@ export default function SubmissionControlPanel() {
                           <div 
                             className="absolute font-serif drop-shadow-md overflow-hidden"
                             style={{
-                              top: '34.5%',
+                              top: '32.5%',
                               left: '6%',
                               width: '46%',
                               maxHeight: '59.5%',
@@ -1662,29 +1643,7 @@ export default function SubmissionControlPanel() {
                                 {submission.journals?.name ? submission.journals.name.split('-')[0].trim() : ''}
                               </span>
                             </div>
-                            {submission.title && submission.title.includes(":") ? (
-                              <>
-                                <div 
-                                  className="font-bold leading-tight mb-1" 
-                                  style={{ color: '#c9a84c', fontSize: 'clamp(10px, 1.0vw, 15px)' }}
-                                >
-                                  {submission.title.split(":")[0].trim()}:
-                                </div>
-                                <div 
-                                  className="font-normal text-gray-200" 
-                                  style={{ fontSize: 'clamp(7.5px, 0.72vw, 11px)', lineHeight: '1.3' }}
-                                >
-                                  {submission.title.split(":").slice(1).join(":").trim()}
-                                </div>
-                              </>
-                            ) : (
-                              <div 
-                                className="font-bold leading-snug" 
-                                style={{ color: '#c9a84c', fontSize: 'clamp(10px, 1.0vw, 15px)' }}
-                              >
-                                {submission.title || 'Judul tidak tersedia'}
-                              </div>
-                            )}
+                            {renderCoverTitle(submission.title, 1.0)}
                           </div>
 
                           {/* DOI Overlay */}

@@ -1,3 +1,4 @@
+// Trigger server restart comment to clear cache
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
@@ -6,6 +7,7 @@ const nextConfig: NextConfig = {
       bodySizeLimit: '50mb',
     },
   },
+  turbopack: {},
   async redirects() {
     return [
       {
@@ -14,6 +16,20 @@ const nextConfig: NextConfig = {
         permanent: true,
       },
     ];
+  },
+  webpack: (config, { isServer }) => {
+    if (!isServer) {
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        fs: false,
+        net: false,
+        tls: false,
+        child_process: false,
+        readline: false,
+        crypto: false,
+      };
+    }
+    return config;
   },
 };
 

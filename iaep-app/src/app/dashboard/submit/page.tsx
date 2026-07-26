@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useEffect } from 'react';
-import { submitManuscript } from '@/app/actions/submission';
+import { submitManuscript } from '@/app/actions/submitManuscript';
 import { createClient } from '@/utils/supabase/client';
 import { PlagiarismChecker } from '@/components/PlagiarismChecker';
 import { FileText, Upload, Send, Languages, Plus, Trash2, ChevronUp, ChevronDown } from 'lucide-react';

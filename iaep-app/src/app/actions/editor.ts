@@ -1,7 +1,13 @@
 "use server";
 
-import { createClient } from '@/utils/supabase/server';
 import { revalidatePath } from 'next/cache';
+
+async function createClient() {
+    const { createClient: getClient } = await import('@/utils/supabase/server');
+    return getClient();
+}
+
+
 
 export async function getReviewsForSubmission(submissionId: string) {
     try {
@@ -1054,6 +1060,8 @@ export async function getPublishedArticleDetails(articleId: string) {
             subData.volume = "Vol. 1";
             subData.issue = "No. 1";
         }
+        
+
 
         return { success: true, article: subData };
     } catch (e: any) {

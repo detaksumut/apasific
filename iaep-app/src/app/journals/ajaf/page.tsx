@@ -17,14 +17,19 @@ export default async function AJAFJournal() {
     // Cari journal_id AJAF dulu
     const { data: ajafJournals } = await supabaseAdmin
       .from('journals')
-      .select('id, name')
-      .ilike('name', '%AJAF%');
-    const ajafIds = (ajafJournals || []).map((j: any) => j.id);
-
-    // Query: status Published OR Accepted, filter by journal AJAF
-    let query = supabaseAdmin
-      .from("submissions")
-      .select(`id, title, abstract, status, created_at, doi, volume, issue, cover_file_url, journal_id, journals(name)`)
+      .select(`
+        id,
+        title,
+        abstract,
+        status,
+        created_at,
+        doi,
+        volume,
+        issue,
+        cover_file_url,
+        journal_id,
+        journals(name)
+      `)
       .in("status", ["Published", "Accepted", "Production Completed"])
       .order("created_at", { ascending: false });
 
@@ -40,7 +45,19 @@ export default async function AJAFJournal() {
       // Fallback: cari tanpa filter journal_id, filter by nama
       const { data: allData } = await supabaseAdmin
         .from("submissions")
-        .select(`id, title, abstract, status, created_at, doi, volume, issue, cover_file_url, journal_id, journals(name)`)
+        .select(`
+        id,
+        title,
+        abstract,
+        status,
+        created_at,
+        doi,
+        volume,
+        issue,
+        cover_file_url,
+        journal_id,
+        journals(name)
+      `)
         .in("status", ["Published", "Accepted", "Production Completed"])
         .order("created_at", { ascending: false });
       if (allData) {

@@ -1,10 +1,10 @@
 "use server";
 
-import { createClient } from '@/utils/supabase/server';
 import { revalidatePath } from 'next/cache';
 
 export async function deleteSubmissionById(submissionId: string) {
     try {
+        const { createClient } = await import('@/utils/supabase/server');
         const supabase = await createClient();
         const { data: { user } } = await supabase.auth.getUser();
 

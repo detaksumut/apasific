@@ -1,19 +1,18 @@
 "use server";
-import { cookies } from "next/headers";
-import { createClient } from "@/utils/supabase/server";
-import { getFirebaseAdmin } from "@/utils/firebase/server";
-import { getFirestore } from "@/utils/firebase/db";
 
 export async function getCurrentUserRole() {
+  const { createClient } = await import("@/utils/supabase/server");
   const supabase = await createClient();
   let { data: { user } } = await supabase.auth.getUser();
   let userId = user?.id;
   
   if (!user) {
+    const { cookies } = await import("next/headers");
     const cookieStore = await cookies();
     const fbToken = cookieStore.get('firebase_session')?.value;
     if (fbToken) {
         try {
+            const { getFirebaseAdmin } = await import("@/utils/firebase/server");
             const admin = getFirebaseAdmin();
             if (!admin) throw new Error('Firebase admin not available');
             const payloadBase64 = fbToken.split('.')[1];
@@ -37,6 +36,7 @@ export async function getCurrentUserRole() {
 }
 
 export async function updateProfile(userId: string, profileData: any) {
+  const { createClient } = await import("@/utils/supabase/server");
   const supabase = await createClient();
   
   // 1. Update di database ASIA (Supabase utama)

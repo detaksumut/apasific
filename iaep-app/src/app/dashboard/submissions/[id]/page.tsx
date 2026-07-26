@@ -5,6 +5,7 @@ import { notFound, redirect } from 'next/navigation';
 import { ArrowLeft, FileText, CheckCircle2, AlertCircle, FileDown, UploadCloud, Clock, Check } from 'lucide-react';
 import { getCurrentUser } from '@/app/actions/auth';
 import AuthorRevisedUpload from '@/components/dashboard/AuthorRevisedUpload';
+import { renderCoverTitle } from '@/utils/coverHelper';
 
 export default async function AuthorSubmissionDetail({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -116,29 +117,7 @@ export default async function AuthorSubmissionDetail({ params }: { params: Promi
                       {submission.journals?.name ? submission.journals.name.split('-')[0].trim() : ''}
                     </span>
                   </div>
-                  {submission.title && submission.title.includes(":") ? (
-                    <>
-                      <div 
-                        className="font-bold leading-tight mb-0.5 text-[#c9a84c]" 
-                        style={{ fontSize: 'clamp(8.5px, 0.85vw, 12px)' }}
-                      >
-                        {submission.title.split(":")[0].trim()}:
-                      </div>
-                      <div 
-                        className="font-normal text-gray-200" 
-                        style={{ fontSize: 'clamp(6.5px, 0.65vw, 9.5px)', lineHeight: '1.25' }}
-                      >
-                        {submission.title.split(":").slice(1).join(":").trim()}
-                      </div>
-                    </>
-                  ) : (
-                    <div 
-                      className="font-bold leading-snug text-[#c9a84c]" 
-                      style={{ fontSize: 'clamp(8.5px, 0.85vw, 12px)' }}
-                    >
-                      {submission.title}
-                    </div>
-                  )}
+                  {renderCoverTitle(submission.title, 0.85)}
                 </div>
                 {submission.doi && (
                   <a 
