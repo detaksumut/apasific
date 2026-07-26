@@ -354,10 +354,26 @@ export default function ArticlePaywall() {
           <div className="flex flex-col text-lg text-gray-400 mt-2 gap-3">
             {displayAuthors && (
               <>
-                <div className="w-full overflow-hidden bg-[#161630] py-4 px-6 rounded-xl border border-[#c9a84c]/20 shadow-lg">
-                  <marquee className="text-2xl font-extrabold text-[#fcd34d] tracking-wide" scrollamount="4">
-                    {displayAuthors}
-                  </marquee>
+                <div className="w-full overflow-hidden bg-[#161630] py-4 px-6 rounded-xl border border-[#c9a84c]/20 shadow-lg relative flex items-center">
+                  <style>{`
+                    @keyframes marquee {
+                      0% { transform: translateX(100%); }
+                      100% { transform: translateX(-100%); }
+                    }
+                    .animate-custom-marquee {
+                      display: inline-block;
+                      animation: marquee 25s linear infinite;
+                      padding-left: 20px;
+                    }
+                    .animate-custom-marquee:hover {
+                      animation-play-state: paused;
+                    }
+                  `}</style>
+                  <div className="w-full overflow-hidden whitespace-nowrap">
+                    <span className="animate-custom-marquee text-2xl font-extrabold text-[#fcd34d] tracking-wide">
+                      {displayAuthors}
+                    </span>
+                  </div>
                 </div>
                 <div className="flex flex-row flex-wrap items-center gap-4 mt-1 mb-1">
                   <span className="text-sm font-semibold text-gray-400 mr-1">ID Akademik:</span>

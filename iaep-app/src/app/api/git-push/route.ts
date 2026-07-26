@@ -11,16 +11,12 @@ export async function GET() {
     const cwd = process.cwd();
     const logs: string[] = [];
     
-    logs.push("Running: git status before");
-    const statusBefore = await execAsync("git status", { cwd }).catch(e => e);
-    logs.push(`Status before: ${statusBefore.stdout || statusBefore.message}`);
-
-    logs.push("Running: git add -A");
-    const addRes = await execAsync("git add -A", { cwd });
+    logs.push("Running: git add .");
+    const addRes = await execAsync("git add .", { cwd });
     logs.push(`Add stdout: ${addRes.stdout}, stderr: ${addRes.stderr}`);
     
     logs.push("Running: git commit");
-    const commitRes = await execAsync('git commit -m "Fix TypeScript module compilation error for debug-check-article route"', { cwd }).catch(e => e);
+    const commitRes = await execAsync('git commit -m "Replace deprecated marquee HTML tag with standard CSS keyframes animation to fix TypeScript JSX error"', { cwd }).catch(e => e);
     logs.push(`Commit stdout: ${commitRes.stdout || commitRes.message}, stderr: ${commitRes.stderr || ""}`);
     
     logs.push("Running: git push origin main");
