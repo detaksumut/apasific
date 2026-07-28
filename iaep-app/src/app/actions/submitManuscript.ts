@@ -149,21 +149,19 @@ export async function submitManuscript(formData: FormData) {
 
       if (uploadError) throw uploadError;
 
-      if (savedToSupabase) {
-          const { error: fileError } = await supabaseAdmin
-            .from('submission_files')
-            .insert({
-              submission_id: finalSubmissionId,
-              uploader_id: userId,
-              file_stage: 'submission',
-              file_name: `${prefix}_${f.name}`,
-              file_type: f.type,
-              file_size: f.size,
-              storage_path: filePath
-            });
+      const { error: fileError } = await supabaseAdmin
+        .from('submission_files')
+        .insert({
+          submission_id: finalSubmissionId,
+          uploader_id: userId,
+          file_stage: 'submission',
+          file_name: `${prefix}_${f.name}`,
+          file_type: f.type,
+          file_size: f.size,
+          storage_path: filePath
+        });
 
-          if (fileError) console.warn("Supabase submission_files insert failed:", fileError.message);
-      }
+      if (fileError) console.warn("Supabase submission_files insert failed:", fileError.message);
 
       // Save the raw storage path to appropriate db column so signed URLs can be generated later
       try {
