@@ -72,7 +72,7 @@ export async function GET() {
       const certQuery = await db.collection("certificates").where("reference_id", "==", submissionId).get();
       if (!certQuery.empty) {
         const batch = db.batch();
-        certQuery.docs.forEach((doc) => batch.delete(doc.ref));
+        certQuery.docs.forEach((doc: any) => batch.delete(doc.ref));
         await batch.commit();
         results.push(`Firestore: Deleted ${certQuery.size} certificate(s).`);
       } else {

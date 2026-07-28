@@ -101,7 +101,7 @@ export async function GET() {
                             .where('reviewer_id', '==', assign.reviewer_id)
                             .get();
                         
-                        snap.forEach(async (doc) => {
+                        snap.forEach(async (doc: any) => {
                             await db.collection('review_assignments').doc(doc.id).update({
                                 reviewer_id: trueReviewerId,
                                 reviewer_email: trueReviewerEmail

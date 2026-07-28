@@ -65,7 +65,7 @@ export async function GET() {
     const db = admin.default.firestore();
     const snap = await db.collection('review_assignments').get();
     let count = 0;
-    snap.forEach((doc) => {
+    snap.forEach((doc: any) => {
       const d = doc.data();
       const rec = d.recommendation || d.decision;
       if (rec && typeof rec === 'string' && rec.toLowerCase().includes('revis')) {
