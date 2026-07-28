@@ -38,7 +38,7 @@ export default async function AdminPdfList() {
                     pdfs.push({
                         submission_id: sub.id,
                         title: sub.title,
-                        author: sub.profiles?.full_name || 'Unknown',
+                        author: Array.isArray(sub.profiles) ? (sub.profiles[0] as any)?.full_name || 'Unknown' : (sub.profiles as any)?.full_name || 'Unknown',
                         file_name: f.name,
                         url: data?.signedUrl
                     });
