@@ -39,7 +39,7 @@ export async function GET() {
         }
 
         const report = submissions?.map(s => {
-            let email = Array.isArray(s.profiles) ? s.profiles[0]?.email : s.profiles?.email;
+            let email = Array.isArray(s.profiles) ? (s.profiles[0] as any)?.email : (s.profiles as any)?.email;
             if (!email) {
                  const match = authUsers.find(u => u.id === s.author_id);
                  if (match) email = match.email;
