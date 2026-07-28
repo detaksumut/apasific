@@ -54,7 +54,7 @@ export async function GET() {
                 }
             } else {
                 // Check using resolveFile just in case it's in a hex folder
-                const res = await resolveFile('manuscripts', s.id);
+                const res = await resolveFile({ bucket: 'manuscripts', entityId: s.id, entityType: 'submission' });
                 if (res) {
                     hasFile = true;
                     fileMessage = "Ada (ditemukan via resolver)";
