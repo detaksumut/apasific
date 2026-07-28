@@ -83,26 +83,17 @@ export async function handleReviewerDecision(assignmentId: string, submissionId:
             phoneNum = Array.isArray(authorProfile) ? authorProfile[0]?.phone : authorProfile?.phone;
         } catch (e) {}
 
-        // 2. Try Firestore fallback to get phone number directly from submission
+        // 2. Try Supabase fallback via author_id on submissions
         if (!phoneNum) {
             try {
-                const { getFirestore } = await import('@/utils/firebase/db');
-                const db = getFirestore();
-                const subDoc = await db.collection('submissions').doc(submissionId).get();
-                if (subDoc.exists) {
-                    phoneNum = subDoc.data()?.phone;
-                    if (!phoneNum) {
-                        // try to get from user profile in firestore
-                        const authorId = subDoc.data()?.author_id;
-                        if (authorId) {
-                            const userDoc = await db.collection('users').doc(authorId).get();
-                            if (userDoc.exists) phoneNum = userDoc.data()?.phone_number || userDoc.data()?.phone;
-                        }
-                    }
-                }
-            } catch (fbErr) {
-                console.error("Firestore phone lookup failed", fbErr);
-            }
+                const { data: subFull } = await supabaseAdmin
+                    .from('submissions')
+                    .select('phone, author_id, profiles:author_id(phone)')
+                    .eq('id', submissionId)
+                    .single();
+                phoneNum = (subFull as any)?.phone ||
+                    (Array.isArray((subFull as any)?.profiles) ? (subFull as any).profiles[0]?.phone : (subFull as any)?.profiles?.phone);
+            } catch (e) {}
         }
         
         const { sendWa } = await import('@/utils/sendWa');
