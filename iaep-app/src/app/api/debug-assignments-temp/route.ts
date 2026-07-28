@@ -14,7 +14,7 @@ export async function GET() {
     .select('*')
     .eq('submission_id', '7375625f-3137-3834-3436-393333383834');
     
-  let firestoreData = [];
+  let firestoreData: any[] = [];
   try {
     const { getFirestore } = await import('@/utils/firebase/db');
     const db = getFirestore();
