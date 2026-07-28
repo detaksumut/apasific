@@ -40,30 +40,39 @@ export async function POST(req: Request) {
       return NextResponse.json({ success: true, note: "Mocked success due to missing Firebase config" });
     }
 
+    const timeout = (ms: number) => new Promise<never>((_, reject) => setTimeout(() => reject(new Error('Firebase timeout')), ms));
+    
     const docRef = db.collection('article_metrics').doc(id);
-    const doc = await docRef.get();
     const country = searchParams.get('country') || 'Indonesia';
     
-    if (!doc.exists) {
-      await docRef.set({
-        views: type === 'view' ? 1 : 0,
-        downloads: type === 'download' ? 1 : 0,
-        countries: type === 'view' ? { [country]: 1 } : {}
-      });
-    } else {
-      const current = doc.data();
-      const countries = current?.countries || {};
-      if (type === 'view') {
-        countries[country] = (countries[country] || 0) + 1;
+    const executeDb = async () => {
+      const doc = await docRef.get();
+      if (!doc.exists) {
+        await docRef.set({
+          views: type === 'view' ? 1 : 0,
+          downloads: type === 'download' ? 1 : 0,
+          countries: type === 'view' ? { [country]: 1 } : {}
+        });
+      } else {
+        const current = doc.data();
+        const countries = current?.countries || {};
+        if (type === 'view') {
+          countries[country] = (countries[country] || 0) + 1;
+        }
+        await docRef.update({
+          views: type === 'view' ? (current?.views || 0) + 1 : (current?.views || 0),
+          downloads: type === 'download' ? (current?.downloads || 0) + 1 : (current?.downloads || 0),
+          countries: countries
+        });
       }
-      await docRef.update({
-        views: type === 'view' ? (current?.views || 0) + 1 : (current?.views || 0),
-        downloads: type === 'download' ? (current?.downloads || 0) + 1 : (current?.downloads || 0),
-        countries: countries
-      });
-    }
+    };
+
+    await Promise.race([executeDb(), timeout(2000)]);
+    
     return NextResponse.json({ success: true });
   } catch (e: any) {
-    return NextResponse.json({ error: e.message }, { status: 500 });
+    console.warn("Metrics POST error (ignored):", e.message);
+    // Return 200 anyway so the frontend doesn't complain about metrics failing
+    return NextResponse.json({ success: true, warning: e.message });
   }
 }

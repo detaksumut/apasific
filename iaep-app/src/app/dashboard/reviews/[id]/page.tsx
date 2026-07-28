@@ -328,36 +328,36 @@ export default function ReviewEvaluation({ params }: { params: any }) {
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                       <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" /><polyline points="14 2 14 8 20 8" />
                     </svg>
-                    {submission.file_url ? (submission.file_url.includes('.docx') ? 'Manuscript.docx' : 'Manuscript.pdf') : 'No File Attached'}
+                    {submission?.file_metadata?.status === 'AVAILABLE' ? (submission?.file_metadata?.filename || 'Manuscript') : 'No File Attached'}
                   </div>
-                  {submission.file_url && (
+                  {submission?.file_metadata?.status === 'AVAILABLE' && (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      {submission.file_metadata.legacyFallbackUsed && (
+                        <span style={{ fontSize: '10px', background: 'rgba(245,158,11,0.2)', color: '#fcd34d', padding: '4px 8px', borderRadius: '12px', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '4px' }} title="Diselesaikan melalui pencarian Legacy">
+                          <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                          Legacy Storage
+                        </span>
+                      )}
                       <a href={submission.file_url} target="_blank" rel="noreferrer" className="rev-download-btn" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: '#c9a84c', color: '#080810', fontWeight: 'bold', padding: '6px 14px', borderRadius: '4px', textDecoration: 'none' }}>
                         <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3" />
                         </svg>
-                        Unduh / Buka Naskah Asli
+                        Unduh Naskah
                       </a>
-                  )}
-                  {submission.revised_file_url && (
-                      <a href={submission.revised_file_url} target="_blank" rel="noreferrer" className="rev-download-btn" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: '#34d399', color: '#080810', fontWeight: 'bold', padding: '6px 14px', borderRadius: '4px', textDecoration: 'none', marginLeft: '10px' }}>
-                        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                           <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3" />
-                        </svg>
-                        Unduh Naskah REVISI Terbaru
-                      </a>
+                    </div>
                   )}
                 </div>
                 <div className="rev-pdf-body">
-                  {submission.file_url || submission.revised_file_url ? (
+                  {submission?.file_metadata?.status === 'AVAILABLE' ? (
                     <div style={{ display: 'flex', flexDirection: 'column', height: '100%', minHeight: '600px' }}>
                       <div style={{ background: 'rgba(201,168,76,0.1)', borderBottom: '1px solid rgba(201,168,76,0.2)', padding: '8px 15px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '12px', color: '#c9a84c' }}>
-                        <span>📄 File Naskah Tersedia ({(submission.revised_file_url || submission.file_url).includes('.docx') ? 'Dokumen Word .docx' : 'Dokumen PDF'}) {submission.revised_file_url && <strong style={{color: '#34d399'}}> - MENAMPILKAN VERSI REVISI TERBARU</strong>}</span>
-                        <a href={submission.revised_file_url || submission.file_url} target="_blank" rel="noreferrer" style={{ color: '#ffffff', textDecoration: 'underline', fontWeight: 'bold' }}>
+                        <span>📄 File Naskah Tersedia ({(submission.file_url).includes('.docx') ? 'Dokumen Word .docx' : 'Dokumen PDF'})</span>
+                        <a href={submission.file_url} target="_blank" rel="noreferrer" style={{ color: '#ffffff', textDecoration: 'underline', fontWeight: 'bold' }}>
                           Klik disini jika iFrame tidak terbuka ➔
                         </a>
                       </div>
                       <iframe 
-                          src={(submission.revised_file_url || submission.file_url).toLowerCase().includes('.pdf') ? (submission.revised_file_url || submission.file_url) : `https://docs.google.com/gview?url=${encodeURIComponent(submission.revised_file_url || submission.file_url)}&embedded=true`} 
+                          src={(submission.file_url).toLowerCase().includes('.pdf') ? (submission.file_url) : `https://docs.google.com/gview?url=${encodeURIComponent(submission.file_url)}&embedded=true`} 
                           style={{ width: '100%', flex: 1, minHeight: '560px', border: 'none' }} 
                           title="Manuscript Document"
                       />
@@ -365,8 +365,14 @@ export default function ReviewEvaluation({ params }: { params: any }) {
                   ) : (
                     <div className="rev-pdf-mock">
                       <div className="rev-pdf-icon">📄</div>
-                      <div className="rev-pdf-mock-title">Anonymous Manuscript</div>
-                      <div className="rev-pdf-mock-sub" style={{ marginBottom: '15px' }}>Blind review document · No file provided</div>
+                      <div className="rev-pdf-mock-title">
+                        {submission?.file_metadata?.status === 'METADATA_MISSING' ? 'Metadata Kosong' : 
+                         submission?.file_metadata?.status === 'FILE_MISSING' ? 'File Hilang di Storage' : 
+                         submission?.file_metadata?.status === 'URL_GENERATION_FAILED' ? 'Gagal Membuat Link' : 'No File Attached'}
+                      </div>
+                      <div className="rev-pdf-mock-sub" style={{ marginBottom: '15px' }}>
+                        {submission?.file_metadata?.error ? submission.file_metadata.error.message : 'Blind review document · No file provided'}
+                      </div>
                       <button 
                         onClick={handleAutoRepair} 
                         disabled={repairing} 

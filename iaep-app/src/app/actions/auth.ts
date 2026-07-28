@@ -268,8 +268,8 @@ export async function loginUser(email: string, password?: string): Promise<{ suc
                 }
             }
 
-            // Generate a secure session token
-            const token = await admin.auth().createCustomToken(firebaseUser.uid);
+            // Generate a secure session token WITH email claim so IdentityResolver can find them
+            const token = await admin.auth().createCustomToken(firebaseUser.uid, { email: emailLower });
             
             // Set cookie for Next.js middleware/pages
             const { cookies } = await import('next/headers');
@@ -369,35 +369,20 @@ export async function getCurrentUser() {
   if (user) {
     const { cookies } = await import('next/headers');
     const cookieStore = await cookies();
-    // Attach json_id if available
+    // Attach json_id if available (for backwards compatibility if resolver needs it)
     const jsonId = cookieStore.get('reviewer_json_id')?.value;
     if (jsonId) {
         (user as any).json_id = jsonId;
     }
 
-    // Enrich user email from Supabase system_settings if missing or fallback
-    if (user && (!user.email || user.email.includes('fallback@'))) {
-       try {
-          const { createClient: createSupabaseClient } = await import('@supabase/supabase-js');
-          const supabaseAdmin = createSupabaseClient(
-             process.env.NEXT_PUBLIC_SUPABASE_URL || "https://aroasmlrlpjbjokvxlgo.supabase.co",
-             process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ""
-          );
-          const { data: settings } = await supabaseAdmin.from('system_settings').select('value').in('key', ['apasific_registered_users', 'registered_users']);
-          if (settings) {
-             for (const s of settings) {
-                try {
-                   const users = Array.isArray(s.value) ? s.value : JSON.parse(s.value);
-                   const matched = users.find((u: any) => u.id === user.id || u.id === (user as any).json_id || u.email === 'kadsumut@gmail.com');
-                   if (matched && matched.email) {
-                      user.email = matched.email;
-                      if (matched.full_name) (user as any).full_name = matched.full_name;
-                      break;
-                   }
-                } catch(e) {}
-             }
-          }
-       } catch(e) {}
+    try {
+        const { IdentityResolver } = await import('@/services/identity/IdentityResolver');
+        const identityContext = await IdentityResolver.resolve(user);
+        return identityContext;
+    } catch (error) {
+        console.error("Identity resolution failed in getCurrentUser:", error);
+        // Throw or return null depending on strictness. Returning null prevents crash but acts as logged out.
+        return null;
     }
   }
   return user;

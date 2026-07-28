@@ -20,7 +20,8 @@ export async function getReviewsForSubmission(submissionId: string) {
 
         let finalReviews = reviews || [];
 
-        // Fallback to Firestore
+        // Fallback to Firestore (DISABLED to prevent Quota Exceeded errors)
+        /*
         try {
             const { getFirestore } = await import('@/utils/firebase/db');
             const db = getFirestore();
@@ -31,7 +32,22 @@ export async function getReviewsForSubmission(submissionId: string) {
 
             for (const doc of fbReviews.docs) {
                 const data = doc.data();
-                if (!finalReviews.find((r: any) => r.id === doc.id)) {
+                const existingIndex = finalReviews.findIndex((r: any) => r.id === doc.id);
+                if (existingIndex !== -1) {
+                    // Merge Firestore-only fields that are missing in Supabase due to schema differences
+                    if (data.annotated_file_url && !finalReviews[existingIndex].annotated_file_url) {
+                        finalReviews[existingIndex].annotated_file_url = data.annotated_file_url;
+                    }
+                    if (data.review_file_url && !finalReviews[existingIndex].review_file_url) {
+                        finalReviews[existingIndex].review_file_url = data.review_file_url;
+                    }
+                    if (data.correction_notes && !finalReviews[existingIndex].correction_notes) {
+                        finalReviews[existingIndex].correction_notes = data.correction_notes;
+                    }
+                    if (data.revised_file_url && !finalReviews[existingIndex].revised_file_url) {
+                        finalReviews[existingIndex].revised_file_url = data.revised_file_url;
+                    }
+                } else {
                     // Try to fetch reviewer name from Supabase profiles
                     let reviewerName = 'Anonim';
                     let reviewerPhone = '';
@@ -59,6 +75,7 @@ export async function getReviewsForSubmission(submissionId: string) {
         } catch (e) {
             console.warn("Firestore fetch reviews failed", e);
         }
+        */
 
         // Augment any reviews that are missing phone numbers but have reviewer_email
         for (let i = 0; i < finalReviews.length; i++) {
@@ -298,7 +315,8 @@ export async function getSubmissionDetailsEditor(submissionId: string) {
             console.warn("Supabase lookup error in getSubmissionDetailsEditor:", sbErr);
         }
 
-        // Safe Fallback to Firestore
+        // Safe Fallback to Firestore (DISABLED to prevent Quota Exceeded)
+        /*
         if (!subData) {
             try {
                 const { getFirestore } = await import('@/utils/firebase/db');
@@ -341,22 +359,146 @@ export async function getSubmissionDetailsEditor(submissionId: string) {
                 console.warn("Firestore fetch skipped in getSubmissionDetailsEditor (quota/network)", e);
             }
         }
+        */
 
         if (!subData) return { success: false, error: "Not found" };
 
-        // Attempt to fetch secure file URL from Storage if column is empty
-        let fileUrl = subData.file_url || "";
+        // 3. If file_url is missing in Supabase, check Firestore just in case it was lost during migration (DISABLED to prevent Quota Exceeded)
+        /*
+        if (subData && !subData.file_url) {
+            try {
+                const { getFirestore } = await import('@/utils/firebase/db');
+                const db = getFirestore();
+                const doc = await db.collection('submissions').doc(submissionId).get();
+                if (!doc.exists) {
+                    // Try unhexed ID
+                    const unhexUuid = (uuidStr: string) => {
+                        try {
+                            const hex = uuidStr.replace(/-/g, "").replace(/0+$/, "");
+                            if (/^[0-9a-f]+$/i.test(hex) && hex.length >= 8) {
+                                return Buffer.from(hex, "hex").toString("utf8");
+                            }
+                        } catch(e) {}
+                        return uuidStr;
+                    };
+                    const originalId = unhexUuid(submissionId);
+                    if (originalId !== submissionId) {
+                        const doc2 = await db.collection('submissions').doc(originalId).get();
+                        if (doc2.exists && doc2.data()?.file_url) {
+                            subData.file_url = doc2.data()?.file_url;
+                        }
+                    }
+                } else if (doc.data()?.file_url) {
+                    subData.file_url = doc.data()?.file_url;
+                }
+            } catch (e) {
+                console.warn("Firestore file_url fallback failed", e);
+            }
+        }
+        */
+
+        const { resolveFile } = await import('@/utils/storageResolver');
+        
+        // Resolve revised_file_url first, then file_url
+        let targetPath = subData.revised_file_url || subData.file_url || "";
+        
+        // Fallback: If Author's file is missing, try to use Reviewer's annotated file
+        if (!targetPath) {
+            try {
+                const { data: revs } = await supabaseAdmin
+                    .from('review_assignments')
+                    .select('annotated_file_url, review_file_url')
+                    .eq('submission_id', submissionId)
+                    .eq('status', 'completed');
+                
+                if (revs && revs.length > 0) {
+                    const rev = revs.find(r => r.annotated_file_url || r.review_file_url);
+                    if (rev) {
+                        targetPath = rev.annotated_file_url || rev.review_file_url || "";
+                    }
+                }
+            } catch (e) {
+                console.warn("Error fetching reviewer fallback file:", e);
+            }
+        }
+        
+        // Auto-discovery feature: Always call resolveFile so it can scan the bucket if path is empty
+        const metadata = await resolveFile({
+            bucket: 'manuscripts',
+            path: targetPath,
+            entityId: submissionId,
+            entityType: 'submission'
+        });
+        subData.file_metadata = metadata;
+        if (metadata.signedUrl) {
+            if (subData.revised_file_url) {
+                subData.revised_file_url = metadata.signedUrl;
+            } else {
+                subData.file_url = metadata.signedUrl;
+            }
+        }
+
+        // Determine the actual folder name in the bucket (handle hex-encoded UUIDs)
+        const unhexUuidForFolder = (uuidStr: string) => {
+            try {
+                const hex = uuidStr.replace(/-/g, '');
+                const str = Buffer.from(hex, 'hex').toString('utf8');
+                if (str.startsWith('sub_')) return str.replace(/\0/g, '');
+            } catch(e) {}
+            return uuidStr;
+        };
+        const folderName = unhexUuidForFolder(submissionId);
+
+        let actualFolder = folderName;
+        if (subData.file_url && subData.file_url.includes('/')) {
+            actualFolder = subData.file_url.split('/')[0];
+        }
+
+        // Fetch original title page (identity) and anonymous files by scanning the bucket directly
         try {
-            const { data: files } = await supabaseAdmin.storage.from('manuscripts').list(submissionId + '/');
-            if (files && files.length > 0) {
-                const titlePage = files.find((f: any) => f.name.includes('title_page')) || files[0];
-                const { data: signedData } = await supabaseAdmin.storage.from('manuscripts').createSignedUrl(`${submissionId}/${titlePage.name}`, 60 * 60 * 24);
-                if (signedData?.signedUrl) {
-                    fileUrl = signedData.signedUrl;
+            const { data: bucketFiles } = await supabaseAdmin
+                .storage
+                .from('manuscripts')
+                .list(actualFolder);
+
+            if (bucketFiles && bucketFiles.length > 0) {
+                // Find the file that has "title_page" in its name
+                if (!subData.original_file_url) {
+                    const titleFile = bucketFiles.find(f => f.name.includes('title_page'));
+                    if (titleFile) {
+                        const titleMetadata = await resolveFile({
+                            bucket: 'manuscripts',
+                            path: `${actualFolder}/${titleFile.name}`,
+                            entityId: submissionId,
+                            entityType: 'submission'
+                        });
+                        if (titleMetadata.signedUrl) {
+                            subData.original_file_url = titleMetadata.signedUrl;
+                            subData.original_file_metadata = titleMetadata;
+                        }
+                    }
+                }
+                
+                // Find the anonymous file as well for legacy fallback
+                if (!subData.anonymous_file_url) {
+                    const anonFile = bucketFiles.find(f => f.name.includes('anonymous'));
+                    if (anonFile) {
+                        const anonMetadata = await resolveFile({
+                            bucket: 'manuscripts',
+                            path: `${actualFolder}/${anonFile.name}`,
+                            entityId: submissionId,
+                            entityType: 'submission'
+                        });
+                        if (anonMetadata.signedUrl) {
+                            subData.anonymous_file_url = anonMetadata.signedUrl;
+                            // Optionally set metadata if needed, but URL is the main thing
+                        }
+                    }
                 }
             }
-        } catch (e) { }
-        subData.file_url = fileUrl;
+        } catch (e) {
+            console.warn("Error scanning bucket for files:", e);
+        }
 
         return { success: true, submission: subData };
     } catch (e: any) {
@@ -952,16 +1094,24 @@ export async function getPublishedArticleDetails(articleId: string) {
                         const { data: sj } = await supabaseAdmin.from('journals').select('name').eq('id', fbData.journal_id).single();
                         if (sj) journalName = sj.name;
                     }
-                    let authorName = fbData?.author || 'Author';
+                    // PRIORITAS: gunakan field 'author' yang diset Editor saat Publish
+                    // Ini adalah nama penulis yang sudah diputuskan dan tidak boleh berubah
+                    let authorName = (fbData?.author && fbData.author !== 'Author' && fbData.author !== 'Unknown') 
+                        ? fbData.author 
+                        : 'Author';
                     let orcid = '';
                     let googleScholar = '';
                     let wos = '';
                     let ssrn = '';
 
+                    // Hanya ambil orcid/scholar dari profile, TIDAK menimpa authorName jika sudah diset Editor
                     if (fbData?.author_id) {
                         const { data: profile } = await supabaseAdmin.from('profiles').select('full_name, orcid, google_scholar, wos, academic_id').eq('id', fbData.author_id).single();
-                        if (profile?.full_name) {
-                            authorName = profile.full_name;
+                        if (profile) {
+                            // Hanya gunakan profile name jika editor BELUM mengisi field author
+                            if (authorName === 'Author' && profile.full_name) {
+                                authorName = profile.full_name;
+                            }
                             orcid = profile.orcid || '';
                             googleScholar = profile.google_scholar || '';
                             wos = profile.wos || '';
@@ -1040,8 +1190,8 @@ export async function getPublishedArticleDetails(articleId: string) {
 
         if (!subData) return { success: false, error: "Not found" };
 
-        if (subData.status !== 'Published') {
-            return { success: false, error: "Artikel belum dipublikasikan secara publik. Naskah ini mungkin masih dalam proses editorial atau produksi." };
+        if (subData.status !== 'Published' && subData.status !== 'published') {
+            return { success: false, error: "Artikel belum dipublikasikan secara publik. Naskah ini mungkin masih dalam proses editorial awal atau produksi." };
         }
 
         try {
@@ -1083,7 +1233,7 @@ export async function getPublishedArticles(journalId?: string) {
             let query = supabaseAdmin
                 .from('submissions')
                 .select('*, journals:journal_id(name)')
-                .in('status', ['Published', 'Accepted', 'Production Completed'])
+                .in('status', ['Published', 'published'])
                 .order('zenodo_id', { ascending: false, nullsFirst: false });
             if (journalId) {
                 query = query.eq('journal_id', journalId);
@@ -1304,7 +1454,6 @@ export async function assignReviewer(submissionId: string, reviewerId: string, r
         const { data: subData } = await supabaseAdmin.from('submissions').select('stage').eq('id', submissionId).single();
         const isAdvanced = subData?.stage && ['Copyediting', 'Production', 'Published'].includes(subData.stage);
 
-        // 1. Try to find the existing profile by email first to get the REAL Supabase Auth UUID
         // 1. Try to find the existing profile by ID or UUID
         let profileFound = false;
         if (reviewerId) {
@@ -1312,7 +1461,7 @@ export async function assignReviewer(submissionId: string, reviewerId: string, r
                 .from('profiles')
                 .select('id')
                 .eq('id', reviewerId)
-                .single();
+                .maybeSingle();
 
             if (existingProfile && existingProfile.id) {
                 validReviewerId = existingProfile.id;
@@ -1320,19 +1469,23 @@ export async function assignReviewer(submissionId: string, reviewerId: string, r
             }
         }
 
-        // 2. If not found and it's not a UUID, normalize it (fallback)
-        if (!profileFound && !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(validReviewerId)) {
-            const hex = Buffer.from(validReviewerId).toString('hex').padEnd(32, '0').slice(0, 32);
-            validReviewerId = `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20, 32)}`;
+        // 1b. Try finding by email to get the true UUID if ID lookup failed
+        if (!profileFound && reviewerEmail) {
+            const { data: profileByEmail } = await supabaseAdmin
+                .from('profiles')
+                .select('id')
+                .ilike('email', reviewerEmail)
+                .maybeSingle();
+
+            if (profileByEmail && profileByEmail.id) {
+                validReviewerId = profileByEmail.id;
+                profileFound = true;
+            }
         }
 
-        // 3. Ensure reviewer profile exists in Supabase
-        if (!profileFound) {
-            await supabaseAdmin.from('profiles').upsert({
-                id: validReviewerId,
-                full_name: reviewerName || 'Reviewer',
-                role: 'reviewer'
-            }, { onConflict: 'id' });
+        // 2. Strict Identity Core check
+        if (!profileFound || !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(validReviewerId)) {
+            return { success: false, error: "Invalid Reviewer Identity. Reviewer must have a valid registered profile." };
         }
 
         // 3. Resolve reviewer email — try from auth.users if not passed from UI
@@ -1369,18 +1522,16 @@ export async function assignReviewer(submissionId: string, reviewerId: string, r
             reviewer_email: resolvedEmail,
             reviewer_name: reviewerName || null,
             status: 'pending',
-            round: currentRound,
-            assigned_at: new Date()
+            assigned_at: new Date().toISOString()
         };
 
         const assignmentDataFirestore: any = {
             submission_id: submissionId,
-            reviewer_id: reviewerId, // Keep original ID for Firestore (e.g. demo-user-178...)
+            reviewer_id: validReviewerId, // Use valid UUID for consistency across systems
             reviewer_email: resolvedEmail,
             reviewer_name: reviewerName || null,
             status: 'pending',
-            round: currentRound,
-            assigned_at: new Date()
+            assigned_at: new Date().toISOString()
         };
 
         // Insert to Supabase review_assignments — capture returned ID for ID bridging
@@ -1441,6 +1592,79 @@ export async function removeCoverFile(submissionId: string) {
         revalidatePath(`/dashboard/editor/submissions/${submissionId}`);
         return { success: true };
     } catch (e: any) {
+        return { success: false, error: e.message };
+    }
+}
+
+export async function recordEditorialDecision(submissionId: string, decision: 'Accepted' | 'Needs Revision' | 'Declined', editorialNote: string, authorPhone: string, journalName: string, articleTitle: string) {
+    try {
+        const supabaseAdmin = (await import('@supabase/supabase-js')).createClient(
+            process.env.NEXT_PUBLIC_SUPABASE_URL!,
+            process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+        );
+        const { getCurrentUser } = await import('./auth');
+        const user: any = await getCurrentUser();
+        const editorId = user?.id || null;
+
+        // Workflow Stage transition
+        let newStage = 'Review';
+        if (decision === 'Accepted') newStage = 'Copyediting';
+        if (decision === 'Declined') newStage = 'Archived';
+
+        // 1. Transaction: Update Submission & Save History
+        await supabaseAdmin.from('submissions').update({ status: decision, stage: newStage, updated_at: new Date() }).eq('id', submissionId);
+
+        await supabaseAdmin.from('submission_history').insert({
+            submission_id: submissionId,
+            action: `Editor Decision: ${decision}`,
+            performed_by: editorId,
+            details: editorialNote || 'No additional notes provided.'
+        });
+
+        // Also update Firestore fallback
+        try {
+            const { getFirestore } = await import('@/utils/firebase/db');
+            const db = getFirestore();
+            await db.collection('submissions').doc(submissionId).update({ status: decision, stage: newStage, updated_at: new Date() });
+            await db.collection('submission_history').add({
+                submission_id: submissionId,
+                action: `Editor Decision: ${decision}`,
+                performed_by: editorId,
+                details: editorialNote,
+                created_at: new Date()
+            });
+        } catch (fbErr) {
+            console.warn("Firestore fallback failed during recordEditorialDecision", fbErr);
+        }
+
+        // Commit successful, trigger Notification Service asynchronously
+        let notificationSent = false;
+        if (authorPhone) {
+            try {
+                const { NotificationService } = await import('@/app/services/NotificationService');
+                notificationSent = await NotificationService.sendDecisionNotification({
+                    authorPhone,
+                    editorialNote,
+                    decision,
+                    journalName,
+                    articleTitle
+                });
+            } catch (notifErr) {
+                console.error("Failed to send notification via NotificationService:", notifErr);
+            }
+        }
+
+        revalidatePath(`/dashboard/editor/submissions/${submissionId}`);
+        revalidatePath(`/dashboard/editor/review-results`);
+
+        return { 
+            success: true, 
+            newStage, 
+            newStatus: decision, 
+            warning: !notificationSent && authorPhone ? 'Keputusan tersimpan, namun Notifikasi WhatsApp gagal/tertunda dikirim.' : null 
+        };
+    } catch (e: any) {
+        console.error("recordEditorialDecision failed:", e);
         return { success: false, error: e.message };
     }
 }

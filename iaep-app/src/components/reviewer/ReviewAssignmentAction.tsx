@@ -116,6 +116,15 @@ export default function ReviewAssignmentAction({ assignment, showDelete = false 
           </span>
         )}
         <button 
+          onClick={onDelete}
+          disabled={isProcessing}
+          className="inline-flex items-center gap-1.5 px-5 py-2.5 text-red-500 hover:bg-red-500/10 rounded-lg text-sm font-medium transition-colors border border-red-500/20"
+          title="Hapus tugas review ini secara permanen"
+        >
+          <Trash2 className="w-4 h-4" />
+          Hapus
+        </button>
+        <button 
           onClick={() => router.push(`/dashboard/reviews/${assignmentId}`)}
           disabled={isProcessing}
           className="inline-flex items-center gap-2 px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-sm font-medium transition-colors shadow-lg shadow-emerald-900/20"

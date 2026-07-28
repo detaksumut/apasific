@@ -407,8 +407,8 @@ export default function Sidebar({ role }: SidebarProps) {
     switch (normalizedRole) {
       case "author":   return authorLinks;
       case "reviewer": return reviewerLinks;
-      case "editor":   return editorLinks;
-      case "admin":    return adminLinks;
+      case "editor":   return [...editorLinks, ...reviewerLinks];
+      case "admin":    return [...adminLinks, ...reviewerLinks];
       case "co_admin": return reviewerLinks;
       default:         return [];
     }
@@ -435,6 +435,7 @@ export default function Sidebar({ role }: SidebarProps) {
     return (
       <Link
         href={link.path}
+        prefetch={false}
         className={`sidebar-navlink ${isActive ? "active" : ""}`}
       >
         <span className="sidebar-navlink-icon">{link.icon}</span>
@@ -510,7 +511,7 @@ export default function Sidebar({ role }: SidebarProps) {
       {/* Footer */}
       <div className="sidebar-footer">
         <div className="sidebar-footer-version">IAEP Platform · v1.0.0</div>
-        <Link href="/" className="sidebar-footer-link">
+        <Link href="/" prefetch={false} className="sidebar-footer-link">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ width: 13, height: 13 }}>
             <polyline points="15 18 9 12 15 6" />
           </svg>

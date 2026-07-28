@@ -149,8 +149,10 @@ export default function ArticlePaywall() {
 
         if (res.success && res.article) {
           const data = res.article;
-          let authors = data.profiles?.full_name || data.author || "Penulis Tidak Diketahui";
-          if (typeof data.abstract === 'string' && data.abstract.trim().startsWith('{')) {
+          let authors = data.author && !['penulis tidak diketahui', 'author', 'unknown'].includes(data.author.toLowerCase().trim()) 
+            ? data.author 
+            : data.profiles?.full_name || "Penulis Tidak Diketahui";
+          if (authors === "Penulis Tidak Diketahui" && typeof data.abstract === 'string' && data.abstract.trim().startsWith('{')) {
             try {
               const parsedAbs = JSON.parse(data.abstract);
               if (parsedAbs.authors && Array.isArray(parsedAbs.authors) && parsedAbs.authors.length > 0) {
@@ -347,23 +349,13 @@ export default function ArticlePaywall() {
   }
   
   let displayAuthors = "";
-  if (authorsList.length > 0) {
-    displayAuthors = authorsList.join(', ');
-  } else if (article.author && !['penulis tidak diketahui', 'penulis tidak di ketahui', 'author', 'unknown'].includes(article.author.toLowerCase().trim())) {
+  if (article.author && !['penulis tidak diketahui', 'penulis tidak di ketahui', 'author', 'unknown'].includes(article.author.toLowerCase().trim())) {
     displayAuthors = article.author;
+  } else if (authorsList.length > 0) {
+    displayAuthors = authorsList.join(', ');
   }
 
-  if (article.title.toLowerCase().includes("carbon sequestration") || id === "7375625f-3137-3834-3436-393333383834") {
-    displayAuthors = "Nur Alim Natsir, Jamilah, Muhammad Rijal, Ain Nadirah Binti, Romainor, Salma Samputri";
-  } else if (article.title.toLowerCase().includes("empowering muslim msmes") || id === "54fc4573-0a3f-4cac-b62f-d4ffdd90f86d") {
-    displayAuthors = "Lince Bulutoding, Azizah Saban, Arfan Ikhsan, Suhartono, Namla Elfa Syariati, Azizan Mohamed Isa";
-  } else if (article.title.toLowerCase().includes("factors affecting regulatory non-compliance") || id === "7375625f-3137-3834-3638-363632303433" || id.includes("3638-363632303433")) {
-    displayAuthors = "Jumaiyah, Fitri Ella Fauziah";
-  } else if (article.title.toLowerCase().includes("supply chain transparency") || id === "7375625f-3137-3834-3239-383632303630" || id.includes("3239-383632303630")) {
-    displayAuthors = "Berkah Rahmawati, Chentia Putri Anugrah, Andi Nunung Rezki Amaliah, Yoggisha A/P Raman, Nur Shuhada Binti Abdullah, Lince Bulutoding, Andi Maulidyah";
-  } else if (article.title.toLowerCase().includes("zakat and tax accounting") || id === "7375625f-3137-3834-3532-323331373834" || id.includes("3532-323331373834")) {
-    displayAuthors = "Dr. Andi Wawo, S.E., M.Si, Adelia Nindya Putri, S.Ak, Izzatul Muzakkirah Qurani, Andi Indah Wajid Putri, Athiqah Athira Binti Md. Ruslan, Uqail Irfanuddin Bin Waliuddin Nejatullah, Dr. Lince Bulotoding, S.E., M.Si., Ak., CA, Berkah Rahmawati, S.Ak";
-  }
+  // displayAuthors sepenuhnya dari database — data.author diisi oleh Editor saat Publish
 
   // Combine APASIFIC visitor countries and Zenodo views
   const totalViews = (metrics.views || 0) + (zenodoMetrics.views || 0);
@@ -528,7 +520,7 @@ export default function ArticlePaywall() {
                 <>
                   <span className="mx-1 font-bold text-gray-500">•</span>
                   <span className="text-[#c9a84c]">
-                    Vol. {article.volume ? article.volume.replace(/^(Vol\.?|Volume)\s*/i, '') : '-'} Edisi {article.issue ? article.issue.replace(/^(No\.?|Nomor|Edisi|Issue)\s*/i, '') : '-'} 
+                    Vol. {article.volume ? article.volume.replace(/^(Vol\.?|Volume)\s*/i, '') : '-'} Edisi {article.issue ? article.issue.replace(/^(No\.?|Nomor|Edisi|Issue)\s*/i, '').replace(/\(.*\)/, '').trim() : '-'} 
                     {article.date && article.date !== "Baru saja dipublikasi" && (
                       <span className="ml-1">
                         ({new Date(article.date.split('/').reverse().join('-')).toLocaleDateString('id-ID', { month: 'long', year: 'numeric' })})
@@ -677,8 +669,8 @@ export default function ArticlePaywall() {
 
                     {/* Volume & Edisi */}
                     <div className="absolute flex flex-col justify-center" style={{ top: '89%', left: '26%', width: '20%' }}>
-                      {article.volume && <p className="font-bold text-zinc-300 tracking-wider uppercase mb-0.5" style={{ fontSize: 'clamp(7px, 0.75vw, 11px)' }}>VOL {article.volume.replace(/Vol\.?\s*/i, '').trim()}</p>}
-                      {article.issue && <p className="font-bold text-zinc-300 tracking-wider uppercase" style={{ fontSize: 'clamp(7px, 0.75vw, 11px)' }}>EDISI {article.issue.replace(/No\.?\s*/i, '').trim()}</p>}
+                      {article.volume && <p className="font-bold text-zinc-300 tracking-wider uppercase mb-0.5" style={{ fontSize: 'clamp(7px, 0.75vw, 11px)' }}>VOL {article.volume.replace(/^(Vol\.?|Volume)\s*/i, '').trim()}</p>}
+                      {article.issue && <p className="font-bold text-zinc-300 tracking-wider uppercase" style={{ fontSize: 'clamp(7px, 0.75vw, 11px)' }}>EDISI {article.issue.replace(/^(No\.?|Nomor|Edisi|Issue)\s*/i, '').replace(/\(.*\)/, '').trim()}</p>}
                     </div>
 
                     {/* Month & Year */}

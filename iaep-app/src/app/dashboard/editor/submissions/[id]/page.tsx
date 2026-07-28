@@ -73,24 +73,10 @@ export default function SubmissionControlPanel() {
       if (res.success && res.submission) {
         const data = res.submission;
         setSubmission({
-          id: data.id,
-          title: data.title,
+          ...data,
           author: data.profiles?.full_name || 'Unknown',
-          abstract: data.abstract,
-          file_url: data.file_url,
-          revised_file_url: data.revised_file_url,
-          file_url_galley: data.file_url_galley,
-          cover_file_url: data.cover_file_url,
           stage: data.stage || 'Review',
           status: data.status || 'Awaiting Reviewers',
-          doi: data.doi,
-          zenodo_id: data.zenodo_id,
-          journals: data.journals,
-          journal_id: data.journal_id,
-          issn: data.issn,
-          volume: data.volume,
-          issue: data.issue,
-          profiles: data.profiles,
         });
         if (data.doi) setGeneratedDoi(data.doi);
         if (data.issn) setManualIssn(data.issn);
@@ -129,18 +115,19 @@ export default function SubmissionControlPanel() {
         else if (data.stage === 'Copyediting') setActiveTab('copyediting');
         else if (data.stage === 'Production' || data.stage === 'Published') setActiveTab('production');
 
-        // Fetch reviews
+        // Fetch reviews, reviewers, and board members in parallel to speed up rendering
         const m = await import("@/app/actions/editor");
-        const revRes = await m.getReviewsForSubmission(submissionId);
+        
+        const [revRes, availRes, boardRes] = await Promise.all([
+          m.getReviewsForSubmission(submissionId),
+          m.getActiveReviewers(),
+          data.journals?.name ? m.getEditorialBoard(data.journals.name) : Promise.resolve({ success: true, members: [] })
+        ]);
+
         if (revRes.success) setReviews(revRes.reviews || []);
-
-        const availRes = await m.getActiveReviewers();
         if (availRes.success) setAvailableReviewers(availRes.reviewers || []);
+        if (boardRes.success) setBoardMembers(boardRes.members || []);
 
-        if (data.journals?.name) {
-          const boardRes = await m.getEditorialBoard(data.journals.name);
-          if (boardRes.success) setBoardMembers(boardRes.members || []);
-        }
       } else {
         console.error("Error fetching submission:", res.error);
       }
@@ -316,35 +303,38 @@ export default function SubmissionControlPanel() {
     }
   };
 
-  const handleRecordDecision = async (isWa: boolean) => {
+  const handleRecordDecision = async () => {
     if (!decision) return;
     
-    let newStage = submission.stage;
-    let newStatus = submission.status;
-    
-    if (decision === 'accept') {
-      newStage = 'Copyediting';
-      newStatus = 'Accepted';
-    } else if (decision === 'revisions') {
-      newStatus = 'Needs Revision';
-    } else if (decision === 'decline') {
-      newStatus = 'Declined';
-    }
+    let backendDecision: 'Accepted' | 'Needs Revision' | 'Declined';
+    if (decision === 'accept') backendDecision = 'Accepted';
+    else if (decision === 'revisions') backendDecision = 'Needs Revision';
+    else backendDecision = 'Declined';
 
     try {
       const m = await import("@/app/actions/editor");
-      const res = await m.updateSubmissionStage(submission.id, newStage, newStatus);
+      const res = await m.recordEditorialDecision(
+          submission.id,
+          backendDecision,
+          emailText,
+          authorPhone,
+          submission.journals?.name || 'Jurnal',
+          submission.title || 'Artikel'
+      );
         
       if (!res.success) throw new Error(res.error);
       
-      setSubmission({ ...submission, stage: newStage, status: newStatus });
+      setSubmission({ ...submission, stage: res.newStage, status: res.newStatus });
       
-      if (newStage === 'Copyediting') setActiveTab('copyediting');
+      if (res.newStage === 'Copyediting') setActiveTab('copyediting');
       
-      showToast(`Decision Recorded & ${isWa ? 'WhatsApp Window Opened!' : 'Email Sent!'}`);
+      let msg = 'Keputusan berhasil disimpan!';
+      if (res.warning) msg += ' (' + res.warning + ')';
+      
+      showToast(msg);
     } catch (err: any) {
       console.error(err);
-      showToast('Failed to record decision: ' + err.message);
+      showToast('Gagal menyimpan keputusan: ' + err.message);
     } finally {
       setDecisionModalOpen(false);
     }
@@ -374,7 +364,7 @@ export default function SubmissionControlPanel() {
       {submission && (
         <>
           <div className="flex items-center space-x-2 text-sm text-gray-500 mb-4">
-            <Link href="/dashboard/editor" className="hover:text-[#c9a84c]">Editorial Board</Link>
+            <Link href="/dashboard/editor" prefetch={false} className="hover:text-[#c9a84c]">Editorial Board</Link>
             <span>/</span>
             <span className="text-gray-900 font-medium truncate w-64">Submission #{submission.id.substring(0, 8)}</span>
           </div>
@@ -1032,30 +1022,84 @@ export default function SubmissionControlPanel() {
                       </div>
                       <div className="p-6 space-y-6">
 
-                        {/* File Naskah Utama (Bahan Layout) */}
-                        <div className="bg-orange-50/40 border border-orange-100/80 rounded-xl p-4 flex items-center justify-between shadow-sm">
+                        {/* File Naskah Hasil Review (Anonim) */}
+                        <div className="bg-blue-50/40 border border-blue-100/80 rounded-xl p-4 flex items-center justify-between shadow-sm">
                           <div className="flex items-center gap-3">
-                            <div className="bg-orange-100 p-2.5 rounded-lg text-orange-600">
+                            <div className="bg-blue-100 p-2.5 rounded-lg text-blue-600">
                               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
                             </div>
                             <div>
-                              <h5 className="text-xs font-bold text-gray-900 uppercase tracking-wide">File Naskah Utama (Bahan Layout)</h5>
+                              <h5 className="text-xs font-bold text-gray-900 uppercase tracking-wide">File Naskah Hasil Review (Anonim)</h5>
                               <p className="text-[10px] text-gray-500 mt-0.5">
-                                {submission?.revised_file_url ? 'Unduh file revisi terbaru dari penulis untuk ditata letak.' : 'Gunakan file naskah awal (penulis belum mengunggah revisi).'}
+                                File revisi atau hasil dari reviewer yang disetujui Editor.
                               </p>
                             </div>
                           </div>
-                          <a
-                            href={submission?.revised_file_url || submission?.file_url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-xs bg-orange-600 text-white px-4 py-2 rounded-lg hover:bg-orange-700 font-bold transition-all shadow-sm flex items-center gap-1.5"
-                          >
-                            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
-                            Download Naskah
-                          </a>
+                          <div className="flex flex-col items-end gap-1 text-right">
+                            {(submission?.revised_file_url || reviews.filter(r => r.status === 'completed' && (r.annotated_file_url || r.review_file_url)).length > 0 || submission?.file_url) ? (
+                              <div className="flex flex-col items-end gap-2">
+                                <a
+                                  href={submission?.revised_file_url || reviews.find(r => r.status === 'completed' && (r.annotated_file_url || r.review_file_url))?.annotated_file_url || reviews.find(r => r.status === 'completed' && (r.annotated_file_url || r.review_file_url))?.review_file_url || submission?.anonymous_file_url || submission?.file_url}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="text-xs bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 font-bold transition-all shadow-sm flex items-center gap-1.5"
+                                >
+                                  <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+                                  Download File Anonim
+                                </a>
+                              </div>
+                            ) : (
+                              <span className="text-xs bg-gray-400 text-white px-4 py-2 rounded-lg font-bold shadow-sm flex items-center gap-1.5 cursor-not-allowed">
+                                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+                                Belum Ada Revisi
+                              </span>
+                            )}
+                          </div>
                         </div>
-                        
+
+                        {/* File Naskah Asli (Beridentitas) */}
+                        <div className="bg-orange-50/40 border border-orange-100/80 rounded-xl p-4 flex items-center justify-between shadow-sm">
+                          <div className="flex items-center gap-3">
+                            <div className="bg-orange-100 p-2.5 rounded-lg text-orange-600">
+                              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2" /></svg>
+                            </div>
+                            <div>
+                              <h5 className="text-xs font-bold text-gray-900 uppercase tracking-wide">File Naskah Asli (Beridentitas)</h5>
+                              <p className="text-[10px] text-gray-500 mt-0.5">
+                                File awal dari author (memuat nama & afiliasi asli).
+                              </p>
+                            </div>
+                          </div>
+                          {submission?.original_file_metadata?.status === 'AVAILABLE' || submission?.file_metadata?.status === 'AVAILABLE' ? (
+                            <div className="flex flex-col items-end gap-2">
+                              {submission.file_metadata.legacyFallbackUsed && !submission.original_file_url && (
+                                <span className="text-[9px] bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full font-semibold flex items-center gap-1" title="Diselesaikan melalui pencarian Legacy">
+                                  <svg className="w-2.5 h-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+                                  Legacy Storage
+                                </span>
+                              )}
+                              <a
+                                href={submission?.original_file_url || submission?.file_url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-xs bg-orange-600 text-white px-4 py-2 rounded-lg hover:bg-orange-700 font-bold transition-all shadow-sm flex items-center gap-1.5"
+                              >
+                                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+                                Download Asli {submission?.original_file_metadata?.filename ? `(${submission.original_file_metadata.filename})` : (submission?.file_metadata?.filename ? `(${submission.file_metadata.filename})` : '')}
+                              </a>
+                            </div>
+                          ) : (
+                            <div className="flex flex-col items-end gap-1 text-right">
+                              <span className="text-xs bg-gray-400 text-white px-4 py-2 rounded-lg font-bold shadow-sm flex items-center gap-1.5 cursor-not-allowed">
+                                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+                                {submission?.file_metadata?.status === 'METADATA_MISSING' ? 'Metadata Kosong' : 
+                                 submission?.file_metadata?.status === 'FILE_MISSING' ? 'File Hilang di Storage' : 
+                                 submission?.file_metadata?.status === 'URL_GENERATION_FAILED' ? 'Gagal Membuat Link' : 'File Tidak Tersedia'}
+                              </span>
+                            </div>
+                          )}
+                        </div>
+
                         {/* Reviewer Notes Section */}
                         <div>
                           <div className="flex items-center gap-2 mb-3">
@@ -1073,23 +1117,27 @@ export default function SubmissionControlPanel() {
                                       {rev.recommendation}
                                     </span>
                                   </div>
-                                  {(rev.correction_notes || rev.comments_for_author) && (
-                                    <div className="mb-3 text-sm text-gray-700 bg-gray-50/80 p-3 rounded-lg border border-gray-100 leading-relaxed">
-                                      <span className="font-bold text-gray-900 block mb-1">Catatan Revisi:</span>
-                                      {rev.correction_notes || rev.comments_for_author}
-                                    </div>
-                                  )}
-                                  {(rev.annotated_file_url || rev.review_file_url) && (
-                                    <div className="flex items-center justify-between bg-blue-50/50 border border-blue-100 rounded-lg p-3 mt-2">
-                                      <div className="flex items-center gap-3">
-                                        <div className="bg-white p-1.5 rounded-md shadow-sm border border-blue-100">
-                                          <svg className="w-4 h-4 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" /></svg>
-                                        </div>
-                                        <div>
-                                          <div className="text-xs font-bold text-blue-900">File Upload dari Reviewer</div>
-                                          <div className="text-[10px] text-blue-600 mt-0.5">Berisi coretan/anotasi pada naskah</div>
+                                  <div className="mb-3 text-sm text-gray-700 bg-gray-50/80 p-3 rounded-lg border border-gray-100 leading-relaxed">
+                                    <span className="font-bold text-gray-900 block mb-1">Catatan Revisi:</span>
+                                    {rev.correction_notes || rev.comments_for_author ? (
+                                      <span className="whitespace-pre-wrap">{rev.correction_notes || rev.comments_for_author}</span>
+                                    ) : (
+                                      <span className="text-gray-400 italic">Tidak ada catatan tertulis dari reviewer.</span>
+                                    )}
+                                  </div>
+                                  <div className={`flex items-center justify-between border rounded-lg p-3 mt-2 ${(rev.annotated_file_url || rev.review_file_url) ? 'bg-blue-50/50 border-blue-100' : 'bg-gray-50 border-gray-200'}`}>
+                                    <div className="flex items-center gap-3">
+                                      <div className={`p-1.5 rounded-md shadow-sm border ${(rev.annotated_file_url || rev.review_file_url) ? 'bg-white border-blue-100 text-blue-600' : 'bg-gray-100 border-gray-200 text-gray-400'}`}>
+                                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" /></svg>
+                                      </div>
+                                      <div>
+                                        <div className={`text-xs font-bold ${(rev.annotated_file_url || rev.review_file_url) ? 'text-blue-900' : 'text-gray-600'}`}>File Upload dari Reviewer</div>
+                                        <div className={`text-[10px] mt-0.5 ${(rev.annotated_file_url || rev.review_file_url) ? 'text-blue-600' : 'text-gray-400'}`}>
+                                          {(rev.annotated_file_url || rev.review_file_url) ? 'Berisi coretan/anotasi pada naskah' : 'Reviewer tidak mengunggah file'}
                                         </div>
                                       </div>
+                                    </div>
+                                    {(rev.annotated_file_url || rev.review_file_url) ? (
                                       <a
                                         href={rev.annotated_file_url || rev.review_file_url}
                                         target="_blank"
@@ -1098,8 +1146,12 @@ export default function SubmissionControlPanel() {
                                       >
                                         Download
                                       </a>
-                                    </div>
-                                  )}
+                                    ) : (
+                                      <span className="text-xs bg-gray-200 text-gray-500 px-4 py-1.5 rounded-md font-bold shadow-sm cursor-not-allowed">
+                                        Kosong
+                                      </span>
+                                    )}
+                                  </div>
                                 </div>
                               ))}
                             </div>
@@ -1433,7 +1485,7 @@ export default function SubmissionControlPanel() {
                             <div 
                               className="absolute font-serif drop-shadow-md overflow-hidden"
                               style={{
-                                top: '32.5%',
+                                top: '36.5%',
                                 left: '6%',
                                 width: '46%',
                                 maxHeight: '59.5%',
@@ -1650,7 +1702,7 @@ export default function SubmissionControlPanel() {
                           <div 
                             className="absolute font-serif drop-shadow-md overflow-hidden"
                             style={{
-                              top: '32.5%',
+                              top: '36.5%',
                               left: '6%',
                               width: '46%',
                               maxHeight: '59.5%',
@@ -1984,23 +2036,9 @@ export default function SubmissionControlPanel() {
 
             {/* Enterprise Footer */}
             <div className="px-6 py-4 border-t border-gray-200 flex flex-row-reverse gap-3 bg-gray-50">
-              <button disabled={!decision} onClick={() => handleRecordDecision(false)} className="inline-flex justify-center rounded-md bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors border border-transparent">
-                Record Decision
+              <button disabled={!decision} onClick={() => handleRecordDecision()} className="inline-flex justify-center rounded-md bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors border border-transparent">
+                Simpan Keputusan & Beri Tahu Penulis
               </button>
-              <a 
-                href={decision ? `https://wa.me/${authorPhone.replace(/[^0-9]/g, "").replace(/^0/, "62")}?text=${encodeURIComponent(emailText)}` : '#'}
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={(e) => {
-                  if (!decision) { e.preventDefault(); return; }
-                  handleRecordDecision(true);
-                }}
-                className={`inline-flex justify-center items-center gap-1.5 rounded-md bg-white px-4 py-2.5 text-sm font-semibold text-gray-900 shadow-sm border border-gray-300 hover:bg-gray-50 transition-colors ${!decision ? 'opacity-50 pointer-events-none' : ''}`}
-                style={{ textDecoration: 'none' }}
-              >
-                <svg className="w-4 h-4 text-green-500" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-                Send via WA
-              </a>
               <button onClick={() => setDecisionModalOpen(false)} className="inline-flex justify-center rounded-md bg-white px-4 py-2.5 text-sm font-semibold text-gray-900 shadow-sm border border-gray-300 hover:bg-gray-50 mr-auto transition-colors">
                 Cancel
               </button>

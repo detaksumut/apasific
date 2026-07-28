@@ -244,6 +244,103 @@ export async function GET() {
       report.collections.certificates = { error: e.message };
     }
 
+    // ================================================================
+    // 5. SYNC REVIEW_ASSIGNMENTS (Firestore: review_assignments → Supabase: review_assignments)
+    // ================================================================
+    try {
+      const snap = await db.collection('review_assignments').get();
+      let synced = 0, skipped = 0;
+      const errors: string[] = [];
+
+      // Pre-fetch all valid submission IDs from Supabase for FK validation
+      const { data: validSubs } = await sb.from('submissions').select('id');
+      const validSubIds = new Set((validSubs || []).map((s: any) => s.id));
+
+      // Pre-fetch all valid profile IDs for reviewer_id FK validation
+      const { data: validProfiles } = await sb.from('profiles').select('id');
+      const validProfileIds = new Set((validProfiles || []).map((p: any) => p.id));
+
+      for (const doc of snap.docs) {
+        const d = doc.data();
+        const id = isValidUuid(doc.id) ? doc.id : toUuid(doc.id);
+        const rawSubmissionId = d.submission_id ? (isValidUuid(d.submission_id) ? d.submission_id : toUuid(d.submission_id)) : null;
+        // Only set submission_id if it actually exists in Supabase (avoid FK violation)
+        const submissionId = rawSubmissionId && validSubIds.has(rawSubmissionId) ? rawSubmissionId : null;
+        const reviewerId = d.reviewer_id ? toUuid(d.reviewer_id) : null;
+
+        const upsertData: any = {
+          id,
+          submission_id: submissionId,
+          status: d.status || 'pending',
+          recommendation: d.recommendation || null,
+          comments_for_editor: d.comments_for_editor || d.comments || null,
+          comments_for_author: d.comments_for_author || null,
+          assigned_at: toTimestamp(d.assigned_at || d.created_at),
+          updated_at: toTimestamp(d.updated_at),
+          review_file_url: d.annotated_file_url || null,
+        };
+        if (reviewerId && isValidUuid(reviewerId) && validProfileIds.has(reviewerId)) upsertData.reviewer_id = reviewerId;
+        if (d.reviewer_email) upsertData.reviewer_email = d.reviewer_email;
+        if (d.reviewer_name) upsertData.reviewer_name = d.reviewer_name;
+        if (d.deadline) upsertData.deadline = toTimestamp(d.deadline);
+        if (d.completed_at) upsertData.completed_at = toTimestamp(d.completed_at);
+
+        const { error } = await sb.from('review_assignments').upsert(upsertData, { onConflict: 'id', ignoreDuplicates: false });
+        if (error) { errors.push(`[${doc.id}] ${error.message}`); skipped++; }
+        else synced++;
+      }
+      report.collections.review_assignments = { total_firestore: snap.docs.length, synced, skipped, errors: errors.slice(0, 5) };
+    } catch (e: any) {
+      report.collections.review_assignments = { error: e.message };
+    }
+
+    // ================================================================
+    // 6. SYNC SUBMISSION_HISTORY (Firestore → Supabase: submission_history)
+    // ================================================================
+    try {
+      const snap = await db.collection('submission_history').get();
+      let synced = 0, skipped = 0;
+      const errors: string[] = [];
+
+      // Check if submission_history table exists
+      const { error: tableCheck } = await sb.from('submission_history').select('id').limit(1);
+      if (tableCheck && tableCheck.message?.includes('does not exist')) {
+        report.collections.submission_history = {
+          total_firestore: snap.docs.length, synced: 0, skipped: snap.docs.length,
+          note: 'Tabel submission_history belum ada di Supabase.',
+          sql_to_run: `CREATE TABLE IF NOT EXISTS public.submission_history (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  submission_id UUID,
+  action TEXT,
+  details TEXT,
+  actor_id UUID,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);`
+        };
+      } else {
+        for (const doc of snap.docs) {
+          const d = doc.data();
+          const submissionId = d.submission_id ? (isValidUuid(d.submission_id) ? d.submission_id : toUuid(d.submission_id)) : null;
+          if (!submissionId) { skipped++; continue; }
+
+          const upsertData: any = {
+            submission_id: submissionId,
+            action: d.action || 'Update',
+            details: d.details || d.note || null,
+            created_at: toTimestamp(d.created_at),
+          };
+          if (d.actor_id) upsertData.actor_id = toUuid(d.actor_id);
+
+          const { error } = await sb.from('submission_history').insert(upsertData);
+          if (error) { errors.push(`[${doc.id}] ${error.message}`); skipped++; }
+          else synced++;
+        }
+        report.collections.submission_history = { total_firestore: snap.docs.length, synced, skipped, errors: errors.slice(0, 5) };
+      }
+    } catch (e: any) {
+      report.collections.submission_history = { error: e.message };
+    }
+
     report.finished_at = new Date().toISOString();
     report.success = true;
 

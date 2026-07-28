@@ -18,9 +18,11 @@ export default async function ReviewerDashboard() {
   // Retrieve assignments using Repository & Service
   const allAssignments = await ReviewAssignmentRepository.getAssignmentsForReviewer(userId, userEmail);
   const activeAssignments = await ReviewQueueService.getActiveQueue(userId, userEmail);
+  const pendingAssignments = allAssignments.filter(a => a.status === 'pending');
+  const displayAssignments = [...pendingAssignments, ...activeAssignments];
 
   // Compute stats
-  const pendingAssignments = allAssignments.filter(a => a.status === 'pending');
+  // Compute stats
   const inProgress = allAssignments.filter(a => a.status === 'accepted' || a.status === 'revision_pending' || a.status === 'revision_pending');
   const completed = allAssignments.filter(a => a.status === 'completed');
   
@@ -89,13 +91,13 @@ export default async function ReviewerDashboard() {
 
         {/* Pending & Active Assignments List */}
         <div className="space-y-4">
-          {activeAssignments.length === 0 ? (
+          {displayAssignments.length === 0 ? (
             <div className="p-12 border border-zinc-800/80 rounded-xl bg-zinc-900/30 text-center">
               <AlertCircle className="w-12 h-12 text-zinc-600 mx-auto mb-3" />
               <p className="text-zinc-400">Belum ada tugas review aktif untuk Anda saat ini.</p>
             </div>
           ) : (
-            activeAssignments.map((assignment: any) => (
+            displayAssignments.map((assignment: any) => (
               <div 
                 key={assignment.id} 
                 className="p-6 border border-zinc-800/80 rounded-xl bg-zinc-900/50 relative overflow-hidden group hover:border-[#c9a84c]/30 transition-all duration-300"

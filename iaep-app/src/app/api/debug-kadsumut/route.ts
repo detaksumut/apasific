@@ -1,55 +1,79 @@
-import { NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
+import { createClient } from '@supabase/supabase-js';
+import * as fs from 'fs';
+import * as path from 'path';
+import { NextResponse } from 'next/server';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET() {
-  try {
-    const supabaseAdmin = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-    );
-
-    // 1. Check Auth Users
-    const { data: authData } = await supabaseAdmin.auth.admin.listUsers();
-    const kadAuth = authData?.users?.filter(u => (u.email || '').toLowerCase().includes('kadsumut')) || [];
-
-    // 2. Check Profiles
-    const { data: profiles } = await supabaseAdmin.from('profiles').select('*');
-    const kadProfiles = profiles?.filter(p =>
-      (p.email || '').toLowerCase().includes('kadsumut') ||
-      (p.full_name || '').toLowerCase().includes('marahaman')
-    ) || [];
-
-    // 3. Check system_settings
-    const { data: settings } = await supabaseAdmin
-      .from('system_settings')
-      .select('*')
-      .in('key', ['apasific_registered_users', 'registered_users']);
-
-    let kadInSettings: any[] = [];
-    if (settings) {
-      settings.forEach((s: any) => {
-        try {
-          const parsed = Array.isArray(s.value) ? s.value : JSON.parse(s.value);
-          const found = parsed.filter((u: any) => (u.email || '').toLowerCase().includes('kadsumut'));
-          kadInSettings = [...kadInSettings, ...found];
-        } catch (e) { }
-      });
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
+    const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
+    
+    if (!supabaseUrl) {
+        return NextResponse.json({ error: "Missing SUPABASE_URL" });
     }
 
-    // 4. Check review_assignments
-    const { data: assignments } = await supabaseAdmin.from('review_assignments').select('*');
+    const supabaseAdmin = createClient(supabaseUrl, supabaseKey);
+    const email = 'kadsumut@gmail.com';
 
-    return NextResponse.json({
-      success: true,
-      in_auth_users: kadAuth,
-      in_profiles_table: kadProfiles,
-      in_system_settings: kadInSettings,
-      review_assignments_count: assignments?.length || 0,
-      assignments: assignments || []
-    });
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
-  }
+    let result: any = { email, auth: [], profiles: [], systemSettings: [], localJSON: [] };
+
+    // 1. Check Supabase Auth Users
+    const { data: authUsers, error: authErr } = await supabaseAdmin.auth.admin.listUsers();
+    if (!authErr && authUsers) {
+        result.auth = authUsers.users.filter(u => u.email === email).map(u => ({
+            id: u.id,
+            created_at: u.created_at,
+            provider: u.app_metadata?.provider
+        }));
+    }
+
+    // 2. Check Profiles Table
+    const { data: profiles, error: profErr } = await supabaseAdmin
+        .from('profiles')
+        .select('*')
+        .eq('email', email);
+    
+    if (!profErr && profiles) {
+        result.profiles = profiles;
+    }
+
+    // 3. Check System Settings (JSON)
+    const { data: settings } = await supabaseAdmin
+        .from('system_settings')
+        .select('value')
+        .eq('key', 'apasific_registered_users')
+        .single();
+    
+    if (settings && settings.value) {
+        const users = Array.isArray(settings.value) ? settings.value : JSON.parse(settings.value as string);
+        result.systemSettings = users.filter((u: any) => u.email === email).map((u: any) => ({
+            id: u.id,
+            name: u.full_name,
+            role: u.role
+        }));
+    }
+
+    // 4. Check Local JSON
+    try {
+        const localData = fs.readFileSync(path.join(process.cwd(), 'apasific_registered_users.json'), 'utf-8');
+        const localUsers = JSON.parse(localData);
+        result.localJSON = localUsers.filter((u: any) => u.email === email).map((u: any) => ({
+            id: u.id,
+            name: u.full_name,
+            role: u.role
+        }));
+    } catch (e: any) {}
+
+    // Check Firebase
+    try {
+        const { getFirebaseAdmin } = require('@/utils/firebase/server');
+        const admin = getFirebaseAdmin();
+        const fbUser = await admin.auth().getUserByEmail(email);
+        result.firebase = { id: fbUser.uid, email: fbUser.email, name: fbUser.displayName };
+    } catch(e) {
+        result.firebase = "Not Found or Error";
+    }
+
+    return NextResponse.json(result);
 }

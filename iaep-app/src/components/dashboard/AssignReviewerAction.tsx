@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { UserPlus, Search, X, CheckCircle, GraduationCap } from 'lucide-react';
 import { createClient } from '@/utils/supabase/client';
 import { useRouter } from 'next/navigation';
-import { assignReviewerActionFunc } from '@/app/actions/submission';
+import { assignReviewer } from '@/app/actions/editor';
 
 export default function AssignReviewerAction({ article, reviewers }: { article: any, reviewers: any[] }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -18,7 +18,7 @@ export default function AssignReviewerAction({ article, reviewers }: { article: 
     setIsAssigning(reviewer.id);
     
     try {
-      const res = await assignReviewerActionFunc(article.id, reviewer) as any;
+      const res = await assignReviewer(article.id, reviewer.id, reviewer.full_name || reviewer.name, reviewer.email) as any;
       if (!res.success) {
         throw new Error(res.error || "Failed to assign reviewer");
       }

@@ -114,6 +114,8 @@ export default async function SupervisorDashboard() {
               }
 
               // 2. Firestore Check & Restore (fallback)
+              // --- Bug #1 Fix: Firestore full table scan disabled to prevent quota exhaustion ---
+              /*
               const { getFirestore } = await import('@/utils/firebase/db');
               const db = getFirestore();
               const snap = await db.collection('submissions').get();
@@ -145,6 +147,7 @@ export default async function SupervisorDashboard() {
                       updated_at: new Date()
                   });
               }
+              */
           } catch(e) { console.error(e); }
         }}>
           <button type="submit" className="mt-4 px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-bold rounded-lg text-sm border border-red-500 shadow-lg shadow-red-900/20">

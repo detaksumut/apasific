@@ -2,7 +2,6 @@ import { createClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { ClipboardCheck, FileText, CheckCircle, Search, Eye, UserPlus } from "lucide-react";
-import MakeDecisionAction from "@/components/dashboard/MakeDecisionAction";
 import { cookies } from "next/headers";
 
 export default async function ReviewResultsPage() {
@@ -60,46 +59,25 @@ function unhexUuid(uuidStr: string): string {
   let articles: any[] = submissions || [];
   const articleIdSet = new Set(articles.map((a: any) => String(a.id || '')));
 
-  // --- Bug #1 Fix: Also fetch Firestore submissions and merge them in ---
+  // --- Bug #1 Fix: Firestore full table scan disabled to prevent quota exhaustion ---
+  // If legacy data needs to appear here, it should be migrated to Supabase.
+  // Supabase remains the primary database.
+  /*
   try {
     const { getFirestore } = await import('@/utils/firebase/db');
     const db = getFirestore();
     const fsSnap = await db.collection('submissions').get();
     for (const doc of fsSnap.docs) {
-      if (articleIdSet.has(doc.id)) continue; // already in list from Supabase
+      if (articleIdSet.has(doc.id)) continue;
       const d = doc.data();
-      // Only include submissions that are in a review-relevant stage
       const reviewStatuses = ['Under Review', 'Reviewed', 'Needs Revision', 'Revision Submitted', 'Revision Under Review', 'Revision Required'];
       if (!reviewStatuses.includes(d.status || '')) continue;
-
-      let journalName = 'JURNAL';
-      let authorName = 'Penulis';
-      let authorPhone = '';
-      try {
-        if (d.journal_id) {
-          const { data: j } = await supabaseAdmin.from('journals').select('name').eq('id', d.journal_id).single();
-          if (j) journalName = j.name;
-        }
-        if (d.author_id) {
-          const { data: prof } = await supabaseAdmin.from('profiles').select('full_name, phone').eq('id', d.author_id).single();
-          if (prof?.full_name) authorName = prof.full_name;
-          if (prof?.phone) authorPhone = prof.phone;
-        }
-      } catch (e) {}
-
-      articles.push({
-        id: doc.id,
-        ...d,
-        created_at: d.created_at?.toDate ? d.created_at.toDate().toISOString() : d.created_at || new Date().toISOString(),
-        updated_at: d.updated_at?.toDate ? d.updated_at.toDate().toISOString() : d.updated_at || new Date().toISOString(),
-        journals: { name: journalName },
-        profiles: { full_name: authorName, phone: authorPhone },
-        _source: 'firestore'
-      });
+      // ... merging logic ...
     }
   } catch (e) {
     console.warn("Firestore submissions merge in review-results failed", e);
   }
+  */
 
   // --- Fetch all reviewers ---
   let allReviewers: any[] = [];
@@ -140,6 +118,8 @@ function unhexUuid(uuidStr: string): string {
   }
 
   // 2. Firestore assignments fallback merge
+  // --- Bug #1 Fix: Firestore full table scan disabled to prevent quota exhaustion ---
+  /*
   try {
     const { getFirestore } = await import('@/utils/firebase/db');
     const db = getFirestore();
@@ -180,6 +160,7 @@ function unhexUuid(uuidStr: string): string {
   } catch (e) {
     console.warn("Firestore assignments fetch failed", e);
   }
+  */
   
   // Attach assignments
   articles = articles.map(article => {
@@ -351,11 +332,8 @@ function unhexUuid(uuidStr: string): string {
                     
                     <div className="shrink-0 flex flex-wrap items-center justify-end gap-3">
                       <Link href={`/dashboard/editor/submissions/${article.id || article.submission_id}`} className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-zinc-800 hover:bg-zinc-700 rounded-lg transition-colors border border-zinc-700">
-                        <Eye className="w-4 h-4 text-zinc-400" /> Lihat Detail
+                        Buka Workspace →
                       </Link>
-                      {isCompleted && (
-                        <MakeDecisionAction article={article} />
-                      )}
                     </div>
                   </div>
                 </div>

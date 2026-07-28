@@ -24,13 +24,13 @@ export function renderCoverTitle(title: string, scaleFactor: number = 1.0) {
   let lineHeight = 1.25;
   
   if (len > 120) {
-    fontSize = 7.5 * scaleFactor;
+    fontSize = 9.5 * scaleFactor;
     lineHeight = 1.2;
   } else if (len > 70) {
-    fontSize = 9 * scaleFactor;
+    fontSize = 11.5 * scaleFactor;
     lineHeight = 1.2;
   } else {
-    fontSize = 12 * scaleFactor;
+    fontSize = 14 * scaleFactor;
     lineHeight = 1.3;
   }
   

@@ -1,0 +1,89 @@
+import { IdentityContext } from "@/domain/identity/IdentityContext";
+import { IdentityNotFoundException } from "@/domain/identity/IdentityNotFoundException";
+import { IdentityRepository } from "@/repositories/IdentityRepository";
+
+export class IdentityResolver {
+    /**
+     * Resolves an authentication session user object into a verified IdentityContext.
+     * Extracts legacy/fake UUIDs and normalizes them to True UUIDs.
+     */
+    static async resolve(sessionUser: any): Promise<IdentityContext> {
+        if (!sessionUser || !sessionUser.id) {
+            throw new IdentityNotFoundException("Session user or user ID is missing.");
+        }
+
+        const rawId = sessionUser.id;
+        const email = sessionUser.email || '';
+        const isTrueUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(rawId);
+        
+        let identityId = rawId;
+        let resolvedFullName = sessionUser.full_name || undefined;
+        let resolvedEmail = email;
+
+        // 1. Resolve Legacy / Fake UUIDs
+        if (!isTrueUUID) {
+            // Attempt to look up by email first
+            if (resolvedEmail && !resolvedEmail.includes('fallback@')) {
+                const profile = await IdentityRepository.findIdentityByEmail(resolvedEmail);
+                if (profile && profile.id) {
+                    identityId = profile.id;
+                    if (profile.full_name) resolvedFullName = profile.full_name;
+                } else {
+                    // Try system settings fallback just in case
+                    const fallbackProfile = await IdentityRepository.findIdentityFromSystemSettings(resolvedEmail);
+                    if (fallbackProfile && fallbackProfile.id) {
+                        identityId = fallbackProfile.id;
+                        if (fallbackProfile.full_name) resolvedFullName = fallbackProfile.full_name;
+                    } else {
+                        throw new IdentityNotFoundException(`Identity not found for legacy email: ${resolvedEmail}`);
+                    }
+                }
+            } else {
+                // If email is missing or fallback, try searching by the raw legacy ID in system_settings
+                let fallbackProfile = await IdentityRepository.findIdentityFromSystemSettings(rawId);
+                
+                // If not found by rawId, try json_id if it exists (very common for Firebase fallback users)
+                if (!fallbackProfile && sessionUser.json_id) {
+                    fallbackProfile = await IdentityRepository.findIdentityFromSystemSettings(sessionUser.json_id);
+                }
+
+                if (fallbackProfile && fallbackProfile.id) {
+                    identityId = fallbackProfile.id;
+                    if (fallbackProfile.full_name) resolvedFullName = fallbackProfile.full_name;
+                    if (fallbackProfile.email) {
+                        resolvedEmail = fallbackProfile.email;
+                        
+                        // Critical: Since we now have the real email, try to upgrade to True UUID!
+                        const trueProfile = await IdentityRepository.findIdentityByEmail(resolvedEmail);
+                        if (trueProfile && trueProfile.id) {
+                            identityId = trueProfile.id;
+                        }
+                    }
+                } else {
+                    throw new IdentityNotFoundException(`Identity not found for legacy ID: ${rawId} (json_id: ${sessionUser.json_id || 'none'})`);
+                }
+            }
+        } else {
+            // Even if it's a True UUID, we might want to enrich full_name if missing
+            if (!resolvedFullName && resolvedEmail) {
+                const profile = await IdentityRepository.findIdentityByEmail(resolvedEmail);
+                if (profile && profile.full_name) {
+                    resolvedFullName = profile.full_name;
+                }
+            }
+        }
+
+        // 2. Build the new IdentityContext, do not mutate original sessionUser
+        const context: IdentityContext = {
+            id: identityId,         // Alias to identityId for backward compatibility
+            identityId: identityId, // True UUID
+            email: resolvedEmail,
+            full_name: resolvedFullName,
+            provider: sessionUser.app_metadata?.provider || (isTrueUUID ? 'supabase' : 'firebase'),
+            roles: sessionUser.app_metadata?.roles || [],
+            permissions: sessionUser.app_metadata?.permissions || []
+        };
+
+        return context;
+    }
+}

@@ -153,7 +153,7 @@ export default async function EditorDashboard() {
         </div>
 
         {/* Kotak Riwayat Terbit — klik langsung ke halaman publications */}
-        <Link href="/dashboard/editor/publications" className="bg-teal-900/20 border border-teal-800/40 p-6 rounded-xl hover:border-teal-500/50 transition-colors relative group block">
+        <Link href="/dashboard/editor/publications" prefetch={false} className="bg-teal-900/20 border border-teal-800/40 p-6 rounded-xl hover:border-teal-500/50 transition-colors relative group block">
           <div className="flex justify-between items-start mb-4">
             <h3 className="text-teal-400 text-xs font-semibold uppercase tracking-wider">Sudah Terbit</h3>
             <div className="p-2 bg-teal-800/20 rounded-lg group-hover:bg-teal-500/20 transition-colors">
@@ -181,7 +181,7 @@ export default async function EditorDashboard() {
               <FileText className="w-8 h-8 text-zinc-500" />
             </div>
             <h3 className="text-white font-medium mb-1">Tidak ada naskah aktif</h3>
-            <p className="text-zinc-500 text-sm">Semua naskah sudah diproses. Lihat <Link href="/dashboard/editor/publications" className="text-teal-400 underline">Riwayat Terbit</Link>.</p>
+            <p className="text-zinc-500 text-sm">Semua naskah sudah diproses. Lihat <Link href="/dashboard/editor/publications" prefetch={false} className="text-teal-400 underline">Riwayat Terbit</Link>.</p>
           </div>
         ) : (
           <div className="divide-y divide-zinc-800/50">
@@ -271,6 +271,7 @@ export default async function EditorDashboard() {
                     <ResendWaButton phone={senderPhone} title={article.title} />
                     <Link 
                       href={`/dashboard/editor/submissions/${article.id || article.submission_id}`}
+                      prefetch={false}
                       className="flex items-center justify-center gap-2 px-4 py-2 bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500 hover:text-white rounded-lg transition-all text-sm font-medium border border-emerald-500/20 hover:border-emerald-500"
                     >
                       Kelola Naskah
