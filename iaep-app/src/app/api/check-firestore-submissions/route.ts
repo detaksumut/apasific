@@ -8,10 +8,10 @@ export async function GET() {
     const db = getFirestore();
     const snapshot = await db.collection('submissions').get();
     
-    const counts = {};
-    const publishedDetails = [];
+    const counts: Record<string, number> = {};
+    const publishedDetails: any[] = [];
     
-    snapshot.docs.forEach(doc => {
+    snapshot.docs.forEach((doc: any) => {
       const data = doc.data();
       const status = data.status || 'unknown';
       counts[status] = (counts[status] || 0) + 1;

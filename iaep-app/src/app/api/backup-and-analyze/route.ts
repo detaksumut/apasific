@@ -35,7 +35,7 @@ export async function GET() {
     // 1. Backup Firestore Submissions
     const fsSnap = await db.collection('submissions').get();
     const fsSubmissions: any[] = [];
-    fsSnap.forEach(doc => {
+    fsSnap.forEach((doc: any) => {
       fsSubmissions.push({ id: doc.id, ...doc.data() });
     });
     

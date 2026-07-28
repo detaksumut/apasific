@@ -26,7 +26,7 @@ export async function GET() {
     const fsSnap = await db.collection('submissions').get();
     const fsList = [];
     
-    fsSnap.docs.forEach(doc => {
+    fsSnap.docs.forEach((doc: any) => {
       const data = doc.data();
       if (data.doi && data.doi.trim() !== '') {
         fsList.push({
