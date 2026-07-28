@@ -22,7 +22,7 @@ export async function GET() {
       .where('submission_id', '==', '7375625f-3137-3834-3436-393333383834')
       .get();
       
-    snap.forEach(doc => firestoreData.push({ id: doc.id, ...doc.data() }));
+    snap.forEach((doc: any) => firestoreData.push({ id: doc.id, ...doc.data() }));
   } catch (e) {
     console.log(e);
   }
