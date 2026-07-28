@@ -29,8 +29,8 @@ export async function GET() {
 
     if (error) throw error;
 
-    const counts = {};
-    data.forEach(s => {
+    const counts: Record<string, number> = {};
+    data.forEach((s: any) => {
       const status = s.status || 'unknown';
       counts[status] = (counts[status] || 0) + 1;
     });
