@@ -24,7 +24,7 @@ export async function GET() {
     // 2. Query Firestore for non-null/non-empty DOIs
     const db = getFirestore();
     const fsSnap = await db.collection('submissions').get();
-    const fsList = [];
+    const fsList: any[] = [];
     
     fsSnap.docs.forEach((doc: any) => {
       const data = doc.data();
