@@ -144,30 +144,6 @@ export async function submitEditorialDecision(submissionId: string, authorId: st
             }
         }
 
-        // 2. Update Firestore
-        try {
-            const { getFirestore } = await import('@/utils/firebase/db');
-            const db = getFirestore();
-            const batch = db.batch();
-
-            const subRef = db.collection('submissions').doc(submissionId);
-            batch.update(subRef, { status: decision, updated_at: new Date() });
-
-            const histRef = db.collection('submission_history').doc();
-            batch.set(histRef, {
-                submission_id: submissionId,
-                action: `Editor Decision: ${decision}`,
-                performed_by: editorId,
-                details: comments,
-                created_at: new Date()
-            });
-
-
-
-            await batch.commit();
-        } catch (e) {
-            console.warn("Firestore update decision failed", e);
-        }
         revalidatePath('/dashboard/editor/review-results');
         revalidatePath('/dashboard/editor/submissions');
 
@@ -187,51 +163,16 @@ export async function updateSubmissionStage(submissionId: string, stage: string,
             process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
         );
 
-        const isFirestoreId = submissionId.startsWith('sub_') || !submissionId.includes('-');
+        // Update Supabase
+        await supabaseAdmin.from('submissions').update({ stage, status, updated_at: new Date() }).eq('id', submissionId);
 
-        // 1. Update Firestore first (primary for Firestore-based submissions)
-        if (isFirestoreId) {
-            const { getFirestore } = await import('@/utils/firebase/db');
-            const db = getFirestore();
-            const subRef = db.collection('submissions').doc(submissionId);
-            await subRef.update({ stage, status, updated_at: new Date() });
-        }
-
-        // 2. Update Supabase (wrapped in try/catch to ignore UUID errors for Firestore IDs)
-        try {
-            await supabaseAdmin.from('submissions').update({ stage, status, updated_at: new Date() }).eq('id', submissionId);
-
-            // Insert into submission_history
-            await supabaseAdmin.from('submission_history').insert({
-                submission_id: submissionId,
-                action: `Stage updated: ${stage} (${status})`,
-                performed_by: user?.id || null,
-                details: `Naskah dipindahkan ke tahap ${stage} dengan status ${status}`
-            });
-        } catch (supaErr) {
-            console.warn("Supabase update skipped (likely Firestore ID format mismatch)", supaErr);
-        }
-
-        // 3. Also update Firestore for Supabase submissions (cross-sync)
-        if (!isFirestoreId) {
-            try {
-                const { getFirestore } = await import('@/utils/firebase/db');
-                const db = getFirestore();
-                const subRef = db.collection('submissions').doc(submissionId);
-                await subRef.update({ stage, status, updated_at: new Date() });
-
-                const histRef = db.collection('submission_history').doc();
-                await histRef.set({
-                    submission_id: submissionId,
-                    action: `Stage updated: ${stage} (${status})`,
-                    performed_by: user?.id || null,
-                    details: `Naskah dipindahkan ke tahap ${stage} dengan status ${status}`,
-                    created_at: new Date()
-                });
-            } catch (e) {
-                console.warn("Firestore cross-sync update failed", e);
-            }
-        }
+        // Insert into submission_history
+        await supabaseAdmin.from('submission_history').insert({
+            submission_id: submissionId,
+            action: `Stage updated: ${stage} (${status})`,
+            performed_by: user?.id || null,
+            details: `Naskah dipindahkan ke tahap ${stage} dengan status ${status}`
+        });
 
         // 4. Fetch author phone and send WA if Needs Revision
         // 4. Fetch author phone and send WA if Needs Revision
@@ -616,13 +557,6 @@ export async function updateIssn(submissionId: string, issn: string) {
 
         const { error } = await supabaseAdmin.from('submissions').update({ issn }).eq('id', submissionId);
 
-        try {
-            const { getFirestore } = await import('@/utils/firebase/db');
-            const db = getFirestore();
-            await db.collection('submissions').doc(submissionId).update({ issn });
-        } catch (e) {
-            console.warn("Failed to update ISSN in Firestore", e);
-        }
 
         if (error) {
             return { success: false, error: error.message };
@@ -646,17 +580,6 @@ export async function updateDoi(submissionId: string, doi: string, zenodoId: str
             .update({ doi: doi, zenodo_id: zenodoId })
             .eq('id', submissionId);
 
-        // Always try Firestore as fallback/sync
-        try {
-            const { getFirestore } = await import('@/utils/firebase/db');
-            const db = getFirestore();
-            await db.collection('submissions').doc(submissionId).update({
-                doi: doi,
-                zenodo_id: zenodoId
-            });
-        } catch (e) {
-            console.warn("Failed to update DOI in Firestore", e);
-        }
 
         return { success: true };
     } catch (e: any) {
@@ -799,37 +722,16 @@ export async function publishArticle(submissionId: string, journalId: string, cu
             process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
         );
 
-        const { getFirestore } = await import('@/utils/firebase/db');
-        const db = getFirestore();
-
-        // 1. Get submission details to find author and title
-        let submissionTitle = '';
-        let authorId = '';
-        let isFirestore = submissionId.startsWith('sub_') || !submissionId.includes('-');
-
-        if (isFirestore) {
-            const doc = await db.collection('submissions').doc(submissionId).get();
-            if (doc.exists) {
-                submissionTitle = doc.data()?.title || '';
-                authorId = doc.data()?.author_id || '';
-            }
-        } else {
-            const { data } = await supabaseAdmin.from('submissions').select('title, author_id').eq('id', submissionId).single();
-            if (data) {
-                submissionTitle = data.title;
-                authorId = data.author_id;
-            }
-        }
+        // 1. Get submission details from Supabase
+        const { data } = await supabaseAdmin.from('submissions').select('title, author_id').eq('id', submissionId).single();
+        const submissionTitle = data?.title || '';
+        const authorId = data?.author_id || '';
 
         // Get journal name
         let journalName = 'APASIFIC Jurnal';
         if (journalId) {
             const { data: j } = await supabaseAdmin.from('journals').select('name').eq('id', journalId).single();
             if (j) journalName = j.name;
-            else {
-                const jDoc = await db.collection('journals').doc(journalId).get();
-                if (jDoc.exists) journalName = jDoc.data()?.name || journalName;
-            }
         }
 
         // Calculate Volume and Issue dynamically
@@ -840,7 +742,7 @@ export async function publishArticle(submissionId: string, journalId: string, cu
         const editionStr = `${finalVolume} ${finalIssue} (${new Date().getFullYear()})`;
         const dateStr = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
 
-        // 2. Update status, stage, volume, and issue to Published
+        // 2. Update status to Published in Supabase
         const updatePayload: any = {
             status: 'Published',
             stage: 'Published',
@@ -853,9 +755,6 @@ export async function publishArticle(submissionId: string, journalId: string, cu
             updatePayload.author = customAuthor;
         }
 
-        if (isFirestore) {
-            await db.collection('submissions').doc(submissionId).update(updatePayload);
-        }
         await supabaseAdmin.from('submissions').update(updatePayload).eq('id', submissionId);
 
         // Insert history
@@ -868,35 +767,12 @@ export async function publishArticle(submissionId: string, journalId: string, cu
             details: `Artikel telah resmi diterbitkan di ${journalName}`
         });
 
-        if (isFirestore) {
-            const histRef = db.collection('submission_history').doc();
-            await histRef.set({
-                submission_id: submissionId,
-                action: 'Article Published',
-                performed_by: user?.id || null,
-                details: `Artikel telah resmi diterbitkan di ${journalName}`,
-                created_at: new Date()
-            });
-        }
-
-        // 3. Ensure Certificate exists and is up to date
-        // Check in Supabase
+        // 3. Ensure Certificate exists and is up to date in Supabase
         const { data: certSupabase } = await supabaseAdmin.from('certificates').select('id').eq('reference_id', submissionId);
-        let hasCert = certSupabase && certSupabase.length > 0;
-
-        // Check in Firestore
-        let fbCertId = null;
-        if (!hasCert || isFirestore) {
-            const fbCertSnapshot = await db.collection('certificates').where('reference_id', '==', submissionId).get();
-            hasCert = hasCert || !fbCertSnapshot.empty;
-            if (!fbCertSnapshot.empty) {
-                fbCertId = fbCertSnapshot.docs[0].id;
-            }
-        }
+        const hasCert = certSupabase && certSupabase.length > 0;
 
         if (authorId) {
             if (!hasCert) {
-                // Create in Supabase
                 try {
                     await supabaseAdmin.from('certificates').insert({
                         user_id: authorId,
@@ -910,24 +786,7 @@ export async function publishArticle(submissionId: string, journalId: string, cu
                 } catch (err) {
                     console.error("Failed to insert certificate to Supabase", err);
                 }
-
-                // Create in Firestore
-                try {
-                    await db.collection('certificates').add({
-                        user_id: authorId,
-                        type: 'author_publication',
-                        reference_id: submissionId,
-                        title: `Sertifikat Publikasi Naskah: ${submissionTitle}`,
-                        journal: journalName,
-                        edition: editionStr,
-                        date: dateStr,
-                        created_at: new Date()
-                    });
-                } catch (err) {
-                    console.error("Failed to insert certificate to Firestore", err);
-                }
             } else {
-                // Update existing certificate
                 try {
                     await supabaseAdmin.from('certificates').update({
                         edition: editionStr,
@@ -935,17 +794,6 @@ export async function publishArticle(submissionId: string, journalId: string, cu
                     }).eq('reference_id', submissionId);
                 } catch (err) {
                     console.error("Failed to update certificate in Supabase", err);
-                }
-
-                if (fbCertId) {
-                    try {
-                        await db.collection('certificates').doc(fbCertId).update({
-                            edition: editionStr,
-                            date: dateStr
-                        });
-                    } catch (err) {
-                        console.error("Failed to update certificate in Firestore", err);
-                    }
                 }
             }
         }
@@ -1321,18 +1169,6 @@ export async function sendReviewerInviteWa(phone: string, name: string, submissi
                     performed_by: user?.id || null,
                     details: `Editor mengirimkan undangan ulasan via WhatsApp kepada ${name}`
                 });
-
-                // Fallback to Firestore
-                const { getFirestore } = await import('@/utils/firebase/db');
-                const db = getFirestore();
-                const histRef = db.collection('submission_history').doc();
-                await histRef.set({
-                    submission_id: submissionId,
-                    action: 'Reviewer Invited via WA',
-                    performed_by: user?.id || null,
-                    details: `Editor mengirimkan undangan ulasan via WhatsApp kepada ${name}`,
-                    created_at: new Date()
-                });
             } catch (logErr) {
                 console.error("Gagal mencatat log invite WA:", logErr);
             }
@@ -1381,33 +1217,6 @@ export async function forwardRevisionToReviewer(submissionId: string, assignment
                 .eq('id', aid);
         }
 
-        // 3. Update Firestore
-        try {
-            const { getFirestore } = await import('@/utils/firebase/db');
-            const db = getFirestore();
-            const batch = db.batch();
-
-            const subRef = db.collection('submissions').doc(submissionId);
-            batch.update(subRef, { status: 'Revision Under Review', updated_at: new Date() });
-
-            for (const aid of assignmentIds) {
-                const aRef = db.collection('review_assignments').doc(aid);
-                batch.set(aRef, { status: 'revision_pending', revised_file_url: revisedFileUrl, updated_at: new Date() }, { merge: true });
-            }
-
-            const histRef = db.collection('submission_history').doc();
-            batch.set(histRef, {
-                submission_id: submissionId,
-                action: 'Revision Forwarded to Reviewer',
-                performed_by: user?.id || null,
-                details: `Editor meneruskan file revisi penulis ke reviewer untuk diperiksa kembali.`,
-                created_at: new Date()
-            });
-
-            await batch.commit();
-        } catch (e) {
-            console.warn("Firestore forward revision update failed", e);
-        }
 
         // 4. Log history in Supabase
         await supabaseAdmin.from('submission_history').insert({
@@ -1534,32 +1343,14 @@ export async function assignReviewer(submissionId: string, reviewerId: string, r
             assigned_at: new Date().toISOString()
         };
 
-        // Insert to Supabase review_assignments — capture returned ID for ID bridging
-        let newAssignmentId: string | null = null;
+        // Insert to Supabase review_assignments
         const { data: insertedAssignment, error: sbError } = await supabaseAdmin
             .from('review_assignments')
             .insert(assignmentDataSupabase)
             .select('id')
             .single();
         if (sbError) {
-            console.error("Supabase assign reviewer failed (likely UUID mismatch, continuing to Firestore):", sbError);
-        } else if (insertedAssignment?.id) {
-            newAssignmentId = insertedAssignment.id;
-        }
-
-        // Insert to Firestore review_assignments using the SAME ID as Supabase (ID bridging)
-        try {
-            const { getFirestore } = await import('@/utils/firebase/db');
-            const db = getFirestore();
-            if (newAssignmentId) {
-                // Use Supabase UUID as Firestore document ID — solves ID mismatch bug
-                await db.collection('review_assignments').doc(newAssignmentId).set(assignmentDataFirestore);
-            } else {
-                // Fallback: let Firestore auto-generate if Supabase insert failed
-                await db.collection('review_assignments').add(assignmentDataFirestore);
-            }
-        } catch (e) {
-            console.warn("Firestore assign reviewer failed", e);
+            return { success: false, error: "Gagal menugaskan reviewer: " + sbError.message };
         }
 
         // Update submission status to Under Review only if not advanced
@@ -1582,13 +1373,6 @@ export async function removeCoverFile(submissionId: string) {
 
         await supabaseAdmin.from('submissions').update({ cover_file_url: null }).eq('id', submissionId);
 
-        try {
-            const { getFirestore } = await import('@/utils/firebase/db');
-            const db = getFirestore();
-            await db.collection('submissions').doc(submissionId).update({ cover_file_url: null });
-        } catch (e) {
-            console.warn("Firestore update failed", e);
-        }
         revalidatePath(`/dashboard/editor/submissions/${submissionId}`);
         return { success: true };
     } catch (e: any) {
@@ -1621,21 +1405,6 @@ export async function recordEditorialDecision(submissionId: string, decision: 'A
             details: editorialNote || 'No additional notes provided.'
         });
 
-        // Also update Firestore fallback
-        try {
-            const { getFirestore } = await import('@/utils/firebase/db');
-            const db = getFirestore();
-            await db.collection('submissions').doc(submissionId).update({ status: decision, stage: newStage, updated_at: new Date() });
-            await db.collection('submission_history').add({
-                submission_id: submissionId,
-                action: `Editor Decision: ${decision}`,
-                performed_by: editorId,
-                details: editorialNote,
-                created_at: new Date()
-            });
-        } catch (fbErr) {
-            console.warn("Firestore fallback failed during recordEditorialDecision", fbErr);
-        }
 
         // Commit successful, trigger Notification Service asynchronously
         let notificationSent = false;
