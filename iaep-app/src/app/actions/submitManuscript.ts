@@ -67,7 +67,6 @@ export async function submitManuscript(formData: FormData) {
     let finalAbstract = abstract || "";
 
     // Ensure the profile exists to prevent foreign key constraint errors
-    let savedToSupabase = false;
     let finalSubmissionId = `sub_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
 
     if (userId) {
@@ -79,7 +78,7 @@ export async function submitManuscript(formData: FormData) {
          }, { onConflict: 'id' });
          
          if (profileError) {
-            console.warn("Profile Upsert Error (expected if Firebase fallback without Supabase auth):", profileError.message);
+            console.warn("Profile Upsert Error:", profileError.message);
          }
       } catch (profileCatchError: any) {
          console.warn("Failed to ensure profile exists:", profileCatchError.message);
@@ -108,44 +107,22 @@ export async function submitManuscript(formData: FormData) {
           .select()
           .single();
 
-        if (!submissionError && submission) {
+        if (submissionError) {
+           throw submissionError;
+        }
+
+        if (submission) {
            finalSubmissionId = submission.id || submission.submission_id || finalSubmissionId;
-           savedToSupabase = true;
-        } else {
-           console.warn("Supabase submission insert failed (FK violation?), falling back to Firestore:", submissionError?.message);
         }
     } catch(supaErr: any) {
-        console.warn("Supabase interaction failed:", supaErr.message);
-    }
-
-    try {
-       const { getFirestore } = require('@/utils/firebase/db');
-       const db = getFirestore();
-       const admin = require('@/utils/firebase/server').getFirebaseAdmin();
-       
-       await db.collection('submissions').doc(finalSubmissionId).set({
-           journal_id: validJournalId,
-           author_id: userId,
-           title,
-           abstract: finalAbstract,
-           author: null,
-           phone: formPhone || null,
-           status: 'queued',
-           created_at: admin.firestore.FieldValue.serverTimestamp(),
-           updated_at: admin.firestore.FieldValue.serverTimestamp()
-       });
-       console.log("Dual-write to Firestore successful for:", finalSubmissionId);
-    } catch (fbErr) {
-       console.error("Dual-write to Firestore failed:", fbErr);
-       if (!savedToSupabase) {
-          throw new Error("Both Supabase and Firebase failed to save the submission.");
-       }
+        console.error("Supabase interaction failed:", supaErr.message);
+        throw new Error("Failed to save submission to Supabase: " + supaErr.message);
     }
 
 
 
     // Helper function to upload and log files
-    const uploadAndLogFile = async (f: File, prefix: string) => {
+    const uploadAndLogFile = async (f: File, prefix: string, dbField: string, updateFallbackFileUrl: boolean = false) => {
       const fileExt = f.name.split('.').pop();
       const filePath = `${finalSubmissionId}/${Date.now()}_${prefix}.${fileExt}`;
       
@@ -188,42 +165,36 @@ export async function submitManuscript(formData: FormData) {
           if (fileError) console.warn("Supabase submission_files insert failed:", fileError.message);
       }
 
-      // Save the raw storage path to file_url so signed URLs can be generated later
+      // Save the raw storage path to appropriate db column so signed URLs can be generated later
       try {
         if (filePath) {
-          if (savedToSupabase) {
-            await supabaseAdmin.from('submissions').update({
-              file_url: filePath
-            }).or(`id.eq.${finalSubmissionId}`);
+          const updateData: any = { [dbField]: filePath };
+          if (updateFallbackFileUrl) {
+            updateData.file_url = filePath;
+            updateData.manuscript_url = filePath; // legacy
           }
-          try {
-            const { getFirestore } = require('@/utils/firebase/db');
-            const db = getFirestore();
-            await db.collection('submissions').doc(finalSubmissionId).update({
-              file_url: filePath,
-              manuscript_url: filePath
-            });
-          } catch(e) {}
+          
+          await supabaseAdmin.from('submissions').update(updateData).eq('id', finalSubmissionId);
         }
-      } catch(e) {}
+      } catch(e) {
+          console.error("Failed to update submission with file path:", e);
+      }
     };
 
     // 2. Upload Title Page
     try {
-      await uploadAndLogFile(file, 'title_page');
+      await uploadAndLogFile(file, 'title_page', 'original_file_url', true);
       
       // Upload optional files
       if (anonymousFile) {
-        await uploadAndLogFile(anonymousFile, 'anonymous');
+        await uploadAndLogFile(anonymousFile, 'anonymous', 'anonymous_file_url', false);
       }
       if (supportingFile) {
-        await uploadAndLogFile(supportingFile, 'supporting');
+        await uploadAndLogFile(supportingFile, 'supporting', 'supporting_file_url', false);
       }
     } catch (uploadError: any) {
       // Rollback submission if any upload fails
-      if (savedToSupabase) {
-          await supabaseAdmin.from('submissions').delete().eq('submission_id', finalSubmissionId);
-      }
+      await supabaseAdmin.from('submissions').delete().eq('id', finalSubmissionId);
       throw uploadError;
     }
 
