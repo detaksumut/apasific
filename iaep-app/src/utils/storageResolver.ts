@@ -23,6 +23,7 @@ export interface FileMetadataResult {
   size?: number;
   filename?: string;
   legacyFallbackUsed?: boolean;
+  resolvedFolderPath?: string;
   error?: {
     code: string;
     message: string;
