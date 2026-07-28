@@ -556,23 +556,19 @@ export async function autoRepairSubmissionFile(submissionId: string) {
       }
     }
 
-    // Split payloads to avoid Postgres column schema errors (correction_notes and annotated_file_url are Firestore-only)
+    // Build Supabase payload — these columns must exist in Supabase review_assignments table
     const supabasePayload: any = { 
         status: 'completed',
         recommendation: recommendation,
         comments_for_editor: commentsForEditor,
         comments_for_author: commentsForAuthor,
+        correction_notes: correctionNotes,
         completed_at: new Date().toISOString(),
         updated_at: new Date()
     };
 
-    const firestorePayload: any = {
-        ...supabasePayload,
-        correction_notes: correctionNotes
-    };
-    
     if (annotatedFileUrl) {
-        firestorePayload.annotated_file_url = annotatedFileUrl;
+        supabasePayload.annotated_file_url = annotatedFileUrl;
     }
 
     // Execute Supabase Updates
