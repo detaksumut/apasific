@@ -98,8 +98,20 @@ export async function GET(request: Request) {
     : (byDoi && byDoi.length > 0 ? byDoi[0] : null);
 
   if (existing) {
-    // Update: pastikan status Published DAN journal_id benar
-    const updates: any = { status: 'Published', stage: 'Published', doi, zenodo_id: zenodoId };
+    // Update: pastikan status Published, journal_id benar, dan lengkapi metadata publikasi
+    const abstractForDb = authors.length > 0
+      ? JSON.stringify({ abstract_en: abstract, authors, keywords: keywords.join(', '), doi })
+      : abstract;
+
+    const updates: any = { 
+      status: 'Published', 
+      stage: 'Published', 
+      doi, 
+      zenodo_id: zenodoId,
+      title,
+      abstract: abstractForDb,
+      created_at: publishedDate
+    };
     if (journalId && existing.journal_id !== journalId) {
       updates.journal_id = journalId;
     }
@@ -109,7 +121,7 @@ export async function GET(request: Request) {
       found: true,
       action: 'updated',
       id: existing.id,
-      title: existing.title || title,
+      title,
       status: 'Published',
       doi,
       zenodo_id: zenodoId,
@@ -117,7 +129,7 @@ export async function GET(request: Request) {
       journal_name: journalName,
       journal_id_updated: journalId !== existing.journal_id,
       error: updateErr?.message || null,
-      message: `✅ Artikel ada di Supabase. Journal: ${journalName}. ${updateErr ? 'Ada error: ' + updateErr.message : 'Status dan journal_id diperbaiki.'}`
+      message: `✅ Artikel ada di Supabase. Journal: ${journalName}. ${updateErr ? 'Ada error: ' + updateErr.message : 'Metadata publikasi dipulihkan.'}`
     });
   }
 

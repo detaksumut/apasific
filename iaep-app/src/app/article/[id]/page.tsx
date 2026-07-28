@@ -91,6 +91,10 @@ export default function ArticlePaywall() {
   const [visitorCountries, setVisitorCountries] = useState<Record<string, number>>({});
   const [countryPage, setCountryPage] = useState(1);
 
+  const [realHIndex, setRealHIndex] = useState<number>(0);
+  const [realI10Index, setRealI10Index] = useState<number>(0);
+  const [realTrend, setRealTrend] = useState<{ label: string, count: number }[]>([]);
+
   // Generate unique initial stats based on ID to avoid uniformity
   useEffect(() => {
     if (id) {
@@ -116,6 +120,7 @@ export default function ArticlePaywall() {
     title: "",
     author: "",
     journal: "APASIFIC IAEP",
+    journal_id: "",
     date: "",
     abstract: "",
     keywords: [] as string[],
@@ -177,6 +182,7 @@ export default function ArticlePaywall() {
             title: data.title || "",
             author: authors,
             journal: (Array.isArray(data.journals) ? data.journals[0]?.name : (data.journals as any)?.name) || "APASIFIC IAEP",
+            journal_id: data.journal_id || "",
             date: data.created_at ? new Date(data.created_at).toLocaleDateString('id-ID') : "Baru saja dipublikasi",
             abstract: data.abstract || "Abstrak tidak tersedia.",
             keywords: data.keywords ? data.keywords.split(',') : [],
@@ -314,6 +320,87 @@ export default function ArticlePaywall() {
         fetch(`/api/metrics?id=${id}&type=view&country=Indonesia`, { method: 'POST' }).catch(console.error);
       });
   }, [id]);
+
+  // Kalkulasi dinamis H-Index, i10-Index, dan Tren Bulanan Jurnal dari data riil Supabase & OpenCitations
+  useEffect(() => {
+    if (!article.journal_id) return;
+
+    async function calculateRealJournalMetrics() {
+      const supabase = createClient();
+      try {
+        const { data: siblings, error } = await supabase
+          .from('submissions')
+          .select('id, doi, created_at')
+          .eq('journal_id', article.journal_id)
+          .eq('status', 'Published');
+
+        if (error || !siblings) return;
+
+        // 1. Tren Publikasi Bulanan Riil (Januari s/d Desember 2026)
+        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+        const monthlyCounts = months.map(m => ({ label: m, count: 0 }));
+        
+        siblings.forEach(s => {
+          if (!s.created_at) return;
+          const date = new Date(s.created_at);
+          if (date.getFullYear() === 2026) {
+            const mIdx = date.getMonth();
+            if (mIdx >= 0 && mIdx < 12) {
+              monthlyCounts[mIdx].count++;
+            }
+          }
+        });
+        setRealTrend(monthlyCounts);
+
+        // 2. Ambil Jumlah Sitasi Riil dari OpenCitations & OpenAIRE
+        const citationCounts = await Promise.all(siblings.map(async (s) => {
+          if (!s.doi) return 0;
+          let openCite = 0;
+          let openAire = 0;
+
+          try {
+            const ocRes = await fetch(`https://opencitations.net/index/coci/api/v1/citation-count/${s.doi}`);
+            if (ocRes.ok) {
+              const ocData = await ocRes.json();
+              openCite = parseInt(ocData[0]?.count || 0, 10);
+            }
+          } catch (e) {}
+
+          try {
+            const oaRes = await fetch(`https://api.openaire.eu/search/researchOutputs?doi=${s.doi}&format=json`);
+            if (oaRes.ok) {
+              const oaData = await oaRes.json();
+              const metadata = oaData?.response?.results?.result?.[0]?.metadata?.['oaf:entity']?.['oaf:result'];
+              openAire = metadata?.citations?.length || 0;
+            }
+          } catch (e) {}
+
+          return Math.max(openCite, openAire);
+        }));
+
+        // 3. Kalkulasi H-Index Jurnal secara Dinamis
+        const sortedCites = [...citationCounts].sort((a, b) => b - a);
+        let hVal = 0;
+        for (let i = 0; i < sortedCites.length; i++) {
+          if (sortedCites[i] >= i + 1) {
+            hVal = i + 1;
+          } else {
+            break;
+          }
+        }
+        setRealHIndex(hVal);
+
+        // 4. Kalkulasi i10-Index Jurnal secara Dinamis
+        const i10Val = citationCounts.filter(c => c >= 10).length;
+        setRealI10Index(i10Val);
+
+      } catch (err) {
+        console.error("Error calculating real journal metrics:", err);
+      }
+    }
+
+    calculateRealJournalMetrics();
+  }, [article.journal_id]);
 
   if (loading) {
     return <div className="min-h-screen pt-32 text-center text-[#c9a84c] bg-[#05050a] font-bold animate-pulse">Memuat detail artikel...</div>;
@@ -824,40 +911,36 @@ export default function ArticlePaywall() {
               <div className="grid grid-cols-2 gap-4">
                 <div className="bg-black/40 border border-gray-800/80 rounded-lg p-3 text-center">
                   <div className="text-[10px] text-gray-500 uppercase font-bold tracking-wider mb-1">H-Index Jurnal</div>
-                  <div className="text-2xl font-bold text-white font-serif">{hIndex}</div>
+                  <div className="text-2xl font-bold text-white font-serif">{realHIndex}</div>
                 </div>
                 <div className="bg-black/40 border border-gray-800/80 rounded-lg p-3 text-center">
                   <div className="text-[10px] text-gray-500 uppercase font-bold tracking-wider mb-1">i10-Index</div>
-                  <div className="text-2xl font-bold text-white font-serif">{i10Index}</div>
+                  <div className="text-2xl font-bold text-white font-serif">{realI10Index}</div>
                 </div>
               </div>
 
               {/* Citations Bar Chart */}
               <div className="space-y-2">
-                <div className="text-[10px] text-gray-500 uppercase font-bold tracking-wider mb-2">Trend Kunjungan Kumulatif (APASIFIC + Zenodo)</div>
+                <div className="text-[10px] text-gray-500 uppercase font-bold tracking-wider mb-2">Trend Publikasi Bulanan Jurnal (2026)</div>
                 <div className="flex items-end justify-between h-28 pt-4 px-2 bg-black/20 rounded-lg border border-gray-800/50">
-                  {[
-                    { year: '2022', count: Math.max(1, Math.round((metrics.views + zenodoMetrics.views) * 0.1)) },
-                    { year: '2023', count: Math.max(2, Math.round((metrics.views + zenodoMetrics.views) * 0.25)) },
-                    { year: '2024', count: Math.max(3, Math.round((metrics.views + zenodoMetrics.views) * 0.45)) },
-                    { year: '2025', count: Math.max(4, Math.round((metrics.views + zenodoMetrics.views) * 0.7)) },
-                    { year: '2026', count: Math.max(5, metrics.views + zenodoMetrics.views) }
-                  ].map((d, i, arr) => {
-                    const maxVal = Math.max(...arr.map(t => t.count)) || 10;
-                    const pct = Math.max(10, (d.count / maxVal) * 100);
+                  {realTrend.map((d, i, arr) => {
+                    const maxVal = Math.max(...arr.map(t => t.count)) || 1;
+                    const pct = Math.max(5, (d.count / maxVal) * 100);
                     return (
-                      <div key={i} className="flex flex-col items-center flex-1 group relative">
+                      <div key={i} className="flex flex-col items-center justify-end h-full flex-1 group relative">
                         {/* Tooltip */}
                         <div className="absolute bottom-full mb-1 opacity-0 group-hover:opacity-100 transition-opacity bg-zinc-800 text-white text-[9px] font-bold px-1.5 py-0.5 rounded shadow border border-zinc-700 pointer-events-none z-10 whitespace-nowrap">
-                          {d.count} Hits
+                          {d.count} Artikel
                         </div>
-                        {/* Bar */}
-                        <div 
-                          className="w-5 bg-gradient-to-t from-emerald-600 to-emerald-400 rounded-t group-hover:from-emerald-500 group-hover:to-emerald-300 transition-all duration-500 shadow-md shadow-emerald-950/20"
-                          style={{ height: `${pct}%` }}
-                        />
+                        {/* Bar Wrapper with fixed height to let pct% work */}
+                        <div className="w-full flex items-end justify-center h-16">
+                          <div 
+                            className="w-3 sm:w-4 bg-gradient-to-t from-emerald-600 to-emerald-400 rounded-t group-hover:from-emerald-500 group-hover:to-emerald-300 transition-all duration-500 shadow-md shadow-emerald-950/20"
+                            style={{ height: `${pct}%` }}
+                          />
+                        </div>
                         {/* Label */}
-                        <span className="text-[9px] text-gray-500 font-bold mt-2">{d.year}</span>
+                        <span className="text-[8px] text-gray-500 font-bold mt-1.5">{d.label}</span>
                       </div>
                     )
                   })}

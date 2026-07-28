@@ -44,7 +44,7 @@ function getSupabaseAdmin() {
 /**
  * Validates a path and checks if the file actually exists in the given bucket.
  */
-async function checkFileExists(bucket: string, fullPath: string): Promise<{ exists: boolean; size?: number; mimeType?: string; filename?: string }> {
+async function checkFileExists(bucket: string, fullPath: string): Promise<{ exists: boolean; size?: number; mimeType?: string; filename?: string; resolvedFolderPath?: string }> {
   try {
     const supabase = getSupabaseAdmin();
     const parts = fullPath.split('/');
@@ -228,8 +228,8 @@ export async function resolveFile(resource: StorageResource): Promise<FileMetada
 
   if (fileMeta.exists) {
     // If it was actually a folder, append the real filename to the path
-    if ((fileMeta as any).resolvedFolderPath) {
-      path = `${(fileMeta as any).resolvedFolderPath}/${fileMeta.filename}`;
+    if (fileMeta.resolvedFolderPath) {
+      path = `${fileMeta.resolvedFolderPath}/${fileMeta.filename}`;
     }
     
     // Generate Signed URL
@@ -237,18 +237,16 @@ export async function resolveFile(resource: StorageResource): Promise<FileMetada
     if (!signedUrl) {
       AuditLogger.error(`[URL_GENERATION_FAILED] Failed to generate signed url for ${path}`);
       return {
-        exists: true,
-        status: StorageFileStatus.URL_GENERATION_FAILED,
         ...fileMeta,
+        status: StorageFileStatus.URL_GENERATION_FAILED,
         error: { code: 'SIGNED_URL_FAILED', message: 'Could not create signed URL', provider: 'supabase-storage' }
       };
     }
 
     return {
-      exists: true,
+      ...fileMeta,
       status: StorageFileStatus.AVAILABLE,
       signedUrl,
-      ...fileMeta
     };
   }
 

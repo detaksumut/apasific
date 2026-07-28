@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { createClient } from "@/utils/supabase/client";
+import { getPublishedArticles } from "@/app/actions/editor";
 
 export default function JournalsRepository() {
   const [journals, setJournals] = useState<any[]>([]);
@@ -24,7 +25,6 @@ export default function JournalsRepository() {
         if (error) throw error;
         setJournals(data || []);
 
-        const { getPublishedArticles } = await import("@/app/actions/editor");
         const res = await getPublishedArticles();
         if (res.success && res.articles) {
           const seen = new Set<string>();

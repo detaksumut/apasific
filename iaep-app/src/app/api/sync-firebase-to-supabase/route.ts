@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { getStatusLevel, isDoiImmutable } from "@/utils/SubmissionStateMachine";
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 300; // 5 menit timeout untuk sync besar
@@ -113,19 +114,53 @@ export async function GET() {
         const journalId = d.journal_id && isValidUuid(d.journal_id) ? d.journal_id : null;
         const authorId = d.author_id ? toUuid(d.author_id) : null;
 
+        // Ambil data naskah saat ini dari Supabase (jika ada) untuk proteksi
+        const { data: existingSub } = await sb
+          .from('submissions')
+          .select('status, doi, updated_at')
+          .eq('id', id)
+          .maybeSingle();
+
+        const firestoreStatus = d.status || 'queued';
+        const firestoreUpdatedAt = toTimestamp(d.updated_at);
+
+        if (existingSub) {
+          // 1. Staleness Check: Jika Supabase memiliki data yang lebih baru, lewati sync
+          const supaUpdatedAt = new Date(existingSub.updated_at).getTime();
+          const fsUpdatedAt = new Date(firestoreUpdatedAt).getTime();
+          if (fsUpdatedAt < supaUpdatedAt) {
+            skipped++;
+            continue;
+          }
+
+          // 2. Status Level Progress Check: Mencegah penurunan status (downgrade)
+          const supaLevel = getStatusLevel(existingSub.status);
+          const fsLevel = getStatusLevel(firestoreStatus);
+          if (fsLevel < supaLevel) {
+            skipped++;
+            continue;
+          }
+        }
+
         const upsertData: any = {
           id,
           title: d.title || 'Untitled',
           abstract: d.abstract || null,
-          status: d.status || 'queued',
+          status: firestoreStatus,
           stage: d.stage || null,
           journal_id: journalId,
           doi: d.doi || null,
           created_at: toTimestamp(d.created_at),
-          updated_at: toTimestamp(d.updated_at),
-          // PERBAIKAN: Jangan isi author_id untuk hindari FK constraint
-          // author_id akan di-update manual setelah profiles sync
+          updated_at: firestoreUpdatedAt,
         };
+
+        if (existingSub) {
+          // 3. DOI Immutability Check: Kunci DOI jika sudah terisi di Supabase
+          if (isDoiImmutable(existingSub.doi, d.doi)) {
+            upsertData.doi = existingSub.doi;
+          }
+        }
+
         if (d.file_url) upsertData.file_url = d.file_url;
         if (d.file_url_galley) upsertData.file_url_galley = d.file_url_galley;
         if (d.cover_file_url) upsertData.cover_file_url = d.cover_file_url;
