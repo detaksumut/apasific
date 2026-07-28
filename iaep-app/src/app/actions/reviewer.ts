@@ -38,19 +38,6 @@ export async function handleReviewerDecision(assignmentId: string, submissionId:
     // 1. Update assignment status in Supabase
     await supabaseAdmin.from('review_assignments').update(updatePayload).eq('id', assignmentId);
     
-    // 2. Update assignment status in Firestore
-    try {
-      const { getFirestore } = await import('@/utils/firebase/db');
-      const db = getFirestore();
-      const fsPayload: any = { status: decision, updated_at: new Date() };
-      if (decision === 'accepted') {
-        fsPayload.accepted_at = acceptedAt;
-        fsPayload.deadline = deadline;
-      }
-      await db.collection('review_assignments').doc(assignmentId).set(fsPayload, { merge: true });
-    } catch (e) {
-      console.warn("Firestore review_assignments update failed", e);
-    }
 
     // 3. Update submission status in Supabase
     if (!isAdvanced) {
@@ -146,37 +133,6 @@ export async function handleReviewerDecision(assignmentId: string, submissionId:
       }
     }
 
-    // 4. Update Firestore as fallback
-    try {
-        const { getFirestore } = await import('@/utils/firebase/db');
-        const db = getFirestore();
-        const batch = db.batch();
-
-        const assignRef = db.collection('review_assignments').doc(assignmentId);
-        const fbUpdatePayload: any = { status: decision, updated_at: new Date() };
-        if (decision === 'accepted') {
-          fbUpdatePayload.accepted_at = new Date();
-          fbUpdatePayload.deadline = deadline;
-        }
-        batch.update(assignRef, fbUpdatePayload);
-
-        if (!isAdvanced) {
-            const subRef = db.collection('submissions').doc(submissionId);
-            batch.update(subRef, { status: newSubmissionStatus, updated_at: new Date() });
-        }
-
-        const histRef = db.collection('submission_history').doc();
-        batch.set(histRef, {
-            submission_id: submissionId,
-            action: `Assignment ${decision}`,
-            details: logDetails,
-            created_at: new Date()
-        });
-
-        await batch.commit();
-    } catch (fbErr) {
-        console.error("Firestore update failed", fbErr);
-    }
 
     const { revalidatePath } = require('next/cache');
     revalidatePath('/dashboard/reviews');
@@ -246,32 +202,6 @@ export async function deleteAssignment(assignmentId: string, submissionId: strin
         console.error("Failed to send WA on reviewer deletion", waErr);
     }
 
-    // 4. Update Firestore as fallback
-    try {
-        const { getFirestore } = await import('@/utils/firebase/db');
-        const db = getFirestore();
-        const batch = db.batch();
-
-        const assignRef = db.collection('review_assignments').doc(assignmentId);
-        batch.delete(assignRef);
-
-        if (!isAdvanced) {
-            const subRef = db.collection('submissions').doc(submissionId);
-            batch.update(subRef, { status: 'Awaiting Reviewers', updated_at: new Date() });
-        }
-
-        const histRef = db.collection('submission_history').doc();
-        batch.set(histRef, {
-            submission_id: submissionId,
-            action: `Assignment Deleted`,
-            details: 'Review assignment was deleted',
-            created_at: new Date()
-        });
-
-        await batch.commit();
-    } catch (fbErr) {
-        console.error("Firestore delete failed", fbErr);
-    }
 
     const { revalidatePath } = require('next/cache');
     revalidatePath('/dashboard/reviews/assignments');
@@ -366,69 +296,23 @@ export async function getAssignmentDetails(assignmentId: string) {
       }
     }
 
-    // Helper to obtain a working URL from Supabase Storage
-    const getStorageUrl = async (pathStr: string): Promise<string> => {
-      if (!pathStr) return "";
-      if (pathStr.startsWith('http://') || pathStr.startsWith('https://')) return pathStr;
-      try {
-        const { data: signedData } = await supabaseAdmin.storage.from('manuscripts').createSignedUrl(pathStr, 86400);
-        if (signedData?.signedUrl) return signedData.signedUrl;
-      } catch(e) {}
-      try {
-        const { data: pubData } = supabaseAdmin.storage.from('manuscripts').getPublicUrl(pathStr);
-        if (pubData?.publicUrl) return pubData.publicUrl;
-      } catch(e) {}
-      return "";
-    };
-
-    // 3. Resolve file URL 100% via Supabase (DB + Storage)
-    const rawCandidateIds = [
-      targetSubId,
-      sub?.submission_id,
-      sub?.id,
-      assignData?.submission_id,
-      assignData?.id,
-      assignmentId
-    ].filter(Boolean);
-
-    const candidateIds: string[] = [];
-    for (const cid of rawCandidateIds) {
-      const strCid = String(cid);
-      candidateIds.push(strCid);
-      const unhexed = unhexUuid(strCid);
-      if (unhexed && unhexed !== strCid) {
-        candidateIds.push(unhexed);
-      }
-    }
-
-    const uniqueCandidates = Array.from(new Set(candidateIds));
-
+    // 3. Resolve file URL via StorageFileResolver
+    const { resolveFile } = await import('@/utils/storageResolver');
     let rawFileUrl = sub?.file_url || sub?.manuscript_url || sub?.anonymous_file_url || assignData?.file_url || assignData?.manuscript_url || "";
-    let fileUrl = await getStorageUrl(rawFileUrl);
-
-    // If still empty, search Supabase Storage bucket 'manuscripts' directly using candidates and prefix matching
-    if (!fileUrl && uniqueCandidates.length > 0) {
-      try {
-        const { data: rootList } = await supabaseAdmin.storage.from('manuscripts').list();
-        if (rootList && rootList.length > 0) {
-          for (const cand of uniqueCandidates) {
-            const matchedFolderObj = rootList.find((item: any) => 
-              item.name === cand || 
-              item.name.startsWith(cand) || 
-              cand.startsWith(item.name)
-            );
-
-            if (matchedFolderObj) {
-              const { data: folderFiles } = await supabaseAdmin.storage.from('manuscripts').list(matchedFolderObj.name);
-              if (folderFiles && folderFiles.length > 0) {
-                const selectedFile = folderFiles.find((f: any) => f.name.toLowerCase().includes('anonymous')) || folderFiles[0];
-                fileUrl = await getStorageUrl(`${matchedFolderObj.name}/${selectedFile.name}`);
-                if (fileUrl) break;
-              }
-            }
-          }
-        }
-      } catch(e) {}
+    let fileUrl = "";
+    let file_metadata: any = { exists: false, status: 'METADATA_MISSING' };
+    
+    if (rawFileUrl || targetSubId) {
+      const metadata = await resolveFile({
+          bucket: 'manuscripts',
+          path: rawFileUrl || '',
+          entityId: targetSubId,
+          entityType: 'submission'
+      });
+      file_metadata = metadata;
+      if (metadata.signedUrl) {
+          fileUrl = metadata.signedUrl;
+      }
     }
 
     const dueDateStr = assignData.deadline
@@ -445,6 +329,7 @@ export async function getAssignmentDetails(assignmentId: string) {
       dueDate: String(dueDateStr),
       round: Number(assignData.round || 1),
       file_url: String(fileUrl),
+      file_metadata: file_metadata,
       status: String(assignData.status || 'pending'),
       recommendation: String(assignData.recommendation || ''),
       comments_for_author: String(assignData.comments_for_author || ''),
@@ -527,43 +412,6 @@ export async function submitReviewResults(
         console.warn("Supabase update failed during review submission:", supaErr);
     }
 
-    // 4. Update Firestore as fallback
-    try {
-        const { getFirestore } = await import('@/utils/firebase/db');
-        const db = getFirestore();
-        const batch = db.batch();
-
-        const assignRef = db.collection('review_assignments').doc(assignmentId);
-        batch.update(assignRef, { 
-            status: 'completed',
-            recommendation: results.recommendation,
-            comments_for_editor: results.commentsForEditor,
-            comments_for_author: results.commentsForAuthor,
-            correction_notes: results.correctionNotes,
-            updated_at: new Date()
-        });
-
-        // Fetch current stage to avoid reverting a published article (re-fetch inside catch block just in case)
-        const { data: subDataFb } = await supabaseAdmin.from('submissions').select('stage').eq('id', submissionId).single();
-        const isAdvancedFb = subDataFb?.stage && ['Copyediting', 'Production', 'Published'].includes(subDataFb.stage);
-
-        if (!isAdvancedFb) {
-            const subRef = db.collection('submissions').doc(submissionId);
-            batch.update(subRef, { status: 'Reviewed', updated_at: new Date() });
-        }
-
-        const histRef = db.collection('submission_history').doc();
-        batch.set(histRef, {
-            submission_id: submissionId,
-            action: `Review Completed`,
-            details: `Reviewer submitted recommendation: ${results.recommendation}`,
-            created_at: new Date()
-        });
-
-        await batch.commit();
-    } catch (fbErr) {
-        console.error("Firestore update failed", fbErr);
-    }
 
     const { revalidatePath } = require('next/cache');
     revalidatePath('/dashboard/reviews/my-reviews');
@@ -766,37 +614,6 @@ export async function autoRepairSubmissionFile(submissionId: string) {
         details: `Reviewer submitted recommendation: ${recommendation}` + (annotatedFileUrl ? ' (with annotated file)' : '')
     });
 
-    // Update Firestore Projection
-    try {
-        const { getFirestore } = await import('@/utils/firebase/db');
-        const db = getFirestore();
-        const batch = db.batch();
-
-        const assignRef = db.collection('review_assignments').doc(assignmentId);
-        // Save and ensure submission_id is populated for projection matching
-        batch.set(assignRef, { 
-            ...firestorePayload,
-            submission_id: realSubmissionId
-        }, { merge: true });
-
-        if (!isAdvanced) {
-            const subRef = db.collection('submissions').doc(realSubmissionId);
-            // Use update to avoid creating orphan documents
-            batch.update(subRef, { status: 'Reviewed', updated_at: new Date() });
-        }
-
-        const histRef = db.collection('submission_history').doc();
-        batch.set(histRef, {
-            submission_id: realSubmissionId,
-            action: `Review Completed`,
-            details: `Reviewer submitted recommendation: ${recommendation}` + (annotatedFileUrl ? ' (with annotated file)' : ''),
-            created_at: new Date()
-        });
-
-        await batch.commit();
-    } catch (fbErr) {
-        console.error("Firestore projection update failed", fbErr);
-    }
 
     const { revalidatePath } = require('next/cache');
     revalidatePath('/dashboard/reviews/my-reviews');
@@ -855,29 +672,13 @@ export async function submitFinalAnnotatedFile(formData: FormData) {
 
     const finalFileUrl = signedData?.signedUrl || "";
 
-    // 3. Save to review_assignment in Supabase (only update valid columns like updated_at)
+    // 3. Save to review_assignment in Supabase
     const { error: supaErr } = await supabaseAdmin.from('review_assignments').update({
-      updated_at: new Date()
+      final_review_file_url: finalFileUrl,
+      final_review_notes: notes,
+      final_review_submitted_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
     }).eq('id', assignmentId);
-
-    if (supaErr) {
-      console.error("Supabase update error in submitFinalAnnotatedFile:", supaErr);
-      return { success: false, error: "Gagal memperbarui status penugasan final di database" };
-    }
-
-    // Save notes and file url to Firestore
-    try {
-      const { getFirestore } = await import('@/utils/firebase/db');
-      const db = getFirestore();
-      await db.collection('review_assignments').doc(assignmentId).set({
-        final_review_file_url: finalFileUrl,
-        final_review_notes: notes,
-        final_review_submitted_at: new Date(),
-        updated_at: new Date()
-      }, { merge: true });
-    } catch (fsErr) {
-      console.error("Firestore final review file update failed:", fsErr);
-    }
 
     // 4. Fetch submission title and reviewer name
     const { data: assignmentData } = await supabaseAdmin
