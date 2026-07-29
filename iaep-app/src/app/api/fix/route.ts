@@ -1,17 +1,24 @@
 import { NextResponse } from 'next/server';
-import { execSync } from 'child_process';
+import { createClient } from '@supabase/supabase-js';
+
+export const dynamic = 'force-dynamic';
 
 export async function GET() {
   try {
-    const cwd = process.cwd();
-    execSync('git add .', { cwd });
-    let commitOutput = "No commit made";
-    try {
-      commitOutput = execSync('git commit -m "style: revamp mobile hero layout using flexbox to fix overlapping buttons and floating logo"', { cwd, encoding: 'utf-8' });
-    } catch(e) {}
-    const pushOutput = execSync('git push', { cwd, encoding: 'utf-8' });
-    return NextResponse.json({ success: true, commitOutput, pushOutput });
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+    const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+    
+    const supabaseAdmin = createClient(supabaseUrl, serviceRoleKey);
+    const assignmentId = '769c61dc-d801-4251-8a9d-3f04fbace238';
+
+    const { data: assignment } = await supabaseAdmin
+      .from('review_assignments')
+      .select('status, recommendation, comments_for_author, correction_notes')
+      .eq('id', assignmentId)
+      .single();
+
+    return NextResponse.json({ success: true, assignment });
   } catch (e: any) {
-    return NextResponse.json({ success: false, error: e.message, stderr: e.stderr?.toString(), stdout: e.stdout?.toString() });
+    return NextResponse.json({ success: false, error: e.message });
   }
 }

@@ -564,11 +564,11 @@ export async function autoRepairSubmissionFile(submissionId: string) {
         comments_for_author: commentsForAuthor,
         correction_notes: correctionNotes,
         completed_at: new Date().toISOString(),
-        updated_at: new Date()
+        updated_at: new Date().toISOString()
     };
 
     if (annotatedFileUrl) {
-        supabasePayload.annotated_file_url = annotatedFileUrl;
+        supabasePayload.review_file_url = annotatedFileUrl;
     }
 
     // Execute Supabase Updates
