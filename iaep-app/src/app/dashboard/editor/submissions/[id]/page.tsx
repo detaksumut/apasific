@@ -982,7 +982,6 @@ export default function SubmissionControlPanel() {
                   </div>
                 )}
               </div>
-              {/* End Right Column: Decisions — hidden for co_admin */}
               )}
             </div>
           )}
