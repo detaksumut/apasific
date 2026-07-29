@@ -922,28 +922,48 @@ export default function ArticlePaywall() {
               {/* Citations Bar Chart */}
               <div className="space-y-2">
                 <div className="text-[10px] text-gray-500 uppercase font-bold tracking-wider mb-2">Trend Publikasi Bulanan Jurnal (2026)</div>
-                <div className="flex items-end justify-between h-28 pt-4 px-2 bg-black/20 rounded-lg border border-gray-800/50">
-                  {realTrend.map((d, i, arr) => {
-                    const maxVal = Math.max(...arr.map(t => t.count)) || 1;
-                    const pct = Math.max(5, (d.count / maxVal) * 100);
-                    return (
-                      <div key={i} className="flex flex-col items-center justify-end h-full flex-1 group relative">
-                        {/* Tooltip */}
-                        <div className="absolute bottom-full mb-1 opacity-0 group-hover:opacity-100 transition-opacity bg-zinc-800 text-white text-[9px] font-bold px-1.5 py-0.5 rounded shadow border border-zinc-700 pointer-events-none z-10 whitespace-nowrap">
-                          {d.count} Artikel
+                <div className="flex items-end bg-black/20 rounded-lg border border-gray-800/50 p-4 gap-3">
+                  {/* Y-Axis Labels */}
+                  <div className="flex flex-col justify-between h-16 text-[8px] text-gray-500 font-mono text-right w-4 select-none pr-1 mb-[22px]">
+                    <span>20</span>
+                    <span>15</span>
+                    <span>10</span>
+                    <span>5</span>
+                    <span>0</span>
+                  </div>
+
+                  {/* Chart Area */}
+                  <div className="flex-1 flex items-end justify-between h-24 relative">
+                    {/* Gridlines */}
+                    <div className="absolute inset-x-0 bottom-[22px] h-16 flex flex-col justify-between pointer-events-none">
+                      <div className="w-full border-t border-gray-800/20 h-0" />
+                      <div className="w-full border-t border-gray-800/20 h-0" />
+                      <div className="w-full border-t border-gray-800/20 h-0" />
+                      <div className="w-full border-t border-gray-800/20 h-0" />
+                      <div className="w-full border-t border-gray-800/40 h-0" />
+                    </div>
+
+                    {realTrend.map((d, i) => {
+                      const pct = Math.min(100, Math.max(3, (d.count / 20) * 100));
+                      return (
+                        <div key={i} className="flex flex-col items-center justify-end h-full flex-1 group relative z-10">
+                          {/* Tooltip */}
+                          <div className="absolute bottom-full mb-1 opacity-0 group-hover:opacity-100 transition-opacity bg-zinc-800 text-white text-[9px] font-bold px-1.5 py-0.5 rounded shadow border border-zinc-700 pointer-events-none z-10 whitespace-nowrap">
+                            {d.count} Artikel
+                          </div>
+                          {/* Bar Wrapper with fixed height to let pct% work */}
+                          <div className="w-full flex items-end justify-center h-16">
+                            <div 
+                              className="w-3 sm:w-4 bg-gradient-to-t from-emerald-600 to-emerald-400 rounded-t group-hover:from-emerald-500 group-hover:to-emerald-300 transition-all duration-500 shadow-md shadow-emerald-950/20"
+                              style={{ height: `${pct}%` }}
+                            />
+                          </div>
+                          {/* Label */}
+                          <span className="text-[8px] text-gray-500 font-bold mt-1.5">{d.label}</span>
                         </div>
-                        {/* Bar Wrapper with fixed height to let pct% work */}
-                        <div className="w-full flex items-end justify-center h-16">
-                          <div 
-                            className="w-3 sm:w-4 bg-gradient-to-t from-emerald-600 to-emerald-400 rounded-t group-hover:from-emerald-500 group-hover:to-emerald-300 transition-all duration-500 shadow-md shadow-emerald-950/20"
-                            style={{ height: `${pct}%` }}
-                          />
-                        </div>
-                        {/* Label */}
-                        <span className="text-[8px] text-gray-500 font-bold mt-1.5">{d.label}</span>
-                      </div>
-                    )
-                  })}
+                      )
+                    })}
+                  </div>
                 </div>
               </div>
             </div>
