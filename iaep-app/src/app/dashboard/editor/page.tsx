@@ -38,13 +38,44 @@ export default async function EditorDashboard() {
     redirect("/auth/login");
   }
 
-  // Block co-admins from Editor Dashboard
-  const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single();
+  // Convert user ID to UUID if it is a Firebase UID
+  let userId = user.id;
+  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(userId)) {
+      const hex = Buffer.from(userId).toString('hex').padEnd(32, '0').slice(0, 32);
+      userId = `${hex.slice(0,8)}-${hex.slice(8,12)}-${hex.slice(12,16)}-${hex.slice(16,20)}-${hex.slice(20,32)}`;
+  }
+
+  // Access control: Only allow editor-related roles to access the Editor Dashboard
+  const { data: profile } = await supabase.from('profiles').select('role').eq('id', userId).single();
+  
+  let r = "";
   if (profile && profile.role) {
-      const r = profile.role.toLowerCase();
+      r = profile.role.toLowerCase();
+  } else {
+      const cookieStore = await cookies();
+      const cookieRole = cookieStore.get('user_role')?.value;
+      if (cookieRole) {
+          r = cookieRole.toLowerCase();
+      }
+  }
+
+  if (r) {
       if (r.includes('co-admin') || r.includes('co_admin')) {
           redirect('/dashboard/admin/users');
       }
+      
+      const isAuthorized = r.includes('editor') || 
+                           r.includes('layout') || 
+                           r.includes('cover') || 
+                           r.includes('publish') || 
+                           r.includes('supervisor') || 
+                           r.includes('admin');
+                           
+      if (!isAuthorized) {
+          redirect('/dashboard');
+      }
+  } else {
+      redirect('/dashboard');
   }
 
   // Fetch all submissions for the editor (Primary: Supabase SSOT, Fallback: Firestore safe merge)

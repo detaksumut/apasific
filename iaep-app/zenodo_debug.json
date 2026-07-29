@@ -1,0 +1,21 @@
+[
+  {
+    "step": "Creating deposition draft"
+  },
+  {
+    "step": "Deposition created",
+    "depositionId": 21664917,
+    "bucketUrl": "https://zenodo.org/api/files/77162482-1f6d-461e-a675-0b38419cde1f"
+  },
+  {
+    "method": "Method 3: PUT using native Node.js https.request with active WARP"
+  },
+  {
+    "method": "Method 3 results",
+    "r3": {
+      "success": false,
+      "statusCode": 403,
+      "error": "\n          <html>\n          <head><title>403 Forbidden</title></head>\n          <body style=\"max-width: 600px; margin: 40px auto; padding: 0 20px; line-height: 1.6;\">\n          <h1>403 Forbidden</h1>\n          <hr>\n          <p>Access to this resource has been restricted due to unusual traffic from your network.</p>\n          <p>If you believe this is a mistake, please <a href=\"/support?ref=7f5c777af5c294f609f855e96fb8205a&category=problem-report\">contact our support line</a> and we will look into your request.</p>\n          <p>\n          <strong>Reference:</strong> <code>7f5c777af5c294f609f855e96fb8205a</code><br>\n          <strong>Timestamp:</strong> <code>2026-07-29T07:38:57+02:00</code><br>\n          </p>\n          </body>\n          </html>\n        "
+    }
+  }
+]

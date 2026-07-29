@@ -340,6 +340,9 @@ export async function getSubmissionDetailsEditor(submissionId: string) {
 
         const { resolveFile } = await import('@/utils/storageResolver');
         
+        // Save the raw file_url path before resolving and overwriting it
+        const rawFolderPath = subData.file_url || "";
+
         // Resolve revised_file_url first, then file_url
         let targetPath = subData.revised_file_url || subData.file_url || "";
         
@@ -391,8 +394,12 @@ export async function getSubmissionDetailsEditor(submissionId: string) {
         const folderName = unhexUuidForFolder(submissionId);
 
         let actualFolder = folderName;
-        if (subData.file_url && subData.file_url.includes('/')) {
-            actualFolder = subData.file_url.split('/')[0];
+        if (rawFolderPath) {
+            if (rawFolderPath.includes('/')) {
+                actualFolder = rawFolderPath.split('/')[0];
+            } else if (rawFolderPath.startsWith('sub_')) {
+                actualFolder = rawFolderPath;
+            }
         }
 
         // Fetch original title page (identity) and anonymous files by scanning the bucket directly
@@ -581,6 +588,24 @@ export async function updateDoi(submissionId: string, doi: string, zenodoId: str
             .eq('id', submissionId);
 
 
+        return { success: true };
+    } catch (e: any) {
+        return { success: false, error: e.message };
+    }
+}
+
+export async function resetDoi(submissionId: string) {
+    try {
+        const supabaseAdmin = (await import('@supabase/supabase-js')).createClient(
+            process.env.NEXT_PUBLIC_SUPABASE_URL!,
+            process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+        );
+
+        const { error } = await supabaseAdmin.from('submissions')
+            .update({ doi: null, zenodo_id: null })
+            .eq('id', submissionId);
+
+        if (error) throw error;
         return { success: true };
     } catch (e: any) {
         return { success: false, error: e.message };
@@ -1076,13 +1101,13 @@ export async function getPublishedArticles(journalId?: string) {
 
         let articlesList: any[] = [];
 
-        // 1. Fetch from Supabase — order by zenodo_id DESC (angka lebih besar = terbaru)
+        // 1. Fetch from Supabase — order by updated_at DESC (paling baru terbit = paling atas)
         try {
             let query = supabaseAdmin
                 .from('submissions')
                 .select('*, journals:journal_id(name)')
                 .in('status', ['Published', 'published'])
-                .order('zenodo_id', { ascending: false, nullsFirst: false });
+                .order('updated_at', { ascending: false, nullsFirst: false });
             if (journalId) {
                 query = query.eq('journal_id', journalId);
             }

@@ -92,12 +92,15 @@ export default function JournalsRepository() {
             <div className="flex flex-col gap-6">
               {globalArticles
                 .sort((a, b) => {
-                  // Urut berdasarkan zenodo_id (angka lebih besar = lebih baru terbit)
+                  // Urut berdasarkan tanggal terbit/update terbaru (updated_at)
+                  const timeA = new Date(a.updated_at || a.created_at || 0).getTime();
+                  const timeB = new Date(b.updated_at || b.created_at || 0).getTime();
+                  if (timeB !== timeA) return timeB - timeA;
+                  
+                  // Fallback: berdasarkan zenodo_id
                   const zA = parseInt(a.zenodo_id || '0', 10);
                   const zB = parseInt(b.zenodo_id || '0', 10);
-                  if (zB !== zA) return zB - zA;
-                  // Fallback: berdasarkan created_at
-                  return new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime();
+                  return zB - zA;
                 })
                 .slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
                 .map((art, idx) => (

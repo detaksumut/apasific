@@ -23,6 +23,8 @@ export default function SubmissionControlPanel() {
   const [isPublishingZenodo, setIsPublishingZenodo] = useState(false);
   const [generatedDoi, setGeneratedDoi] = useState("");
   const [manualIssn, setManualIssn] = useState("");
+  const [manualDoi, setManualDoi] = useState("");
+  const [isSavingManualDoi, setIsSavingManualDoi] = useState(false);
   const [reviews, setReviews] = useState<any[]>([]);
   const [availableReviewers, setAvailableReviewers] = useState<any[]>([]);
   const [isAddReviewerOpen, setIsAddReviewerOpen] = useState(false);
@@ -194,9 +196,30 @@ export default function SubmissionControlPanel() {
     }
   };
 
+  const handleSaveManualDoi = async () => {
+    const doiInput = manualDoi.trim();
+    if (!doiInput) {
+      showToast("Mohon masukkan nomor DOI terlebih dahulu.");
+      return;
+    }
+    setIsSavingManualDoi(true);
+    try {
+      const m = await import("@/app/actions/editor");
+      const res = await m.updateDoi(submission.id, doiInput, 0);
+      if (!res.success) throw new Error(res.error);
+      setGeneratedDoi(doiInput);
+      setSubmission((prev: any) => prev ? { ...prev, doi: doiInput } : null);
+      showToast("DOI berhasil disimpan!");
+    } catch (err: any) {
+      showToast("Gagal menyimpan DOI: " + err.message);
+    } finally {
+      setIsSavingManualDoi(false);
+    }
+  };
+
   const handlePublishToZenodo = async () => {
     setIsPublishingZenodo(true);
-    showToast("Publishing to Zenodo... Please wait.");
+    showToast("Menghubungi Zenodo dari server... Mohon tunggu.");
     
     try {
       const creatorName = submission.profiles?.full_name || submission.author || "Unknown Author";
@@ -239,21 +262,41 @@ export default function SubmissionControlPanel() {
       const fileName = fileUrl ? fileUrl.split('/').pop()?.split('?')[0] : `Manuscript_${submission.id}.pdf`;
       const coverUrl = submission.cover_file_url || "";
 
-      const result = await publishArticleToZenodo(metadata, fileUrl, fileName, coverUrl);
+      // ✅ Call server-side API route — runs from the server, not the browser.
+      // This bypasses any local network/ISP restrictions on file uploads to Zenodo.
+      const apiResponse = await fetch('/api/publish-zenodo', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ metadata, fileUrl, fileName, coverUrl })
+      });
+
+      const result = await apiResponse.json();
 
       if (!result.success) {
         throw new Error(result.error);
       }
 
       const updateRes = await updateDoi(submission.id, result.doi, result.deposition?.id);
-      if (!updateRes.success) throw new Error("Failed to update database: " + updateRes.error);
+      if (!updateRes.success) throw new Error("Gagal menyimpan DOI ke database: " + updateRes.error);
 
       setGeneratedDoi(result.doi);
-      showToast(`Successfully published to Zenodo! DOI: ${result.doi}`);
+      
+      // Update local submission state to display the DOI immediately
+      setSubmission((prev: any) => prev ? { ...prev, doi: result.doi } : null);
+
+      if (result.partial) {
+        showToast("Draft Zenodo berhasil dibuat! Silakan upload file secara manual di halaman yang terbuka.");
+        if (result.zenodoUrl) {
+          window.open(result.zenodoUrl, '_blank');
+        }
+      } else {
+        showToast(`Berhasil diterbitkan ke Zenodo! DOI: ${result.doi}`);
+        window.open('https://zenodo.org/communities/rjrakp/records?q=&l=list&p=1&s=10&sort=newest', '_blank');
+      }
       
     } catch (err: any) {
       console.error(err);
-      showToast('Failed to publish to Zenodo: ' + err.message);
+      showToast('Gagal menerbitkan ke Zenodo: ' + err.message);
     } finally {
       setIsPublishingZenodo(false);
     }
@@ -339,6 +382,25 @@ export default function SubmissionControlPanel() {
       setDecisionModalOpen(false);
     }
   };
+
+  const isAuthorized = currentUserRole && (
+    isPureEditor || isLayoutEditor || isCoverEditor || isPublishEditor || isSupervisor
+  );
+
+  if (!loading && !isAuthorized) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh] text-center p-6 bg-[#0c0c16] rounded-2xl border border-red-500/20 max-w-lg mx-auto mt-20 space-y-4">
+        <div className="w-16 h-16 bg-red-500/10 text-red-500 rounded-full flex items-center justify-center text-3xl">⚠️</div>
+        <h2 className="text-xl font-bold text-white font-['Cinzel']">Akses Ditolak (Access Denied)</h2>
+        <p className="text-sm text-gray-400 leading-relaxed">
+          Akun Anda ({currentUserRole}) tidak memiliki izin untuk mengakses halaman kontrol panel editor ini.
+        </p>
+        <Link href="/dashboard" className="px-6 py-2.5 bg-zinc-800 text-white rounded-lg hover:bg-zinc-700 transition-colors text-sm font-bold">
+          Kembali ke Dashboard
+        </Link>
+      </div>
+    );
+  }
 
   const membersArray = Array.isArray(boardMembers) ? boardMembers : [];
 
@@ -1804,6 +1866,30 @@ export default function SubmissionControlPanel() {
                           </p>
                       </div>
 
+                      {/* Manual DOI Input */}
+                      {!generatedDoi && (
+                        <div className="mt-4 p-3 bg-gray-50 border border-gray-200 rounded flex flex-col gap-2">
+                          <label className="text-sm font-semibold text-gray-700">Input DOI Manual (dari Zenodo)</label>
+                          <p className="text-xs text-gray-500">Jika sudah mempunyai DOI dari Zenodo, masukkan di sini (contoh: <b>10.5281/zenodo.12345678</b>)</p>
+                          <div className="flex gap-2">
+                            <input
+                              type="text"
+                              placeholder="Contoh: 10.5281/zenodo.12345678"
+                              value={manualDoi}
+                              onChange={(e) => setManualDoi(e.target.value)}
+                              className="flex-1 px-3 py-2 border border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500 text-sm font-mono"
+                            />
+                            <button
+                              onClick={handleSaveManualDoi}
+                              disabled={isSavingManualDoi}
+                              className="bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white px-4 py-2 rounded text-sm font-bold transition-colors shadow-sm shrink-0"
+                            >
+                              {isSavingManualDoi ? 'Menyimpan...' : 'Simpan DOI'}
+                            </button>
+                          </div>
+                        </div>
+                      )}
+
                       <div className="flex flex-col gap-3 mt-4">
                         <button 
                           onClick={handlePublishToZenodo}
@@ -1836,8 +1922,29 @@ export default function SubmissionControlPanel() {
                       </div>
 
                       {generatedDoi && (
-                        <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded text-green-800 text-sm font-semibold">
-                          ✅ Persistent Identifier (DOI): {generatedDoi}
+                        <div className="mt-4 p-4 bg-[#0c0c16] border border-zinc-800 rounded-lg text-[#e8e8f0] text-sm flex flex-col md:flex-row md:items-center justify-between gap-4 font-semibold">
+                          <div className="text-emerald-400">
+                            ✅ Persistent Identifier (DOI): {generatedDoi}
+                          </div>
+                          <button
+                            onClick={async () => {
+                              const confirmReset = confirm("Apakah Anda yakin ingin menghapus/mereset DOI ini? Anda akan bisa membuat ulang/menghubungkan kembali naskah ini ke Zenodo menggunakan akun baru.");
+                              if (!confirmReset) return;
+                              
+                              const m = await import("@/app/actions/editor");
+                              const res = await m.resetDoi(submission.id);
+                              if (res.success) {
+                                showToast("DOI berhasil direset! Silakan generate ulang.");
+                                setGeneratedDoi('');
+                                setTimeout(() => window.location.reload(), 1000);
+                              } else {
+                                showToast("Gagal mereset DOI: " + res.error);
+                              }
+                            }}
+                            className="text-xs bg-red-950 text-red-400 border border-red-900/50 hover:bg-red-900/30 hover:text-red-300 font-bold px-3 py-1.5 rounded transition-all shrink-0"
+                          >
+                            Hapus & Reset DOI
+                          </button>
                         </div>
                       )}
 
