@@ -1,10 +1,37 @@
 "use server";
 
 import { revalidatePath } from 'next/cache';
+import { isCoAdmin } from '@/lib/permissions';
 
 async function createClient() {
     const { createClient: getClient } = await import('@/utils/supabase/server');
     return getClient();
+}
+
+/**
+ * Audit Log Helper — records every significant action on a submission.
+ * Called by assignReviewer, recordEditorialDecision, etc.
+ */
+async function logSubmissionActivity(
+    supabaseAdmin: any,
+    submissionId: string,
+    actorId: string | null,
+    actorRole: string,
+    action: string,
+    details?: Record<string, any>
+) {
+    try {
+        await supabaseAdmin.from('submission_activity_log').insert({
+            submission_id: submissionId,
+            actor_id: actorId || null,
+            actor_role: actorRole,
+            action,
+            details: details || null,
+        });
+    } catch (e) {
+        // Non-fatal — audit log should never break main workflow
+        console.warn('[AuditLog] Failed to write activity log:', e);
+    }
 }
 
 
@@ -581,6 +608,19 @@ export async function updateDoi(submissionId: string, doi: string, zenodoId: str
             process.env.NEXT_PUBLIC_SUPABASE_URL!,
             process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
         );
+
+        // ── SERVER-SIDE AUTHORIZATION: Co-Admin cannot update DOI ──
+        try {
+            const { getCurrentUser } = await import('./auth');
+            const user: any = await getCurrentUser();
+            if (user?.id) {
+                const { data: callerProfile } = await supabaseAdmin
+                    .from('profiles').select('role').eq('id', user.id).single();
+                if (callerProfile?.role && isCoAdmin(callerProfile.role)) {
+                    return { success: false, error: 'Unauthorized: Co-Admin tidak memiliki izin untuk mengubah DOI.' };
+                }
+            }
+        } catch (e) { /* non-fatal auth check */ }
 
         // Try Supabase first, ignore error if id format is invalid for UUID
         const { error } = await supabaseAdmin.from('submissions')
@@ -1350,13 +1390,29 @@ export async function assignReviewer(submissionId: string, reviewerId: string, r
             currentRound = 1;
         }
 
+        // Resolve the current user (editor or co_admin) who is assigning
+        let assignedById: string | null = null;
+        let assignedByRole = 'editor';
+        try {
+            const { getCurrentUser } = await import('./auth');
+            const currentUser: any = await getCurrentUser();
+            if (currentUser?.id) {
+                assignedById = currentUser.id;
+                // Fetch role for audit log
+                const { data: actorProfile } = await supabaseAdmin
+                    .from('profiles').select('role').eq('id', currentUser.id).single();
+                if (actorProfile?.role) assignedByRole = actorProfile.role;
+            }
+        } catch (e) { /* non-fatal */ }
+
         const assignmentDataSupabase: any = {
             submission_id: submissionId,
             reviewer_id: validReviewerId,
             reviewer_email: resolvedEmail,
             reviewer_name: reviewerName || null,
             status: 'pending',
-            assigned_at: new Date().toISOString()
+            assigned_at: new Date().toISOString(),
+            assigned_by: assignedById,  // ← audit trail: who assigned
         };
 
         const assignmentDataFirestore: any = {
@@ -1382,6 +1438,13 @@ export async function assignReviewer(submissionId: string, reviewerId: string, r
         if (!isAdvanced) {
             await updateSubmissionStage(submissionId, 'Review', 'Under Review');
         }
+
+        // Write audit log
+        await logSubmissionActivity(supabaseAdmin, submissionId, assignedById, assignedByRole, 'ASSIGN_REVIEWER', {
+            reviewer_id: validReviewerId,
+            reviewer_name: reviewerName,
+            reviewer_email: resolvedEmail,
+        });
 
         revalidatePath(`/dashboard/editor/submissions/${submissionId}`);
 
@@ -1414,6 +1477,15 @@ export async function recordEditorialDecision(submissionId: string, decision: 'A
         const { getCurrentUser } = await import('./auth');
         const user: any = await getCurrentUser();
         const editorId = user?.id || null;
+
+        // ── SERVER-SIDE AUTHORIZATION: Co-Admin cannot make editorial decisions ──
+        if (editorId) {
+            const { data: callerProfile } = await supabaseAdmin
+                .from('profiles').select('role').eq('id', editorId).single();
+            if (callerProfile?.role && isCoAdmin(callerProfile.role)) {
+                return { success: false, error: 'Unauthorized: Co-Admin tidak memiliki izin untuk membuat keputusan editorial.' };
+            }
+        }
 
         // Workflow Stage transition
         let newStage = 'Review';

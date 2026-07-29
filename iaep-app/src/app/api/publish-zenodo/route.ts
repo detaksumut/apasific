@@ -1,8 +1,24 @@
 import { NextRequest, NextResponse } from "next/server";
 import { publishArticleToZenodo, ZenodoMetadata } from "@/utils/zenodo";
+import { createClient } from "@/utils/supabase/server";
+import { isCoAdmin } from "@/lib/permissions";
 
 export async function POST(req: NextRequest) {
   try {
+    // ── SERVER-SIDE AUTHORIZATION: Co-Admin cannot publish to Zenodo ──
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      const { data: profile } = await supabase
+        .from('profiles').select('role').eq('id', user.id).single();
+      if (profile?.role && isCoAdmin(profile.role)) {
+        return NextResponse.json(
+          { success: false, error: 'Unauthorized: Co-Admin tidak memiliki izin untuk menerbitkan ke Zenodo.' },
+          { status: 403 }
+        );
+      }
+    }
+
     const body = await req.json();
     const { metadata, fileUrl, fileName, coverUrl } = body as {
       metadata: ZenodoMetadata;
@@ -22,3 +38,4 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ success: false, error: e.message }, { status: 500 });
   }
 }
+

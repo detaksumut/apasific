@@ -21,7 +21,7 @@ export default function Sidebar({ role }: SidebarProps) {
         if (r === 'layout editor') return '/dashboard/production/layout';
         if (r === 'cover editor') return '/dashboard/production/cover';
         if (r === 'publish editor') return '/dashboard/production/publish';
-        if (r === 'co_admin' || r === 'co-admin') return '/dashboard/reviews';
+        if (r === 'co_admin' || r === 'co-admin') return '/dashboard/editor';
         return '/dashboard';
       })(),
       icon: (
@@ -401,6 +401,20 @@ export default function Sidebar({ role }: SidebarProps) {
     },
   ];
 
+  const coAdminLinks = [
+    {
+      label: "Artikel Masuk",
+      path: "/dashboard/editor",
+      icon: (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" /><polyline points="14 2 14 8 20 8" />
+          <path d="M12 18v-6M9 15l3 3 3-3" />
+        </svg>
+      ),
+      badge: "Masuk",
+    },
+  ];
+
   const normalizedRole = role ? role.toLowerCase() : "";
 
   const getRoleLinks = () => {
@@ -409,7 +423,7 @@ export default function Sidebar({ role }: SidebarProps) {
       case "reviewer": return reviewerLinks;
       case "editor":   return [...editorLinks, ...reviewerLinks];
       case "admin":    return [...adminLinks, ...reviewerLinks];
-      case "co_admin": return reviewerLinks;
+      case "co_admin": return coAdminLinks;
       default:         return [];
     }
   };
@@ -484,7 +498,8 @@ export default function Sidebar({ role }: SidebarProps) {
           </>
         )}
 
-        {normalizedRole !== "author" && (
+        {/* Area Penulis — hidden for co_admin (they are staff, not authors) */}
+        {normalizedRole !== "author" && normalizedRole !== "co_admin" && (
           <>
             <div className="sidebar-section-label" style={{ marginTop: 24 }}>Area Penulis</div>
             {authorLinks.map(link => <NavLink key={`author-${link.path}`} link={link} />)}

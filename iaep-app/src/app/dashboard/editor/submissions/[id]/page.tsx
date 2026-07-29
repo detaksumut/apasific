@@ -57,6 +57,7 @@ export default function SubmissionControlPanel() {
 
   // Determine role cleanly
   const roleStr = currentUserRole.toLowerCase();
+  const isCoAdmin = roleStr.includes('co_admin') || roleStr.includes('co-admin');
   const isLayoutEditor = roleStr.includes('layout');
   const isCoverEditor = roleStr.includes('cover');
   const isPublishEditor = roleStr.includes('publish');
@@ -384,7 +385,7 @@ export default function SubmissionControlPanel() {
   };
 
   const isAuthorized = currentUserRole && (
-    isPureEditor || isLayoutEditor || isCoverEditor || isPublishEditor || isSupervisor
+    isCoAdmin || isPureEditor || isLayoutEditor || isCoverEditor || isPublishEditor || isSupervisor
   );
 
   if (!loading && !isAuthorized) {
@@ -446,9 +447,11 @@ export default function SubmissionControlPanel() {
             </div>
           </div>
           
-          {/* Workflow Tabs */}
+          {/* Workflow Tabs — Co-Admin only sees Submission & Review tabs */}
           <div className="flex items-center mt-8 overflow-x-auto">
-            {['Submission', 'Review', 'Copyediting', 'Production'].map((tab) => (
+            {(['Submission', 'Review', 'Copyediting', 'Production'] as const)
+              .filter(tab => isCoAdmin ? ['Submission', 'Review'].includes(tab) : true)
+              .map((tab) => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab.toLowerCase())}
@@ -843,6 +846,7 @@ export default function SubmissionControlPanel() {
 
 
               {/* Right Column: Decisions */}
+              {!isCoAdmin && (
               <div className="space-y-6">
                 <div>
                   <h3 className="text-lg font-bold text-gray-800 border-b pb-2 mb-4">Editorial Decision</h3>

@@ -79,7 +79,7 @@ export default async function AuthorDashboard() {
   if (role === 'editor') redirect('/dashboard/editor');
   if (role === 'admin') redirect('/dashboard/admin');
   if (role === 'reviewer') redirect('/dashboard/reviews');
-  if (role === 'co_admin' || role === 'co-admin') redirect('/dashboard/admin/users');
+  if (role === 'co_admin' || role === 'co-admin') redirect('/dashboard/editor');
 
   // 3. Pure Supabase SSOT Submissions Fetch (No Firestore read lag)
   let articles: any[] = [];
