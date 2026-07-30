@@ -5,7 +5,7 @@ import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
 import SecurePdfViewer from "@/components/ui/SecurePdfViewer";
-import { renderCoverTitle } from "@/utils/coverHelper";
+import DynamicCover from "@/components/ui/DynamicCover";
 
 function getJournalImpactMetrics(journalName: string) {
   const code = (journalName || '').split('-')[0].trim().toUpperCase();
@@ -689,87 +689,17 @@ export default function ArticlePaywall() {
               <div className="bg-[#0d0d1a] rounded-xl p-6 border border-gray-800 flex flex-col items-center shadow-xl">
                 <span className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-4 w-full text-center">Sampul Depan (Cover)</span>
                 <div className="w-full max-w-[280px]">
-                  <div className="relative inline-block w-full overflow-hidden rounded-xl shadow-2xl border border-gray-800">
-                    <img 
-                      src={article.cover_file_url || (article.journal.includes('AJAF') ? '/coverAJAF.png' : article.journal.includes('AJITE') ? '/coverAJITE.png' : '/coverPKM.png')} 
-                      alt={article.title} 
-                      className="w-full aspect-[1/1.5] object-contain bg-[#06142e]" 
+                    <DynamicCover 
+                      title={article.title || ""}
+                      journalCode={article.journal || ""}
+                      doi={article.doi || ""}
+                      volume={article.volume || ""}
+                      issue={article.issue || ""}
+                      createdAt={article.created_at || ""}
+                      coverUrl={article.cover_file_url || null}
+                      maxLines={8}
+                      variant="full"
                     />
-                    <div 
-                      className="absolute font-serif drop-shadow-md overflow-hidden"
-                      style={{
-                        top: '31%',
-                        left: '6%',
-                        width: '46%',
-                        maxHeight: '59.5%',
-                      }}
-                    >
-                      <div className="mb-1.5">
-                        <span 
-                          className="inline-block font-sans font-extrabold text-[#f0c05a] tracking-wider uppercase"
-                          style={{ fontSize: 'clamp(6px, 0.6vw, 9px)' }}
-                        >
-                          {article.journal ? article.journal.split('-')[0].trim() : ''}
-                        </span>
-                      </div>
-                      {article.title && article.title.includes(":") ? (
-                        <>
-                          <div 
-                            className="font-bold leading-tight mb-1" 
-                            style={{ color: '#c9a84c', fontSize: 'clamp(9.5px, 0.95vw, 14px)' }}
-                          >
-                            {article.title.split(":")[0].trim()}:
-                          </div>
-                          <div 
-                            className="font-normal text-gray-200" 
-                            style={{ fontSize: 'clamp(7px, 0.7vw, 10.5px)', lineHeight: '1.3' }}
-                          >
-                            {article.title.split(":").slice(1).join(":").trim()}
-                          </div>
-                        </>
-                      ) : (
-                        <div 
-                          className="font-bold text-[#c9a84c]" 
-                          style={{ 
-                            fontSize: article.title && article.title.length > 110
-                              ? 'clamp(6px, 0.6vw, 9px)'
-                              : article.title && article.title.length > 80 
-                                ? 'clamp(7.5px, 0.75vw, 11px)' 
-                                : 'clamp(9.5px, 0.95vw, 14px)',
-                            lineHeight: '1.2'
-                          }}
-                        >
-                          {article.title}
-                        </div>
-                      )}
-                    </div>
-
-                    {/* DOI Overlay */}
-                    {article.doi && (
-                      <div className="absolute z-10" style={{ top: '11.5%', left: '33%', width: '42%' }}>
-                        <p className="font-bold text-[#c9a84c] tracking-wider mb-0.5" style={{ fontSize: 'clamp(7px, 0.7vw, 11px)' }}>DOI</p>
-                        <p className="font-mono text-zinc-200 drop-shadow-md whitespace-nowrap leading-tight" style={{ fontSize: 'clamp(5px, 0.5vw, 8px)' }}>
-                          {article.doi}
-                        </p>
-                      </div>
-                    )}
-
-                    {/* Volume & Edisi */}
-                    <div className="absolute flex flex-col justify-center" style={{ top: '89%', left: '26%', width: '20%' }}>
-                      {article.volume && <p className="font-bold text-zinc-300 tracking-wider uppercase mb-0.5" style={{ fontSize: 'clamp(7px, 0.75vw, 11px)' }}>VOL {article.volume.replace(/^(Vol\.?|Volume)\s*/i, '').trim()}</p>}
-                      {article.issue && <p className="font-bold text-zinc-300 tracking-wider uppercase" style={{ fontSize: 'clamp(7px, 0.75vw, 11px)' }}>EDISI {article.issue.replace(/^(No\.?|Nomor|Edisi|Issue)\s*/i, '').replace(/\(.*\)/, '').trim()}</p>}
-                    </div>
-
-                    {/* Month & Year */}
-                    <div className="absolute flex flex-col justify-center" style={{ top: '89%', left: '52%', width: '20%' }}>
-                      <p className="font-bold text-zinc-300 tracking-wider uppercase mb-0.5" style={{ fontSize: 'clamp(7px, 0.75vw, 11px)' }}>
-                        {(article.created_at ? new Date(article.created_at) : new Date()).toLocaleDateString('en-US', { month: 'short' }).toUpperCase()}
-                      </p>
-                      <p className="font-bold text-zinc-300 tracking-wider uppercase" style={{ fontSize: 'clamp(7px, 0.75vw, 11px)' }}>
-                        {(article.created_at ? new Date(article.created_at) : new Date()).getFullYear().toString()}
-                      </p>
-                    </div>
-                  </div>
                 </div>
               </div>
 

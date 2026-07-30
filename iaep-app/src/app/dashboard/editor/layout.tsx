@@ -46,28 +46,27 @@ export default async function EditorLayout({
 
   const { data: profile } = await supabase.from('profiles').select('role').eq('id', userId).single();
   
+  const cookieStore = await cookies();
+  const cookieRole = cookieStore.get('user_role')?.value;
+  
   let r = "";
-  if (profile && profile.role) {
+  const isFallbackUser = user.email?.includes('@fallback.local') || user.email?.includes('@firebase.local');
+
+  if (isFallbackUser && cookieRole) {
+      r = cookieRole.toLowerCase();
+  } else if (profile && profile.role) {
       r = profile.role.toLowerCase();
-  } else {
-      const cookieStore = await cookies();
-      const cookieRole = cookieStore.get('user_role')?.value;
-      if (cookieRole) {
-          r = cookieRole.toLowerCase();
-      }
+  } else if (cookieRole) {
+      r = cookieRole.toLowerCase();
   }
 
   if (r) {
-      if (r.includes('co-admin') || r.includes('co_admin')) {
-          redirect('/dashboard/admin/users');
-      }
-      
       const isAuthorized = r.includes('editor') || 
                            r.includes('layout') || 
                            r.includes('cover') || 
                            r.includes('publish') || 
                            r.includes('supervisor') || 
-                           r.includes('admin');
+                           (r.includes('admin') && !r.includes('co'));
                            
       if (!isAuthorized) {
           // Render server-side access denied screen

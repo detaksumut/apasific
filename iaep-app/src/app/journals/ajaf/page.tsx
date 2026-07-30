@@ -1,6 +1,7 @@
 import React from "react";
 import Link from "next/link";
 import { CheckCircle2, ChevronLeft, FileText, ArrowRight } from "lucide-react";
+import DynamicCover from "@/components/ui/DynamicCover";
 import { createClient } from "@supabase/supabase-js";
 
 // Buat Supabase client dengan Service Role Key untuk bypass RLS (karena ini halaman publik)
@@ -150,52 +151,15 @@ export default async function AJAFJournal() {
                   className="relative w-full aspect-[1/1.4] rounded-lg overflow-hidden border border-zinc-700 shadow-2xl group-hover:scale-105 transition-transform duration-500 bg-[#06142e]"
                   style={{ containerType: 'inline-size' }}
                 >
-                  <img 
-                    src={pub.cover_file_url || "/coverAJAF.png"} 
-                    alt={`Cover ${pub.title}`} 
-                    className="w-full h-full object-cover"
-                  />
-                  {/* Synchronized Title Overlay */}
-                  <div 
-                    className="absolute font-serif drop-shadow-md overflow-hidden"
-                    style={{
-                      top: '34.5%',
-                      left: '6%',
-                      width: '46%',
-                      maxHeight: '59.5%',
-                    }}
-                  >
-                    <div className="mb-1.5">
-                      <span 
-                        className="inline-block font-sans font-extrabold text-[#f0c05a] bg-black/75 border border-[#f0c05a]/60 px-1.5 py-0.5 rounded tracking-wider uppercase shadow-md"
-                        style={{ fontSize: 'clamp(6px, 0.6vw, 9px)' }}
-                      >
-                        AJAF - ACCOUNTING, AUDITING & TAXATION
-                      </span>
-                    </div>
-                    {pub.title && pub.title.includes(":") ? (
-                      <>
-                        <div 
-                          className="font-bold leading-tight mb-1" 
-                          style={{ color: '#c9a84c', fontSize: 'clamp(9.5px, 0.95vw, 14px)' }}
-                        >
-                          {pub.title.split(":")[0].trim()}:
-                        </div>
-                        <div 
-                          className="font-normal text-gray-200" 
-                          style={{ fontSize: 'clamp(7px, 0.7vw, 10.5px)', lineHeight: '1.3' }}
-                        >
-                          {pub.title.split(":").slice(1).join(":").trim()}
-                        </div>
-                      </>
-                    ) : (
-                      <div 
-                        className="font-bold leading-snug text-[#c9a84c]" 
-                        style={{ fontSize: 'clamp(9.5px, 0.95vw, 14px)' }}
-                      >
-                        {pub.title}
-                      </div>
-                    )}
+                  <div className="w-full h-full">
+                    <DynamicCover 
+                      title={pub.title || ""}
+                      journalCode="AJAF"
+                      doi={pub.doi || ""}
+                      coverUrl={pub.cover_file_url || "/coverAJAF.png"}
+                      variant="preview"
+                      className="w-full h-full border-none shadow-none rounded-none"
+                    />
                   </div>
                   
                   {/* Overlay DOI di atas gambar (bagian bawah gambar) agar tidak merusak file asli */}

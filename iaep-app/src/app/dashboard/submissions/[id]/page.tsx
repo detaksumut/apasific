@@ -5,7 +5,7 @@ import { notFound, redirect } from 'next/navigation';
 import { ArrowLeft, FileText, CheckCircle2, AlertCircle, FileDown, UploadCloud, Clock, Check } from 'lucide-react';
 import { getCurrentUser } from '@/app/actions/auth';
 import AuthorRevisedUpload from '@/components/dashboard/AuthorRevisedUpload';
-import { renderCoverTitle } from '@/utils/coverHelper';
+import DynamicCover from '@/components/ui/DynamicCover';
 
 export default async function AuthorSubmissionDetail({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -97,44 +97,14 @@ export default async function AuthorSubmissionDetail({ params }: { params: Promi
           <div className="md:col-span-4 flex flex-col items-center">
             <div className="bg-black/40 border border-zinc-800 rounded-2xl p-4 w-full flex flex-col items-center shadow-2xl">
               <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-3">Sampul Depan (Cover)</span>
-              <div className="rounded-xl overflow-hidden border border-zinc-800 shadow-lg w-full max-w-[200px] aspect-[1/1.5] relative" style={{ containerType: 'inline-size' }}>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={submission.cover_file_url} alt="Cover Artikel" className="w-full h-full object-cover relative z-0" />
-                <div 
-                  className="absolute font-serif drop-shadow-md overflow-hidden"
-                  style={{
-                    top: '31%',
-                    left: '6%',
-                    width: '46%',
-                    maxHeight: '59.5%',
-                  }}
-                >
-                  <div className="mb-1">
-                    <span 
-                      className="inline-block font-sans font-extrabold text-[#f0c05a] tracking-wider uppercase"
-                      style={{ fontSize: 'clamp(5.5px, 0.55vw, 8px)' }}
-                    >
-                      {submission.journals?.name ? submission.journals.name.split('-')[0].trim() : ''}
-                    </span>
-                  </div>
-                  {renderCoverTitle(submission.title, 0.85)}
-                </div>
-                {submission.doi && (
-                  <a 
-                    href={submission.doi.includes('zenodo.') ? `https://zenodo.org/records/${submission.doi.split('zenodo.')[1]}` : `https://doi.org/${submission.doi}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="absolute z-10 font-bold flex items-center hover:underline hover:text-emerald-300 transition-colors" 
-                    style={{
-                      top: '11.5%',
-                      left: '33%',
-                      fontSize: 'clamp(5px, 0.5vw, 8px)',
-                      color: '#fff'
-                    }}
-                  >
-                    {submission.doi}
-                  </a>
-                )}
+              <div className="w-full max-w-[200px]">
+                <DynamicCover 
+                  title={submission.title || ""}
+                  journalCode={submission.journals?.name || ""}
+                  doi={submission.doi || ""}
+                  coverUrl={submission.cover_file_url || null}
+                  variant="thumbnail"
+                />
               </div>
             </div>
           </div>

@@ -1413,6 +1413,7 @@ export async function assignReviewer(submissionId: string, reviewerId: string, r
             status: 'pending',
             assigned_at: new Date().toISOString(),
             assigned_by: assignedById,  // ← audit trail: who assigned
+            role_assigner: assignedByRole, // ← audit trail: role of assigner (e.g., co_admin)
         };
 
         const assignmentDataFirestore: any = {

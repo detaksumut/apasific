@@ -48,15 +48,18 @@ export default async function EditorDashboard() {
   // Access control: Only allow editor-related roles to access the Editor Dashboard
   const { data: profile } = await supabase.from('profiles').select('role').eq('id', userId).single();
   
+  const cookieStore = await cookies();
+  const cookieRole = cookieStore.get('user_role')?.value;
+  
   let r = "";
-  if (profile && profile.role) {
+  const isFallbackUser = user.email?.includes('@fallback.local') || user.email?.includes('@firebase.local');
+
+  if (isFallbackUser && cookieRole) {
+      r = cookieRole.toLowerCase();
+  } else if (profile && profile.role) {
       r = profile.role.toLowerCase();
-  } else {
-      const cookieStore = await cookies();
-      const cookieRole = cookieStore.get('user_role')?.value;
-      if (cookieRole) {
-          r = cookieRole.toLowerCase();
-      }
+  } else if (cookieRole) {
+      r = cookieRole.toLowerCase();
   }
 
   if (r) {
@@ -78,7 +81,7 @@ export default async function EditorDashboard() {
       redirect('/dashboard');
   }
 
-  const isCoAdmin = r.includes('co-admin') || r.includes('co_admin');
+
 
   // Fetch all submissions for the editor (Primary: Supabase SSOT, Fallback: Firestore safe merge)
   let articles: any[] = [];
@@ -95,13 +98,6 @@ export default async function EditorDashboard() {
       .from("submissions")
       .select("*, journals(name)")
       .order("created_at", { ascending: false });
-
-    // Co-Admin only sees early-stage submissions (Submitted / Under Review)
-    // This prevents review results and later stages from leaking to Co-Admin
-    if (isCoAdmin) {
-      const { CO_ADMIN_ALLOWED_STATUSES } = await import('@/lib/permissions');
-      query = (query as any).in('status', CO_ADMIN_ALLOWED_STATUSES);
-    }
 
     const { data: submissions } = await query;
     if (submissions && submissions.length > 0) {
@@ -158,12 +154,10 @@ export default async function EditorDashboard() {
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-6 border-b border-zinc-800">
         <div>
           <h1 className="text-3xl font-bold text-white tracking-tight">
-            {isCoAdmin ? 'Triage Naskah (Co-Admin)' : 'Dashboard Editor'}
+            Dashboard Editor
           </h1>
           <p className="text-zinc-400 mt-2 text-sm">
-            {isCoAdmin 
-              ? 'Naskah masuk yang perlu diterima dan ditugaskan ke Reviewer.'
-              : 'Overview of all manuscript submissions across the platform.'}
+            Overview of all manuscript submissions across the platform.
           </p>
         </div>
       </div>

@@ -6,7 +6,7 @@ import { useParams } from "next/navigation";
 import { publishArticleToZenodo, ZenodoMetadata } from "@/utils/zenodo";
 import { getSubmissionDetailsEditor, updateIssn, updateDoi, removeCoverFile, sendRevisionForwardWaFonnte } from "@/app/actions/editor";
 import { createClient } from "@/utils/supabase/client";
-import { renderCoverTitle } from "@/utils/coverHelper";
+import DynamicCover from "@/components/ui/DynamicCover";
 
 export default function SubmissionControlPanel() {
   const params = useParams();
@@ -1456,26 +1456,13 @@ export default function SubmissionControlPanel() {
                                     <div className="relative w-full h-full flex flex-col items-center justify-start">
                                       <h5 className="text-sm font-bold text-gray-500 uppercase tracking-wider mb-4 border-b border-gray-200 pb-2 w-full text-center">Pratinjau Kover Saat Ini</h5>
                                       <div className="relative inline-block mx-auto overflow-hidden">
-                                        <img src={submission.cover_file_url} alt="Cover Preview" className="max-w-full max-h-[600px] object-contain rounded-lg shadow-md border border-gray-300" />
-                                         <div 
-                                           className="absolute font-serif drop-shadow-md overflow-hidden"
-                                           style={{
-                                             top: '29%',
-                                             left: '6%',
-                                             width: '46%',
-                                             maxHeight: '57%',
-                                           }}
-                                         >
-                                           <div className="mb-1.5">
-                                             <span 
-                                               className="inline-block font-sans font-extrabold text-[#f0c05a] tracking-wider uppercase"
-                                               style={{ fontSize: 'clamp(6.5px, 0.65vw, 9.5px)' }}
-                                             >
-                                               {submission.journals?.name ? submission.journals.name.split('-')[0].trim() : ''}
-                                             </span>
-                                           </div>
-                                           {renderCoverTitle(submission.title, 1.0)}
-                                         </div>
+                                        <DynamicCover 
+                                          title={submission.title || ""}
+                                          journalCode={submission.journals?.name || ""}
+                                          doi={submission.doi || ""}
+                                          coverUrl={submission.cover_file_url || null}
+                                          variant="preview"
+                                        />
                                       </div>
                                     </div>
                                   ) : (
@@ -1548,48 +1535,16 @@ export default function SubmissionControlPanel() {
                       <h4 className="text-xs font-bold text-zinc-500 uppercase tracking-widest mb-4 w-full">Sampul Depan (Cover)</h4>
                       {submission?.cover_file_url ? (
                           <div className="border border-zinc-800 rounded-xl overflow-hidden shadow-2xl max-w-sm w-full relative mx-auto">
-                            <img src={submission.cover_file_url} alt="Cover Preview" className="max-w-full h-auto object-contain w-full" />
-                            <div 
-                              className="absolute font-serif drop-shadow-md overflow-hidden"
-                              style={{
-                                top: '36.5%',
-                                left: '6%',
-                                width: '46%',
-                                maxHeight: '59.5%',
-                              }}
-                            >
-                              <div className="mb-1.5">
-                                <span 
-                                  className="inline-block font-sans font-extrabold text-[#f0c05a] tracking-wider uppercase"
-                                  style={{ fontSize: 'clamp(6.5px, 0.65vw, 9.5px)' }}
-                                >
-                                  {submission.journals?.name ? submission.journals.name.split('-')[0].trim() : ''}
-                                </span>
-                              </div>
-                              {renderCoverTitle(submission.title, 1.0)}
-                            </div>
-
-                            {/* DOI Overlay */}
-                            {(submission.doi || generatedDoi) && (
-                              <div className="absolute z-10" style={{ top: '11.5%', left: '33%', width: '42%' }}>
-                                <p className="font-bold text-[#c9a84c] tracking-wider mb-0.5" style={{ fontSize: 'clamp(7px, 0.7vw, 11px)' }}>DOI</p>
-                                <p className="font-mono text-zinc-200 drop-shadow-md whitespace-nowrap leading-tight" style={{ fontSize: 'clamp(5px, 0.5vw, 8px)' }}>
-                                  {submission.doi || generatedDoi}
-                                </p>
-                              </div>
-                            )}
-
-                            {/* Volume & Edisi */}
-                            <div className="absolute flex flex-col justify-center" style={{ top: '89%', left: '26%', width: '20%' }}>
-                              {customVolume && <p className="font-bold text-zinc-300 tracking-wider uppercase mb-0.5" style={{ fontSize: 'clamp(7px, 0.75vw, 11px)' }}>VOL {customVolume.replace(/Vol\.?\s*/i, '').trim()}</p>}
-                              {customIssue && <p className="font-bold text-zinc-300 tracking-wider uppercase" style={{ fontSize: 'clamp(7px, 0.75vw, 11px)' }}>EDISI {customIssue.replace(/No\.?\s*/i, '').trim()}</p>}
-                            </div>
-
-                            {/* Month & Year */}
-                            <div className="absolute flex flex-col justify-center" style={{ top: '89%', left: '52%', width: '20%' }}>
-                              <p className="font-bold text-zinc-300 tracking-wider uppercase mb-0.5" style={{ fontSize: 'clamp(7px, 0.75vw, 11px)' }}>{new Date().toLocaleDateString('en-US', { month: 'short' }).toUpperCase()}</p>
-                              <p className="font-bold text-zinc-300 tracking-wider uppercase" style={{ fontSize: 'clamp(7px, 0.75vw, 11px)' }}>{new Date().getFullYear().toString()}</p>
-                            </div>
+                            <DynamicCover 
+                              title={submission.title || ""}
+                              journalCode={submission.journals?.name || ""}
+                              doi={submission.doi || generatedDoi || ""}
+                              volume={customVolume || ""}
+                              issue={customIssue || ""}
+                              createdAt={new Date().toISOString()}
+                              coverUrl={submission.cover_file_url || null}
+                              variant="preview"
+                            />
                           </div>
                       ) : (
                         <div className="border-2 border-dashed border-zinc-800 rounded-2xl p-12 w-full flex flex-col items-center justify-center text-center bg-zinc-900/30 text-zinc-500">
@@ -1765,48 +1720,16 @@ export default function SubmissionControlPanel() {
                       <h4 className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">Cover Naskah Final</h4>
                       {submission?.cover_file_url ? (
                         <div className="mb-6 rounded-lg overflow-hidden border border-gray-200 shadow-sm max-w-xs mx-auto md:mx-0 relative">
-                          <img src={submission.cover_file_url} alt="Cover Preview" className="max-w-full h-auto object-contain w-full" />
-                          <div 
-                            className="absolute font-serif drop-shadow-md overflow-hidden"
-                            style={{
-                              top: '36.5%',
-                              left: '6%',
-                              width: '46%',
-                              maxHeight: '59.5%',
-                            }}
-                          >
-                            <div className="mb-1.5">
-                              <span 
-                                className="inline-block font-sans font-extrabold text-[#f0c05a] tracking-wider uppercase"
-                                style={{ fontSize: 'clamp(6.5px, 0.65vw, 9.5px)' }}
-                              >
-                                {submission.journals?.name ? submission.journals.name.split('-')[0].trim() : ''}
-                              </span>
-                            </div>
-                            {renderCoverTitle(submission.title, 1.0)}
-                          </div>
-
-                          {/* DOI Overlay */}
-                          {(submission.doi || generatedDoi) && (
-                            <div className="absolute z-10" style={{ top: '11.5%', left: '33%', width: '42%' }}>
-                              <p className="font-bold text-[#c9a84c] tracking-wider mb-0.5" style={{ fontSize: 'clamp(7px, 0.7vw, 11px)' }}>DOI</p>
-                              <p className="font-mono text-zinc-200 drop-shadow-md whitespace-nowrap leading-tight" style={{ fontSize: 'clamp(5px, 0.5vw, 8px)' }}>
-                                {submission.doi || generatedDoi}
-                              </p>
-                            </div>
-                          )}
-
-                          {/* Volume & Edisi */}
-                          <div className="absolute flex flex-col justify-center" style={{ top: '89%', left: '26%', width: '20%' }}>
-                            {customVolume && <p className="font-bold text-zinc-300 tracking-wider uppercase mb-0.5" style={{ fontSize: 'clamp(7px, 0.75vw, 11px)' }}>VOL {customVolume.replace(/Vol\.?\s*/i, '').trim()}</p>}
-                            {customIssue && <p className="font-bold text-zinc-300 tracking-wider uppercase" style={{ fontSize: 'clamp(7px, 0.75vw, 11px)' }}>EDISI {customIssue.replace(/No\.?\s*/i, '').trim()}</p>}
-                          </div>
-
-                          {/* Month & Year */}
-                          <div className="absolute flex flex-col justify-center" style={{ top: '89%', left: '52%', width: '20%' }}>
-                            <p className="font-bold text-zinc-300 tracking-wider uppercase mb-0.5" style={{ fontSize: 'clamp(7px, 0.75vw, 11px)' }}>{new Date().toLocaleDateString('en-US', { month: 'short' }).toUpperCase()}</p>
-                            <p className="font-bold text-zinc-300 tracking-wider uppercase" style={{ fontSize: 'clamp(7px, 0.75vw, 11px)' }}>{new Date().getFullYear().toString()}</p>
-                          </div>
+                            <DynamicCover 
+                              title={submission.title || ""}
+                              journalCode={submission.journals?.name || ""}
+                              doi={submission.doi || generatedDoi || ""}
+                              volume={customVolume || ""}
+                              issue={customIssue || ""}
+                              createdAt={new Date().toISOString()}
+                              coverUrl={submission.cover_file_url || null}
+                              variant="preview"
+                            />
                         </div>
                       ) : (
                         <div className="mb-6 text-sm text-gray-500 bg-gray-50 p-3 rounded border border-gray-200">

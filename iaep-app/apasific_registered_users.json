@@ -1461,5 +1461,18 @@
     "sinta_id": "",
     "status": "Active",
     "joined": "2026-07-25T08:06:02.790Z"
+  },
+  {
+    "id": "demo-user-1785056894426",
+    "email": "kadsumut21@gmail.com",
+    "password": "mikrosistem",
+    "full_name": "Budie Sudjatmiko",
+    "phone_number": "+6281343737367",
+    "country": "Indonesia",
+    "university": "Kad Sumut",
+    "discipline": "Software Enginer",
+    "role": "reviewer",
+    "status": "Active",
+    "joined": "2026-07-26T09:08:14.426Z"
   }
 ]

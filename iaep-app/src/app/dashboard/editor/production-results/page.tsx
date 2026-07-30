@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
 import Link from "next/link";
 import { ShieldCheck, CheckCircle2, ArrowRight, FileText, ExternalLink } from "lucide-react";
+import DynamicCover from "@/components/ui/DynamicCover";
 
 export default async function ProductionResultsPage() {
   const supabase = await createClient();
@@ -169,46 +170,14 @@ export default async function ProductionResultsPage() {
                       className="w-full h-full object-cover" 
                     />
                     {article.cover_file_url && (
-                      <div 
-                        className="absolute font-serif drop-shadow-md overflow-hidden"
-                        style={{
-                          top: '34.5%',
-                          left: '6%',
-                          width: '46%',
-                          maxHeight: '59.5%',
-                        }}
-                      >
-                        <div className="mb-1">
-                          <span 
-                            className="inline-block font-sans font-extrabold text-[#f0c05a] bg-black/80 border border-[#f0c05a]/60 px-1 py-0.5 rounded tracking-wider uppercase shadow-md"
-                            style={{ fontSize: 'clamp(5.5px, 0.55vw, 8px)' }}
-                          >
-                            {discCode}
-                          </span>
-                        </div>
-                        {article.title && article.title.includes(":") ? (
-                          <>
-                            <div 
-                              className="font-bold leading-tight mb-0.5 text-[#c9a84c]" 
-                              style={{ fontSize: 'clamp(8.5px, 0.85vw, 12px)' }}
-                            >
-                              {article.title.split(":")[0].trim()}:
-                            </div>
-                            <div 
-                              className="font-normal text-gray-200" 
-                              style={{ fontSize: 'clamp(6.5px, 0.65vw, 9.5px)', lineHeight: '1.25' }}
-                            >
-                              {article.title.split(":").slice(1).join(":").trim()}
-                            </div>
-                          </>
-                        ) : (
-                          <div 
-                            className="font-bold leading-snug text-[#c9a84c]" 
-                            style={{ fontSize: 'clamp(8.5px, 0.85vw, 12px)' }}
-                          >
-                            {article.title}
-                          </div>
-                        )}
+                      <div className="w-full h-full">
+                        <DynamicCover 
+                          title={article.title || ""}
+                          journalCode={article.journals?.name || ""}
+                          coverUrl={article.cover_file_url}
+                          variant="preview"
+                          className="w-full h-full border-none shadow-none rounded-none"
+                        />
                       </div>
                     )}
                   </div>
