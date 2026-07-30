@@ -32,6 +32,7 @@ COMMENT ON TABLE public.submission_activity_log IS
 -- ── 3. RLS: Only admin/editor/co_admin can read logs ────────────────────────
 ALTER TABLE public.submission_activity_log ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Staff can read activity logs" ON public.submission_activity_log;
 CREATE POLICY "Staff can read activity logs"
   ON public.submission_activity_log
   FOR SELECT
@@ -44,6 +45,7 @@ CREATE POLICY "Staff can read activity logs"
   );
 
 -- Service role can insert (server actions use service key)
+DROP POLICY IF EXISTS "Service role can insert activity logs" ON public.submission_activity_log;
 CREATE POLICY "Service role can insert activity logs"
   ON public.submission_activity_log
   FOR INSERT

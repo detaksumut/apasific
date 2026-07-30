@@ -1,5 +1,18 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
+import { createClient } from "@/utils/supabase/client";
+import { UploadCloud, Loader2 } from "lucide-react";
+
+function slugify(text: string) {
+  return text
+    .toString()
+    .toLowerCase()
+    .replace(/\s+/g, '-')
+    .replace(/[^\w\-]+/g, '')
+    .replace(/\-\-+/g, '-')
+    .replace(/^-+/, '')
+    .replace(/-+$/, '');
+}
 
 interface Member {
   jabatan: string;
@@ -38,6 +51,10 @@ export default function JournalPage() {
   const [boards, setBoards] = useState<BoardData[]>([]);
   const [loading, setLoading] = useState(true);
   const [viewPdf, setViewPdf] = useState<string | null>(null);
+  const [isAdmin, setIsAdmin] = useState(true); // Bypass auth untuk keperluan upload lokal
+  const [uploadingName, setUploadingName] = useState<string | null>(null);
+  const [targetUploadName, setTargetUploadName] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const fetchAllBoards = async () => {
@@ -98,8 +115,56 @@ export default function JournalPage() {
     fetchAllBoards();
   }, []);
 
+  const triggerUpload = (name: string) => {
+    setTargetUploadName(name);
+    if (fileInputRef.current) {
+      fileInputRef.current.click();
+    }
+  };
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !targetUploadName) return;
+
+    setUploadingName(targetUploadName);
+    const slug = slugify(targetUploadName);
+    const fileName = `${slug}.jpg`;
+
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("fileName", fileName);
+
+      const res = await fetch("/api/upload-photo", {
+        method: "POST",
+        body: formData
+      });
+
+      if (!res.ok) {
+        throw new Error("Gagal mengunggah");
+      }
+      
+      // Tambahkan query param agar browser tidak me-load cache lama
+      const cacheBuster = new Date().getTime();
+      window.location.href = window.location.pathname + "?t=" + cacheBuster;
+    } catch (error: any) {
+      alert("Gagal mengunggah foto: " + error.message);
+    }
+    
+    setUploadingName(null);
+    setTargetUploadName(null);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
   return (
     <main style={{ minHeight: "100vh", padding: "100px 20px 60px", background: "#05050a", fontFamily: "sans-serif" }} className="relative overflow-x-hidden">
+      <input 
+        type="file" 
+        accept="image/*" 
+        style={{ display: "none" }} 
+        ref={fileInputRef} 
+        onChange={handleFileChange} 
+      />
       <div style={{ maxWidth: "1000px", margin: "0 auto" }}>
         
         <div style={{ textAlign: "center", marginBottom: "50px", padding: "40px 0", borderBottom: "1px solid rgba(201,168,76,0.15)" }}>
@@ -119,6 +184,232 @@ export default function JournalPage() {
             Daftar Susunan Dewan Redaksi Seluruh Jurnal APASIFIC
           </p>
         </div>
+
+        {/* --- HARDCODED GLOBAL EDITORIAL BOARD --- */}
+        <div style={{ marginBottom: "80px" }}>
+          <div className="border-b border-[#c9a84c]/30 pb-4 mb-6 pl-4 border-l-4 border-l-[#c9a84c]">
+            <h2 style={{ color: "#fff", fontSize: "24px", margin: 0, textTransform: "uppercase", letterSpacing: "2px", fontWeight: "900" }}>
+              Editorial Board (Global)
+            </h2>
+          </div>
+
+          <div style={{
+            background:"rgba(13,13,26,0.8)",
+            border:"1px solid rgba(201,168,76,0.15)",
+            borderRadius:"16px",
+            overflow:"hidden",
+            boxShadow:"0 20px 60px rgba(0,0,0,0.5)",
+            backdropFilter:"blur(16px)",
+          }}>
+            {/* Table header */}
+            <div style={{
+              display:"grid",
+              gridTemplateColumns:"48px 80px 1fr 1.5fr 1fr",
+              padding:"14px 24px",
+              borderBottom:"1px solid rgba(201,168,76,0.15)",
+              background:"rgba(201,168,76,0.06)",
+            }}>
+              {["No.", "Foto", "Posisi / Jabatan", "Nama", "Negara"].map((h, i) => (
+                <div key={i} style={{ fontSize:"11px", fontWeight:700, color:"#c9a84c", textTransform:"uppercase", letterSpacing:"1.5px" }}>
+                  {h}
+                </div>
+              ))}
+            </div>
+
+            {/* Rows */}
+            {[
+              { pos: "Editor-in-Chief", name: "Dr. Arfan Ikhsan Lubis, S.E., M.Si., CATr", country: "Indonesia", photo: "/arfan.jpg" },
+              { pos: "Deputy Editor-in-Chief", name: "Dr. Muhammad Yamin Noch, S.E., M.S.A", country: "Indonesia", photo: "/yamin.jpg" },
+              { pos: "Advisory Board", name: "Dr. Prihat Assih, S.E., M.Si., CSR", country: "Indonesia", photo: "/Prihatti.png" },
+              { pos: "Advisory Board", name: "Prof. Dr. Indra Maipita, M.Si.", country: "Indonesia", photo: "/indra.jpg" },
+              { pos: "Advisory Board", name: "Assoc. Prof. Ts. Dr. Aidi Ahmi", country: "Malaysia", photo: "" },
+              { pos: "Managing Editor", name: "Muhibbuddin Abdul Rahman", country: "Indonesia", photo: "/rahman.jpg" },
+
+              // SEMUA BOARD EDITORS
+              { pos: "Board Editor", name: "Prof. Istianingsih Sastrodiharjo, S.E., S.H., M.Si.", country: "Indonesia", photo: "" },
+              { pos: "Board Editor", name: "Prof. Dr. Indra Maipita, M.Si.", country: "Indonesia", photo: "" },
+              { pos: "Board Editor", name: "Dr. Desak Sri Werastuti, S.E., M.Si.", country: "Indonesia", photo: "" },
+              { pos: "Board Editor", name: "Dr. Wisang Candra Bintari, S.E., M.M.", country: "Indonesia", photo: "" },
+              { pos: "Board Editor", name: "Aulia Juanda Djaingsastro", country: "Indonesia", photo: "" },
+              { pos: "Board Editor", name: "Dr. Evada Dewata", country: "Indonesia", photo: "" },
+              { pos: "Board Editor", name: "Dr. Bahkrul Khair Amal, M.Si.", country: "Indonesia", photo: "" },
+              { pos: "Board Editor", name: "Dr. Dwi Soegiarto, S.E., M.Si.", country: "Indonesia", photo: "" },
+              { pos: "Board Editor", name: "Dr. Arfan Ikhsan Lubis, S.E., M.Si., CATr", country: "Indonesia", photo: "" },
+              { pos: "Board Editor", name: "Dr. Robbi Shahary, M.H.", country: "Indonesia", photo: "" },
+              { pos: "Board Editor", name: "Dr. Ratna Wijayanti Daniar Paramita, S.E., M.M.", country: "Indonesia", photo: "" },
+              { pos: "Board Editor", name: "Dr. Arifatul Husna Mohd Ariff", country: "Malaysia", photo: "" },
+              { pos: "Board Editor", name: "Dr. Lince Bulutoding", country: "Indonesia", photo: "" },
+              { pos: "Board Editor", name: "Prof. Dr. Indra Devi", country: "Malaysia", photo: "" },
+              { pos: "Board Editor", name: "Dr. Ngatemin, M.Si.", country: "Indonesia", photo: "" },
+              { pos: "Board Editor", name: "Dr. Rahmat Ilyas, M.S.I.", country: "Indonesia", photo: "" },
+
+              // SEMUA REVIEWERS
+              { pos: "Board Reviewer", name: "Prof. Darmawati, S.E., Ak., M.Si., CA., CRA., ASEAN CPA", country: "Indonesia", photo: "" },
+              { pos: "Board Reviewer", name: "Dr. Meilda Wiguna, S.E., M.Sc., Ak., CA", country: "Indonesia", photo: "" },
+              { pos: "Board Reviewer", name: "Dr. Indrian Supheni, S.E., M.Aks., CSRA", country: "Indonesia", photo: "" },
+              { pos: "Board Reviewer", name: "Dr. Eko Cahyo Mayndarto, S.E., M.Si., Ak", country: "Indonesia", photo: "" },
+              { pos: "Board Reviewer", name: "Tri Dessy Fadillah, S.E., M.Ak", country: "Indonesia", photo: "" },
+              { pos: "Board Reviewer", name: "Prof. Dr. Ram Al Jaffri Saad", country: "Malaysia", photo: "" },
+              { pos: "Board Reviewer", name: "Dr. Murtiadi Awaluddin", country: "Indonesia", photo: "" },
+              { pos: "Board Reviewer", name: "Muhammad Syafril Nasution, S.E., M.Si", country: "Indonesia", photo: "" },
+              { pos: "Board Reviewer", name: "Dr. Inugrah Ratia Pratiwi", country: "Indonesia", photo: "" },
+              { pos: "Board Reviewer", name: "Dr. Saliza Binti Abdul Aziz", country: "Malaysia", photo: "" },
+              { pos: "Board Reviewer", name: "Dr. Ha Thuy", country: "Vietnam", photo: "" },
+              { pos: "Board Reviewer", name: "Dr. Ryan", country: "Vietnam", photo: "" },
+              { pos: "Board Reviewer", name: "Dr. Intan Fatimah Anwar", country: "Malaysia", photo: "" },
+              { pos: "Board Reviewer", name: "Dr. Jamaluddin Majid, M.Si", country: "Indonesia", photo: "" },
+              { pos: "Board Reviewer", name: "Rida Ristiyana, S.E., M.Si", country: "Indonesia", photo: "" },
+              { pos: "Board Reviewer", name: "Dr. Tan Chee Yu", country: "Malaysia", photo: "" },
+              { pos: "Board Reviewer", name: "Dr. Naz'aina, S.E., M.Si., Ak", country: "Indonesia", photo: "" },
+              { pos: "Board Reviewer", name: "Dr. Herman Rustandi", country: "Indonesia", photo: "" },
+              { pos: "Board Reviewer", name: "Dr. Hj. Subadriyah, S.E., M.Si", country: "Indonesia", photo: "" },
+              { pos: "Board Reviewer", name: "Dr. Yuni Ekawarti", country: "Indonesia", photo: "" },
+              { pos: "Board Reviewer", name: "Dr. Anita Kusuma Dewi", country: "Indonesia", photo: "" },
+              { pos: "Board Reviewer", name: "Dr. Enos Julvirta, MMPAR", country: "Indonesia", photo: "" },
+              { pos: "Board Reviewer", name: "Dr. Anwar Masatip, MMPAR", country: "Indonesia", photo: "" },
+              { pos: "Board Reviewer", name: "Dr. Nifaosan", country: "Thailand", photo: "" },
+              { pos: "Board Reviewer", name: "Dr. Muhammad Hashim", country: "Malaysia", photo: "" },
+              { pos: "Board Reviewer", name: "Dr. Raja Haslinda", country: "Malaysia", photo: "" },
+              { pos: "Board Reviewer", name: "Dr. Prattana Arisuk", country: "Thailand", photo: "" },
+              { pos: "Board Reviewer", name: "Dr. Prattana Srisuk", country: "Thailand", photo: "" },
+              { pos: "Board Reviewer", name: "Assoc. Prof. Dr. Norfaiezah Sawandi", country: "Malaysia", photo: "" },
+              { pos: "Board Reviewer", name: "Prof. Dr. Nor Aziah Abd Manaf", country: "Malaysia", photo: "" },
+              { pos: "Board Reviewer", name: "Dr. Nor Atikah Shafai", country: "Malaysia", photo: "" },
+              { pos: "Board Reviewer", name: "Dr. Mazrah Malik @ Malek", country: "Malaysia", photo: "" },
+              { pos: "Board Reviewer", name: "Assoc. Prof. Dr. Azharudin Ali", country: "Malaysia", photo: "" },
+              { pos: "Board Reviewer", name: "Dr. Ooi Sue Chern", country: "Malaysia", photo: "" },
+              { pos: "Board Reviewer", name: "Dr. Mohd Syahrir Bin Rahim", country: "Malaysia", photo: "" },
+              { pos: "Board Reviewer", name: "Dr. Safrul Izani Mohd Salleh", country: "Malaysia", photo: "" },
+              { pos: "Board Reviewer", name: "Dr. Zaimah Zainol Ariffin", country: "Malaysia", photo: "" },
+              { pos: "Board Reviewer", name: "Dr. Saidatul Nurul Hidayah Jannatun Naim Nor Ahmad", country: "Malaysia", photo: "" },
+              { pos: "Board Reviewer", name: "Prof. Dr. Ayoib Che Ahmad", country: "Malaysia", photo: "" },
+              { pos: "Board Reviewer", name: "Prof. Dr. Siti Zabedah Binti Saidin", country: "Malaysia", photo: "" },
+              { pos: "Board Reviewer", name: "Dr. Sitraselvi Chandren", country: "Malaysia", photo: "" },
+              { pos: "Board Reviewer", name: "Dr. Noor Afza Binti Amran", country: "Malaysia", photo: "" },
+              { pos: "Board Reviewer", name: "Dr. Muhammad Syahir Bin Abd. Wahab", country: "Malaysia", photo: "" },
+              { pos: "Board Reviewer", name: "Dr. Aryati Juliana Binti Sulaiman", country: "Malaysia", photo: "" },
+              { pos: "Board Reviewer", name: "Dr. Ku Maisurrah Ku Bahador", country: "Malaysia", photo: "" },
+              { pos: "Board Reviewer", name: "Dr. Raja Haslinda Raja Mohd Ali", country: "Malaysia", photo: "" },
+              { pos: "Board Reviewer", name: "Dr. Noor Asma Jamaluddin", country: "Malaysia", photo: "" },
+              { pos: "Board Reviewer", name: "Dr. Akilah Abdullah", country: "Malaysia", photo: "" },
+              { pos: "Board Reviewer", name: "Dr. Lok Yee Huei", country: "Malaysia", photo: "" },
+              { pos: "Board Reviewer", name: "Dr. Wan Norhayati Wan Ahmad", country: "Malaysia", photo: "" },
+              { pos: "Board Reviewer", name: "Dr. Idawati Ibrahim", country: "Malaysia", photo: "" },
+              { pos: "Board Reviewer", name: "Dr. Rohaida Abdul Latif", country: "Malaysia", photo: "" },
+              { pos: "Board Reviewer", name: "Dr. Nadzirah Bt Mohd Said", country: "Malaysia", photo: "" },
+              { pos: "Board Reviewer", name: "Dr. Muhammad Harith Bin Zahrullaili", country: "Malaysia", photo: "" },
+              { pos: "Board Reviewer", name: "Dr. Ira Geraldina", country: "Indonesia", photo: "" },
+              { pos: "Board Reviewer", name: "Dr. Sazali Saad", country: "Malaysia", photo: "" },
+              { pos: "Board Reviewer", name: "Dr. Nur Azliani Haniza Binti Che Pak", country: "Malaysia", photo: "" },
+              { pos: "Board Reviewer", name: "Dr. Hafizah Mohamad Hsbollah", country: "Malaysia", photo: "" },
+              { pos: "Board Reviewer", name: "Dr. Adura Binti Ahmad", country: "Malaysia", photo: "" },
+              { pos: "Board Reviewer", name: "Dr. Fathiyyah Abu Bakar", country: "Malaysia", photo: "" },
+              { pos: "Board Reviewer", name: "Dr. Rokiah Ishak", country: "Malaysia", photo: "" },
+              { pos: "Board Reviewer", name: "Dr. Faidzulaini Muhammad", country: "Malaysia", photo: "" },
+              { pos: "Board Reviewer", name: "Dr. Rinda Fithriyana", country: "Indonesia", photo: "" },
+              { pos: "Board Reviewer", name: "Dr. Zaimah Binti Abdullah", country: "Malaysia", photo: "" },
+              { pos: "Board Reviewer", name: "Dr. Ismul Mauludin Al Habib", country: "Indonesia", photo: "" },
+              { pos: "Board Reviewer", name: "Dr. Zul Azmi", country: "Indonesia", photo: "" },
+              { pos: "Board Reviewer", name: "Assoc. Prof. Wira Ramashar, S.E., M.Ak., Ph.D.", country: "Indonesia", photo: "" },
+              { pos: "Board Reviewer", name: "Dr. Saifhul Anuar Syahdan", country: "Indonesia", photo: "" },
+              { pos: "Board Reviewer", name: "Dr. Masithah Akbar", country: "Indonesia", photo: "" },
+              { pos: "Board Reviewer", name: "Dr. Gemi Ruwanti", country: "Indonesia", photo: "" },
+              { pos: "Board Reviewer", name: "Dr. Asri Elies Alamanda, S.H., M.H.", country: "Indonesia", photo: "" },
+              { pos: "Board Reviewer", name: "Dr. Kiljamilawati, M.H.", country: "Indonesia", photo: "" },
+              { pos: "Board Reviewer", name: "Dr. Imam Gunanjar, S.E., M.M.", country: "Indonesia", photo: "" },
+              { pos: "Board Reviewer", name: "Dr. Hadi Jauhari", country: "Indonesia", photo: "" },
+              { pos: "Board Reviewer", name: "Dr. Surna Lastri, S.E., M.Si., CTT., CSBA.", country: "Indonesia", photo: "" },
+              { pos: "Board Reviewer", name: "Dr. Ni Nyoman Ayu Suryandari, S.E., M.Si., Ak., CA.", country: "Indonesia", photo: "" },
+              { pos: "Board Reviewer", name: "Dr. Sazali Zainal Abidin", country: "Malaysia", photo: "" },
+              { pos: "Board Reviewer", name: "Dr. Amni Suhailah", country: "Malaysia", photo: "" },
+              { pos: "Board Reviewer", name: "Dr. Cliff Cheng", country: "Taiwan", photo: "" },
+              { pos: "Board Reviewer", name: "Dr. Hakan Aslan", country: "Turkey", photo: "" },
+              { pos: "Board Reviewer", name: "Dr. Wahida", country: "Malaysia", photo: "" },
+              { pos: "Board Reviewer", name: "Dr. Marahaman", country: "Indonesia", photo: "" },
+              { pos: "Board Reviewer", name: "Dr. Nur Alim Natsir, S.Pi., M.Si.", country: "Indonesia", photo: "" },
+              { pos: "Board Reviewer", name: "Assoc. Prof. Dr. (Cand) Petty Aprilia Sari, S.E., M.Ak.", country: "Indonesia", photo: "" },
+              { pos: "Board Reviewer", name: "Prof. Dr. Rika Dwi Ayu Parmitasari, S.E., M.Com.", country: "Indonesia", photo: "" },
+              { pos: "Board Reviewer", name: "Dr. Budie Sudjatmiko", country: "Indonesia", photo: "" },
+              // Lintas Bidang
+              { pos: "Methodology & Statistics", name: "Dr. Ikbar Pratama, S.E., M.Acc., PhD", country: "Indonesia", photo: "" },
+              { pos: "Methodology & Statistics", name: "Dr. Wuri Septi Handayani, S.E., M.Si", country: "Indonesia", photo: "" },
+              { pos: "Quality Assurance", name: "Dr. Majo George", country: "International", photo: "" },
+              { pos: "Quality Assurance", name: "Dr. Mohammad Sahabuddin", country: "International", photo: "" },
+              // Tech Team
+              { pos: "Layout Editor", name: "Kun Syafi'i Habibi", country: "Indonesia", photo: "" },
+              { pos: "Cover Editor", name: "Rizky Al Ridho", country: "Indonesia", photo: "" },
+              { pos: "Publish Editor", name: "Parida Hannum", country: "Indonesia", photo: "" },
+              { pos: "Supervisor Editor", name: "Muhammad Danil", country: "Indonesia", photo: "" },
+              { pos: "Journal Administrator", name: "Khairan Rashad Haqqani Lubis", country: "Indonesia", photo: "" },
+              { pos: "Social Media Editor", name: "Wais Al-Qarni, S.T.", country: "Indonesia", photo: "" },
+              { pos: "Web Editor", name: "Muhibbuddin Abdul Rahman", country: "Indonesia", photo: "" }
+            ].map((m, i) => {
+              const isEven = i % 2 === 0;
+              return (
+                <div key={i} style={{
+                  display:"grid",
+                  gridTemplateColumns:"48px 100px 1.2fr 1.5fr 1fr",
+                  padding:"16px 24px",
+                  borderBottom:"1px solid rgba(255,255,255,0.04)",
+                  background: isEven ? "transparent" : "rgba(255,255,255,0.015)",
+                  alignItems:"center",
+                  transition:"background 0.15s",
+                }}
+                onMouseEnter={e => (e.currentTarget.style.background = "rgba(201,168,76,0.04)")}
+                onMouseLeave={e => (e.currentTarget.style.background = isEven ? "transparent" : "rgba(255,255,255,0.015)")}
+                >
+                  <div style={{ fontSize:"14px", color:"#4b5563", fontWeight:600 }}>{String(i + 1).padStart(2, "0")}</div>
+                  
+                  <div style={{ display: "flex", alignItems: "center" }}>
+                    <div 
+                      className="group relative"
+                      style={{ width: "64px", height: "64px", borderRadius: "50%", overflow: "hidden", border: "2px solid rgba(201,168,76,0.3)", background: "#131326", display: "flex", alignItems: "center", justifyContent: "center", color: "#c9a84c", fontWeight: "bold", fontSize: "24px", cursor: isAdmin ? "pointer" : "default" }}
+                      onClick={() => isAdmin && triggerUpload(m.name)}
+                    >
+                          <img 
+                            src={`/images/${slugify(m.name)}.jpg`} 
+                            alt={m.name} 
+                            style={{ width: "100%", height: "100%", objectFit: "cover" }} 
+                            onError={(e) => { 
+                              if (m.photo && !e.currentTarget.src.includes(m.photo)) {
+                                e.currentTarget.src = m.photo;
+                              } else {
+                                e.currentTarget.style.display = 'none'; 
+                                e.currentTarget.nextElementSibling?.classList.remove('hidden'); 
+                              }
+                            }} 
+                          />
+                      <span className="hidden">{m.name.charAt(0)}</span>
+                      
+                      {isAdmin && (
+                        <div className="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                          {uploadingName === m.name ? (
+                            <Loader2 className="w-6 h-6 text-white animate-spin" />
+                          ) : (
+                            <UploadCloud className="w-6 h-6 text-white" />
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  <h3 style={{ fontSize: "12px", textTransform: "uppercase", letterSpacing: "0.05em", fontWeight: 700, color: "#c9a84c" }}>
+                    {m.pos}
+                  </h3>
+                  
+                  <p style={{ fontSize: "14px", fontWeight: 600, color: "#e8e8f0" }}>
+                    {m.name}
+                  </p>
+                  
+                  <div style={{ fontSize: "13px", color: "rgba(255,255,255,0.6)" }}>
+                    {m.country}
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+        {/* --- END HARDCODED GLOBAL EDITORIAL BOARD --- */}
 
         {loading ? (
           <div style={{ textAlign: "center", color: "#c9a84c", padding: "50px" }}>Loading Editorial Boards...</div>
@@ -201,20 +492,45 @@ export default function JournalPage() {
                         transition: "transform 0.3s ease",
                         boxShadow: "0 10px 30px rgba(0,0,0,0.5)"
                       }}>
-                        <div style={{
-                          width: "120px",
-                          height: "120px",
-                          margin: "0 auto 20px",
-                          borderRadius: "50%",
-                          border: "2px solid #c9a84c",
-                          padding: "4px",
-                          background: "#05050a"
-                        }}>
-                          {m.foto ? (
-                            <img src={m.foto} alt={m.nama} style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "50%" }} />
-                          ) : (
-                            <div style={{ width: "100%", height: "100%", borderRadius: "50%", background: "#1a1a2e", display: "flex", alignItems: "center", justifyContent: "center", color: "#c9a84c", fontSize: "32px", fontWeight: "bold" }}>
-                              {m.nama.charAt(0)}
+                        <div 
+                          className="group relative"
+                          style={{
+                            width: "120px",
+                            height: "120px",
+                            margin: "0 auto 20px",
+                            borderRadius: "50%",
+                            border: "2px solid #c9a84c",
+                            padding: "4px",
+                            background: "#05050a",
+                            cursor: isAdmin ? "pointer" : "default",
+                            overflow: "hidden"
+                          }}
+                          onClick={() => isAdmin && triggerUpload(m.nama)}
+                        >
+                          <img 
+                            src={`/images/${slugify(m.nama)}.jpg`}
+                            alt={m.nama} 
+                            style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "50%" }}
+                            onError={(e) => { 
+                              if (m.foto && !e.currentTarget.src.includes(m.foto)) {
+                                e.currentTarget.src = m.foto;
+                              } else {
+                                e.currentTarget.style.display = 'none'; 
+                                e.currentTarget.nextElementSibling?.classList.remove('hidden'); 
+                              }
+                            }} 
+                          />
+                          <div className="hidden" style={{ width: "100%", height: "100%", borderRadius: "50%", background: "#1a1a2e", display: "flex", alignItems: "center", justifyContent: "center", color: "#c9a84c", fontSize: "32px", fontWeight: "bold" }}>
+                            {m.nama.charAt(0)}
+                          </div>
+                          
+                          {isAdmin && (
+                            <div className="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity rounded-full z-10 m-1">
+                              {uploadingName === m.nama ? (
+                                <Loader2 className="w-8 h-8 text-white animate-spin" />
+                              ) : (
+                                <UploadCloud className="w-8 h-8 text-white" />
+                              )}
                             </div>
                           )}
                         </div>

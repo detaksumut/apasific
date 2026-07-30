@@ -11,14 +11,22 @@ CREATE TABLE IF NOT EXISTS global_chats (
 ALTER TABLE global_chats ENABLE ROW LEVEL SECURITY;
 
 -- Allow everyone (authenticated and anonymous) to view chats
+DROP POLICY IF EXISTS "Allow anyone to view chats" ON global_chats;
 CREATE POLICY "Allow anyone to view chats" 
 ON global_chats FOR SELECT 
 USING (true);
 
 -- Allow anyone to insert messages
+DROP POLICY IF EXISTS "Allow anyone to insert chats" ON global_chats;
 CREATE POLICY "Allow anyone to insert chats" 
 ON global_chats FOR INSERT 
 WITH CHECK (true);
 
--- Enable Realtime for the table
-ALTER PUBLICATION supabase_realtime ADD TABLE global_chats;
+-- Enable Realtime for the table (Safe implementation)
+DO $$
+BEGIN
+  ALTER PUBLICATION supabase_realtime ADD TABLE global_chats;
+EXCEPTION
+  WHEN duplicate_object THEN
+    NULL; -- Already added
+END $$;

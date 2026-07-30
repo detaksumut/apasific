@@ -27,12 +27,19 @@ CREATE TABLE IF NOT EXISTS public.review_assignments (
 ALTER TABLE public.review_assignments ENABLE ROW LEVEL SECURITY;
 
 -- RLS Policies
+DROP POLICY IF EXISTS "Allow public read access to review_assignments" ON public.review_assignments;
 CREATE POLICY "Allow public read access to review_assignments" ON public.review_assignments FOR SELECT USING (true);
+
+DROP POLICY IF EXISTS "Allow authenticated to insert review_assignments" ON public.review_assignments;
 CREATE POLICY "Allow authenticated to insert review_assignments" ON public.review_assignments FOR INSERT TO authenticated WITH CHECK (true);
+
+DROP POLICY IF EXISTS "Allow users to update their own review_assignments" ON public.review_assignments;
 CREATE POLICY "Allow users to update their own review_assignments" ON public.review_assignments FOR UPDATE TO authenticated USING (
     reviewer_id = auth.uid() OR 
     EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND (role = 'editor' OR role = 'admin'))
 );
+
+DROP POLICY IF EXISTS "Allow editors to delete review_assignments" ON public.review_assignments;
 CREATE POLICY "Allow editors to delete review_assignments" ON public.review_assignments FOR DELETE TO authenticated USING (
     EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND (role = 'editor' OR role = 'admin'))
 );
