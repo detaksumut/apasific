@@ -402,7 +402,8 @@ export default function Sidebar({ role }: SidebarProps) {
       case "reviewer": return reviewerLinks;
       case "editor":   return [...editorLinks, ...reviewerLinks];
       case "admin":    return [...adminLinks, ...reviewerLinks];
-      case "co_admin": return coAdminLinks;
+      case "co_admin":
+      case "co-admin": return coAdminLinks;
       default:         return [];
     }
   };
@@ -410,6 +411,7 @@ export default function Sidebar({ role }: SidebarProps) {
   const roleLabelMap: Record<string, string> = {
     admin:    "Administrasi",
     co_admin: "Co-Admin",
+    "co-admin": "Co-Admin",
     editor:   "Editorial",
     reviewer: "Reviewer",
     author:   "Penulis",
@@ -418,6 +420,7 @@ export default function Sidebar({ role }: SidebarProps) {
   const roleColorMap: Record<string, string> = {
     admin:    "#f59e0b",
     co_admin: "#ec4899",
+    "co-admin": "#ec4899",
     editor:   "#60a5fa",
     reviewer: "#34d399",
     author:   "#c9a84c",
@@ -478,7 +481,7 @@ export default function Sidebar({ role }: SidebarProps) {
         )}
 
         {/* Area Penulis — hidden for co_admin (they are staff, not authors) */}
-        {normalizedRole !== "author" && normalizedRole !== "co_admin" && (
+        {normalizedRole !== "author" && normalizedRole !== "co_admin" && normalizedRole !== "co-admin" && (
           <>
             <div className="sidebar-section-label" style={{ marginTop: 24 }}>Area Penulis</div>
             {authorLinks.map(link => <NavLink key={`author-${link.path}`} link={link} />)}
