@@ -259,7 +259,7 @@ export default function JournalPage() {
               { pos: "Board Editor", name: "Dr. Prattana Srisuk", country: "Thailand", photo: "" },
               { pos: "Board Editor", name: "Dr. Sazali Zainal Abidin", country: "Malaysia", photo: "" },
               { pos: "Board Editor", name: "Dr. Eko Cahyo Mayndarto, S.E., M.Si., Ak", country: "Indonesia", photo: "" },
-              { pos: "Board Editor", name: "Dr. Amni Suhailah", country: "Malaysia", photo: "" },
+              { pos: "Board Editor", name: "Dr. Amni Suhailah", country: "Brunei Darussalam", photo: "" },
               { pos: "Board Editor", name: "Dr. Majo George", country: "International", photo: "" },
               { pos: "Board Editor", name: "Dr. Mohammad Sahabuddin", country: "International", photo: "" },
 
@@ -289,7 +289,7 @@ export default function JournalPage() {
               { pos: "Board Reviewer", name: "Dr. Hakan Aslan", country: "Turkey", photo: "" },
               { pos: "Board Reviewer", name: "Dr. Wahida", country: "Malaysia", photo: "" },
               { pos: "Board Reviewer", name: "Tri Dessy Fadillah, S.E., M.Ak", country: "Indonesia", photo: "" },
-              { pos: "Board Reviewer", name: "Dr. Amni Suhailah", country: "Malaysia", photo: "" },
+              { pos: "Board Reviewer", name: "Dr. Amni Suhailah", country: "Brunei Darussalam", photo: "" },
               { pos: "Board Reviewer", name: "Dr. Aryo Prakoso", country: "Indonesia", photo: "" },
               { pos: "Board Reviewer", name: "Dr. Jumaiyah, SE. M.Si", country: "Indonesia", photo: "" },
               { pos: "Board Reviewer", name: "Dr. Meilda Wiguna, S.E., M.Sc., Ak., CA", country: "Indonesia", photo: "" },
