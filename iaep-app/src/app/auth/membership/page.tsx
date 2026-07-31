@@ -12,6 +12,96 @@ const formatDateYYMMDD = (dateString?: string | null, addYears: number = 0) => {
   const yyyy = d.getFullYear();
   return `${mm}/${yyyy}`; // Format diubah menjadi MM/YYYY untuk memperjelas masa berlaku 3 tahun
 };
+const dotMatrix: Record<string, string[]> = {
+  "0": [
+    "11111",
+    "10001",
+    "10001",
+    "10001",
+    "11111",
+  ],
+  "1": [
+    "00100",
+    "01100",
+    "00100",
+    "00100",
+    "11111",
+  ],
+  "2": [
+    "11111",
+    "00001",
+    "11111",
+    "10000",
+    "11111",
+  ],
+  "3": [
+    "11111",
+    "00001",
+    "11111",
+    "00001",
+    "11111",
+  ],
+  "4": [
+    "10001",
+    "10001",
+    "11111",
+    "00001",
+    "00001",
+  ],
+  "5": [
+    "11111",
+    "10000",
+    "11111",
+    "00001",
+    "11111",
+  ],
+  "6": [
+    "11111",
+    "10000",
+    "11111",
+    "10001",
+    "11111",
+  ],
+  "7": [
+    "11111",
+    "00001",
+    "00010",
+    "00100",
+    "00100",
+  ],
+  "8": [
+    "11111",
+    "10001",
+    "11111",
+    "10001",
+    "11111",
+  ],
+  "9": [
+    "11111",
+    "10001",
+    "11111",
+    "00001",
+    "11111",
+  ],
+};
+
+function DotMatrixNumber({value}: {value:string}) {
+  return (
+    <div style={{ display:"flex", gap:"2px", filter: "drop-shadow(0 0 1px white)", opacity: 0.9 }}>
+      {value.split("").map((num,index)=>(
+        <div key={index} style={{ display:"grid", gridTemplateRows:"repeat(5, 1px)", gap:"0.5px" }}>
+        {dotMatrix[num]?.map((row,r)=>(
+          <div key={r} style={{ display:"grid", gridTemplateColumns:"repeat(5, 1px)", gap:"0.5px" }}>
+            {row.split("").map((pixel,p)=>(
+                <span key={p} style={{ width:"1px", height:"1px", background: pixel==="1" ? "white" : "transparent", borderRadius:"50%" }} />
+            ))}
+          </div>
+        ))}
+        </div>
+      ))}
+    </div>
+  )
+}
 
 export default function MajesticMembershipPage() {
   const [formData, setFormData] = useState({
@@ -694,12 +784,14 @@ export default function MajesticMembershipPage() {
                   </div>
                 )}
 
-                {/* ID NUMBER (No Registry di Bawah Chip) */}
-                <div className="absolute text-white tracking-wider drop-shadow-md text-right flex items-baseline" style={{ bottom: '7%', right: '5%', fontSize: '9px', fontFamily: '"Courier New", Courier, monospace', letterSpacing: '0.15em' }}>
-                  {(() => {
-                    const fullId = selectedMemberCard.international_id || "ASIA-VII-0000001";
-                    return <span>ID. {fullId}</span>;
-                  })()}
+                {/* ID NUMBER (No Registry Digital Dot Matrix) */}
+                <div className="absolute text-white drop-shadow-md flex items-center" style={{ bottom: '5%', right: '5%' }}>
+                  {/* Prefix */}
+                  <span style={{ fontSize: '9px', fontFamily: '"Courier New", Courier, monospace', letterSpacing: '0.15em', marginRight: '6px' }}>
+                    ID. ASIA-VII-
+                  </span>
+                  {/* Dot Matrix Number */}
+                  <DotMatrixNumber value={(selectedMemberCard.international_id || "ASIA-VII-0000001").replace("ASIA-VII-", "")} />
                 </div>
               </div>
 
