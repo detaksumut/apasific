@@ -226,6 +226,10 @@ export default function JournalPage() {
               { pos: "Advisory Board", name: "Prof. Istianingsih Sastrodiharjo, S.E., S.H., M.Si.", country: "Indonesia", photo: "" },
               { pos: "Managing Editor", name: "Muhibbuddin Abdul Rahman", country: "Indonesia", photo: "/rahman.jpg" },
               { pos: "Ethics Editor", name: "Dr. Elen Puspitasari., SE., M.Si., CRM., CFDP., CFSM., MSEAC.", country: "Indonesia", photo: "" },
+              { pos: "Methodology & Statistics", name: "Dr. Ikbar Pratama, S.E., M.Acc., PhD", country: "Indonesia", photo: "" },
+              { pos: "Methodology & Statistics", name: "Dr. Wuri Septi Handayani, S.E., M.Si", country: "Indonesia", photo: "" },
+              { pos: "Quality Assurance", name: "Dr. Majo George", country: "International", photo: "" },
+              { pos: "Quality Assurance", name: "Dr. Mohammad Sahabuddin", country: "International", photo: "" },
 
               // SEMUA BOARD EDITORS
               { pos: "Board Editor", name: "Prof. Istianingsih Sastrodiharjo, S.E., S.H., M.Si.", country: "Indonesia", photo: "" },
@@ -349,11 +353,6 @@ export default function JournalPage() {
               { pos: "Board Reviewer", name: "Fikri Rizki Utama, S.E., M.S.Ak., Akt.", country: "Indonesia", photo: "" },
               { pos: "Board Reviewer", name: "Muhammad Syafril Nasution, S.E., M.Si", country: "Indonesia", photo: "" },
               { pos: "Board Reviewer", name: "Rida Ristiyana, S.E., M.Si", country: "Indonesia", photo: "" },
-              // Lintas Bidang
-              { pos: "Methodology & Statistics", name: "Dr. Ikbar Pratama, S.E., M.Acc., PhD", country: "Indonesia", photo: "" },
-              { pos: "Methodology & Statistics", name: "Dr. Wuri Septi Handayani, S.E., M.Si", country: "Indonesia", photo: "" },
-              { pos: "Quality Assurance", name: "Dr. Majo George", country: "International", photo: "" },
-              { pos: "Quality Assurance", name: "Dr. Mohammad Sahabuddin", country: "International", photo: "" },
               // Tech Team
               { pos: "Layout Editor", name: "Kun Syafi'i Habibi", country: "Indonesia", photo: "" },
               { pos: "Cover Editor", name: "Rizky Al Ridho", country: "Indonesia", photo: "" },
