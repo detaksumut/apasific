@@ -25,17 +25,19 @@ export default function AssessorPage() {
       router.push(`/exam/${sessionId}`);
       return;
     }
-    const { role } = JSON.parse(authData);
+    const { role, access_code } = JSON.parse(authData);
     if (role !== 'assessor') {
       alert("Unauthorized role");
       router.push(`/exam/${sessionId}`);
       return;
     }
 
-    // Fetch data
+    // Fetch data — send access code as header
     const fetchSession = async () => {
       try {
-        const res = await fetch(`/api/certifications/exam/sessions/${sessionId}/data`);
+        const res = await fetch(`/api/certifications/exam/sessions/${sessionId}/data`, {
+          headers: { "x-access-code": access_code }
+        });
         if (res.ok) {
           const data = await res.json();
           setSessionData(data);
@@ -45,11 +47,10 @@ export default function AssessorPage() {
             setEssays(data.exam_data.essays || []);
             setInterviewLink(data.exam_data.interviewLink || "");
             setInterviewTime(data.exam_data.interviewTime || "");
-          } else {
-            // Default empty state
-            setMcqs([{ id: Date.now().toString(), q: "", a: "", b: "", c: "", d: "", correct: "A" }]);
-            setEssays([{ id: (Date.now()+1).toString(), q: "" }]);
           }
+          // No default questions — assessor starts from clean state
+        } else {
+          console.error("Failed to fetch session data");
         }
       } catch (e) {
         console.error(e);
@@ -86,10 +87,19 @@ export default function AssessorPage() {
   };
 
   const handleReleaseExam = async () => {
+    // Validate: cannot release an empty exam
+    if (mcqs.length === 0 && essays.length === 0 && !interviewLink) {
+      alert("Tidak dapat merilis ujian kosong. Tambahkan minimal satu soal MCQ, soal Essay, atau jadwal Wawancara Online.");
+      return;
+    }
+
+    const authData = localStorage.getItem(`exam_auth_${sessionId}`);
+    const { access_code } = authData ? JSON.parse(authData) : {};
+
     try {
       const res = await fetch(`/api/certifications/exam/sessions/${sessionId}/data`, {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", "x-access-code": access_code },
         body: JSON.stringify({
           status: 'READY',
           exam_data: { mcqs, essays, interviewLink, interviewTime }
@@ -109,12 +119,15 @@ export default function AssessorPage() {
   };
 
   const handleSubmitGrade = async () => {
+    const authData = localStorage.getItem(`exam_auth_${sessionId}`);
+    const { access_code } = authData ? JSON.parse(authData) : {};
+
     try {
       const res = await fetch(`/api/certifications/exam/sessions/${sessionId}/data`, {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", "x-access-code": access_code },
         body: JSON.stringify({
-          status: 'COMPLETED',
+          status: 'ASSESSMENT_COMPLETED',
           score: score
         })
       });

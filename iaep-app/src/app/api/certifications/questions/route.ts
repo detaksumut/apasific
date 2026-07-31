@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/utils/supabase/server";
+import { randomUUID } from "crypto";
 
 export async function GET(request: NextRequest) {
   try {
@@ -39,7 +40,8 @@ export async function POST(request: NextRequest) {
     }
 
     const dbPayload = {
-      id: id || `Q-${Date.now().toString().slice(-4)}`,
+      // Sprint 3: UUID generator — Q-XXXXXXXX (8 uppercase hex chars, guaranteed unique)
+      id: id || `Q-${randomUUID().replace(/-/g, '').slice(0, 8).toUpperCase()}`,
       scheme,
       question_text: questionText,
       options,

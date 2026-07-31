@@ -1,16 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 
-interface ExamSession {
-  id: string;
-  candidate_id: string;
-  certification_field: string;
-  assessor_code: string;
-  candidate_code: string;
-  status: string;
-}
+// ─── Types ────────────────────────────────────────────────────────────────────
 
 interface Candidate {
   id: string;
@@ -22,260 +15,452 @@ interface Candidate {
   method: string;
   schedule: string;
   status: string;
+  eligibilityStatus?: string;
   zoomLink?: string;
   buktiTransferUrl?: string;
 }
 
+interface ExamSession {
+  id: string;
+  candidate_id: string;
+  certification_field: string;
+  assessor_code: string;
+  candidate_code: string;
+  status: string;
+  score?: number;
+  created_at?: string;
+}
+
+interface Credential {
+  id: string;
+  candidate_id: string;
+  credential_number: string;
+  certification_type: string;
+  status: string;
+  issued_at: string;
+  expired_at: string;
+  issued_by?: string;
+}
+
+// ─── Tab config ───────────────────────────────────────────────────────────────
+
+const TABS = [
+  { id: "pipeline",   label: "Pipeline",          icon: "👥" },
+  { id: "exam",       label: "Exam Status",        icon: "📋" },
+  { id: "queue",      label: "Assessment Queue",   icon: "⏳" },
+  { id: "decision",   label: "Decision",           icon: "⚖️" },
+  { id: "credentials",label: "Credentials",        icon: "🏆" },
+] as const;
+type TabId = typeof TABS[number]["id"];
+
+// ─── Status helpers ───────────────────────────────────────────────────────────
+
+const statusColor: Record<string, string> = {
+  DRAFT: "bg-gray-800 text-gray-400 border-gray-700",
+  READY: "bg-yellow-900/30 text-yellow-400 border-yellow-800",
+  IN_PROGRESS: "bg-blue-900/30 text-blue-400 border-blue-800",
+  SUBMITTED: "bg-purple-900/30 text-purple-400 border-purple-800",
+  UNDER_REVIEW: "bg-orange-900/30 text-orange-400 border-orange-800",
+  ASSESSMENT_COMPLETED: "bg-indigo-900/30 text-indigo-300 border-indigo-800",
+  CERTIFIED: "bg-green-900/30 text-green-400 border-green-800",
+  FAILED: "bg-red-900/30 text-red-400 border-red-800",
+  EXPIRED: "bg-gray-800 text-gray-500 border-gray-700",
+  ACTIVE: "bg-green-900/30 text-green-400 border-green-800",
+  REVOKED: "bg-red-900/30 text-red-400 border-red-800",
+  PENDING: "bg-gray-800 text-gray-400 border-gray-700",
+  ELIGIBLE: "bg-green-900/30 text-green-400 border-green-800",
+  REJECTED: "bg-red-900/30 text-red-400 border-red-800",
+  Registered: "bg-blue-900/30 text-blue-400 border-blue-800",
+};
+
+const Badge = ({ status }: { status: string }) => (
+  <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border ${statusColor[status] || "bg-gray-800 text-gray-400 border-gray-700"}`}>
+    {status}
+  </span>
+);
+
+// ─── Main Page ────────────────────────────────────────────────────────────────
+
 export default function CertificationsAdmin() {
+  const [activeTab, setActiveTab] = useState<TabId>("pipeline");
   const [candidates, setCandidates] = useState<Candidate[]>([]);
   const [sessions, setSessions] = useState<ExamSession[]>([]);
+  const [credentials, setCredentials] = useState<Credential[]>([]);
   const [loading, setLoading] = useState(true);
-  const [toastMessage, setToastMessage] = useState("");
-  const [selectedReceipt, setSelectedReceipt] = useState<string | null>(null);
+  const [actionLoading, setActionLoading] = useState<string | null>(null);
 
-  const showToast = (msg: string) => {
-    setToastMessage(msg);
-    setTimeout(() => setToastMessage(""), 3000);
-  };
-
-  const fetchData = async () => {
+  // ── Data loaders ──
+  const loadAll = useCallback(async () => {
     setLoading(true);
     try {
-      const resCand = await fetch("/api/certifications/candidates");
-      if (resCand.ok) {
-        const dataCand = await resCand.json();
-        setCandidates(dataCand);
-      }
-      const resSess = await fetch("/api/certifications/exam/sessions");
-      if (resSess.ok) {
-        const dataSess = await resSess.json();
-        setSessions(dataSess);
-      }
-    } catch (e: any) {
-      showToast(e.message || "Failed to create dummy data");
+      const [candRes, sessRes] = await Promise.all([
+        fetch("/api/certifications/candidates"),
+        fetch("/api/certifications/exam/sessions"),
+      ]);
+      if (candRes.ok) setCandidates(await candRes.json());
+      if (sessRes.ok) setSessions(await sessRes.json());
     } finally {
       setLoading(false);
     }
+  }, []);
+
+  const loadCredentials = useCallback(async () => {
+    // Load all credentials (via admin param)
+    const res = await fetch("/api/certifications/credentials?candidate_id=ALL");
+    // Fallback: query per candidate if needed
+    if (res.ok) setCredentials(await res.json());
+  }, []);
+
+  useEffect(() => { loadAll(); }, [loadAll]);
+  useEffect(() => { if (activeTab === "credentials") loadCredentials(); }, [activeTab, loadCredentials]);
+
+  // ── Eligibility update ──
+  const updateEligibility = async (candidateId: string, status: "ELIGIBLE" | "REJECTED") => {
+    setActionLoading(candidateId);
+    await fetch(`/api/certifications/candidates/${candidateId}/eligibility`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ eligibility_status: status, verified_by: "Admin" }),
+    });
+    await loadAll();
+    setActionLoading(null);
   };
 
-  const handleDeleteCandidate = async (id: string) => {
-    if (!confirm("Apakah Anda yakin ingin menghapus data ini secara permanen?")) return;
-
-    setLoading(true);
+  // ── Admin certification decision ──
+  const makeDecision = async (sessionId: string, decision: "CERTIFIED" | "FAILED", candidateId: string) => {
+    if (!confirm(`Konfirmasi keputusan: ${decision} untuk sesi ${sessionId}?`)) return;
+    setActionLoading(sessionId);
     try {
-      const res = await fetch(`/api/certifications/candidates?id=${id}`, {
-        method: 'DELETE'
+      await fetch(`/api/certifications/exam/sessions/${sessionId}/data`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json", "x-admin": "true" },
+        body: JSON.stringify({ status: decision }),
       });
-      if (!res.ok) throw new Error("Gagal menghapus data");
-      
-      setToastMessage("Data berhasil dihapus");
-      fetchData();
-    } catch (e: any) {
-      setToastMessage(e.message || "Gagal menghapus data");
-      setLoading(false);
+      if (decision === "CERTIFIED") {
+        // Auto-issue credential
+        const session = sessions.find(s => s.id === sessionId);
+        await fetch("/api/certifications/credentials", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            exam_session_id: sessionId,
+            candidate_id: candidateId,
+            certification_type: session?.certification_field || "APASIFIC Certification",
+            issued_by: "APASIFIC Admin",
+          }),
+        });
+      }
+      await loadAll();
+    } finally {
+      setActionLoading(null);
     }
   };
 
-  useEffect(() => {
-    fetchData();
-  }, []);
-
-  const handleGenerateExam = async (candidateId: string, certField: string) => {
+  // ── Create exam session ──
+  const createSession = async (candidateId: string) => {
+    const candidate = candidates.find(c => c.id === candidateId);
+    if (!candidate) return;
+    setActionLoading(candidateId);
     try {
-      const res = await fetch("/api/certifications/exam/sessions", {
+      await fetch("/api/certifications/exam/sessions", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           candidate_id: candidateId,
-          certification_field: certField
-        })
+          certification_field: candidate.cert,
+          status: "DRAFT",
+        }),
       });
-      if (res.ok) {
-        showToast("Ruang Ujian Berhasil Dibuat!");
-        fetchData();
-      } else {
-        showToast("Gagal membuat ruang ujian.");
-      }
-    } catch (e) {
-      console.error(e);
-      showToast("Error generating exam.");
+      await loadAll();
+    } finally {
+      setActionLoading(null);
     }
   };
 
+  // ── Derived data ──
+  const queueSessions = sessions.filter(s => s.status === "SUBMITTED");
+  const decisionSessions = sessions.filter(s => s.status === "ASSESSMENT_COMPLETED");
+
+  // ─── Render ───
   if (loading) {
-    return <div className="p-8 text-white">Loading data...</div>;
+    return (
+      <div className="min-h-screen bg-[#05050a] flex items-center justify-center">
+        <div className="w-8 h-8 border-2 border-[#c9a84c] border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
   }
 
   return (
-    <div className="p-8 min-h-screen bg-[#05050a] text-gray-200 relative">
-      {/* TOAST NOTIFICATION */}
-      {toastMessage && (
-        <div className="fixed top-24 left-1/2 transform -translate-x-1/2 z-[100] bg-green-500/90 text-white px-6 py-3 rounded-full font-semibold shadow-lg shadow-green-500/20 animate-fade-in-down border border-green-400 backdrop-blur-sm flex items-center gap-3">
-          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"/></svg>
-          {toastMessage}
-        </div>
-      )}
+    <div className="min-h-screen bg-[#05050a] text-gray-200">
+      <div className="max-w-7xl mx-auto px-6 py-8">
 
-      <div className="max-w-7xl mx-auto">
-        
-        <div className="flex justify-between items-center mb-8 border-b border-gray-800 pb-4">
+        {/* Page header */}
+        <div className="flex items-start justify-between mb-8">
           <div>
-            <h2 className="text-[#c9a84c] text-3xl font-bold font-serif mb-2">Certification Enrollments</h2>
-            <p className="text-gray-400 mt-2">Kelola pendaftaran sertifikasi dan generate Ruang Ujian Online</p>
+            <h1 className="text-2xl font-bold font-serif text-[#c9a84c] mb-1">Certification Management</h1>
+            <p className="text-gray-500 text-sm">APASIFIC Certification Platform — Admin Dashboard</p>
+          </div>
+          <div className="flex items-center gap-3">
+            <Link href="/dashboard/admin/certifications/assessors"
+              className="px-4 py-2 rounded-lg border border-gray-700 text-gray-400 hover:text-white hover:border-gray-600 text-sm transition-colors">
+              Kelola Asesor
+            </Link>
+            <Link href="/exam"
+              className="px-4 py-2 rounded-lg bg-[#c9a84c]/10 border border-[#c9a84c]/30 text-[#c9a84c] hover:bg-[#c9a84c]/20 text-sm transition-colors">
+              + Buat Exam Room
+            </Link>
           </div>
         </div>
 
-        <div className="bg-[#0d0d1a] border border-gray-800 rounded-xl overflow-hidden">
-          <table className="w-full text-left border-collapse">
-            <thead>
-              <tr className="bg-[#151522] text-[#c9a84c] border-b border-gray-800">
-                <th className="p-4 font-semibold text-sm">Peserta & Info</th>
-                <th className="p-4 font-semibold text-sm">Sertifikasi</th>
-                <th className="p-4 font-semibold text-sm">Jadwal</th>
-                <th className="p-4 font-semibold text-sm">Status / Ruang Ujian</th>
-              </tr>
-            </thead>
-            <tbody>
-              {candidates.length === 0 ? (
-                <tr>
-                  <td colSpan={4} className="p-12 text-center text-gray-500">
-                    Belum ada pendaftar sertifikasi.
-                  </td>
+        {/* Stats row */}
+        <div className="grid grid-cols-5 gap-3 mb-8">
+          {[
+            { label: "Total Kandidat", value: candidates.length, color: "text-gray-300" },
+            { label: "Eligible", value: candidates.filter(c => c.eligibilityStatus === "ELIGIBLE").length, color: "text-green-400" },
+            { label: "Pending Penilaian", value: queueSessions.length, color: "text-orange-400" },
+            { label: "Pending Keputusan", value: decisionSessions.length, color: "text-indigo-300" },
+            { label: "Tersertifikasi", value: sessions.filter(s => s.status === "CERTIFIED").length, color: "text-[#c9a84c]" },
+          ].map(stat => (
+            <div key={stat.label} className="bg-[#0d0d1a] border border-gray-800 rounded-xl p-4">
+              <p className={`text-2xl font-bold font-serif ${stat.color}`}>{stat.value}</p>
+              <p className="text-gray-500 text-xs mt-1">{stat.label}</p>
+            </div>
+          ))}
+        </div>
+
+        {/* Tabs */}
+        <div className="flex gap-1 mb-6 bg-[#0d0d1a] border border-gray-800 rounded-xl p-1">
+          {TABS.map(tab => (
+            <button key={tab.id} onClick={() => setActiveTab(tab.id)}
+              className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-medium transition-all ${
+                activeTab === tab.id
+                  ? "bg-[#c9a84c]/10 border border-[#c9a84c]/30 text-[#c9a84c]"
+                  : "text-gray-500 hover:text-gray-300"
+              }`}>
+              <span>{tab.icon}</span>
+              <span className="hidden sm:inline">{tab.label}</span>
+              {tab.id === "queue" && queueSessions.length > 0 && (
+                <span className="w-4 h-4 rounded-full bg-orange-500 text-white text-[9px] font-bold flex items-center justify-center">{queueSessions.length}</span>
+              )}
+              {tab.id === "decision" && decisionSessions.length > 0 && (
+                <span className="w-4 h-4 rounded-full bg-indigo-500 text-white text-[9px] font-bold flex items-center justify-center">{decisionSessions.length}</span>
+              )}
+            </button>
+          ))}
+        </div>
+
+        {/* ── Tab: Pipeline ── */}
+        {activeTab === "pipeline" && (
+          <div className="bg-[#0d0d1a] border border-gray-800 rounded-2xl overflow-hidden">
+            <table className="w-full text-sm">
+              <thead className="border-b border-gray-800">
+                <tr className="text-gray-500 text-xs uppercase tracking-wider">
+                  <th className="text-left px-5 py-4">Kandidat</th>
+                  <th className="text-left px-4 py-4 hidden md:table-cell">Sertifikasi</th>
+                  <th className="text-left px-4 py-4 hidden lg:table-cell">Jadwal</th>
+                  <th className="text-left px-4 py-4">Eligibility</th>
+                  <th className="text-left px-4 py-4">Status</th>
+                  <th className="text-left px-4 py-4">Aksi</th>
                 </tr>
-              ) : (
-                candidates.map(cand => {
-                  const session = sessions.find(s => s.candidate_id === cand.id);
-                  const examLink = typeof window !== "undefined" ? `${window.location.origin}/exam/${session?.id}` : `/exam/${session?.id}`;
-                  
-                  return (
-                    <tr key={cand.id} className="border-b border-gray-800/50 hover:bg-white/[0.02] transition-colors">
-                      <td className="p-4">
-                        <div className="font-bold text-white">{cand.name}</div>
-                        <div className="text-xs text-gray-400 mt-1">{cand.email || "No Email"}</div>
-                        <div className="flex items-center gap-2 mt-1">
-                          <span className="text-xs text-gray-500">{cand.phone || "No Phone"}</span>
-                          {cand.phone && (
-                            <a 
-                              href={`https://wa.me/${cand.phone.replace(/[^0-9]/g, '')}?text=${encodeURIComponent('Halo, ini dari Admin ASIA (Association of Asia Pacific Academician). Kami ingin menginformasikan terkait pendaftaran ujian Sertifikasi Anda.')}`} 
-                              target="_blank" 
-                              rel="noopener noreferrer"
-                              className="text-green-500 hover:text-green-400 p-1 rounded-full transition-colors flex-shrink-0"
-                              title="Chat WhatsApp"
-                            >
-                              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
-                                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437-9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/>
-                              </svg>
-                            </a>
-                          )}
-                          {cand.buktiTransferUrl && (
-                            <button 
-                              onClick={() => setSelectedReceipt(cand.buktiTransferUrl || null)}
-                              className="bg-[#c9a84c]/10 text-[#c9a84c] border border-[#c9a84c]/20 px-2 py-1 rounded hover:bg-[#c9a84c]/20 transition-colors text-[10px] font-semibold flex items-center gap-1 ml-2 flex-shrink-0"
-                              title="Lihat Bukti Transfer"
-                            >
-                              <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                              </svg>
-                              Bukti
-                            </button>
-                          )}
-                          <button 
-                            onClick={() => handleDeleteCandidate(cand.id)}
-                            className="bg-red-500/10 text-red-500 border border-red-500/20 p-1.5 rounded-full hover:bg-red-500/20 transition-colors flex-shrink-0 ml-auto"
-                            title="Hapus Data"
-                          >
-                            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                            </svg>
-                          </button>
-                        </div>
-                      </td>
-                      <td className="p-4">
-                        <div className="text-sm text-[#e8c97a]">{cand.cert}</div>
-                        <div className="text-xs text-gray-400 mt-1">{cand.method}</div>
-                      </td>
-                      <td className="p-4">
-                        <div className="text-sm text-gray-300">{cand.schedule}</div>
-                        <div className="mt-2 inline-block px-2 py-1 bg-blue-900/30 text-blue-400 text-xs rounded-full border border-blue-900/50">
-                          {cand.status}
-                        </div>
-                      </td>
-                      <td className="p-4">
-                        {session ? (
-                          <div className="bg-black/40 border border-gray-800 p-3 rounded-lg">
-                            <div className="flex justify-between items-center mb-2">
-                              <span className="text-xs text-gray-400 font-semibold uppercase tracking-wider">Exam Room URL</span>
-                              <span className={`text-[10px] px-2 py-0.5 rounded-full ${
-                                session.status === 'DRAFT' ? 'bg-gray-800 text-gray-300' :
-                                session.status === 'READY' ? 'bg-yellow-900/50 text-yellow-500' :
-                                session.status === 'SUBMITTED' ? 'bg-blue-900/50 text-blue-400' :
-                                'bg-green-900/50 text-green-400'
-                              }`}>
-                                {session.status}
-                              </span>
-                            </div>
-                            <div className="text-xs text-blue-400 break-all bg-[#0d0d1a] p-2 rounded border border-gray-800 mb-3">
-                              <Link href={examLink} target="_blank" className="hover:underline">{examLink}</Link>
-                            </div>
-                            
-                            <div className="grid grid-cols-2 gap-2 text-xs">
-                              <div className="bg-[#151522] p-2 rounded border border-gray-800">
-                                <span className="block text-gray-500 mb-1">Kode Asesor:</span>
-                                <span className="font-mono text-[#c9a84c] font-bold">{session.assessor_code}</span>
-                              </div>
-                              <div className="bg-[#151522] p-2 rounded border border-gray-800">
-                                <span className="block text-gray-500 mb-1">Kode Peserta:</span>
-                                <span className="font-mono text-white font-bold">{session.candidate_code}</span>
-                              </div>
-                            </div>
-                            <p className="text-[10px] text-gray-500 mt-2">
-                              * Kirimkan Link & Kode Asesor ke penilai. Kirim Link & Kode Peserta ke calon.
-                            </p>
-                          </div>
-                        ) : (
-                          <button 
-                            onClick={() => handleGenerateExam(cand.id, cand.cert)}
-                            className="bg-[#c9a84c] hover:bg-[#e8c97a] text-black text-sm font-semibold py-2 px-4 rounded-lg transition-colors shadow-lg"
-                          >
-                            + Generate Exam Room
+              </thead>
+              <tbody className="divide-y divide-gray-800/50">
+                {candidates.length === 0 ? (
+                  <tr><td colSpan={6} className="text-center py-12 text-gray-600">Belum ada kandidat terdaftar.</td></tr>
+                ) : candidates.map(c => (
+                  <tr key={c.id} className="hover:bg-white/[0.02] transition-colors">
+                    <td className="px-5 py-4">
+                      <p className="font-medium text-white">{c.name}</p>
+                      <p className="text-gray-500 text-xs">{c.id} · {c.email}</p>
+                    </td>
+                    <td className="px-4 py-4 hidden md:table-cell">
+                      <p className="text-gray-300 text-sm">{c.cert}</p>
+                      <p className="text-gray-600 text-xs">{c.method}</p>
+                    </td>
+                    <td className="px-4 py-4 hidden lg:table-cell text-gray-400 text-xs">{c.schedule}</td>
+                    <td className="px-4 py-4">
+                      <Badge status={c.eligibilityStatus || "PENDING"} />
+                    </td>
+                    <td className="px-4 py-4"><Badge status={c.status} /></td>
+                    <td className="px-4 py-4">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        {c.eligibilityStatus !== "ELIGIBLE" && (
+                          <button onClick={() => updateEligibility(c.id, "ELIGIBLE")}
+                            disabled={actionLoading === c.id}
+                            className="text-xs px-3 py-1.5 rounded-lg bg-green-900/20 border border-green-800/50 text-green-400 hover:bg-green-900/40 disabled:opacity-50 transition-colors">
+                            Eligible ✓
                           </button>
                         )}
-                      </td>
-                    </tr>
-                  );
-                })
-              )}
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      {/* Modal View Receipt */}
-      {selectedReceipt && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-[#0a0a0f] border border-gray-800 rounded-xl max-w-2xl w-full overflow-hidden shadow-2xl relative">
-            <div className="p-4 border-b border-gray-800 flex justify-between items-center">
-              <h3 className="text-[#c9a84c] font-bold">Bukti Transfer Sertifikasi</h3>
-              <button onClick={() => setSelectedReceipt(null)} className="text-gray-400 hover:text-white">
-                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
-              </button>
-            </div>
-            <div className="p-4 flex justify-center bg-black/50">
-              {selectedReceipt.startsWith("data:application/pdf") ? (
-                <iframe src={selectedReceipt} className="w-full h-[600px] border-0" />
-              ) : (
-                <img src={selectedReceipt} alt="Bukti Transfer" className="max-w-full max-h-[70vh] object-contain rounded" />
-              )}
-            </div>
-            <div className="p-4 border-t border-gray-800 flex justify-end">
-              <a href={selectedReceipt} download="bukti_transfer" className="bg-[#c9a84c] text-black px-4 py-2 rounded font-semibold hover:bg-[#e8c97a] transition-colors text-sm">
-                Unduh File
-              </a>
-            </div>
+                        {c.eligibilityStatus !== "REJECTED" && (
+                          <button onClick={() => updateEligibility(c.id, "REJECTED")}
+                            disabled={actionLoading === c.id}
+                            className="text-xs px-3 py-1.5 rounded-lg bg-red-900/20 border border-red-800/50 text-red-400 hover:bg-red-900/40 disabled:opacity-50 transition-colors">
+                            Reject
+                          </button>
+                        )}
+                        {c.eligibilityStatus === "ELIGIBLE" && (
+                          <button onClick={() => createSession(c.id)}
+                            disabled={actionLoading === c.id}
+                            className="text-xs px-3 py-1.5 rounded-lg bg-[#c9a84c]/10 border border-[#c9a84c]/30 text-[#c9a84c] hover:bg-[#c9a84c]/20 disabled:opacity-50 transition-colors">
+                            Buat Exam →
+                          </button>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
-        </div>
-      )}
+        )}
+
+        {/* ── Tab: Exam Status ── */}
+        {activeTab === "exam" && (
+          <div className="bg-[#0d0d1a] border border-gray-800 rounded-2xl overflow-hidden">
+            <table className="w-full text-sm">
+              <thead className="border-b border-gray-800">
+                <tr className="text-gray-500 text-xs uppercase tracking-widest">
+                  <th className="text-left px-5 py-4">Session ID</th>
+                  <th className="text-left px-4 py-4">Bidang</th>
+                  <th className="text-left px-4 py-4">Status</th>
+                  <th className="text-left px-4 py-4 hidden md:table-cell">Skor</th>
+                  <th className="text-left px-4 py-4">Link</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-800/50">
+                {sessions.length === 0 ? (
+                  <tr><td colSpan={5} className="text-center py-12 text-gray-600">Belum ada sesi ujian.</td></tr>
+                ) : sessions.map(s => (
+                  <tr key={s.id} className="hover:bg-white/[0.02] transition-colors">
+                    <td className="px-5 py-4">
+                      <p className="font-mono text-xs text-gray-300">{s.id}</p>
+                      <p className="text-gray-600 text-xs">Kandidat: {s.candidate_id}</p>
+                    </td>
+                    <td className="px-4 py-4 text-gray-300 text-sm">{s.certification_field}</td>
+                    <td className="px-4 py-4"><Badge status={s.status} /></td>
+                    <td className="px-4 py-4 hidden md:table-cell">
+                      <span className="text-[#c9a84c] font-bold">{s.score != null ? `${s.score}` : "—"}</span>
+                    </td>
+                    <td className="px-4 py-4">
+                      <Link href={`/exam/${s.id}`} target="_blank"
+                        className="text-xs text-[#c9a84c] hover:underline underline-offset-2">
+                        Buka →
+                      </Link>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+
+        {/* ── Tab: Assessment Queue ── */}
+        {activeTab === "queue" && (
+          <div className="space-y-3">
+            {queueSessions.length === 0 ? (
+              <div className="bg-[#0d0d1a] border border-gray-800 rounded-2xl py-16 text-center text-gray-600">
+                Tidak ada sesi yang menunggu penilaian.
+              </div>
+            ) : queueSessions.map(s => (
+              <div key={s.id} className="bg-[#0d0d1a] border border-orange-900/30 rounded-xl p-5 flex items-center justify-between gap-4">
+                <div>
+                  <p className="text-sm font-medium text-white mb-1">{s.certification_field}</p>
+                  <p className="text-xs text-gray-500 font-mono">{s.id} · Kandidat: {s.candidate_id}</p>
+                </div>
+                <div className="flex items-center gap-3 flex-shrink-0">
+                  <Badge status={s.status} />
+                  <Link href={`/exam/${s.id}`} target="_blank"
+                    className="px-4 py-2 rounded-lg bg-orange-900/20 border border-orange-800/50 text-orange-400 hover:bg-orange-900/40 text-xs font-bold transition-colors">
+                    Buka untuk Dinilai →
+                  </Link>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* ── Tab: Decision ── */}
+        {activeTab === "decision" && (
+          <div className="space-y-3">
+            {decisionSessions.length === 0 ? (
+              <div className="bg-[#0d0d1a] border border-gray-800 rounded-2xl py-16 text-center text-gray-600">
+                Tidak ada sesi yang menunggu keputusan sertifikasi.
+              </div>
+            ) : decisionSessions.map(s => (
+              <div key={s.id} className="bg-[#0d0d1a] border border-indigo-900/30 rounded-xl p-5">
+                <div className="flex items-start justify-between gap-4 mb-4">
+                  <div>
+                    <p className="text-sm font-medium text-white mb-1">{s.certification_field}</p>
+                    <p className="text-xs text-gray-500 font-mono">{s.id} · Kandidat: {s.candidate_id}</p>
+                  </div>
+                  <div className="text-right flex-shrink-0">
+                    <p className="text-2xl font-bold text-[#c9a84c] font-serif">{s.score ?? "—"}</p>
+                    <p className="text-xs text-gray-500">Final Score</p>
+                  </div>
+                </div>
+                <div className="flex gap-3">
+                  <button onClick={() => makeDecision(s.id, "CERTIFIED", s.candidate_id)}
+                    disabled={actionLoading === s.id}
+                    className="flex-1 py-2.5 rounded-xl bg-green-900/20 border border-green-800/50 text-green-400 hover:bg-green-900/40 text-sm font-bold disabled:opacity-50 transition-colors">
+                    ✅ CERTIFY + Issue Credential
+                  </button>
+                  <button onClick={() => makeDecision(s.id, "FAILED", s.candidate_id)}
+                    disabled={actionLoading === s.id}
+                    className="flex-1 py-2.5 rounded-xl bg-red-900/20 border border-red-800/50 text-red-400 hover:bg-red-900/40 text-sm font-bold disabled:opacity-50 transition-colors">
+                    ❌ FAIL Candidate
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* ── Tab: Credentials ── */}
+        {activeTab === "credentials" && (
+          <div className="bg-[#0d0d1a] border border-gray-800 rounded-2xl overflow-hidden">
+            <table className="w-full text-sm">
+              <thead className="border-b border-gray-800">
+                <tr className="text-gray-500 text-xs uppercase tracking-widest">
+                  <th className="text-left px-5 py-4">Nomor Sertifikat</th>
+                  <th className="text-left px-4 py-4">Kandidat</th>
+                  <th className="text-left px-4 py-4 hidden md:table-cell">Bidang</th>
+                  <th className="text-left px-4 py-4 hidden lg:table-cell">Berlaku Hingga</th>
+                  <th className="text-left px-4 py-4">Status</th>
+                  <th className="text-left px-4 py-4">Aksi</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-800/50">
+                {credentials.length === 0 ? (
+                  <tr><td colSpan={6} className="text-center py-12 text-gray-600">Belum ada credential diterbitkan.</td></tr>
+                ) : credentials.map(cr => (
+                  <tr key={cr.id} className="hover:bg-white/[0.02] transition-colors">
+                    <td className="px-5 py-4">
+                      <p className="font-mono text-xs text-[#c9a84c]">{cr.credential_number}</p>
+                    </td>
+                    <td className="px-4 py-4 text-gray-300 text-xs">{cr.candidate_id}</td>
+                    <td className="px-4 py-4 hidden md:table-cell text-gray-400 text-xs">{cr.certification_type}</td>
+                    <td className="px-4 py-4 hidden lg:table-cell text-gray-400 text-xs">
+                      {new Date(cr.expired_at).toLocaleDateString("id-ID")}
+                    </td>
+                    <td className="px-4 py-4"><Badge status={cr.status} /></td>
+                    <td className="px-4 py-4">
+                      <div className="flex items-center gap-2">
+                        <a href={`/api/certifications/credentials/${cr.id}/pdf`} target="_blank"
+                          className="text-xs px-3 py-1.5 rounded-lg bg-[#c9a84c]/10 border border-[#c9a84c]/30 text-[#c9a84c] hover:bg-[#c9a84c]/20 transition-colors">
+                          PDF
+                        </a>
+                        <Link href={`/verify/${cr.id}`} target="_blank"
+                          className="text-xs px-3 py-1.5 rounded-lg bg-gray-800 border border-gray-700 text-gray-400 hover:text-white transition-colors">
+                          Verify
+                        </Link>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

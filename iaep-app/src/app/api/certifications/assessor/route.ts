@@ -1,70 +1,31 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@/utils/supabase/server";
 
-export async function GET(request: NextRequest) {
-  try {
-    const { searchParams } = new URL(request.url);
-    const accessCode = searchParams.get('code');
+/**
+ * @deprecated
+ * Legacy Assessor Portal API — FROZEN
+ *
+ * This endpoint has been migrated to the new Certification Exam Workspace.
+ * All assessor operations are now handled via:
+ *   - POST /api/certifications/exam/sessions       → Create exam session
+ *   - GET  /api/certifications/exam/sessions/[id]/data  → Get session data (requires x-access-code)
+ *   - PUT  /api/certifications/exam/sessions/[id]/data  → Update session (requires x-access-code)
+ *
+ * This route will be DELETED in Sprint 3 after full migration is verified.
+ */
 
-    if (!accessCode) {
-      return NextResponse.json({ error: "Access Code is required" }, { status: 400 });
-    }
+const DEPRECATED_RESPONSE = {
+  deprecated: true,
+  migrated: true,
+  message:
+    "Legacy certification assessor API has been migrated. Please use the new Certification Exam Workspace via /exam/[sessionId]/assessor. This endpoint will be removed in the next deployment.",
+  new_endpoint: "/api/certifications/exam/sessions/[sessionId]/data",
+  documentation: "Contact APASIFIC Admin for your new Exam Room URL and Assessor Code.",
+};
 
-    const supabase = await createClient();
-    const { data, error } = await supabase
-      .from("certification_candidates")
-      .select("id, name, cert, method, status, exam_questions, exam_time_limit")
-      .eq("assessor_access_code", accessCode)
-      .single();
-
-    if (error || !data) {
-      return NextResponse.json({ error: "Invalid Access Code" }, { status: 404 });
-    }
-
-    return NextResponse.json({ success: true, candidate: data });
-  } catch (err: any) {
-    return NextResponse.json({ error: err.message }, { status: 500 });
-  }
+export async function GET(_request: NextRequest) {
+  return NextResponse.json(DEPRECATED_RESPONSE, { status: 410 }); // 410 Gone
 }
 
-export async function POST(request: NextRequest) {
-  try {
-    const supabase = await createClient();
-    const payload = await request.json();
-    const { accessCode, questions, timeLimit } = payload;
-
-    if (!accessCode || !questions || !timeLimit) {
-      return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
-    }
-
-    // Verify access code
-    const { data: candidate, error: fetchError } = await supabase
-      .from("certification_candidates")
-      .select("id")
-      .eq("assessor_access_code", accessCode)
-      .single();
-
-    if (fetchError || !candidate) {
-      return NextResponse.json({ error: "Invalid Access Code" }, { status: 404 });
-    }
-
-    // Update candidate record with exam data and change status
-    const { data, error } = await supabase
-      .from("certification_candidates")
-      .update({
-        exam_questions: questions,
-        exam_time_limit: timeLimit,
-        status: "Token Emailed"
-      })
-      .eq("id", candidate.id)
-      .select();
-
-    if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 });
-    }
-
-    return NextResponse.json({ success: true, message: "Exam generated successfully." });
-  } catch (err: any) {
-    return NextResponse.json({ error: err.message }, { status: 500 });
-  }
+export async function POST(_request: NextRequest) {
+  return NextResponse.json(DEPRECATED_RESPONSE, { status: 410 }); // 410 Gone
 }
