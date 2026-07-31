@@ -17,8 +17,8 @@ export default function RootLayout({
     <html lang="id" suppressHydrationWarning>
       <body className="bg-[#05050a]" suppressHydrationWarning>
         <style dangerouslySetInnerHTML={{ __html: `
-          *, *::before, *::after, body, html {
-            font-family: Arial, Helvetica, sans-serif !important;
+          body, html {
+            font-family: Arial, Helvetica, sans-serif;
           }
         `}} />
         {/* Global Lively Background - Premium Dark Gold Glow */}
