@@ -50,6 +50,7 @@ const TABS = [
   { id: "queue",      label: "Assessment Queue",   icon: "⏳" },
   { id: "decision",   label: "Decision",           icon: "⚖️" },
   { id: "credentials",label: "Credentials",        icon: "🏆" },
+  { id: "renewal",    label: "Renewal Queue",      icon: "🔄" },
 ] as const;
 type TabId = typeof TABS[number]["id"];
 
@@ -86,6 +87,7 @@ export default function CertificationsAdmin() {
   const [candidates, setCandidates] = useState<Candidate[]>([]);
   const [sessions, setSessions] = useState<ExamSession[]>([]);
   const [credentials, setCredentials] = useState<Credential[]>([]);
+  const [renewalQueue, setRenewalQueue] = useState<Credential[]>([]);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
 
@@ -105,14 +107,24 @@ export default function CertificationsAdmin() {
   }, []);
 
   const loadCredentials = useCallback(async () => {
-    // Load all credentials (via admin param)
     const res = await fetch("/api/certifications/credentials?candidate_id=ALL");
-    // Fallback: query per candidate if needed
     if (res.ok) setCredentials(await res.json());
   }, []);
 
+  const loadRenewalQueue = useCallback(async () => {
+    // Filter credentials with renewal_status=REQUESTED
+    const res = await fetch("/api/certifications/credentials?candidate_id=ALL");
+    if (res.ok) {
+      const all: Credential[] = await res.json();
+      setRenewalQueue(all.filter((c: any) => c.renewal_status === "REQUESTED"));
+    }
+  }, []);
+
   useEffect(() => { loadAll(); }, [loadAll]);
-  useEffect(() => { if (activeTab === "credentials") loadCredentials(); }, [activeTab, loadCredentials]);
+  useEffect(() => {
+    if (activeTab === "credentials") loadCredentials();
+    if (activeTab === "renewal") loadRenewalQueue();
+  }, [activeTab, loadCredentials, loadRenewalQueue]);
 
   // ── Eligibility update ──
   const updateEligibility = async (candidateId: string, status: "ELIGIBLE" | "REJECTED") => {
@@ -172,6 +184,22 @@ export default function CertificationsAdmin() {
         }),
       });
       await loadAll();
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
+  // ── Admin renewal decision ──
+  const handleRenewal = async (credentialId: string, action: "APPROVE" | "REJECT") => {
+    if (!confirm(`Konfirmasi: ${action} renewal untuk credential ${credentialId}?`)) return;
+    setActionLoading(credentialId);
+    try {
+      await fetch(`/api/certifications/credentials/${credentialId}/renew`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action, requested_by: "Admin" }),
+      });
+      await loadRenewalQueue();
     } finally {
       setActionLoading(null);
     }
@@ -458,6 +486,49 @@ export default function CertificationsAdmin() {
                 ))}
               </tbody>
             </table>
+          </div>
+        )}
+        {/* ── Tab: Renewal Queue ── */}
+        {activeTab === "renewal" && (
+          <div className="space-y-3">
+            {renewalQueue.length === 0 ? (
+              <div className="bg-[#0d0d1a] border border-gray-800 rounded-2xl py-16 text-center text-gray-600">
+                ✅ Tidak ada permintaan renewal yang menunggu persetujuan.
+              </div>
+            ) : renewalQueue.map((cr: any) => (
+              <div key={cr.id} className="bg-[#0d0d1a] border border-blue-900/30 rounded-xl p-5">
+                <div className="flex items-start justify-between gap-4 mb-4">
+                  <div>
+                    <p className="font-mono text-xs text-[#c9a84c] mb-1">{cr.credential_number}</p>
+                    <p className="text-sm font-medium text-white">{cr.certification_type}</p>
+                    <p className="text-xs text-gray-500 mt-0.5">Kandidat: {cr.candidate_id}</p>
+                  </div>
+                  <div className="text-right flex-shrink-0">
+                    <p className="text-xs text-gray-500">Berlaku hingga</p>
+                    <p className={`text-sm font-bold ${new Date(cr.expired_at) < new Date() ? "text-red-400" : "text-orange-400"}`}>
+                      {new Date(cr.expired_at).toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" })}
+                    </p>
+                    {cr.renewal_requested_at && (
+                      <p className="text-xs text-gray-600 mt-1">
+                        Diajukan: {new Date(cr.renewal_requested_at).toLocaleDateString("id-ID")}
+                      </p>
+                    )}
+                  </div>
+                </div>
+                <div className="flex gap-3">
+                  <button onClick={() => handleRenewal(cr.id, "APPROVE")}
+                    disabled={actionLoading === cr.id}
+                    className="flex-1 py-2.5 rounded-xl bg-green-900/20 border border-green-800/50 text-green-400 hover:bg-green-900/40 text-sm font-bold disabled:opacity-50 transition-colors">
+                    ✅ Setujui — Buat Sesi Re-Assessment
+                  </button>
+                  <button onClick={() => handleRenewal(cr.id, "REJECT")}
+                    disabled={actionLoading === cr.id}
+                    className="flex-1 py-2.5 rounded-xl bg-red-900/20 border border-red-800/50 text-red-400 hover:bg-red-900/40 text-sm font-bold disabled:opacity-50 transition-colors">
+                    ❌ Tolak Renewal
+                  </button>
+                </div>
+              </div>
+            ))}
           </div>
         )}
       </div>

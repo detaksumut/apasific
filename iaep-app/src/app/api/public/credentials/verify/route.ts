@@ -93,6 +93,44 @@ export async function GET(req: NextRequest) {
     const isValid = effectiveStatus === "ACTIVE";
     const holderName = (data as any).certification_candidates?.name || "Nama tidak tersedia";
 
+    // ── Phase 6.5: Fetch Accreditation Metadata ──
+    // Find the policy code for this certification type
+    const certType = data.certification_type;
+    const { data: policy } = await supabase
+      .from("certification_policies")
+      .select("code")
+      .eq("is_active", true)
+      .or(`name.ilike.%${certType}%,code.ilike.%${certType}%`)
+      .limit(1)
+      .maybeSingle();
+
+    let accreditations: any[] = [];
+    if (policy?.code) {
+      // Fetch specific accreditations OR global accreditations (NULL certification_code)
+      const { data: accData } = await supabase
+        .from("certification_accreditations")
+        .select("region, country, recognition_type, accreditation_body, recognition_level")
+        .eq("is_active", true)
+        .or(`certification_code.eq.${policy.code},certification_code.is.null`);
+      accreditations = accData || [];
+    } else {
+      // Fetch only global accreditations if policy not matched
+      const { data: accData } = await supabase
+        .from("certification_accreditations")
+        .select("region, country, recognition_type, accreditation_body, recognition_level")
+        .eq("is_active", true)
+        .is("certification_code", null);
+      accreditations = accData || [];
+    }
+
+    const recognizedIn = accreditations.map(a => ({
+      region: a.region,
+      country: a.country || "All",
+      recognition: a.recognition_type,
+      body: a.accreditation_body,
+      level: a.recognition_level || undefined,
+    }));
+
     return NextResponse.json({
       valid: isValid,
       status: effectiveStatus,
@@ -106,6 +144,7 @@ export async function GET(req: NextRequest) {
         revoked_at: data.revoked_at,
         revoked_reason: data.revoked_reason,
       }),
+      recognized_in: recognizedIn,
       verified_at: new Date().toISOString(),
     });
   } catch (err: any) {

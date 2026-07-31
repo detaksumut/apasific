@@ -43,6 +43,21 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // Phase 6.1: Lookup validity_years from certification_policies
+    const certField = (session.certification_field || "").toUpperCase();
+    const { data: policy } = await supabase
+      .from("certification_policies")
+      .select("validity_years")
+      .eq("is_active", true)
+      .or(`code.eq.${certField},name.ilike.%${session.certification_field}%`)
+      .limit(1)
+      .maybeSingle();
+
+    // Priority: explicit body param > policy > default 3
+    const resolvedValidYears = Number(valid_years) !== 3
+      ? Number(valid_years)
+      : (policy?.validity_years ?? 3);
+
     // Generate identifiers
     const year = new Date().getFullYear();
     const suffix = randomUUID().replace(/-/g, "").slice(0, 6).toUpperCase();
@@ -52,7 +67,7 @@ export async function POST(req: NextRequest) {
 
     const issued_at = new Date();
     const expired_at = new Date(issued_at);
-    expired_at.setFullYear(expired_at.getFullYear() + Number(valid_years));
+    expired_at.setFullYear(expired_at.getFullYear() + resolvedValidYears);
 
     const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://apasific.org";
     const verification_url = `${appUrl}/verify/${verification_token}`;
