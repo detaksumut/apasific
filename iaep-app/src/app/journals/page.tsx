@@ -114,10 +114,11 @@ export default function JournalsRepository() {
                   <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-2">
                      <div className="text-sm text-gray-400">
                         <span className="font-medium text-gray-500">Penulis:</span> {(() => {
-                           try {
-                             const abs = JSON.parse(art.abstract);
-                             return abs.authors?.map((a:any) => a.full_name).join(', ') || "-";
-                           } catch(e) { return "-"; }
+                           let authStr = "";
+                           if (art.author && !['penulis tidak diketahui', 'penulis tidak di ketahui', 'author', 'unknown', 'unknown author', '-'].includes(art.author.toLowerCase().trim())) {
+                             authStr = art.author;
+                           }
+                           return authStr || art.profiles?.full_name || "Penulis Tidak Diketahui";
                         })()}
                      </div>
                      {art.doi && (

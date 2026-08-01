@@ -252,6 +252,57 @@ export async function loginUser(email: string, password?: string): Promise<{ suc
         try {
             const { getFirebaseAdmin } = require('@/utils/firebase/server');
             const admin = getFirebaseAdmin();
+
+            // NULL GUARD — Firebase tidak terkonfigurasi, gunakan fallback session
+            // Password sudah diverifikasi terhadap JSON di atas (baris 246-248).
+            // Pola cookie sama dengan supabase_fallback_session yang sudah ada.
+            if (!admin) {
+                const { cookies } = await import('next/headers');
+                const cookieStore = await cookies();
+                const fallbackId = localMatchedUser.id?.toString() || `json-${Date.now()}`;
+                const fallbackRole = localMatchedUser.role || 'author';
+                const fallbackName = localMatchedUser.full_name || 'User';
+
+                cookieStore.set('supabase_fallback_session', fallbackId, {
+                    httpOnly: true,
+                    secure: process.env.NODE_ENV === 'production',
+                    maxAge: 60 * 60 * 24 * 7,
+                    path: '/'
+                });
+                if (localMatchedUser.id) {
+                    cookieStore.set('reviewer_json_id', localMatchedUser.id.toString(), {
+                        httpOnly: true,
+                        secure: process.env.NODE_ENV === 'production',
+                        maxAge: 60 * 60 * 24 * 7,
+                        path: '/'
+                    });
+                }
+                // Session cookie completeness — approved addition per CR-002
+                // Mirrors client-side cookies set by login page, but server-side
+                // so DashboardLayout (server component) sees them before render.
+                cookieStore.set('user_role', fallbackRole, {
+                    httpOnly: false,
+                    secure: process.env.NODE_ENV === 'production',
+                    maxAge: 60 * 60 * 24 * 7,
+                    path: '/'
+                });
+                cookieStore.set('user_name', encodeURIComponent(fallbackName), {
+                    httpOnly: false,
+                    secure: process.env.NODE_ENV === 'production',
+                    maxAge: 60 * 60 * 24 * 7,
+                    path: '/'
+                });
+                return {
+                    success: true,
+                    user: {
+                        id: fallbackId,
+                        email: emailLower,
+                        full_name: fallbackName,
+                        role: fallbackRole
+                    }
+                };
+            }
+
             let firebaseUser;
             try {
                 firebaseUser = await admin.auth().getUserByEmail(emailLower);
@@ -290,18 +341,80 @@ export async function loginUser(email: string, password?: string): Promise<{ suc
                 });
             }
 
+            // Session cookie completeness — same contract as null-guard (CR-002/CR-003)
+            // Ensures DashboardLayout (server component) reads correct role/name before render.
+            const fbRole = localMatchedUser.role || 'author';
+            const fbName = localMatchedUser.full_name || 'User';
+            cookieStore.set('user_role', fbRole, {
+                httpOnly: false,
+                secure: process.env.NODE_ENV === 'production',
+                maxAge: 60 * 60 * 24 * 7,
+                path: '/'
+            });
+            cookieStore.set('user_name', encodeURIComponent(fbName), {
+                httpOnly: false,
+                secure: process.env.NODE_ENV === 'production',
+                maxAge: 60 * 60 * 24 * 7,
+                path: '/'
+            });
+
             return { 
                 success: true, 
                 user: {
                   id: firebaseUser.uid,
                   email: firebaseUser.email,
-                  full_name: localMatchedUser.full_name,
-                  role: localMatchedUser.role || 'author'
+                  full_name: fbName,
+                  role: fbRole
                 }
             };
         } catch (firebaseErr: any) {
             console.error("Firebase fallback error:", firebaseErr);
-            return { success: false, error: "Authentication failed on both Supabase and Firebase: " + firebaseErr.message };
+            // Firebase failed (e.g. unsupported domain, rate-limit, creation error).
+            // Password was already verified above — use JSON session fallback (CR-003 extension).
+            try {
+                const { cookies } = await import('next/headers');
+                const cookieStore = await cookies();
+                const fallbackId = localMatchedUser.id?.toString() || `json-${Date.now()}`;
+                const fallbackRole = localMatchedUser.role || 'author';
+                const fallbackName = localMatchedUser.full_name || 'User';
+                cookieStore.set('supabase_fallback_session', fallbackId, {
+                    httpOnly: true,
+                    secure: process.env.NODE_ENV === 'production',
+                    maxAge: 60 * 60 * 24 * 7,
+                    path: '/'
+                });
+                if (localMatchedUser.id) {
+                    cookieStore.set('reviewer_json_id', localMatchedUser.id.toString(), {
+                        httpOnly: true,
+                        secure: process.env.NODE_ENV === 'production',
+                        maxAge: 60 * 60 * 24 * 7,
+                        path: '/'
+                    });
+                }
+                cookieStore.set('user_role', fallbackRole, {
+                    httpOnly: false,
+                    secure: process.env.NODE_ENV === 'production',
+                    maxAge: 60 * 60 * 24 * 7,
+                    path: '/'
+                });
+                cookieStore.set('user_name', encodeURIComponent(fallbackName), {
+                    httpOnly: false,
+                    secure: process.env.NODE_ENV === 'production',
+                    maxAge: 60 * 60 * 24 * 7,
+                    path: '/'
+                });
+                return {
+                    success: true,
+                    user: {
+                        id: fallbackId,
+                        email: emailLower,
+                        full_name: fallbackName,
+                        role: fallbackRole
+                    }
+                };
+            } catch (cookieErr: any) {
+                return { success: false, error: "Authentication failed on both Supabase and Firebase: " + firebaseErr.message };
+            }
         }
     }
 
@@ -356,7 +469,7 @@ export async function getCurrentUser() {
             if (fbToken) {
                const payloadBase64 = fbToken.split('.')[1];
                const payload = JSON.parse(Buffer.from(payloadBase64, 'base64').toString());
-               user = { id: payload.uid, email: payload.email || "fallback@firebase.local" } as any;
+               user = { id: payload.uid, email: payload.claims?.email || payload.email || "fallback@firebase.local" } as any;
             }
         } catch (e) {}
         

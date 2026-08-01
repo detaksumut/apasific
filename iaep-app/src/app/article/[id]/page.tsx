@@ -157,14 +157,6 @@ export default function ArticlePaywall() {
           let authors = data.author && !['penulis tidak diketahui', 'author', 'unknown'].includes(data.author.toLowerCase().trim()) 
             ? data.author 
             : data.profiles?.full_name || "Penulis Tidak Diketahui";
-          if (authors === "Penulis Tidak Diketahui" && typeof data.abstract === 'string' && data.abstract.trim().startsWith('{')) {
-            try {
-              const parsedAbs = JSON.parse(data.abstract);
-              if (parsedAbs.authors && Array.isArray(parsedAbs.authors) && parsedAbs.authors.length > 0) {
-                authors = parsedAbs.authors.map((a: any) => a.full_name).join(', ');
-              }
-            } catch (e) {}
-          }
 
           const firstOrcid = data.profiles?.orcid || "";
           const googleScholar = data.profiles?.google_scholar || "";
@@ -425,21 +417,9 @@ export default function ArticlePaywall() {
     );
   }
 
-  let authorsList: string[] = [];
-  if (typeof article.abstract === 'string' && article.abstract.trim().startsWith('{')) {
-    try {
-      const parsed = JSON.parse(article.abstract);
-      if (parsed.authors && parsed.authors.length > 0) {
-        authorsList = parsed.authors.map((a: any) => a.full_name);
-      }
-    } catch(e) {}
-  }
-  
   let displayAuthors = "";
-  if (article.author && !['penulis tidak diketahui', 'penulis tidak di ketahui', 'author', 'unknown'].includes(article.author.toLowerCase().trim())) {
+  if (article.author && !['penulis tidak diketahui', 'penulis tidak di ketahui', 'author', 'unknown', 'unknown author'].includes(article.author.toLowerCase().trim())) {
     displayAuthors = article.author;
-  } else if (authorsList.length > 0) {
-    displayAuthors = authorsList.join(', ');
   }
 
   // displayAuthors sepenuhnya dari database — data.author diisi oleh Editor saat Publish
@@ -540,23 +520,9 @@ export default function ArticlePaywall() {
           <div className="flex flex-col text-lg text-gray-400 mt-2 gap-3">
             {displayAuthors && (
               <>
-                <div className="w-full overflow-hidden bg-[#161630] py-4 px-6 rounded-xl border border-[#c9a84c]/20 shadow-lg relative flex items-center">
-                  <style>{`
-                    @keyframes marquee {
-                      0% { transform: translateX(100%); }
-                      100% { transform: translateX(-100%); }
-                    }
-                    .animate-custom-marquee {
-                      display: inline-block;
-                      animation: marquee 25s linear infinite;
-                      padding-left: 20px;
-                    }
-                    .animate-custom-marquee:hover {
-                      animation-play-state: paused;
-                    }
-                  `}</style>
-                  <div className="w-full overflow-hidden whitespace-nowrap">
-                    <span className="animate-custom-marquee text-2xl font-extrabold text-[#fcd34d] tracking-wide">
+                <div className="w-full bg-[#161630] py-4 px-6 rounded-xl border border-[#c9a84c]/20 shadow-lg relative flex items-center">
+                  <div className="w-full">
+                    <span className="text-2xl font-extrabold text-[#fcd34d] tracking-wide leading-relaxed">
                       {displayAuthors}
                     </span>
                   </div>
