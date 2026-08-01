@@ -8,7 +8,7 @@ export async function GET() {
   );
   
   const { data } = await supabase.from('system_settings').select('*').eq('key', 'apasific_registered_users').single();
-  const users = Array.isArray(data.value) ? data.value : JSON.parse(data.value);
+  const users = data && Array.isArray(data.value) ? data.value : (data?.value ? JSON.parse(data.value) : []);
   
   const passwords: Record<string, any> = {};
   for (const u of users) {
