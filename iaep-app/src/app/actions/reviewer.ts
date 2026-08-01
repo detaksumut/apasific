@@ -99,7 +99,7 @@ export async function handleReviewerDecision(assignmentId: string, submissionId:
         const { sendWa } = await import('@/utils/sendWa');
         if (phoneNum) {
             const message = `Naskah anda mulai di review`;
-            const logoUrl = "https://apasific.org/logo-apasific.png";
+            const logoUrl = "https://apasific.org/logobaru.png";
             await sendWa(phoneNum, message, logoUrl);
         } else {
             console.warn("Could not find phone number for WA notification to author.");

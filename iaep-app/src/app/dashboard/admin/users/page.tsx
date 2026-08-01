@@ -13,6 +13,9 @@ export default function UserManagement() {
     const fetchUsers = async () => {
       try {
         const res = await fetch('/api/users/list?t=' + Date.now());
+        if (!res.ok) {
+          throw new Error(`HTTP error! status: ${res.status}`);
+        }
         const data = await res.json();
 
         

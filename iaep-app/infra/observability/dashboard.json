@@ -1,0 +1,66 @@
+{
+  "dashboard": {
+    "id": null,
+    "uid": "apasific-ops-01",
+    "title": "APASIFIC Operational Intelligence",
+    "tags": ["production", "academic-os"],
+    "timezone": "browser",
+    "schemaVersion": 16,
+    "version": 1,
+    "panels": [
+      {
+        "type": "stat",
+        "title": "APASIFIC SYSTEM HEALTH",
+        "gridPos": { "h": 4, "w": 24, "x": 0, "y": 0 },
+        "targets": [
+          {
+            "expr": "system_uptime_percentage",
+            "refId": "A"
+          }
+        ],
+        "options": {
+          "colorMode": "value",
+          "graphMode": "area",
+          "justifyMode": "auto"
+        }
+      },
+      {
+        "type": "timeseries",
+        "title": "Publications (Today's Activity)",
+        "gridPos": { "h": 8, "w": 12, "x": 0, "y": 4 },
+        "targets": [
+          {
+            "expr": "sum(rate(submission_count[5m]))",
+            "refId": "A"
+          }
+        ]
+      },
+      {
+        "type": "gauge",
+        "title": "AI Recommendation Accuracy",
+        "gridPos": { "h": 8, "w": 6, "x": 12, "y": 4 },
+        "targets": [
+          {
+            "expr": "recommendation_accuracy",
+            "refId": "A"
+          }
+        ],
+        "options": {
+          "min": 0,
+          "max": 100
+        }
+      },
+      {
+        "type": "stat",
+        "title": "Knowledge Graph Nodes",
+        "gridPos": { "h": 4, "w": 6, "x": 18, "y": 4 },
+        "targets": [
+          {
+            "expr": "knowledge_graph_total_nodes",
+            "refId": "A"
+          }
+        ]
+      }
+    ]
+  }
+}

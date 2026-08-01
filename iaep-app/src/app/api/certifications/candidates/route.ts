@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { randomUUID } from "crypto";
 
 function getSupabaseAdmin() {
   return createClient(
@@ -20,7 +21,8 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
-    // Map DB columns to Frontend states
+    // Map DB columns to Frontend fields
+    // NOTE: assessorAccessCode, examScore, examQuestions removed (legacy system retired)
     const mapped = (data || []).map(c => ({
       id: c.id,
       name: c.name,
@@ -31,9 +33,8 @@ export async function GET(request: NextRequest) {
       method: c.method,
       schedule: new Date(c.schedule).toLocaleString("en-GB", { day: "numeric", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit" }),
       status: c.status,
+      eligibilityStatus: c.eligibility_status || "PENDING",
       zoomLink: c.zoom_link,
-      assessorAccessCode: c.assessor_access_code || "",
-      examScore: c.exam_score,
       buktiTransferUrl: c.bukti_transfer_url || ""
     }));
 
@@ -47,13 +48,14 @@ export async function POST(request: NextRequest) {
   try {
     const supabase = getSupabaseAdmin();
     const payload = await request.json();
-    const { id, name, email, phone, academicField, cert, method, schedule, status, zoomLink, assessorAccessCode, buktiTransfer } = payload;
+    // NOTE: assessorAccessCode removed from accepted payload (legacy field)
+    const { id, name, email, phone, academicField, cert, method, schedule, status, zoomLink, buktiTransfer } = payload;
 
     if (!name || !email || !cert) {
       return NextResponse.json({ error: "Missing required candidate info" }, { status: 400 });
     }
 
-    // Parse schedule: if not a valid date, fallback to 1 year from now
+    // Parse schedule
     const parsedDate = new Date(schedule);
     const scheduleISO = isNaN(parsedDate.getTime())
       ? new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString()
@@ -67,21 +69,16 @@ export async function POST(request: NextRequest) {
       cert,
       method,
       schedule: scheduleISO,
-      status: status || "Awaiting Zoom Link",
+      status: status || "Registered",  // Default: Registered (exam session created separately)
       zoom_link: zoomLink || null,
       bukti_transfer_url: buktiTransfer || null
     };
 
     if (id) {
       dbPayload.id = id;
-      if (assessorAccessCode) dbPayload.assessor_access_code = assessorAccessCode;
     } else {
-      dbPayload.id = `C-${Date.now().toString().slice(-4)}`;
-      // Generate assessor code only for Multiple Choice Exams
-      if (method?.includes("Multiple Choice")) {
-        dbPayload.assessor_access_code = `AX-${Math.floor(1000 + Math.random() * 9000)}`;
-        dbPayload.status = "Awaiting Exam Generation";
-      }
+      // Sprint 3: UUID generator — C-XXXXXXXX (8 uppercase hex chars, guaranteed unique)
+      dbPayload.id = `C-${randomUUID().replace(/-/g, '').slice(0, 8).toUpperCase()}`;
     }
 
     const { data, error } = await supabase

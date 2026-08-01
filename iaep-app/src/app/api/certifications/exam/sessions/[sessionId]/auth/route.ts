@@ -27,6 +27,13 @@ export async function POST(req: Request, { params }: { params: Promise<{ session
     if (data.assessor_code === access_code) {
       return NextResponse.json({ role: "assessor" });
     } else if (data.candidate_code === access_code) {
+      // Check if candidate has already submitted and session is locked
+      if (data.access_locked) {
+        return NextResponse.json(
+          { error: "Ujian Anda telah selesai dan dikunci. Sesi ini tidak dapat diakses kembali.", locked: true },
+          { status: 403 }
+        );
+      }
       if (data.status === 'DRAFT') {
         return NextResponse.json({ error: "Soal ujian belum dirilis oleh Asesor. Silakan tunggu." }, { status: 403 });
       }

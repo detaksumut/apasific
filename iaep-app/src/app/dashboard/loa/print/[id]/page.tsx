@@ -46,7 +46,7 @@ export default function PrintLoa() {
         <div className="border-b-4 border-double border-gray-800 pb-6 mb-8 print:pb-3 print:mb-4 flex items-center justify-between">
           <div className="flex items-center gap-6">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/logo-apasific.png" alt="Logo ASIA" className="h-20 w-auto object-contain print:h-16" />
+            <img src="/logobaru.png" alt="Logo ASIA" className="h-20 w-auto object-contain print:h-16" />
             <div className="font-sans">
               <h1 className="text-4xl font-extrabold tracking-wide text-[#b59441] print:text-3xl" style={{ fontFamily: 'Arial, sans-serif' }}>ASIA</h1>
               <p className="text-xs font-bold tracking-wider text-[#2e5d9e] uppercase mt-0.5 print:text-[10px]" style={{ fontFamily: 'Arial, sans-serif' }}>Association of Asia Pacific Academician</p>

@@ -125,7 +125,7 @@ export default async function Home() {
       }
     </style>
     <div class="hero-logo-overlay">
-      <img src="/logo-apasific.png"
+      <img src="/logobaru.png"
            alt="ASIA Logo"
            class="hero-logo-img"
            onerror="this.style.display='none'" />
@@ -142,6 +142,56 @@ export default async function Home() {
         <p style="margin: 1px 0; font-size: 0.5rem; color: #d1d5db; line-height: 1.2;">Bank: Bank Negara Indonesia (BNI)</p>
         <p style="margin: 1px 0; font-size: 0.5rem; color: #d1d5db; line-height: 1.2;">No. Rek: <span style="color: #c9a84c; font-family: monospace; font-size: 0.65rem; font-weight: bold; letter-spacing: 0.5px;">7006002218</span></p>
         <p style="margin: 1px 0; font-size: 0.5rem; color: #d1d5db; line-height: 1.2;">Kode Swift: BNINIDJA</p>
+      </div>
+    </div>
+
+    <!-- APASIFIC Federation Banner Overlay (Hidden on Mobile) -->
+    <style>
+      @media (max-width: 1024px) {
+        .federation-banner-overlay {
+          display: none !important;
+        }
+      }
+    </style>
+    <div class="federation-banner-overlay" style="position: absolute; top: 10px; left: 50%; transform: translateX(-50%); z-index: 10; background: rgba(10, 10, 15, 0.85); border: 1px solid rgba(201, 168, 76, 0.4); border-radius: 6px; padding: 8px 16px; backdrop-filter: blur(12px); color: #fff; display: flex; align-items: center; gap: 15px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5); max-width: 90vw; width: 700px;">
+      
+      <!-- Left side: Icon -->
+      <div style="flex-shrink: 0; color: #c9a84c;">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <circle cx="12" cy="12" r="5"/>
+          <line x1="12" y1="1" x2="12" y2="7"/>
+          <line x1="12" y1="17" x2="12" y2="23"/>
+          <line x1="4.22" y1="4.22" x2="8.46" y2="8.46"/>
+          <line x1="15.54" y1="15.54" x2="19.78" y2="19.78"/>
+          <line x1="1" y1="12" x2="7" y2="12"/>
+          <line x1="17" y1="12" x2="23" y2="12"/>
+          <line x1="4.22" y1="19.78" x2="8.46" y2="15.54"/>
+          <line x1="15.54" y1="8.46" x2="19.78" y2="4.22"/>
+          <circle cx="12" cy="1" r="1.5" fill="currentColor"/>
+          <circle cx="12" cy="23" r="1.5" fill="currentColor"/>
+          <circle cx="1" cy="12" r="1.5" fill="currentColor"/>
+          <circle cx="23" cy="12" r="1.5" fill="currentColor"/>
+          <circle cx="4.22" cy="4.22" r="1.5" fill="currentColor"/>
+          <circle cx="19.78" cy="19.78" r="1.5" fill="currentColor"/>
+          <circle cx="4.22" cy="19.78" r="1.5" fill="currentColor"/>
+          <circle cx="19.78" cy="4.22" r="1.5" fill="currentColor"/>
+        </svg>
+      </div>
+
+      <!-- Center side: Title and Subtitle -->
+      <div style="flex: 1;">
+        <h3 style="color: #c9a84c; font-size: 0.85rem; font-weight: 700; margin: 0 0 4px 0; letter-spacing: 0.5px;">APASIFIC Academic Intelligence Federation Ready</h3>
+        <p style="color: #e5e7eb; font-size: 0.65rem; margin: 0; line-height: 1.4;">The APASIFIC architecture is designed for interoperability with the global academic ecosystem</p>
+      </div>
+
+      <!-- Divider -->
+      <div style="width: 1px; height: 32px; background-color: rgba(201, 168, 76, 0.4); flex-shrink: 0;"></div>
+
+      <!-- Right side: Description -->
+      <div style="flex: 1;">
+        <p style="color: #d1d5db; font-size: 0.65rem; margin: 0; line-height: 1.4;">
+          We build intellectual, publication, research, certification, innovation, and collaboration bridges connected to the global academic network.
+        </p>
       </div>
     </div>
 

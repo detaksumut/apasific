@@ -46,7 +46,7 @@ export default function PrintLoa() {
         <div className="border-b-4 border-double border-gray-800 pb-6 mb-8 flex items-center justify-between">
           <div className="flex items-center gap-6">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/logo-apasific.png" alt="Logo APASIFIC" className="h-24 w-auto object-contain" />
+            <img src="/logobaru.png" alt="Logo APASIFIC" className="h-24 w-auto object-contain" />
             <div>
               <h1 className="text-3xl font-bold uppercase tracking-widest text-[#1a1a2e]">APASIFIC</h1>
               <p className="text-sm font-semibold tracking-wider text-gray-600 uppercase mt-1">Association of Asia Pacific Academician</p>

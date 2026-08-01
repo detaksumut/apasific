@@ -1,0 +1,10 @@
+{
+  "provider": "ELSEVIER_SCIENCEDIRECT",
+  "version": "1.0.0",
+  "capabilities": [
+    "DISCOVERY",
+    "PUBLICATION_METADATA"
+  ],
+  "authentication": "OAUTH2",
+  "healthEndpoint": false
+}

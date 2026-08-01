@@ -162,7 +162,7 @@ export default function SecurePdfViewer({ url, onDownload }: SecurePdfViewerProp
       const pdfDoc = await PDFDocument.load(existingPdfBytes);
       
       // Fetch and embed the logo
-      const logoUrl = window.location.origin + '/logo-apasific.png';
+      const logoUrl = window.location.origin + '/logobaru.png';
       const logoBytes = await fetch(logoUrl).then(res => res.arrayBuffer());
       const logoImage = await pdfDoc.embedPng(logoBytes);
       
@@ -296,7 +296,7 @@ export default function SecurePdfViewer({ url, onDownload }: SecurePdfViewerProp
       >
         {/* Visual Watermark Overlay on the Screen */}
         <div className="pointer-events-none fixed inset-0 z-10 flex justify-center items-center opacity-20 overflow-hidden">
-          <img src="/logo-apasific.png" alt="Watermark" className="w-[200px] md:w-[400px] drop-shadow-lg" />
+          <img src="/logobaru.png" alt="Watermark" className="w-[200px] md:w-[400px] drop-shadow-lg" />
         </div>
 
         {/* Loading Indicator */}

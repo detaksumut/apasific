@@ -126,14 +126,14 @@ export default function PrintCertificate() {
         {/* Certificate Watermark Background */}
         <div className="absolute inset-0 opacity-[0.03] flex items-center justify-center pointer-events-none select-none">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/logo-apasific.png" alt="watermark" className="w-[120mm] h-auto object-contain" />
+          <img src="/logobaru.png" alt="watermark" className="w-[120mm] h-auto object-contain" />
         </div>
 
         {/* Top Header Section */}
         <div className="text-center relative z-10 flex flex-col items-center">
           <div className="flex flex-col items-center gap-2 mb-2">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/logo-apasific.png" alt="ASIA Logo" className="h-36 w-auto object-contain print:h-32 mb-2" />
+            <img src="/logobaru.png" alt="ASIA Logo" className="h-36 w-auto object-contain print:h-32 mb-2" />
             <div className="text-center font-sans">
               <h2 className="text-5xl font-extrabold tracking-widest text-[#b59441] leading-none" style={{ fontFamily: 'Arial, sans-serif' }}>ASIA</h2>
               <p className="text-2xl font-bold tracking-wider text-[#2e5d9e] uppercase mt-2 print:text-[24px]" style={{ fontFamily: 'Arial, sans-serif' }}>Association of Asia Pacific Academician</p>

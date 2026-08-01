@@ -127,7 +127,7 @@ export default function PublicationsPage() {
             <div className="relative h-full flex flex-col p-8 z-10 text-teal-950">
               <div className="flex justify-center mb-8">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="/logo-apasific.png" alt="Logo" className="h-16 object-contain" onError={(e)=>{(e.target as any).src="https://apasific.org/logo-apasific.png"}} />
+                <img src="/logobaru.png" alt="Logo" className="h-16 object-contain" onError={(e)=>{(e.target as any).src="https://apasific.org/logobaru.png"}} />
               </div>
               
               <h2 className="text-xl font-bold text-teal-950 text-center uppercase tracking-widest font-serif leading-tight">

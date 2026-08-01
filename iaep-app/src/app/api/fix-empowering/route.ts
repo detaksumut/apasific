@@ -30,7 +30,7 @@ export async function GET() {
             ...sub,
             created_at: new Date(sub.created_at),
             updated_at: new Date(),
-            cover_file_url: "https://apasific.org/logo-apasific.png" // Dummy cover agar lolos filter
+            cover_file_url: "https://apasific.org/logobaru.png" // Dummy cover agar lolos filter
         }, { merge: true });
 
         return NextResponse.json({ 

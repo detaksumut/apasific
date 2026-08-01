@@ -17,8 +17,8 @@ export default function RootLayout({
     <html lang="id" suppressHydrationWarning>
       <body className="bg-[#05050a]" suppressHydrationWarning>
         <style dangerouslySetInnerHTML={{ __html: `
-          *, *::before, *::after, body, html {
-            font-family: Arial, Helvetica, sans-serif !important;
+          body, html {
+            font-family: Arial, Helvetica, sans-serif;
           }
         `}} />
         {/* Global Lively Background - Premium Dark Gold Glow */}
@@ -40,7 +40,7 @@ export default function RootLayout({
         <div class="logo-icon">
           <!-- Logo image: place your file at public/images/logo.png -->
           <img id="nav-logo-img"
-               src="/logo-apasific.png"
+               src="/logobaru.png"
                alt="ASIA Logo"
                width="44" height="44"
                onerror="this.style.display='none';document.getElementById('nav-logo-svg').style.display='block';"

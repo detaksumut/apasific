@@ -1474,5 +1474,41 @@
     "role": "reviewer",
     "status": "Active",
     "joined": "2026-07-26T09:08:14.426Z"
+  },
+  {
+    "id": "demo-user-1785469730386",
+    "email": "aida@unisnu.ac.id",
+    "password": "Zayla@22des",
+    "full_name": "Aida Nahar",
+    "phone_number": "082227991078",
+    "country": "Indonesia",
+    "university": "Universitas Islam Nahdlatul Ulama' Jepara",
+    "discipline": "Akuntansi",
+    "role": "author",
+    "orcid_id": "0000-0002-1306-7488",
+    "google_scholar_id": "327611",
+    "scopus_id": "57210745968",
+    "wos_id": "GPP-4757-2022",
+    "sinta_id": "6020198",
+    "status": "Active",
+    "joined": "2026-07-31T03:48:50.386Z"
+  },
+  {
+    "id": "demo-user-1785507806874",
+    "email": "t.dessy91@gmail.com",
+    "password": "052009eva",
+    "full_name": "Tri Dessy Fadillah",
+    "phone_number": "085262571664",
+    "country": "Indonesia",
+    "university": "Institut Syekh Abdul Halim Hasan Binjai",
+    "discipline": "Akuntansi",
+    "role": "author",
+    "orcid_id": "0009-0002-3319-086X",
+    "google_scholar_id": "https://scholar.google.com/scholar?hl=id&as_sdt=0%2C5&q=tri+dessy+fadillah&oq=",
+    "scopus_id": "59249442200",
+    "wos_id": "",
+    "sinta_id": "",
+    "status": "Active",
+    "joined": "2026-07-31T14:23:26.874Z"
   }
 ]

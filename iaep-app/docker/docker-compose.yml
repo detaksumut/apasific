@@ -1,0 +1,19 @@
+version: '3.8'
+services:
+  apasific-app:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    image: apasific-iaep:latest
+    container_name: apasific-app-prod
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "/app/docker/healthcheck.sh"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
