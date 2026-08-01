@@ -13,7 +13,7 @@ interface Message {
 export default function AcademicAIAssistant() {
   const [query, setQuery] = useState('');
   const [isTyping, setIsTyping] = useState(false);
-  const [messages, setMessages] = useState<any[]>([
+  const [messages, setMessages] = useState<Message[]>([
     {
       role: 'assistant',
       content: 'Hello! I am your APASIFIC AI Academic Assistant. How can I help you explore the global academic ecosystem today?',
