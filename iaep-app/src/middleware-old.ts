@@ -21,7 +21,7 @@ export async function middleware(request: NextRequest) {
 
   // 2. Global Security Headers Injection & Supabase Auth
   const response = await updateSession(request);
-  response.headers.set('X-Edge-Region', request.geo?.region || 'unknown');
+  response.headers.set('X-Edge-Region', (request as any).geo?.region || 'unknown');
   response.headers.set('X-Content-Type-Options', 'nosniff');
   
   // 3. Fast-Fail Auth Validation (JWT Syntax Check at the Edge)

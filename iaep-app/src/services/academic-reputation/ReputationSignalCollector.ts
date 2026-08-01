@@ -39,7 +39,7 @@ export class ReputationSignalCollector {
         normalizedValue = 75; // Baseline score for a publication
         break;
         
-      case 'IDENTITY_VERIFIED':
+      case 'IDENTITY_VERIFIED' as any:
         signalType = 'IDENTITY_SIGNAL';
         rawValue = 1;
         normalizedValue = 100; // Binary fully verified

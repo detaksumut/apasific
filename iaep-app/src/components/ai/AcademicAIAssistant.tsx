@@ -1,10 +1,19 @@
 import React, { useState } from 'react';
 import styles from './AcademicAIAssistant.module.css';
 
+interface Message {
+  role: string;
+  content: string;
+  type: string;
+  confidence?: string;
+  evidence?: string[];
+  result?: string;
+}
+
 export default function AcademicAIAssistant() {
   const [query, setQuery] = useState('');
   const [isTyping, setIsTyping] = useState(false);
-  const [messages, setMessages] = useState([
+  const [messages, setMessages] = useState<any[]>([
     {
       role: 'assistant',
       content: 'Hello! I am your APASIFIC AI Academic Assistant. How can I help you explore the global academic ecosystem today?',
@@ -75,7 +84,7 @@ export default function AcademicAIAssistant() {
                   <div className={styles.evidenceBox}>
                     <strong>Evidence Trail:</strong>
                     <ul>
-                      {msg.evidence?.map((item, i) => (
+                      {msg.evidence?.map((item: string, i: number) => (
                         <li key={i}>✓ {item}</li>
                       ))}
                     </ul>

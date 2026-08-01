@@ -1,6 +1,7 @@
 "use client";
 import React, { useState } from 'react';
 import { AcademicEvidenceCard } from '@/components/researcher/AcademicEvidenceCard';
+import { GlobalPublicationFederationCard } from '@/components/researcher/GlobalPublicationFederationCard';
 import { CreditCard, Lock, Save, HelpCircle, CheckCircle2 } from 'lucide-react';
 
 export default function Profile() {
@@ -43,6 +44,28 @@ export default function Profile() {
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
         
+        {/* External Academic Identity */}
+        <div style={{ backgroundColor: '#111120', borderRadius: '1rem', overflow: 'hidden', border: '1px solid #1f2937' }} className="shadow-2xl">
+          <div style={{ backgroundColor: '#18182e', padding: '1.25rem 2rem', borderBottom: '1px solid #1f2937', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            <svg className="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" strokeWidth="2" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3" /></svg>
+            <h3 className="font-bold text-white text-lg font-['Cinzel']">External Academic Identity</h3>
+          </div>
+          <div style={{ padding: '2rem' }}>
+            <div className="flex items-center justify-between p-4 bg-[#0a0a14] rounded-lg border border-gray-700">
+              <div className="flex items-center gap-4">
+                <div className="w-10 h-10 bg-[#A6CE39] rounded-full flex items-center justify-center font-bold text-white">iD</div>
+                <div>
+                  <h4 className="text-white font-medium">ORCID</h4>
+                  <p className="text-sm text-gray-400">Not Connected</p>
+                </div>
+              </div>
+              <button className="px-4 py-2 bg-[#A6CE39] hover:bg-[#8eb030] text-white font-semibold rounded-lg transition-colors">
+                Connect ORCID iD
+              </button>
+            </div>
+          </div>
+        </div>
+
         {/* Bank Account Form */}
         <div style={{ backgroundColor: '#111120', borderRadius: '1rem', overflow: 'hidden', border: '1px solid #1f2937' }} className="shadow-2xl">
           <div style={{ backgroundColor: '#18182e', padding: '1.25rem 2rem', borderBottom: '1px solid #1f2937', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>

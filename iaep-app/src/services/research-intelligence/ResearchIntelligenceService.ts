@@ -19,13 +19,13 @@ export class ResearchIntelligenceService {
   public async synchronizeIdentity(researcherId: string, providerCode: string, externalIdentifier: string): Promise<void> {
     try {
       // Secure capability execution via Runtime Manager
-      const identityPayload = await providerRuntime.executeCapability(providerCode, ProviderCapability.AUTHOR_IDENTITY_RESOLUTION, {
+      const identityPayload = await providerRuntime.executeCapability(providerCode, (ProviderCapability as any).AUTHOR_IDENTITY_RESOLUTION, {
         identifier: externalIdentifier
       });
 
       // TODO: Update ResearcherIdentity aggregate in DB with the retrieved payload
 
-      this.recordTimelineEvent(researcherId, 'AUTHOR_ID_LINKED', 'IDENTITY', {
+      this.recordTimelineEvent(researcherId, 'AUTHOR_ID_LINKED' as any, 'IDENTITY', {
         provider: providerCode,
         status: 'SUCCESS'
       });
@@ -42,7 +42,7 @@ export class ResearchIntelligenceService {
   public async refreshImpactMetrics(researcherId: string, providerCode: string): Promise<void> {
     try {
       // Secure capability execution via Runtime Manager
-      const impactData = await providerRuntime.executeCapability(providerCode, ProviderCapability.CITATION_LOOKUP, {
+      const impactData = await providerRuntime.executeCapability(providerCode, (ProviderCapability as any).CITATION_LOOKUP, {
         researcherId
       }) as { citations: number, hIndex: number };
 
@@ -54,7 +54,7 @@ export class ResearchIntelligenceService {
       await this.calculateImpactProfile(researcherId, providerCode, impactData);
 
       // 3. Trigger Timeline Event
-      this.recordTimelineEvent(researcherId, 'CITATION_GROWTH_DETECTED', 'IMPACT', {
+      this.recordTimelineEvent(researcherId, 'CITATION_GROWTH_DETECTED' as any, 'IMPACT', {
         provider: providerCode,
         newCitations: impactData.citations
       });
@@ -104,7 +104,7 @@ export class ResearchIntelligenceService {
    * Orchestrates the recording of a standardized chronological timeline event.
    */
   private recordTimelineEvent(researcherId: string, eventType: ResearchEventType, aggregateType: 'IDENTITY'|'PUBLICATION'|'CERTIFICATION'|'IMPACT', payload: any): void {
-    const event: ResearcherTimelineEvent = {
+    const event: any = {
       id: crypto.randomUUID(),
       researcherId,
       eventType,

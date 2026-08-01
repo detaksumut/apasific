@@ -69,8 +69,23 @@ export default function ResearcherIntelligenceProfile() {
               </div>
               <div className={styles.impactItem}>
                 <span>Publications</span>
-                <strong>65</strong>
-                <div className={styles.progressBar}><div className={styles.progressFill} style={{width: '85%'}}></div></div>
+                <strong>25</strong>
+                <div className={styles.progressBar}><div className={styles.progressFill} style={{width: '100%'}}></div></div>
+              </div>
+              <div className={styles.impactItem}>
+                <span>Datasets</span>
+                <strong>8</strong>
+                <div className={styles.progressBar}><div className={styles.progressFill} style={{width: '30%'}}></div></div>
+              </div>
+              <div className={styles.impactItem}>
+                <span>AI Models</span>
+                <strong>3</strong>
+                <div className={styles.progressBar}><div className={styles.progressFill} style={{width: '15%'}}></div></div>
+              </div>
+              <div className={styles.impactItem}>
+                <span>Software</span>
+                <strong>5</strong>
+                <div className={styles.progressBar}><div className={styles.progressFill} style={{width: '20%'}}></div></div>
               </div>
             </div>
             <div className={styles.trendUp}>↗ +24% Growth Trend</div>
@@ -88,6 +103,67 @@ export default function ResearcherIntelligenceProfile() {
                 <span className={styles.instBadge}>Uni A</span>
                 <span className={styles.instBadge}>Uni B</span>
                 <span className={styles.instBadge}>Institute C</span>
+              </div>
+            </div>
+          </section>
+
+          {/* External Verification */}
+          <section className={styles.panel}>
+            <h2 className={styles.panelTitle}>External Verification</h2>
+            <div className={styles.impactMetrics}>
+              <div className={styles.impactItem}>
+                <span>SINTA</span>
+                <strong className="text-green-600">✓ Verified</strong>
+              </div>
+              <div className={styles.impactItem}>
+                <span>Crossref</span>
+                <strong className="text-green-600">✓ Verified</strong>
+              </div>
+              <div className={styles.impactItem}>
+                <span>ORCID</span>
+                <strong className="text-green-600">✓ Verified</strong>
+              </div>
+            </div>
+          </section>
+
+          {/* Research Discovery Intelligence */}
+          <section className={styles.panel}>
+            <h2 className={styles.panelTitle}>Research Discovery Intelligence</h2>
+            
+            <div className="mb-4 p-3 bg-green-50 rounded-lg border border-green-100 flex items-center justify-between">
+              <span className="font-semibold text-green-800">OpenAlex</span>
+              <span className="px-2 py-1 text-xs bg-green-200 text-green-800 rounded-full">🟢 Connected</span>
+            </div>
+
+            <div className={styles.impactMetrics}>
+              <div className={styles.impactItem}>
+                <span>Crossref DOI</span>
+                <strong>✓</strong>
+              </div>
+              <div className={styles.impactItem}>
+                <span>OpenAIRE</span>
+                <strong>✓</strong>
+              </div>
+              <div className={styles.impactItem}>
+                <span>Citation Count</span>
+                <strong className="text-blue-600">124</strong>
+              </div>
+            </div>
+
+            <div className="mt-4 pt-4 border-t border-gray-100">
+              <h4 className="text-xs font-semibold text-gray-500 uppercase mb-2">Research Topics (Concepts)</h4>
+              <div className="flex flex-wrap gap-2">
+                <span className="text-xs px-2 py-1 bg-indigo-50 text-indigo-700 rounded border border-indigo-100">AI</span>
+                <span className="text-xs px-2 py-1 bg-indigo-50 text-indigo-700 rounded border border-indigo-100">Higher Education</span>
+                <span className="text-xs px-2 py-1 bg-indigo-50 text-indigo-700 rounded border border-indigo-100">Digital Transformation</span>
+              </div>
+            </div>
+
+            <div className="mt-4 pt-4 border-t border-gray-100">
+              <h4 className="text-xs font-semibold text-gray-500 uppercase mb-2">Global Research Graph</h4>
+              <div className="flex justify-between text-sm text-gray-700">
+                <span><strong>42</strong> Related Authors</span>
+                <span><strong>18</strong> Institutions</span>
               </div>
             </div>
           </section>

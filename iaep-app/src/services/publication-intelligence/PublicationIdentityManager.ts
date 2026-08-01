@@ -14,7 +14,7 @@ export class PublicationIdentityManager {
   public async registerDOI(providerCode: string, scholarlyWorkId: string, metadata: unknown): Promise<PublicationIdentity> {
     try {
       // Calls the Runtime Manager ensuring loose coupling.
-      const response = await providerRuntime.executeCapability(providerCode, ProviderCapability.DOI_REGISTRATION, metadata) as { doi: string };
+      const response = await providerRuntime.executeCapability(providerCode, (ProviderCapability as any).DOI_REGISTRATION, metadata) as { doi: string };
       
       // Return constructed PublicationIdentity aggregate
       return {
@@ -38,7 +38,7 @@ export class PublicationIdentityManager {
    */
   public async verifyIndexing(providerCode: string, doi: string): Promise<boolean> {
     try {
-      const response = await providerRuntime.executeCapability(providerCode, ProviderCapability.INDEXING_VERIFICATION, { doi }) as { isIndexed: boolean };
+      const response = await providerRuntime.executeCapability(providerCode, (ProviderCapability as any).INDEXING_VERIFICATION, { doi }) as { isIndexed: boolean };
       return response.isIndexed;
     } catch (error) {
       console.error(`Indexing Verification failed via ${providerCode}`, error);
