@@ -12,3 +12,11 @@ Harap patuhi aturan (rule) berikut saat merancang fitur penerbitan, penomoran ju
 2. **Aturan Volume (Vol):** Volume mengacu pada tahun terbit. Jika jurnal terbit 2 kali setiap tahun, maka per tahun akan ada 2 Volume (misal: Tahun Pertama = Vol 1 dan Vol 2).
 3. **Aturan Nomor (No):** Nomor (Issue) terbitan tidak dibatasi (unlimited). Tidak ada batas maksimal artikel atau penomoran di dalam satu volume.
 <!-- END:journal-publishing-rules -->
+
+<!-- BEGIN:architecture-governance-rules -->
+# Architecture Governance Rules
+
+## RULE-API-001: Production API Boundary
+Only certified production API routes may exist under `src/app/api/`.
+Temporary, debug, migration, verification, and experimental routes must reside outside the Next.js routing tree (e.g., under `scratch/api-archive/`).
+<!-- END:architecture-governance-rules -->
