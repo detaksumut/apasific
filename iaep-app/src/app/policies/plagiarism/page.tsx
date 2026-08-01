@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 export default function PlagiarismPolicyPage() {
   return (
     <main style={{ minHeight: "100vh", padding: "120px 20px 80px", background: "#05050a", fontFamily: "sans-serif" }}>
@@ -36,19 +35,19 @@ export default function PlagiarismPolicyPage() {
             paddingBottom: "15px",
             borderBottom: "1px solid rgba(201,168,76,0.2)"
           }}>
-            PLAGIARISM &amp; ORIGINALITY POLICY
+            PLAGIARISM POLICY
           </h2>
           <div style={{ color: "rgba(255,255,255,0.9)", fontSize: "16px", lineHeight: "1.8" }}>
             <p style={{ marginBottom: "20px", color: "rgba(255,255,255,0.7)" }}>
-              We maintain a strict zero-tolerance policy towards any form of plagiarism. All authors submitting their manuscripts are required to adhere to the highest standards of academic integrity.
+              All journals published by ASIA Academic Press enforce a zero-tolerance policy towards plagiarism, duplicate submission, or ethical misconduct.
             </p>
             <ul style={{ listStyleType: "none", padding: "0", margin: "0" }}>
               {[
-                "All submitted manuscripts are rigorously screened for similarity using industry-standard plagiarism detection software before undergoing the peer review process.",
-                "A similarity index of more than 20% (excluding references, quotes, and standard phrases) is generally considered unacceptable and may result in immediate desk rejection.",
-                "Self-plagiarism or text-recycling without proper citation and transparent acknowledgment is strictly prohibited.",
-                "Authors must ensure that all sources, data, and contributions from other researchers are properly cited and acknowledged in the manuscript.",
-                "If plagiarism is detected after a manuscript has been published, the editorial board reserves the right to issue a formal retraction, remove the article from the journal, and notify the authors' affiliated institutions."
+                "Every manuscript undergoes an initial similarity check using plagiarism detection tools (such as Turnitin) upon submission.",
+                "The maximum allowable similarity index is strictly set to 20% to prevent copy-paste and ensure intellectual originality.",
+                "Manuscripts showing more than 20% similarity will be immediately desk-rejected without further review.",
+                "Self-plagiarism (reusing one's own previously published work without citation) is also strictly prohibited.",
+                "Authors found guilty of deliberate plagiarism will be blacklisted from submitting to any ASIA journals for a minimum period of three years."
               ].map((item, idx) => (
                 <li key={idx} style={{ 
                   display: "flex", 
@@ -70,48 +69,5 @@ export default function PlagiarismPolicyPage() {
 
       </div>
     </main>
-=======
-import React from 'react';
-import { PolicyLayout } from '@/components/governance/PolicyLayout';
-import { Metadata } from 'next';
-
-export const metadata: Metadata = {
-  title: 'Plagiarism Policy | APASIFIC Press',
-  description: 'Plagiarism detection and enforcement policy at APASIFIC Press.',
-};
-
-export default function PlagiarismPolicyPage() {
-  return (
-    <PolicyLayout title="Plagiarism Policy">
-      <p>
-        APASIFIC Press enforces a zero-tolerance policy against plagiarism. All submitted manuscripts are subjected to rigorous similarity checks before they are sent for peer review.
-      </p>
-
-      <h3>1. Definition of Plagiarism</h3>
-      <p>
-        Plagiarism includes, but is not limited to:
-      </p>
-      <ul>
-        <li>Copying text, data, or ideas from another source without proper attribution.</li>
-        <li>Self-plagiarism (recycling one's own previously published work without citation).</li>
-        <li>Paraphrasing substantial portions of another author's work without crediting the original source.</li>
-      </ul>
-
-      <h3>2. Similarity Threshold</h3>
-      <p>
-        All manuscripts are screened using industry-standard similarity detection software (e.g., Turnitin, iThenticate). 
-        The maximum acceptable similarity index is <strong>20%</strong>, excluding the bibliography/references section. Furthermore, similarity from a single source must not exceed <strong>5%</strong>.
-      </p>
-
-      <h3>3. Enforcement</h3>
-      <p>
-        If plagiarism is detected:
-      </p>
-      <ul>
-        <li><strong>During Initial Screening:</strong> The manuscript will be immediately desk-rejected, and the authors will be notified of the reason.</li>
-        <li><strong>After Publication:</strong> If plagiarism is discovered after the article has been published, APASIFIC Press will conduct a formal investigation. If proven, the article will be formally retracted according to our Corrections & Retractions policy, and the authors' institutions may be notified.</li>
-      </ul>
-    </PolicyLayout>
->>>>>>> e477a726ed7aa5eb4d0c37a5f7323196db965314
   );
 }
