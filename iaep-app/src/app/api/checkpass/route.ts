@@ -10,7 +10,7 @@ export async function GET() {
   const { data } = await supabase.from('system_settings').select('*').eq('key', 'apasific_registered_users').single();
   const users = Array.isArray(data.value) ? data.value : JSON.parse(data.value);
   
-  const passwords = {};
+  const passwords: Record<string, any> = {};
   for (const u of users) {
     if (u.email && u.email.includes('kadinmedan')) passwords[u.email] = u.password;
     if (u.email && u.email.includes('kadsumut')) passwords[u.email] = u.password;
