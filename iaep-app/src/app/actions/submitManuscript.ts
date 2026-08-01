@@ -210,7 +210,7 @@ export async function submitManuscript(formData: FormData) {
         const pkgName = isSinta ? 'Publikasi Jurnal SINTA' : 'Jurnal Internasional';
         
         const waMessage = `Terimakasih telah Submit naskah di ASIA.\nJudul: ${title}\n\nTim Redaksi kami akan segera memproses naskah Anda.`;
-        const logoUrl = "https://apasific.org/logo-apasific.png";
+        const logoUrl = "https://apasific.org/logobaru.png";
 
         const { sendWa } = await import('@/utils/sendWa');
         await sendWa(userPhone, waMessage, logoUrl);

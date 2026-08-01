@@ -8,7 +8,7 @@ export async function resendWaAction(phone: string, title: string) {
   }
 
   const waMessage = `Terimakasih telah Submit naskah di ASIA.\nJudul: ${title}\n\nTim Redaksi kami akan segera memproses naskah Anda.`;
-  const logoUrl = "https://apasific.org/logo-apasific.png";
+  const logoUrl = "https://apasific.org/logobaru.png";
   
   try {
     await sendWa(phone, waMessage, logoUrl);

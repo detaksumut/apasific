@@ -40,7 +40,7 @@ export default function RootLayout({
         <div class="logo-icon">
           <!-- Logo image: place your file at public/images/logo.png -->
           <img id="nav-logo-img"
-               src="/logo-apasific.png"
+               src="/logobaru.png"
                alt="ASIA Logo"
                width="44" height="44"
                onerror="this.style.display='none';document.getElementById('nav-logo-svg').style.display='block';"

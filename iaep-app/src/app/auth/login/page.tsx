@@ -248,7 +248,7 @@ export default function Login() {
         {/* ── Left decorative panel ── */}
         <div className="login-left">
           <div className="login-brand-logo">
-            <img src="/logo-apasific.png" alt="ASIA Logo" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />
+            <img src="/logobaru.png" alt="ASIA Logo" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />
             <div>
               <div className="login-brand-name">ASIA</div>
               <div className="login-brand-sub">ASSOCIATION OF ASIA PACIFIC ACADEMICIAN</div>

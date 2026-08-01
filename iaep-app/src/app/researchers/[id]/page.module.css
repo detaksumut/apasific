@@ -1,0 +1,415 @@
+:root {
+  --academic-blue: #1e3a8a;
+  --academic-blue-light: #3b82f6;
+  --reputation-gold: #fbbf24;
+  --glass-bg: rgba(30, 41, 59, 0.6);
+  --glass-border: rgba(255, 255, 255, 0.1);
+}
+
+.profileContainer {
+  padding: 2rem;
+  background-color: #0f172a;
+  color: #f8fafc;
+  min-height: 100vh;
+  font-family: 'Inter', system-ui, sans-serif;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* Header */
+.identityHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--glass-bg);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-border);
+  border-radius: 1.5rem;
+  padding: 2rem;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+  gap: 2rem;
+}
+
+.identityMeta {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+}
+
+.avatarPlaceholder {
+  width: 100px;
+  height: 100px;
+  background: linear-gradient(135deg, var(--academic-blue-light), var(--academic-blue));
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 4px solid rgba(255, 255, 255, 0.1);
+}
+
+.avatarInitials {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: white;
+}
+
+.researcherName {
+  font-size: 2rem;
+  margin: 0 0 0.25rem 0;
+  font-weight: 800;
+  letter-spacing: -0.025em;
+}
+
+.researcherId {
+  color: #94a3b8;
+  font-size: 1rem;
+  margin: 0 0 1rem 0;
+  font-family: monospace;
+}
+
+.verificationBadges {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.badgeSuccess {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #10b981;
+  background: rgba(16, 185, 129, 0.1);
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+/* Reputation Card */
+.reputationCard {
+  background: linear-gradient(135deg, rgba(251, 191, 36, 0.1), transparent);
+  border: 1px solid rgba(251, 191, 36, 0.3);
+  padding: 1.5rem 2rem;
+  border-radius: 1rem;
+  text-align: right;
+  min-width: 280px;
+}
+
+.reputationLabel {
+  font-size: 0.875rem;
+  color: #fbbf24;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 600;
+}
+
+.reputationScore {
+  font-size: 3.5rem;
+  font-weight: 800;
+  color: #fbbf24;
+  line-height: 1.1;
+  margin: 0.5rem 0;
+}
+
+.reputationRank {
+  font-size: 1rem;
+  font-weight: 500;
+  color: #f8fafc;
+  margin-bottom: 0.5rem;
+}
+
+.reputationBreakdown {
+  font-size: 0.75rem;
+  color: #94a3b8;
+}
+
+/* Grid Layout */
+.mainGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+}
+
+@media (max-width: 1024px) {
+  .mainGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.leftColumn, .rightColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+/* Common Panels */
+.panel {
+  background: var(--glass-bg);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-border);
+  border-radius: 1.25rem;
+  padding: 1.5rem;
+  transition: transform 0.2s;
+}
+.panel:hover {
+  transform: translateY(-2px);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.panelTitle {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin: 0 0 1.5rem 0;
+  color: #f8fafc;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  padding-bottom: 0.75rem;
+}
+
+/* Expertise Graph */
+.expertiseGraphMock {
+  position: relative;
+  height: 250px;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 0.75rem;
+  overflow: hidden;
+}
+
+.graphNode {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  background: var(--academic-blue);
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 9999px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  border: 1px solid var(--academic-blue-light);
+  white-space: nowrap;
+  z-index: 2;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+}
+
+.graphEdges {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
+
+/* Impact Panel */
+.impactMetrics {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.impactItem {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.impactItem span {
+  width: 100px;
+  color: #94a3b8;
+  font-size: 0.875rem;
+}
+
+.impactItem strong {
+  width: 40px;
+  font-size: 1.1rem;
+}
+
+.progressBar {
+  flex: 1;
+  height: 8px;
+  background: rgba(255,255,255,0.1);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progressFill {
+  height: 100%;
+  background: var(--academic-blue-light);
+  border-radius: 4px;
+}
+
+.trendUp {
+  margin-top: 1.5rem;
+  color: #10b981;
+  font-size: 0.875rem;
+  font-weight: 600;
+  background: rgba(16, 185, 129, 0.1);
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+  display: inline-block;
+}
+
+/* Collaboration */
+.collaborationFlex {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+}
+
+.collabScore {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.scoreNumber {
+  font-size: 3rem;
+  font-weight: 800;
+  color: var(--academic-blue-light);
+  line-height: 1;
+}
+.scoreLabel {
+  font-size: 0.75rem;
+  color: #94a3b8;
+  text-transform: uppercase;
+  margin-top: 0.5rem;
+}
+
+.collabInstitutions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.instBadge {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  padding: 0.5rem 1rem;
+  border-radius: 9999px;
+  font-size: 0.875rem;
+}
+
+/* AI Insight */
+.aiPanel {
+  background: linear-gradient(135deg, rgba(56, 189, 248, 0.1), rgba(30, 41, 59, 0.6));
+  border-color: rgba(56, 189, 248, 0.3);
+}
+
+.aiHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid rgba(56, 189, 248, 0.2);
+  padding-bottom: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.aiHeader .panelTitle {
+  margin: 0;
+  border: none;
+  padding: 0;
+}
+
+.confidenceBadge {
+  background: rgba(56, 189, 248, 0.2);
+  color: #38bdf8;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.aiText {
+  font-size: 1.1rem;
+  line-height: 1.6;
+  color: #e2e8f0;
+  font-style: italic;
+  margin-bottom: 1.5rem;
+}
+
+.aiRecommendation {
+  background: rgba(0,0,0,0.2);
+  padding: 1rem;
+  border-radius: 0.75rem;
+  border-left: 4px solid #38bdf8;
+  font-size: 0.875rem;
+  color: #cbd5e1;
+}
+
+/* Timeline */
+.timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  position: relative;
+}
+
+.timeline::before {
+  content: '';
+  position: absolute;
+  left: 20px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: rgba(255,255,255,0.1);
+}
+
+.timelineItem {
+  display: flex;
+  gap: 1.5rem;
+  position: relative;
+  z-index: 1;
+}
+
+.timelineYear {
+  width: 42px;
+  height: 42px;
+  background: #0f172a;
+  border: 2px solid var(--academic-blue-light);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #38bdf8;
+  flex-shrink: 0;
+}
+
+.timelineContent {
+  padding-top: 0.75rem;
+  font-size: 0.95rem;
+  color: #e2e8f0;
+}
+
+/* Credentials */
+.credentialList {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.credentialItem {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  background: rgba(255,255,255,0.02);
+  padding: 1rem;
+  border-radius: 0.75rem;
+  border: 1px solid rgba(255,255,255,0.05);
+}
+
+.checkIcon {
+  color: #10b981;
+  font-weight: bold;
+  font-size: 1.25rem;
+}
+
+.credentialDetails {
+  display: flex;
+  flex-direction: column;
+}
+
+.credentialDetails strong {
+  color: #f8fafc;
+  font-size: 0.95rem;
+}
+
+.credentialDetails span {
+  color: #94a3b8;
+  font-size: 0.75rem;
+  margin-top: 0.25rem;
+}

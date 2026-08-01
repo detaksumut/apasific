@@ -163,7 +163,7 @@ export async function submitEditorialDecision(submissionId: string, authorId: st
                 if (phoneNum) {
                     const message = `Halo ${fullName},\n\nKabar gembira dari Tim Editorial Asia Index & Metric (APASIFIC).\n\nNaskah Anda yang berjudul:\n"${sub?.title}"\n\nTelah dinyatakan *DITERIMA (ACCEPTED)* untuk dipublikasikan.\nSilakan login ke dashboard APASIFIC untuk melihat langkah selanjutnya atau mengunduh Letter of Acceptance (LoA) Anda.\n\nTerima kasih atas kontribusi Anda.\nhttps://apasific.org`;
                     const { sendWa } = await import('@/utils/sendWa');
-                    const logoUrl = "https://apasific.org/logo-apasific.png";
+                    const logoUrl = "https://apasific.org/logobaru.png";
                     await sendWa(phoneNum, message, logoUrl);
                 }
             } catch (waErr) {
@@ -234,7 +234,7 @@ export async function updateSubmissionStage(submissionId: string, stage: string,
                 if (phoneNum) {
                     const message = `Halo ${fullName},\n\nPemberitahuan dari Tim Editorial Asia Index & Metric (APASIFIC).\n\nNaskah Anda yang berjudul:\n"${sub?.title}"\n\nTelah selesai ditinjau oleh Reviewer dan *MEMERLUKAN REVISI*.${reviewNotes ? '\n\nBerikut adalah catatan perbaikan dari Reviewer:' + reviewNotes : ''}\n\nNaskah beserta semua catatan perbaikan kini telah dikembalikan ke laci dashboard Anda. Silakan login ke dashboard APASIFIC, masuk ke menu Submisi -> Lacak Proses, untuk membaca catatan lengkapnya dan mengunggah naskah yang telah diperbaiki.\n\nTerima kasih.\nhttps://apasific.org`;
                     const { sendWa } = await import('@/utils/sendWa');
-                    const logoUrl = "https://apasific.org/logo-apasific.png";
+                    const logoUrl = "https://apasific.org/logobaru.png";
                     await sendWa(phoneNum, message, logoUrl);
                 }
             } catch (waErr) {
@@ -1215,7 +1215,7 @@ export async function sendReviewerInviteWa(phone: string, name: string, submissi
         if (!phone) return { success: false, error: "Nomor telepon tidak tersedia" };
         const { sendWa } = await import('@/utils/sendWa');
         const message = `Halo *${name}*,\n\nTim Editorial Asia Index & Metric (APASIFIC) mengundang Anda untuk menjadi *Reviewer* pada naskah berikut:\n\n*ID Naskah:* #${submissionId.substring(0, 8).toUpperCase()}\n\nMohon konfirmasi kesediaan Anda.\n\n*Cara Merespon:*\nSilakan login ke APASIFIC melalui link di bawah ini, lalu masuk ke menu *Dashboard* Anda untuk melihat detail naskah dan mengklik tombol *TERIMA* atau *TOLAK*:\n👉 https://apasific.org/auth/login\n\nTerima kasih atas waktu dan dedikasi Anda.\n- Tim Editorial APASIFIC`;
-        const logoUrl = "https://apasific.org/logo-apasific.png";
+        const logoUrl = "https://apasific.org/logobaru.png";
         const result = await sendWa(phone, message, logoUrl);
 
         // Log ke submission_history

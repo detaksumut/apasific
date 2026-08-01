@@ -1,0 +1,11 @@
+{
+  "provider": "ELSEVIER_SCOPUS",
+  "version": "1.0.0",
+  "capabilities": [
+    "CITATION_INDEXING",
+    "RESEARCH_ANALYTICS",
+    "IDENTITY_SYNC"
+  ],
+  "authentication": "API_KEY",
+  "healthEndpoint": true
+}

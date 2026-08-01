@@ -494,7 +494,7 @@ export default function MajesticMembershipPage() {
                   {/* LOGO & TEXT */}
                   <div className="absolute flex items-center gap-2.5 drop-shadow-2xl" style={{ top: '3%', left: '5%' }}>
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src="/logo-apasific.png" alt="ASIA Logo" className="w-[45px] h-[45px] object-contain rounded-full border-2 border-[#e5c058]/30 shadow-[0_0_15px_rgba(229,192,88,0.4)]" />
+                    <img src="/logobaru.png" alt="ASIA Logo" className="w-[45px] h-[45px] object-contain rounded-full border-2 border-[#e5c058]/30 shadow-[0_0_15px_rgba(229,192,88,0.4)]" />
                     <div className="flex flex-col uppercase tracking-[0.15em] font-serif text-gray-100 drop-shadow-md" style={{ fontSize: '9px' }}>
                       <span className="leading-tight">Association of Asia Pacific</span>
                       <span className="leading-tight">Academician</span>
@@ -573,7 +573,7 @@ export default function MajesticMembershipPage() {
                   {/* LOGO & TEXT */}
                   <div className="absolute flex items-center gap-2.5 drop-shadow-2xl" style={{ top: '3%', left: '5%' }}>
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src="/logo-apasific.png" alt="ASIA Logo" className="w-[45px] h-[45px] object-contain rounded-full border-2 border-[#e5c058]/30 shadow-[0_0_15px_rgba(229,192,88,0.4)]" />
+                    <img src="/logobaru.png" alt="ASIA Logo" className="w-[45px] h-[45px] object-contain rounded-full border-2 border-[#e5c058]/30 shadow-[0_0_15px_rgba(229,192,88,0.4)]" />
                     <div className="flex flex-col uppercase tracking-[0.15em] font-serif text-gray-100 drop-shadow-md" style={{ fontSize: '9px' }}>
                       <span className="leading-tight">Association of Asia Pacific</span>
                       <span className="leading-tight">Academician</span>
@@ -785,7 +785,7 @@ export default function MajesticMembershipPage() {
                 )}
 
                 {/* ID NUMBER (No Registry Digital Dot Matrix) */}
-                <div className="absolute text-white drop-shadow-md flex items-center" style={{ bottom: '5%', right: '5%' }}>
+                <div className="absolute text-white drop-shadow-md flex items-center" style={{ bottom: '5%', right: '6.5%' }}>
                   {/* Prefix */}
                   <span style={{ fontSize: '9px', fontFamily: '"Courier New", Courier, monospace', letterSpacing: '0.15em', marginRight: '6px' }}>
                     ID. ASIA-VII-

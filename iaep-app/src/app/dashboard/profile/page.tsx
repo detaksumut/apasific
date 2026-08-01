@@ -1,5 +1,6 @@
 "use client";
 import React, { useState } from 'react';
+import { AcademicEvidenceCard } from '@/components/researcher/AcademicEvidenceCard';
 import { CreditCard, Lock, Save, HelpCircle, CheckCircle2 } from 'lucide-react';
 
 export default function Profile() {
