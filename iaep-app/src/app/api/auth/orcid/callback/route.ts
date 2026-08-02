@@ -1,9 +1,8 @@
-// src/app/api/auth/orcid/callback/route.ts
-
 import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { createClient } from '@supabase/supabase-js';
-import { OrcidClient } from '@/providers/orcid/OrcidClient';
+import { ORCIDIdentityService } from '@/services/identity-federation/ORCIDIdentityService';
+import { IdentityRepository } from '@/repositories/IdentityRepository';
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
@@ -37,11 +36,9 @@ export async function GET(request: NextRequest) {
     );
     
     // Read user token from cookies to verify session authenticity
-    const authHeader = request.headers.get('Authorization') || '';
     let user: any = null;
     
     // Fetch user context from cookies
-    const cookieString = cookieStore.getAll().map((c: any) => `${c.name}=${c.value}`).join('; ');
     const { data: { user: supabaseUser } } = await anonClient.auth.getUser(
       cookieStore.get('sb-access-token')?.value || cookieStore.get('supabase-auth-token')?.value
     );
@@ -62,19 +59,10 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Authentication Session Required' }, { status: 401 });
     }
 
-    // 3. Exchange Authorization Code for ORCID profile details
-    const orcidClient = new OrcidClient();
-    const orcidProfile = await orcidClient.exchangeAuthorizationCode(code);
-    const tokens = (orcidProfile as any)._tokens;
+    // 3. Ensure researcher_identities entry exists for this user via IdentityRepository (Rule 3.2)
+    let researcher = await IdentityRepository.findResearcherIdentityByUserId(user.id);
 
-    // 4. Ensure researcher_identities entry exists for this user
-    let { data: researcher, error: resError } = await supabaseAdmin
-      .from('researcher_identities')
-      .select('id')
-      .eq('user_id', user.id)
-      .single();
-
-    if (resError || !researcher) {
+    if (!researcher) {
       // Retrieve profile full name
       const { data: profile } = await supabaseAdmin
         .from('profiles')
@@ -82,50 +70,21 @@ export async function GET(request: NextRequest) {
         .eq('id', user.id)
         .single();
 
-      const { data: newResearcher, error: createError } = await supabaseAdmin
-        .from('researcher_identities')
-        .insert({
-          user_id: user.id,
-          full_name: profile?.full_name || 'APASIFIC Scholar',
-          verification_status: 'VERIFIED'
-        })
-        .select('id')
-        .single();
-
-      if (createError) throw createError;
-      researcher = newResearcher;
+      researcher = await IdentityRepository.createResearcherIdentity(
+        user.id,
+        profile?.full_name || 'APASIFIC Scholar'
+      );
     }
 
-    // 5. Encrypt Sensitive Credentials
-    const encryptedAccessToken = OrcidClient.encryptToken(tokens.accessToken);
-    const encryptedRefreshToken = OrcidClient.encryptToken(tokens.refreshToken);
+    if (!researcher) {
+      throw new Error("Failed to resolve or create researcher identity context.");
+    }
 
-    // 6. Persist to researcher_identifiers (external identity links)
-    const { error: identifierError } = await supabaseAdmin
-      .from('researcher_identifiers')
-      .upsert({
-        researcher_id: researcher.id,
-        provider: 'ORCID',
-        identifier_type: 'ORCID_ID',
-        identifier_value: orcidProfile.orcidId,
-        verification_status: 'VERIFIED',
-        source: 'USER_CONNECTED',
-        metadata: {
-          identity: {
-            scope: tokens.scope,
-            expires_in: tokens.expiresIn,
-            connected_at: new Date().toISOString()
-          },
-          credential: {
-            encrypted_access_token: encryptedAccessToken,
-            encrypted_refresh_token: encryptedRefreshToken
-          }
-        }
-      }, { onConflict: 'provider, identifier_value' });
+    // 4. Connect Identity via ORCIDIdentityService (Rule 3.2 & 4)
+    const orcidService = new ORCIDIdentityService();
+    await orcidService.connectIdentity(researcher.id, code);
 
-    if (identifierError) throw identifierError;
-
-    // 7. Clear CSRF Cookie State and redirect back to Dashboard
+    // 5. Clear CSRF Cookie State and redirect back to Dashboard
     const response = NextResponse.redirect(new URL('/dashboard/profile', request.url));
     response.cookies.delete('orcid_oauth_state');
     return response;

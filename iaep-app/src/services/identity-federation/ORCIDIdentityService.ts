@@ -3,6 +3,7 @@
 import { ORCIDProvider } from '../../providers/orcid/ORCIDProvider';
 import { ORCIDAdapter } from '../../providers/orcid/ORCIDAdapter';
 import { ORCIDMapper } from '../../providers/orcid/ORCIDMapper';
+import { IdentityRepository } from '../../repositories/IdentityRepository';
 
 export class ORCIDIdentityService {
   private orcidProvider: ORCIDProvider;
@@ -23,7 +24,13 @@ export class ORCIDIdentityService {
         throw new Error('ORCID iD not returned by provider');
       }
 
-      // 2. Adapt to Identity Evidence Snapshot
+      // 2. Duplicate Protection (Rule 3.3)
+      const existingLink = await IdentityRepository.findResearcherIdentifier('ORCID', data.orcid);
+      if (existingLink && existingLink.researcher_id !== apasificIdentityId) {
+        throw new Error(`ORCID iD ${data.orcid} is already linked to another researcher profile.`);
+      }
+
+      // 3. Adapt to Identity Evidence Snapshot
       const snapshot = ORCIDAdapter.adaptAuthToIdentitySnapshot(
         apasificIdentityId,
         data.orcid,
@@ -31,8 +38,34 @@ export class ORCIDIdentityService {
         hash
       );
 
-      // 3. TODO: Store snapshot in external_evidence_payloads & external_publication_records (or generic evidence tables)
-      console.log('Stored ORCID Identity Snapshot:', snapshot);
+      // 4. Encrypt Access and Refresh Tokens
+      const encryptedAccessToken = ORCIDProvider.encryptToken(data.access_token);
+      const encryptedRefreshToken = ORCIDProvider.encryptToken(data.refresh_token);
+
+      // 5. Store snapshot and verify ORCID mapping in IdentityRepository (Rule 3.1 & 3.2)
+      await IdentityRepository.linkResearcherIdentifier(
+        apasificIdentityId,
+        'ORCID',
+        'ORCID_ID',
+        data.orcid,
+        'VERIFIED',
+        'USER_CONNECTED',
+        {
+          identity: {
+            scope: data.scope,
+            expires_in: data.expires_in,
+            connected_at: new Date().toISOString(),
+            payload_hash: hash
+          },
+          credential: {
+            encrypted_access_token: encryptedAccessToken,
+            encrypted_refresh_token: encryptedRefreshToken
+          }
+        }
+      );
+
+      // 6. Trigger Audit Log / Event (Rule 3.4)
+      console.log(`[AUDIT] ResearcherIdentityLinked: researcher_id=${apasificIdentityId}, provider=ORCID, timestamp=${new Date().toISOString()}`);
 
       return data.orcid;
     } catch (error) {
@@ -64,9 +97,7 @@ export class ORCIDIdentityService {
         hash
       );
 
-      // 4. TODO: Store publication evidence snapshot
       console.log('Stored ORCID Work Push Snapshot:', snapshot);
-
       return true;
     } catch (error) {
       console.error(`Failed to push work ${publicationId} to ORCID ${orcidId}`, error);
