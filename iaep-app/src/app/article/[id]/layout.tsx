@@ -25,9 +25,51 @@ async function getArticle(id: string) {
       .eq('article_id', id)
       .order('author_order', { ascending: true });
 
+    // Enrich ORCID if missing in article_authors but present in researcher_identifiers
+    const enrichedAuthors = await Promise.all((authors || []).map(async (author: any) => {
+      if (author.orcid_id) return author;
+
+      if (author.email) {
+        // Find profile id
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('id')
+          .eq('email', author.email)
+          .maybeSingle();
+
+        if (profile) {
+          // Find researcher identity
+          const { data: researcher } = await supabase
+            .from('researcher_identities')
+            .select('id')
+            .eq('user_id', profile.id)
+            .maybeSingle();
+
+          if (researcher) {
+            // Find verified ORCID identifier
+            const { data: identifier } = await supabase
+              .from('researcher_identifiers')
+              .select('identifier_value')
+              .eq('researcher_id', researcher.id)
+              .eq('provider', 'ORCID')
+              .eq('verification_status', 'VERIFIED')
+              .maybeSingle();
+
+            if (identifier) {
+              return {
+                ...author,
+                orcid_id: identifier.identifier_value
+              };
+            }
+          }
+        }
+      }
+      return author;
+    }));
+
     return {
       ...article,
-      authors: authors || []
+      authors: enrichedAuthors
     };
   } catch (e) {
     console.error("Error fetching article sitemap metadata:", e);
@@ -42,6 +84,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 
   const authorsList = article.authors || [];
   const authorNames = authorsList.map((a: any) => a.full_name);
+  const authorOrcids = authorsList.map((a: any) => a.orcid_id ? `https://orcid.org/${a.orcid_id}` : '').filter(Boolean);
 
   return {
     title: article.title,
@@ -49,6 +92,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
     other: {
       'citation_title': article.title,
       'citation_author': authorNames.length > 0 ? authorNames : ['APASIFIC Author'],
+      'citation_author_id': authorOrcids,
       'citation_publication_date': article.created_at ? new Date(article.created_at).toISOString().split('T')[0] : '',
       'citation_pdf_url': article.file_url || '',
       'citation_doi': article.doi || '',
@@ -82,7 +126,8 @@ export default async function ArticleLayout({
       "author": authorsList.map((a: any) => ({
         "@type": "Person",
         "name": a.full_name,
-        "affiliation": a.affiliation || undefined
+        "affiliation": a.affiliation || undefined,
+        "sameAs": a.orcid_id ? `https://orcid.org/${a.orcid_id}` : undefined
       })),
       "datePublished": article.created_at ? new Date(article.created_at).toISOString().split('T')[0] : undefined,
       "isPartOf": {
