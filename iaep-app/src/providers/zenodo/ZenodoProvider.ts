@@ -2,13 +2,14 @@
 
 import { ZenodoCapability } from './ZenodoCapability';
 import { ZenodoMetadata } from './ZenodoMapper';
+import { IZenodoDepositProvider } from './IZenodoDepositProvider';
 import crypto from 'crypto';
 
 /**
  * ZenodoProvider communicates with the Zenodo API (Sandbox by default).
  * All calls must be executed via the ProviderRuntimeManager.
  */
-export class ZenodoProvider {
+export class ZenodoProvider implements IZenodoDepositProvider {
   private readonly apiUrl: string;
   private readonly apiToken: string;
 

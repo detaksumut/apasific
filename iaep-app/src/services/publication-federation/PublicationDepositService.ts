@@ -6,6 +6,8 @@ import { ZenodoAdapter } from '@/providers/zenodo/ZenodoAdapter';
 import { ExternalPublicationLifecycle, ExternalPublicationState } from '@/domain/external-evidence/ExternalPublicationLifecycle';
 import { PublicationFederationEventType, PublicationFederationEvent } from '@/domain/external-evidence/PublicationFederationEvents';
 import { createClient } from '@supabase/supabase-js';
+import { ZenodoVerificationService } from './providers/ZenodoVerificationService';
+import { OpenAIREVerificationService } from './providers/OpenAIREVerificationService';
 
 export class PublicationDepositService {
   private zenodoProvider: ZenodoProvider;
@@ -65,6 +67,89 @@ export class PublicationDepositService {
     }
   }
 
+  public async verifyAndRefreshIndexStatus(publicationId: string): Promise<any> {
+    try {
+      // 1. Get current index_status and identifiers from Supabase
+      const { data: sub, error: subError } = await this.supabase
+        .from('submissions')
+        .select('doi, zenodo_id, index_status')
+        .eq('id', publicationId)
+        .single();
+
+      if (subError || !sub) throw new Error(subError?.message || "Submission not found");
+
+      const currentStatus = sub.index_status || {
+        overall: { visibility: "NOT_STARTED", last_checked: null }
+      };
+
+      const doiVal = sub.doi || '';
+      const zenodoRecordId = sub.zenodo_id || '';
+
+      // 2. Trigger Verifiers
+      const zenodoVerifier = new ZenodoVerificationService();
+      const openaireVerifier = new OpenAIREVerificationService();
+
+      let zenodoStatus = "pending";
+      let openaireStatus = "pending";
+
+      if (zenodoRecordId) {
+        const zenodoRes = await zenodoVerifier.verify(zenodoRecordId);
+        zenodoStatus = zenodoRes.status === 'DISCOVERED' ? 'indexed' : 'pending';
+      }
+
+      if (doiVal) {
+        const openaireRes = await openaireVerifier.verify(doiVal);
+        openaireStatus = openaireRes.status === 'DISCOVERED' ? 'discovered' : 'pending';
+      }
+
+      // 3. Determine Overall Visibility Status
+      let overallVisibility: any = "NOT_STARTED";
+      if (zenodoStatus === "indexed" && openaireStatus === "discovered") {
+        overallVisibility = "VISIBLE";
+      } else if (zenodoStatus === "indexed" || openaireStatus === "discovered") {
+        overallVisibility = "PARTIAL";
+      } else if (zenodoRecordId || doiVal) {
+        overallVisibility = "PROCESSING";
+      }
+
+      const updatedStatus = {
+        overall: {
+          visibility: overallVisibility,
+          last_checked: new Date().toISOString()
+        },
+        doi: doiVal ? {
+          value: doiVal,
+          provider: "zenodo",
+          verified_at: currentStatus.doi?.verified_at || new Date().toISOString()
+        } : undefined,
+        zenodo: zenodoRecordId ? {
+          status: zenodoStatus,
+          record_id: zenodoRecordId,
+          checked_at: new Date().toISOString()
+        } : undefined,
+        openaire: {
+          status: openaireStatus,
+          checked_at: openaireStatus === 'discovered' ? new Date().toISOString() : null
+        },
+        googleScholar: currentStatus.googleScholar || {
+          status: "pending",
+          last_checked: null
+        }
+      };
+
+      // 4. Persist to Database
+      await this.supabase
+        .from('submissions')
+        .update({ index_status: updatedStatus })
+        .eq('id', publicationId);
+
+      return updatedStatus;
+    } catch (error) {
+      console.error(`Error verifying index status for publication ${publicationId}:`, error);
+      throw error;
+    }
+  }
+
   private emitEvent(type: PublicationFederationEventType, publicationId: string, externalRecordId: string, payload?: any) {
     const event: PublicationFederationEvent = {
       type,
@@ -106,5 +191,38 @@ export class PublicationDepositService {
       });
 
     if (payloadError) throw payloadError;
+
+    // 3. Update active publication metadata in submissions table
+    await this.supabase
+      .from('submissions')
+      .update({
+        doi: snapshot.doi,
+        zenodo_id: snapshot.providerEntityId,
+        index_status: {
+          overall: {
+            visibility: "PARTIAL",
+            last_checked: new Date().toISOString()
+          },
+          doi: {
+            value: snapshot.doi || '',
+            provider: "zenodo",
+            verified_at: new Date().toISOString()
+          },
+          zenodo: {
+            status: "indexed",
+            record_id: snapshot.providerEntityId || '',
+            checked_at: new Date().toISOString()
+          },
+          openaire: {
+            status: "pending",
+            checked_at: null
+          },
+          googleScholar: {
+            status: "pending",
+            last_checked: null
+          }
+        }
+      })
+      .eq('id', publicationId);
   }
 }
