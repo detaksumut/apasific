@@ -1,6 +1,6 @@
 # ADR-ASIA-002: Citation Intelligence Layer Architecture
 
-* **Status:** APPROVED (Draft Pending Final Verification)
+* **Status:** APPROVED & FROZEN
 * **Version:** 1.0
 * **Date:** 2026-08-02
 * **Decisions:**
