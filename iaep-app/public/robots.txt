@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /article/
+Allow: /publication/
+Allow: /api/publication/
+Allow: *.pdf
+Disallow: /api/
+Disallow: /admin/
+Disallow: /dashboard/
+
+Sitemap: https://apasific.org/sitemap.xml
