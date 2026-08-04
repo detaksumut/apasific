@@ -27,7 +27,7 @@
  *     `assignReviewer()` seperti biasa; AI memakai jalur sendiri dengan
  *     `reviewer_type = 'AI'`.
  */
-import { normalizeRole } from '@/lib/roles';
+import { normalizeRole, isCoAdminRole } from '@/lib/roles';
 import { isCoAdmin, isEditorOrAbove } from '@/lib/permissions';
 import { parseAbstractEnvelope } from './ReviewerMatchingService';
 
@@ -108,11 +108,23 @@ function safeString(v: any): string {
 // ─── Service ───────────────────────────────────────────────────────────────
 
 export class AIReviewerService {
-    // ── Role gates (pure, unit-testable) ───────────────────────────────────
+// ── Role gates (pure, unit-testable) ───────────────────────────────────
 
-    /** Hanya SUPER_ADMIN yang boleh mengelola konfigurasi AI Reviewer. */
-    static canManageConfig(actorRole: string | null | undefined): boolean {
-        return normalizeRole(actorRole) === 'SUPER_ADMIN';
+    /**
+     * Hanya SUPER_ADMIN (atau ADMIN yang dipetakan sebagai administrator
+     * master) yang boleh mengelola konfigurasi AI Reviewer.
+     *
+     * Normalisasi memakai `normalizeRole()` dari RBAC inti sebagai single
+     * source of truth (bukan sistem role baru). Status Super Admin login
+     * dipetakan ke role 'admin'/'superadmin'/'super_admin' yang seluruhnya
+     * dinormalisasi menjadi SUPER_ADMIN atau ADMIN.
+     */
+static canManageConfig(actorRole: string | null | undefined): boolean {
+        const normalized = normalizeRole(actorRole);
+        // Co-admin menormalkan ke ADMIN untuk RBAC, tetapi TIDAK boleh
+        // mengelola konfigurasi AI Reviewer (tetap read-only).
+        if (isCoAdminRole(actorRole)) return false;
+        return normalized === 'SUPER_ADMIN' || normalized === 'ADMIN';
     }
 
     /**
