@@ -41,6 +41,9 @@ export default function SubmissionControlPanel() {
   const [customAuthor, setCustomAuthor] = useState("");
   const [uploadingReviewId, setUploadingReviewId] = useState<string | null>(null);
   const [isSendingFonnte, setIsSendingFonnte] = useState(false);
+  const [recommendedReviewers, setRecommendedReviewers] = useState<any[]>([]);
+  const [recommendationsLoading, setRecommendationsLoading] = useState(false);
+  const [recommendationDivision, setRecommendationDivision] = useState<string>("");
 
   // Save volume & issue to LocalStorage for draft purposes only
   useEffect(() => {
@@ -54,6 +57,36 @@ export default function SubmissionControlPanel() {
       localStorage.setItem(`draft_iss_${submissionId}`, customIssue);
     }
   }, [customIssue, submissionId]);
+
+  // Rekomendasi reviewer cerdas — dimuat saat modal "Add Reviewer" dibuka.
+  // READ-ONLY & advisory: hasil hanya untuk saran peringkat Editor,
+  // penugasan tetap manual melalui tombol "Tugaskan" (assignReviewer).
+  useEffect(() => {
+    if (!isAddReviewerOpen || !submissionId) return;
+    let cancelled = false;
+
+    const load = async () => {
+      setRecommendationsLoading(true);
+      try {
+        const m = await import("@/app/actions/editor");
+        const res = await m.getRecommendedReviewers(submissionId, 10);
+        if (cancelled) return;
+        if (res.success) {
+          setRecommendedReviewers(res.recommendations || []);
+          setRecommendationDivision(res.academicDivision || "");
+        } else {
+          setRecommendedReviewers([]);
+        }
+      } catch (e) {
+        if (!cancelled) setRecommendedReviewers([]);
+      } finally {
+        if (!cancelled) setRecommendationsLoading(false);
+      }
+    };
+
+    load();
+    return () => { cancelled = true; };
+  }, [isAddReviewerOpen, submissionId]);
 
   // Determine role cleanly
   const roleStr = currentUserRole.toLowerCase();
@@ -2104,6 +2137,93 @@ export default function SubmissionControlPanel() {
             </div>
 
             <div className="p-6 overflow-y-auto">
+              {/* Panel Rekomendasi Reviewer Cerdas — ADVISORY ONLY.
+                  Tidak ada penugasan otomatis: setiap kandidat hanya bisa
+                  ditugaskan lewat tombol "Tugaskan" (assignReviewer). */}
+              {!reviewerSearch && (recommendationsLoading || recommendedReviewers.length > 0) && (
+                <div className="mb-6 border border-indigo-200 bg-indigo-50/60 rounded-lg p-4">
+                  <div className="flex items-center justify-between gap-2 mb-1 flex-wrap">
+                    <h4 className="text-sm font-bold text-indigo-800">🎯 Rekomendasi Reviewer Cerdas</h4>
+                    <span className="text-[10px] text-indigo-700 bg-indigo-100 px-2 py-0.5 rounded-full font-semibold">Saran peringkat — tidak auto-assign</span>
+                  </div>
+                  {recommendationDivision && (
+                    <div className="text-[11px] text-indigo-600 mb-2">Scope divisi jurnal: {recommendationDivision}</div>
+                  )}
+
+                  {recommendationsLoading ? (
+                    <div className="text-xs text-indigo-600 animate-pulse py-2">Menghitung kandidat terbaik berdasarkan keahlian, beban kerja & konflik kepentingan...</div>
+                  ) : (
+                    <div className="space-y-3">
+                      {recommendedReviewers.map((rec) => {
+                        const rawRecId = typeof rec.reviewerId === 'string' && rec.reviewerId.startsWith('email:') ? '' : rec.reviewerId;
+                        const hasConflict = !!rec.conflictCheck?.hasConflict;
+                        const scoreColor = rec.totalScore >= 70 ? 'bg-green-600' : rec.totalScore >= 40 ? 'bg-yellow-500' : 'bg-gray-400';
+                        return (
+                          <div key={rec.reviewerId || rec.email} className={`bg-white border rounded-lg p-3 ${hasConflict ? 'border-red-300' : 'border-indigo-100'}`}>
+                            <div className="flex items-start justify-between gap-3">
+                              <div className="min-w-0">
+                                <div className="flex items-center gap-2 flex-wrap">
+                                  <span className="text-[10px] font-bold text-indigo-700 bg-indigo-100 rounded-full px-1.5 py-0.5">#{rec.rank}</span>
+                                  <span className="font-bold text-sm text-gray-800">{rec.fullName}</span>
+                                  {hasConflict && (
+                                    <span className="text-[10px] font-bold text-red-700 bg-red-100 rounded-full px-2 py-0.5">⚠ Konflik Kepentingan</span>
+                                  )}
+                                </div>
+                                <div className="text-xs text-gray-500 truncate">
+                                  {rec.academicField || 'Bidang tidak diketahui'} • {rec.university || 'Institusi tidak diketahui'} • {rec.country || '-'}
+                                </div>
+                                {rec.email && <div className="text-[11px] text-blue-600 truncate">{rec.email}</div>}
+                                {rec.matchedTerms?.length > 0 && (
+                                  <div className="flex flex-wrap gap-1 mt-1">
+                                    {rec.matchedTerms.slice(0, 5).map((t: string) => (
+                                      <span key={t} className="text-[10px] bg-blue-50 text-blue-700 border border-blue-200 rounded px-1.5 py-0.5">{t}</span>
+                                    ))}
+                                  </div>
+                                )}
+                                {hasConflict && rec.conflictCheck?.reasons?.length > 0 && (
+                                  <div className="text-[10px] text-red-600 mt-1">{rec.conflictCheck.reasons.join('; ')}</div>
+                                )}
+                                {!hasConflict && rec.reasons?.length > 0 && (
+                                  <div className="text-[10px] text-gray-400 mt-1">{rec.reasons.join(' • ')}</div>
+                                )}
+                              </div>
+                              <div className="flex flex-col items-end gap-1 shrink-0">
+                                <div className={`text-white text-xs font-bold rounded-full w-9 h-9 flex items-center justify-center ${scoreColor}`} title={`Skor total ${rec.totalScore}/100`}>
+                                  {Math.round(rec.totalScore)}
+                                </div>
+                                <div className="text-[9px] text-gray-400 text-right leading-tight">
+                                  Exp {rec.expertiseScore} • Avail {rec.availabilityScore} • Load {rec.workloadScore}
+                                </div>
+                                <button
+                                  onClick={async () => {
+                                    setToastMessage("Menugaskan reviewer...");
+                                    const m = await import("@/app/actions/editor");
+                                    const res = await m.assignReviewer(submissionId, rawRecId || rec.email, rec.fullName, rec.email || undefined);
+                                    if (res.success) {
+                                      setToastMessage("Reviewer berhasil ditugaskan!");
+                                      setIsAddReviewerOpen(false);
+                                      setTimeout(() => window.location.reload(), 1500);
+                                    } else {
+                                      setToastMessage("Gagal menugaskan reviewer: " + res.error);
+                                    }
+                                  }}
+                                  className="mt-1 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded shadow-sm transition-colors"
+                                >
+                                  Tugaskan
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                  <div className="text-[10px] text-indigo-500 mt-3">
+                    Pembobotan: Expertise 50% • Workload 30% • Availability 20%. Kandidat berkonflik dipenalti & ditandai, keputusan akhir tetap di tangan Editor.
+                  </div>
+                </div>
+              )}
+
               {availableReviewers.length === 0 ? (
                 <div className="text-center text-gray-500 py-8">Tidak ada reviewer yang tersedia di database.</div>
               ) : (() => {

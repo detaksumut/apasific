@@ -1,7 +1,8 @@
 "use server";
 
 import { revalidatePath } from 'next/cache';
-import { isCoAdmin } from '@/lib/permissions';
+import { SubmissionLifecycleService } from '@/services/SubmissionLifecycleService';
+import { isCoAdmin, isEditorOrAbove } from '@/lib/permissions';
 
 async function createClient() {
     const { createClient: getClient } = await import('@/utils/supabase/server');
@@ -138,15 +139,18 @@ export async function submitEditorialDecision(submissionId: string, authorId: st
         const user: any = await getCurrentUser();
         const editorId = user?.id || null;
 
-        // 1. Update Supabase
-        await supabaseAdmin.from('submissions').update({ status: decision, updated_at: new Date() }).eq('id', submissionId);
-
-        await supabaseAdmin.from('submission_history').insert({
-            submission_id: submissionId,
-            action: `Editor Decision: ${decision}`,
-            performed_by: editorId,
-            details: comments
+        // 1. Update Supabase melalui gerbang lifecycle tervalidasi
+        const transisi = await SubmissionLifecycleService.transitionTo(supabaseAdmin, submissionId, {
+            status: decision,
+            actorId: editorId,
+            history: {
+                action: `Editor Decision: ${decision}`,
+                details: comments
+            }
         });
+        if (!transisi.success) {
+            return { success: false, error: transisi.error || 'Keputusan editorial ditolak oleh lifecycle service.' };
+        }
 
         if (decision === 'Accepted') {
             try {
@@ -190,16 +194,19 @@ export async function updateSubmissionStage(submissionId: string, stage: string,
             process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
         );
 
-        // Update Supabase
-        await supabaseAdmin.from('submissions').update({ stage, status, updated_at: new Date() }).eq('id', submissionId);
-
-        // Insert into submission_history
-        await supabaseAdmin.from('submission_history').insert({
-            submission_id: submissionId,
-            action: `Stage updated: ${stage} (${status})`,
-            performed_by: user?.id || null,
-            details: `Naskah dipindahkan ke tahap ${stage} dengan status ${status}`
+        // Update Supabase melalui gerbang lifecycle tervalidasi
+        const transisi = await SubmissionLifecycleService.transitionTo(supabaseAdmin, submissionId, {
+            stage,
+            status,
+            actorId: user?.id || null,
+            history: {
+                action: `Stage updated: ${stage} (${status})`,
+                details: `Naskah dipindahkan ke tahap ${stage} dengan status ${status}`
+            }
         });
+        if (!transisi.success) {
+            return { success: false, error: transisi.error || 'Transisi stage/status naskah ditolak oleh lifecycle service.' };
+        }
 
         // 4. Fetch author phone and send WA if Needs Revision
         // 4. Fetch author phone and send WA if Needs Revision
@@ -546,6 +553,71 @@ export async function getReviewers() {
     return res.reviewers || [];
 }
 
+/**
+ * Rekomendasi reviewer cerdas untuk satu submission — READ-ONLY & ADVISORY.
+ *
+ * Menghitung daftar kandidat reviewer yang diperingkat berdasarkan
+ * kecocokan keahlian, ketersediaan, beban kerja, dan konflik kepentingan
+ * (lihat ReviewerMatchingService). Aksi ini TIDAK pernah menulis atau
+ * menugaskan reviewer — keputusan penugasan tetap melalui `assignReviewer`.
+ *
+ * Gate: hanya editor / admin / supervisor / co-admin yang boleh memanggil.
+ */
+export async function getRecommendedReviewers(submissionId: string, limit: number = 10) {
+    try {
+        // 1. Role gating (editor-or-above atau co-admin)
+        let role = '';
+        try {
+            const { getCurrentUser } = await import('./auth');
+            const currentUser: any = await getCurrentUser();
+            if (!currentUser?.id) {
+                return { success: false, error: 'Akses ditolak: pengguna tidak terautentikasi.' };
+            }
+            role = currentUser.role || '';
+        } catch (e) {
+            return { success: false, error: 'Akses ditolak: sesi tidak valid.' };
+        }
+
+        if (!(isEditorOrAbove(role) || isCoAdmin(role))) {
+            return { success: false, error: 'Akses ditolak: hanya editor atau admin yang dapat melihat rekomendasi reviewer.' };
+        }
+
+        if (!submissionId) {
+            return { success: false, error: 'Submission ID tidak valid.' };
+        }
+
+        // 2. Hitung rekomendasi (read-only pipeline)
+        const { createClient: createSupabaseClient } = await import('@supabase/supabase-js');
+        const supabaseAdmin = createSupabaseClient(
+            process.env.NEXT_PUBLIC_SUPABASE_URL!,
+            process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+        );
+
+        const { ReviewerMatchingService } = await import('@/services/reviewer/ReviewerMatchingService');
+        const safeLimit = Math.max(1, Math.min(50, Number(limit) || 10));
+        const result = await ReviewerMatchingService.recommendForSubmission(
+            supabaseAdmin,
+            submissionId,
+            { limit: safeLimit }
+        );
+
+        if (!result.success) {
+            return { success: false, error: result.error || 'Gagal menghitung rekomendasi reviewer.' };
+        }
+
+        return {
+            success: true,
+            submissionId,
+            academicDivision: result.academicDivision || null,
+            poolSize: result.poolSize || 0,
+            // Advisory only — UI wajib menampilkan sebagai saran, bukan auto-assign
+            recommendations: result.recommendations || [],
+        };
+    } catch (e: any) {
+        return { success: false, error: e?.message || 'Gagal menghitung rekomendasi reviewer.' };
+    }
+}
+
 export async function getEditorialBoard(journalName: string) {
     try {
         const supabaseAdmin = (await import('@supabase/supabase-js')).createClient(
@@ -807,30 +879,31 @@ export async function publishArticle(submissionId: string, journalId: string, cu
         const editionStr = `${finalVolume} ${finalIssue} (${new Date().getFullYear()})`;
         const dateStr = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
 
-        // 2. Update status to Published in Supabase
-        const updatePayload: any = {
-            status: 'Published',
-            stage: 'Published',
-            volume: finalVolume,
-            issue: finalIssue,
-            updated_at: new Date()
-        };
-
-        if (customAuthor !== undefined) {
-            updatePayload.author = customAuthor;
-        }
-
-        await supabaseAdmin.from('submissions').update(updatePayload).eq('id', submissionId);
-
-        // Insert history
+        // 2. Update status ke Published melalui gerbang lifecycle tervalidasi
         const { getCurrentUser } = await import('./auth');
         const user: any = await getCurrentUser();
-        await supabaseAdmin.from('submission_history').insert({
-            submission_id: submissionId,
-            action: 'Article Published',
-            performed_by: user?.id || null,
-            details: `Artikel telah resmi diterbitkan di ${journalName}`
+
+        const extraFields: Record<string, any> = {
+            volume: finalVolume,
+            issue: finalIssue
+        };
+        if (customAuthor !== undefined) {
+            extraFields.author = customAuthor;
+        }
+
+        const transisi = await SubmissionLifecycleService.transitionTo(supabaseAdmin, submissionId, {
+            status: 'Published',
+            stage: 'Published',
+            extraFields,
+            actorId: user?.id || null,
+            history: {
+                action: 'Article Published',
+                details: `Artikel telah resmi diterbitkan di ${journalName}`
+            }
         });
+        if (!transisi.success) {
+            return { success: false, error: transisi.error || 'Publikasi ditolak oleh lifecycle service.' };
+        }
 
         // 3. Ensure Certificate exists and is up to date in Supabase
         const { data: certSupabase } = await supabaseAdmin.from('certificates').select('id').eq('reference_id', submissionId);
@@ -1270,10 +1343,13 @@ export async function forwardRevisionToReviewer(submissionId: string, assignment
         const { getCurrentUser } = await import('./auth');
         const user: any = await getCurrentUser();
 
-        // 1. Update submission status → 'Revision Under Review'
-        await supabaseAdmin.from('submissions')
-            .update({ status: 'Revision Under Review', updated_at: new Date() })
-            .eq('id', submissionId);
+        // 1. Update submission status → 'Revision Under Review' via gerbang lifecycle tervalidasi
+        const transisi = await SubmissionLifecycleService.transitionTo(supabaseAdmin, submissionId, {
+            status: 'Revision Under Review'
+        });
+        if (!transisi.success) {
+            return { success: false, error: transisi.error || 'Transisi status revisi ditolak oleh lifecycle service.' };
+        }
 
         // 2. Update each review_assignment status to signal revision is ready
         for (const aid of assignmentIds) {
@@ -1493,15 +1569,19 @@ export async function recordEditorialDecision(submissionId: string, decision: 'A
         if (decision === 'Accepted') newStage = 'Copyediting';
         if (decision === 'Declined') newStage = 'Archived';
 
-        // 1. Transaction: Update Submission & Save History
-        await supabaseAdmin.from('submissions').update({ status: decision, stage: newStage, updated_at: new Date() }).eq('id', submissionId);
-
-        await supabaseAdmin.from('submission_history').insert({
-            submission_id: submissionId,
-            action: `Editor Decision: ${decision}`,
-            performed_by: editorId,
-            details: editorialNote || 'No additional notes provided.'
+        // 1. Update Submission & Save History melalui gerbang lifecycle tervalidasi
+        const transisi = await SubmissionLifecycleService.transitionTo(supabaseAdmin, submissionId, {
+            status: decision,
+            stage: newStage,
+            actorId: editorId,
+            history: {
+                action: `Editor Decision: ${decision}`,
+                details: editorialNote || 'No additional notes provided.'
+            }
         });
+        if (!transisi.success) {
+            return { success: false, error: transisi.error || 'Keputusan editorial ditolak oleh lifecycle service.' };
+        }
 
 
         // Commit successful, trigger Notification Service asynchronously
