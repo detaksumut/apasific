@@ -44,6 +44,10 @@ export default function SubmissionControlPanel() {
   const [recommendedReviewers, setRecommendedReviewers] = useState<any[]>([]);
   const [recommendationsLoading, setRecommendationsLoading] = useState(false);
   const [recommendationDivision, setRecommendationDivision] = useState<string>("");
+  // Governed AI Reviewer (Target #3) — advisory only.
+  const [aiReviewerConfig, setAiReviewerConfig] = useState<any>(null);
+  const [aiReviewInfo, setAiReviewInfo] = useState<any>(null);
+  const [aiRunning, setAiRunning] = useState(false);
 
   // Save volume & issue to LocalStorage for draft purposes only
   useEffect(() => {
@@ -88,6 +92,32 @@ export default function SubmissionControlPanel() {
     return () => { cancelled = true; };
   }, [isAddReviewerOpen, submissionId]);
 
+  // Governed AI Reviewer (Target #3) — muat konfigurasi + hasil AI yang sudah ada
+  // saat modal dibuka. Hasil AI hanya ditampilkan sebagai masukan Editor.
+  useEffect(() => {
+    if (!isAddReviewerOpen || !submissionId) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const m = await import("@/app/actions/aiReviewer");
+        const cfgRes = await m.getAIReviewerSettings();
+        if (!cancelled && cfgRes?.success) setAiReviewerConfig(cfgRes.config || null);
+        const aiRes = await m.getAIReviewForSubmission(submissionId);
+        if (!cancelled && aiRes?.success && aiRes.review) {
+          const rv = aiRes.review;
+          setAiReviewInfo({
+            ...rv,
+            score: rv.score && typeof rv.score === 'object' ? rv.score.overall ?? null : rv.score ?? null,
+            success: true,
+          });
+        }
+      } catch (e) {
+        // silent — panel AI bersifat opsional
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [isAddReviewerOpen, submissionId]);
+
   // Determine role cleanly
   const roleStr = currentUserRole.toLowerCase();
   const isCoAdmin = roleStr.includes('co_admin') || roleStr.includes('co-admin');
@@ -100,6 +130,35 @@ export default function SubmissionControlPanel() {
   const showToast = (msg: string) => {
     setToastMessage(msg);
     setTimeout(() => setToastMessage(""), 3000);
+  };
+
+  // Jalankan AI Review (Target #3, advisory). Jalur tulis sepenuhnya diatur
+  // oleh AIReviewerService.generateReview — tidak pernah mengubah status naskah.
+  const handleRunAIReview = async () => {
+    if (!submissionId || aiRunning) return;
+    setAiRunning(true);
+    showToast("Menjalankan AI Review...");
+    try {
+      const m = await import("@/app/actions/aiReviewer");
+      const res = await m.runAIReview(submissionId);
+      if (res.success) {
+        showToast("AI Review selesai — hasil bersifat advisory.");
+        setAiReviewInfo({
+          success: true,
+          score: res.review?.overallScore ?? null,
+          recommendation: res.review?.recommendation ?? null,
+          report: res.review?.report ?? null,
+          reviewerName: 'AI Reviewer Agent',
+          completedAt: new Date().toISOString(),
+        });
+      } else {
+        showToast("AI Review gagal: " + res.error);
+      }
+    } catch {
+      showToast("AI Review gagal dijalankan.");
+    } finally {
+      setAiRunning(false);
+    }
   };
 
   useEffect(() => {
@@ -2221,6 +2280,53 @@ export default function SubmissionControlPanel() {
                   <div className="text-[10px] text-indigo-500 mt-3">
                     Pembobotan: Expertise 50% • Workload 30% • Availability 20%. Kandidat berkonflik dipenalti & ditandai, keputusan akhir tetap di tangan Editor.
                   </div>
+                </div>
+              )}
+
+              {/* Governed AI Reviewer panel (Target #3) — advisory only */}
+              {!reviewerSearch && aiReviewerConfig?.enabled && aiReviewerConfig?.mode !== 'disabled' && (
+                <div className="mb-6 border border-purple-200 bg-purple-50/60 rounded-lg p-4">
+                  <div className="flex items-center justify-between gap-2 mb-2 flex-wrap">
+                    <h4 className="text-sm font-bold text-purple-800">🤖 AI Reviewer Agent</h4>
+                    <span className="text-[10px] text-purple-700 bg-purple-100 px-2 py-0.5 rounded-full font-semibold">Advisory — tidak mengubah status</span>
+                  </div>
+                  <p className="text-[11px] text-purple-600 mb-3">
+                    Mode: {aiReviewerConfig.mode === 'mandatory' ? 'Mandatory additional reviewer' : 'Optional'}.
+                    Hasil AI adalah masukan untuk Editor dan tidak menggantikan reviewer manusia.
+                  </p>
+
+                  {aiReviewInfo?.success && (
+                    <div className="bg-white border border-purple-100 rounded-lg p-3 mb-3">
+                      <div className="flex items-center justify-between flex-wrap gap-2">
+                        <div className="text-sm text-gray-800">
+                          <span className="font-bold">{aiReviewInfo.reviewerName || 'AI Reviewer Agent'}</span>
+                          <span className="text-xs text-gray-400 ml-2">
+                            {aiReviewInfo.completedAt ? new Date(aiReviewInfo.completedAt).toLocaleString("id-ID") : ''}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs font-bold text-white bg-purple-600 rounded-full px-2.5 py-0.5">Skor {aiReviewInfo.score ?? '-'}/100</span>
+                          <span className="text-[10px] font-bold text-purple-700 bg-purple-100 rounded px-2 py-0.5 uppercase">{String(aiReviewInfo.recommendation || '').replace('_', ' ')}</span>
+                        </div>
+                      </div>
+                      {aiReviewInfo.report && (
+                        <details className="mt-2">
+                          <summary className="text-[11px] text-purple-700 cursor-pointer select-none">Lihat laporan AI lengkap</summary>
+                          <pre className="mt-1 text-[11px] text-gray-700 whitespace-pre-wrap bg-gray-50 border border-gray-200 rounded p-2 max-h-56 overflow-y-auto">{aiReviewInfo.report}</pre>
+                        </details>
+                      )}
+                    </div>
+                  )}
+
+                  <button
+                    onClick={handleRunAIReview}
+                    disabled={aiRunning}
+                    className={`w-full py-2 rounded font-bold text-sm transition-colors ${
+                      aiRunning ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : 'bg-purple-600 hover:bg-purple-700 text-white'
+                    }`}
+                  >
+                    {aiRunning ? 'Menjalankan AI Review...' : aiReviewInfo?.success ? 'Jalankan Ulang AI Review' : 'Jalankan AI Review'}
+                  </button>
                 </div>
               )}
 

@@ -311,7 +311,13 @@ function unhexUuid(uuidStr: string): string {
                         <div className="mt-3 space-y-2 border-t border-zinc-800/50 pt-3">
                           {article.assignments.map((assignment: any) => {
                             const rev = allReviewers.find(r => r.id === assignment.reviewer_id);
-                            const revName = rev ? rev.full_name : 'Reviewer Terhapus';
+                            // Fallback: assignment tanpa reviewer_id (mis. AI Reviewer Agent)
+                            // memakai reviewer_name tersimpan di baris assignment.
+                            const revName = rev
+                              ? rev.full_name
+                              : (assignment.reviewer_name && String(assignment.reviewer_name).trim())
+                                ? assignment.reviewer_name
+                                : 'Reviewer Terhapus';
                             return (
                               <div key={assignment.id} className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 text-sm bg-zinc-800/30 p-2 rounded-lg border border-zinc-700/50 w-fit">
                                 <div className="flex items-center gap-2">
