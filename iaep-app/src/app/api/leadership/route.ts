@@ -6,6 +6,20 @@ export const dynamic = 'force-dynamic';
 
 const HOME_BODY = "Struktur Organisasi ASIA (Home)";
 
+// RBAC: helper to determine if the request is from an authenticated admin.
+// Only admin / superadmin / super_admin roles may mutate leadership data.
+async function isAdminRequest(): Promise<boolean> {
+  try {
+    const { getCurrentUserRole } = await import("@/app/actions/user");
+    const profile = await getCurrentUserRole();
+    if (!profile) return false;
+    const role = (profile.role || "").toLowerCase();
+    return ["admin", "superadmin", "super_admin"].includes(role);
+  } catch {
+    return false;
+  }
+}
+
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const body = searchParams.get("body");
@@ -82,6 +96,12 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
+    // RBAC: only authenticated admins may mutate leadership data.
+    const isAdmin = await isAdminRequest();
+    if (!isAdmin) {
+      return NextResponse.json({ success: false, error: "Unauthorized: admin role required." }, { status: 403 });
+    }
+
     const supabaseAdmin = createSupabaseAdminClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!

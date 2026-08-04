@@ -1,13 +1,23 @@
 import OrgStructure from "@/components/OrgStructure";
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL || "https://aroasmlrlpjbjokvxlgo.supabase.co";
-const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFyb2FzbWxybHBqYmpva3Z4bGdvIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4MzE4OTU5MCwiZXhwIjoyMDk4NzY1NTkwfQ.pSVcAi-8EpF9CMVCB7rcM5vhMlsJ9WgYURL2jyJyFfg";
+// SEC-03: Service role key must be provided via environment variables only.
+// No hardcoded fallback secrets are permitted.
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL;
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+if (!supabaseUrl) {
+  throw new Error('NEXT_PUBLIC_SUPABASE_URL or SUPABASE_URL is not configured.');
+}
+if (!supabaseKey) {
+  throw new Error('SUPABASE_SERVICE_ROLE_KEY is not configured. Refusing to start with a fallback secret.');
+}
 
 export const dynamic = 'force-dynamic';
 
 export default async function Home() {
-  const supabase = createClient(supabaseUrl, supabaseKey);
+  // Guards above guarantee both values are defined at this point.
+  const supabase = createClient(supabaseUrl!, supabaseKey!);
   
   let membersCount = 0;
   let countriesCount = 0;

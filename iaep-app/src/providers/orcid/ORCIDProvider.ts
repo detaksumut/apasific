@@ -4,6 +4,7 @@ import crypto from 'crypto';
 import { IOrcidIdentityProvider } from './IOrcidIdentityProvider';
 import { IOrcidProfile } from './IOrcidProfile';
 import { ORCIDWorkMetadata } from './ORCIDMapper';
+import { ProviderRuntimeManager } from '../core/ProviderRuntimeManager';
 
 export class ORCIDProvider implements IOrcidIdentityProvider {
   private clientId: string;
@@ -43,21 +44,17 @@ export class ORCIDProvider implements IOrcidIdentityProvider {
     params.append('code', code);
     params.append('redirect_uri', this.redirectUri);
 
-    const response = await fetch(tokenUrl, {
+    const data = await ProviderRuntimeManager.executeRequest('ORCID', tokenUrl, {
       method: 'POST',
       headers: {
         'Accept': 'application/json',
         'Content-Type': 'application/x-www-form-urlencoded'
       },
-      body: params.toString()
+      body: params.toString(),
+      timeoutMs: 15000,
+      retryAttempts: 2,
+      retryDelayMs: 400
     });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`ORCID OAuth Exchange Failed: ${response.status} - ${errorText}`);
-    }
-
-    const data = await response.json();
 
     return {
       orcidId: data.orcid,
@@ -79,17 +76,14 @@ export class ORCIDProvider implements IOrcidIdentityProvider {
   public async verifyIdentity(orcidId: string): Promise<IOrcidProfile> {
     const url = `${this.apiBaseUrl}/${orcidId}/person`;
 
-    const response = await fetch(url, {
+    const data = await ProviderRuntimeManager.executeRequest('ORCID', url, {
       headers: {
         'Accept': 'application/json'
-      }
+      },
+      timeoutMs: 15000,
+      retryAttempts: 2,
+      retryDelayMs: 400
     });
-
-    if (!response.ok) {
-      throw new Error(`ORCID Profile Fetch Failed for ID: ${orcidId}`);
-    }
-
-    const data = await response.json();
     const nameData = data?.name;
 
     return {
@@ -127,61 +121,89 @@ export class ORCIDProvider implements IOrcidIdentityProvider {
         hash
       };
     } catch (e) {
-      console.warn("ORCID real authorization code exchange failed, falling back to mock payload for testing", e);
-      // Sandbox fallback token exchange for integration demo if keys are missing
-      const mockResponse = {
-        access_token: `mock_orcid_token_${crypto.randomUUID()}`,
-        token_type: 'bearer',
-        refresh_token: `mock_orcid_refresh_${crypto.randomUUID()}`,
-        expires_in: 631138518,
-        scope: '/activities/update',
-        name: 'Dr. Researcher',
-        orcid: '0000-0000-1234-5678'
-      };
-
-      const payloadString = JSON.stringify(mockResponse);
-      const hash = crypto.createHash('sha256').update(payloadString).digest('hex');
-
-      return {
-        data: mockResponse,
-        hash
-      };
+      // Fail-closed: never return a mock/fabricated token.
+      // Missing ORCID credentials or a failed exchange must surface as an error.
+      console.error("ORCID authorization code exchange failed; failing closed (no mock fallback).", e);
+      throw e;
     }
   }
 
   /**
-   * Pushes a new Work (Publication) to the researcher's ORCID profile.
+   * Pushes a new Work (Publication) to the researcher's ORCID profile via the
+   * real ORCID Member API. All external communication is routed through
+   * ProviderRuntimeManager. No mock/fabricated put-code is ever returned.
    */
   public async pushWorkToProfile(orcidId: string, accessToken: string, workData: ORCIDWorkMetadata): Promise<{ data: any, hash: string }> {
-    try {
-      // Mocking ORCID API POST /v3.0/{orcidId}/work (can be upgraded to real API work push later)
-      const mockResponse = {
-        'put-code': Math.floor(Math.random() * 1000000),
-        status: 'SUCCESS',
-        work_title: workData.title,
-        doi: workData.doi,
-        updated_at: new Date().toISOString()
-      };
-
-      const payloadString = JSON.stringify(mockResponse);
-      const hash = crypto.createHash('sha256').update(payloadString).digest('hex');
-
-      return {
-        data: mockResponse,
-        hash
-      };
-    } catch (error) {
-      console.error(`ORCID Work Push failed for ${orcidId}`, error);
-      throw error;
+    if (!accessToken) {
+      throw new Error('ORCID access token is required to push a work to a profile.');
     }
+
+    // ORCID Work JSON payload (v3.0 schema).
+    const workPayload = {
+      title: {
+        title: workData.title
+      },
+      type: workData.type,
+      'journal-title': workData.journalTitle ? { title: workData.journalTitle } : undefined,
+      'publication-date': workData.publicationDate ? {
+        year: { value: workData.publicationDate.slice(0, 4) },
+        month: workData.publicationDate.length >= 7 ? { value: workData.publicationDate.slice(5, 7) } : undefined,
+        day: workData.publicationDate.length >= 10 ? { value: workData.publicationDate.slice(8, 10) } : undefined
+      } : undefined,
+      'external-ids': {
+        'external-id': [
+          {
+            'external-id-type': 'doi',
+            'external-id-value': workData.doi,
+            'external-id-url': { value: workData.url },
+            'external-id-relationship': 'self'
+          }
+        ]
+      }
+    };
+
+    const url = `${this.apiBaseUrl}/${orcidId}/work`;
+    const data = await ProviderRuntimeManager.executeRequest('ORCID', url, {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/vnd.orcid+json',
+        'Authorization': `Bearer ${accessToken}`
+      },
+      body: JSON.stringify(workPayload),
+      timeoutMs: 20000,
+      retryAttempts: 2,
+      retryDelayMs: 500
+    });
+
+    const payloadString = JSON.stringify(data);
+    const hash = crypto.createHash('sha256').update(payloadString).digest('hex');
+
+    return {
+      data,
+      hash
+    };
+  }
+
+  /**
+   * Resolves the encryption key for token protection without any hardcoded
+   * fallback. Fail-closed: throws when ENCRYPTION_KEY is absent.
+   */
+  private static getEncryptionKey(): Buffer {
+    const keyString = process.env.ENCRYPTION_KEY;
+    if (!keyString) {
+      throw new Error('ENCRYPTION_KEY is not configured. Refusing to encrypt/decrypt with a hardcoded fallback key.');
+    }
+    // Derive a 32-byte key from the configured secret.
+    return crypto.createHash('sha256').update(keyString).digest();
   }
 
   /**
    * Symmetrically encrypts a sensitive token before database storage.
+   * Requires ENCRYPTION_KEY. No hardcoded fallback key.
    */
   public static encryptToken(token: string): string {
-    const keyString = process.env.ENCRYPTION_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY || 'apasific-sec-key-32-bytes-fallback';
-    const key = crypto.createHash('sha256').update(keyString).digest();
+    const key = ORCIDProvider.getEncryptionKey();
     const iv = crypto.randomBytes(16);
 
     const cipher = crypto.createCipheriv('aes-256-cbc', key, iv);
@@ -193,13 +215,13 @@ export class ORCIDProvider implements IOrcidIdentityProvider {
 
   /**
    * Decrypts an encrypted token.
+   * Requires ENCRYPTION_KEY. No hardcoded fallback key.
    */
   public static decryptToken(encryptedData: string): string {
     const parts = encryptedData.split(':');
     if (parts.length !== 2) throw new Error('Invalid encrypted token format');
 
-    const keyString = process.env.ENCRYPTION_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY || 'apasific-sec-key-32-bytes-fallback';
-    const key = crypto.createHash('sha256').update(keyString).digest();
+    const key = ORCIDProvider.getEncryptionKey();
     const iv = Buffer.from(parts[0], 'hex');
     const encryptedText = parts[1];
 

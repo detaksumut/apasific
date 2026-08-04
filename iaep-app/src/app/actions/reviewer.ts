@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { SubmissionLifecycleService } from "@/services/SubmissionLifecycleService";
 
 export async function handleReviewerDecision(assignmentId: string, submissionId: string, decision: 'accepted' | 'rejected') {
   try {
@@ -39,10 +40,15 @@ export async function handleReviewerDecision(assignmentId: string, submissionId:
     await supabaseAdmin.from('review_assignments').update(updatePayload).eq('id', assignmentId);
     
 
-    // 3. Update submission status in Supabase
+    // 3. Update submission status in Supabase melalui gerbang lifecycle tervalidasi
     if (!isAdvanced) {
-      await supabaseAdmin.from('submissions').update({ status: newSubmissionStatus }).eq('id', submissionId);
-      await supabaseAdmin.from('submissions').update({ status: newSubmissionStatus }).eq('submission_id', submissionId);
+      const transisi = await SubmissionLifecycleService.transitionTo(supabaseAdmin, submissionId, {
+        status: newSubmissionStatus,
+        mirrorLegacySubmissionId: true
+      });
+      if (!transisi.success) {
+        return { success: false, error: transisi.error || 'Transisi status naskah ditolak oleh lifecycle service.' };
+      }
     }
 
     // 4. Insert history in Supabase
@@ -172,8 +178,13 @@ export async function deleteAssignment(assignmentId: string, submissionId: strin
 
     // 2. Revert submission status if necessary (assuming it goes back to Awaiting Reviewers)
     if (!isAdvanced) {
-        await supabaseAdmin.from('submissions').update({ status: 'Awaiting Reviewers' }).eq('id', submissionId);
-        await supabaseAdmin.from('submissions').update({ status: 'Awaiting Reviewers' }).eq('submission_id', submissionId);
+        const transisi = await SubmissionLifecycleService.transitionTo(supabaseAdmin, submissionId, {
+            status: 'Awaiting Reviewers',
+            mirrorLegacySubmissionId: true
+        });
+        if (!transisi.success) {
+            return { success: false, error: transisi.error || 'Transisi status naskah ditolak oleh lifecycle service.' };
+        }
     }
 
     // 3. Insert history in Supabase
@@ -384,12 +395,19 @@ export async function submitReviewResults(
         const { data: subData } = await supabaseAdmin.from('submissions').select('stage').eq('id', submissionId).maybeSingle();
         const isAdvanced = subData?.stage && ['Copyediting', 'Production', 'Published'].includes(subData.stage);
 
-        // Update submission status in Supabase only if not advanced
+        // Update submission status in Supabase only if not advanced (via gerbang lifecycle)
         if (!isAdvanced) {
-            await supabaseAdmin.from('submissions').update({ status: 'Reviewed', updated_at: new Date() }).eq('id', submissionId);
+            const transisi = await SubmissionLifecycleService.transitionTo(supabaseAdmin, submissionId, {
+                status: 'Reviewed'
+            });
+            if (!transisi.success) {
+                console.warn("Lifecycle transition rejected during review submission:", transisi.error);
+            }
             const unhexedSubId = unhexUuid(submissionId);
             if (unhexedSubId && unhexedSubId !== submissionId) {
-                await supabaseAdmin.from('submissions').update({ status: 'Reviewed', updated_at: new Date() }).eq('id', unhexedSubId);
+                await SubmissionLifecycleService.transitionTo(supabaseAdmin, unhexedSubId, {
+                    status: 'Reviewed'
+                });
             }
         }
 
@@ -583,14 +601,12 @@ export async function autoRepairSubmissionFile(submissionId: string) {
     }
 
     if (!isAdvanced) {
-        const { error: subUpdateErr } = await supabaseAdmin
-          .from('submissions')
-          .update({ status: 'Reviewed', updated_at: new Date() })
-          .eq('id', realSubmissionId);
-
-        if (subUpdateErr) {
-            console.error("Supabase submissions update error:", subUpdateErr);
-            return { success: false, error: "Gagal memperbarui status naskah di database" };
+        const transisi = await SubmissionLifecycleService.transitionTo(supabaseAdmin, realSubmissionId, {
+            status: 'Reviewed'
+        });
+        if (!transisi.success) {
+            console.error("Lifecycle transition error:", transisi.error);
+            return { success: false, error: transisi.error || "Gagal memperbarui status naskah di database" };
         }
     }
 

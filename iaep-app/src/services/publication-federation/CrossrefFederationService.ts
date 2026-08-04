@@ -1,14 +1,18 @@
 // src/services/publication-federation/CrossrefFederationService.ts
 
 import { CrossrefProvider } from '../../providers/crossref/CrossrefProvider';
+import { ICrossrefProvider } from '../../providers/crossref/ICrossrefProvider';
 import { CrossrefAdapter } from '../../providers/crossref/CrossrefAdapter';
 import { CrossrefMapper, CrossrefDepositMetadata } from '../../providers/crossref/CrossrefMapper';
+import { ExternalEvidenceStore } from '../../domain/external-evidence/ExternalEvidenceStore';
 
 export class CrossrefFederationService {
-  private crossrefProvider: CrossrefProvider;
+  private readonly crossrefProvider: ICrossrefProvider;
+  private readonly evidenceStore: ExternalEvidenceStore;
 
   constructor() {
     this.crossrefProvider = new CrossrefProvider();
+    this.evidenceStore = new ExternalEvidenceStore();
   }
 
   /**
@@ -34,8 +38,9 @@ export class CrossrefFederationService {
         hash
       );
 
-      // 4. TODO: Store the snapshot into external_evidence_payloads in Supabase
-      console.log('Stored Crossref Publisher DOI Snapshot:', snapshot);
+      // 4. Persist the evidence snapshot (external_publication_records +
+      //    external_evidence_payloads). Fail-closed: propagates on persistence error.
+      await this.evidenceStore.persistExternalRecord(snapshot);
 
       return metadata.doi;
     } catch (error) {

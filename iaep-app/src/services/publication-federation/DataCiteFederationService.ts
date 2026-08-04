@@ -1,14 +1,18 @@
 // src/services/publication-federation/DataCiteFederationService.ts
 
 import { DataCiteProvider } from '../../providers/datacite/DataCiteProvider';
+import { IDataCiteProvider } from '../../providers/datacite/IDataCiteProvider';
 import { DataCiteAdapter } from '../../providers/datacite/DataCiteAdapter';
 import { DataCiteMapper, DataCiteArtifactMetadata } from '../../providers/datacite/DataCiteMapper';
+import { ExternalEvidenceStore } from '../../domain/external-evidence/ExternalEvidenceStore';
 
 export class DataCiteFederationService {
-  private dataCiteProvider: DataCiteProvider;
+  private readonly dataCiteProvider: IDataCiteProvider;
+  private readonly evidenceStore: ExternalEvidenceStore;
 
   constructor() {
     this.dataCiteProvider = new DataCiteProvider();
+    this.evidenceStore = new ExternalEvidenceStore();
   }
 
   /**
@@ -33,8 +37,9 @@ export class DataCiteFederationService {
         hash
       );
 
-      // 4. TODO: Store the snapshot into external_evidence_payloads in Supabase
-      console.log('Stored DataCite Artifact Snapshot:', snapshot);
+      // 4. Persist the evidence snapshot (external_publication_records +
+      //    external_evidence_payloads). Fail-closed: propagates on persistence error.
+      await this.evidenceStore.persistExternalRecord(snapshot);
 
       return data.data.id;
     } catch (error) {

@@ -4,6 +4,7 @@ import { ZenodoCapability } from './ZenodoCapability';
 import { ZenodoMetadata } from './ZenodoMapper';
 import { IZenodoDepositProvider } from './IZenodoDepositProvider';
 import crypto from 'crypto';
+import { ProviderRuntimeManager } from '../core/ProviderRuntimeManager';
 
 /**
  * ZenodoProvider communicates with the Zenodo API (Sandbox by default).
@@ -19,8 +20,8 @@ export class ZenodoProvider implements IZenodoDepositProvider {
     this.apiUrl = environment === 'production' 
       ? 'https://zenodo.org/api' 
       : 'https://sandbox.zenodo.org/api';
-      
-    this.apiToken = process.env.ZENODO_API_TOKEN || '';
+
+    this.apiToken = process.env.ZENODO_API_TOKEN || process.env.NEXT_PUBLIC_ZENODO_API_TOKEN || '';
   }
 
   public getCapabilities(): ZenodoCapability[] {
@@ -38,21 +39,17 @@ export class ZenodoProvider implements IZenodoDepositProvider {
 
     const url = `${this.apiUrl}/deposit/depositions`;
     
-    const response = await fetch(url, {
+    const data = await ProviderRuntimeManager.executeRequest('ZENODO', url, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${this.apiToken}`
       },
-      body: JSON.stringify(metadata)
+      body: JSON.stringify(metadata),
+      timeoutMs: 20000,
+      retryAttempts: 2,
+      retryDelayMs: 600
     });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`Zenodo Deposit Failed: ${response.status} - ${errorText}`);
-    }
-
-    const data = await response.json();
     const hash = crypto.createHash('sha256').update(JSON.stringify(data)).digest('hex');
     
     return { data, hash };
@@ -63,21 +60,17 @@ export class ZenodoProvider implements IZenodoDepositProvider {
 
     const url = `${this.apiUrl}/deposit/depositions/${depositId}/files?name=${encodeURIComponent(filename)}`;
     
-    const response = await fetch(url, {
+    return await ProviderRuntimeManager.executeRequest('ZENODO', url, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${this.apiToken}`,
         'Content-Type': 'application/octet-stream'
       },
-      body: fileBuffer as any
+      body: fileBuffer as any,
+      timeoutMs: 30000,
+      retryAttempts: 2,
+      retryDelayMs: 600
     });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`Zenodo File Upload Failed: ${response.status} - ${errorText}`);
-    }
-
-    return await response.json();
   }
 
   public async publishRecord(depositId: string): Promise<{ data: any, hash: string }> {
@@ -85,19 +78,15 @@ export class ZenodoProvider implements IZenodoDepositProvider {
 
     const url = `${this.apiUrl}/deposit/depositions/${depositId}/actions/publish`;
     
-    const response = await fetch(url, {
+    const data = await ProviderRuntimeManager.executeRequest('ZENODO', url, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${this.apiToken}`
-      }
+      },
+      timeoutMs: 20000,
+      retryAttempts: 2,
+      retryDelayMs: 600
     });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`Zenodo Publish Failed: ${response.status} - ${errorText}`);
-    }
-
-    const data = await response.json();
     const hash = crypto.createHash('sha256').update(JSON.stringify(data)).digest('hex');
     
     return { data, hash };

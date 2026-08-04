@@ -8,6 +8,7 @@ import { PublicationFederationEventType, PublicationFederationEvent } from '@/do
 import { createClient } from '@supabase/supabase-js';
 import { ZenodoVerificationService } from './providers/ZenodoVerificationService';
 import { OpenAIREVerificationService } from './providers/OpenAIREVerificationService';
+import { DoiLifecycleEngine } from '@/domain/publication/DoiLifecycle';
 
 export class PublicationDepositService {
   private zenodoProvider: ZenodoProvider;
@@ -112,30 +113,61 @@ export class PublicationDepositService {
         overallVisibility = "PROCESSING";
       }
 
-      const updatedStatus = {
+      // PRESERVATION (Critical Data Preservation Rule): start from the
+      // existing index_status so additive keys (e.g. doiLifecycle) and any
+      // previously verified provider sections are never wiped. Keys are only
+      // overwritten when a fresh verified value exists.
+      const updatedStatus: any = {
+        ...currentStatus,
         overall: {
           visibility: overallVisibility,
           last_checked: new Date().toISOString()
-        },
-        doi: doiVal ? {
+        }
+      };
+
+      if (doiVal) {
+        updatedStatus.doi = {
           value: doiVal,
           provider: "zenodo",
           verified_at: currentStatus.doi?.verified_at || new Date().toISOString()
-        } : undefined,
-        zenodo: zenodoRecordId ? {
+        };
+      }
+
+      if (zenodoRecordId) {
+        updatedStatus.zenodo = {
           status: zenodoStatus,
           record_id: zenodoRecordId,
           checked_at: new Date().toISOString()
-        } : undefined,
-        openaire: {
-          status: openaireStatus,
-          checked_at: openaireStatus === 'discovered' ? new Date().toISOString() : null
-        },
-        googleScholar: currentStatus.googleScholar || {
-          status: "pending",
-          last_checked: null
-        }
+        };
+      }
+
+      updatedStatus.openaire = {
+        status: openaireStatus,
+        checked_at: openaireStatus === 'discovered' ? new Date().toISOString() : null
       };
+
+      updatedStatus.googleScholar = currentStatus.googleScholar || {
+        status: "pending",
+        last_checked: null
+      };
+
+      // Target #4 — DOI lifecycle: advance to INDEXED when visibility is
+      // confirmed. Forward-only; invalid lifecycle payloads are preserved
+      // untouched (fail-safe, never destructive).
+      if (overallVisibility === "VISIBLE" && updatedStatus.doiLifecycle) {
+        try {
+          const lifecycle = DoiLifecycleEngine.fromRaw(updatedStatus.doiLifecycle);
+          if (lifecycle && lifecycle.currentStage !== 'INDEXED') {
+            updatedStatus.doiLifecycle = DoiLifecycleEngine.advance(
+              lifecycle,
+              'INDEXED',
+              'Visibility confirmed VISIBLE (Zenodo + OpenAIRE)'
+            );
+          }
+        } catch {
+          // Preserve record as-is.
+        }
+      }
 
       // 4. Persist to Database
       await this.supabase

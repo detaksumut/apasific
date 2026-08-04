@@ -28,8 +28,10 @@ export default async function AdminLayout({ children }: { children: ReactNode })
   } catch {}
 
   const roleLower = userRole.toLowerCase();
-  
-  if (roleLower !== "admin" && roleLower !== "superadmin") {
+
+  // RBAC: consistent with permissions.ts isAdmin() — supports all three variants
+  const isAdmin = ["admin", "superadmin", "super_admin"].includes(roleLower);
+  if (!isAdmin) {
     redirect("/dashboard");
   }
 

@@ -15,6 +15,12 @@ const nextConfig: NextConfig = {
         destination: "/",
         permanent: true,
       },
+      {
+        // Legacy login URL → canonical auth route
+        source: "/login",
+        destination: "/auth/login",
+        permanent: true,
+      },
     ];
   },
   webpack: (config, { isServer }) => {

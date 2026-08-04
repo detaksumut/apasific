@@ -3,8 +3,11 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { publishArticleToZenodo, ZenodoMetadata } from "@/utils/zenodo";
-import { getSubmissionDetailsEditor, updateIssn, updateDoi, removeCoverFile, sendRevisionForwardWaFonnte } from "@/app/actions/editor";
+// Target #4 (CONNECT): the consolidated deposit now runs through the
+// publishToZenodo server action (PublicationDepositService +
+// ProviderRuntimeManager). Legacy direct-Zenodo utilities remain in the
+// codebase untouched, pending the later DEPRECATE phase.
+import { getSubmissionDetailsEditor, updateIssn, updateDoi, removeCoverFile, sendRevisionForwardWaFonnte, publishToZenodo, refreshPublicationIndexStatus } from "@/app/actions/editor";
 import { createClient } from "@/utils/supabase/client";
 import DynamicCover from "@/components/ui/DynamicCover";
 
@@ -21,6 +24,7 @@ export default function SubmissionControlPanel() {
   const [authorPhone, setAuthorPhone] = useState("");
   const [toastMessage, setToastMessage] = useState("");
   const [isPublishingZenodo, setIsPublishingZenodo] = useState(false);
+  const [isRefreshingIndex, setIsRefreshingIndex] = useState(false);
   const [generatedDoi, setGeneratedDoi] = useState("");
   const [manualIssn, setManualIssn] = useState("");
   const [manualDoi, setManualDoi] = useState("");
@@ -312,86 +316,60 @@ export default function SubmissionControlPanel() {
 
   const handlePublishToZenodo = async () => {
     setIsPublishingZenodo(true);
-    showToast("Menghubungi Zenodo dari server... Mohon tunggu.");
-    
+    showToast("Menjalankan deposit terpusat dari server... Mohon tunggu.");
+
     try {
-      const creatorName = submission.profiles?.full_name || submission.author || "Unknown Author";
-      const creatorAffiliation = submission.profiles?.university || submission.university || undefined;
-      const creatorOrcid = submission.profiles?.orcid || submission.orcid || undefined;
-
-      // Parse abstract JSON to HTML for Zenodo description
-      let formattedAbstract = submission.abstract;
-      try {
-        const parsed = JSON.parse(submission.abstract);
-        formattedAbstract = `
-          <h3>Abstrak</h3>
-          <p>${parsed.abstract || ''}</p>
-          <br/>
-          <h3>Abstract</h3>
-          <p>${parsed.abstract_en || ''}</p>
-          <br/>
-          <p><strong>Keywords:</strong> ${parsed.keywords || ''}</p>
-        `;
-      } catch (e) {
-        // Not a JSON string, leave as is
-      }
-
-      const metadata: ZenodoMetadata = {
-        title: submission.title,
-        description: formattedAbstract,
-        upload_type: 'publication',
-        publication_type: 'article',
-        creators: [{ 
-          name: creatorName,
-          ...(creatorAffiliation ? { affiliation: creatorAffiliation } : {}),
-          ...(creatorOrcid ? { orcid: creatorOrcid } : {})
-        }],
-        communities: [{ identifier: 'rjrakp' }],
-        access_right: 'open',
-        keywords: ['Artificial Intelligence', 'Education']
-      };
-
-      const fileUrl = submission.file_url_galley || submission.file_url || ""; 
-      const fileName = fileUrl ? fileUrl.split('/').pop()?.split('?')[0] : `Manuscript_${submission.id}.pdf`;
-      const coverUrl = submission.cover_file_url || "";
-
-      // ✅ Call server-side API route — runs from the server, not the browser.
-      // This bypasses any local network/ISP restrictions on file uploads to Zenodo.
-      const apiResponse = await fetch('/api/publish-zenodo', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ metadata, fileUrl, fileName, coverUrl })
+      // Target #4: consolidated flow through PublicationDepositService +
+      // ProviderRuntimeManager. Preserves any existing DOI/Zenodo record.
+      const res = await publishToZenodo(submission.id, {
+        volume: customVolume || undefined,
+        issue: customIssue || undefined,
+        authorName: customAuthor || undefined
       });
 
-      const result = await apiResponse.json();
+      if (!res.success) throw new Error(res.error || "Federasi publikasi gagal.");
 
-      if (!result.success) {
-        throw new Error(result.error);
-      }
+      // Reflect preserved identifiers immediately in the UI.
+      if (res.doi) setGeneratedDoi(res.doi);
+      setSubmission((prev: any) => prev ? {
+        ...prev,
+        doi: res.doi || prev.doi,
+        zenodo_id: res.zenodoId || prev.zenodo_id
+      } : null);
 
-      const updateRes = await updateDoi(submission.id, result.doi, result.deposition?.id);
-      if (!updateRes.success) throw new Error("Gagal menyimpan DOI ke database: " + updateRes.error);
-
-      setGeneratedDoi(result.doi);
-      
-      // Update local submission state to display the DOI immediately
-      setSubmission((prev: any) => prev ? { ...prev, doi: result.doi } : null);
-
-      if (result.partial) {
-        showToast("Draft Zenodo berhasil dibuat! Silakan upload file secara manual di halaman yang terbuka.");
-        if (result.zenodoUrl) {
-          window.open(result.zenodoUrl, '_blank');
-        }
+      if (res.skippedDeposit) {
+        showToast(`Identifier yang sudah ada dipertahankan (DOI: ${res.doi || "-"}) — deposit duplikat dilewati.`);
       } else {
-        showToast(`Berhasil diterbitkan ke Zenodo! DOI: ${result.doi}`);
-        window.open('https://zenodo.org/communities/rjrakp/records?q=&l=list&p=1&s=10&sort=newest', '_blank');
+        showToast(`Berhasil diterbitkan ke Zenodo! DOI: ${res.doi || "pending"}`);
       }
-      
+
+      const failedProviders = (res.providers || []).filter((p: any) => p.status === "FAILED");
+      if (failedProviders.length > 0) {
+        console.warn("Penyedia yang gagal selama federasi:", failedProviders);
+        showToast(`Catatan: ${failedProviders.length} langkah lanjutan gagal (lihat konsol). DOI/deposit tetap aman.`);
+      }
+
+      if (res.zenodoUrl) {
+        window.open(res.zenodoUrl, '_blank');
+      }
     } catch (err: any) {
       console.error(err);
       showToast('Gagal menerbitkan ke Zenodo: ' + err.message);
     } finally {
       setIsPublishingZenodo(false);
+    }
+  };
+
+  const handleRefreshIndexStatus = async () => {
+    setIsRefreshingIndex(true);
+    try {
+      const res = await refreshPublicationIndexStatus(submission.id);
+      if (!res.success) throw new Error(res.error || "Gagal memperbarui status indexing.");
+      showToast(`Status indexing diperbarui: ${res.indexStatus?.overall?.visibility || "tidak diketahui"}`);
+    } catch (err: any) {
+      showToast("Gagal memperbarui status indexing: " + err.message);
+    } finally {
+      setIsRefreshingIndex(false);
     }
   };
 
@@ -1938,6 +1916,19 @@ export default function SubmissionControlPanel() {
                         >
                           <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
                           Download XML Crossref
+                        </button>
+
+                        <button
+                          onClick={handleRefreshIndexStatus}
+                          disabled={!generatedDoi || isRefreshingIndex}
+                          className={`font-bold py-3 px-4 rounded transition-colors flex justify-center items-center gap-2 ${
+                            generatedDoi && !isRefreshingIndex
+                              ? 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200'
+                              : 'bg-gray-50 text-gray-400 border border-gray-200 cursor-not-allowed'
+                          }`}
+                        >
+                          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                          {isRefreshingIndex ? 'Memeriksa indeks...' : 'Perbarui Status Indexing (Zenodo + OpenAIRE)'}
                         </button>
                       </div>
 

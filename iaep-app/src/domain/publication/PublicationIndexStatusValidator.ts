@@ -1,6 +1,7 @@
 // src/domain/publication/PublicationIndexStatusValidator.ts
 
 import { PublicationIndexStatus, VisibilityState } from './PublicationIndexStatus';
+import { DoiLifecycleEngine } from './DoiLifecycle';
 
 const VALID_VISIBILITY_STATES: VisibilityState[] = [
   "NOT_STARTED",
@@ -88,6 +89,13 @@ export class PublicationIndexStatusValidator {
       }
       if (raw.googleScholar.last_checked !== null && typeof raw.googleScholar.last_checked !== 'string') {
         throw new Error("Invalid schema: 'googleScholar.last_checked' must be a string or null.");
+      }
+    }
+
+    // Validate doiLifecycle (optional, additive — Target #4)
+    if (raw.doiLifecycle !== undefined) {
+      if (!DoiLifecycleEngine.fromRaw(raw.doiLifecycle)) {
+        throw new Error("Invalid schema: 'doiLifecycle' must be a valid DoiLifecycleRecord.");
       }
     }
 

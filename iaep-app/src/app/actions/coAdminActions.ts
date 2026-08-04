@@ -1,5 +1,6 @@
 "use server";
 import { createClient } from "@/utils/supabase/server";
+import { SubmissionLifecycleService } from "@/services/SubmissionLifecycleService";
 
 export async function lolosAdministrasi(submissionId: string) {
   const supabase = await createClient();
@@ -21,15 +22,14 @@ export async function lolosAdministrasi(submissionId: string) {
     throw new Error("Forbidden: Only Co-Admins can screen submissions");
   }
 
-  // Update status to 'Awaiting Reviewers'
-  const { error } = await supabase
-    .from('submissions')
-    .update({ status: 'Awaiting Reviewers' })
-    .eq('id', submissionId);
+  // Update status to 'Awaiting Reviewers' melalui gerbang lifecycle tervalidasi
+  const transisi = await SubmissionLifecycleService.transitionTo(supabase, submissionId, {
+    status: 'Awaiting Reviewers'
+  });
 
-  if (error) {
-    console.error("Failed to update status:", error);
-    throw new Error(error.message);
+  if (!transisi.success) {
+    console.error("Failed to update status:", transisi.error);
+    throw new Error(transisi.error || 'Transisi status ditolak oleh lifecycle service.');
   }
 
   return { success: true };

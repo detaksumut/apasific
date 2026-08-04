@@ -81,7 +81,15 @@ export default async function SupervisorDashboard() {
               
               if (subs && subs.length > 0) {
                   subId = subs[0].id;
-                  await supabaseAdmin.from('submissions').update({ stage: 'Review', status: 'Under Review' }).eq('id', subId);
+                  // Pemulihan administratif eksplisit (downgrade Production → Review)
+                  // → harus lewat lifecycle service dengan force + alasan tercatat.
+                  const { SubmissionLifecycleService } = await import('@/services/SubmissionLifecycleService');
+                  await SubmissionLifecycleService.transitionTo(supabaseAdmin, subId, {
+                      stage: 'Review',
+                      status: 'Under Review',
+                      force: true,
+                      reason: 'Tombol recovery sementara supervisor produksi: kembalikan naskah ke fase Review'
+                  });
               } else {
                   // RECREATE DELETED ARTICLE
                   const { data: inserted } = await supabaseAdmin.from('submissions').insert({

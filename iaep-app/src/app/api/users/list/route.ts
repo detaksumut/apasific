@@ -5,10 +5,37 @@ import path from 'path';
 
 export const dynamic = 'force-dynamic';
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL || "https://aroasmlrlpjbjokvxlgo.supabase.co";
-const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFyb2FzbWxybHBqYmpva3Z4bGdvIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4MzE4OTU5MCwiZXhwIjoyMDk4NzY1NTkwfQ.pSVcAi-8EpF9CMVCB7rcM5vhMlsJ9WgYURL2jyJyFfg";
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL;
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+// SEC-03: Service role key must be provided via environment variables only.
+// No hardcoded fallback secrets are permitted.
+if (!supabaseUrl) {
+  throw new Error("NEXT_PUBLIC_SUPABASE_URL or SUPABASE_URL is not configured.");
+}
+if (!supabaseKey) {
+  throw new Error("SUPABASE_SERVICE_ROLE_KEY is not configured. Refusing to start with a fallback secret.");
+}
 
 const supabaseAdmin = createClient(supabaseUrl, supabaseKey);
+
+// RBAC: only authenticated admins may list or mutate user data.
+async function isAdminRequest(): Promise<boolean> {
+  try {
+    const { getCurrentUserRole } = await import("@/app/actions/user");
+    const profile = await getCurrentUserRole();
+    if (!profile) return false;
+    const role = (profile.role || "").toLowerCase();
+    return ["admin", "superadmin", "super_admin"].includes(role);
+  } catch {
+    return false;
+  }
+}
+
+// SEC-04: strip any plaintext password fields before returning user records.
+function sanitizeUsers(users: any[]): any[] {
+  return users.map(({ password, ...rest }) => rest);
+}
 
 const DATA_FILE = path.join(process.cwd(), 'apasific_registered_users.json');
 
@@ -39,6 +66,12 @@ let memoryCache: any[] | null = null;
 
 export async function GET() {
   try {
+    // RBAC: only authenticated admins may list user data (SEC-P1).
+    const isAdmin = await isAdminRequest();
+    if (!isAdmin) {
+      return NextResponse.json({ success: false, error: "Unauthorized: admin role required." }, { status: 403 });
+    }
+
     const { data, error } = await supabaseAdmin
       .from('system_settings')
       .select('value')
@@ -75,7 +108,7 @@ export async function GET() {
         for (let newR of reviewersData) {
           const exists = users.find((u: any) => u.email.toLowerCase() === newR.email.toLowerCase());
           if (!exists) {
-            users.push({
+users.push({
               id: `demo-user-${Date.now()}-${Math.random()}`,
               full_name: newR.full_name,
               email: newR.email,
@@ -85,8 +118,7 @@ export async function GET() {
               country: newR.country,
               status: newR.status,
               joined: newR.date,
-              phone_number: newR.phone,
-              password: "ReviewerPassword123!"
+              phone_number: newR.phone
             });
           }
         }
@@ -95,14 +127,21 @@ export async function GET() {
       console.error("Error merging reviewers data", err);
     }
 
-    return NextResponse.json({ success: true, users });
+    // SEC-04: never return plaintext password fields.
+    return NextResponse.json({ success: true, users: sanitizeUsers(users) });
   } catch (error: any) {
-    return NextResponse.json({ success: true, users: getLocalUsers() }); 
+    return NextResponse.json({ success: true, users: sanitizeUsers(getLocalUsers()) }); 
   }
 }
 
-  export async function POST(request: Request) {
+export async function POST(request: Request) {
     try {
+      // RBAC: only authenticated admins may mutate user data.
+      const isAdmin = await isAdminRequest();
+      if (!isAdmin) {
+        return NextResponse.json({ success: false, error: "Unauthorized: admin role required." }, { status: 403 });
+      }
+
       const { action, userId, user: editData } = await request.json();
       
       let { data, error } = await supabaseAdmin
@@ -126,7 +165,8 @@ export async function GET() {
           const reviewersData = JSON.parse(fs.readFileSync(reviewersFile, 'utf8'));
           for (let newR of reviewersData) {
             const exists = users.find((u: any) => u.email.toLowerCase() === newR.email.toLowerCase());
-            if (!exists) {
+if (!exists) {
+              // SEC-04: no plaintext passwords are persisted or returned.
               users.push({
                 id: `demo-user-${Date.now()}-${Math.random()}`,
                 full_name: newR.full_name,
@@ -136,8 +176,7 @@ export async function GET() {
                 university: newR.university,
                 country: newR.country,
                 status: newR.status,
-                joined: newR.date,
-                password: "ReviewerPassword123!"
+                joined: newR.date
               });
             }
           }
@@ -168,22 +207,25 @@ export async function GET() {
         users = users.filter((u: any) => u.id !== userId);
       }
 
+// SEC-04: strip any plaintext password fields before persisting.
+    const safeUsers = sanitizeUsers(users);
+
     // Always save locally to ensure edits persist across reloads (in dev)
-    saveLocalUsers(users);
+    saveLocalUsers(safeUsers);
     
     // Save to memory cache for Vercel
-    memoryCache = users;
+    memoryCache = safeUsers;
 
     // Save to supabase
     const { error: upsertError } = await supabaseAdmin
       .from('system_settings')
-      .upsert({ key: 'apasific_registered_users', value: JSON.stringify(users) });
+      .upsert({ key: 'apasific_registered_users', value: JSON.stringify(safeUsers) });
       
     if (upsertError) {
       console.warn("Supabase upsert failed, using memory cache instead:", upsertError.message);
     }
 
-    return NextResponse.json({ success: true, users });
+    return NextResponse.json({ success: true, users: safeUsers });
   } catch (error: any) {
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }

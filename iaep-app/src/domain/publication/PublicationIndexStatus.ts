@@ -1,5 +1,7 @@
 // src/domain/publication/PublicationIndexStatus.ts
 
+import { DoiLifecycleRecord } from './DoiLifecycle';
+
 export type VisibilityState =
   | "NOT_STARTED"
   | "PROCESSING"
@@ -34,4 +36,11 @@ export interface PublicationIndexStatus {
     status: string;
     last_checked: string | null;
   };
+
+  /**
+   * DOI lifecycle tracking (Target #4). Additive field — persisted inside
+   * submissions.index_status; absent for publications that predate the
+   * consolidated deposit workflow until they are (re)processed.
+   */
+  doiLifecycle?: DoiLifecycleRecord;
 }

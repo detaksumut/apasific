@@ -3,10 +3,17 @@ import { createClient } from "@supabase/supabase-js";
 import { randomUUID } from "crypto";
 
 function getSupabaseAdmin() {
-  return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL || "https://aroasmlrlpjbjokvxlgo.supabase.co",
-    process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ""
-  );
+  // SEC-03: credentials must be provided via environment variables only.
+  // No hardcoded fallback secrets are permitted.
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL;
+  const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!supabaseUrl) {
+    throw new Error("NEXT_PUBLIC_SUPABASE_URL or SUPABASE_URL is not configured.");
+  }
+  if (!supabaseKey) {
+    throw new Error("SUPABASE_SERVICE_ROLE_KEY is not configured. Refusing to start with a fallback secret.");
+  }
+  return createClient(supabaseUrl, supabaseKey);
 }
 
 export async function GET(request: NextRequest) {

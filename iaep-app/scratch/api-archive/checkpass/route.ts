@@ -1,7 +1,11 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { devGuard } from '@/lib/devGuard';
 
 export async function GET() {
+  const blocked = devGuard();
+  if (blocked) return blocked;
+
   const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!
@@ -18,3 +22,4 @@ export async function GET() {
   
   return NextResponse.json(passwords);
 }
+

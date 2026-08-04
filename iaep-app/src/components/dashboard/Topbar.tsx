@@ -101,15 +101,29 @@ export default function Topbar({ userName, role }: { userName: string; role: str
           <button
             className="topbar-logout-btn"
             onClick={async () => {
+              // SEC-07: clear all auth/session cookies before redirecting.
               const { createClient } = await import('@/utils/supabase/client');
               const supabase = createClient();
               await supabase.auth.signOut();
-              document.cookie = "user_role=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-              document.cookie = "user_name=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-              document.cookie = "mock_user=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-              document.cookie = "mock_user_name=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-              document.cookie = "active_portal_role=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-              window.location.href = "/";
+
+              // Clear all auth session cookies (Supabase, Firebase fallback, mock, role).
+              const authCookies = [
+                "user_role",
+                "user_name",
+                "mock_user",
+                "mock_user_name",
+                "active_portal_role",
+                "firebase_session",
+                "supabase_fallback_session",
+                "reviewer_json_id",
+                "sb-auth-token",
+              ];
+              for (const c of authCookies) {
+                document.cookie = `${c}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+              }
+
+              // Always land on the login page after logout.
+              window.location.href = "/auth/login";
             }}
             title="Logout"
           >

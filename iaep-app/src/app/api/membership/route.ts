@@ -1,11 +1,33 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 
-// Read directly from env or use fallback (Useful if Vercel env vars are not set yet)
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL || "https://aroasmlrlpjbjokvxlgo.supabase.co";
-const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFyb2FzbWxybHBqYmpva3Z4bGdvIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4MzE4OTU5MCwiZXhwIjoyMDk4NzY1NTkwfQ.pSVcAi-8EpF9CMVCB7rcM5vhMlsJ9WgYURL2jyJyFfg";
+// SEC-03: Service role key must be provided via environment variables only.
+// No hardcoded fallback secrets are permitted.
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL;
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+if (!supabaseUrl) {
+  throw new Error("NEXT_PUBLIC_SUPABASE_URL or SUPABASE_URL is not configured.");
+}
+if (!supabaseKey) {
+  throw new Error("SUPABASE_SERVICE_ROLE_KEY is not configured. Refusing to start with a fallback secret.");
+}
 
 const supabase = createClient(supabaseUrl, supabaseKey);
+
+// RBAC: helper to determine if the request is from an authenticated admin.
+// Only admin / superadmin / super_admin roles may mutate membership status.
+async function isAdminRequest(): Promise<boolean> {
+  try {
+    const { getCurrentUserRole } = await import("@/app/actions/user");
+    const profile = await getCurrentUserRole();
+    if (!profile) return false;
+    const role = (profile.role || "").toLowerCase();
+    return ["admin", "superadmin", "super_admin"].includes(role);
+  } catch {
+    return false;
+  }
+}
 
 export async function POST(request: Request) {
   try {
@@ -91,8 +113,14 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const action = searchParams.get("action");
 
-    // Approve / Reject actions
+// Approve / Reject actions
     if (action === "updateStatus") {
+      // RBAC: only authenticated admins may change membership status.
+      const isAdmin = await isAdminRequest();
+      if (!isAdmin) {
+        return NextResponse.json({ success: false, error: "Unauthorized: admin role required." }, { status: 403 });
+      }
+
       const id = searchParams.get("id");
       const status = searchParams.get("status");
       
@@ -124,6 +152,12 @@ export async function GET(request: Request) {
 
 export async function DELETE(request: Request) {
   try {
+    // RBAC: only authenticated admins may delete membership applications.
+    const isAdmin = await isAdminRequest();
+    if (!isAdmin) {
+      return NextResponse.json({ success: false, error: "Unauthorized: admin role required." }, { status: 403 });
+    }
+
     const { searchParams } = new URL(request.url);
     const id = searchParams.get("id");
 

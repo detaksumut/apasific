@@ -1615,3 +1615,248 @@ export async function recordEditorialDecision(submissionId: string, decision: 'A
         return { success: false, error: e.message };
     }
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Target #4 — Consolidated Publication Federation (ADDITIVE).
+//
+// All publication deposit/indexing flows go through
+// PublicationDepositService + ProviderRuntimeManager via
+// PublicationFederationOrchestrator. Existing published articles remain the
+// source of truth: existing DOI / Zenodo records are detected and preserved,
+// and duplicate deposits are never performed (ADD -> CONNECT -> VERIFY ->
+// DEPRECATE later). The legacy direct-Zenodo utilities/routes remain in the
+// codebase untouched for now.
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Server-side RBAC gate for federation actions. Fail-closed: any resolution
+ * error denies access. Co-Admin is explicitly blocked (publishToZenodo is in
+ * CO_ADMIN_BLOCKED_ACTIONS); editor-or-above is required.
+ */
+async function assertFederationActorAllowed(): Promise<{
+    allowed: boolean;
+    role: string;
+    actorId: string | null;
+    error?: string;
+}> {
+    try {
+        const { getCurrentUser } = await import('./auth');
+        const user: any = await getCurrentUser();
+        if (!user?.id) {
+            return { allowed: false, role: '', actorId: null, error: 'Akses ditolak: pengguna tidak terautentikasi.' };
+        }
+
+        const supabaseAdmin = (await import('@supabase/supabase-js')).createClient(
+            process.env.NEXT_PUBLIC_SUPABASE_URL!,
+            process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+        );
+
+        // Prefer the role persisted in profiles over the session cookie role.
+        let role = String(user.role || '').toLowerCase();
+        try {
+            const { data: callerProfile } = await supabaseAdmin
+                .from('profiles').select('role').eq('id', user.id).single();
+            if (callerProfile?.role) role = String(callerProfile.role).toLowerCase();
+        } catch { /* keep session role */ }
+
+        if (isCoAdmin(role)) {
+            return {
+                allowed: false,
+                role,
+                actorId: user.id,
+                error: 'Unauthorized: Co-Admin tidak memiliki izin untuk aksi federasi publikasi.'
+            };
+        }
+        if (!isEditorOrAbove(role)) {
+            return {
+                allowed: false,
+                role,
+                actorId: user.id,
+                error: 'Akses ditolak: hanya editor atau admin yang dapat menjalankan aksi federasi publikasi.'
+            };
+        }
+        return { allowed: true, role, actorId: user.id };
+    } catch {
+        return { allowed: false, role: '', actorId: null, error: 'Akses ditolak: sesi tidak valid.' };
+    }
+}
+
+/**
+ * Consolidated publication deposit/federation action.
+ *
+ * CRITICAL DATA PRESERVATION (enforced before any external call):
+ *   1. Detect existing DOI.        2. Detect existing Zenodo record.
+ *   3. Preserve existing identifiers (never regenerate).
+ *   4. Skip duplicate deposit for already-deposited publications.
+ *
+ * Returns per-provider outcomes (COMPLETED / FAILED / SKIPPED with honest
+ * reasons), the preserved identifiers, and the DOI lifecycle stage.
+ */
+export async function publishToZenodo(
+    submissionId: string,
+    options?: { volume?: string; issue?: string; authorName?: string; articleUrl?: string }
+) {
+    try {
+        const gate = await assertFederationActorAllowed();
+        if (!gate.allowed) return { success: false, error: gate.error };
+        if (!submissionId) return { success: false, error: 'Submission ID tidak valid.' };
+
+        const supabaseAdmin = (await import('@supabase/supabase-js')).createClient(
+            process.env.NEXT_PUBLIC_SUPABASE_URL!,
+            process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+        );
+
+        const { PublicationFederationOrchestrator } = await import(
+            '@/services/publication-federation/PublicationFederationOrchestrator'
+        );
+        const orchestrator = new PublicationFederationOrchestrator();
+        const outcome = await orchestrator.processPublication(submissionId, {
+            volume: options?.volume,
+            issue: options?.issue,
+            authorName: options?.authorName,
+            articleUrl: options?.articleUrl
+        });
+
+        // Audit trail for the consolidated federation run.
+        await logSubmissionActivity(
+            supabaseAdmin,
+            submissionId,
+            gate.actorId,
+            gate.role,
+            outcome.skippedDeposit ? 'Publication Federation Refresh' : 'Publication Federated Deposit',
+            {
+                doi: outcome.doi,
+                zenodoId: outcome.zenodoId,
+                preserved: outcome.preserved,
+                skippedDeposit: outcome.skippedDeposit,
+                lifecycleStage: outcome.lifecycle.currentStage,
+                providers: outcome.providers.map((p) => ({ provider: p.provider, status: p.status }))
+            }
+        );
+
+        if (!outcome.success) {
+            return { success: false, error: outcome.error || 'Federasi publikasi gagal.' };
+        }
+
+        return {
+            success: true,
+            doi: outcome.doi,
+            zenodoId: outcome.zenodoId,
+            zenodoUrl: outcome.zenodoUrl,
+            preserved: outcome.preserved,
+            skippedDeposit: outcome.skippedDeposit,
+            lifecycleStage: outcome.lifecycle.currentStage,
+            providers: outcome.providers
+        };
+    } catch (e: any) {
+        console.error('publishToZenodo failed:', e);
+        return { success: false, error: e?.message || 'Federasi publikasi gagal.' };
+    }
+}
+
+/**
+ * Refreshes indexing status (Zenodo + OpenAIRE verification) for an existing
+ * publication through the consolidated flow. Read-only with respect to
+ * deposits and identifiers — never rewrites them.
+ */
+export async function refreshPublicationIndexStatus(submissionId: string) {
+    try {
+        const gate = await assertFederationActorAllowed();
+        if (!gate.allowed) return { success: false, error: gate.error };
+        if (!submissionId) return { success: false, error: 'Submission ID tidak valid.' };
+
+        const supabaseAdmin = (await import('@supabase/supabase-js')).createClient(
+            process.env.NEXT_PUBLIC_SUPABASE_URL!,
+            process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+        );
+
+        const { PublicationFederationOrchestrator } = await import(
+            '@/services/publication-federation/PublicationFederationOrchestrator'
+        );
+        const orchestrator = new PublicationFederationOrchestrator();
+        const result = await orchestrator.refreshIndexing(submissionId);
+
+        if (result.success) {
+            await logSubmissionActivity(
+                supabaseAdmin,
+                submissionId,
+                gate.actorId,
+                gate.role,
+                'Index Status Refreshed',
+                {
+                    visibility: result.indexStatus?.overall?.visibility || null,
+                    doi: result.doi || null,
+                    zenodoId: result.zenodoId || null
+                }
+            );
+        }
+
+        if (!result.success) {
+            return { success: false, error: result.error || 'Gagal memperbarui status indexing.' };
+        }
+
+        return {
+            success: true,
+            indexStatus: result.indexStatus,
+            doi: result.doi,
+            zenodoId: result.zenodoId,
+            zenodoUrl: result.zenodoUrl
+        };
+    } catch (e: any) {
+        console.error('refreshPublicationIndexStatus failed:', e);
+        return { success: false, error: e?.message || 'Gagal memperbarui status indexing.' };
+    }
+}
+
+/**
+ * Registers a supplementary artifact DOI via DataCite, linked to the
+ * publication's preserved DOI. Requires the publication to already have a
+ * DOI (never creates or modifies the publication DOI itself).
+ */
+export async function registerPublicationArtifact(
+    submissionId: string,
+    artifactUrl: string,
+    artifactOptions?: { title?: string; resourceType?: 'Dataset' | 'Software' | 'Model' | 'Other' }
+) {
+    try {
+        const gate = await assertFederationActorAllowed();
+        if (!gate.allowed) return { success: false, error: gate.error };
+        if (!submissionId) return { success: false, error: 'Submission ID tidak valid.' };
+        if (!artifactUrl) return { success: false, error: 'artifactUrl wajib diisi.' };
+
+        const supabaseAdmin = (await import('@supabase/supabase-js')).createClient(
+            process.env.NEXT_PUBLIC_SUPABASE_URL!,
+            process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+        );
+
+        const { PublicationFederationOrchestrator } = await import(
+            '@/services/publication-federation/PublicationFederationOrchestrator'
+        );
+        const orchestrator = new PublicationFederationOrchestrator();
+        const result = await orchestrator.registerArtifact(submissionId, {
+            artifactUrl,
+            title: artifactOptions?.title,
+            resourceType: artifactOptions?.resourceType
+        });
+
+        if (result.success) {
+            await logSubmissionActivity(
+                supabaseAdmin,
+                submissionId,
+                gate.actorId,
+                gate.role,
+                'DataCite Artifact Registered',
+                { artifactDoi: result.artifactDoi || null, artifactUrl }
+            );
+        }
+
+        if (!result.success) {
+            return { success: false, error: result.error || 'Registrasi artefak DataCite gagal.' };
+        }
+
+        return { success: true, artifactDoi: result.artifactDoi };
+    } catch (e: any) {
+        console.error('registerPublicationArtifact failed:', e);
+        return { success: false, error: e?.message || 'Registrasi artefak DataCite gagal.' };
+    }
+}

@@ -2,6 +2,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { loginUser } from "@/app/actions/auth";
+import { getDashboardPath } from "@/lib/roles";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -22,17 +23,10 @@ export default function Login() {
         document.cookie = `user_role=${role}; path=/; max-age=2592000`;
         document.cookie = `user_name=${encodeURIComponent(res.user.full_name || 'User')}; path=/; max-age=2592000`;
         
-        if (role === 'admin' || role === 'super_admin' || role === 'superadmin') {
-            window.location.href = "/dashboard/admin";
-        } else if (role === 'co_admin') {
-            window.location.href = "/dashboard/admin/users";
-        } else if (role === 'editor') {
-            window.location.href = "/dashboard/editor";
-        } else if (role === 'reviewer') {
-            window.location.href = "/dashboard/reviews";
-        } else {
-            window.location.href = "/dashboard";
-        }
+        // Centralized role normalization (src/lib/roles.ts): all role variants
+        // (super_admin/superadmin, admin, co_admin/co-admin, editor, reviewer,
+        // Layout/Cover/Publish/Admin Editor) resolve to a consistent destination.
+        window.location.href = getDashboardPath(role) || "/dashboard";
         return;
       } else {
         alert(res.error || "Email atau password salah.");

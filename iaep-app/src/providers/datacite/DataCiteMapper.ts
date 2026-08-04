@@ -9,6 +9,7 @@ export interface DataCiteArtifactMetadata {
   publicationYear: string;
   resourceType: ResearchResourceType;
   relatedPublicationDoi: string; // The Zenodo DOI of the main article
+  artifactUrl: string; // Resolvable public URL of the artifact
 }
 
 export class DataCiteMapper {
@@ -34,7 +35,7 @@ export class DataCiteMapper {
             resourceTypeGeneral: metadata.resourceType === 'Model' ? 'Software' : metadata.resourceType,
             resourceType: metadata.resourceType
           },
-          url: `https://apasific.com/artifacts/${crypto.randomUUID()}`, // Placeholder for resolution URL
+          url: metadata.artifactUrl,
           relatedIdentifiers: [
             {
               relatedIdentifier: metadata.relatedPublicationDoi,

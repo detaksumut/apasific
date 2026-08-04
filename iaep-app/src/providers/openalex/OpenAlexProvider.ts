@@ -3,6 +3,7 @@
 import crypto from 'crypto';
 import { ICitationProvider } from '../contracts/ICitationProvider';
 import { ExternalEvidenceSnapshot } from '../../domain/external-evidence/ExternalEvidenceSnapshot';
+import { ProviderRuntimeManager } from '../core/ProviderRuntimeManager';
 
 export class OpenAlexProvider implements ICitationProvider {
   private readonly politeEmail: string;
@@ -18,17 +19,15 @@ export class OpenAlexProvider implements ICitationProvider {
   public async fetchCitationCount(doi: string): Promise<ExternalEvidenceSnapshot> {
     try {
       const url = `https://api.openalex.org/works/https://doi.org/${encodeURIComponent(doi)}`;
-      const response = await fetch(url, {
+      const data = await ProviderRuntimeManager.executeRequest('OPENALEX', url, {
+        method: 'GET',
         headers: {
           'User-Agent': `APASIFIC/1.0 (mailto:${this.politeEmail})`
-        }
+        },
+        timeoutMs: 15000,
+        retryAttempts: 2,
+        retryDelayMs: 400
       });
-
-      if (!response.ok) {
-        throw new Error(`OpenAlex API responded with status ${response.status}`);
-      }
-
-      const data = await response.json();
       const citationCount = data.cited_by_count || 0;
       
       const payload = {
@@ -52,52 +51,26 @@ export class OpenAlexProvider implements ICitationProvider {
         sourceTimestamp: new Date(),
         verifiedAt: new Date()
       };
-
     } catch (e) {
-      console.warn(`OpenAlex real citation query failed for DOI ${doi}, using sandbox mock fallback`, e);
-
-      // Sandbox fallback data for local offline runs
-      const mockPayload = {
-        doi,
-        citationCount: 42, // Mock citation count
-        openAlexId: `https://openalex.org/W${Math.floor(Math.random() * 100000000)}`,
-        citedByUrl: `https://openalex.org/works?filter=cites:W_mock`,
-        sourceProvider: 'OPENALEX'
-      };
-
-      const payloadString = JSON.stringify(mockPayload);
-      const hash = crypto.createHash('sha256').update(payloadString).digest('hex');
-
-      return {
-        id: crypto.randomUUID(),
-        provider: 'OPENALEX',
-        providerEntityId: mockPayload.openAlexId,
-        evidenceType: 'CITATION',
-        payload: mockPayload,
-        payloadHash: hash,
-        sourceTimestamp: new Date(),
-        verifiedAt: new Date()
-      };
+      // Fail-closed: never fabricate citation evidence.
+      // A real API failure must propagate so no fake citation count can enter
+      // the evidence trail.
+      console.error(`OpenAlex citation query failed for DOI ${doi}; failing closed (no mock fallback).`, e);
+      throw e;
     }
   }
 
   /**
-   * Backward-compatibility helper for OpenAlex Intelligence Metrics
+   * Backward-compatibility helper for OpenAlex Intelligence Metrics.
+   * Fail-closed: any error from fetchCitationCount propagates so no fabricated
+   * intelligence data can be returned.
    */
   public async fetchIntelligenceByDOI(doi: string): Promise<{ data: any, hash: string, isFound: boolean }> {
-    try {
-      const snapshot = await this.fetchCitationCount(doi);
-      return {
-        data: snapshot.payload,
-        hash: snapshot.payloadHash,
-        isFound: true
-      };
-    } catch (e) {
-      return {
-        data: null,
-        hash: '',
-        isFound: false
-      };
-    }
+    const snapshot = await this.fetchCitationCount(doi);
+    return {
+      data: snapshot.payload,
+      hash: snapshot.payloadHash,
+      isFound: true
+    };
   }
 }

@@ -1,5 +1,7 @@
 "use server";
 
+import { SubmissionLifecycleService } from "@/services/SubmissionLifecycleService";
+
 export async function updateSubmissionStatus(submissionId: string, newStatus: string) {
   const { createClient: createSupabaseClient } = require('@supabase/supabase-js');
   const supabaseAdmin = createSupabaseClient(
@@ -9,13 +11,18 @@ export async function updateSubmissionStatus(submissionId: string, newStatus: st
 
   let success = false;
   
-  // 1. Update Supabase
+  // 1. Update Supabase melalui gerbang lifecycle tervalidasi
+  // (menulis kolom 'id' + mirror legacy 'submission_id' sekaligus)
   try {
-     const { error } = await supabaseAdmin.from('submissions').update({ status: newStatus }).eq('submission_id', submissionId);
-     if (!error) success = true;
-     
-     // also try with 'id' if 'submission_id' fails, depending on schema
-     await supabaseAdmin.from('submissions').update({ status: newStatus }).eq('id', submissionId);
+     const transisi = await SubmissionLifecycleService.transitionTo(supabaseAdmin, submissionId, {
+         status: newStatus,
+         mirrorLegacySubmissionId: true
+     });
+     if (!transisi.success) {
+         console.error("Lifecycle transition failed:", transisi.error);
+         return { success: false, error: transisi.error || 'Transisi status ditolak oleh lifecycle service.' };
+     }
+     success = true;
   } catch (e) {
      console.error("Supabase update failed:", e);
   }
@@ -216,17 +223,14 @@ export async function submitAuthorRevision(submissionId: string, formData: FormD
     // Update Supabase
     // Save revised file to revised_file_url — do NOT overwrite file_url (the original manuscript)
     // so that the reviewer can still compare both versions if needed.
-    await supabaseAdmin.from('submissions').update({ 
-      revised_file_url: revisedFileUrl,
+    const transisiRevisi = await SubmissionLifecycleService.transitionTo(supabaseAdmin, submissionId, {
       status: 'Revision Submitted',
-      updated_at: new Date() 
-    }).eq('id', submissionId);
-    
-    await supabaseAdmin.from('submissions').update({ 
-      revised_file_url: revisedFileUrl,
-      status: 'Revision Submitted',
-      updated_at: new Date() 
-    }).eq('submission_id', submissionId);
+      extraFields: { revised_file_url: revisedFileUrl },
+      mirrorLegacySubmissionId: true
+    });
+    if (!transisiRevisi.success) {
+      return { success: false, error: transisiRevisi.error || 'Transisi status revisi ditolak oleh lifecycle service.' };
+    }
 
     await supabaseAdmin.from('submission_history').insert({
         submission_id: submissionId,
