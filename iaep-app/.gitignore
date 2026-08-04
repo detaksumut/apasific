@@ -42,3 +42,15 @@ next-env.d.ts
 
 # Firebase Keys
 firebase-admin-key.json
+
+# AI tools local config
+.continue/
+
+# Local backups
+*backup*
+
+# Local recovery scripts
+execute_recovery.bat
+
+# Scratch testing
+scratch/
