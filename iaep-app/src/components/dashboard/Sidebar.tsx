@@ -1,6 +1,7 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { normalizeRole } from "@/lib/roles";
 
 interface SidebarProps {
   role: string;
@@ -368,6 +369,19 @@ export default function Sidebar({ role }: SidebarProps) {
       ),
     },
     {
+      label: "AI Reviewer",
+      path: "/dashboard/admin/settings/ai-reviewer",
+      icon: (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+          <rect x="4" y="8" width="16" height="12" rx="2" />
+          <path d="M12 8V4" />
+          <circle cx="12" cy="4" r="2" />
+          <path d="M8 14h.01M16 14h.01" />
+          <path d="M8 18h8" />
+        </svg>
+      ),
+    },
+    {
       label: "Pengaturan",
       path: "/dashboard/admin/settings",
       icon: (
@@ -428,21 +442,33 @@ export default function Sidebar({ role }: SidebarProps) {
   ];
 
 
-  const normalizedRole = role ? role.toLowerCase() : "";
+  const rawRole = role ? role.toLowerCase() : "";
+  const normalizedRole = normalizeRole(role) || rawRole;
+  const isCoAdminRoleRaw = rawRole === "co_admin" || rawRole === "co-admin";
 
   const getRoleLinks = () => {
+    // Co-Admin must be checked before normalizeRole (co_admin → ADMIN)
+    if (isCoAdminRoleRaw) return coAdminLinks;
     switch (normalizedRole) {
-      case "author":   return authorLinks;
-      case "reviewer": return reviewerLinks;
-      case "editor":   return [...editorLinks, ...reviewerLinks];
-      case "admin":    return [...adminLinks, ...reviewerLinks];
-      case "co_admin":
-      case "co-admin": return coAdminLinks;
-      default:         return [];
+      case "author":
+      case "AUTHOR":       return authorLinks;
+      case "reviewer":
+      case "REVIEWER":     return reviewerLinks;
+      case "editor":
+      case "EDITOR":       return [...editorLinks, ...reviewerLinks];
+      case "admin":
+      case "ADMIN":
+      case "SUPER_ADMIN":  return [...adminLinks, ...reviewerLinks];
+      default:             return [];
     }
   };
 
   const roleLabelMap: Record<string, string> = {
+    "SUPER_ADMIN": "Administrasi",
+    "ADMIN":       "Administrasi",
+    "EDITOR":      "Editorial",
+    "REVIEWER":    "Reviewer",
+    "PRODUCTION":  "Produksi",
     admin:    "Administrasi",
     co_admin: "Co-Admin",
     "co-admin": "Co-Admin",
@@ -452,6 +478,11 @@ export default function Sidebar({ role }: SidebarProps) {
   };
 
   const roleColorMap: Record<string, string> = {
+    "SUPER_ADMIN": "#f59e0b",
+    "ADMIN":       "#f59e0b",
+    "EDITOR":      "#60a5fa",
+    "REVIEWER":    "#34d399",
+    "PRODUCTION":  "#a78bfa",
     admin:    "#f59e0b",
     co_admin: "#ec4899",
     "co-admin": "#ec4899",
@@ -514,23 +545,28 @@ export default function Sidebar({ role }: SidebarProps) {
           </>
         )}
 
-        {/* Area Penulis — hidden for co_admin (they are staff, not authors) */}
-        {normalizedRole !== "author" && normalizedRole !== "co_admin" && normalizedRole !== "co-admin" && (
+        {/* Area Penulis — only visible for AUTHOR role; hidden for ADMIN/SUPER_ADMIN and other staff */}
+        {normalizedRole === "author" && (
           <>
             <div className="sidebar-section-label" style={{ marginTop: 24 }}>Area Penulis</div>
             {authorLinks.map(link => <NavLink key={`author-${link.path}`} link={link} />)}
           </>
         )}
 
-        {(normalizedRole === "superadmin" || normalizedRole === "layout editor" || normalizedRole === "cover editor" || normalizedRole === "publish editor" || normalizedRole === "supervisor" || normalizedRole === "admin editor") && (
+        {(normalizedRole === "SUPER_ADMIN" || normalizedRole === "PRODUCTION" || rawRole === "supervisor") && (
           <>
             <div className="sidebar-section-label" style={{ marginTop: 24 }}>Menu Produksi</div>
             {productionLinks.filter((link) => {
-               if (normalizedRole === "superadmin") return true;
-               if (normalizedRole === "layout editor" && link.label === "Layout Editor") return true;
-               if (normalizedRole === "cover editor" && link.label === "Cover Editor") return true;
-               if (normalizedRole === "publish editor" && link.label === "Publish Editor") return true;
-               if ((normalizedRole === "supervisor" || normalizedRole === "admin editor") && link.label === "Supervisor") return true;
+               if (normalizedRole === "SUPER_ADMIN") return true;
+               // Production sub-roles (layout/cover/publish/admin editor → PRODUCTION)
+               if (normalizedRole === "PRODUCTION") {
+                 if (rawRole.includes("layout") && link.label === "Layout Editor") return true;
+                 if (rawRole.includes("cover") && link.label === "Cover Editor") return true;
+                 if (rawRole.includes("publish") && link.label === "Publish Editor") return true;
+                 if (rawRole === "admin editor" && link.label === "Supervisor") return true;
+                 return false;
+               }
+               if (rawRole === "supervisor" && link.label === "Supervisor") return true;
                return false;
             }).map((link) => (
               <NavLink key={link.path} link={link} />

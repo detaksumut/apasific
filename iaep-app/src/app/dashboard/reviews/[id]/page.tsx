@@ -7,6 +7,11 @@ import { ReviewStep, ReviewStatus } from "@/domain/reviewer/ReviewStatus";
 import { ReviewStatusPolicy } from "@/domain/reviewer/ReviewStatusPolicy";
 
 export default function ReviewEvaluation({ params }: { params: any }) {
+  // AI Reviewer Assistant — advisory guidance for the HUMAN reviewer.
+  // It never creates/replaces/submits a review and never uses reviewer_type='AI'.
+  const [assistant, setAssistant] = useState<any>(null);
+  const [assistantLoading, setAssistantLoading] = useState(false);
+  const [assistantError, setAssistantError] = useState<string | null>(null);
   const [assignmentId, setAssignmentId] = useState<string>('');
   const [step, setStep] = useState<number>(ReviewStep.REQUEST);
   const [agreed, setAgreed] = useState(false);
@@ -61,7 +66,7 @@ export default function ReviewEvaluation({ params }: { params: any }) {
     });
   }, [params]);
 
-  useEffect(() => {
+useEffect(() => {
     if (!assignmentId) return;
     async function fetchData() {
         setIsLoading(true);
@@ -78,6 +83,33 @@ export default function ReviewEvaluation({ params }: { params: any }) {
         setIsLoading(false);
     }
     fetchData();
+  }, [assignmentId]);
+
+  // Load AI Reviewer Assistant advisory guidance (READ-ONLY, advisory only).
+  useEffect(() => {
+    if (!assignmentId) return;
+    let cancelled = false;
+    async function loadAssistant() {
+      setAssistantLoading(true);
+      setAssistantError(null);
+      try {
+        const { getReviewerAssistant } = await import("@/app/actions/reviewerAssistant");
+        const res = await getReviewerAssistant(assignmentId);
+        if (cancelled) return;
+        if (res?.success && res.assistant) {
+          setAssistant(res.assistant);
+        } else {
+          setAssistant(null);
+          setAssistantError(res?.error || "Gagal memuat AI Reviewer Assistant.");
+        }
+      } catch (e: any) {
+        if (!cancelled) setAssistantError(e?.message || "Gagal memuat AI Reviewer Assistant.");
+      } finally {
+        if (!cancelled) setAssistantLoading(false);
+      }
+    }
+    loadAssistant();
+    return () => { cancelled = true; };
   }, [assignmentId]);
 
   const recommendations = [
@@ -564,8 +596,94 @@ export default function ReviewEvaluation({ params }: { params: any }) {
                        }}
                     />
                   </div>
-                </div>
+</div>
               </div>
+            </div>
+
+            {/* AI Reviewer Assistant — ADVISORY ONLY. Never creates/replaces/
+                submits the human review. Human reviewer remains the authority. */}
+            <div className="rev-assistant-panel">
+              <div className="rev-assistant-header">
+                <div className="rev-assistant-title">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="4" y="4" width="16" height="16" rx="4"/><path d="M9 9h6M9 13h6M9 17h3"/></svg>
+                  AI Reviewer Assistant
+                </div>
+                <span className="rev-assistant-badge">Advisory</span>
+              </div>
+
+              {assistantLoading && (
+                <div className="rev-assistant-loading">
+                  <svg className="animate-spin" viewBox="0 0 24 24" style={{ width: 18, height: 18 }}><circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" opacity="0.25"/><path fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" opacity="0.75"/></svg>
+                  Menyiapkan bantuan untuk reviewer...
+                </div>
+              )}
+
+              {!assistantLoading && assistantError && (
+                <div className="rev-assistant-error">
+                  <strong>AI Reviewer Assistant tidak tersedia.</strong>
+                  <span>{assistantError}</span>
+                </div>
+              )}
+
+              {!assistantLoading && !assistantError && assistant && (
+                <div className="rev-assistant-body">
+                  <div className="rev-assistant-note">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                    <span>{assistant.disclaimer}</span>
+                  </div>
+
+                  {/* Academic Observations */}
+                  {assistant.academicObservations?.length > 0 && (
+                    <div className="rev-assistant-section">
+                      <div className="rev-assistant-section-title">Academic Observations</div>
+                      <div className="rev-assistant-list">
+                        {assistant.academicObservations.map((obs: any, i: number) => (
+                          <div key={i} className={`rev-obs-item ${obs.signal === 'strength' ? 'strength' : obs.signal === 'concern' ? 'concern' : 'neutral'}`}>
+                            <span className="rev-obs-badge">{obs.signal === 'strength' ? '✓' : obs.signal === 'concern' ? '!' : '·'}</span>
+                            <div>
+                              <div className="rev-obs-dim">{obs.dimension}</div>
+                              <div className="rev-obs-text">{obs.observation}</div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Review Considerations */}
+                  {assistant.reviewConsiderations?.length > 0 && (
+                    <div className="rev-assistant-section">
+                      <div className="rev-assistant-section-title">Review Considerations</div>
+                      <div className="rev-assistant-list">
+                        {assistant.reviewConsiderations.map((c: any, i: number) => (
+                          <div key={i} className="rev-consider-item">
+                            <span className="rev-consider-area">{c.area}</span>
+                            <span className="rev-consider-q">{c.question}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Completeness Checklist */}
+                  {assistant.completenessChecklist?.length > 0 && (
+                    <div className="rev-assistant-section">
+                      <div className="rev-assistant-section-title">Completeness Checklist</div>
+                      <div className="rev-check-list">
+                        {assistant.completenessChecklist.map((item: any, i: number) => (
+                          <div key={i} className={`rev-check-item ${item.present ? 'present' : 'missing'}`}>
+                            <span className="rev-check-icon">{item.present ? '✓' : '✕'}</span>
+                            <div>
+                              <div className="rev-check-name">{item.item}</div>
+                              {!item.present && item.note && <div className="rev-check-note">{item.note}</div>}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
 
             <div className="rev-actions-between" style={{ marginTop: 24 }}>

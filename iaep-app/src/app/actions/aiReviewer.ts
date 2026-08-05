@@ -13,6 +13,7 @@
  * action-action di sini tidak pernah mengubah submissions.status/stage.
  */
 import { revalidatePath } from 'next/cache';
+import { normalizeRole } from '@/lib/roles';
 import {
     AIReviewerService,
     type AIReviewerMode,
@@ -33,6 +34,9 @@ async function resolveCaller(supabaseAdmin: any): Promise<{ actorId: string | nu
         if (!user?.id) return { actorId: null, role: null };
 
         let role: string | null = null;
+        const email: string = user.email || '';
+
+        // 1. Profile role (profiles table) — primary source
         try {
             const { data: profile } = await supabaseAdmin
                 .from('profiles')
@@ -42,7 +46,40 @@ async function resolveCaller(supabaseAdmin: any): Promise<{ actorId: string | nu
             role = profile?.role || null;
         } catch { /* non-fatal */ }
 
-        return { actorId: user.id, role };
+        // 2. Fallback chain — authenticated session role/context
+        if (!role) {
+            role = user.role || null;
+        }
+        // 3. Session cookie fallback (user_role)
+        if (!role) {
+            try {
+                const { cookies } = await import('next/headers');
+                const cookieStore = await cookies();
+                role = cookieStore.get('user_role')?.value || null;
+            } catch { /* non-fatal */ }
+        }
+        // 4. User metadata
+        if (!role) {
+            role = user.user_metadata?.role || null;
+        }
+        // 5. App metadata
+        if (!role) {
+            role = user.app_metadata?.role || null;
+        }
+
+        // 6. Defensive SUPER_ADMIN recovery via env canonical email.
+        //    Security: only promotes to SUPER_ADMIN when the authenticated
+        //    session's email matches SUPER_ADMIN_CANONICAL_EMAIL (env only).
+        const canonicalEmail = (process.env.SUPER_ADMIN_CANONICAL_EMAIL || '').toLowerCase().trim();
+        if (canonicalEmail && email.toLowerCase() === canonicalEmail) {
+            role = 'super_admin';
+        }
+
+        // Normalize at the boundary so ALL downstream gates (canManageConfig,
+        // canRunAIReview) see canonical roles: SUPER_ADMIN | ADMIN | EDITOR |
+        // REVIEWER | PRODUCTION. Unknown/author roles map to null.
+        const normalized = normalizeRole(role);
+        return { actorId: user.id, role: normalized };
     } catch (e) {
         return { actorId: null, role: null };
     }

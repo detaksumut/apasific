@@ -1,5 +1,4 @@
 "use client";
-
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
@@ -45,13 +44,15 @@ export default function SubmissionControlPanel() {
   const [customAuthor, setCustomAuthor] = useState("");
   const [uploadingReviewId, setUploadingReviewId] = useState<string | null>(null);
   const [isSendingFonnte, setIsSendingFonnte] = useState(false);
-  const [recommendedReviewers, setRecommendedReviewers] = useState<any[]>([]);
+const [recommendedReviewers, setRecommendedReviewers] = useState<any[]>([]);
   const [recommendationsLoading, setRecommendationsLoading] = useState(false);
   const [recommendationDivision, setRecommendationDivision] = useState<string>("");
-  // Governed AI Reviewer (Target #3) — advisory only.
-  const [aiReviewerConfig, setAiReviewerConfig] = useState<any>(null);
-  const [aiReviewInfo, setAiReviewInfo] = useState<any>(null);
-  const [aiRunning, setAiRunning] = useState(false);
+  const [recommendationsError, setRecommendationsError] = useState<string>("");
+// AI-Assisted Review Enhancement Layer (advisory only).
+  // AI is NOT a reviewer. It enhances COMPLETED HUMAN reviewer reports.
+  const [enhancementsMap, setEnhancementsMap] = useState<Record<string, any>>({});
+  const [enhancementsLoading, setEnhancementsLoading] = useState<Record<string, boolean>>({});
+  const [enhancementsError, setEnhancementsError] = useState<Record<string, string>>({});
 
   // Save volume & issue to LocalStorage for draft purposes only
   useEffect(() => {
@@ -66,15 +67,16 @@ export default function SubmissionControlPanel() {
     }
   }, [customIssue, submissionId]);
 
-  // Rekomendasi reviewer cerdas — dimuat saat modal "Add Reviewer" dibuka.
+// Rekomendasi reviewer cerdas — dimuat otomatis saat halaman dibuka.
   // READ-ONLY & advisory: hasil hanya untuk saran peringkat Editor,
   // penugasan tetap manual melalui tombol "Tugaskan" (assignReviewer).
   useEffect(() => {
-    if (!isAddReviewerOpen || !submissionId) return;
+    if (!submissionId) return;
     let cancelled = false;
 
     const load = async () => {
       setRecommendationsLoading(true);
+      setRecommendationsError("");
       try {
         const m = await import("@/app/actions/editor");
         const res = await m.getRecommendedReviewers(submissionId, 10);
@@ -82,11 +84,18 @@ export default function SubmissionControlPanel() {
         if (res.success) {
           setRecommendedReviewers(res.recommendations || []);
           setRecommendationDivision(res.academicDivision || "");
+          if (!res.recommendations || res.recommendations.length === 0) {
+            setRecommendationsError("Rekomendasi reviewer tidak tersedia");
+          }
         } else {
           setRecommendedReviewers([]);
+          setRecommendationsError(res.error || "Rekomendasi reviewer tidak tersedia");
         }
-      } catch (e) {
-        if (!cancelled) setRecommendedReviewers([]);
+      } catch (e: any) {
+        if (!cancelled) {
+          setRecommendedReviewers([]);
+          setRecommendationsError(e?.message || "Rekomendasi reviewer tidak tersedia");
+        }
       } finally {
         if (!cancelled) setRecommendationsLoading(false);
       }
@@ -94,33 +103,34 @@ export default function SubmissionControlPanel() {
 
     load();
     return () => { cancelled = true; };
-  }, [isAddReviewerOpen, submissionId]);
+  }, [submissionId]);
 
-  // Governed AI Reviewer (Target #3) — muat konfigurasi + hasil AI yang sudah ada
-  // saat modal dibuka. Hasil AI hanya ditampilkan sebagai masukan Editor.
+// AI-Assisted Review Enhancement Layer — load any existing enhancement
+  // records for completed HUMAN reviews so the editor can view them.
+  // AI is advisory only; it never alters the human recommendation.
   useEffect(() => {
-    if (!isAddReviewerOpen || !submissionId) return;
+    if (!reviews || reviews.length === 0) return;
     let cancelled = false;
+    const completed = reviews.filter((r: any) => r.status === 'completed');
+    if (completed.length === 0) return;
+
     (async () => {
-      try {
-        const m = await import("@/app/actions/aiReviewer");
-        const cfgRes = await m.getAIReviewerSettings();
-        if (!cancelled && cfgRes?.success) setAiReviewerConfig(cfgRes.config || null);
-        const aiRes = await m.getAIReviewForSubmission(submissionId);
-        if (!cancelled && aiRes?.success && aiRes.review) {
-          const rv = aiRes.review;
-          setAiReviewInfo({
-            ...rv,
-            score: rv.score && typeof rv.score === 'object' ? rv.score.overall ?? null : rv.score ?? null,
-            success: true,
-          });
+      const m = await import("@/app/actions/reviewEnhancement");
+      for (const r of completed) {
+        if (cancelled) return;
+        try {
+          const res = await m.getReviewEnhancement(r.id);
+          if (cancelled) return;
+          if (res?.success && res.enhancement) {
+            setEnhancementsMap(prev => ({ ...prev, [r.id]: res.enhancement }));
+          }
+        } catch {
+          // silent — enhancement panel is optional
         }
-      } catch (e) {
-        // silent — panel AI bersifat opsional
       }
-    })();
+    })().catch(() => {});
     return () => { cancelled = true; };
-  }, [isAddReviewerOpen, submissionId]);
+  }, [reviews]);
 
   // Determine role cleanly
   const roleStr = currentUserRole.toLowerCase();
@@ -136,32 +146,28 @@ export default function SubmissionControlPanel() {
     setTimeout(() => setToastMessage(""), 3000);
   };
 
-  // Jalankan AI Review (Target #3, advisory). Jalur tulis sepenuhnya diatur
-  // oleh AIReviewerService.generateReview — tidak pernah mengubah status naskah.
-  const handleRunAIReview = async () => {
-    if (!submissionId || aiRunning) return;
-    setAiRunning(true);
-    showToast("Menjalankan AI Review...");
+// AI-Assisted Review Enhancement — enhances a COMPLETED HUMAN review.
+  // AI is advisory only; it never alters the human recommendation or status.
+  const handleRunEnhancement = async (reviewId: string) => {
+    if (!reviewId || enhancementsLoading[reviewId]) return;
+    setEnhancementsLoading(prev => ({ ...prev, [reviewId]: true }));
+    setEnhancementsError(prev => { const clone = { ...prev }; delete clone[reviewId]; return clone; });
+    showToast("Menghasilkan Quality Observation AI untuk review manusia...");
     try {
-      const m = await import("@/app/actions/aiReviewer");
-      const res = await m.runAIReview(submissionId);
-      if (res.success) {
-        showToast("AI Review selesai — hasil bersifat advisory.");
-        setAiReviewInfo({
-          success: true,
-          score: res.review?.overallScore ?? null,
-          recommendation: res.review?.recommendation ?? null,
-          report: res.review?.report ?? null,
-          reviewerName: 'AI Reviewer Agent',
-          completedAt: new Date().toISOString(),
-        });
+      const m = await import("@/app/actions/reviewEnhancement");
+      const res = await m.runReviewEnhancement(reviewId);
+      if (res.success && res.enhancement) {
+        setEnhancementsMap(prev => ({ ...prev, [reviewId]: res.enhancement }));
+        showToast("Quality Observation AI berhasil dibuat (advisory).");
       } else {
-        showToast("AI Review gagal: " + res.error);
+        setEnhancementsError(prev => ({ ...prev, [reviewId]: res.error || 'Gagal menghasilkan observation.' }));
+        showToast("Gagal membuat observation: " + (res.error || 'Unknown error'));
       }
     } catch {
-      showToast("AI Review gagal dijalankan.");
+      setEnhancementsError(prev => ({ ...prev, [reviewId]: 'Gagal menjalankan enhancement.' }));
+      showToast("Gagal menjalankan AI enhancement.");
     } finally {
-      setAiRunning(false);
+      setEnhancementsLoading(prev => ({ ...prev, [reviewId]: false }));
     }
   };
 
@@ -818,7 +824,7 @@ export default function SubmissionControlPanel() {
                   ))
                 )}
 
-                {/* Active Reviewers Panel */}
+{/* Active Reviewers Panel */}
                 <div className="mt-8 border-t pt-6">
                   <h3 className="text-lg font-bold text-gray-800 mb-4">Reviewer yang Online</h3>
                   <div className="space-y-3">
@@ -2186,138 +2192,193 @@ export default function SubmissionControlPanel() {
                 />
             </div>
 
-            <div className="p-6 overflow-y-auto">
-              {/* Panel Rekomendasi Reviewer Cerdas — ADVISORY ONLY.
-                  Tidak ada penugasan otomatis: setiap kandidat hanya bisa
-                  ditugaskan lewat tombol "Tugaskan" (assignReviewer). */}
-              {!reviewerSearch && (recommendationsLoading || recommendedReviewers.length > 0) && (
-                <div className="mb-6 border border-indigo-200 bg-indigo-50/60 rounded-lg p-4">
-                  <div className="flex items-center justify-between gap-2 mb-1 flex-wrap">
-                    <h4 className="text-sm font-bold text-indigo-800">🎯 Rekomendasi Reviewer Cerdas</h4>
-                    <span className="text-[10px] text-indigo-700 bg-indigo-100 px-2 py-0.5 rounded-full font-semibold">Saran peringkat — tidak auto-assign</span>
-                  </div>
-                  {recommendationDivision && (
-                    <div className="text-[11px] text-indigo-600 mb-2">Scope divisi jurnal: {recommendationDivision}</div>
-                  )}
+<div className="p-6 overflow-y-auto">
+              {/* 🎯 Rekomendasi Reviewer AI — ADVISORY ONLY.
+                  AI hanya merekomendasikan reviewer manusia. Tidak ada penugasan otomatis.
+                  Editor tetap memilih & menugaskan manual melalui assignReviewer(). */}
+              <div className="mb-6 border border-indigo-200 bg-indigo-50/60 rounded-xl p-4">
+                <div className="flex items-center justify-between gap-2 mb-1 flex-wrap">
+                  <h4 className="text-sm font-bold text-indigo-800">🎯 Rekomendasi Reviewer AI</h4>
+                  <span className="text-[10px] text-indigo-700 bg-indigo-100 px-2 py-0.5 rounded-full font-semibold">Saran peringkat — tidak auto-assign</span>
+                </div>
+                <p className="text-[11px] text-indigo-700 mb-3">
+                  Rekomendasi reviewer berdasarkan bidang artikel dan profil akademik reviewer.
+                </p>
+                {recommendationDivision && (
+                  <div className="text-[11px] text-indigo-600 mb-3">Scope divisi jurnal: {recommendationDivision}</div>
+                )}
 
-                  {recommendationsLoading ? (
-                    <div className="text-xs text-indigo-600 animate-pulse py-2">Menghitung kandidat terbaik berdasarkan keahlian, beban kerja & konflik kepentingan...</div>
-                  ) : (
-                    <div className="space-y-3">
-                      {recommendedReviewers.map((rec) => {
-                        const rawRecId = typeof rec.reviewerId === 'string' && rec.reviewerId.startsWith('email:') ? '' : rec.reviewerId;
-                        const hasConflict = !!rec.conflictCheck?.hasConflict;
-                        const scoreColor = rec.totalScore >= 70 ? 'bg-green-600' : rec.totalScore >= 40 ? 'bg-yellow-500' : 'bg-gray-400';
-                        return (
-                          <div key={rec.reviewerId || rec.email} className={`bg-white border rounded-lg p-3 ${hasConflict ? 'border-red-300' : 'border-indigo-100'}`}>
-                            <div className="flex items-start justify-between gap-3">
-                              <div className="min-w-0">
-                                <div className="flex items-center gap-2 flex-wrap">
-                                  <span className="text-[10px] font-bold text-indigo-700 bg-indigo-100 rounded-full px-1.5 py-0.5">#{rec.rank}</span>
-                                  <span className="font-bold text-sm text-gray-800">{rec.fullName}</span>
-                                  {hasConflict && (
-                                    <span className="text-[10px] font-bold text-red-700 bg-red-100 rounded-full px-2 py-0.5">⚠ Konflik Kepentingan</span>
-                                  )}
-                                </div>
-                                <div className="text-xs text-gray-500 truncate">
-                                  {rec.academicField || 'Bidang tidak diketahui'} • {rec.university || 'Institusi tidak diketahui'} • {rec.country || '-'}
-                                </div>
-                                {rec.email && <div className="text-[11px] text-blue-600 truncate">{rec.email}</div>}
-                                {rec.matchedTerms?.length > 0 && (
-                                  <div className="flex flex-wrap gap-1 mt-1">
-                                    {rec.matchedTerms.slice(0, 5).map((t: string) => (
-                                      <span key={t} className="text-[10px] bg-blue-50 text-blue-700 border border-blue-200 rounded px-1.5 py-0.5">{t}</span>
-                                    ))}
-                                  </div>
+                {recommendationsLoading ? (
+                  <div className="text-xs text-indigo-600 animate-pulse py-2">Menghitung kandidat terbaik berdasarkan keahlian, beban kerja & konflik kepentingan...</div>
+                ) : recommendationsError ? (
+                  <div className="text-xs text-gray-500 bg-white border border-indigo-100 rounded-lg p-3 text-center">
+                    {recommendationsError}
+                  </div>
+                ) : recommendedReviewers.length === 0 ? (
+                  <div className="text-xs text-gray-500 bg-white border border-indigo-100 rounded-lg p-3 text-center">
+                    Rekomendasi reviewer tidak tersedia
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {recommendedReviewers.slice(0, 2).map((rec, idx) => {
+                      const rawRecId = typeof rec.reviewerId === 'string' && rec.reviewerId.startsWith('email:') ? '' : rec.reviewerId;
+                      const hasConflict = !!rec.conflictCheck?.hasConflict;
+                      const medal = idx === 0 ? '🥇' : '🥈';
+                      const availability = rec.availabilityScore >= 80 ? 'Available' : rec.availabilityScore >= 50 ? 'Limited' : 'Low';
+                      const alreadyAssigned = reviews.some((r: any) =>
+                        (r.reviewer_id && rawRecId && String(r.reviewer_id) === String(rawRecId)) ||
+                        (r.reviewer?.email && rec.email && String(r.reviewer.email).toLowerCase() === String(rec.email).toLowerCase())
+                      );
+                      return (
+                        <div key={rec.reviewerId || rec.email} className={`bg-white border rounded-lg p-4 ${hasConflict ? 'border-red-300' : 'border-indigo-100'}`}>
+                          {/* Reviewer Name */}
+                          <div className="flex items-start justify-between gap-3">
+                            <div className="min-w-0">
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <span className="text-lg">{medal}</span>
+                                <span className="font-bold text-sm text-gray-800 leading-snug">{rec.fullName}</span>
+                                {hasConflict && (
+                                  <span className="text-[10px] font-bold text-red-700 bg-red-100 rounded-full px-2 py-0.5">⚠ Konflik Kepentingan</span>
                                 )}
-                                {hasConflict && rec.conflictCheck?.reasons?.length > 0 && (
-                                  <div className="text-[10px] text-red-600 mt-1">{rec.conflictCheck.reasons.join('; ')}</div>
-                                )}
-                                {!hasConflict && rec.reasons?.length > 0 && (
-                                  <div className="text-[10px] text-gray-400 mt-1">{rec.reasons.join(' • ')}</div>
+                                {alreadyAssigned && (
+                                  <span className="text-[10px] font-bold text-emerald-700 bg-emerald-100 rounded-full px-2 py-0.5">✓ Sudah ditugaskan</span>
                                 )}
                               </div>
-                              <div className="flex flex-col items-end gap-1 shrink-0">
-                                <div className={`text-white text-xs font-bold rounded-full w-9 h-9 flex items-center justify-center ${scoreColor}`} title={`Skor total ${rec.totalScore}/100`}>
-                                  {Math.round(rec.totalScore)}
-                                </div>
-                                <div className="text-[9px] text-gray-400 text-right leading-tight">
-                                  Exp {rec.expertiseScore} • Avail {rec.availabilityScore} • Load {rec.workloadScore}
-                                </div>
-                                <button
-                                  onClick={async () => {
-                                    setToastMessage("Menugaskan reviewer...");
-                                    const m = await import("@/app/actions/editor");
-                                    const res = await m.assignReviewer(submissionId, rawRecId || rec.email, rec.fullName, rec.email || undefined);
-                                    if (res.success) {
-                                      setToastMessage("Reviewer berhasil ditugaskan!");
-                                      setIsAddReviewerOpen(false);
-                                      setTimeout(() => window.location.reload(), 1500);
-                                    } else {
-                                      setToastMessage("Gagal menugaskan reviewer: " + res.error);
-                                    }
-                                  }}
-                                  className="mt-1 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded shadow-sm transition-colors"
-                                >
-                                  Tugaskan
-                                </button>
+                              {rec.email && <div className="text-[11px] text-blue-600 truncate mt-0.5">{rec.email}</div>}
+                            </div>
+                            {!hasConflict && (
+                              <div className={`text-white text-xs font-bold rounded-full w-8 h-8 flex items-center justify-center shrink-0 ${rec.totalScore >= 70 ? 'bg-green-600' : rec.totalScore >= 40 ? 'bg-yellow-500' : 'bg-gray-400'}`} title={`Skor total ${rec.totalScore}/100`}>
+                                {Math.round(rec.totalScore)}
                               </div>
+                            )}
+                          </div>
+
+                          {/* Expertise / Field of Study */}
+                          <div className="mt-3">
+                            <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider block">Expertise</span>
+                            {rec.matchedTerms?.length > 0 ? (
+                              <div className="flex flex-wrap gap-1 mt-1">
+                                {rec.matchedTerms.slice(0, 3).map((t: string) => (
+                                  <span key={t} className="text-[10px] bg-blue-50 text-blue-700 border border-blue-200 rounded px-1.5 py-0.5 capitalize">{t}</span>
+                                ))}
+                              </div>
+                            ) : (
+                              <div className="text-[11px] text-gray-600 mt-0.5 capitalize">{rec.academicField || 'Umum'}</div>
+                            )}
+                          </div>
+
+                          {/* Institution / University */}
+                          <div className="mt-2">
+                            <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider block">Institution</span>
+                            <div className="text-[11px] text-gray-700 mt-0.5">{rec.university || 'Tidak diketahui'}</div>
+                          </div>
+
+                          {/* Country */}
+                          <div className="mt-2">
+                            <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider block">Country</span>
+                            <div className="text-[11px] text-gray-700 mt-0.5">{rec.country || '-'}</div>
+                          </div>
+
+                          {/* Status */}
+                          <div className="mt-2">
+                            <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider block">Status</span>
+                            <div className={`text-[11px] font-semibold mt-0.5 ${availability === 'Available' ? 'text-emerald-600' : availability === 'Limited' ? 'text-amber-600' : 'text-red-600'}`}>
+                              {availability}
                             </div>
                           </div>
-                        );
-                      })}
-                    </div>
-                  )}
-                  <div className="text-[10px] text-indigo-500 mt-3">
-                    Pembobotan: Expertise 50% • Workload 30% • Availability 20%. Kandidat berkonflik dipenalti & ditandai, keputusan akhir tetap di tangan Editor.
-                  </div>
-                </div>
-              )}
 
-              {/* Governed AI Reviewer panel (Target #3) — advisory only */}
-              {!reviewerSearch && aiReviewerConfig?.enabled && aiReviewerConfig?.mode !== 'disabled' && (
-                <div className="mb-6 border border-purple-200 bg-purple-50/60 rounded-lg p-4">
-                  <div className="flex items-center justify-between gap-2 mb-2 flex-wrap">
-                    <h4 className="text-sm font-bold text-purple-800">🤖 AI Reviewer Agent</h4>
-                    <span className="text-[10px] text-purple-700 bg-purple-100 px-2 py-0.5 rounded-full font-semibold">Advisory — tidak mengubah status</span>
+                          {hasConflict && rec.conflictCheck?.reasons?.length > 0 && (
+                            <div className="text-[10px] text-red-600 mt-2">{rec.conflictCheck.reasons.join('; ')}</div>
+                          )}
+
+                          <button
+                            disabled={alreadyAssigned}
+                            onClick={async () => {
+                              setToastMessage("Menugaskan reviewer...");
+                              const m = await import("@/app/actions/editor");
+                              const res = await m.assignReviewer(submissionId, rawRecId || rec.email, rec.fullName, rec.email || undefined);
+                              if (res.success) {
+                                setToastMessage("Reviewer berhasil ditugaskan!");
+                                setIsAddReviewerOpen(false);
+                                setTimeout(() => window.location.reload(), 1500);
+                              } else {
+                                setToastMessage("Gagal menugaskan reviewer: " + res.error);
+                              }
+                            }}
+                            className={`mt-3 w-full py-2.5 rounded-lg text-sm font-bold transition-colors ${alreadyAssigned ? 'bg-emerald-400 text-white cursor-not-allowed' : 'bg-indigo-600 hover:bg-indigo-700 text-white'}`}
+                          >
+                            {alreadyAssigned ? 'Ditugaskan' : 'Pilih Reviewer Ini'}
+                          </button>
+                        </div>
+                      );
+                    })}
                   </div>
-                  <p className="text-[11px] text-purple-600 mb-3">
-                    Mode: {aiReviewerConfig.mode === 'mandatory' ? 'Mandatory additional reviewer' : 'Optional'}.
-                    Hasil AI adalah masukan untuk Editor dan tidak menggantikan reviewer manusia.
+                )}
+                <div className="text-[10px] text-indigo-500 mt-3">
+                  Pembobotan: Expertise 50% • Workload 30% • Availability 20%. Kandidat berkonflik dipenalti & ditandai, keputusan akhir tetap di tangan Editor.
+                </div>
+              </div>
+
+              {/* Semua Reviewer — fallback manual search */}
+              <h4 className="text-sm font-bold text-gray-800 mb-3">Semua Reviewer (Manual Selection)</h4>
+
+{/* AI-Assisted Review Enhancement (advisory) — enhances a COMPLETED HUMAN review */}
+              {!reviewerSearch && reviews.some((r: any) => r.status === 'completed') && (
+                <div className="mb-6 border border-cyan-200 bg-cyan-50/60 rounded-lg p-4">
+                  <div className="flex items-center justify-between gap-2 mb-2 flex-wrap">
+                    <h4 className="text-sm font-bold text-cyan-800">🧠 AI Quality Observation</h4>
+                    <span className="text-[10px] text-cyan-700 bg-cyan-100 px-2 py-0.5 rounded-full font-semibold">Advisory — tidak mengubah rekomendasi manusia</span>
+                  </div>
+                  <p className="text-[11px] text-cyan-700 mb-3">
+                    AI hanya menganalisis laporan review <b>manusia yang sudah selesai (completed)</b> untuk
+                    memberikan observasi kualitas tambahan. AI tidak pernah menugaskan reviewer, tidak
+                    mengubah status naskah, dan tidak membuat keputusan editorial.
                   </p>
 
-                  {aiReviewInfo?.success && (
-                    <div className="bg-white border border-purple-100 rounded-lg p-3 mb-3">
-                      <div className="flex items-center justify-between flex-wrap gap-2">
-                        <div className="text-sm text-gray-800">
-                          <span className="font-bold">{aiReviewInfo.reviewerName || 'AI Reviewer Agent'}</span>
-                          <span className="text-xs text-gray-400 ml-2">
-                            {aiReviewInfo.completedAt ? new Date(aiReviewInfo.completedAt).toLocaleString("id-ID") : ''}
-                          </span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <span className="text-xs font-bold text-white bg-purple-600 rounded-full px-2.5 py-0.5">Skor {aiReviewInfo.score ?? '-'}/100</span>
-                          <span className="text-[10px] font-bold text-purple-700 bg-purple-100 rounded px-2 py-0.5 uppercase">{String(aiReviewInfo.recommendation || '').replace('_', ' ')}</span>
-                        </div>
-                      </div>
-                      {aiReviewInfo.report && (
-                        <details className="mt-2">
-                          <summary className="text-[11px] text-purple-700 cursor-pointer select-none">Lihat laporan AI lengkap</summary>
-                          <pre className="mt-1 text-[11px] text-gray-700 whitespace-pre-wrap bg-gray-50 border border-gray-200 rounded p-2 max-h-56 overflow-y-auto">{aiReviewInfo.report}</pre>
-                        </details>
-                      )}
-                    </div>
-                  )}
+                  <div className="space-y-3">
+                    {reviews.filter((r: any) => r.status === 'completed').map((rev: any) => {
+                      const enh = enhancementsMap[rev.id];
+                      const loading = enhancementsLoading[rev.id];
+                      const error = enhancementsError[rev.id];
+                      return (
+                        <div key={rev.id} className="bg-white border border-cyan-100 rounded-lg p-3">
+                          <div className="flex items-center justify-between flex-wrap gap-2">
+                            <div className="text-sm text-gray-800">
+                              <span className="font-bold">{rev.reviewer?.full_name || 'Reviewer'}</span>
+                              <span className="text-xs text-gray-400 ml-2">
+                                {enh ? `Observation ${enh.enhancementVersion || ''}` : 'Belum ada observation AI'}
+                              </span>
+                            </div>
+                            {enh && (
+                              <div className="flex items-center gap-2">
+                                <span className="text-xs font-bold text-white bg-emerald-600 rounded-full px-2.5 py-0.5">Kualitas {enh.qualityScore ?? '-'}</span>
+                                <span className="text-[10px] font-bold text-cyan-700 bg-cyan-100 rounded px-2 py-0.5 uppercase">{String(enh.severityLevel || '').replace('_', ' ')}</span>
+                              </div>
+                            )}
+                          </div>
 
-                  <button
-                    onClick={handleRunAIReview}
-                    disabled={aiRunning}
-                    className={`w-full py-2 rounded font-bold text-sm transition-colors ${
-                      aiRunning ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : 'bg-purple-600 hover:bg-purple-700 text-white'
-                    }`}
-                  >
-                    {aiRunning ? 'Menjalankan AI Review...' : aiReviewInfo?.success ? 'Jalankan Ulang AI Review' : 'Jalankan AI Review'}
-                  </button>
+                          {enh?.enhancedReviewContent && (
+                            <details className="mt-2">
+                              <summary className="text-[11px] text-cyan-700 cursor-pointer select-none">Lihat observasi AI lengkap</summary>
+                              <pre className="mt-1 text-[11px] text-gray-700 whitespace-pre-wrap bg-gray-50 border border-gray-200 rounded p-2 max-h-56 overflow-y-auto">{enh.enhancedReviewContent}</pre>
+                            </details>
+                          )}
+
+                          {error && <p className="text-[11px] text-red-600 mt-2">{error}</p>}
+
+                          <button
+                            onClick={() => handleRunEnhancement(rev.id)}
+                            disabled={loading}
+                            className={`mt-2 w-full py-2 rounded font-bold text-sm transition-colors ${
+                              loading ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : 'bg-cyan-600 hover:bg-cyan-700 text-white'
+                            }`}
+                          >
+                            {loading ? 'Menghasilkan Observation...' : enh ? 'Jalankan Ulang Observation' : 'Hasilkan Quality Observation AI'}
+                          </button>
+                        </div>
+                      );
+                    })}
+</div>
                 </div>
               )}
 

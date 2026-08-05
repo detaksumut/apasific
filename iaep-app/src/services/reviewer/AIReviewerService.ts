@@ -1,4 +1,28 @@
 /**
+ * ============================================================================
+ * MIGRATION NOTE (IAEP Governance Change) — READ BEFORE USING.
+ *
+ * OLD MODEL: "AI Reviewer"
+ *   - AI was modelled as an independent advisory reviewer that wrote a
+ *     standalone report with reviewer_type='AI' in review_assignments.
+ *
+ * NEW MODEL: "AI-Assisted Review Enhancement Layer"
+ *   - AI is NOT a reviewer. AI does NOT perform independent peer review and
+ *     does NOT make editorial decisions.
+ *   - AI only enhances a COMPLETED HUMAN REVIEWER REPORT.
+ *   - Enhancement records live in `review_enhancements`
+ *     (supabase/migrations/20260926000000_create_review_enhancements.sql).
+ *   - The replacement service is `AIReviewEnhancementService` and the
+ *     replacement server actions live in `src/app/actions/reviewEnhancement.ts`.
+ *
+ * THIS FILE IS SUPERSEDED. It is retained ONLY to preserve architecture
+ * history and to keep the deprecated admin settings page compiling. It must
+ * NOT be used for new review flows. Do not wire it into the editor submission
+ * panel; use AIReviewEnhancementService instead.
+ * ============================================================================
+ *
+ * (Original implementation retained for history.)
+ *
  * AIReviewerService — Governed AI Reviewer Agent (Target #3).
  *
  * Tata kelola (governance) yang DIJAMIN oleh service ini:
@@ -147,41 +171,58 @@ static canManageConfig(actorRole: string | null | undefined): boolean {
      * Baca konfigurasi AI Reviewer dari `system_settings`.
      * Selalu mengembalikan konfigurasi valid (fallback default + sanitasi).
      */
-    static async getConfig(client: any): Promise<AIReviewerConfig> {
+static async getConfig(client: any): Promise<AIReviewerConfig> {
         try {
-            const { data } = await client
+            const { data, error } = await client
                 .from('system_settings')
                 .select('value')
                 .eq('key', AI_REVIEWER_CONFIG_KEY)
                 .maybeSingle();
 
-            if (!data || data.value === null || data.value === undefined) {
-                return { ...DEFAULT_AI_REVIEWER_CONFIG };
+            // Defensive: if `.maybeSingle()` errors or returns multiple rows
+            // (e.g. legacy duplicate rows), fall back to the first matching
+            // row instead of silently returning the default config.
+            if (error || !data || data.value === null || data.value === undefined) {
+                const { data: rows, error: rowsErr } = await client
+                    .from('system_settings')
+                    .select('value')
+                    .eq('key', AI_REVIEWER_CONFIG_KEY)
+                    .limit(1)
+                    .maybeSingle();
+                if (rowsErr || !rows || rows.value === null || rows.value === undefined) {
+                    return { ...DEFAULT_AI_REVIEWER_CONFIG };
+                }
+                const parsedRows = typeof rows.value === 'string'
+                    ? (() => { try { return JSON.parse(rows.value); } catch { return null; } })()
+                    : rows.value;
+                return this.sanitizeConfig(parsedRows);
             }
 
-            let parsed: any = data.value;
-            if (typeof parsed === 'string') {
-                try { parsed = JSON.parse(parsed); } catch { parsed = null; }
-            }
-            if (!parsed || typeof parsed !== 'object') {
-                return { ...DEFAULT_AI_REVIEWER_CONFIG };
-            }
-
-            const mode: AIReviewerMode = VALID_MODES.includes(parsed.mode)
-                ? parsed.mode
-                : 'disabled';
-            const enabled = parsed.enabled === true && mode !== 'disabled';
-
-            return {
-                enabled,
-                mode,
-                updatedAt: typeof parsed.updated_at === 'string' ? parsed.updated_at : null,
-                updatedBy: typeof parsed.updated_by === 'string' ? parsed.updated_by : null,
-            };
+            const parsed = typeof data.value === 'string'
+                ? (() => { try { return JSON.parse(data.value); } catch { return null; } })()
+                : data.value;
+            return this.sanitizeConfig(parsed);
         } catch (e) {
             console.warn('[AIReviewerService] getConfig gagal, memakai default:', e);
             return { ...DEFAULT_AI_REVIEWER_CONFIG };
         }
+    }
+
+    /** Sanitize a raw parsed config value into a valid AIReviewerConfig. */
+    private static sanitizeConfig(parsed: any): AIReviewerConfig {
+        if (!parsed || typeof parsed !== 'object') {
+            return { ...DEFAULT_AI_REVIEWER_CONFIG };
+        }
+        const mode: AIReviewerMode = VALID_MODES.includes(parsed.mode)
+            ? parsed.mode
+            : 'disabled';
+        const enabled = parsed.enabled === true && mode !== 'disabled';
+        return {
+            enabled,
+            mode,
+            updatedAt: typeof parsed.updated_at === 'string' ? parsed.updated_at : null,
+            updatedBy: typeof parsed.updated_by === 'string' ? parsed.updated_by : null,
+        };
     }
 
     /**
@@ -223,9 +264,9 @@ static canManageConfig(actorRole: string | null | undefined): boolean {
             updated_by: config.updatedBy,
         };
 
-        const { error } = await client
+const { error } = await client
             .from('system_settings')
-            .upsert({ key: AI_REVIEWER_CONFIG_KEY, value: JSON.stringify(payload) });
+            .upsert({ key: AI_REVIEWER_CONFIG_KEY, value: JSON.stringify(payload) }, { onConflict: 'key' });
 
         if (error) {
             return { success: false, error: 'Gagal menyimpan konfigurasi: ' + error.message };

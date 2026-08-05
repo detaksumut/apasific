@@ -185,9 +185,9 @@ export async function loginUser(email: string, password?: string): Promise<{ suc
       emailLower === superAdminCanonicalEmail &&
       passwordTrimmed === superAdminPassword
     ) {
-      localMatchedUser = {
+localMatchedUser = {
         full_name: "Super Admin",
-        role: "admin",
+        role: "super_admin",
         password: superAdminPassword,
       };
     }
