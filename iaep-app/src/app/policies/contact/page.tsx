@@ -28,8 +28,8 @@ export default function ContactEditorialOfficePage() {
 
       <h3>3. Alamat Kantor (Office Address)</h3>
       <p>
-        Jl. Setia Budi No. 123, Komplek Bernas Building,<br />
-        Kota Medan, Sumatera Utara, 20132,<br />
+        TOWER ASIA, Jl. Perjuangan No. 80 B, Kel. Sei Kera Hilir,<br />
+        Kec. Medan Perjuangan, Medan – Sumatera Utara, 20222,<br />
         Indonesia.
       </p>
 
@@ -37,7 +37,7 @@ export default function ContactEditorialOfficePage() {
       <ul>
         <li><strong>Email Resmi:</strong> admin@apasific.com</li>
         <li><strong>Pertanyaan Editorial:</strong> editor@apasific.com</li>
-        <li><strong>Layanan WhatsApp Dukungan:</strong> +62 812-3456-7890 (Hanya pesan teks)</li>
+        <li><strong>Layanan WhatsApp Dukungan:</strong> +6281343737367 (Hanya pesan teks)</li>
       </ul>
 
       <h3>5. Jam Kerja (Working Hours)</h3>
