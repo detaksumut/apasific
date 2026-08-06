@@ -16,7 +16,6 @@ import { revalidatePath } from 'next/cache';
 import { normalizeRole } from '@/lib/roles';
 import {
     AIReviewerService,
-    type AIReviewerMode,
 } from '@/services/reviewer/AIReviewerService';
 
 async function createAdminClient(): Promise<any> {
