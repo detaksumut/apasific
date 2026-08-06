@@ -49,10 +49,11 @@ export default function PublisherPage() {
         }
       `}} />
 
-      <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <h1 className="text-4xl font-serif font-bold text-[#c9a84c] mb-6 tracking-wide">APASIFIC Press</h1>
-        
-        <div className="pub-content bg-[#0d0d1a] border border-[#c9a84c]/15 p-8 md:p-12 rounded-2xl shadow-[0_8px_32px_rgba(0,0,0,0.5)]">
+      <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16 flex flex-col items-center">
+        <div className="w-full max-w-3xl">
+          <h1 className="text-4xl font-serif font-bold text-[#c9a84c] mb-6 tracking-wide text-center md:text-left">APASIFIC Press</h1>
+          
+          <div className="pub-content bg-[#0d0d1a] border border-[#c9a84c]/15 p-8 md:p-12 rounded-2xl shadow-[0_8px_32px_rgba(0,0,0,0.5)] w-full">
           <section className="mb-12">
             <h2 className="text-2xl font-semibold text-[#c9a84c] mb-4 border-b border-[#c9a84c]/20 pb-2">About the Publisher</h2>
             <p>
@@ -105,6 +106,7 @@ export default function PublisherPage() {
             </div>
           </section>
         </div>
+      </div>
       </main>
 
       {/* Basic JSON-LD for Organization */}
