@@ -136,6 +136,7 @@ const [uploadingReviewId, setUploadingReviewId] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchSubmission = async () => {
+      // Force compile cache refresh
       const supabase = createClient();
       const res = await getSubmissionDetailsEditor(submissionId);
         
