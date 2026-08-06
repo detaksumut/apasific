@@ -205,7 +205,6 @@ export default function SuperAdminOverview() {
         </div>
 
         {activeTab === 'overview' && (
-          <>
             {/* ── Stats ── */}
             <div className="stat-grid">
               {stats.map((s, i) => (
@@ -219,6 +218,9 @@ export default function SuperAdminOverview() {
                 </div>
               ))}
             </div>
+
+            {/* IAEP Enterprise Runtime Status Monitor Panel */}
+            <RuntimeHealthPanel />
 
             {/* ── Main grid ── */}
             <div className="dash-main-grid">
@@ -429,12 +431,79 @@ export default function SuperAdminOverview() {
                     </div>
                   </div>
                 </div>
-              </div>
             </div>
           </div>
         )}
       </div>
     </>
+  );
+}
+
+function RuntimeHealthPanel() {
+  const [data, setData] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch("/api/admin/health")
+      .then((res) => res.json())
+      .then((res) => {
+        setData(res);
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.error(err);
+        setLoading(false);
+      });
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="bg-[#13131f] border border-gray-800 p-6 rounded-xl mb-7 animate-pulse text-zinc-500 text-xs">
+        Loading IAEP Enterprise Runtime Health Status...
+      </div>
+    );
+  }
+
+  if (!data || data.status !== "success") {
+    return (
+      <div className="bg-[#13131f] border border-red-900/30 p-6 rounded-xl mb-7 text-xs text-red-400">
+        Status: Unknown. Reason: No runtime evidence available.
+      </div>
+    );
+  }
+
+  const { services, overallScore, overallLatencyMs } = data;
+
+  return (
+    <div className="bg-[#13131f] border border-gray-800 p-6 rounded-xl mb-7 space-y-4">
+      <div className="flex justify-between items-center border-b border-gray-800 pb-3">
+        <div>
+          <h3 className="text-md font-bold text-white">IAEP Enterprise Runtime Status</h3>
+          <p className="text-[10px] text-gray-500 mt-0.5">Overall latency: {overallLatencyMs} ms • Verified at: {new Date(data.timestamp).toLocaleTimeString()}</p>
+        </div>
+        <div className="text-right">
+          <span className="text-xs text-gray-500 uppercase font-black tracking-wider block">Health Score</span>
+          <span className="text-lg font-black text-green-400 dash-num">{overallScore}%</span>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {Object.entries(services).map(([key, s]: any) => (
+          <div key={key} className="bg-black/30 border border-gray-900 p-3.5 rounded-lg space-y-1">
+            <div className="flex justify-between items-center">
+              <span className="text-gray-400 text-xs font-bold capitalize">{key}</span>
+              <span className={`text-[10px] font-black uppercase px-2 py-0.5 rounded-full ${s.status === 'Healthy' ? 'bg-green-500/10 text-green-400' : 'bg-red-500/10 text-red-400'}`}>
+                {s.status}
+              </span>
+            </div>
+            <div className="text-[11px] text-gray-500 flex justify-between pt-1">
+              <span>Latency: <strong className="text-gray-300 dash-num">{s.latencyMs} ms</strong></span>
+              <span className="text-green-400 font-bold dash-num">{s.score}%</span>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
   );
 }
 
