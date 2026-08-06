@@ -224,7 +224,7 @@ export default function JournalPage() {
               { pos: "Advisory Board", name: "Prof. Dr. Indra Maipita, M.Si.", country: "Indonesia", photo: "/indra.jpg" },
               { pos: "Advisory Board", name: "Assoc. Prof. Ts. Dr. Aidi Ahmi", country: "Malaysia", photo: "" },
               { pos: "Advisory Board", name: "Prof. Istianingsih Sastrodiharjo, S.E., S.H., M.Si.", country: "Indonesia", photo: "" },
-              { pos: "Managing Editor", name: "Muhibbuddin Abdul Rahman", country: "Indonesia", photo: "/rahman.jpg" },
+              { pos: "Managing Editor", name: "Muhibbuddin Abdul Rahman", country: "Indonesia", photo: "/rahman.jpg", orcid: "0009-0006-8416-6156" },
               { pos: "Ethics Editor", name: "Dr. Elen Puspitasari., SE., M.Si., CRM., CFDP., CFSM., MSEAC.", country: "Indonesia", photo: "" },
               { pos: "Methodology & Statistics", name: "Dr. Ikbar Pratama, S.E., M.Acc., PhD", country: "Indonesia", photo: "" },
               { pos: "Methodology & Statistics", name: "Dr. Wuri Septi Handayani, S.E., M.Si", country: "Indonesia", photo: "" },
@@ -365,7 +365,7 @@ export default function JournalPage() {
               const isEven = i % 2 === 0;
               // Hardcoded fallbacks to meet Scopus metadata completeness
               const resolvedAffiliation = (m as any).affiliation || "Association of Asia Pacific Academician (APASIFIC)";
-              const resolvedOrcid = (m as any).orcid || `0009-000${Math.abs(1000 + i)}-${Math.abs(5382 - i)}`;
+              const resolvedOrcid = (m as any).orcid || null;
               
               return (
                 <div key={i} style={{
@@ -420,12 +420,20 @@ export default function JournalPage() {
                       {m.pos}
                     </h3>
                     <div style={{ fontSize: "11px", color: "rgba(201,168,76,0.7)", marginTop: "4px" }}>
-                      <a href={`https://orcid.org/${resolvedOrcid}`} target="_blank" rel="noopener noreferrer" className="hover:underline flex items-center gap-1">
-                        <svg className="w-3.5 h-3.5 fill-[#a6bf4b]" viewBox="0 0 24 24" style={{ display: "inline-block", verticalAlign: "middle" }}>
-                          <path d="M12 0C5.372 0 0 5.372 0 12s5.372 12 12 12 12-5.372 12-12S18.628 0 12 0zM7.369 4.378c.541 0 .98.439.98.98s-.439.98-.98.98-.98-.439-.98-.98.439-.98.98-.98zm.054 3.018v9.336H6.335V7.396h1.088zm4.23 9.336H10.53V7.396h1.088v1.272c.324-.468.864-.816 1.488-.816 2.148 0 2.82 1.452 2.82 3.324v5.16h-1.088v-4.86c0-1.248-.42-2.148-1.74-2.148-1.008 0-1.476.684-1.476 1.572v5.436z"/>
-                        </svg>
-                        {" "}{resolvedOrcid}
-                      </a>
+                      {resolvedOrcid ? (
+                        <a href={`https://orcid.org/${resolvedOrcid}`} target="_blank" rel="noopener noreferrer" className="hover:underline flex items-center gap-1">
+                          <svg className="w-3.5 h-3.5 fill-[#a6bf4b]" viewBox="0 0 24 24" style={{ display: "inline-block", verticalAlign: "middle" }}>
+                            <path d="M12 0C5.372 0 0 5.372 0 12s5.372 12 12 12 12-5.372 12-12S18.628 0 12 0zM7.369 4.378c.541 0 .98.439.98.98s-.439.98-.98.98-.98-.439-.98-.98.439-.98.98-.98zm.054 3.018v9.336H6.335V7.396h1.088zm4.23 9.336H10.53V7.396h1.088v1.272c.324-.468.864-.816 1.488-.816 2.148 0 2.82 1.452 2.82 3.324v5.16h-1.088v-4.86c0-1.248-.42-2.148-1.74-2.148-1.008 0-1.476.684-1.476 1.572v5.436z"/>
+                          </svg>
+                          {" "}{resolvedOrcid}
+                        </a>
+                      ) : (
+                        <a href="https://orcid.org" target="_blank" rel="noopener noreferrer" className="hover:opacity-85 flex items-center gap-1 w-fit" title="ORCID Profile">
+                          <svg className="w-3.5 h-3.5 fill-[#a6bf4b]" viewBox="0 0 24 24" style={{ display: "inline-block", verticalAlign: "middle" }}>
+                            <path d="M12 0C5.372 0 0 5.372 0 12s5.372 12 12 12 12-5.372 12-12S18.628 0 12 0zM7.369 4.378c.541 0 .98.439.98.98s-.439.98-.98.98-.98-.439-.98-.98.439-.98.98-.98zm.054 3.018v9.336H6.335V7.396h1.088zm4.23 9.336H10.53V7.396h1.088v1.272c.324-.468.864-.816 1.488-.816 2.148 0 2.82 1.452 2.82 3.324v5.16h-1.088v-4.86c0-1.248-.42-2.148-1.74-2.148-1.008 0-1.476.684-1.476 1.572v5.436z"/>
+                          </svg>
+                        </a>
+                      )}
                     </div>
                   </div>
                   
