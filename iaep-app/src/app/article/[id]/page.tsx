@@ -136,7 +136,8 @@ export default function ArticlePaywall() {
     volume: "",
     issue: "",
     created_at: "",
-    published_at: ""
+    published_at: "",
+    issn: ""
   });
 
   const [errorMessage, setErrorMessage] = useState("");
@@ -191,7 +192,8 @@ export default function ArticlePaywall() {
             volume: data.volume || "",
             issue: data.issue || "",
             created_at: data.created_at || "",
-            published_at: data.published_at || ""
+            published_at: data.published_at || "",
+            issn: data.issn || (Array.isArray(data.journals) ? data.journals[0]?.issn : (data.journals as any)?.issn) || ""
           });
         } else {
           setErrorMessage(res.error || "Artikel tidak terdaftar atau belum dipublikasikan secara publik.");
