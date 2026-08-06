@@ -1162,9 +1162,9 @@ export default function ArticlePaywall() {
                     <h4 className="text-emerald-400 text-xs font-black uppercase tracking-wider">ISSN &amp; PERPUSNAS Verification</h4>
                     <div className="text-xs space-y-1.5 text-gray-300 mt-1">
                       <p><span className="text-gray-500">Institution:</span> Perpustakaan Nasional RI (Pusat ISSN)</p>
-                      <p><span className="text-gray-500">eISSN (Online):</span> <span className="text-red-500 font-bold">Not Registered</span></p>
-                      <p><span className="text-gray-500">Status:</span> <span className="text-red-500">Not Registered</span></p>
-                      <p><span className="text-gray-500">Evidence:</span> ISSN/eISSN belum terdaftar</p>
+                      <p><span className="text-gray-500">eISSN (Online):</span> <span className="text-[#c9a84c] font-bold">Dalam Proses</span></p>
+                      <p><span className="text-gray-500">Status:</span> <span className="text-[#c9a84c] font-bold">Dalam Proses</span></p>
+                      <p><span className="text-gray-500">Evidence:</span> ISSN/eISSN dalam proses verifikasi</p>
                       <p className="text-[10px] text-zinc-500 leading-relaxed"><strong>Recommendation:</strong> Ajukan ISSN di Perpusnas RI.</p>
                     </div>
                   </div>
@@ -1195,7 +1195,7 @@ export default function ArticlePaywall() {
                     <div>
                       <h4 className="text-white text-xs font-bold">OpenAlex</h4>
                       <div className="text-[11px] space-y-1 text-gray-300 mt-1">
-                        <p><span className="text-gray-500">Status:</span> <span className="text-red-500">No Record Found</span></p>
+                        <p><span className="text-gray-500">Status:</span> <span className="text-[#c9a84c] font-bold">Dalam Proses</span></p>
                         <p><span className="text-gray-500">Evidence:</span> DOI resolve: SUCCESS, Work ID: -</p>
                       </div>
                     </div>
@@ -1233,8 +1233,8 @@ export default function ArticlePaywall() {
                     <div>
                       <h4 className="text-white text-xs font-bold">DOAJ</h4>
                       <div className="text-[11px] space-y-1 text-gray-300 mt-1">
-                        <p><span className="text-gray-500">Status:</span> <span className="text-red-500 font-semibold">Not Ready</span></p>
-                        <p className="text-[9px] text-red-400/85">Blocked: ISSN required.</p>
+                        <p><span className="text-gray-500">Status:</span> <span className="text-[#c9a84c] font-bold">Dalam Proses</span></p>
+                        <p className="text-[9px] text-zinc-500">ISSN Registration required.</p>
                       </div>
                     </div>
                   </div>
@@ -1244,8 +1244,8 @@ export default function ArticlePaywall() {
                     <div>
                       <h4 className="text-white text-xs font-bold">SINTA / ARJUNA</h4>
                       <div className="text-[11px] space-y-1 text-gray-300 mt-1">
-                        <p><span className="text-gray-500">Status:</span> <span className="text-red-500 font-semibold">Blocked</span></p>
-                        <p className="text-[9px] text-red-400/85">Reason: 2 issues required.</p>
+                        <p><span className="text-gray-500">Status:</span> <span className="text-[#c9a84c] font-bold">Dalam Proses</span></p>
+                        <p className="text-[9px] text-zinc-500">Reason: Minimal 2 issues required.</p>
                       </div>
                     </div>
                   </div>
@@ -1255,8 +1255,8 @@ export default function ArticlePaywall() {
                     <div>
                       <h4 className="text-white text-xs font-bold">GARUDA / ROAD</h4>
                       <div className="text-[11px] space-y-1 text-gray-300 mt-1">
-                        <p><span className="text-gray-500">Status:</span> <span className="text-red-500 font-semibold">Not Registered</span></p>
-                        <p className="text-[9px] text-red-400/85">Requires Perpusnas ISSN.</p>
+                        <p><span className="text-gray-500">Status:</span> <span className="text-[#c9a84c] font-bold">Dalam Proses</span></p>
+                        <p className="text-[9px] text-zinc-500">Requires Perpusnas ISSN.</p>
                       </div>
                     </div>
                   </div>
@@ -1266,7 +1266,7 @@ export default function ArticlePaywall() {
                     <div>
                       <h4 className="text-white text-xs font-bold">Scopus</h4>
                       <div className="text-[11px] space-y-1 text-gray-300 mt-1">
-                        <p><span className="text-gray-500">Status:</span> <span className="text-red-500 font-semibold">Not Eligible</span></p>
+                        <p><span className="text-gray-500">Status:</span> <span className="text-[#c9a84c] font-bold">Dalam Proses</span></p>
                         <p className="text-[9px] text-zinc-500">Requires 2 years history.</p>
                       </div>
                     </div>
@@ -1317,8 +1317,8 @@ export default function ArticlePaywall() {
                     <div>
                       <h4 className="text-white text-xs font-bold">Semantic Scholar</h4>
                       <div className="text-[11px] space-y-1 text-gray-300 mt-1">
-                        <p><span className="text-gray-500">Status:</span> <span className="text-red-500 font-bold">No Record</span></p>
-                        <p className="text-[9px] text-zinc-600">Artikel belum terindeks.</p>
+                        <p><span className="text-gray-500">Status:</span> <span className="text-[#c9a84c] font-bold">Dalam Proses</span></p>
+                        <p className="text-[9px] text-zinc-500">Artikel belum terindeks.</p>
                       </div>
                     </div>
                   </div>
@@ -1328,8 +1328,8 @@ export default function ArticlePaywall() {
                     <div>
                       <h4 className="text-white text-xs font-bold">Dimensions</h4>
                       <div className="text-[11px] space-y-1 text-gray-300 mt-1">
-                        <p><span className="text-gray-500">Status:</span> <span className="text-red-500 font-bold">No Record</span></p>
-                        <p className="text-[9px] text-zinc-600">Menunggu indeksasi DOI.</p>
+                        <p><span className="text-gray-500">Status:</span> <span className="text-[#c9a84c] font-bold">Dalam Proses</span></p>
+                        <p className="text-[9px] text-zinc-500">Menunggu indeksasi DOI.</p>
                       </div>
                     </div>
                   </div>
@@ -1350,8 +1350,8 @@ export default function ArticlePaywall() {
                     <div>
                       <h4 className="text-white text-xs font-bold">ROAD ISSN</h4>
                       <div className="text-[11px] space-y-1 text-gray-300 mt-1">
-                        <p><span className="text-gray-500">Status:</span> <span className="text-red-500 font-bold">Not Registered</span></p>
-                        <p className="text-[9px] text-zinc-600">Memerlukan ISSN.</p>
+                        <p><span className="text-gray-500">Status:</span> <span className="text-[#c9a84c] font-bold">Dalam Proses</span></p>
+                        <p className="text-[9px] text-zinc-500">Memerlukan ISSN.</p>
                       </div>
                     </div>
                   </div>
