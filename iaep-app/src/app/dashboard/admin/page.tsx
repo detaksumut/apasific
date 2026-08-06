@@ -6,6 +6,7 @@ import { useState, useEffect } from "react";
 export default function SuperAdminOverview() {
   const [submissionCount, setSubmissionCount] = useState(342);
   const [activities, setActivities] = useState<any[]>([]);
+  const [activeTab, setActiveTab] = useState("overview"); // "overview" | "visibility" | "publisher"
 
   useEffect(() => {
     const defaultSubsLength = 3;
@@ -19,7 +20,6 @@ export default function SuperAdminOverview() {
     }
 
     const defaultLogs: any[] = [];
-
     const storedLogs = localStorage.getItem("mock_system_logs");
     if (storedLogs) {
       try { setActivities(JSON.parse(storedLogs)); }
@@ -47,15 +47,12 @@ export default function SuperAdminOverview() {
   return (
     <>
       <style>{`
-        /* ── Reset font for all numbers in dashboard ── */
         .dash-num {
           font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
           font-variant-numeric: tabular-nums;
           font-weight: 800;
           letter-spacing: -0.5px;
         }
-
-        /* ── Header banner ── */
         .dash-header {
           background: linear-gradient(135deg, #12122a 0%, #1a1a38 60%, #12122a 100%);
           border: 1px solid rgba(201,168,76,0.2);
@@ -80,7 +77,6 @@ export default function SuperAdminOverview() {
         .dash-header h1 span { color: #c9a84c; }
         .dash-header p { color: rgba(255,255,255,0.45); font-size: 14px; margin: 0; }
 
-        /* ── Stat Cards ── */
         .stat-grid {
           display: grid;
           grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
@@ -109,7 +105,6 @@ export default function SuperAdminOverview() {
         }
         .stat-label { font-size: 12px; color: rgba(255,255,255,0.4); font-weight: 500; }
 
-        /* ── Main grid ── */
         .dash-main-grid {
           display: grid;
           grid-template-columns: 1fr 360px;
@@ -117,12 +112,12 @@ export default function SuperAdminOverview() {
         }
         @media (max-width: 1100px) { .dash-main-grid { grid-template-columns: 1fr; } }
 
-        /* ── Card ── */
         .dash-card {
           background: #13131f;
           border: 1px solid rgba(255,255,255,0.07);
           border-radius: 14px;
           overflow: hidden;
+          margin-bottom: 20px;
         }
         .dash-card-head {
           display: flex; align-items: center; justify-content: space-between;
@@ -134,7 +129,6 @@ export default function SuperAdminOverview() {
         .dash-card-head a  { font-size: 12px; font-weight: 600; color: #c9a84c; text-decoration: none; transition: color 0.2s; }
         .dash-card-head a:hover { color: #fff; }
 
-        /* ── Journal rows ── */
         .journal-row {
           display: flex; align-items: center; justify-content: space-between;
           padding: 18px 24px;
@@ -157,7 +151,6 @@ export default function SuperAdminOverview() {
         .journal-meta .users { font-size: 13px; font-weight: 600; color: #fff; }
         .journal-meta .status { font-size: 11px; color: #34a853; margin-top: 2px; }
 
-        /* ── System Logs ── */
         .log-body { padding: 20px 24px; }
         .log-item { display: flex; gap: 14px; margin-bottom: 20px; }
         .log-item:last-child { margin-bottom: 0; }
@@ -172,91 +165,276 @@ export default function SuperAdminOverview() {
           transition: all 0.2s; text-align: center;
         }
         .btn-view-all:hover { background: rgba(255,255,255,0.08); color: #fff; }
+
+        /* Tabs styling */
+        .tab-btn {
+          padding: 10px 20px;
+          font-size: 14px;
+          font-weight: 600;
+          color: #8888aa;
+          background: transparent;
+          border: none;
+          border-bottom: 2px solid transparent;
+          cursor: pointer;
+          transition: all 0.2s;
+        }
+        .tab-btn.active {
+          color: #c9a84c;
+          border-bottom-color: #c9a84c;
+        }
       `}</style>
 
       <div>
         {/* ── Header ── */}
         <div className="dash-header">
-          <h1>Super Admin <span>Ringkasan</span></h1>
-          <p>Pengawasan global jaringan penerbitan akademik APASIFIC.</p>
+          <h1>Super Admin <span>Intelligence</span></h1>
+          <p>Pengawasan global dan analitik indeksasi scholarly ekosistem APASIFIC.</p>
         </div>
 
-        {/* ── Stats ── */}
-        <div className="stat-grid">
-          {stats.map((s, i) => (
-            <div key={i} className="stat-card">
-              <div className="stat-card-top">
-                <span className="stat-icon">{s.icon}</span>
-                <span className="stat-delta">{s.delta}</span>
-              </div>
-              <div className="stat-value dash-num" style={{ color: s.color }}>{s.value}</div>
-              <div className="stat-label">{s.label}</div>
-            </div>
-          ))}
+        {/* ── Tabs Navigation ── */}
+        <div className="flex border-b border-gray-800 mb-8">
+          <button className={`tab-btn ${activeTab === 'overview' ? 'active' : ''}`} onClick={() => setActiveTab('overview')}>
+            System Overview
+          </button>
+          <button className={`tab-btn ${activeTab === 'visibility' ? 'active' : ''}`} onClick={() => setActiveTab('visibility')}>
+            Scholarly Visibility
+          </button>
+          <button className={`tab-btn ${activeTab === 'publisher' ? 'active' : ''}`} onClick={() => setActiveTab('publisher')}>
+            Publisher &amp; Executive Analytics
+          </button>
         </div>
 
-        {/* ── Main grid ── */}
-        <div className="dash-main-grid">
-
-          {/* Hosted Journals */}
-          <div className="dash-card">
-            <div className="dash-card-head">
-              <h2>Jurnal yang Dikelola (OJS)</h2>
-              <Link href="/dashboard/admin/journals">Kelola Semua →</Link>
-            </div>
-            <div>
-
-
-              <div className="journal-row">
-                <div style={{ display: "flex", alignItems: "center" }}>
-                  <div className="journal-avatar" style={{ background: "linear-gradient(135deg, #4285f4, #1a56c4)" }}>IA</div>
-                  <div className="journal-info">
-                    <h3>APASIFIC IAEP</h3>
-                    <p>Impact of Artificial Intelligence on Education &amp; Practice</p>
+        {activeTab === 'overview' && (
+          <>
+            {/* ── Stats ── */}
+            <div className="stat-grid">
+              {stats.map((s, i) => (
+                <div key={i} className="stat-card">
+                  <div className="stat-card-top">
+                    <span className="stat-icon">{s.icon}</span>
+                    <span className="stat-delta">{s.delta}</span>
                   </div>
-                </div>
-                <div className="journal-meta">
-                  <div className="users dash-num">1,033</div>
-                  <div className="status">● Aktif</div>
-                </div>
-              </div>
-              <div className="journal-row">
-                <div style={{ display: "flex", alignItems: "center" }}>
-                  <div className="journal-avatar" style={{ background: "linear-gradient(135deg, #34a853, #1a7a35)" }}>AJ</div>
-                  <div className="journal-info">
-                    <h3>ASIA Journal</h3>
-                    <p>Asia Pacific Multidisciplinary Academic Journal</p>
-                  </div>
-                </div>
-                <div className="journal-meta">
-                  <div className="users dash-num">—</div>
-                  <div className="status" style={{ color: "#f59e0b" }}>● Persiapan</div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* System Logs */}
-          <div className="dash-card">
-            <div className="dash-card-head">
-              <h2>Log Sistem</h2>
-            </div>
-            <div className="log-body">
-              {activities.map((act, i) => (
-                <div key={i} className="log-item">
-                  <div className="log-dot" style={{ background: statusColor[act.status] || "#4285f4" }} />
-                  <div>
-                    <div className="log-time">{act.time}</div>
-                    <div className="log-text">{act.text}</div>
-                  </div>
+                  <div className="stat-value dash-num" style={{ color: s.color }}>{s.value}</div>
+                  <div className="stat-label">{s.label}</div>
                 </div>
               ))}
-              <button className="btn-view-all">Lihat Semua Log</button>
+            </div>
+
+            {/* ── Main grid ── */}
+            <div className="dash-main-grid">
+              <div className="dash-card">
+                <div className="dash-card-head">
+                  <h2>Jurnal yang Dikelola (OJS)</h2>
+                  <Link href="/dashboard/admin/journals">Kelola Semua →</Link>
+                </div>
+                <div>
+                  <div className="journal-row">
+                    <div style={{ display: "flex", alignItems: "center" }}>
+                      <div className="journal-avatar" style={{ background: "linear-gradient(135deg, #4285f4, #1a56c4)" }}>IA</div>
+                      <div className="journal-info">
+                        <h3>APASIFIC IAEP</h3>
+                        <p>Impact of Artificial Intelligence on Education &amp; Practice</p>
+                      </div>
+                    </div>
+                    <div className="journal-meta">
+                      <div className="users dash-num">1,033</div>
+                      <div className="status">● Aktif</div>
+                    </div>
+                  </div>
+                  <div className="journal-row">
+                    <div style={{ display: "flex", alignItems: "center" }}>
+                      <div className="journal-avatar" style={{ background: "linear-gradient(135deg, #34a853, #1a7a35)" }}>AJ</div>
+                      <div className="journal-info">
+                        <h3>ASIA Journal</h3>
+                        <p>Asia Pacific Multidisciplinary Academic Journal</p>
+                      </div>
+                    </div>
+                    <div className="journal-meta">
+                      <div className="users dash-num">—</div>
+                      <div className="status" style={{ color: "#f59e0b" }}>● Persiapan</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="dash-card">
+                <div className="dash-card-head">
+                  <h2>Log Sistem</h2>
+                </div>
+                <div className="log-body">
+                  {activities.map((act, i) => (
+                    <div key={i} className="log-item">
+                      <div className="log-dot" style={{ background: statusColor[act.status] || "#4285f4" }} />
+                      <div>
+                        <div className="log-time">{act.time}</div>
+                        <div className="log-text">{act.text}</div>
+                      </div>
+                    </div>
+                  ))}
+                  <button className="btn-view-all">Lihat Semua Log</button>
+                </div>
+              </div>
+            </div>
+          </>
+        )}
+
+        {activeTab === 'visibility' && (
+          <div className="space-y-6">
+            {/* Crossref & Zenodo Monitor */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="bg-[#13131f] border border-gray-800 p-6 rounded-xl">
+                <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                  <span className="text-blue-500">❖</span> Crossref Deposit Monitor
+                </h3>
+                <div className="grid grid-cols-3 gap-3 mb-6">
+                  <div className="bg-black/30 p-3 rounded-lg text-center">
+                    <div className="text-xl font-bold text-green-500 dash-num">142</div>
+                    <div className="text-xs text-gray-400">Accepted</div>
+                  </div>
+                  <div className="bg-black/30 p-3 rounded-lg text-center">
+                    <div className="text-xl font-bold text-yellow-500 dash-num">4</div>
+                    <div className="text-xs text-gray-400">Processing</div>
+                  </div>
+                  <div className="bg-black/30 p-3 rounded-lg text-center">
+                    <div className="text-xl font-bold text-red-500 dash-num">0</div>
+                    <div className="text-xs text-gray-400">Failed</div>
+                  </div>
+                </div>
+                <div className="text-xs text-gray-500 flex justify-between border-t border-gray-800 pt-3">
+                  <span>Last Sync: 10 mins ago</span>
+                  <span className="text-green-400">● Stable Connection</span>
+                </div>
+              </div>
+
+              <div className="bg-[#13131f] border border-gray-800 p-6 rounded-xl">
+                <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                  <span className="text-purple-500">❖</span> Zenodo Deposit Monitor
+                </h3>
+                <div className="grid grid-cols-3 gap-3 mb-6">
+                  <div className="bg-black/30 p-3 rounded-lg text-center">
+                    <div className="text-xl font-bold text-green-500 dash-num">142</div>
+                    <div className="text-xs text-gray-400">Deposited</div>
+                  </div>
+                  <div className="bg-black/30 p-3 rounded-lg text-center">
+                    <div className="text-xl font-bold text-yellow-500 dash-num">2</div>
+                    <div className="text-xs text-gray-400">Pending</div>
+                  </div>
+                  <div className="bg-black/30 p-3 rounded-lg text-center">
+                    <div className="text-xl font-bold text-red-500 dash-num">0</div>
+                    <div className="text-xs text-gray-400">Failed</div>
+                  </div>
+                </div>
+                <div className="text-xs text-gray-500 flex justify-between border-t border-gray-800 pt-3">
+                  <span>Sync Status: MATCHED</span>
+                  <span className="text-green-400">● Storage Sync OK</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Indexing Readiness Engine */}
+            <div className="bg-[#13131f] border border-gray-800 p-6 rounded-xl">
+              <h3 className="text-lg font-bold text-[#c9a84c] mb-6">Scholarly Metadata &amp; Indexing Readiness</h3>
+              <div className="space-y-4">
+                <div>
+                  <div className="flex justify-between text-sm mb-1">
+                    <span className="text-white">Google Scholar Compliance (citation tags, sitemap, canonicals)</span>
+                    <span className="text-[#c9a84c] font-bold">96% (PASS)</span>
+                  </div>
+                  <div className="w-full bg-gray-800 h-2 rounded-full overflow-hidden">
+                    <div className="bg-green-500 h-full" style={{ width: '96%' }} />
+                  </div>
+                </div>
+                <div>
+                  <div className="flex justify-between text-sm mb-1">
+                    <span className="text-white">OpenAIRE &amp; OAI-PMH Interoperability (Dublin Core exposure)</span>
+                    <span className="text-[#c9a84c] font-bold">94% (PASS)</span>
+                  </div>
+                  <div className="w-full bg-gray-800 h-2 rounded-full overflow-hidden">
+                    <div className="bg-green-500 h-full" style={{ width: '94%' }} />
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
+        )}
 
-        </div>
+        {activeTab === 'publisher' && (
+          <div className="space-y-6">
+            {/* PT Bernas Sumut Jaya Consolidate Dashboard */}
+            <div className="bg-[#13131f] border border-gray-800 p-6 rounded-xl">
+              <h3 className="text-lg font-bold text-white mb-6">PT Bernas Sumut Jaya — Publisher Aggregated KPIs</h3>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                <div className="p-4 bg-black/20 rounded-lg">
+                  <div className="text-gray-400 text-xs uppercase">Total Journals</div>
+                  <div className="text-2xl font-bold text-[#c9a84c] dash-num mt-1">3</div>
+                </div>
+                <div className="p-4 bg-black/20 rounded-lg">
+                  <div className="text-gray-400 text-xs uppercase">Total Published Articles</div>
+                  <div className="text-2xl font-bold text-[#c9a84c] dash-num mt-1">142</div>
+                </div>
+                <div className="p-4 bg-black/20 rounded-lg">
+                  <div className="text-gray-400 text-xs uppercase">Global ORCID Coverage</div>
+                  <div className="text-2xl font-bold text-[#c9a84c] dash-num mt-1">92.4%</div>
+                </div>
+                <div className="p-4 bg-black/20 rounded-lg">
+                  <div className="text-gray-400 text-xs uppercase">Total citations</div>
+                  <div className="text-2xl font-bold text-[#c9a84c] dash-num mt-1">481</div>
+                </div>
+              </div>
+            </div>
+
+            {/* ORCID Coverage & SDGs Distribution */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="bg-[#13131f] border border-gray-800 p-6 rounded-xl">
+                <h3 className="text-md font-bold text-[#c9a84c] mb-4">ORCID Board Coverage</h3>
+                <div className="space-y-3 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-gray-400">Total Authors</span>
+                    <span className="text-white font-semibold">134</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-400">Verified ORCID Authors</span>
+                    <span className="text-white font-semibold">124</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-400">Reviewers with ORCID</span>
+                    <span className="text-white font-semibold">89%</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-400">Editorial Board with ORCID</span>
+                    <span className="text-white font-semibold">95%</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-[#13131f] border border-gray-800 p-6 rounded-xl">
+                <h3 className="text-md font-bold text-[#c9a84c] mb-4">Sustainable Development Goals (SDG) Mapping</h3>
+                <div className="space-y-2 text-xs">
+                  <div>
+                    <div className="flex justify-between mb-1">
+                      <span className="text-white">Goal 4: Quality Education</span>
+                      <span className="text-gray-400">62 Articles</span>
+                    </div>
+                    <div className="w-full bg-gray-800 h-1.5 rounded-full overflow-hidden">
+                      <div className="bg-[#c9a84c] h-full" style={{ width: '45%' }} />
+                    </div>
+                  </div>
+                  <div>
+                    <div className="flex justify-between mb-1">
+                      <span className="text-white">Goal 8: Decent Work &amp; Economic Growth</span>
+                      <span className="text-gray-400">45 Articles</span>
+                    </div>
+                    <div className="w-full bg-gray-800 h-1.5 rounded-full overflow-hidden">
+                      <div className="bg-[#c9a84c] h-full" style={{ width: '32%' }} />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </>
   );
 }
+
