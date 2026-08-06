@@ -2,7 +2,7 @@ import { createClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
 import { UserPlus, Search, BookOpen, Clock } from "lucide-react";
 import { cookies } from "next/headers";
-import AssignReviewerAction from "@/components/dashboard/AssignReviewerAction";
+import AssignReviewerButton from "@/components/dashboard/AssignReviewerButton";
 
 
 export default async function AssignReviewerPage() {
@@ -192,13 +192,16 @@ export default async function AssignReviewerPage() {
                               </div>
                             </div>
                           );
-                        })}
+})}
                       </div>
                     )}
                   </div>
-                  
-                  <div className="shrink-0">
-                    <AssignReviewerAction article={article} reviewers={allReviewers} />
+
+<div className="shrink-0">
+                    <AssignReviewerButton
+                      submissionId={article.id}
+                      articleTitle={article.title}
+                    />
                   </div>
                 </div>
               </div>

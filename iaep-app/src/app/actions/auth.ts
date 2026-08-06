@@ -482,16 +482,17 @@ export async function getCurrentUser() {
         if (rawName) {
             try { displayName = decodeURIComponent(rawName); } catch { displayName = rawName; }
         }
+        const _fallbackRole = cookieStore.get('user_role')?.value || 'author';
         return {
             id: user.id,
             identityId: user.id,
             email: user.email || '',
             full_name: displayName,
-            role: cookieStore.get('user_role')?.value || 'author',
+            role: _fallbackRole,
             json_id: (user as any).json_id || cookieStore.get('reviewer_json_id')?.value || null,
             provider: 'fallback',
             fallback: true,
-            roles: [],
+            roles: [_fallbackRole],
             permissions: []
         } as any;
     }

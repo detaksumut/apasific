@@ -8,6 +8,7 @@ export interface CrossrefDepositMetadata {
   articleTitle: string;
   doi: string;
   publicationYear: string;
+  publicationDate: string; // ISO format string YYYY-MM-DD
   url: string; // The URL to resolve the DOI to (e.g. APASIFIC article page)
   authors: Array<{ givenName: string; surname: string; orcid?: string }>;
 }
@@ -28,6 +29,19 @@ export class CrossrefMapper {
         ${author.orcid ? `<ORCID>https://orcid.org/${author.orcid}</ORCID>` : ''}
       </person_name>
     `).join('');
+
+    // Parse YYYY-MM-DD
+    const dateParts = metadata.publicationDate.split('-');
+    const year = dateParts[0] || metadata.publicationYear;
+    const month = dateParts[1] || '01';
+    const day = dateParts[2] || '01';
+
+    const publicationDateXml = `
+        <publication_date media_type="online">
+          <year>${year}</year>
+          <month>${month}</month>
+          <day>${day}</day>
+        </publication_date>`;
 
     return `<?xml version="1.0" encoding="UTF-8"?>
 <doi_batch xmlns="http://www.crossref.org/schema/4.3.6" 
@@ -50,9 +64,7 @@ export class CrossrefMapper {
         <issn media_type="electronic">${metadata.issn}</issn>
       </journal_metadata>
       <journal_issue>
-        <publication_date media_type="online">
-          <year>${metadata.publicationYear}</year>
-        </publication_date>
+        ${publicationDateXml}
         <journal_volume><volume>${metadata.volume}</volume></journal_volume>
         <issue>${metadata.issue}</issue>
       </journal_issue>
@@ -63,9 +75,7 @@ export class CrossrefMapper {
         <contributors>
           ${contributorsXml}
         </contributors>
-        <publication_date media_type="online">
-          <year>${metadata.publicationYear}</year>
-        </publication_date>
+        ${publicationDateXml}
         <doi_data>
           <doi>${metadata.doi}</doi>
           <resource>${metadata.url}</resource>

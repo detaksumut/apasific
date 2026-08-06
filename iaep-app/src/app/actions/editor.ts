@@ -553,70 +553,6 @@ export async function getReviewers() {
     return res.reviewers || [];
 }
 
-/**
- * Rekomendasi reviewer cerdas untuk satu submission — READ-ONLY & ADVISORY.
- *
- * Menghitung daftar kandidat reviewer yang diperingkat berdasarkan
- * kecocokan keahlian, ketersediaan, beban kerja, dan konflik kepentingan
- * (lihat ReviewerMatchingService). Aksi ini TIDAK pernah menulis atau
- * menugaskan reviewer — keputusan penugasan tetap melalui `assignReviewer`.
- *
- * Gate: hanya editor / admin / supervisor / co-admin yang boleh memanggil.
- */
-export async function getRecommendedReviewers(submissionId: string, limit: number = 10) {
-    try {
-        // 1. Role gating (editor-or-above atau co-admin)
-        let role = '';
-        try {
-            const { getCurrentUser } = await import('./auth');
-            const currentUser: any = await getCurrentUser();
-            if (!currentUser?.id) {
-                return { success: false, error: 'Akses ditolak: pengguna tidak terautentikasi.' };
-            }
-            role = currentUser.role || '';
-        } catch (e) {
-            return { success: false, error: 'Akses ditolak: sesi tidak valid.' };
-        }
-
-        if (!(isEditorOrAbove(role) || isCoAdmin(role))) {
-            return { success: false, error: 'Akses ditolak: hanya editor atau admin yang dapat melihat rekomendasi reviewer.' };
-        }
-
-        if (!submissionId) {
-            return { success: false, error: 'Submission ID tidak valid.' };
-        }
-
-        // 2. Hitung rekomendasi (read-only pipeline)
-        const { createClient: createSupabaseClient } = await import('@supabase/supabase-js');
-        const supabaseAdmin = createSupabaseClient(
-            process.env.NEXT_PUBLIC_SUPABASE_URL!,
-            process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-        );
-
-        const { ReviewerMatchingService } = await import('@/services/reviewer/ReviewerMatchingService');
-        const safeLimit = Math.max(1, Math.min(50, Number(limit) || 10));
-        const result = await ReviewerMatchingService.recommendForSubmission(
-            supabaseAdmin,
-            submissionId,
-            { limit: safeLimit }
-        );
-
-        if (!result.success) {
-            return { success: false, error: result.error || 'Gagal menghitung rekomendasi reviewer.' };
-        }
-
-        return {
-            success: true,
-            submissionId,
-            academicDivision: result.academicDivision || null,
-            poolSize: result.poolSize || 0,
-            // Advisory only — UI wajib menampilkan sebagai saran, bukan auto-assign
-            recommendations: result.recommendations || [],
-        };
-    } catch (e: any) {
-        return { success: false, error: e?.message || 'Gagal menghitung rekomendasi reviewer.' };
-    }
-}
 
 export async function getEditorialBoard(journalName: string) {
     try {
@@ -883,10 +819,19 @@ export async function publishArticle(submissionId: string, journalId: string, cu
         const { getCurrentUser } = await import('./auth');
         const user: any = await getCurrentUser();
 
+        // Check if the submission is already published to avoid overwriting the published_at date on metadata updates.
+        const { data: currentSub } = await supabaseAdmin.from('submissions').select('status, published_at').eq('id', submissionId).single();
+        
         const extraFields: Record<string, any> = {
             volume: finalVolume,
             issue: finalIssue
         };
+        
+        // Only set published_at once, during the transition to Published status
+        if (currentSub && currentSub.status !== 'Published' && !currentSub.published_at) {
+            extraFields.published_at = new Date().toISOString();
+        }
+        
         if (customAuthor !== undefined) {
             extraFields.author = customAuthor;
         }
@@ -1652,7 +1597,7 @@ async function assertFederationActorAllowed(): Promise<{
         );
 
         // Prefer the role persisted in profiles over the session cookie role.
-        let role = String(user.role || '').toLowerCase();
+        let role = String(user.role || (user.roles && user.roles[0]) || '').toLowerCase();
         try {
             const { data: callerProfile } = await supabaseAdmin
                 .from('profiles').select('role').eq('id', user.id).single();

@@ -7,6 +7,7 @@ export interface DynamicCoverProps {
   issue?: string;
   doi?: string;
   createdAt?: string;
+  publishedAt?: string | null;
   coverUrl?: string | null;
   maxLines?: number;
   variant?: "full" | "thumbnail" | "preview";
@@ -20,6 +21,7 @@ export default function DynamicCover({
   issue = "",
   doi = "",
   createdAt = "",
+  publishedAt = null,
   coverUrl,
   maxLines = 8,
   variant = "full",
@@ -171,10 +173,16 @@ export default function DynamicCover({
       {/* Month & Year Overlay */}
       <div className="absolute flex flex-col justify-center" style={{ top: '89%', left: '52%', width: '20%' }}>
         <p className="font-bold text-zinc-300 tracking-wider uppercase mb-0.5" style={{ fontSize: variant === 'thumbnail' ? '5px' : 'clamp(7px, 0.75vw, 11px)' }}>
-          {(createdAt ? new Date(createdAt) : new Date()).toLocaleDateString('en-US', { month: 'short' }).toUpperCase()}
+          {(() => {
+            const dateSource = publishedAt || createdAt;
+            return (dateSource ? new Date(dateSource) : new Date()).toLocaleDateString('en-US', { month: 'short' }).toUpperCase();
+          })()}
         </p>
         <p className="font-bold text-zinc-300 tracking-wider uppercase" style={{ fontSize: variant === 'thumbnail' ? '5px' : 'clamp(7px, 0.75vw, 11px)' }}>
-          {(createdAt ? new Date(createdAt) : new Date()).getFullYear().toString()}
+          {(() => {
+            const dateSource = publishedAt || createdAt;
+            return (dateSource ? new Date(dateSource) : new Date()).getFullYear().toString();
+          })()}
         </p>
       </div>
     </div>

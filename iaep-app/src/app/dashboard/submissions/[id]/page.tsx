@@ -102,6 +102,8 @@ export default async function AuthorSubmissionDetail({ params }: { params: Promi
                   title={submission.title || ""}
                   journalCode={submission.journals?.name || ""}
                   doi={submission.doi || ""}
+                  createdAt={submission.created_at || ""}
+                  publishedAt={submission.published_at}
                   coverUrl={submission.cover_file_url || null}
                   variant="thumbnail"
                 />

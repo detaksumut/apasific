@@ -38,32 +38,35 @@ export default function AuthorGuidelinesPage() {
             SUBMISSION GUIDELINES &amp; REQUIREMENTS
           </h2>
           <div style={{ color: "rgba(255,255,255,0.9)", fontSize: "16px", lineHeight: "1.8" }}>
-            <p style={{ marginBottom: "20px", color: "rgba(255,255,255,0.7)" }}>
-              Authors wishing to submit their manuscripts to our journals are requested to read and follow these guidelines carefully to ensure a smooth review process.
+            <p style={{ marginBottom: "20px" }}>
+              Penulis yang ingin mengirimkan naskah ke jurnal di bawah APASIFIC Press wajib mengikuti pedoman penulisan berikut untuk memastikan kelancaran evaluasi administrasi dan peninjauan sejawat.
             </p>
-            <ul style={{ listStyleType: "none", padding: "0", margin: "0" }}>
-              {[
-                "Submissions must be strictly original, unpublished, and not under consideration for publication elsewhere.",
-                "Manuscripts should be formatted according to the journal's official template, including a clear abstract, introduction, methodology, results, discussion, and conclusion.",
-                "References and citations must be consistently formatted following the APA (American Psychological Association) style guidelines.",
-                "Authors are fully responsible for obtaining explicit permission to reproduce any copyrighted material, such as figures or extensive quotes, included in their manuscript.",
-                "All listed authors must have made a significant academic contribution to the work, and their affiliations and contact details must be accurate and up to date."
-              ].map((item, idx) => (
-                <li key={idx} style={{ 
-                  display: "flex", 
-                  alignItems: "flex-start", 
-                  marginBottom: "12px" 
-                }}>
-                  <span style={{ 
-                    color: "#c9a84c", 
-                    marginRight: "15px", 
-                    fontSize: "20px",
-                    lineHeight: "1.2"
-                  }}>•</span>
-                  <span>{item}</span>
-                </li>
-              ))}
+
+            <h3 style={{ color: "#c9a84c", fontSize: "18px", marginTop: "24px", marginBottom: "8px" }}>1. Persiapan Pengajuan (Submission Preparation)</h3>
+            <ul style={{ listStyleType: "none", paddingLeft: "10px", margin: "0 0 20px 0" }}>
+              <li><strong>Originality:</strong> Naskah harus orisinal, bebas dari unsur plagiarisme, dan tidak sedang dalam pertimbangan penerbitan di tempat lain.</li>
+              <li><strong>Template:</strong> Naskah diketik menggunakan file template resmi (MS Word format) dengan struktur: Judul, Nama & Afiliasi, Abstrak, Pendahuluan, Metode, Hasil & Pembahasan, Kesimpulan, dan Referensi.</li>
+              <li><strong>Anonymity:</strong> Untuk review buta ganda, pastikan tidak ada data identitas penulis (nama/afiliasi) di dalam berkas naskah utama yang diunggah.</li>
             </ul>
+
+            <h3 style={{ color: "#c9a84c", fontSize: "18px", marginTop: "24px", marginBottom: "8px" }}>2. Format & Penulisan (Formatting)</h3>
+            <p style={{ marginBottom: "16px" }}>
+              Naskah ditulis menggunakan font <strong>Arial atau Times New Roman 11pt</strong>, spasi 1.15, batas margin standar (2.54 cm pada semua sisi). Tabel dan Gambar diletakkan menyatu di dalam paragraf naskah (bukan dilampirkan terpisah) dan diberi nomor urut serta keterangan yang jelas.
+            </p>
+
+            <h3 style={{ color: "#c9a84c", fontSize: "18px", marginTop: "24px", marginBottom: "8px" }}>3. Gaya Referensi (References Style)</h3>
+            <p style={{ marginBottom: "16px" }}>
+              Rujukan dan sitasi wajib menggunakan gaya <strong>APA (American Psychological Association) 7th Edition</strong>. Penulis sangat direkomendasikan menggunakan aplikasi manajemen referensi seperti Mendeley, Zotero, atau EndNote. Setiap referensi wajib menyertakan tautan DOI jika tersedia.
+            </p>
+
+            <h3 style={{ color: "#c9a84c", fontSize: "18px", marginTop: "24px", marginBottom: "8px" }}>4. Alur Kerja Publikasi (Publication Workflow)</h3>
+            <ol style={{ paddingLeft: "20px", margin: "0" }}>
+              <li><strong>Submit:</strong> Penulis mengunggah naskah melalui portal penulis (*Author Dashboard*).</li>
+              <li><strong>Editorial Screening:</strong> Pemeriksaan administrasi dan uji plagiarisme (maksimal toleransi Turnitin 20%).</li>
+              <li><strong>Peer Review:</strong> Evaluasi substansi ilmiah oleh minimal dua reviewer independen.</li>
+              <li><strong>Revision & Proofread:</strong> Penulis memperbaiki naskah sesuai saran review dan menyetujui layout praterbit (*galley proof*).</li>
+              <li><strong>Publish:</strong> Naskah diterbitkan online dan metadata didistribusikan ke DOAJ, Crossref DOI, dan SINTA.</li>
+            </ol>
           </div>
         </div>
 

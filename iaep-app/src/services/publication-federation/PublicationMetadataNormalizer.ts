@@ -367,6 +367,7 @@ export class PublicationMetadataNormalizer {
       articleTitle: meta.title,
       doi,
       publicationYear: meta.publicationYear,
+      publicationDate: meta.publicationDate,
       url: meta.articleUrl || `https://doi.org/${doi}`,
       authors: meta.authors.map((a) => ({
         givenName: a.givenName || a.name,

@@ -755,7 +755,7 @@
   },
   {
     "id": "import-1783937838523-0.6260706724684217",
-    "email": "T.dessy91@gmail.com.",
+    "email": "t.dessy91@gmail.com",
     "password": "scrypt$597d34bc4df1ed1a5ae808747ecdb6aa$bf8893dd09d04703eba6b440cda593c69a5a09c5c88b365b2ab32c30fa7ea37627abb18231ca2baa088bb67b7fa7628499fafebee73814d7dd26f894457da384",
     "role": "reviewer",
     "status": "Active",
@@ -1168,7 +1168,7 @@
   },
   {
     "id": "demo-user-1784466189046",
-    "email": "nuralimnatsir@uinambon.ac.i",
+    "email": "nuralimnatsir@uinambon.ac.id",
     "password": "scrypt$a66241e712889747c04811414d9ba761$d0a270ced470e99050763c028e5c17b348fd6592534dbca5959f91580ce1fe3dbe126b7f0448b9e9138eb3925978ac25c574df7508dfa0ad5e882090d806c084",
     "full_name": "Dr. Nur Alim Natsir, S. Pi., M. Si",
     "phone_number": "081242891683",

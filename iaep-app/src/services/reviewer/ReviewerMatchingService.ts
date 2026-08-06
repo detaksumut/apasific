@@ -910,13 +910,20 @@ export class ReviewerMatchingService {
                 return { success: false, error: 'Parameter tidak valid' };
             }
 
-            // 1. Submission + jurnal relasi
+// 1. Submission + jurnal relasi
+            // NOTE: only query columns that actually exist on `submissions`.
+            // `submitter_email`/`submitter_name` are NOT columns of the table and
+            // would make PostgREST reject the whole query. The author's identity
+            // is resolved below via author_id -> profiles, so they are not needed.
             const { data: row, error: subError } = await supabaseAdmin
                 .from('submissions')
-                .select('id,title,abstract,keywords,author_id,submitter_email,submitter_name,journal_id,journals(name,slug)')
+                .select('id,title,abstract,keywords,author_id,journal_id,journals(name,slug)')
                 .eq('id', submissionId)
                 .maybeSingle();
-            if (subError || !row) {
+            if (subError) {
+                return { success: false, error: `Gagal memuat submission: ${subError.message}` };
+            }
+            if (!row) {
                 return { success: false, error: 'Submission tidak ditemukan' };
             }
 
@@ -926,8 +933,8 @@ export class ReviewerMatchingService {
             // 2. Profil penulis untuk pemeriksaan konflik kepentingan
             let author: SubmissionAuthorRef | null = {
                 id: (row as any).author_id || null,
-                email: (row as any).submitter_email || null,
-                full_name: (row as any).submitter_name || null,
+                email: null,
+                full_name: null,
             };
             if (author.id) {
                 try {

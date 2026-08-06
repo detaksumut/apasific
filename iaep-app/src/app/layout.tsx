@@ -71,14 +71,19 @@ export default function RootLayout({
             <a href="/#leadership"><span class="dd-icon">◈</span> Leadership</a>
             <a href="/organization-structure"><span class="dd-icon">◈</span> Organizational Structure</a>
             <a href="/certification-structure"><span class="dd-icon">◈</span> Certification Structure</a>
+            <a href="/publisher"><span class="dd-icon">◈</span> Publisher</a>
             <a href="/editorial-board"><span class="dd-icon">◈</span> Editorial Board</a>
             <a href="/policies/peer-review"><span class="dd-icon">◈</span> Double &amp; Peer Review</a>
             <a href="/policies/ethics"><span class="dd-icon">◈</span> Kode Etik</a>
             <a href="/policies/plagiarism"><span class="dd-icon">◈</span> Plagiarism Policy</a>
             <a href="/policies/conflict-of-interest"><span class="dd-icon">◈</span> Conflict of Interest</a>
+            <a href="/policies/copyright"><span class="dd-icon">◈</span> Copyright Policy</a>
+            <a href="/policies/apc"><span class="dd-icon">◈</span> APC Policy</a>
+            <a href="/policies/scope"><span class="dd-icon">◈</span> Journal Scope</a>
             <a href="/policies/open-access"><span class="dd-icon">◈</span> Open Access Policy</a>
             <a href="/policies/preservation"><span class="dd-icon">◈</span> Preservation Policy</a>
             <a href="/authors/guidelines"><span class="dd-icon">◈</span> Author Guidelines</a>
+            <a href="/policies/contact"><span class="dd-icon">◈</span> Contact Editorial Office</a>
           </div>
         </li>
 

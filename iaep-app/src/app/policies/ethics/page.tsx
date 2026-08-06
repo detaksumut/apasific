@@ -38,34 +38,36 @@ export default function PublicationEthicsPage() {
             5. PUBLICATION ETHICS
           </h2>
           <div style={{ color: "rgba(255,255,255,0.9)", fontSize: "16px", lineHeight: "1.8" }}>
-            <p style={{ marginBottom: "20px", color: "rgba(255,255,255,0.7)" }}>
-              Authors submitting manuscripts under this discipline are expected to comply with internationally accepted publication ethics, including:
+            <p style={{ marginBottom: "20px" }}>
+              Jurnal-jurnal yang diterbitkan oleh APASIFIC Press mematuhi standar etika publikasi ilmiah yang ditetapkan oleh <strong>Committee on Publication Ethics (COPE)</strong>. Seluruh pihak yang terlibat dalam proses penerbitan wajib mematuhi standar berikut:
             </p>
-            <ul style={{ listStyleType: "none", padding: "0", margin: "0" }}>
-              {[
-                "Original and unpublished work with zero tolerance for plagiarism or self-plagiarism.",
-                "No simultaneous submission to other journals.",
-                "Proper citation and acknowledgment of all sources.",
-                "Ethical approval for research involving human participants or sensitive data where applicable.",
-                "Compliance with the Committee on Publication Ethics (COPE) principles.",
-                "Full disclosure of conflicts of interest.",
-                "Responsible use of artificial intelligence in research and manuscript preparation."
-              ].map((item, idx) => (
-                <li key={idx} style={{ 
-                  display: "flex", 
-                  alignItems: "flex-start", 
-                  marginBottom: "12px" 
-                }}>
-                  <span style={{ 
-                    color: "#c9a84c", 
-                    marginRight: "15px", 
-                    fontSize: "20px",
-                    lineHeight: "1.2"
-                  }}>•</span>
-                  <span>{item}</span>
-                </li>
-              ))}
+
+            <h3 style={{ color: "#c9a84c", fontSize: "18px", marginTop: "24px", marginBottom: "8px" }}>A. Tanggung Jawab Penulis (Author Responsibilities)</h3>
+            <ul style={{ listStyleType: "none", paddingLeft: "10px", margin: "0 0 20px 0" }}>
+              <li><strong>Orisinalitas:</strong> Menjamin naskah bebas dari plagiarisme dan tidak sedang dikirimkan ke jurnal lain secara bersamaan.</li>
+              <li><strong>Akurasi Data:</strong> Menyajikan data riset yang jujur tanpa fabrikasi atau falsifikasi data.</li>
+              <li><strong>Pengakuan Sitasi:</strong> Menyebutkan rujukan dan sitasi sumber pustaka secara jujur dan tepat.</li>
+              <li><strong>Konflik Kepentingan:</strong> Mengungkapkan potensi benturan kepentingan yang berkaitan dengan pendanaan riset.</li>
             </ul>
+
+            <h3 style={{ color: "#c9a84c", fontSize: "18px", marginTop: "24px", marginBottom: "8px" }}>B. Tanggung Jawab Reviewer (Reviewer Responsibilities)</h3>
+            <ul style={{ listStyleType: "none", paddingLeft: "10px", margin: "0 0 20px 0" }}>
+              <li><strong>Kerahasiaan:</strong> Menjaga kerahasiaan draf naskah yang ditinjau dan dilarang menggunakannya untuk kepentingan pribadi.</li>
+              <li><strong>Objektivitas:</strong> Melakukan evaluasi secara objektif, rasional, dan memberikan argumentasi yang jelas.</li>
+              <li><strong>Ketepatan Waktu:</strong> Menyelesaikan review sesuai deadline yang disepakati atau segera mengabarkan editor jika berhalangan.</li>
+            </ul>
+
+            <h3 style={{ color: "#c9a84c", fontSize: "18px", marginTop: "24px", marginBottom: "8px" }}>C. Tanggung Jawab Editor (Editor Responsibilities)</h3>
+            <ul style={{ listStyleType: "none", paddingLeft: "10px", margin: "0 0 20px 0" }}>
+              <li><strong>Keadilan:</strong> Mengevaluasi naskah semata-mata berdasarkan kualitas ilmiah tanpa membedakan ras, gender, atau afiliasi penulis.</li>
+              <li><strong>Independensi:</strong> Menjaga independensi keputusan editorial dari tekanan komersial atau kepentingan organisasi.</li>
+              <li><strong>Resolusi Konflik:</strong> Mengambil langkah aktif jika terindikasi adanya dugaan plagiarisme atau pelanggaran etika publikasi.</li>
+            </ul>
+
+            <h3 style={{ color: "#c9a84c", fontSize: "18px", marginTop: "24px", marginBottom: "8px" }}>D. Tanggung Jawab Penerbit (Publisher Responsibilities)</h3>
+            <p style={{ margin: "0" }}>
+              PT. Bernas Sumut Jaya sebagai penerbit menjamin bahwa kepentingan komersial tidak mempengaruhi keputusan editorial dewan redaksi, serta berkomitmen melakukan pengarsipan digital jangka panjang secara konsisten.
+            </p>
           </div>
         </div>
 

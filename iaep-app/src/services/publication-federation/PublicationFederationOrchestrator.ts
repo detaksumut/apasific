@@ -106,27 +106,353 @@ export class PublicationFederationOrchestrator {
    * existing DOI/Zenodo records are detected up front, preserved, and
    * duplicate deposits are skipped.
    */
+  /**
+   * Consolidated publication federation pipeline. Preservation-first:
+   * existing DOI/Zenodo records are detected up front, preserved, and
+   * duplicate deposits are skipped.
+   */
   public async processPublication(
     submissionId: string,
-    options: FederationProcessOptions = {}
+    options: FederationProcessOptions = {},
+    auditOptions: { actionType?: string; actorId?: string | null } = {}
   ): Promise<PublicationFederationOutcome> {
-    const loaded = await this.loadContext(submissionId, options);
-    if ('outcome' in loaded) return loaded.outcome;
-    const ctx = loaded;
+    const runId = randomUUID();
+    const actorId = auditOptions.actorId || null;
+    const actionType = auditOptions.actionType || 'INITIAL_PUBLICATION';
+    
+    // 1. Acquire Concurrency Lock (with 5-minute timeout recovery)
+    const lockAcquired = await this.acquireLock(submissionId, actorId, runId);
+    if (!lockAcquired.success) {
+      return {
+        submissionId,
+        success: false,
+        doi: null,
+        zenodoId: null,
+        preserved: { doi: false, zenodo: false },
+        skippedDeposit: false,
+        lifecycle: DoiLifecycleEngine.initialize('PUBLISHED', `Lock failed: ${lockAcquired.error}`),
+        providers: [],
+        error: lockAcquired.error
+      };
+    }
 
-    // Step 1 — Repository deposit (Zenodo) via PublicationDepositService.
-    await this.stepRepositoryDeposit(ctx);
+    let ctx: FederationContext | null = null;
+    try {
+      const loaded = await this.loadContext(submissionId, options);
+      if ('outcome' in loaded) {
+        await this.writeAuditTrail(submissionId, actorId, runId, actionType, 'FAILED', { error: loaded.outcome.error });
+        return loaded.outcome;
+      }
+      ctx = loaded;
 
-    // Step 2 — Metadata registration (Crossref).
-    await this.stepMetadataRegistration(ctx);
+      // 2. Initialize provider registry records if missing
+      await this.initRegistry(submissionId);
 
-    // Step 3 — ORCID identity verification / work synchronization.
-    await this.stepOrcid(ctx, options);
+      // Step 1 — Repository deposit (Zenodo) via PublicationDepositService.
+      const runZenodo = await this.shouldExecuteProvider(submissionId, 'zenodo');
+      if (runZenodo.execute) {
+        await this.updateRegistryStatus(submissionId, 'zenodo', 'PROCESSING', { attemptIncrement: 1 });
+        await this.stepRepositoryDeposit(ctx);
+        const outcome = ctx.providers.find(p => p.provider === 'zenodo');
+        if (outcome) {
+          const status = outcome.status === 'COMPLETED' ? 'COMPLETED' : (outcome.status === 'SKIPPED' ? 'SKIPPED' : 'FAILED');
+          await this.updateRegistryStatus(submissionId, 'zenodo', status, {
+            identifier: ctx.zenodoId || undefined,
+            errorMessage: outcome.reason
+          });
+        }
+      } else {
+        ctx.providers.push({
+          provider: 'zenodo',
+          status: runZenodo.status === 'COMPLETED' ? 'SKIPPED' : (runZenodo.status as any || 'SKIPPED'),
+          reason: `Registry status is ${runZenodo.status} — skipped execution.`,
+          identifier: ctx.zenodoId || undefined,
+          checkedAt: new Date().toISOString()
+        });
+      }
 
-    // Step 4 — Indexing queue (OpenAIRE discovery probe).
-    await this.stepIndexingQueue(ctx);
+      // Step 2 — Metadata registration (Crossref).
+      const runCrossref = await this.shouldExecuteProvider(submissionId, 'crossref');
+      if (runCrossref.execute) {
+        await this.updateRegistryStatus(submissionId, 'crossref', 'PROCESSING', { attemptIncrement: 1 });
+        await this.stepMetadataRegistration(ctx);
+        const outcome = ctx.providers.find(p => p.provider === 'crossref');
+        if (outcome) {
+          const status = outcome.status === 'COMPLETED' ? 'COMPLETED' : (outcome.status === 'SKIPPED' ? 'SKIPPED' : 'FAILED');
+          await this.updateRegistryStatus(submissionId, 'crossref', status, {
+            identifier: ctx.doi || undefined,
+            errorMessage: outcome.reason
+          });
+        }
+      } else {
+        ctx.providers.push({
+          provider: 'crossref',
+          status: runCrossref.status === 'COMPLETED' ? 'SKIPPED' : (runCrossref.status as any || 'SKIPPED'),
+          reason: `Registry status is ${runCrossref.status} — skipped execution.`,
+          identifier: ctx.doi || undefined,
+          checkedAt: new Date().toISOString()
+        });
+      }
 
-    return await this.finalize(ctx, { success: true });
+      // Step 3 — ORCID identity verification / work synchronization.
+      const runOrcid = await this.shouldExecuteProvider(submissionId, 'orcid');
+      if (runOrcid.execute) {
+        await this.updateRegistryStatus(submissionId, 'orcid', 'PROCESSING', { attemptIncrement: 1 });
+        await this.stepOrcid(ctx, options);
+        const outcome = ctx.providers.find(p => p.provider === 'orcid');
+        if (outcome) {
+          const status = outcome.status === 'COMPLETED' ? 'COMPLETED' : (outcome.status === 'SKIPPED' ? 'SKIPPED' : 'FAILED');
+          await this.updateRegistryStatus(submissionId, 'orcid', status, {
+            errorMessage: outcome.reason
+          });
+        }
+      } else {
+        ctx.providers.push({
+          provider: 'orcid',
+          status: runOrcid.status === 'COMPLETED' ? 'SKIPPED' : (runOrcid.status as any || 'SKIPPED'),
+          reason: `Registry status is ${runOrcid.status} — skipped execution.`,
+          checkedAt: new Date().toISOString()
+        });
+      }
+
+      // Step 4 — Indexing queue (OpenAIRE discovery probe).
+      const runOpenAire = await this.shouldExecuteProvider(submissionId, 'openaire');
+      if (runOpenAire.execute) {
+        await this.updateRegistryStatus(submissionId, 'openaire', 'PROCESSING', { attemptIncrement: 1 });
+        await this.stepIndexingQueue(ctx);
+        const outcome = ctx.providers.find(p => p.provider === 'openaire');
+        if (outcome) {
+          const status = outcome.status === 'COMPLETED' ? 'COMPLETED' : (outcome.status === 'SKIPPED' ? 'SKIPPED' : 'FAILED');
+          await this.updateRegistryStatus(submissionId, 'openaire', status, {
+            errorMessage: outcome.reason
+          });
+        }
+      } else {
+        ctx.providers.push({
+          provider: 'openaire',
+          status: runOpenAire.status === 'COMPLETED' ? 'SKIPPED' : (runOpenAire.status as any || 'SKIPPED'),
+          reason: `Registry status is ${runOpenAire.status} — skipped execution.`,
+          checkedAt: new Date().toISOString()
+        });
+      }
+
+      const finalOutcome = await this.finalize(ctx, { success: true });
+      
+      // Determine overall run outcome
+      const hasFailed = ctx.providers.some(p => p.status === 'FAILED');
+      const hasSuccess = ctx.providers.some(p => p.status === 'COMPLETED' || p.status === 'SKIPPED');
+      const finalStatus = hasFailed ? (hasSuccess ? 'PARTIAL_SUCCESS' : 'FAILED') : 'SUCCESS';
+      
+      await this.writeAuditTrail(submissionId, actorId, runId, actionType, finalStatus, { providers: ctx.providers });
+      return finalOutcome;
+
+    } catch (e: any) {
+      console.error('[Orchestrator] Run error:', e);
+      await this.writeAuditTrail(submissionId, actorId, runId, actionType, 'FAILED', { error: e.message });
+      
+      return {
+        submissionId,
+        success: false,
+        doi: ctx?.doi || null,
+        zenodoId: ctx?.zenodoId || null,
+        preserved: { doi: Boolean(ctx?.existingDoi), zenodo: Boolean(ctx?.existingZenodo) },
+        skippedDeposit: false,
+        lifecycle: ctx?.lifecycle || DoiLifecycleEngine.initialize('PUBLISHED', `Error: ${e.message}`),
+        providers: ctx?.providers || [],
+        error: e.message
+      };
+    } finally {
+      // 3. Release Concurrency Lock
+      await this.releaseLock(submissionId);
+    }
+  }
+
+  /**
+   * Tries to acquire the concurrency lock for a submission.
+   * If a stale lock (> 5 mins) is found, it releases it and logs a LOCK_TIMEOUT_RECOVERY.
+   */
+  private async acquireLock(submissionId: string, actorId: string | null, runId: string): Promise<{ success: boolean; error?: string }> {
+    try {
+      const { data: sub } = await this.supabase
+        .from('submissions')
+        .select('federation_lock_at, federation_lock_owner')
+        .eq('id', submissionId)
+        .single();
+
+      if (sub && sub.federation_lock_at) {
+        const lockTime = new Date(sub.federation_lock_at).getTime();
+        const now = Date.now();
+        const diffMins = (now - lockTime) / (1000 * 60);
+
+        if (diffMins > 5) {
+          // Stale lock recovery
+          await this.writeAuditTrail(submissionId, actorId, runId, 'LOCK_TIMEOUT_RECOVERY', 'SUCCESS', {
+            previous_owner: sub.federation_lock_owner,
+            locked_at: sub.federation_lock_at
+          });
+          await this.releaseLock(submissionId);
+        } else {
+          return { success: false, error: 'Proses federasi sedang berjalan oleh editor lain.' };
+        }
+      }
+
+      // Set lock
+      const { error: lockErr } = await this.supabase
+        .from('submissions')
+        .update({
+          federation_lock_at: new Date().toISOString(),
+          federation_lock_owner: actorId
+        })
+        .eq('id', submissionId);
+
+      if (lockErr) throw lockErr;
+      return { success: true };
+    } catch (err: any) {
+      return { success: false, error: `Gagal acquire lock: ${err.message}` };
+    }
+  }
+
+  private async releaseLock(submissionId: string): Promise<void> {
+    try {
+      await this.supabase
+        .from('submissions')
+        .update({
+          federation_lock_at: null,
+          federation_lock_owner: null
+        })
+        .eq('id', submissionId);
+    } catch (e) {
+      console.error('[Orchestrator] Release lock failed:', e);
+    }
+  }
+
+  private async writeAuditTrail(
+    submissionId: string,
+    actorId: string | null,
+    runId: string,
+    actionType: string,
+    outcome: string,
+    details: any
+  ): Promise<void> {
+    try {
+      await this.supabase
+        .from('federation_audit_trail')
+        .insert({
+          submission_id: submissionId,
+          actor_id: actorId,
+          run_id: runId,
+          action_type: actionType,
+          outcome,
+          details
+        });
+    } catch (e) {
+      console.error('[Orchestrator] Write audit trail failed:', e);
+    }
+  }
+
+  private async initRegistry(submissionId: string): Promise<void> {
+    const providers = ['zenodo', 'crossref', 'orcid', 'openaire'];
+    for (const p of providers) {
+      try {
+        const { data } = await this.supabase
+          .from('publication_provider_registry')
+          .select('status')
+          .eq('submission_id', submissionId)
+          .eq('provider_name', p)
+          .maybeSingle();
+
+        if (!data) {
+          await this.supabase
+            .from('publication_provider_registry')
+            .insert({
+              submission_id: submissionId,
+              provider_name: p,
+              status: 'PENDING'
+            });
+        }
+      } catch (e) {
+        console.error(`[Orchestrator] Init registry for ${p} failed:`, e);
+      }
+    }
+  }
+
+  private async shouldExecuteProvider(submissionId: string, provider: string): Promise<{ execute: boolean; status?: string }> {
+    try {
+      const { data } = await this.supabase
+        .from('publication_provider_registry')
+        .select('*')
+        .eq('submission_id', submissionId)
+        .eq('provider_name', provider)
+        .single();
+
+      if (!data) return { execute: true };
+      
+      const status = data.status;
+      if (status === 'COMPLETED' || status === 'SKIPPED' || status === 'PROCESSING') {
+        return { execute: false, status };
+      }
+
+      if (status === 'FAILED_PERMANENT' || data.attempt_count >= 5) {
+        if (status !== 'FAILED_PERMANENT') {
+          await this.updateRegistryStatus(submissionId, provider, 'FAILED_PERMANENT', {
+            errorMessage: 'Batas maksimum percobaan rilis eksternal (5x) terlampaui.'
+          });
+        }
+        return { execute: false, status: 'FAILED_PERMANENT' };
+      }
+
+      return { execute: true, status };
+    } catch {
+      return { execute: true };
+    }
+  }
+
+  private async updateRegistryStatus(
+    submissionId: string,
+    provider: string,
+    status: string,
+    options: { attemptIncrement?: number; identifier?: string; errorMessage?: string } = {}
+  ): Promise<void> {
+    try {
+      const updateData: Record<string, any> = {
+        status,
+        updated_at: new Date().toISOString()
+      };
+
+      if (options.attemptIncrement) {
+        const { data: current } = await this.supabase
+          .from('publication_provider_registry')
+          .select('attempt_count')
+          .eq('submission_id', submissionId)
+          .eq('provider_name', provider)
+          .single();
+        
+        const count = (current?.attempt_count || 0) + options.attemptIncrement;
+        updateData.attempt_count = count;
+        updateData.last_attempt_at = new Date().toISOString();
+        
+        // Auto convert to permanent failure if limit exceeded
+        if (count >= 5 && status === 'FAILED') {
+          updateData.status = 'FAILED_PERMANENT';
+          updateData.error_message = options.errorMessage || 'Batas maksimum percobaan rilis eksternal (5x) terlampaui.';
+        }
+      }
+
+      if (options.identifier) {
+        updateData.external_identifier = options.identifier;
+      }
+      if (options.errorMessage && updateData.status !== 'FAILED_PERMANENT') {
+        updateData.error_message = options.errorMessage;
+      }
+
+      await this.supabase
+        .from('publication_provider_registry')
+        .update(updateData)
+        .eq('submission_id', submissionId)
+        .eq('provider_name', provider);
+    } catch (e) {
+      console.error(`[Orchestrator] Update registry for ${provider} failed:`, e);
+    }
   }
 
   /**
@@ -164,10 +490,11 @@ export class PublicationFederationOrchestrator {
       return abort(loadError?.message || 'Publication not found');
     }
 
-    // Only published articles enter the federation workflow.
+    // Only published, assigned to publish, or production completed articles enter the federation workflow.
     const status = String(sub.status || '').toLowerCase();
-    if (status !== 'published') {
-      return abort(`Only published articles can be federated (current status: ${sub.status || 'unknown'}).`);
+    const allowedStatuses = ['published', 'assigned to publish', 'production completed'];
+    if (!allowedStatuses.includes(status)) {
+      return abort(`Only published or ready-to-publish articles can be federated (current status: ${sub.status || 'unknown'}).`);
     }
 
     // ── Preservation detection ──────────────────────────────────────────────
@@ -187,6 +514,8 @@ export class PublicationFederationOrchestrator {
     }
 
     // ── Normalized metadata ─────────────────────────────────────────────────
+    const { resolvePublicationDateString } = await import('@/services/publication/PublicationDateResolver');
+
     const normalizeInput: PublicationNormalizeInput = {
       title: sub.title,
       abstract: sub.abstract,
@@ -200,7 +529,7 @@ export class PublicationFederationOrchestrator {
       issn: sub.issn,
       volume: options.volume || sub.volume,
       issue: options.issue || sub.issue,
-      publicationDate: sub.published_at || sub.updated_at || sub.created_at,
+      publicationDate: resolvePublicationDateString(sub),
       articleUrl: options.articleUrl
     };
 
@@ -222,7 +551,7 @@ export class PublicationFederationOrchestrator {
           ? DoiLifecycleEngine.backfillFromExistingIdentifiers({
               doi,
               zenodoId,
-              publishedAt: sub.published_at || sub.updated_at || null
+              publishedAt: resolvePublicationDateString(sub)
             })
           : DoiLifecycleEngine.initialize('PUBLISHED', 'Consolidated federation workflow started');
     }

@@ -19,6 +19,7 @@ export class IdentityResolver {
         let identityId = rawId;
         let resolvedFullName = sessionUser.full_name || undefined;
         let resolvedEmail = email;
+        let resolvedRole: string | undefined = undefined;
 
         // 1. Resolve Legacy / Fake UUIDs
         if (!isTrueUUID) {
@@ -28,12 +29,14 @@ export class IdentityResolver {
                 if (profile && profile.id) {
                     identityId = profile.id;
                     if (profile.full_name) resolvedFullName = profile.full_name;
+                    if (profile.role) resolvedRole = profile.role;
                 } else {
                     // Try system settings fallback just in case
                     const fallbackProfile = await IdentityRepository.findIdentityFromSystemSettings(resolvedEmail);
                     if (fallbackProfile && fallbackProfile.id) {
                         identityId = fallbackProfile.id;
                         if (fallbackProfile.full_name) resolvedFullName = fallbackProfile.full_name;
+                        if (fallbackProfile.role) resolvedRole = fallbackProfile.role;
                     } else {
                         throw new IdentityNotFoundException(`Identity not found for legacy email: ${resolvedEmail}`);
                     }
@@ -50,6 +53,7 @@ export class IdentityResolver {
                 if (fallbackProfile && fallbackProfile.id) {
                     identityId = fallbackProfile.id;
                     if (fallbackProfile.full_name) resolvedFullName = fallbackProfile.full_name;
+                    if (fallbackProfile.role) resolvedRole = fallbackProfile.role;
                     if (fallbackProfile.email) {
                         resolvedEmail = fallbackProfile.email;
                         
@@ -57,6 +61,7 @@ export class IdentityResolver {
                         const trueProfile = await IdentityRepository.findIdentityByEmail(resolvedEmail);
                         if (trueProfile && trueProfile.id) {
                             identityId = trueProfile.id;
+                            if (trueProfile.role) resolvedRole = trueProfile.role;
                         }
                     }
                 } else {
@@ -64,11 +69,12 @@ export class IdentityResolver {
                 }
             }
         } else {
-            // Even if it's a True UUID, we might want to enrich full_name if missing
-            if (!resolvedFullName && resolvedEmail) {
+            // Even if it's a True UUID, enrich full_name and role from profiles if either is missing
+            if (resolvedEmail && (!resolvedFullName || !resolvedRole)) {
                 const profile = await IdentityRepository.findIdentityByEmail(resolvedEmail);
-                if (profile && profile.full_name) {
-                    resolvedFullName = profile.full_name;
+                if (profile) {
+                    if (profile.full_name && !resolvedFullName) resolvedFullName = profile.full_name;
+                    if (profile.role && !resolvedRole) resolvedRole = profile.role;
                 }
             }
         }
@@ -80,7 +86,9 @@ export class IdentityResolver {
             email: resolvedEmail,
             full_name: resolvedFullName,
             provider: sessionUser.app_metadata?.provider || (isTrueUUID ? 'supabase' : 'firebase'),
-            roles: sessionUser.app_metadata?.roles || [],
+            roles: sessionUser.app_metadata?.roles?.length
+                ? sessionUser.app_metadata.roles
+                : (resolvedRole ? [resolvedRole] : []),
             permissions: sessionUser.app_metadata?.permissions || []
         };
 

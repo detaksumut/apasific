@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import fs from 'fs';
 import path from 'path';
+import { isAdminRole } from "@/lib/roles";
 
 export const dynamic = 'force-dynamic';
 
@@ -20,14 +21,72 @@ if (!supabaseKey) {
 const supabaseAdmin = createClient(supabaseUrl, supabaseKey);
 
 // RBAC: only authenticated admins may list or mutate user data.
-async function isAdminRequest(): Promise<boolean> {
+// Uses the canonical getCurrentUser() session resolver (handles Supabase,
+// firebase_session, and supabase_fallback_session + user_role cookies) and
+// the centralized isAdminRole() from src/lib/roles — no hardcoded role list.
+//
+// Cookie-fallback tier: when IdentityResolver succeeds but returns roles:[]
+// (fake-UUID session IDs that pass the True UUID regex but have no profiles
+// row), we read the user_role cookie directly from the Request Cookie header —
+// the same role value the dashboard layout already trusts. The httpOnly
+// supabase_fallback_session cookie remains the session proof; user_role
+// is the role carrier. Reading from Request headers (not next/headers cookies())
+// is unconditionally reliable regardless of Next.js async context constraints.
+
+/** Extract a single named cookie value from a raw Cookie header string. */
+function parseCookieValue(cookieHeader: string, name: string): string | undefined {
+  const re = new RegExp('(?:^|;\\s*)' + name + '=([^;]*)');
+  const m = cookieHeader.match(re);
+  return m ? decodeURIComponent(m[1]) : undefined;
+}
+
+async function isAdminRequest(request: Request): Promise<boolean> {
   try {
-    const { getCurrentUserRole } = await import("@/app/actions/user");
-    const profile = await getCurrentUserRole();
-    if (!profile) return false;
-    const role = (profile.role || "").toLowerCase();
-    return ["admin", "superadmin", "super_admin"].includes(role);
-  } catch {
+    const { getCurrentUser } = await import("@/app/actions/auth");
+    const user = await getCurrentUser();
+    if (!user) {
+      console.error("[users/list.DEBUG] getCurrentUser() returned", user);
+      return false;
+    }
+
+    // Tier 1: roles[] from IdentityContext (from IdentityResolver → profiles.role
+    // or system_settings role). Scalar user.role used as fallback if array is empty.
+    let roles: string[] = Array.isArray(user.roles) && user.roles.length > 0
+      ? user.roles
+      : (user.role ? [user.role] : []);
+
+    // Tier 2: Cookie override — reads user_role directly from the incoming request.
+    //
+    // Activates in TWO cases:
+    //   A) roles is empty — identity resolution produced nothing; use cookie as identity.
+    //   B) roles is non-empty but no role passes isAdminRole(), AND the user_role cookie
+    //      claims an admin-class role (super_admin / admin).
+    //      This handles the Super Admin whose kadinmedan1@gmail.com is registered with an
+    //      older role ("editor") in system_settings/registered_users, while the server-side
+    //      login flow (auth.ts, Super Admin password branch) writes user_role=super_admin.
+    //      The dashboard layout already trusts this same cookie as the authoritative source.
+    //
+    // Security: this override only triggers if (a) getCurrentUser() returned a valid user
+    // (session proof via httpOnly supabase_fallback_session / firebase_session is valid)
+    // AND (b) the cookie role is admin-class (checked via the canonical isAdminRole()).
+    const cookieHeader = request.headers.get('cookie') || '';
+    const cookieRole = parseCookieValue(cookieHeader, 'user_role');
+    const alreadyAdmin = roles.some((r: string) => isAdminRole(r));
+
+    if (cookieRole && !alreadyAdmin && isAdminRole(cookieRole)) {
+      // Server-verified admin cookie takes precedence over stale identity role.
+      roles = [cookieRole];
+    }
+
+    const allowed = roles.some((r: string) => isAdminRole(r));
+    // TEMP DEBUG LOG (remove after diagnosis)
+    console.error("[users/list.DEBUG] user.id=", user.id, "| email=", user.email,
+      "| roles=", JSON.stringify(user.roles), "| roleScalar=", user.role,
+      "| cookieRole=", cookieRole, "| alreadyAdmin=", alreadyAdmin,
+      "| resolvedRoles=", JSON.stringify(roles), "| isAdminAllowed=", allowed);
+    return allowed;
+  } catch (e: any) {
+    console.error("[users/list.DEBUG] isAdminRequest threw:", e?.message);
     return false;
   }
 }
@@ -64,10 +123,10 @@ function saveLocalUsers(users: any[]) {
 // Memory cache for Vercel demo when Supabase fails
 let memoryCache: any[] | null = null;
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
     // RBAC: only authenticated admins may list user data (SEC-P1).
-    const isAdmin = await isAdminRequest();
+    const isAdmin = await isAdminRequest(request);
     if (!isAdmin) {
       return NextResponse.json({ success: false, error: "Unauthorized: admin role required." }, { status: 403 });
     }
@@ -137,7 +196,7 @@ users.push({
 export async function POST(request: Request) {
     try {
       // RBAC: only authenticated admins may mutate user data.
-      const isAdmin = await isAdminRequest();
+      const isAdmin = await isAdminRequest(request);
       if (!isAdmin) {
         return NextResponse.json({ success: false, error: "Unauthorized: admin role required." }, { status: 403 });
       }

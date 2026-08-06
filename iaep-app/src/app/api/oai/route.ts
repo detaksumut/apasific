@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { resolvePublicationDateString } from '@/services/publication/PublicationDateResolver';
 
 const OAI_NAMESPACE = "http://www.openarchives.org/OAI/2.0/";
 const XSI_NAMESPACE = "http://www.w3.org/2001/XMLSchema-instance";
@@ -187,16 +188,14 @@ export async function GET(req: Request) {
                     xml += `
           <dc:description>${escapeXml(abstract.substring(0, 3000))}</dc:description>
           <dc:publisher>APASIFIC</dc:publisher>
-          <dc:date>${new Date(record.created_at).toISOString().split('T')[0]}</dc:date>
+          <dc:date>${resolvePublicationDateString(record)}</dc:date>
           <dc:type>info:eu-repo/semantics/article</dc:type>
           <dc:format>application/pdf</dc:format>
-          <dc:identifier>${escapeXml(`${url.protocol}//${url.host}/article/${record.id}`)}</dc:identifier>`;
-                    
-                    if (record.doi) {
-                        xml += `\n          <dc:identifier>doi:${escapeXml(record.doi)}</dc:identifier>`;
-                    }
-                    
-                    xml += `
+          <dc:identifier>${escapeXml(`${url.protocol}//${url.host}/article/${record.id}`)}</dc:identifier>
+          <dc:rights>info:eu-repo/semantics/openAccess</dc:rights>
+          <dc:rights>CC BY 4.0</dc:rights>
+          <dc:relation>info:eu-repo/semantics/altIdentifier/doi/${escapeXml(record.doi || '')}</dc:relation>
+          <dc:relation>doi:${escapeXml(record.doi || '')}</dc:relation>
           <dc:source>${escapeXml(journalName)}</dc:source>
           <dc:language>eng</dc:language>
         </oai_dc:dc>
@@ -278,16 +277,14 @@ export async function GET(req: Request) {
             xml += `
           <dc:description>${escapeXml(abstract.substring(0, 3000))}</dc:description>
           <dc:publisher>APASIFIC</dc:publisher>
-          <dc:date>${new Date(record.created_at).toISOString().split('T')[0]}</dc:date>
+          <dc:date>${resolvePublicationDateString(record)}</dc:date>
           <dc:type>info:eu-repo/semantics/article</dc:type>
           <dc:format>application/pdf</dc:format>
-          <dc:identifier>${escapeXml(`${url.protocol}//${url.host}/article/${record.id}`)}</dc:identifier>`;
-            
-            if (record.doi) {
-                xml += `\n          <dc:identifier>doi:${escapeXml(record.doi)}</dc:identifier>`;
-            }
-            
-            xml += `
+          <dc:identifier>${escapeXml(`${url.protocol}//${url.host}/article/${record.id}`)}</dc:identifier>
+          <dc:rights>info:eu-repo/semantics/openAccess</dc:rights>
+          <dc:rights>CC BY 4.0</dc:rights>
+          <dc:relation>info:eu-repo/semantics/altIdentifier/doi/${escapeXml(record.doi || '')}</dc:relation>
+          <dc:relation>doi:${escapeXml(record.doi || '')}</dc:relation>
           <dc:source>${escapeXml(journalName)}</dc:source>
           <dc:language>eng</dc:language>
         </oai_dc:dc>

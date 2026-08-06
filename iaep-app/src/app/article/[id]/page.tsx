@@ -135,7 +135,8 @@ export default function ArticlePaywall() {
     cover_file_url: "",
     volume: "",
     issue: "",
-    created_at: ""
+    created_at: "",
+    published_at: ""
   });
 
   const [errorMessage, setErrorMessage] = useState("");
@@ -189,7 +190,8 @@ export default function ArticlePaywall() {
             cover_file_url: data.cover_file_url || "",
             volume: data.volume || "",
             issue: data.issue || "",
-            created_at: data.created_at || ""
+            created_at: data.created_at || "",
+            published_at: data.published_at || ""
           });
         } else {
           setErrorMessage(res.error || "Artikel tidak terdaftar atau belum dipublikasikan secara publik.");
@@ -204,6 +206,93 @@ export default function ArticlePaywall() {
     
     fetchRealArticle();
   }, [id]);
+
+  // Google Scholar & Dublin Core Metadata Dynamic Injection (Tata Kelola Indexing)
+  useEffect(() => {
+    if (!article.title) return;
+
+    // Helper to add or update meta tag
+    const setMeta = (name: string, content: string, isProperty = false) => {
+      const attrName = isProperty ? 'property' : 'name';
+      let element = document.querySelector(`meta[${attrName}="${name}"]`);
+      if (!element) {
+        element = document.createElement('meta');
+        element.setAttribute(attrName, name);
+        document.head.appendChild(element);
+      }
+      element.setAttribute('content', content);
+    };
+
+    // Google Scholar & Dublin Core Mapping
+    setMeta('citation_title', article.title);
+    
+    // Support multiple authors if split by comma
+    const authorsList = article.author.split(/[,;&]/).map(a => a.trim()).filter(Boolean);
+    authorsList.forEach(author => {
+      setMeta('citation_author', author);
+    });
+
+    const pubDate = article.published_at || article.created_at;
+    if (pubDate) {
+      const dateStr = new Date(pubDate).toISOString().split('T')[0];
+      setMeta('citation_publication_date', dateStr);
+      setMeta('dc.date', dateStr);
+    }
+
+    setMeta('citation_journal_title', article.journal);
+    
+    if (article.volume) {
+      setMeta('citation_volume', article.volume.replace(/^(Vol\.?|Volume)\s*/i, ''));
+    }
+    if (article.issue) {
+      setMeta('citation_issue', article.issue.replace(/^(No\.?|Nomor|Edisi|Issue)\s*/i, '').replace(/\(.*\)/, '').trim());
+    }
+
+    if (article.pdf_url) {
+      setMeta('citation_pdf_url', article.pdf_url);
+    }
+    if (article.doi) {
+      setMeta('citation_doi', article.doi);
+      setMeta('dc.identifier', `doi:${article.doi}`);
+    }
+
+    // Additional Dublin Core & Discovery metadata
+    setMeta('dc.title', article.title);
+    setMeta('dc.publisher', 'Association of Asia Pacific Academician (APASIFIC)');
+    setMeta('dc.language', 'eng');
+    setMeta('citation_language', 'eng');
+
+    let parsedAbs = '';
+    try {
+      const parsed = JSON.parse(article.abstract);
+      parsedAbs = parsed.abstract_en || parsed.abstract || '';
+    } catch {
+      parsedAbs = article.abstract;
+    }
+    if (parsedAbs) {
+      setMeta('citation_abstract', parsedAbs);
+    }
+
+    if (article.keywords && article.keywords.length > 0) {
+      setMeta('citation_keywords', article.keywords.join(', '));
+    }
+
+    // Cleanup injected tags on unmount to prevent memory leaks or page transitions conflicts
+    return () => {
+      const tagsToRemove = [
+        'citation_title', 'citation_author', 'citation_publication_date', 
+        'citation_journal_title', 'citation_volume', 'citation_issue', 
+        'citation_pdf_url', 'citation_doi', 'dc.date', 'dc.identifier', 
+        'dc.title', 'dc.publisher', 'dc.language', 'citation_language', 
+        'citation_abstract', 'citation_keywords'
+      ];
+      tagsToRemove.forEach(name => {
+        const meta = document.querySelector(`meta[name="${name}"], meta[property="${name}"]`);
+        if (meta) meta.remove();
+      });
+    };
+  }, [article]);
+
 
   // Scopus API Fetch
   useEffect(() => {
@@ -497,9 +586,41 @@ export default function ArticlePaywall() {
     safeCountryPage * itemsPerPage
   );
 
+  // Schema.org ScholarlyArticle JSON-LD structured data
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "ScholarlyArticle",
+    "name": article.title,
+    "headline": article.title,
+    "datePublished": new Date(article.published_at || article.created_at || new Date()).toISOString().split('T')[0],
+    "image": article.cover_file_url || undefined,
+    "isPartOf": {
+      "@type": "Periodical",
+      "name": article.journal,
+      "issn": article.issn || undefined
+    },
+    "author": article.author.split(/[,;&]/).map(a => ({
+      "@type": "Person",
+      "name": a.trim()
+    })),
+    "publisher": {
+      "@type": "Organization",
+      "name": "Association of Asia Pacific Academician (APASIFIC)"
+    },
+    "identifier": article.doi ? {
+      "@type": "PropertyValue",
+      "propertyID": "DOI",
+      "value": article.doi
+    } : undefined
+  };
+
   return (
     <div className="min-h-screen text-[#e8e8f0] font-sans pt-24 pb-20 bg-[#05050a]">
       <div className="container mx-auto px-6 max-w-6xl">
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
         
         {/* Back Navigation */}
         <button onClick={() => window.history.back()} className="inline-flex items-center text-[#c9a84c] hover:text-[#e8c97a] mb-8 font-bold transition-colors bg-transparent border-none cursor-pointer">
@@ -574,9 +695,9 @@ export default function ArticlePaywall() {
                   <span className="mx-1 font-bold text-gray-500">•</span>
                   <span className="text-[#c9a84c]">
                     Vol. {article.volume ? article.volume.replace(/^(Vol\.?|Volume)\s*/i, '') : '-'} Edisi {article.issue ? article.issue.replace(/^(No\.?|Nomor|Edisi|Issue)\s*/i, '').replace(/\(.*\)/, '').trim() : '-'} 
-                    {article.date && article.date !== "Baru saja dipublikasi" && (
+                    {(article.published_at || article.created_at) && (
                       <span className="ml-1">
-                        ({new Date(article.date.split('/').reverse().join('-')).toLocaleDateString('id-ID', { month: 'long', year: 'numeric' })})
+                        ({new Date(article.published_at || article.created_at).toLocaleDateString('id-ID', { month: 'long', year: 'numeric' })})
                       </span>
                     )}
                   </span>
@@ -662,6 +783,7 @@ export default function ArticlePaywall() {
                       volume={article.volume || ""}
                       issue={article.issue || ""}
                       createdAt={article.created_at || ""}
+                      publishedAt={article.published_at}
                       coverUrl={article.cover_file_url || null}
                       maxLines={8}
                       variant="full"

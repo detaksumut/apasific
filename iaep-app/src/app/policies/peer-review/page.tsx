@@ -40,13 +40,36 @@ export default function PeerReviewPolicyPage() {
           </h2>
           <div style={{ color: "rgba(255,255,255,0.9)", fontSize: "16px", lineHeight: "1.8" }}>
             <p style={{ marginBottom: "16px" }}>
-              All manuscripts submitted to this discipline will undergo a rigorous Double-Blind Peer Review process to ensure scientific quality, originality, methodological rigor, ethical compliance, and relevance to the discipline.
+              Seluruh naskah yang dikirimkan ke jurnal-jurnal di bawah APASIFIC Press melalui peninjauan sejawat buta ganda (*Double-Blind Peer Review*) untuk memastikan integritas ilmiah, orisinalitas riset, kelayakan metodologi, dan kepatuhan etika.
             </p>
-            <p style={{ marginBottom: "16px" }}>
-              During the review process, the identities of both authors and reviewers remain anonymous to maintain fairness, objectivity, and academic integrity.
+            <p style={{ marginBottom: "20px" }}>
+              Identitas penulis disembunyikan dari reviewer, dan identitas reviewer dirahasiakan dari penulis sepanjang alur peninjauan guna menghindari bias evaluasi.
             </p>
+
+            <h3 style={{ color: "#c9a84c", fontSize: "18px", marginTop: "24px", marginBottom: "8px" }}>A. Alur Review (Review Workflow)</h3>
+            <ol style={{ paddingLeft: "20px", marginBottom: "20px" }}>
+              <li><strong>Pre-Screening:</strong> Evaluasi awal oleh Editor Utama untuk menyaring kesesuaian ruang lingkup (*scope*), kualitas plagiarisme, dan kelengkapan administrasi.</li>
+              <li><strong>Review Assignment:</strong> Naskah dikirim ke minimal 2 (dua) penilai sejawat (*reviewer*) independen secara buta ganda.</li>
+              <li><strong>Author Revision:</strong> Penulis merevisi naskah berdasarkan komentar dan saran perbaikan dari reviewer.</li>
+              <li><strong>Final Decision:</strong> Editor mengambil keputusan final berdasarkan akumulasi masukan reviewer.</li>
+            </ol>
+
+            <h3 style={{ color: "#c9a84c", fontSize: "18px", marginTop: "24px", marginBottom: "8px" }}>B. Batas Waktu (Review Timeline)</h3>
+            <p style={{ marginBottom: "20px" }}>
+              Proses review putaran pertama ditargetkan selesai dalam waktu <strong>2 hingga 4 minggu</strong> sejak naskah ditugaskan ke reviewer.
+            </p>
+
+            <h3 style={{ color: "#c9a84c", fontSize: "18px", marginTop: "24px", marginBottom: "8px" }}>C. Keputusan Editorial (Editorial Decision)</h3>
+            <ul style={{ paddingLeft: "20px", marginBottom: "20px" }}>
+              <li><strong>Accept Submission:</strong> Diterima langsung tanpa revisi tambahan.</li>
+              <li><strong>Minor Revisions:</strong> Diterima dengan catatan revisi kecil dari penulis.</li>
+              <li><strong>Major Revisions:</strong> Penulis wajib melakukan revisi besar dan naskah diuji ulang di putaran kedua.</li>
+              <li><strong>Decline Submission (Reject):</strong> Ditolak karena kelemahan metodologi fatal atau tidak orisinal.</li>
+            </ul>
+
+            <h3 style={{ color: "#c9a84c", fontSize: "18px", marginTop: "24px", marginBottom: "8px" }}>D. Tanggung Jawab Reviewer</h3>
             <p style={{ margin: "0" }}>
-              Only manuscripts that successfully pass the editorial evaluation and peer review process will be accepted for publication.
+              Reviewer bertanggung jawab menilai kebenaran metode riset, kebaruan temuan ilmiah, kesesuaian sitasi, dan memberikan masukan konstruktif demi meningkatkan mutu artikel ilmiah.
             </p>
           </div>
         </div>

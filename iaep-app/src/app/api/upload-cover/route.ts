@@ -42,15 +42,31 @@ export async function POST(req: Request) {
     // Attempt Supabase, but ignore error if column doesn't exist
     await supabaseAdmin.from('submissions').update({ cover_file_url: coverUrl }).eq('id', submissionId);
 
+    // Fetch published_at to sync with Firebase
+    let publishedAtVal: string | null = null;
+    try {
+      const { data: subData } = await supabaseAdmin.from('submissions').select('published_at').eq('id', submissionId).single();
+      if (subData?.published_at) {
+        publishedAtVal = subData.published_at;
+      }
+    } catch (e) {
+      console.warn("Failed to fetch published_at for sync", e);
+    }
+
     try {
       const { getFirestore } = await import('@/utils/firebase/db');
       const db = getFirestore();
       const docRef = db.collection('submissions').doc(submissionId);
       const doc = await docRef.get();
+      const fbPayload: Record<string, any> = { cover_file_url: coverUrl, updated_at: new Date() };
+      if (publishedAtVal) {
+        fbPayload.published_at = publishedAtVal;
+      }
+      
       if (!doc.exists) {
-         await docRef.set({ cover_file_url: coverUrl, created_at: new Date(), updated_at: new Date() });
+         await docRef.set({ ...fbPayload, created_at: new Date() });
       } else {
-         await docRef.update({ cover_file_url: coverUrl, updated_at: new Date() });
+         await docRef.update(fbPayload);
       }
     } catch(fbErr) {
       console.warn("Firestore cover_file_url update failed", fbErr);

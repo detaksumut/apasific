@@ -7,17 +7,17 @@ export class IdentityRepository {
         );
     }
 
-    static async findIdentityByEmail(email: string): Promise<{ id: string; full_name?: string } | null> {
+    static async findIdentityByEmail(email: string): Promise<{ id: string; full_name?: string; role?: string } | null> {
         try {
             const supabaseAdmin = this.getSupabaseAdmin();
             const { data: profile } = await supabaseAdmin
                 .from('profiles')
-                .select('id, full_name')
+                .select('id, full_name, role')
                 .ilike('email', email)
                 .maybeSingle();
 
             if (profile && profile.id) {
-                return { id: profile.id, full_name: profile.full_name };
+                return { id: profile.id, full_name: profile.full_name, role: profile.role ?? undefined };
             }
         } catch (error) {
             console.error("IdentityRepository findIdentityByEmail failed:", error);
@@ -25,7 +25,7 @@ export class IdentityRepository {
         return null;
     }
 
-    static async findIdentityFromSystemSettings(identifier: string): Promise<{ id: string; email: string; full_name?: string } | null> {
+    static async findIdentityFromSystemSettings(identifier: string): Promise<{ id: string; email: string; full_name?: string; role?: string } | null> {
         // Fallback to searching system_settings if profiles fails (for legacy hardcoded users)
         try {
             const supabaseAdmin = this.getSupabaseAdmin();
@@ -43,7 +43,8 @@ export class IdentityRepository {
                             return {
                                 id: matched.id,
                                 email: matched.email,
-                                full_name: matched.full_name
+                                full_name: matched.full_name,
+                                role: matched.role ?? undefined
                             };
                         }
                     } catch(e) {}

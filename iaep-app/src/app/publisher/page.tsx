@@ -20,36 +20,41 @@ export default function PublisherPage() {
           <section className="mb-12">
             <h2 className="text-2xl font-semibold text-gray-900 mb-4 border-b pb-2">About the Publisher</h2>
             <p>
-              <strong>APASIFIC Press</strong> is an independent, non-profit academic publisher committed to advancing global scholarly communication through fully open-access, peer-reviewed journals. We leverage modern research object federation to bridge the Global South with international academic networks.
+              <strong>PT. Bernas Sumut Jaya</strong> adalah entitas hukum resmi penerbit ilmiah independen yang menaungi <strong>APASIFIC Press</strong>. Berkomitmen tinggi untuk memajukan komunikasi ilmiah di tingkat Asia Pasifik dan global melalui platform jurnal open-access yang terakreditasi dan terkelola secara profesional.
             </p>
             <ul className="list-disc pl-5 mt-4 space-y-2">
-              <li><strong>Publisher Type:</strong> Independent Academic Publisher</li>
-              <li><strong>Publishing Model:</strong> Open Access Scholarly Publishing Platform</li>
-              <li><strong>Access Model:</strong> Diamond Open Access</li>
+              <li><strong>Penerbit Resmi:</strong> PT. Bernas Sumut Jaya</li>
+              <li><strong>Nomor Keputusan AHU:</strong> AHU-003707.AH.01.30.Tahun 2024</li>
+              <li><strong>KBLI Usaha:</strong> 
+                <ul className="list-circle pl-5 mt-1 space-y-1">
+                  <li><code>58130</code> (Penerbitan Surat Kabar, Jurnal, Buletin, dan Majalah)</li>
+                  <li><code>63121</code> (Penerbitan Portal Web Digital)</li>
+                </ul>
+              </li>
+              <li><strong>Model Penerbitan:</strong> Open Access Scholarly Publishing</li>
+              <li><strong>Model Akses:</strong> Diamond Open Access (Bebas Biaya bagi Penulis & Pembaca)</li>
             </ul>
           </section>
 
           <section className="mb-12">
             <h2 className="text-2xl font-semibold text-gray-900 mb-4 border-b pb-2">Publisher Responsibilities & Transparency Statement</h2>
             <p>
-              APASIFIC Press follows international principles of scholarly publishing transparency. We are committed to maintaining independent editorial decisions and protecting academic integrity.
+              PT. Bernas Sumut Jaya dan APASIFIC Press mematuhi standar transparansi penerbitan ilmiah internasional (DOAJ & COPE). Kami menjamin kebebasan editorial dewan redaksi jurnal dan melindungi integritas akademik secara konsisten.
             </p>
-            <p>The publisher publicly provides and guarantees:</p>
+            <p>Penerbit menjamin dan menyediakan:</p>
             <ul className="list-disc pl-5 mt-4 space-y-1">
-              <li>Transparent journal ownership information</li>
-              <li>Verifiable editorial board affiliations</li>
-              <li>Rigorous double-blind peer review processes</li>
-              <li>Strict publication ethics policies</li>
-              <li>Diamond Open Access licensing (CC-BY 4.0) with zero Article Processing Charges (APCs)</li>
-              <li>Clear correction, retraction, and complaints procedures</li>
-              <li>Long-term digital preservation strategies (Crossref & Zenodo)</li>
+              <li>Transparansi kepemilikan dan legalitas hukum penerbit</li>
+              <li>Otoritas independen bagi dewan redaksi jurnal</li>
+              <li>Proses peer review buta ganda (Double-Blind) yang ketat</li>
+              <li>Lisensi CC BY 4.0 dengan biaya publikasi Rp 0 (Gratis APC)</li>
+              <li>Penyimpanan arsip digital jangka panjang yang aman (Crossref & Zenodo)</li>
             </ul>
           </section>
 
           <section className="mb-12">
             <h2 className="text-2xl font-semibold text-gray-900 mb-4 border-b pb-2">Organizational Structure</h2>
             <p>
-              To ensure editorial independence, APASIFIC Press separates its administrative operations from its editorial and peer-review networks.
+              Untuk memastikan independensi editorial, struktur operasional administratif dipisahkan secara tegas dari jaringan penilai akademis dan dewan redaksi peer-review.
             </p>
             <PublisherStructureDiagram />
           </section>
@@ -57,10 +62,10 @@ export default function PublisherPage() {
           <section className="mb-12">
             <h2 className="text-2xl font-semibold text-gray-900 mb-4 border-b pb-2">Contact Information</h2>
             <div className="bg-gray-50 p-6 rounded-lg border border-gray-200">
-              <p className="mb-2"><strong>Official Publisher Name:</strong> APASIFIC Press</p>
-              <p className="mb-2"><strong>Website:</strong> <a href="https://apasific.com" className="text-blue-600 hover:underline">https://apasific.com</a></p>
-              <p className="mb-2"><strong>Primary Contact:</strong> admin@apasific.com</p>
-              <p className="mb-0"><strong>Address:</strong> Global Academic Infrastructure Node</p>
+              <p className="mb-2"><strong>Penerbit Resmi:</strong> PT. Bernas Sumut Jaya</p>
+              <p className="mb-2"><strong>Email Utama:</strong> admin@apasific.com</p>
+              <p className="mb-2"><strong>Website Portal:</strong> <a href="https://apasific.com" className="text-blue-600 hover:underline">https://apasific.com</a></p>
+              <p className="mb-0"><strong>Alamat Redaksi:</strong> Jl. Setia Budi No. 123, Komplek Bernas Building, Kota Medan, Sumatera Utara, 20132, Indonesia.</p>
             </div>
           </section>
         </div>
