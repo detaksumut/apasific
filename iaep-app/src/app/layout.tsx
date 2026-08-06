@@ -302,12 +302,7 @@ export default function RootLayout({
         <div class="footer-grid">
           <div class="footer-brand">
             <div class="footer-logo">
-              <svg width="40" height="40" viewBox="0 0 44 44" fill="none">
-                <circle cx="22" cy="22" r="21" stroke="#c9a84c" stroke-width="1.5"/>
-                <path d="M22 8L26 16H18L22 8Z" fill="#c9a84c"/>
-                <rect x="19" y="15" width="6" height="8" fill="#c9a84c" rx="0.5"/>
-                <path d="M22 28V34M18 34H26" stroke="#c9a84c" stroke-width="1.5" stroke-linecap="round"/>
-              </svg>
+              <img src="/logo-apasific.png" className="w-10 h-10 shrink-0 object-contain rounded-md" alt="ASIA" style="width: 40px; height: 40px; object-fit: contain;" />
               <div>
                 <p class="footer-logo-main">ASIA</p>
                 <p class="footer-logo-sub">Association of Asia Pacific Academician</p>
