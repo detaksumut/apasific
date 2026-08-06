@@ -1,6 +1,6 @@
 # IAEP Architecture Implementation Policy
 
-* **Version**: 1.0
+* **Version**: 1.1 (Consolidated Architecture Rule)
 * **Status**: FROZEN
 * **Domain**: Engineering Policy & Governance
 
@@ -15,27 +15,52 @@ Setiap pembuatan modul, penambahan fitur, atau modifikasi daur hidup naskah waji
 
 ---
 
-## 2. Audit Sebelum Membangun (Audit Before Build)
-Sebelum melakukan coding, pengembang wajib menjawab checklist evaluasi penempatan komponen:
+## 2. Pre-Implementation Audit (MANDATORY)
+Sebelum membuat berkas baru apa pun, developer **WAJIB** menjawab checklist evaluasi berikut. Jika salah satu jawabannya **YA**, maka **DILARANG MEMBUAT FILE BARU** melainkan harus memperluas file yang sudah ada:
 
-* `[ ]` **Route sudah ada?** Jika YA, perluas rute yang ada. Jangan buat rute baru.
-* `[ ]` **Halaman sudah ada?** Jika YA, satukan ke dalam halaman yang ada.
-* `[ ]` **Service sudah ada?** Jika YA, gunakan/perluas service yang ada.
-* `[ ]` **Database sudah ada?** Jika YA, lakukan ALTER TABLE/tambah kolom daripada membuat tabel baru.
-* `[ ]` **Dashboard sudah ada?** Jika YA, tambahkan tab/section baru ke dashboard tersebut.
-* `[ ]` **Menu sudah ada?** Jika YA, jadikan sebagai submenu.
-
----
-
-## 3. Kebijakan Ekstensi (Extend Before Create)
-* **No Duplicate Route:** Dilarang keras membuat file `page.tsx` baru jika modul dapat diintegrasikan dalam rute sub-tab yang sudah ada.
-* **No Duplicate Dashboard:** Modul analitik, kesehatan jurnal, dan kesiapan indeksasi tidak boleh memiliki URL dashboard utama mandiri baru. Semuanya wajib menginduk pada `/dashboard/admin` atau `/dashboard/editor`.
-* **No Duplicate Service:** Modul baru wajib berbagi logika dengan core services yang sudah terdaftar.
-* **No Duplicate Database:** Dilarang keras meregistrasikan skema tabel ganda yang memuat data serupa (e.g. data profil dewan redaksi vs metadata profil user).
+* `[ ]` **Route sudah ada?**
+* `[ ]` **Page sudah ada?**
+* `[ ]` **Layout sudah ada?**
+* `[ ]` **Dashboard sudah ada?**
+* `[ ]` **Menu sudah ada?**
+* `[ ]` **Sidebar sudah ada?**
+* `[ ]` **Service sudah ada?**
+* `[ ]` **Repository sudah ada?**
+* `[ ]` **Database sudah ada?**
+* `[ ]` **API sudah ada?**
+* `[ ]` **Documentation sudah ada?**
 
 ---
 
-## 4. Checklist Verifikasi Akhir (Verification Checklist)
+## 3. Prioritas Perpanjangan Elemen (Extend Before Create)
+Urutan prioritas penulisan kode wajib dimulai dari yang terkecil:
+1. **Extend Component** (Tab / Section / Accordion / Modal / Drawer / Widget)
+2. **Extend Page** (Menambahkan konten/sub-tab ke halaman yang ada)
+3. **Extend Service** (Menambahkan metode ke kelas service terdaftar)
+4. **Extend Module** (Menambah sub-fungsionalitas)
+5. **Baru Create** (Hanya jika tidak ada rute/service paralel yang menampung)
+
+---
+
+## 4. Aturan Hirarki Visual Dasbor (Dashboard Hierarchy Rule)
+Setiap dashboard dibatasi secara ketat maksimal hanya mempunyai kedalaman:
+```
+  Dashboard -> Overview -> Tab -> Card -> Widget
+```
+* **No Parallel Architecture:** Dilarang keras membuat modul paralel terpisah yang mengerjakan fungsionalitas visual serupa (e.g. dilarang membuat `PublicationDashboard`, `JournalDashboard`, dan `PublisherDashboard` secara mandiri. Semuanya harus digabung ke dalam sub-tab di bawah halaman *Analytics*).
+
+---
+
+## 5. Aturan Basis Data (Database Rule)
+Prioritas perubahan skema tabel mengikuti urutan:
+```
+  Tambah kolom -> Tambah relasi -> Tambah index -> Baru buat tabel
+```
+
+---
+
+## 6. Checklist Verifikasi Akhir (Verification Checklist)
 1. Apakah Next.js build-worker sukses recompile tanpa error?
 2. Apakah tautan navigasi global (header/sidebar/footer) konsisten mengarah ke target valid?
 3. Apakah modifikasi memenuhi prinsip perubahan sekecil mungkin (*Minimal Change Principle*)?
+
