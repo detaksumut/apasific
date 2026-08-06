@@ -205,6 +205,7 @@ export default function SuperAdminOverview() {
         </div>
 
         {activeTab === 'overview' && (
+          <>
             {/* ── Stats ── */}
             <div className="stat-grid">
               {stats.map((s, i) => (
@@ -431,6 +432,7 @@ export default function SuperAdminOverview() {
                     </div>
                   </div>
                 </div>
+              </div>
             </div>
           </div>
         )}
