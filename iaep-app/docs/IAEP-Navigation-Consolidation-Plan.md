@@ -1,28 +1,24 @@
-# IAEP Navigation Consolidation Plan
+# IAEP Navigation & Dashboard Consolidation Plan
 
-* **Version**: 1.0
+* **Version**: 1.1 (Consolidated & Certified)
 * **Status**: FROZEN (Plan Only)
-* **Domain**: Navigation Mapping
+* **Domain**: Navigation & Dashboard Mapping
 
 ---
 
-## 1. Peta Navigasi (Current vs Recommended Navigation)
+## 1. Dashboard Merge Matrix
 
-```
-[CURRENT PATHS]
-  ├── /dashboard/admin
-  ├── /dashboard/admin/journal-metrics (Separate page)
-  └── /dashboard/admin/accreditation (Separate page)
-
-[RECOMMENDED TARGET PATHS]
-  └── /dashboard/admin
-        ├── Tab 1: Overview
-        ├── Tab 2: Analytics (Journal Metrics & Editorial Intel integrated)
-        └── Tab 3: Readiness (SINTA, DOAJ, Scopus Readiness integrated)
-```
+| Existing Dashboard | Merge Target | Reason |
+| :--- | :--- | :--- |
+| **Journal Metrics** | Dashboard Admin -> Tab *Analytics* | Mengkonsolidasikan data volume, acceptance rate, dan health score. |
+| **Accreditation Readiness**| Dashboard Admin -> Tab *Readiness* | Menyajikan evaluasi instan pemenuhan syarat akreditasi SINTA. |
+| **Editorial Intelligence** | Dashboard Editor -> Tab *Analytics* | Menyajikan asisten AI prioritas tindakan bagi Editor-in-Chief. |
+| **Reviewer Recognition** | Dashboard Reviewer -> Tab *Profile* | Menyajikan reputasi, lencana, dan sertifikat terverifikasi. |
 
 ---
 
-## 2. Analisis Dampak Migrasi (Impact Analysis)
-* **Dampak Halaman:** Mengurangi beban loading peramban karena Editor-in-Chief dan Administrator tidak perlu berpindah-pindah rute URL yang berbeda.
-* **Dampak Kode:** Rute-rute lama (seperti `/dashboard/admin/journal-metrics`) akan tetap dibiarkan aktif (*deprecated state*) selama masa transisi sebelum nanti dihapus sepenuhnya setelah integrasi tab tuntas.
+## 2. Peta Transisi & Kebijakan Rute (No Breaking Route Policy)
+Untuk mencegah kegagalan routing link internal bagi user eksisting selama masa migrasi:
+* **Fase 1 (Pre-Migration):** Rute dasbor mandiri lama (seperti `/dashboard/admin/journal-metrics`) dibiarkan tetap aktif.
+* **Fase 2 (Tab Integration):** Menulis kode komponen tab visual di `/dashboard/admin` dan `/dashboard/editor`.
+* **Fase 3 (Clean Up):** Mengubah rute lama menjadi pengalihan otomatis (*301 Redirect*) ke halaman dasbor utama bersangkutan.

@@ -1,6 +1,6 @@
 # IAEP Architecture Implementation Policy
 
-* **Version**: 1.1 (Consolidated Architecture Rule)
+* **Version**: 1.2 (Certified Policy Rule)
 * **Status**: FROZEN
 * **Domain**: Engineering Policy & Governance
 
@@ -16,7 +16,7 @@ Setiap pembuatan modul, penambahan fitur, atau modifikasi daur hidup naskah waji
 ---
 
 ## 2. Pre-Implementation Audit (MANDATORY)
-Sebelum membuat berkas baru apa pun, developer **WAJIB** menjawab checklist evaluasi berikut. Jika salah satu jawabannya **YA**, maka **DILARANG MEMBUAT FILE BARU** melainkan harus memperluas file yang sudah ada:
+Sebelum membuat berkas baru apa pun, developer **WAJIB** menjawab dan mendokumentasikan checklist evaluasi berikut di berkas rencana implementasi. Jika salah satu jawabannya **YA**, maka **DILARANG MEMBUAT FILE BARU** melainkan harus memperluas file yang sudah ada:
 
 * `[ ]` **Route sudah ada?**
 * `[ ]` **Page sudah ada?**
@@ -63,4 +63,5 @@ Prioritas perubahan skema tabel mengikuti urutan:
 1. Apakah Next.js build-worker sukses recompile tanpa error?
 2. Apakah tautan navigasi global (header/sidebar/footer) konsisten mengarah ke target valid?
 3. Apakah modifikasi memenuhi prinsip perubahan sekecil mungkin (*Minimal Change Principle*)?
+
 
