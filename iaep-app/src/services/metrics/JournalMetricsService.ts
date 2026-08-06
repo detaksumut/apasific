@@ -109,7 +109,12 @@ export class JournalMetricsService {
       const withDoi = records.filter(r => r.doi).length;
       const doiPct = totalPublished > 0 ? (withDoi / totalPublished) * 100 : 0;
 
-      const withOrcid = records.filter(r => r.profiles?.orcid).length;
+      const withOrcid = records.filter(r => {
+        const profile = r.profiles;
+        if (!profile) return false;
+        const orcid = Array.isArray(profile) ? profile[0]?.orcid : (profile as any).orcid;
+        return Boolean(orcid);
+      }).length;
       const orcidPct = totalPublished > 0 ? (withOrcid / totalPublished) * 100 : 0;
 
       // Zenodo coverage
