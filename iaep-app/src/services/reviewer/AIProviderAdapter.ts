@@ -18,12 +18,12 @@ export class GeminiProviderAdapter implements IAIProvider {
   private readonly apiKey: string;
   
   constructor() {
-    this.apiKey = process.env.GEMINI_API_KEY || process.env.NEXT_PUBLIC_GEMINI_API_KEY || '';
+    this.apiKey = process.env.NINE_ROUTER_API_KEY || process.env.GEMINI_API_KEY || process.env.NEXT_PUBLIC_GEMINI_API_KEY || '';
   }
 
   public async generateAssessment(prompt: string): Promise<AIResponse> {
     if (!this.apiKey) {
-      throw new Error('GEMINI_API_KEY is not configured in environment variables.');
+      throw new Error('NINE_ROUTER_API_KEY or GEMINI_API_KEY is not configured in environment variables.');
     }
 
     try {
