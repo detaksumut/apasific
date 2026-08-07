@@ -1,10 +1,20 @@
 import { Metadata } from 'next';
 
+function cleanDoi(rawDoi: string): string {
+  if (!rawDoi) return '';
+  // Strip out prefix URL if present to get only the raw DOI (e.g., 10.5281/zenodo.xxx)
+  return rawDoi.replace(/https?:\/\/doi\.org\//i, '').trim();
+}
+
 export class MetadataEngine {
   static generate(article: any, origin: string): Metadata {
     const title = article.title || 'Untitled Article';
     const abstract = article.abstract || '';
-    const doi = article.doi || '';
+    
+    // Normalize DOI values
+    const doiValue = cleanDoi(article.doi);
+    const doiUrl = doiValue ? `https://doi.org/${doiValue}` : '';
+    
     const journalTitle = article.journal?.name || 'APASIFIC Jurnal';
     const issn = article.journal?.issn || '';
     const vol = article.volume || '';
@@ -20,8 +30,8 @@ export class MetadataEngine {
       .map((a: any) => a.orcid_id ? `https://orcid.org/${a.orcid_id}` : '')
       .filter(Boolean);
 
-    // Ensure PDF URL is absolute
-    const rawPdfUrl = article.file_url || '';
+    // Ensure PDF URL is absolute - check file_url_galley first
+    const rawPdfUrl = article.file_url_galley || article.file_url || '';
     const pdfUrl = rawPdfUrl
       ? (rawPdfUrl.startsWith('http') ? rawPdfUrl : `${origin}${rawPdfUrl.startsWith('/') ? '' : '/'}${rawPdfUrl}`)
       : '';
@@ -66,10 +76,10 @@ export class MetadataEngine {
         'DC.contributor': contributor,
         'DC.date': dateStr,
         'DC.type': 'Text',
-        'DC.identifier': doi ? `doi:${doi}` : articleUrl,
+        'DC.identifier': doiValue ? `doi:${doiValue}` : articleUrl,
         'DC.source': journalTitle + (issn ? ` (ISSN: ${issn})` : ''),
         'DC.language': lang,
-        'DC.relation': doi ? `https://doi.org/${doi}` : '',
+        'DC.relation': doiUrl,
         'DC.coverage': article.country || '',
         'DC.rights': license,
         'DC.format': 'application/pdf',
@@ -86,7 +96,7 @@ export class MetadataEngine {
         'citation_firstpage': firstPage,
         'citation_lastpage': lastPage,
         'citation_pdf_url': pdfUrl,
-        'citation_doi': doi,
+        'citation_doi': doiValue,
         'citation_abstract': abstract,
         'citation_keywords': keywordsStr,
         'citation_language': lang,
@@ -98,15 +108,19 @@ export class MetadataEngine {
     };
   }
 
-  static generateJsonLd(article: any, origin: string): any {
+  static generateJsonLd(article: any, origin: string) {
     const authors = article.authors || [];
     const keywordsList = Array.isArray(article.keywords)
       ? article.keywords
-      : (article.keywords ? (article.keywords as string).split(',').map(k => k.trim()) : []);
+      : (article.keywords ? article.keywords.split(',').map((k: string) => k.trim()) : []);
 
     const licenseUrl = article.license && article.license.includes('http')
       ? article.license
       : 'https://creativecommons.org/licenses/by/4.0/';
+
+    // Normalize DOI values
+    const doiValue = cleanDoi(article.doi);
+    const doiUrl = doiValue ? `https://doi.org/${doiValue}` : '';
 
     return {
       "@context": "https://schema.org",
@@ -127,9 +141,9 @@ export class MetadataEngine {
         "@type": "Organization",
         "name": "Association of Asia Pacific Academician (APASIFIC)"
       },
-      "identifier": article.doi || undefined,
+      "identifier": doiValue || undefined,
       "url": `${origin}/article/${article.id}`,
-      "sameAs": article.doi ? `https://doi.org/${article.doi}` : undefined,
+      "sameAs": doiUrl || undefined,
       "keywords": keywordsList.length > 0 ? keywordsList : undefined,
       "license": licenseUrl,
       "inLanguage": article.language || 'en'

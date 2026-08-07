@@ -545,8 +545,16 @@ export default function Sidebar({ role }: SidebarProps) {
           </>
         )}
 
+        {/* MENU AUTHOR - Full author capability for Reviewer role */}
+        {(normalizedRole === "reviewer" || normalizedRole === "REVIEWER") && (
+          <>
+            <div className="sidebar-section-label" style={{ marginTop: 24 }}>Menu Author</div>
+            {authorLinks.map(link => <NavLink key={`reviewer-author-${link.path}`} link={link} />)}
+          </>
+        )}
+
         {/* MENU SUBMISSION - Unified Submission Capability for Operational Portals */}
-        {(normalizedRole === "reviewer" || normalizedRole === "editor" || normalizedRole === "co-admin" || normalizedRole === "PRODUCTION" || rawRole === "supervisor" || normalizedRole === "co_admin" || rawRole === "co-admin" || rawRole === "co_admin") && (
+        {(normalizedRole === "editor" || normalizedRole === "co-admin" || normalizedRole === "PRODUCTION" || rawRole === "supervisor" || normalizedRole === "co_admin" || rawRole === "co-admin" || rawRole === "co_admin") && (
           <>
             <div className="sidebar-section-label" style={{ marginTop: 24 }}>MENU SUBMISSION</div>
             <NavLink 

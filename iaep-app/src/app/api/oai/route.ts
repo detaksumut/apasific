@@ -20,6 +20,11 @@ function escapeXml(unsafe: string): string {
     });
 }
 
+function cleanDoi(rawDoi: string): string {
+    if (!rawDoi) return '';
+    return rawDoi.replace(/https?:\/\/doi\.org\//i, '').trim();
+}
+
 export async function GET(req: Request) {
     const url = new URL(req.url);
     const verb = url.searchParams.get('verb');
@@ -139,6 +144,9 @@ export async function GET(req: Request) {
                         .sort((a, b) => (a.author_order || 0) - (b.author_order || 0))
                         .map((a: any) => a.full_name)
                         .filter(Boolean);
+
+                    const doiValue = cleanDoi(record.doi);
+                    const doiUrl = doiValue ? `https://doi.org/${doiValue}` : '';
                     
                     xml += `
       <metadata>
@@ -168,9 +176,15 @@ export async function GET(req: Request) {
           <dc:format>application/pdf</dc:format>
           <dc:identifier>${escapeXml(`${url.protocol}//${url.host}/article/${record.id}`)}</dc:identifier>
           <dc:rights>info:eu-repo/semantics/openAccess</dc:rights>
-          <dc:rights>${escapeXml(record.license || 'CC BY 4.0')}</dc:rights>
-          <dc:relation>info:eu-repo/semantics/altIdentifier/doi/${escapeXml(record.doi || '')}</dc:relation>
-          <dc:relation>doi:${escapeXml(record.doi || '')}</dc:relation>
+          <dc:rights>${escapeXml(record.license || 'CC BY 4.0')}</dc:rights>`;
+
+                    if (doiValue) {
+                        xml += `
+          <dc:relation>info:eu-repo/semantics/altIdentifier/doi/${escapeXml(doiValue)}</dc:relation>
+          <dc:relation>${escapeXml(doiUrl)}</dc:relation>`;
+                    }
+
+                    xml += `
           <dc:source>${escapeXml(journalName)}</dc:source>
           <dc:language>${escapeXml(record.language || 'eng')}</dc:language>
         </oai_dc:dc>
@@ -234,6 +248,9 @@ export async function GET(req: Request) {
             
             const journalName = record.journals?.name || record.journal_id || 'APASIFIC';
 
+            const doiValue = cleanDoi(record.doi);
+            const doiUrl = doiValue ? `https://doi.org/${doiValue}` : '';
+
             xml += `
   <GetRecord>
     <record>
@@ -269,9 +286,15 @@ export async function GET(req: Request) {
           <dc:format>application/pdf</dc:format>
           <dc:identifier>${escapeXml(`${url.protocol}//${url.host}/article/${record.id}`)}</dc:identifier>
           <dc:rights>info:eu-repo/semantics/openAccess</dc:rights>
-          <dc:rights>${escapeXml(record.license || 'CC BY 4.0')}</dc:rights>
-          <dc:relation>info:eu-repo/semantics/altIdentifier/doi/${escapeXml(record.doi || '')}</dc:relation>
-          <dc:relation>doi:${escapeXml(record.doi || '')}</dc:relation>
+          <dc:rights>${escapeXml(record.license || 'CC BY 4.0')}</dc:rights>`;
+
+            if (doiValue) {
+                xml += `
+          <dc:relation>info:eu-repo/semantics/altIdentifier/doi/${escapeXml(doiValue)}</dc:relation>
+          <dc:relation>${escapeXml(doiUrl)}</dc:relation>`;
+            }
+
+            xml += `
           <dc:source>${escapeXml(journalName)}</dc:source>
           <dc:language>${escapeXml(record.language || 'eng')}</dc:language>
         </oai_dc:dc>

@@ -40,16 +40,12 @@ function cleanDoi(rawDoi) {
   return rawDoi.replace(/https?:\/\/doi\.org\//i, '').trim();
 }
 
-// Inline MetadataEngine to simulate metadata rendering natively
 class MetadataEngine {
   static generate(article, origin) {
     const title = article.title || 'Untitled Article';
     const abstract = article.abstract || '';
-    
-    // Normalize DOI values
     const doiValue = cleanDoi(article.doi);
     const doiUrl = doiValue ? `https://doi.org/${doiValue}` : '';
-    
     const journalTitle = article.journals?.name || 'APASIFIC Jurnal';
     const issn = article.journals?.issn || '';
     const vol = article.volume || '';
@@ -65,7 +61,6 @@ class MetadataEngine {
       .map(a => a.orcid_id ? `https://orcid.org/${a.orcid_id}` : '')
       .filter(Boolean);
 
-    // Ensure PDF URL is absolute - check file_url_galley first
     const rawPdfUrl = article.file_url_galley || article.file_url || '';
     const pdfUrl = rawPdfUrl
       ? (rawPdfUrl.startsWith('http') ? rawPdfUrl : `${origin}${rawPdfUrl.startsWith('/') ? '' : '/'}${rawPdfUrl}`)
@@ -74,21 +69,13 @@ class MetadataEngine {
     const articleUrl = `${origin}/article/${article.id}`;
     const pubDate = article.published_at || article.created_at || '';
     const dateStr = pubDate ? new Date(pubDate).toISOString().split('T')[0] : '';
-    
-    // Contributor (Editor if available)
     const contributor = article.editor?.full_name || '';
-
-    // Convert keywords to clean string
-    const keywordsStr = Array.isArray(article.keywords) 
-      ? article.keywords.join(', ') 
-      : (article.keywords || '');
+    const keywordsStr = Array.isArray(article.keywords) ? article.keywords.join(', ') : (article.keywords || '');
 
     return {
       title,
       description: abstract,
-      alternates: {
-        canonical: articleUrl,
-      },
+      alternates: { canonical: articleUrl },
       openGraph: {
         title,
         description: abstract,
@@ -102,7 +89,6 @@ class MetadataEngine {
         description: abstract,
       },
       other: {
-        // --- Dublin Core (DC) ---
         'DC.title': title,
         'DC.creator': authorNames.length > 0 ? authorNames : ['APASIFIC Author'],
         'DC.subject': article.discipline || keywordsStr || '',
@@ -118,8 +104,6 @@ class MetadataEngine {
         'DC.coverage': article.country || '',
         'DC.rights': license,
         'DC.format': 'application/pdf',
-        
-        // --- Google Scholar (citation) ---
         'citation_title': title,
         'citation_author': authorNames.length > 0 ? authorNames : ['APASIFIC Author'],
         'citation_author_orcid': authorOrcids,
@@ -153,7 +137,6 @@ class MetadataEngine {
       ? article.license
       : 'https://creativecommons.org/licenses/by/4.0/';
 
-    // Normalize DOI values
     const doiValue = cleanDoi(article.doi);
     const doiUrl = doiValue ? `https://doi.org/${doiValue}` : '';
 
@@ -186,90 +169,67 @@ class MetadataEngine {
   }
 }
 
-async function runVerification() {
-  console.log("\n==================================================");
-  console.log("TEST 1: SELECT FROM article_authors (Top 10)");
-  console.log("==================================================");
-  
-  const { data: authors, error: authorsErr } = await supabase
-    .from('article_authors')
-    .select('article_id, author_order, full_name, email, affiliation, orcid_id, is_corresponding')
-    .order('created_at', { ascending: false })
-    .limit(10);
+async function verifyLegacyArticles() {
+  const ids = [
+    'ec978306-7ad9-419a-8f77-f2473d78928a', // Halal certification
+    '7375625f-3137-3834-3533-303330323837', // Murabahah MSMEs in Hutan Percha
+    '7375625f-3137-3834-3436-393333383834'  // Carbon sequestration
+  ];
 
-  if (authorsErr) {
-    console.error("Failed to query article_authors:", authorsErr.message);
-  } else {
-    console.table(authors);
-  }
+  for (const id of ids) {
+    console.log(`\n======================================================================`);
+    console.log(`AUDIT ARTICLE ID: ${id}`);
+    console.log(`======================================================================`);
 
-  console.log("\n==================================================");
-  console.log("TEST 2: SELECT FROM submissions (Top 5)");
-  console.log("==================================================");
-
-  const { data: submissions, error: subErr } = await supabase
-    .from('submissions')
-    .select('id, title, abstract, keywords')
-    .order('created_at', { ascending: false })
-    .limit(5);
-
-  if (subErr) {
-    console.error("Failed to query submissions:", subErr.message);
-  } else {
-    submissions.forEach((s, idx) => {
-      console.log(`\n[Submission ${idx + 1}]`);
-      console.log(`ID: ${s.id}`);
-      console.log(`Title: ${s.title}`);
-      console.log(`Abstract: "${s.abstract}"`);
-      console.log(`Keywords: ${s.keywords}`);
-    });
-  }
-
-  if (submissions && submissions.length > 0) {
-    const latestSub = submissions[0];
-    
-    console.log("\n==================================================");
-    console.log(`TEST 3 & 4 & 5 & 6 & 7: Metadata Engine Output for Latest Sub: ${latestSub.id}`);
-    console.log("==================================================");
-    
-    // Fetch full enriched article details (simulate layout.tsx)
-    const { data: fullSub, error: detailErr } = await supabase
+    const { data: article, error } = await supabase
       .from('submissions')
       .select('*, article_authors(*), journals:journal_id(name)')
-      .eq('id', latestSub.id)
+      .eq('id', id)
       .maybeSingle();
 
-    if (detailErr) {
-      console.error("Supabase single fetch error:", detailErr.message);
-    } else if (fullSub) {
-      const origin = "https://www.apasific.org";
-      const metadata = MetadataEngine.generate(fullSub, origin);
-      const jsonLd = MetadataEngine.generateJsonLd(fullSub, origin);
-
-      console.log("\n--- JSON-LD STRUCTURE ---");
-      console.log(JSON.stringify(jsonLd, null, 2));
-
-      console.log("\n--- GOOGLE SCHOLAR & DUBLIN CORE META TAGS ---");
-      console.log(`Canonical URL: ${metadata.alternates?.canonical}`);
-      console.log(`OpenGraph Title: ${metadata.openGraph?.title}`);
-      console.log(`OpenGraph Description: ${metadata.openGraph?.description}`);
-      console.log("");
-      
-      if (metadata.other) {
-        Object.entries(metadata.other).forEach(([key, val]) => {
-          if (Array.isArray(val)) {
-            val.forEach(item => {
-              console.log(`<meta name="${key}" content="${item}" />`);
-            });
-          } else {
-            console.log(`<meta name="${key}" content="${val}" />`);
-          }
-        });
-      }
-    } else {
-      console.error("Failed to fetch full submission details for layout simulation.");
+    if (error || !article) {
+      console.error(`Article ${id} not found in submissions table.`);
+      continue;
     }
+
+    console.log(`Title: ${article.title}`);
+    console.log(`Database Authors (article_authors):`);
+    console.table(article.article_authors || []);
+
+    const origin = "https://www.apasific.org";
+    const metadata = MetadataEngine.generate(article, origin);
+    const jsonLd = MetadataEngine.generateJsonLd(article, origin);
+
+    console.log("\n--- SIMULATED OAI-PMH RECORD METADATA ---");
+    const sortedAuthors = [...(article.article_authors || [])]
+      .sort((a, b) => (a.author_order || 0) - (b.author_order || 0))
+      .map(a => a.full_name);
+      
+    console.log(`<dc:title>${article.title}</dc:title>`);
+    sortedAuthors.forEach(a => console.log(`<dc:creator>${a}</dc:creator>`));
+    console.log(`<dc:publisher>Association of Asia Pacific Academician (APASIFIC)</dc:publisher>`);
+    console.log(`<dc:identifier>${origin}/article/${article.id}</dc:identifier>`);
+    console.log(`<dc:rights>${article.license || 'CC BY 4.0'}</dc:rights>`);
+    if (article.doi) {
+      const doiVal = cleanDoi(article.doi);
+      console.log(`<dc:relation>info:eu-repo/semantics/altIdentifier/doi/${doiVal}</dc:relation>`);
+      console.log(`<dc:relation>https://doi.org/${doiVal}</dc:relation>`);
+    }
+
+    console.log("\n--- HTML META TAGS ---");
+    if (metadata.other) {
+      Object.entries(metadata.other).forEach(([key, val]) => {
+        if (Array.isArray(val)) {
+          val.forEach(item => console.log(`<meta name="${key}" content="${item}" />`));
+        } else {
+          console.log(`<meta name="${key}" content="${val}" />`);
+        }
+      });
+    }
+
+    console.log("\n--- JSON-LD STRUCTURE ---");
+    console.log(JSON.stringify(jsonLd, null, 2));
   }
 }
 
-runVerification();
+verifyLegacyArticles();
