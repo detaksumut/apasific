@@ -360,7 +360,11 @@ export default function ArticlePaywallClient({ initialArticle, id }: ArticlePayw
 
   const finalHIndex = realHIndex || hIndex;
   const finalI10Index = realI10Index || i10Index;
-  const finalTrend = realTrend.length > 0 ? realTrend : trend;
+  const normalizedTrend: { label: string; count: number }[] =
+    realTrend.length > 0
+      ? realTrend
+      : trend.map(t => ({ label: t.year, count: t.count }));
+  const finalTrend = normalizedTrend;
 
   const maxTrendVal = Math.max(...finalTrend.map(t => t.count), 1);
 
