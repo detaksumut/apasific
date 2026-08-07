@@ -10,7 +10,7 @@ export async function GET() {
   let dbStatus = "Healthy";
   let dbLatency = 0;
   try {
-    const supabase = createClient();
+    const supabase = await createClient();
     const dbStart = Date.now();
     const { error } = await supabase.from("profiles").select("count", { count: "exact", head: true });
     dbLatency = Date.now() - dbStart;
