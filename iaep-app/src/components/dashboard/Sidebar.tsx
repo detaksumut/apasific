@@ -545,6 +545,80 @@ export default function Sidebar({ role }: SidebarProps) {
           </>
         )}
 
+        {/* MENU SUBMISSION - Unified Submission Capability for Operational Portals */}
+        {(normalizedRole === "reviewer" || normalizedRole === "editor" || normalizedRole === "co-admin" || normalizedRole === "PRODUCTION" || rawRole === "supervisor" || normalizedRole === "co_admin" || rawRole === "co-admin" || rawRole === "co_admin") && (
+          <>
+            <div className="sidebar-section-label" style={{ marginTop: 24 }}>MENU SUBMISSION</div>
+            <NavLink 
+              link={{
+                label: "Submit Naskah",
+                path: "/dashboard/submit",
+                icon: (
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M12 5v14M5 12h14" />
+                  </svg>
+                )
+              }}
+            />
+            <NavLink 
+              link={{
+                label: "Submission Saya",
+                path: "/dashboard/submissions",
+                icon: (
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" /><polyline points="14 2 14 8 20 8" /><line x1="9" y1="13" x2="15" y2="13" /><line x1="9" y1="17" x2="15" y2="17" />
+                  </svg>
+                )
+              }}
+            />
+            <NavLink 
+              link={{
+                label: "Revisi Author",
+                path: "/dashboard/revisions",
+                icon: (
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                  </svg>
+                )
+              }}
+            />
+            <NavLink 
+              link={{
+                label: "Lacak Proses",
+                path: "/dashboard/track",
+                icon: (
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M12 2a10 10 0 1 1 0 20A10 10 0 0 1 12 2z"/><polyline points="12 6 12 12 16 14"/>
+                  </svg>
+                )
+              }}
+            />
+            <NavLink 
+              link={{
+                label: "Acceptance Letter",
+                path: "/dashboard/loa",
+                icon: (
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline>
+                  </svg>
+                )
+              }}
+            />
+            <NavLink 
+              link={{
+                label: "Sertifikat Publikasi",
+                path: "/dashboard/certificates",
+                icon: (
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="12" cy="8" r="7"></circle><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline>
+                  </svg>
+                )
+              }}
+            />
+          </>
+        )}
+
         {/* Area Penulis — only visible for AUTHOR role; hidden for ADMIN/SUPER_ADMIN and other staff */}
         {normalizedRole === "author" && (
           <>

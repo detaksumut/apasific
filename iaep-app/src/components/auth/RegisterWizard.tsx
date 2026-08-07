@@ -10,9 +10,10 @@ interface RegisterWizardProps {
   defaultRole?: RoleType;
   forcedRole?: RoleType;
   title: string;
+  regOrcidId?: string;
 }
 
-export default function RegisterWizard({ availableRoles, defaultRole, forcedRole, title }: RegisterWizardProps) {
+export default function RegisterWizard({ availableRoles, defaultRole, forcedRole, title, regOrcidId }: RegisterWizardProps) {
   const [step, setStep] = useState(1);
   const [isPending, startTransition] = useTransition();
   const [message, setMessage] = useState<{type: 'error' | 'success', text: string} | null>(null);
@@ -25,7 +26,7 @@ export default function RegisterWizard({ availableRoles, defaultRole, forcedRole
     country: "",
     university: "",
     discipline: "",
-    orcid: "",
+    orcid: regOrcidId || "",
     googleScholar: "",
     scopus: "",
     wos: "",
@@ -33,6 +34,13 @@ export default function RegisterWizard({ availableRoles, defaultRole, forcedRole
     academicLevel: "S1",
     bankAccount: "",
   });
+
+  // Populate orcid state if cookie value becomes available
+  useEffect(() => {
+    if (regOrcidId && !formData.orcid) {
+      setFormData(prev => ({ ...prev, orcid: regOrcidId }));
+    }
+  }, [regOrcidId]);
 
   // Sync forcedRole if it changes after initial render (e.g. from searchParams)
   useEffect(() => {

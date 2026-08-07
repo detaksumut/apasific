@@ -1,0 +1,11 @@
+{
+  "provider": "ELSEVIER_SSRN",
+  "version": "1.0.0",
+  "capabilities": [
+    "PREPRINT_DEPOSIT",
+    "PUBLICATION_METADATA",
+    "DISCOVERY"
+  ],
+  "authentication": "OAUTH2",
+  "healthEndpoint": true
+}

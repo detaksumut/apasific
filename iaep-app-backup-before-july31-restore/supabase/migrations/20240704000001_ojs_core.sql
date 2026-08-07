@@ -1,0 +1,1 @@
+-- Legacy 2024 migration removed to avoid conflict with the clean 2026 UUID schema.

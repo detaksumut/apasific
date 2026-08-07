@@ -127,7 +127,6 @@ export async function loginUser(email: string, password?: string): Promise<{ suc
     const { createClient } = await import('@/utils/supabase/server');
     const supabase = await createClient();
     const { createClient: createSupabaseClient } = await import('@supabase/supabase-js');
-    // Security: credentials read from env only — no hardcoded fallback keys.
     const supabaseAdmin = createSupabaseClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
@@ -234,41 +233,10 @@ localMatchedUser = {
             // Password sudah diverifikasi terhadap JSON di atas (baris 246-248).
             // Pola cookie sama dengan supabase_fallback_session yang sudah ada.
             if (!admin) {
-                const { cookies } = await import('next/headers');
-                const cookieStore = await cookies();
+                await createSessionForProfile(localMatchedUser);
                 const fallbackId = localMatchedUser.id?.toString() || `json-${Date.now()}`;
                 const fallbackRole = localMatchedUser.role || 'author';
                 const fallbackName = localMatchedUser.full_name || 'User';
-
-                cookieStore.set('supabase_fallback_session', fallbackId, {
-                    httpOnly: true,
-                    secure: process.env.NODE_ENV === 'production',
-                    maxAge: 60 * 60 * 24 * 7,
-                    path: '/'
-                });
-                if (localMatchedUser.id) {
-                    cookieStore.set('reviewer_json_id', localMatchedUser.id.toString(), {
-                        httpOnly: true,
-                        secure: process.env.NODE_ENV === 'production',
-                        maxAge: 60 * 60 * 24 * 7,
-                        path: '/'
-                    });
-                }
-                // Session cookie completeness — approved addition per CR-002
-                // Mirrors client-side cookies set by login page, but server-side
-                // so DashboardLayout (server component) sees them before render.
-                cookieStore.set('user_role', fallbackRole, {
-                    httpOnly: false,
-                    secure: process.env.NODE_ENV === 'production',
-                    maxAge: 60 * 60 * 24 * 7,
-                    path: '/'
-                });
-                cookieStore.set('user_name', encodeURIComponent(fallbackName), {
-                    httpOnly: false,
-                    secure: process.env.NODE_ENV === 'production',
-                    maxAge: 60 * 60 * 24 * 7,
-                    path: '/'
-                });
                 return {
                     success: true,
                     user: {
@@ -349,37 +317,10 @@ localMatchedUser = {
             // Firebase failed (e.g. unsupported domain, rate-limit, creation error).
             // Password was already verified above — use JSON session fallback (CR-003 extension).
             try {
-                const { cookies } = await import('next/headers');
-                const cookieStore = await cookies();
+                await createSessionForProfile(localMatchedUser);
                 const fallbackId = localMatchedUser.id?.toString() || `json-${Date.now()}`;
                 const fallbackRole = localMatchedUser.role || 'author';
                 const fallbackName = localMatchedUser.full_name || 'User';
-                cookieStore.set('supabase_fallback_session', fallbackId, {
-                    httpOnly: true,
-                    secure: process.env.NODE_ENV === 'production',
-                    maxAge: 60 * 60 * 24 * 7,
-                    path: '/'
-                });
-                if (localMatchedUser.id) {
-                    cookieStore.set('reviewer_json_id', localMatchedUser.id.toString(), {
-                        httpOnly: true,
-                        secure: process.env.NODE_ENV === 'production',
-                        maxAge: 60 * 60 * 24 * 7,
-                        path: '/'
-                    });
-                }
-                cookieStore.set('user_role', fallbackRole, {
-                    httpOnly: false,
-                    secure: process.env.NODE_ENV === 'production',
-                    maxAge: 60 * 60 * 24 * 7,
-                    path: '/'
-                });
-                cookieStore.set('user_name', encodeURIComponent(fallbackName), {
-                    httpOnly: false,
-                    secure: process.env.NODE_ENV === 'production',
-                    maxAge: 60 * 60 * 24 * 7,
-                    path: '/'
-                });
                 return {
                     success: true,
                     user: {
@@ -499,3 +440,94 @@ export async function getCurrentUser() {
   }
   return user;
 }
+
+export async function createSessionForProfile(userProfile: any) {
+  const { cookies } = await import('next/headers');
+  const cookieStore = await cookies();
+  const role = userProfile.role || 'author';
+  const fullName = userProfile.full_name || 'User';
+  const userId = userProfile.id?.toString() || `json-${Date.now()}`;
+
+  cookieStore.set('supabase_fallback_session', userId, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    maxAge: 60 * 60 * 24 * 7,
+    path: '/'
+  });
+
+  cookieStore.set('user_role', role, {
+    httpOnly: false,
+    secure: process.env.NODE_ENV === 'production',
+    maxAge: 60 * 60 * 24 * 7,
+    path: '/'
+  });
+
+  cookieStore.set('user_name', encodeURIComponent(fullName), {
+    httpOnly: false,
+    secure: process.env.NODE_ENV === 'production',
+    maxAge: 60 * 60 * 24 * 7,
+    path: '/'
+  });
+
+  cookieStore.set('active_portal_role', role, {
+    httpOnly: false,
+    secure: process.env.NODE_ENV === 'production',
+    maxAge: 60 * 60 * 24 * 7,
+    path: '/'
+  });
+
+  if (userProfile.id) {
+    cookieStore.set('reviewer_json_id', userProfile.id.toString(), {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      maxAge: 60 * 60 * 24 * 7,
+      path: '/'
+    });
+  }
+
+  if (userProfile.orcid_id) {
+    cookieStore.set('orcid_id', userProfile.orcid_id, {
+      httpOnly: false,
+      secure: process.env.NODE_ENV === 'production',
+      maxAge: 60 * 60 * 24 * 7,
+      path: '/'
+    });
+  }
+}
+
+export async function loginWithOrcid(orcidId: string): Promise<{ success: boolean; user?: any; error?: string }> {
+  try {
+    const { createClient } = await import('@/utils/supabase/server');
+    const supabase = await createClient();
+    const { createClient: createSupabaseClient } = await import('@supabase/supabase-js');
+    const supabaseAdmin = createSupabaseClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    );
+
+    const { data: profile } = await supabaseAdmin
+      .from("profiles")
+      .select("*")
+      .eq("orcid_id", orcidId)
+      .maybeSingle();
+
+    if (profile) {
+      await createSessionForProfile(profile);
+      return {
+        success: true,
+        user: {
+          id: profile.id,
+          email: profile.email || "",
+          full_name: profile.full_name,
+          role: profile.role || "author"
+        }
+      };
+    }
+    return { success: false, error: "User not found" };
+  } catch (e: any) {
+    return { success: false, error: e.message };
+  }
+}
+
+
+

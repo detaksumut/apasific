@@ -117,6 +117,7 @@ export default function Topbar({ userName, role }: { userName: string; role: str
                 "supabase_fallback_session",
                 "reviewer_json_id",
                 "sb-auth-token",
+                "orcid_id",
               ];
               for (const c of authCookies) {
                 document.cookie = `${c}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;

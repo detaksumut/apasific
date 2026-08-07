@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ASIACERT – Asia Professional Certification Center</title>
+  <meta name="description" content="Asia Professional Certification Center (ASIACERT) under the Association of Asia Pacific Academician." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css?v=36" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+</head>
+<body>
+
+  <!-- NAVIGATION -->
+  <nav class="navbar" id="navbar">
+    <div class="nav-container">
+      <!-- Logo -->
+      <a href="/" class="nav-logo">
+        <div class="logo-icon">
+          <!-- Logo image: place your file at public/images/logo.png -->
+          <img id="nav-logo-img"
+               src="/logo-apasific.png"
+               alt="ASIA Logo"
+               width="44" height="44"
+               onerror="this.style.display='none';document.getElementById('nav-logo-svg').style.display='block';"
+               style="object-fit:contain;border-radius:50%;" />
+          <svg id="nav-logo-svg" width="44" height="44" viewBox="0 0 44 44" fill="none" style="display:none">
+            <circle cx="22" cy="22" r="21" stroke="#c9a84c" stroke-width="1.5"/>
+            <circle cx="22" cy="22" r="17" stroke="#c9a84c" stroke-width="0.75" stroke-dasharray="2 2"/>
+            <path d="M22 8L26 16H18L22 8Z" fill="#c9a84c"/>
+            <rect x="19" y="15" width="6" height="8" fill="#c9a84c" rx="0.5"/>
+            <path d="M14 22C14 22 18 20 22 20C26 20 30 22 30 22" stroke="#c9a84c" stroke-width="1.2"/>
+            <path d="M22 28V34M18 34H26" stroke="#c9a84c" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div class="logo-text">
+          <span class="logo-main">ASIA</span>
+          <span class="logo-sub">Association of Asia Pacific Academician</span>
+        </div>
+      </a>
+
+      <!-- Nav Links -->
+      <ul class="nav-links" id="nav-links">
+        <li><a href="/" class="nav-link active" id="nav-home">BERANDA</a></li>
+
+        <li class="has-dropdown">
+          <a href="/#about" class="nav-link" id="nav-about">ABOUT ASIA <span class="chevron">▾</span></a>
+          <div class="dropdown">
+            <a href="/#vision-mission"><span class="dd-icon">◈</span> Vision &amp; Mission</a>
+            <a href="/#leadership"><span class="dd-icon">◈</span> Leadership</a>
+            <a href="/organization-structure"><span class="dd-icon">◈</span> Organizational Structure</a>
+            <a href="/certification-structure"><span class="dd-icon">◈</span> Certification Structure</a>
+            <a href="/journal"><span class="dd-icon">◈</span> Journal Structure</a>
+          </div>
+        </li>
+
+        <li class="has-dropdown">
+          <a href="/#academic-divisions" class="nav-link" id="nav-divisions">DIVISI AKADEMIK <span class="chevron">▾</span></a>
+          <div class="dropdown dropdown-wide">
+            <div class="dd-grid">
+              <a href="/accounting.html"><span class="dd-icon">◈</span> Akuntansi, Audit &amp; Perpajakan</a>
+              <a href="/business.html"><span class="dd-icon">◈</span> Administrasi &amp; Manajemen Bisnis</a>
+              <a href="/economics.html"><span class="dd-icon">◈</span> Ekonomi Pembangunan &amp; Keuangan</a>
+              <a href="/law.html"><span class="dd-icon">◈</span> Ilmu Hukum &amp; Hak Asasi Manusia</a>
+              <a href="/education.html"><span class="dd-icon">◈</span> Jurnal Pendidikan</a>
+              <a href="/medical.html"><span class="dd-icon">◈</span> Kedokteran, Kesehatan Masyarakat &amp; Keperawatan</a>
+              <a href="/engineering.html"><span class="dd-icon">◈</span> Teknik Sipil, Mesin &amp; Elektro</a>
+              <a href="/computer.html"><span class="dd-icon">◈</span> Ilmu Komputer &amp; Teknologi Informasi</a>
+              <a href="/agriculture.html"><span class="dd-icon">◈</span> Pertanian, Kehutanan &amp; Perikanan</a>
+              <a href="/social.html"><span class="dd-icon">◈</span> Sosiologi &amp; Ilmu Pengetahuan Budaya</a>
+              <a href="/arts.html"><span class="dd-icon">◈</span> Seni, Desain &amp; Media Kreatif</a>
+              <a href="/environmental.html"><span class="dd-icon">◈</span> Ilmu Lingkungan &amp; Keberlanjutan</a>
+              <a href="/political.html"><span class="dd-icon">◈</span> Ilmu Politik &amp; Hubungan Internasional</a>
+              <a href="/tourism.html"><span class="dd-icon">◈</span> Pariwisata &amp; Manajemen Perhotelan</a>
+              <a href="/pkm.html"><span class="dd-icon">◈</span> Pengabdian Kepada Masyarakat (PKM)</a>
+              <a href="/islamic.html"><span class="dd-icon">◈</span> Disiplin Ilmu Agama dan Peradaban Islam</a>
+            </div>
+          </div>
+        </li>
+
+        <li class="has-dropdown">
+          <a href="/#strategic-bodies" class="nav-link" id="nav-bodies">BADAN STRATEGIS <span class="chevron">▾</span></a>
+          <div class="dropdown dropdown-wide">
+            <div class="dd-grid">
+              <a href="/asiacert.html" target="_blank"><span class="dd-icon">◈</span> ASIACERT</a>
+              <a href="/boc.html" target="_blank"><span class="dd-icon">◈</span> Dewan Sertifikasi (BOC) ASIA</a>
+              <a href="/research.html" target="_blank"><span class="dd-icon">◈</span> Dewan Riset &amp; Inovasi</a>
+              <a href="/conference.html" target="_blank"><span class="dd-icon">◈</span> Konferensi &amp; Forum Akademik</a>
+              <a href="/publication.html" target="_blank"><span class="dd-icon">◈</span> Pusat Publikasi &amp; Pengetahuan</a>
+              <a href="/mobility.html" target="_blank"><span class="dd-icon">◈</span> Pusat Mobilitas Akademik</a>
+              <a href="/competition.html" target="_blank"><span class="dd-icon">◈</span> Pusat Kompetisi</a>
+              <a href="/community.html" target="_blank"><span class="dd-icon">◈</span> Keterlibatan Komunitas &amp; Pusat SDGs</a>
+              <a href="/quality.html" target="_blank"><span class="dd-icon">◈</span> Dewan Penjaminan Mutu &amp; Akreditasi</a>
+              <a href="/academy.html" target="_blank"><span class="dd-icon">◈</span> Akademi Digital &amp; Pusat AI</a>
+              <a href="/young.html" target="_blank"><span class="dd-icon">◈</span> Jaringan Akademisi Muda</a>
+              <a href="/awards.html" target="_blank"><span class="dd-icon">◈</span> Dewan Penghargaan &amp; Rekognisi</a>
+            </div>
+          </div>
+        </li>
+
+        <li class="has-dropdown">
+          <a href="/#publications" class="nav-link" id="nav-publications">PUBLIKASI <span class="chevron">▾</span></a>
+          <div class="dropdown">
+            <a href="/journals"><span class="dd-icon">◈</span> Jurnal Akademik</a>
+            <a href="/#proceedings"><span class="dd-icon">◈</span> Prosiding</a>
+            <a href="/#books"><span class="dd-icon">◈</span> Buku Akademik</a>
+            <a href="/#monographs"><span class="dd-icon">◈</span> Monograf</a>
+            <a href="/#policy-briefs"><span class="dd-icon">◈</span> Ringkasan Kebijakan</a>
+          </div>
+        </li>
+
+        <li><a href="/bookstore" class="nav-link" id="nav-bookstore">TOKO BUKU</a></li>
+        <li class="has-dropdown">
+          <a href="/#programs" class="nav-link" id="nav-programs">PROGRAM <span class="chevron">▾</span></a>
+          <div class="dropdown">
+            <a href="/#certification"><span class="dd-icon">◈</span> Sertifikasi</a>
+            <a href="/#conferences"><span class="dd-icon">◈</span> Konferensi</a>
+            <a href="/#competitions"><span class="dd-icon">◈</span> Kompetisi</a>
+            <a href="/#training"><span class="dd-icon">◈</span> Pelatihan</a>
+            <a href="/#mobility"><span class="dd-icon">◈</span> Mobilitas</a>
+            <a href="/#research-grants"><span class="dd-icon">◈</span> Hibah Penelitian</a>
+            <a href="/#awards-prog"><span class="dd-icon">◈</span> Penghargaan</a>
+          </div>
+        </li>
+        <li class="mobile-login-item">
+          <a href="/auth/login" class="nav-link" style="color: #c9a84c; font-weight: bold;">LOGIN / DAFTAR</a>
+        </li>
+      </ul>
+      <style>
+        .mobile-login-item { display: none; }
+        @media (max-width: 768px) {
+          .mobile-login-item { display: block; margin-top: 10px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 10px; }
+        }
+      </style>
+      <div class="nav-actions" style="display: flex; gap: 10px; align-items: center;">
+        <div id="google_translate_element"></div>
+        <div class="custom-lang-selector" id="custom-lang-selector">
+          <div class="lang-btn" id="lang-btn">
+            <img src="https://flagcdn.com/w20/id.png" alt="ID" id="current-lang-flag">
+            <span class="chevron" style="margin-left:4px; font-size:10px;">▾</span>
+          </div>
+          <div class="lang-dropdown" id="lang-dropdown">
+            <div class="lang-option" data-lang="id" data-flag="id.png"><img src="https://flagcdn.com/w20/id.png" alt="ID"> Indonesia</div>
+            <div class="lang-option" data-lang="en" data-flag="gb.png"><img src="https://flagcdn.com/w20/gb.png" alt="EN"> English</div>
+            <div class="lang-option" data-lang="ar" data-flag="sa.png"><img src="https://flagcdn.com/w20/sa.png" alt="AR"> العربية</div>
+            <div class="lang-option" data-lang="zh-CN" data-flag="cn.png"><img src="https://flagcdn.com/w20/cn.png" alt="ZH"> 中文</div>
+            <div class="lang-option" data-lang="ja" data-flag="jp.png"><img src="https://flagcdn.com/w20/jp.png" alt="JA"> 日本語</div>
+            <div class="lang-option" data-lang="de" data-flag="de.png"><img src="https://flagcdn.com/w20/de.png" alt="DE"> Deutsch</div>
+            <div class="lang-option" data-lang="fr" data-flag="fr.png"><img src="https://flagcdn.com/w20/fr.png" alt="FR"> Français</div>
+            <div class="lang-option" data-lang="ko" data-flag="kr.png"><img src="https://flagcdn.com/w20/kr.png" alt="KO"> 한국어</div>
+            <div class="lang-option" data-lang="th" data-flag="th.png"><img src="https://flagcdn.com/w20/th.png" alt="TH"> ไทย</div>
+            <div class="lang-option" data-lang="vi" data-flag="vn.png"><img src="https://flagcdn.com/w20/vn.png" alt="VI"> Tiếng Việt</div>
+            <div class="lang-option" data-lang="ru" data-flag="ru.png"><img src="https://flagcdn.com/w20/ru.png" alt="RU"> Русский</div>
+            <div class="lang-option" data-lang="fa" data-flag="ir.png"><img src="https://flagcdn.com/w20/ir.png" alt="FA"> فارسی</div>
+            <div class="lang-option" data-lang="ms" data-flag="my.png"><img src="https://flagcdn.com/w20/my.png" alt="MS"> Melayu</div>
+            <div class="lang-option" data-lang="hi" data-flag="in.png"><img src="https://flagcdn.com/w20/in.png" alt="HI"> हिन्दी</div>
+          </div>
+        </div>
+        <a href="/auth/login" class="btn-join" id="btn-login-nav">LOGIN / DAFTAR</a>
+      </div>
+      <button class="hamburger" id="hamburger-btn" aria-label="Open menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+
+  
+    <!-- PAGE HERO -->
+    <header class="page-hero">
+      <div class="page-hero-bg"></div>
+      <div class="container page-hero-content">
+        
+        <div class="hero-leaders-row">
+          <div class="hero-ketua-container" id="hero-ketua-container"></div>
+          <div style="text-align: center; margin: 0;">
+            <img src="asia-boc.png" alt="ASIA BOC Logo" class="page-hero-logo" style="width: 200px; height: 200px; margin-bottom: 30px; animation: pulse-glow 4s infinite;" data-aos="zoom-in" />
+          </div>
+          <div class="hero-sek-container" id="hero-sek-container"></div>
+        </div>
+        <h1 class="page-title" style="font-size: 3.4rem; margin-bottom: 12px;" data-aos="fade-up" data-aos-delay="100">ASIA BOC</h1>
+        <p class="page-subtitle" style="font-size: 1.4rem; color: var(--gold); margin-bottom: 16px; font-weight: 600; font-family: var(--font-cinzel);" data-aos="fade-up" data-aos-delay="200">ASIA Board of Certification</p>
+        <p class="page-subtitle" style="font-size: 1.15rem; font-style: italic; max-width: 600px;" data-aos="fade-up" data-aos-delay="300">Governing Board of ASIACERT</p>
+      </div>
+    </header>
+
+    <!-- INTRODUCTION -->
+    <section class="asiacert-intro">
+      <div class="container purpose-content" data-aos="fade-up">
+        <p class="lead-text" style="text-align: justify;">
+          <strong>The ASIA Board of Certification (BOC)</strong> is the governing board of the Asia Professional Certification Center (ASIACERT). It serves as the highest policy-making, governance, and oversight body responsible for ensuring the integrity, credibility, quality, and strategic direction of all certification activities conducted under ASIACERT.
+        </p>
+        <p class="lead-text" style="text-align: justify;">
+          The Board establishes certification governance policies, approves competency standards, safeguards impartiality, monitors quality assurance, oversees ethical compliance, and ensures that certification programs are implemented in accordance with internationally accepted principles and best practices.
+        </p>
+        <p class="lead-text" style="text-align: justify;">
+          Rather than conducting day-to-day certification operations, the Board provides strategic leadership and institutional oversight, ensuring that ASIACERT remains independent, accountable, transparent, and internationally respected.
+        </p>
+      </div>
+    </section>
+    <!-- ACTIVITY GALLERY -->
+    <section class="activity-gallery" style="padding: 40px 0; background: var(--bg-card); border-top: 1px solid rgba(201, 168, 76, 0.2); border-bottom: 1px solid rgba(201, 168, 76, 0.2);">
+      <div class="container">
+        <h2 class="section-title" style="font-size: 28px; text-align: center; margin-bottom: 30px;" data-aos="fade-up">Recent <span class="gold">Activities</span></h2>
+        
+        <!-- Swiper -->
+        <div class="swiper activity-swiper" style="width: 100%; padding-bottom: 40px;" data-aos="fade-up" data-aos-delay="100">
+          <div class="swiper-wrapper" id="activity-gallery-wrapper">
+            <!-- Mock slide 1 -->
+            <div class="swiper-slide">
+              <div style="border-radius: 12px; overflow: hidden; position: relative; height: 250px; background: #1a1a1a; box-shadow: 0 10px 20px rgba(0,0,0,0.3);">
+                <!-- Replace with dynamic image URL -->
+                <div style="width: 100%; height: 100%; background: url('https://images.unsplash.com/photo-1540575467063-178a50c2df87?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80') center/cover no-repeat;"></div>
+                <div style="position: absolute; bottom: 0; left: 0; width: 100%; padding: 15px; background: linear-gradient(transparent, rgba(0,0,0,0.8));">
+                  <p style="color: #fff; margin: 0; font-weight: 500; font-size: 1rem;">International Conference 2025</p>
+                </div>
+              </div>
+            </div>
+            <!-- Mock slide 2 -->
+            <div class="swiper-slide">
+              <div style="border-radius: 12px; overflow: hidden; position: relative; height: 250px; background: #1a1a1a; box-shadow: 0 10px 20px rgba(0,0,0,0.3);">
+                <!-- Replace with dynamic image URL -->
+                <div style="width: 100%; height: 100%; background: url('https://images.unsplash.com/photo-1515187029135-18ee286d815b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80') center/cover no-repeat;"></div>
+                <div style="position: absolute; bottom: 0; left: 0; width: 100%; padding: 15px; background: linear-gradient(transparent, rgba(0,0,0,0.8));">
+                  <p style="color: #fff; margin: 0; font-weight: 500; font-size: 1rem;">Board Member Meeting</p>
+                </div>
+              </div>
+            </div>
+            <!-- Mock slide 3 -->
+            <div class="swiper-slide">
+              <div style="border-radius: 12px; overflow: hidden; position: relative; height: 250px; background: #1a1a1a; box-shadow: 0 10px 20px rgba(0,0,0,0.3);">
+                <!-- Replace with dynamic image URL -->
+                <div style="width: 100%; height: 100%; background: url('https://images.unsplash.com/photo-1475721027785-f74eccf877e2?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80') center/cover no-repeat;"></div>
+                <div style="position: absolute; bottom: 0; left: 0; width: 100%; padding: 15px; background: linear-gradient(transparent, rgba(0,0,0,0.8));">
+                  <p style="color: #fff; margin: 0; font-weight: 500; font-size: 1rem;">Certification Training Session</p>
+                </div>
+              </div>
+            </div>
+            <!-- Mock slide 4 -->
+            <div class="swiper-slide">
+              <div style="border-radius: 12px; overflow: hidden; position: relative; height: 250px; background: #1a1a1a; box-shadow: 0 10px 20px rgba(0,0,0,0.3);">
+                <!-- Replace with dynamic image URL -->
+                <div style="width: 100%; height: 100%; background: url('https://images.unsplash.com/photo-1524178232363-1fb2b075b655?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80') center/cover no-repeat;"></div>
+                <div style="position: absolute; bottom: 0; left: 0; width: 100%; padding: 15px; background: linear-gradient(transparent, rgba(0,0,0,0.8));">
+                  <p style="color: #fff; margin: 0; font-weight: 500; font-size: 1rem;">Academic Award Ceremony</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Add Pagination -->
+          <div class="swiper-pagination"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- VISION & MISSION -->
+    <section class="vm-detail-section" style="padding: 60px 0;">
+      <div class="container">
+        <div class="detail-vision-box" data-aos="zoom-in" style="margin-bottom: 60px;">
+          <h2 class="section-title" style="font-size: 28px; text-align: center;">Our <span class="gold">Vision</span></h2>
+          <p style="font-style: italic; margin-top: 20px;">
+            "To become a respected certification governing board that upholds integrity, quality, impartiality, and international credibility in professional certification across the Asia-Pacific region."
+          </p>
+        </div>
+
+        <h2 class="section-title" style="font-size: 28px; text-align: center; margin-bottom: 40px;" data-aos="fade-up">Our <span class="gold">Mission</span></h2>
+        <p style="text-align: center; color: var(--text-muted); margin-bottom: 30px; font-size: 1.1rem;">The Board is committed to:</p>
+        <ul class="values-list" style="max-width: 900px; margin: 0 auto; display: grid; grid-template-columns: 1fr; gap: 16px;" data-aos="fade-up">
+          <li>Providing strategic governance for ASIACERT.</li>
+          <li>Approving competency standards and certification policies.</li>
+          <li>Protecting impartiality, ethics, and institutional integrity.</li>
+          <li>Monitoring certification quality and continuous improvement.</li>
+          <li>Ensuring transparency and accountability in certification governance.</li>
+          <li>Supporting international recognition of ASIACERT certifications.</li>
+          <li>Strengthening stakeholder confidence in professional certification.</li>
+          <li>Providing independent oversight of certification activities.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- CORE RESPONSIBILITIES (GRID FORMAT) -->
+    <section class="values-section" style="padding: 60px 0; background: var(--bg-card);">
+      <div class="container">
+        <h2 class="section-title" style="font-size: 28px; text-align: center; margin-bottom: 40px;" data-aos="fade-up">Core <span class="gold">Responsibilities</span></h2>
+        <p style="text-align: center; max-width: 800px; margin: 0 auto 30px auto; color: var(--text-main);" data-aos="fade-up">
+          The Board is actively responsible for the following domains of governance and oversight:
+        </p>
+        <div class="framework-grid" data-aos="fade-up">
+          <div class="framework-card">
+            <h4>Governance & Policy</h4>
+            <ul>
+              <li>Certification Governance</li>
+              <li>Strategic Policy Development</li>
+              <li>Ethics & Compliance</li>
+            </ul>
+          </div>
+          <div class="framework-card">
+            <h4>Standardization & Quality</h4>
+            <ul>
+              <li>Competency Standard Approval</li>
+              <li>Certification Scheme Approval</li>
+              <li>Quality Oversight</li>
+            </ul>
+          </div>
+          <div class="framework-card">
+            <h4>Evaluation & Operations</h4>
+            <ul>
+              <li>Assessor Approval Framework</li>
+              <li>Appeals Governance</li>
+              <li>Strategic Evaluation</li>
+            </ul>
+          </div>
+          <div class="framework-card">
+            <h4>Risk & Collaboration</h4>
+            <ul>
+              <li>Risk Management</li>
+              <li>Institutional Development</li>
+              <li>International Cooperation</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- GOVERNANCE PRINCIPLES -->
+    <section class="vm-detail-section" style="padding: 80px 0;">
+      <div class="container">
+        <h2 class="section-title" style="font-size: 28px; text-align: center; margin-bottom: 40px;" data-aos="fade-up">Governance <span class="gold">Principles</span></h2>
+        <p style="text-align: center; max-width: 800px; margin: 0 auto 40px auto; color: var(--text-muted); font-size: 1.1rem; line-height: 1.6;" data-aos="fade-up">
+          The Board performs its oversight duties based on these fundamental principles:
+        </p>
+        <div class="values-badges" style="justify-content: center; max-width: 800px; margin: 0 auto;" data-aos="zoom-in">
+          <span class="value-badge">Independence</span>
+          <span class="value-badge">Integrity</span>
+          <span class="value-badge">Transparency</span>
+          <span class="value-badge">Impartiality</span>
+          <span class="value-badge">Accountability</span>
+          <span class="value-badge">Professionalism</span>
+          <span class="value-badge">Quality</span>
+          <span class="value-badge">Continuous Improvement</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- CORE VALUES & COMMITMENT -->
+    <section class="closing-section" style="padding: 60px 0 100px 0; background: var(--bg-card);">
+      <div class="container">
+        <h2 class="section-title" style="font-size: 28px; text-align: center; margin-bottom: 40px;" data-aos="fade-up">Core <span class="gold">Values</span></h2>
+        <div class="values-badges" style="justify-content: center; max-width: 800px; margin: 0 auto 60px auto;" data-aos="zoom-in">
+          <span class="value-badge">Integrity</span>
+          <span class="value-badge">Independence</span>
+          <span class="value-badge">Impartiality</span>
+          <span class="value-badge">Accountability</span>
+          <span class="value-badge">Transparency</span>
+          <span class="value-badge">Excellence</span>
+          <span class="value-badge">Professionalism</span>
+          <span class="value-badge">Trust</span>
+        </div>
+        <div class="commitment-box" data-aos="fade-up">
+          <p>
+            <strong>Strategic Commitment:</strong> The Board is committed to ensuring that ASIACERT operates as a trusted, internationally recognized certification institution where governance, professionalism, and quality remain the foundation of every certification program.
+          </p>
+          <hr class="commitment-divider" />
+          <h3 class="closing-statement" style="font-size: 1.8rem !important;">Leading Certification Governance with Integrity and Excellence.</h3>
+        </div>
+      </div>
+    </section>
+  </main>
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="footer-bottom">
+      <div class="container">
+        <p>© 2025 Association of Asia Pacific Academician (ASIA). All rights reserved. | Developed by PT. Bernas Sumut Jaya • Dilindungi Hak Cipta.</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Back to Top -->
+  <button class="back-to-top" id="backToTop" aria-label="Back to top" onclick="window.scrollTo({top:0,behavior:'smooth'})">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="18 15 12 9 6 15"/></svg>
+  </button>
+
+  <!-- Swiper JS -->
+  <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+  <script src="main.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      const activitySwiper = new Swiper('.activity-swiper', {
+        slidesPerView: 1,
+        spaceBetween: 20,
+        loop: true,
+        autoplay: {
+          delay: 3000,
+          disableOnInteraction: false,
+        },
+        pagination: {
+          el: '.swiper-pagination',
+          clickable: true,
+        },
+        navigation: {
+          nextEl: '.swiper-button-next',
+          prevEl: '.swiper-button-prev',
+        },
+        breakpoints: {
+          640: { slidesPerView: 2, spaceBetween: 20 },
+          1024: { slidesPerView: 3, spaceBetween: 30 },
+        }
+      });
+      
+      // Future: Fetch from API and dynamically append slides here
+      // fetch('/api/public/gallery/BOC').then(...)
+    });
+  </script>
+</body>
+</html>

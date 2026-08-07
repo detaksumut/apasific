@@ -1,5 +1,6 @@
 import RegisterWizard, { RoleType } from "@/components/auth/RegisterWizard";
 import Link from "next/link";
+import { cookies } from "next/headers";
 
 export default async function PublicationAuth({ searchParams }: { searchParams: Promise<{ role?: string }> }) {
   const roles = [
@@ -10,6 +11,9 @@ export default async function PublicationAuth({ searchParams }: { searchParams: 
 
   const resolvedParams = await searchParams;
   const roleParam = resolvedParams.role as RoleType | undefined;
+
+  const cookieStore = await cookies();
+  const regOrcidId = cookieStore.get("reg_orcid_id")?.value || "";
 
   return (
     <div className="min-h-screen pt-24 pb-12 px-4 flex flex-col items-center">
@@ -32,6 +36,7 @@ export default async function PublicationAuth({ searchParams }: { searchParams: 
         title="Create Publication Account" 
         availableRoles={roles} 
         forcedRole={roleParam}
+        regOrcidId={regOrcidId}
       />
     </div>
   );

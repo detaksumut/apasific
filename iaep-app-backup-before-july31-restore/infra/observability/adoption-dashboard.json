@@ -1,0 +1,25 @@
+{
+  "title": "Enterprise Adoption Command Center",
+  "panels": [
+    {
+      "type": "stat",
+      "title": "Total Institutions",
+      "targets": [{"query": "SELECT count(*) FROM tenants"}]
+    },
+    {
+      "type": "stat",
+      "title": "Active Researchers",
+      "targets": [{"query": "SELECT count(DISTINCT identity_id) FROM tenant_memberships"}]
+    },
+    {
+      "type": "timeseries",
+      "title": "Tenant Growth",
+      "targets": [{"query": "SELECT date_trunc('month', created_at) as time, count(*) FROM tenants GROUP BY 1"}]
+    },
+    {
+      "type": "stat",
+      "title": "AI Queries (Monthly)",
+      "targets": [{"query": "SELECT count(*) FROM audit_events WHERE action = 'AI_QUERY' AND created_at > now() - interval '1 month'"}]
+    }
+  ]
+}
