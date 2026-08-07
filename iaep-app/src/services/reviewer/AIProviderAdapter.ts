@@ -28,7 +28,7 @@ export class GeminiProviderAdapter implements IAIProvider {
 
     try {
       // Call Gemini API (1.5 Flash is highly suited for instant JSON structured output)
-      const apiUrl = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${this.apiKey}`;
+      const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${this.apiKey}`;
       
       const requestBody = {
         contents: [{ parts: [{ text: prompt }] }],
