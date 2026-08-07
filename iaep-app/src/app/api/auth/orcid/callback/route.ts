@@ -57,9 +57,9 @@ export async function GET(request: NextRequest) {
         .update({ last_login: new Date().toISOString() })
         .eq("id", existingUser.id);
 
-      // Redirect based on central roles resolver
+      // Redirect based on central roles resolver (always returns a valid path)
       const role = existingUser.role || "author";
-      const redirectPath = getDashboardPath(role) || "/dashboard/member";
+      const redirectPath = getDashboardPath(role);
 
       const response = NextResponse.redirect(`${request.nextUrl.origin}${redirectPath}`);
       response.cookies.delete("orcid_oauth_state");

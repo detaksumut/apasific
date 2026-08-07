@@ -72,7 +72,7 @@ export function isCoAdminRole(raw: string | null | undefined): boolean {
  * the dedicated co-admin portal because /dashboard/admin is restricted
  * to full admins by AdminLayout.
  */
-export function getDashboardPath(raw: string | null | undefined): string | null {
+export function getDashboardPath(raw: string | null | undefined): string {
   if (isCoAdminRole(raw)) return '/dashboard/co-admin/naskah-masuk';
   switch (normalizeRole(raw)) {
     case 'SUPER_ADMIN':
@@ -85,7 +85,8 @@ export function getDashboardPath(raw: string | null | undefined): string | null 
     case 'PRODUCTION':
       return getProductionPath(raw);
     default:
-      return null;
+      // author and all unknown roles → Author Dashboard
+      return '/dashboard';
   }
 }
 
