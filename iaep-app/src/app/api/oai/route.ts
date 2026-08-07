@@ -20,42 +20,6 @@ function escapeXml(unsafe: string): string {
     });
 }
 
-function parseAbstract(abstractRaw: any) {
-    if (typeof abstractRaw === 'string' && abstractRaw.trim().startsWith('{')) {
-        try {
-            const parsed = JSON.parse(abstractRaw);
-            return parsed.abstract_en || parsed.abstract || '';
-        } catch (e) {
-            return abstractRaw;
-        }
-    }
-    return abstractRaw || '';
-}
-
-function parseAuthors(abstractRaw: any, authorName: string, profiles: any) {
-    let authors: string[] = [];
-    if (typeof abstractRaw === 'string' && abstractRaw.trim().startsWith('{')) {
-        try {
-            const parsed = JSON.parse(abstractRaw);
-            if (parsed.authors && Array.isArray(parsed.authors) && parsed.authors.length > 0) {
-                authors = parsed.authors.map((a: any) => a.full_name);
-            }
-        } catch (e) {}
-    }
-    
-    if (authors.length === 0) {
-        if (profiles?.full_name) {
-            authors = [profiles.full_name];
-        } else if (authorName) {
-            authors = [authorName];
-        } else {
-            authors = ["Unknown Author"];
-        }
-    }
-    
-    return authors;
-}
-
 export async function GET(req: Request) {
     const url = new URL(req.url);
     const verb = url.searchParams.get('verb');
@@ -129,8 +93,9 @@ export async function GET(req: Request) {
                 return new NextResponse(xml, { headers: { 'Content-Type': 'text/xml' } });
             }
 
+            // Single Source of Truth: query from article_authors
             let query = supabase.from('submissions')
-                .select('*, profiles:author_id(full_name), journals:journal_id(name)')
+                .select('*, article_authors(*), profiles:author_id(full_name), journals:journal_id(name)')
                 .eq('status', 'Published')
                 .order('updated_at', { ascending: false });
 
@@ -161,9 +126,19 @@ export async function GET(req: Request) {
       ${verb === 'ListRecords' ? '</header>' : ''}`;
                 
                 if (verb === 'ListRecords') {
-                    const abstract = parseAbstract(record.abstract);
-                    const authors = parseAuthors(record.abstract, record.author_name, record.profiles);
+                    const abstract = record.abstract || '';
                     const journalName = record.journals?.name || record.journal_id || 'APASIFIC';
+                    
+                    // Single Source of Truth: article_authors
+                    const authorsList = record.article_authors || [];
+                    if (authorsList.length === 0) {
+                        console.error(`[Data Integrity Error] Published article ${record.id} has no author relationship in article_authors. Journal ID: ${record.journal_id}, DOI: ${record.doi || 'None'}`);
+                    }
+
+                    const sortedAuthors = [...authorsList]
+                        .sort((a, b) => (a.author_order || 0) - (b.author_order || 0))
+                        .map((a: any) => a.full_name)
+                        .filter(Boolean);
                     
                     xml += `
       <metadata>
@@ -174,7 +149,7 @@ export async function GET(req: Request) {
             xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
           <dc:title>${escapeXml(record.title)}</dc:title>`;
                     
-                    for (const author of authors) {
+                    for (const author of sortedAuthors) {
                         xml += `\n          <dc:creator>${escapeXml(author)}</dc:creator>`;
                     }
                     
@@ -187,17 +162,17 @@ export async function GET(req: Request) {
                     
                     xml += `
           <dc:description>${escapeXml(abstract.substring(0, 3000))}</dc:description>
-          <dc:publisher>APASIFIC</dc:publisher>
+          <dc:publisher>Association of Asia Pacific Academician (APASIFIC)</dc:publisher>
           <dc:date>${resolvePublicationDateString(record)}</dc:date>
           <dc:type>info:eu-repo/semantics/article</dc:type>
           <dc:format>application/pdf</dc:format>
           <dc:identifier>${escapeXml(`${url.protocol}//${url.host}/article/${record.id}`)}</dc:identifier>
           <dc:rights>info:eu-repo/semantics/openAccess</dc:rights>
-          <dc:rights>CC BY 4.0</dc:rights>
+          <dc:rights>${escapeXml(record.license || 'CC BY 4.0')}</dc:rights>
           <dc:relation>info:eu-repo/semantics/altIdentifier/doi/${escapeXml(record.doi || '')}</dc:relation>
           <dc:relation>doi:${escapeXml(record.doi || '')}</dc:relation>
           <dc:source>${escapeXml(journalName)}</dc:source>
-          <dc:language>eng</dc:language>
+          <dc:language>${escapeXml(record.language || 'eng')}</dc:language>
         </oai_dc:dc>
       </metadata>
     </record>`;
@@ -230,8 +205,9 @@ export async function GET(req: Request) {
             }
             
             const uuid = idMatch[1];
+            // Single Source of Truth: query from article_authors
             const { data: record, error } = await supabase.from('submissions')
-                .select('*, profiles:author_id(full_name), journals:journal_id(name)')
+                .select('*, article_authors(*), profiles:author_id(full_name), journals:journal_id(name)')
                 .eq('id', uuid)
                 .eq('status', 'Published')
                 .single();
@@ -243,8 +219,19 @@ export async function GET(req: Request) {
 
             const datestamp = new Date(record.updated_at || record.created_at).toISOString();
             const setSpec = record.journal_id;
-            const abstract = parseAbstract(record.abstract);
-            const authors = parseAuthors(record.abstract, record.author_name, record.profiles);
+            const abstract = record.abstract || '';
+            
+            // Single Source of Truth: article_authors
+            const authorsList = record.article_authors || [];
+            if (authorsList.length === 0) {
+                console.error(`[Data Integrity Error] Published article ${record.id} has no author relationship in article_authors. Journal ID: ${record.journal_id}, DOI: ${record.doi || 'None'}`);
+            }
+
+            const sortedAuthors = [...authorsList]
+                .sort((a, b) => (a.author_order || 0) - (b.author_order || 0))
+                .map((a: any) => a.full_name)
+                .filter(Boolean);
+            
             const journalName = record.journals?.name || record.journal_id || 'APASIFIC';
 
             xml += `
@@ -262,8 +249,8 @@ export async function GET(req: Request) {
             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
             xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
           <dc:title>${escapeXml(record.title)}</dc:title>`;
-                    
-            for (const author of authors) {
+            
+            for (const author of sortedAuthors) {
                 xml += `\n          <dc:creator>${escapeXml(author)}</dc:creator>`;
             }
             
@@ -276,17 +263,17 @@ export async function GET(req: Request) {
             
             xml += `
           <dc:description>${escapeXml(abstract.substring(0, 3000))}</dc:description>
-          <dc:publisher>APASIFIC</dc:publisher>
+          <dc:publisher>Association of Asia Pacific Academician (APASIFIC)</dc:publisher>
           <dc:date>${resolvePublicationDateString(record)}</dc:date>
           <dc:type>info:eu-repo/semantics/article</dc:type>
           <dc:format>application/pdf</dc:format>
           <dc:identifier>${escapeXml(`${url.protocol}//${url.host}/article/${record.id}`)}</dc:identifier>
           <dc:rights>info:eu-repo/semantics/openAccess</dc:rights>
-          <dc:rights>CC BY 4.0</dc:rights>
+          <dc:rights>${escapeXml(record.license || 'CC BY 4.0')}</dc:rights>
           <dc:relation>info:eu-repo/semantics/altIdentifier/doi/${escapeXml(record.doi || '')}</dc:relation>
           <dc:relation>doi:${escapeXml(record.doi || '')}</dc:relation>
           <dc:source>${escapeXml(journalName)}</dc:source>
-          <dc:language>eng</dc:language>
+          <dc:language>${escapeXml(record.language || 'eng')}</dc:language>
         </oai_dc:dc>
       </metadata>
     </record>
@@ -300,11 +287,7 @@ export async function GET(req: Request) {
         return new NextResponse(xml, { headers: { 'Content-Type': 'text/xml' } });
 
     } catch (e: any) {
-        xml += `\n  <error code="internalError">${escapeXml(e.message)}</error>\n</OAI-PMH>`;
-        return new NextResponse(xml, { headers: { 'Content-Type': 'text/xml' }, status: 500 });
+        xml += `\n  <error code="badArgument">System Error: ${escapeXml(e.message)}</error>\n</OAI-PMH>`;
+        return new NextResponse(xml, { headers: { 'Content-Type': 'text/xml' } });
     }
-}
-
-export async function POST(req: Request) {
-    return GET(req);
 }

@@ -77,33 +77,15 @@ async function getArticle(id: string) {
   }
 }
 
+import { MetadataEngine } from '@/services/metadata/MetadataEngine';
+
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
   const { id } = await params;
   const article = await getArticle(id);
   if (!article) return {};
 
-  const authorsList = article.authors || [];
-  const authorNames = authorsList.map((a: any) => a.full_name);
-  const authorOrcids = authorsList.map((a: any) => a.orcid_id ? `https://orcid.org/${a.orcid_id}` : '').filter(Boolean);
-
-  return {
-    title: article.title,
-    description: article.abstract,
-    other: {
-      'citation_title': article.title,
-      'citation_author': authorNames.length > 0 ? authorNames : ['APASIFIC Author'],
-      'citation_author_id': authorOrcids,
-      'citation_publication_date': article.created_at ? new Date(article.created_at).toISOString().split('T')[0] : '',
-      'citation_pdf_url': article.file_url || '',
-      'citation_doi': article.doi || '',
-      'citation_issn': article.journal?.issn || '',
-      'citation_journal_title': article.journal?.name || 'APASIFIC Jurnal',
-      'citation_volume': article.volume || '',
-      'citation_issue': article.issue || '',
-      'citation_firstpage': article.firstpage || '1',
-      'citation_lastpage': article.lastpage || '',
-    }
-  };
+  const origin = process.env.NEXT_PUBLIC_APP_URL || 'https://www.apasific.org';
+  return MetadataEngine.generate(article, origin);
 }
 
 export default async function ArticleLayout({
@@ -116,33 +98,8 @@ export default async function ArticleLayout({
   const { id } = await params;
   const article = await getArticle(id);
   
-  let jsonLd = {};
-  if (article) {
-    const authorsList = article.authors || [];
-    jsonLd = {
-      "@context": "https://schema.org",
-      "@type": "ScholarlyArticle",
-      "headline": article.title,
-      "author": authorsList.map((a: any) => ({
-        "@type": "Person",
-        "name": a.full_name,
-        "affiliation": a.affiliation || undefined,
-        "sameAs": a.orcid_id ? `https://orcid.org/${a.orcid_id}` : undefined
-      })),
-      "datePublished": article.created_at ? new Date(article.created_at).toISOString().split('T')[0] : undefined,
-      "isPartOf": {
-        "@type": "Periodical",
-        "name": article.journal?.name || 'APASIFIC Jurnal'
-      },
-      "publisher": {
-        "@type": "Organization",
-        "name": "ASIA"
-      },
-      "identifier": article.doi || undefined,
-      "url": `https://apasific.org/article/${id}`,
-      "sameAs": article.doi ? `https://doi.org/${article.doi}` : undefined
-    };
-  }
+  const origin = process.env.NEXT_PUBLIC_APP_URL || 'https://www.apasific.org';
+  const jsonLd = article ? MetadataEngine.generateJsonLd(article, origin) : {};
 
   return (
     <>

@@ -64,7 +64,22 @@ export async function submitManuscript(formData: FormData) {
       return { success: false, error: "Title and file are required." };
     }
 
-    let finalAbstract = abstract || "";
+    let parsedAbstract = "";
+    let parsedKeywords = "";
+    let submissionAuthors: any[] = [];
+    
+    try {
+      if (abstract && abstract.trim().startsWith('{')) {
+        const parsed = JSON.parse(abstract);
+        parsedAbstract = parsed.abstract_en || parsed.abstract || "";
+        parsedKeywords = parsed.keywords || "";
+        submissionAuthors = parsed.authors || [];
+      } else {
+        parsedAbstract = abstract || "";
+      }
+    } catch (e) {
+      parsedAbstract = abstract || "";
+    }
 
     // Ensure the profile exists to prevent foreign key constraint errors
     let finalSubmissionId = `sub_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
@@ -100,7 +115,8 @@ export async function submitManuscript(formData: FormData) {
             journal_id: validJournalId,
             author_id: userId,
             title,
-            abstract: finalAbstract,
+            abstract: parsedAbstract,
+            keywords: parsedKeywords,
             status: 'queued',
             phone: formPhone || null
           })
@@ -113,6 +129,29 @@ export async function submitManuscript(formData: FormData) {
 
         if (submission) {
            finalSubmissionId = submission.id || submission.submission_id || finalSubmissionId;
+        }
+
+        // Transactional insert for article_authors
+        if (submissionAuthors.length > 0) {
+          const authorsData = submissionAuthors.map((author: any, idx: number) => ({
+             article_id: finalSubmissionId,
+             full_name: author.full_name || 'Author',
+             email: author.email || null,
+             affiliation: author.affiliation || null,
+             orcid_id: author.orcid || null,
+             is_corresponding: !!author.is_corresponding,
+             author_order: idx + 1
+          }));
+
+          const { error: authorsError } = await supabaseAdmin
+             .from('article_authors')
+             .insert(authorsData);
+
+          if (authorsError) {
+             // Rollback submission insert on author insertion failure
+             await supabaseAdmin.from('submissions').delete().eq('id', finalSubmissionId);
+             throw new Error("Failed to save article authors: " + authorsError.message);
+          }
         }
     } catch(supaErr: any) {
         console.error("Supabase interaction failed:", supaErr.message);

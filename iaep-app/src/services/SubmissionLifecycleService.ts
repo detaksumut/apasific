@@ -165,6 +165,72 @@ export class SubmissionLifecycleService {
                 }
             }
 
+            // 6. Sinkronisasi Otomatis ke WordPress beritaindonesia.news (non-blocking)
+            if (toStatus === 'Published') {
+                setTimeout(async () => {
+                    try {
+                        const wpUrl = process.env.WORDPRESS_API_URL;
+                        const wpUser = process.env.WORDPRESS_API_USER;
+                        const wpPass = process.env.WORDPRESS_API_PASSWORD;
+
+                        if (wpUrl && wpUser && wpPass) {
+                            // Ambil data detail tulisan & relasi penulis dari article_authors
+                            const { data: article } = await supabase
+                                .from('submissions')
+                                .select('*, article_authors(*)')
+                                .eq('id', submissionId)
+                                .maybeSingle();
+
+                            if (article) {
+                                const title = article.title || 'Untitled Article';
+                                const abstract = article.abstract || '';
+                                
+                                const sortedAuthors = (article.article_authors || [])
+                                    .sort((a: any, b: any) => (a.author_order || 0) - (b.author_order || 0))
+                                    .map((a: any) => a.full_name)
+                                    .join(', ');
+
+                                const authorPrefix = sortedAuthors ? `<strong>Penulis:</strong> ${sortedAuthors}<br><br>` : '';
+                                const doiPrefix = article.doi ? `<strong>DOI:</strong> <a href="https://doi.org/${article.doi}" target="_blank">${article.doi}</a><br><br>` : '';
+                                const sourcePrefix = `<em>Diterbitkan secara resmi di portal jurnal APASIFIC.</em><br><br>`;
+
+                                const wpContent = `
+                                    ${authorPrefix}
+                                    ${doiPrefix}
+                                    ${sourcePrefix}
+                                    <strong>Abstrak / Konten:</strong><br>
+                                    ${abstract}
+                                `;
+
+                                const authHeader = 'Basic ' + Buffer.from(`${wpUser}:${wpPass}`).toString('base64');
+                                
+                                const response = await fetch(wpUrl, {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                        'Authorization': authHeader
+                                    },
+                                    body: JSON.stringify({
+                                        title: title,
+                                        content: wpContent,
+                                        status: 'publish', // Terbit langsung sebagai artikel/post berita
+                                    })
+                                });
+
+                                if (!response.ok) {
+                                    const errText = await response.text();
+                                    console.warn(`[WordPress Sync] Failed to post article ${submissionId} to WordPress: ${response.status} ${errText}`);
+                                } else {
+                                    console.log(`[WordPress Sync] Successfully syndicated article ${submissionId} to beritaindonesia.news`);
+                                }
+                            }
+                        }
+                    } catch (syncErr) {
+                        console.warn('[WordPress Sync] Error during article syndication:', syncErr);
+                    }
+                }, 100);
+            }
+
             return {
                 success: true,
                 forced: !!input.force,
