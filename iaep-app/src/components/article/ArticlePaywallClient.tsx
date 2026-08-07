@@ -479,11 +479,8 @@ export default function ArticlePaywallClient({ initialArticle, id }: ArticlePayw
             {/* PDF View / PDF Reader */}
             <div className="bg-[#111120] border border-gray-800 rounded-3xl p-6 sm:p-8 shadow-2xl">
               <h3 className="text-xl font-bold text-white mb-4 border-b border-gray-800 pb-2">Pembaca Naskah Digital</h3>
-              <SecurePdfViewer 
-                pdfUrl={article.pdf_url} 
-                title={article.title}
-                price={article.price}
-                submissionId={id}
+              <SecurePdfViewer
+                url={article.pdf_url}
               />
             </div>
             
