@@ -467,7 +467,7 @@ export default function ArticlePaywallClient({ initialArticle, id }: ArticlePayw
               <div className="bg-[#111120] border border-gray-800 rounded-3xl p-6 sm:p-8 shadow-2xl">
                 <h3 className="text-lg font-bold text-white mb-3">Kata Kunci</h3>
                 <div className="flex flex-wrap gap-2.5">
-                  {article.keywords.map((kw, i) => (
+                  {article.keywords.map((kw: string, i: number) => (
                     <span key={i} className="px-3.5 py-1.5 rounded-xl bg-[#1a1a2e] border border-gray-800 text-xs sm:text-sm font-semibold text-gray-300">
                       {kw.trim()}
                     </span>
