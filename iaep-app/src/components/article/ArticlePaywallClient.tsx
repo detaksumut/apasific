@@ -493,12 +493,13 @@ export default function ArticlePaywallClient({ initialArticle, id }: ArticlePayw
             <div className="bg-[#111120] border border-gray-800 rounded-3xl p-6 shadow-2xl text-center">
               <h4 className="text-sm font-bold text-gray-500 uppercase tracking-widest mb-4">Sampul Depan (Cover)</h4>
               <DynamicCover 
-                journalName={article.journal} 
+                title={article.title}
+                journalCode={article.journal}
                 volume={article.volume}
                 issue={article.issue}
-                publishedDate={article.published_at || article.created_at}
+                publishedAt={article.published_at || article.created_at}
                 doi={article.doi}
-                coverFileUrl={article.cover_file_url}
+                coverUrl={article.cover_file_url}
               />
             </div>
 
