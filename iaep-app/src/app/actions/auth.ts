@@ -495,39 +495,94 @@ export async function createSessionForProfile(userProfile: any) {
   }
 }
 
-export async function loginWithOrcid(orcidId: string): Promise<{ success: boolean; user?: any; error?: string }> {
+export async function loginWithOrcid(
+  orcidId: string,
+  name?: string
+): Promise<{ success: boolean; user?: any; error?: string }> {
   try {
-    const { createClient } = await import('@/utils/supabase/server');
-    const supabase = await createClient();
     const { createClient: createSupabaseClient } = await import('@supabase/supabase-js');
     const supabaseAdmin = createSupabaseClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
     );
 
-    const { data: profile } = await supabaseAdmin
-      .from("profiles")
-      .select("*")
-      .eq("orcid_id", orcidId)
+    // ── Path A: Lookup by orcid_id (Subsequent Login) ─────────────────────
+    const { data: profileByOrcid } = await supabaseAdmin
+      .from('profiles')
+      .select('*')
+      .eq('orcid_id', orcidId)
       .maybeSingle();
 
-    if (profile) {
-      await createSessionForProfile(profile);
+    if (profileByOrcid) {
+      await createSessionForProfile(profileByOrcid);
       return {
         success: true,
         user: {
-          id: profile.id,
-          email: profile.email || "",
-          full_name: profile.full_name,
-          role: profile.role || "author"
-        }
+          id: profileByOrcid.id,
+          email: profileByOrcid.email || '',
+          full_name: profileByOrcid.full_name,
+          role: profileByOrcid.role || 'author',
+        },
       };
     }
-    return { success: false, error: "User not found" };
+
+    // ── Path B: Natural Linking by Name (First Login) ──────────────────────
+    if (name) {
+      const { data: profileByName } = await supabaseAdmin
+        .from('profiles')
+        .select('*')
+        .ilike('full_name', name.trim())
+        .maybeSingle();
+
+      if (profileByName) {
+        // Link orcid_id into the existing record
+        await supabaseAdmin
+          .from('profiles')
+          .update({ orcid_id: orcidId })
+          .eq('id', profileByName.id);
+
+        const linkedProfile = { ...profileByName, orcid_id: orcidId };
+        await createSessionForProfile(linkedProfile);
+        return {
+          success: true,
+          user: {
+            id: linkedProfile.id,
+            email: linkedProfile.email || '',
+            full_name: linkedProfile.full_name,
+            role: linkedProfile.role || 'author',
+          },
+        };
+      }
+    }
+
+    // ── Path C: Auto-Register new user as Author ───────────────────────────
+    const newId = crypto.randomUUID();
+    const newProfile = {
+      id: newId,
+      full_name: name || 'ORCID User',
+      orcid_id: orcidId,
+      role: 'author',
+      status: 'Active',
+      joined: new Date().toISOString(),
+    };
+
+    await supabaseAdmin.from('profiles').insert(newProfile);
+
+    await createSessionForProfile(newProfile);
+    return {
+      success: true,
+      user: {
+        id: newId,
+        email: '',
+        full_name: newProfile.full_name,
+        role: 'author',
+      },
+    };
   } catch (e: any) {
     return { success: false, error: e.message };
   }
 }
+
 
 
 

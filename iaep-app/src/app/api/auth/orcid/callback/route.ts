@@ -42,10 +42,10 @@ export async function GET(request: NextRequest) {
       throw new Error(tokenData.error_description || tokenData.error);
     }
 
-    const { orcid } = tokenData;
+    const { orcid, name } = tokenData;
 
-    // 2. Lookup & Login Local User using the standard Authentication Runtime (loginWithOrcid) - Blocker 3
-    const loginResult = await loginWithOrcid(orcid);
+    // 2. Lookup & Login using Natural Identity Linking
+    const loginResult = await loginWithOrcid(orcid, name);
 
     if (loginResult.success && loginResult.user) {
       const existingUser = loginResult.user;
@@ -60,24 +60,18 @@ export async function GET(request: NextRequest) {
       // Redirect based on central roles resolver
       const role = existingUser.role || "author";
       const redirectPath = getDashboardPath(role) || "/dashboard/member";
-      
+
       const response = NextResponse.redirect(`${request.nextUrl.origin}${redirectPath}`);
       response.cookies.delete("orcid_oauth_state");
       return response;
     }
 
-    // 3. User baru -> Redirect ke Register Wizard (reg_access_token removed - Blocker 2)
-    const registrationSessionId = `reg_sess_${Math.random().toString(36).substring(2, 15)}`;
-    const regResponse = NextResponse.redirect(`${request.nextUrl.origin}/auth/register`);
-    regResponse.cookies.delete("orcid_oauth_state");
-
-    regResponse.cookies.set("registration_session_id", registrationSessionId, { httpOnly: true, secure: process.env.NODE_ENV === "production", sameSite: "lax", path: "/" });
-    regResponse.cookies.set("reg_orcid_id", orcid, { httpOnly: true, secure: process.env.NODE_ENV === "production", sameSite: "lax", path: "/" });
-
-    return regResponse;
+    // Should not reach here — loginWithOrcid always auto-registers if user not found
+    return NextResponse.redirect(`${request.nextUrl.origin}/auth/login?error=Authentication+Failed`);
 
   } catch (error) {
     console.error("ORCID Callback Error:", error);
     return NextResponse.redirect(`${request.nextUrl.origin}/auth/login?error=Authentication+Failed`);
   }
 }
+
