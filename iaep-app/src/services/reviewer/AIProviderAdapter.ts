@@ -27,39 +27,96 @@ export class GeminiProviderAdapter implements IAIProvider {
     }
 
     try {
-      // Call Gemini API (1.5 Flash is highly suited for instant JSON structured output)
-      const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${this.apiKey}`;
-      
-      const requestBody = {
-        contents: [{ parts: [{ text: prompt }] }],
-        generationConfig: {
-          responseMimeType: "application/json",
+      let response;
+      let rawText = '';
+
+      if (this.apiKey.startsWith('sk-254')) {
+        // Route through 9Router Proxy (read custom base URL or default to localhost)
+        const baseUrl = process.env.NINE_ROUTER_BASE_URL || 'http://localhost:20128/v1';
+        const apiUrl = `${baseUrl.replace(/\/$/, '')}/chat/completions`;
+        const requestBody = {
+          model: 'gemini-1.5-flash',
+          messages: [{ role: 'user', content: prompt }],
+          response_format: { type: 'json_object' },
           temperature: 0.2
+        };
+
+        response = await fetch(apiUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${this.apiKey}`
+          },
+          body: JSON.stringify(requestBody)
+        });
+
+        if (!response.ok) {
+          throw new Error(`9Router Proxy HTTP Error: status=${response.status}`);
         }
-      };
 
-      const response = await fetch(apiUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(requestBody)
-      });
+        const responseData = await response.json();
+        rawText = responseData?.choices?.[0]?.message?.content;
+      } else if (this.apiKey.startsWith('sk-or-')) {
+        // Route through OpenRouter
+        const apiUrl = 'https://openrouter.ai/api/v1/chat/completions';
+        const requestBody = {
+          model: 'google/gemini-flash-1.5',
+          messages: [{ role: 'user', content: prompt }],
+          response_format: { type: 'json_object' },
+          temperature: 0.2
+        };
 
-      if (!response.ok) {
-        throw new Error(`Gemini API HTTP Error: status=${response.status}`);
+        response = await fetch(apiUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${this.apiKey}`,
+            'HTTP-Referer': 'https://apasific.org',
+            'X-Title': 'APASIFIC IAEP Platform'
+          },
+          body: JSON.stringify(requestBody)
+        });
+
+        if (!response.ok) {
+          throw new Error(`OpenRouter API HTTP Error: status=${response.status}`);
+        }
+
+        const responseData = await response.json();
+        rawText = responseData?.choices?.[0]?.message?.content;
+      } else {
+        // Call Gemini API directly (1.5 Flash is highly suited for instant JSON structured output)
+        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${this.apiKey}`;
+        const requestBody = {
+          contents: [{ parts: [{ text: prompt }] }],
+          generationConfig: {
+            responseMimeType: "application/json",
+            temperature: 0.2
+          }
+        };
+
+        response = await fetch(apiUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(requestBody)
+        });
+
+        if (!response.ok) {
+          throw new Error(`Gemini API HTTP Error: status=${response.status}`);
+        }
+
+        const responseData = await response.json();
+        rawText = responseData?.candidates?.[0]?.content?.parts?.[0]?.text;
       }
-
-      const responseData = await response.json();
-      const rawText = responseData?.candidates?.[0]?.content?.parts?.[0]?.text;
       
       if (!rawText) {
-        throw new Error('Gemini API returned an empty content candidate.');
+        throw new Error('AI Provider returned an empty content candidate.');
       }
 
       // Parse and strictly validate the JSON schema
       const parsed = JSON.parse(rawText.trim());
       return this.validateSchema(parsed);
     } catch (e: any) {
-      console.error('[GeminiAdapter] API call or parsing failed:', e);
+      console.error('[AIProviderAdapter] API call or parsing failed:', e);
       throw e;
     }
   }
