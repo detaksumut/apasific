@@ -35,10 +35,11 @@ export class GeminiProviderAdapter implements IAIProvider {
         const baseUrl = process.env.NINE_ROUTER_BASE_URL || 'http://localhost:20128/v1';
         const apiUrl = `${baseUrl.replace(/\/$/, '')}/chat/completions`;
         const requestBody = {
-          model: 'gemini-1.5-flash',
+          model: 'UltimateAI',
           messages: [{ role: 'user', content: prompt }],
           response_format: { type: 'json_object' },
-          temperature: 0.2
+          temperature: 0.2,
+          stream: false
         };
 
         response = await fetch(apiUrl, {
