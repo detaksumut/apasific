@@ -1302,6 +1302,133 @@ useEffect(() => {
           font-size: 13px;
         }
         .rev-rec-preview p { margin: 6px 0 0; font-size: 12px; color: rgba(255,255,255,0.35); }
+
+        /* AI Reviewer Assistant Panel Styling */
+        .rev-assistant-panel {
+          background: rgba(255, 255, 255, 0.02);
+          border: 1px solid rgba(255, 255, 255, 0.08);
+          border-radius: 14px;
+          padding: 20px;
+          margin-top: 10px;
+          display: flex;
+          flex-direction: column;
+          gap: 16px;
+        }
+        .rev-assistant-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding-bottom: 12px;
+          border-b: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .rev-assistant-title {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          font-size: 14px;
+          font-weight: 700;
+          color: #c9a84c;
+        }
+        .rev-assistant-title svg {
+          width: 18px !important;
+          height: 18px !important;
+          color: #c9a84c;
+          flex-shrink: 0;
+        }
+        .rev-assistant-badge {
+          background: rgba(201, 168, 76, 0.15);
+          border: 1.5px solid rgba(201, 168, 76, 0.4);
+          color: #c9a84c;
+          font-size: 10px;
+          font-weight: 700;
+          padding: 3px 8px;
+          border-radius: 20px;
+          text-transform: uppercase;
+        }
+        .rev-assistant-body {
+          display: flex;
+          flex-direction: column;
+          gap: 16px;
+        }
+        .rev-assistant-note {
+          display: flex;
+          gap: 10px;
+          background: rgba(96, 165, 250, 0.05);
+          border: 1px solid rgba(96, 165, 250, 0.15);
+          padding: 12px;
+          border-radius: 10px;
+          font-size: 12px;
+          color: rgba(255, 255, 255, 0.6);
+          line-height: 1.5;
+        }
+        .rev-assistant-note svg {
+          width: 16px !important;
+          height: 16px !important;
+          color: #60a5fa;
+          flex-shrink: 0;
+          margin-top: 2px;
+        }
+        .rev-assistant-section {
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+        }
+        .rev-assistant-section-title {
+          font-size: 11px;
+          font-weight: 700;
+          color: rgba(255, 255, 255, 0.3);
+          text-transform: uppercase;
+          letter-spacing: 1px;
+          margin-bottom: 4px;
+        }
+        .rev-assistant-list {
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+        }
+        .rev-obs-item {
+          display: flex;
+          gap: 10px;
+          background: rgba(255, 255, 255, 0.01);
+          border: 1px solid rgba(255, 255, 255, 0.05);
+          padding: 10px 12px;
+          border-radius: 8px;
+          font-size: 13px;
+        }
+        .rev-obs-item.strength { border-left: 3px solid #34d399; }
+        .rev-obs-item.concern { border-left: 3px solid #f87171; }
+        .rev-obs-badge { font-weight: 800; }
+        .rev-obs-dim { font-[10px]; font-weight: 700; color: rgba(255, 255, 255, 0.25); text-transform: uppercase; }
+        .rev-obs-text { color: rgba(255, 255, 255, 0.7); margin-top: 2px; line-height: 1.5; }
+        .rev-consider-item {
+          display: flex;
+          flex-direction: column;
+          gap: 4px;
+          padding: 10px 12px;
+          background: rgba(255, 255, 255, 0.01);
+          border: 1px solid rgba(255, 255, 255, 0.05);
+          border-radius: 8px;
+          font-size: 13px;
+        }
+        .rev-consider-area { font-size: 10px; font-weight: 700; color: #c9a84c; text-transform: uppercase; }
+        .rev-consider-q { color: rgba(255, 255, 255, 0.7); }
+        .rev-check-list {
+          display: flex;
+          flex-direction: column;
+          gap: 6px;
+        }
+        .rev-check-item {
+          display: flex;
+          gap: 10px;
+          font-size: 12.5px;
+          align-items: flex-start;
+          padding: 6px 10px;
+        }
+        .rev-check-icon { font-weight: 800; }
+        .rev-check-item.present { color: #34d399; }
+        .rev-check-item.missing { color: #f87171; }
+        .rev-check-name { font-weight: 600; }
+        .rev-check-note { font-size: 11px; opacity: 0.7; margin-top: 2px; }
       `}</style>
     </div>
   );
