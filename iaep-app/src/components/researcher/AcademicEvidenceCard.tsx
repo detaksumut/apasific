@@ -35,6 +35,10 @@ export const AcademicEvidenceCard = ({
       full_name: string;
       orcid_id?: string;
       sinta_id?: string;
+      google_scholar?: string;
+      google_scholar_id?: string;
+      wos_id?: string;
+      scopus_id?: string;
     }>;
     published_at?: string;
     created_at?: string;
