@@ -1,6 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 import crypto from 'crypto';
-import pdfParse from 'pdf-parse';
+const pdfParse = require('pdf-parse');
 
 export interface CanonicalParagraph {
   paragraph_hash: string;
