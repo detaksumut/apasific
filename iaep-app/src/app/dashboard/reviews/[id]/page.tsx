@@ -85,32 +85,29 @@ useEffect(() => {
     fetchData();
   }, [assignmentId]);
 
-  // Load AI Reviewer Assistant advisory guidance (READ-ONLY, advisory only).
+  // Checkpoints State for Ghost AI Inspection Layer
+  const [checkpoints, setCheckpoints] = useState<any[]>([]);
+  const [checkpointsLoading, setCheckpointsLoading] = useState(false);
+  const [showOverlay, setShowOverlay] = useState(false); // Toggle overlay: default OFF
+
   useEffect(() => {
-    if (!assignmentId) return;
-    let cancelled = false;
-    async function loadAssistant() {
-      setAssistantLoading(true);
-      setAssistantError(null);
+    if (!submission?.id) return;
+    async function loadCheckpoints() {
+      setCheckpointsLoading(true);
       try {
-        const { getReviewerAssistant } = await import("@/app/actions/reviewerAssistant");
-        const res = await getReviewerAssistant(assignmentId);
-        if (cancelled) return;
-        if (res?.success && res.assistant) {
-          setAssistant(res.assistant);
-        } else {
-          setAssistant(null);
-          setAssistantError(res?.error || "Gagal memuat AI Reviewer Assistant.");
+        const res = await fetch(`/api/reviewer/ai-findings?submissionId=${submission.id}`);
+        const data = await res.json();
+        if (data.success && data.findings) {
+          setCheckpoints(data.findings);
         }
-      } catch (e: any) {
-        if (!cancelled) setAssistantError(e?.message || "Gagal memuat AI Reviewer Assistant.");
+      } catch (e) {
+        console.error("Failed to load checkpoints:", e);
       } finally {
-        if (!cancelled) setAssistantLoading(false);
+        setCheckpointsLoading(false);
       }
     }
-    loadAssistant();
-    return () => { cancelled = true; };
-  }, [assignmentId]);
+    loadCheckpoints();
+  }, [submission?.id]);
 
   const recommendations = [
     { value: "accept", label: "Accept Submission", color: "#34d399", bg: "rgba(52,211,153,0.08)", border: "rgba(52,211,153,0.2)" },
@@ -353,7 +350,51 @@ useEffect(() => {
             </div>
 
             <div className="rev-review-grid">
-              {/* PDF Viewer */}
+              
+              {/* Kolom 1: System Checkpoints (List Clues Navigasi) */}
+              <div className="rev-checkpoints-sidebar">
+                <div className="rev-cp-header">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ width: 15, height: 15 }}><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                  Manuscript Checkpoints
+                </div>
+                
+                {checkpointsLoading && (
+                  <div className="rev-cp-loading">
+                    Memindai naskah...
+                  </div>
+                )}
+
+                {!checkpointsLoading && checkpoints.length === 0 && (
+                  <div className="rev-cp-empty">
+                    Semua poin pemeriksaan terverifikasi dengan baik. Tidak ada catatan khusus untuk naskah ini.
+                  </div>
+                )}
+
+                {!checkpointsLoading && checkpoints.length > 0 && (
+                  <div className="rev-cp-list">
+                    {checkpoints.map((cp, idx) => (
+                      <div 
+                        key={idx} 
+                        className={`rev-cp-card severity-${cp.severity}`}
+                        title="Klik untuk melihat detail atau arahkan ke halaman"
+                      >
+                        <div className="rev-cp-top">
+                          <span className={`rev-cp-indicator ${cp.severity === 'high' ? 'bg-red-500' : cp.severity === 'medium' ? 'bg-orange-500' : 'bg-yellow-500'}`} />
+                          <span className="rev-cp-cat">{cp.category}</span>
+                          <span className="rev-cp-page">Hlm {cp.page_number}</span>
+                        </div>
+                        <div className="rev-cp-title">{cp.finding_title}</div>
+                        <div className="rev-cp-desc">{cp.action_prompt}</div>
+                        <div className="rev-cp-reason">
+                          <strong>Analisis:</strong> {cp.reason}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Kolom 2: PDF Viewer Utama */}
               <div className="rev-pdf-panel">
                 <div className="rev-pdf-topbar">
                   <div className="rev-pdf-name">
@@ -362,8 +403,18 @@ useEffect(() => {
                     </svg>
                     {submission?.file_metadata?.status === 'AVAILABLE' ? (submission?.file_metadata?.filename || 'Manuscript') : 'No File Attached'}
                   </div>
+                  
                   {submission?.file_metadata?.status === 'AVAILABLE' && (
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                      {/* Toggle Show AI Overlay */}
+                      <button 
+                        onClick={() => setShowOverlay(!showOverlay)}
+                        className={`rev-toggle-overlay-btn ${showOverlay ? 'active' : ''}`}
+                        title="Tampilkan indikator warning di sebelah halaman"
+                      >
+                        {showOverlay ? '🟢 Hide Checkpoint Markers' : '⚫ Show Checkpoint Markers'}
+                      </button>
+
                       {submission.file_metadata.legacyFallbackUsed && (
                         <span style={{ fontSize: '10px', background: 'rgba(245,158,11,0.2)', color: '#fcd34d', padding: '4px 8px', borderRadius: '12px', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '4px' }} title="Diselesaikan melalui pencarian Legacy">
                           <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
@@ -379,20 +430,43 @@ useEffect(() => {
                     </div>
                   )}
                 </div>
-                <div className="rev-pdf-body">
+
+                <div className="rev-pdf-body" style={{ position: 'relative' }}>
                   {submission?.file_metadata?.status === 'AVAILABLE' ? (
-                    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', minHeight: '600px' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', minHeight: '600px', width: '100%' }}>
                       <div style={{ background: 'rgba(201,168,76,0.1)', borderBottom: '1px solid rgba(201,168,76,0.2)', padding: '8px 15px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '12px', color: '#c9a84c' }}>
                         <span>📄 File Naskah Tersedia ({(submission.file_url).includes('.docx') ? 'Dokumen Word .docx' : 'Dokumen PDF'})</span>
                         <a href={submission.file_url} target="_blank" rel="noreferrer" style={{ color: '#ffffff', textDecoration: 'underline', fontWeight: 'bold' }}>
                           Klik disini jika iFrame tidak terbuka ➔
                         </a>
                       </div>
-                      <iframe 
-                          src={(submission.file_url).toLowerCase().includes('.pdf') ? (submission.file_url) : `https://docs.google.com/gview?url=${encodeURIComponent(submission.file_url)}&embedded=true`} 
-                          style={{ width: '100%', flex: 1, minHeight: '560px', border: 'none' }} 
-                          title="Manuscript Document"
-                      />
+                      
+                      <div style={{ display: 'flex', width: '100%', flex: 1, minHeight: '560px', position: 'relative' }}>
+                        <iframe 
+                            src={(submission.file_url).toLowerCase().includes('.pdf') ? (submission.file_url) : `https://docs.google.com/gview?url=${encodeURIComponent(submission.file_url)}&embedded=true`} 
+                            style={{ width: '100%', height: '100%', border: 'none' }} 
+                            title="Manuscript Document"
+                        />
+
+                        {/* Margin Marker Indicators Overlay (🔴, 🟠, 🟡) */}
+                        {showOverlay && checkpoints.length > 0 && (
+                          <div className="rev-pdf-margin-overlay">
+                            {checkpoints.map((cp, idx) => (
+                              <div 
+                                key={idx}
+                                className={`rev-margin-marker severity-${cp.severity}`}
+                                style={{
+                                  // Spread markers vertically along the sidebar as indicator ticks
+                                  top: `${Math.max(10, Math.min(90, (cp.page_number * 10) % 95))}%`
+                                }}
+                                title={`Halaman ${cp.page_number}: [${cp.category}] ${cp.finding_title}`}
+                              >
+                                {cp.severity === 'high' ? '🔴' : cp.severity === 'medium' ? '🟠' : '🟡'}
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
                     </div>
                   ) : (
                     <div className="rev-pdf-mock">
@@ -1041,10 +1115,164 @@ useEffect(() => {
         /* Review Grid */
         .rev-review-grid {
           display: grid;
-          grid-template-columns: 2.2fr 1fr;
+          grid-template-columns: 1fr 2.2fr 1.2fr;
           gap: 24px;
+          align-items: start;
         }
-        @media (max-width: 800px) { .rev-review-grid { grid-template-columns: 1fr; } }
+        @media (max-width: 1024px) { 
+          .rev-review-grid { grid-template-columns: 1fr 1fr; } 
+        }
+        @media (max-width: 768px) { 
+          .rev-review-grid { grid-template-columns: 1fr; } 
+        }
+
+        /* Checkpoints Sidebar Panel (Kolom Kiri) */
+        .rev-checkpoints-sidebar {
+          background: rgba(255, 255, 255, 0.02);
+          border: 1px solid rgba(255, 255, 255, 0.07);
+          border-radius: 14px;
+          padding: 16px;
+          height: 800px;
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
+          overflow-y: auto;
+        }
+        .rev-cp-header {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          font-size: 13px;
+          font-weight: 700;
+          color: #c9a84c;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+          border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+          padding-bottom: 10px;
+        }
+        .rev-cp-loading {
+          font-size: 12.5px;
+          color: rgba(255, 255, 255, 0.4);
+          text-align: center;
+          padding: 20px 0;
+        }
+        .rev-cp-empty {
+          font-size: 12px;
+          color: rgba(255, 255, 255, 0.3);
+          text-align: center;
+          padding: 20px 0;
+          line-height: 1.5;
+        }
+        .rev-cp-list {
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
+        }
+        .rev-cp-card {
+          background: rgba(255, 255, 255, 0.015);
+          border: 1px solid rgba(255, 255, 255, 0.04);
+          border-radius: 10px;
+          padding: 12px;
+          transition: all 0.2s;
+          display: flex;
+          flex-direction: column;
+          gap: 6px;
+        }
+        .rev-cp-card:hover {
+          background: rgba(255, 255, 255, 0.03);
+          border-color: rgba(255, 255, 255, 0.08);
+          transform: translateY(-1px);
+        }
+        .rev-cp-top {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          font-size: 10px;
+          font-weight: 700;
+        }
+        .rev-cp-indicator {
+          width: 6px;
+          height: 6px;
+          border-radius: 50%;
+          display: inline-block;
+        }
+        .rev-cp-cat {
+          color: rgba(255, 255, 255, 0.3);
+          text-transform: uppercase;
+        }
+        .rev-cp-page {
+          background: rgba(201, 168, 76, 0.15);
+          color: #c9a84c;
+          padding: 2px 6px;
+          border-radius: 4px;
+          margin-left: auto;
+        }
+        .rev-cp-title {
+          font-size: 12.5px;
+          font-weight: 700;
+          color: rgba(255, 255, 255, 0.85);
+        }
+        .rev-cp-desc {
+          font-size: 12px;
+          color: rgba(255, 255, 255, 0.55);
+          line-height: 1.4;
+        }
+        .rev-cp-reason {
+          font-size: 11px;
+          color: rgba(255, 255, 255, 0.35);
+          background: rgba(0, 0, 0, 0.1);
+          padding: 8px;
+          border-radius: 6px;
+          line-height: 1.4;
+          margin-top: 4px;
+        }
+
+        /* Toggle Overlay Button */
+        .rev-toggle-overlay-btn {
+          background: rgba(255, 255, 255, 0.05);
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          color: rgba(255, 255, 255, 0.6);
+          padding: 6px 12px;
+          border-radius: 5px;
+          font-size: 11.5px;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.18s;
+        }
+        .rev-toggle-overlay-btn:hover {
+          background: rgba(255, 255, 255, 0.08);
+          color: rgba(255, 255, 255, 0.8);
+        }
+        .rev-toggle-overlay-btn.active {
+          background: rgba(201, 168, 76, 0.15);
+          border-color: #c9a84c;
+          color: #c9a84c;
+        }
+
+        /* PDF Margin Indicators Overlay (Ghost Indicator Bar) */
+        .rev-pdf-margin-overlay {
+          position: absolute;
+          top: 0;
+          right: 0;
+          width: 32px;
+          height: 100%;
+          background: rgba(0, 0, 0, 0.15);
+          border-left: 1px solid rgba(255, 255, 255, 0.04);
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          z-index: 10;
+        }
+        .rev-margin-marker {
+          position: absolute;
+          cursor: pointer;
+          font-size: 12px;
+          transition: transform 0.15s;
+          user-select: none;
+        }
+        .rev-margin-marker:hover {
+          transform: scale(1.3);
+        }
 
         /* PDF Panel */
         .rev-pdf-panel {
