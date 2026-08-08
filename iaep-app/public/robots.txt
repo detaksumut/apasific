@@ -1,6 +1,8 @@
 User-agent: *
 Allow: /article/
 Allow: /publication/
+Allow: /api/oai/
+Allow: /api/article/
 Allow: /api/publication/
 Allow: *.pdf
 Disallow: /api/
