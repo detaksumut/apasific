@@ -112,6 +112,7 @@ export default function ArticlePaywallClient({ initialArticle, id }: ArticlePayw
 
   const [visitorCountries, setVisitorCountries] = useState<Record<string, number>>(getInitialCountries());
   const [countryPage, setCountryPage] = useState(1);
+  const [citationStyle, setCitationStyle] = useState('APA');
 
   const [realHIndex, setRealHIndex] = useState<number>(0);
   const [realI10Index, setRealI10Index] = useState<number>(0);
@@ -709,6 +710,115 @@ export default function ArticlePaywallClient({ initialArticle, id }: ArticlePayw
                       </div>
                     );
                   })}
+                </div>
+              </div>
+            </div>
+
+            {/* Rights / License */}
+            <div className="bg-[#111120] border border-gray-800 rounded-3xl p-6 shadow-2xl space-y-4">
+              <h4 className="text-sm font-bold text-gray-400 uppercase tracking-widest border-b border-gray-850 pb-2">Rights</h4>
+              <div className="space-y-3">
+                <div>
+                  <span className="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-1">License</span>
+                  <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 bg-[#16162a] border border-gray-800 rounded-lg p-2.5 hover:bg-[#1d1d36] transition-colors">
+                    <img src="https://mirrors.creativecommons.org/presskit/buttons/88x31/png/by.png" alt="CC-BY" className="h-6" />
+                    <span className="text-xs sm:text-sm font-semibold text-gray-300">Creative Commons Attribution 4.0 International</span>
+                  </a>
+                </div>
+                <div>
+                  <span className="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-1">Copyright</span>
+                  <div className="bg-[#16162a] border border-gray-800 rounded-lg p-2.5 text-xs sm:text-sm font-semibold text-gray-300">
+                    Copyright (C) 2026 ASIA PACIFIC ACADEMICIAN
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Citation */}
+            <div className="bg-[#111120] border border-gray-800 rounded-3xl p-6 shadow-2xl space-y-4">
+              <h4 className="text-sm font-bold text-gray-400 uppercase tracking-widest border-b border-gray-850 pb-2">Citation</h4>
+              
+              <div className="bg-[#16162a] border border-gray-800 rounded-lg p-4 space-y-4">
+                <p id="citation-text" className="text-xs sm:text-sm text-gray-300 leading-relaxed font-serif">
+                  {(() => {
+                    const year = article.date ? article.date.substring(0, 4) : '2026';
+                    const authorStr = displayAuthors || 'Unknown Author';
+                    const title = article.title;
+                    const journal = article.journal || 'Journal';
+                    const vol = article.volume || '1';
+                    const iss = article.issue || '1';
+                    const doiUrl = article.doi ? `https://doi.org/${article.doi.replace('https://doi.org/', '')}` : '';
+
+                    switch(citationStyle) {
+                      case 'Harvard': return <>{authorStr} ({year}) '{title}', <em>{journal}</em>, {vol}({iss}). Available at: <a href={doiUrl} className="text-blue-400 hover:underline" target="_blank" rel="noopener noreferrer">{doiUrl}</a>.</>;
+                      case 'MLA': return <>{authorStr}. "{title}." <em>{journal}</em> {vol}.{iss} ({year}). <a href={doiUrl} className="text-blue-400 hover:underline" target="_blank" rel="noopener noreferrer">{doiUrl}</a>.</>;
+                      case 'Chicago': return <>{authorStr}. "{title}." <em>{journal}</em> {vol}, no. {iss} ({year}). <a href={doiUrl} className="text-blue-400 hover:underline" target="_blank" rel="noopener noreferrer">{doiUrl}</a>.</>;
+                      case 'IEEE': return <>{authorStr}, "{title}," <em>{journal}</em>, vol. {vol}, no. {iss}, {year}. [Online]. Available: <a href={doiUrl} className="text-blue-400 hover:underline" target="_blank" rel="noopener noreferrer">{doiUrl}</a>.</>;
+                      case 'Vancouver': return <>{authorStr}. {title}. {journal}. {year};{vol}({iss}). Available from: <a href={doiUrl} className="text-blue-400 hover:underline" target="_blank" rel="noopener noreferrer">{doiUrl}</a></>;
+                      case 'APA':
+                      default: return <>{authorStr}. ({year}). {title}. <em>{journal}</em>, <em>{vol}</em>({iss}). <a href={doiUrl} className="text-blue-400 hover:underline" target="_blank" rel="noopener noreferrer">{doiUrl}</a></>;
+                    }
+                  })()}
+                </p>
+                
+                <div className="flex items-center gap-3 pt-2">
+                  <div className="flex items-center gap-2 flex-grow">
+                    <span className="text-[11px] font-bold text-gray-500 uppercase">Style</span>
+                    <select 
+                      value={citationStyle}
+                      onChange={(e) => setCitationStyle(e.target.value)}
+                      className="bg-[#1a1a2e] border border-gray-700 text-white text-xs rounded-md px-2 py-1.5 focus:outline-none focus:border-[#c9a84c] w-full"
+                    >
+                      <option value="APA">APA</option>
+                      <option value="Harvard">Harvard</option>
+                      <option value="MLA">MLA</option>
+                      <option value="Vancouver">Vancouver</option>
+                      <option value="Chicago">Chicago</option>
+                      <option value="IEEE">IEEE</option>
+                    </select>
+                  </div>
+                  <button 
+                    onClick={() => {
+                      const text = document.getElementById('citation-text')?.innerText;
+                      if(text) {
+                        navigator.clipboard.writeText(text);
+                        alert('Sitasi disalin!');
+                      } else {
+                        // fallback plain text copy
+                        const year = article.date ? article.date.substring(0, 4) : '2026';
+                        navigator.clipboard.writeText(`${displayAuthors}. (${year}). ${article.title}. ${article.journal}, ${article.volume}(${article.issue}). https://doi.org/${article.doi}`);
+                        alert('Sitasi disalin!');
+                      }
+                    }}
+                    className="bg-[#1a1a2e] border border-gray-700 hover:bg-[#c9a84c] hover:text-black text-gray-400 rounded-md p-1.5 transition-colors"
+                    title="Copy Citation"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Export */}
+            <div className="bg-[#111120] border border-gray-800 rounded-3xl p-6 shadow-2xl space-y-4">
+              <h4 className="text-sm font-bold text-gray-400 uppercase tracking-widest border-b border-gray-850 pb-2">Export</h4>
+              <div className="flex flex-wrap sm:flex-nowrap items-center gap-3 bg-[#16162a] border border-gray-800 rounded-lg p-3">
+                <span className="text-[11px] font-bold text-gray-500 uppercase min-w-[50px]">Format</span>
+                <select className="bg-[#1a1a2e] border border-gray-700 text-white text-xs rounded-md px-2 py-1.5 focus:outline-none focus:border-[#c9a84c] flex-grow">
+                  <option value="json">JSON</option>
+                  <option value="json-ld">JSON-LD</option>
+                  <option value="bibtex">BibTeX</option>
+                  <option value="ris">RIS</option>
+                  <option value="csl-json">CSL-JSON</option>
+                  <option value="dublin-core">Dublin Core (XML)</option>
+                </select>
+                <div className="flex gap-2">
+                  <button className="bg-gray-800 hover:bg-gray-700 text-white border border-gray-700 text-xs font-semibold px-3 py-1.5 rounded-md transition-colors">
+                    Export
+                  </button>
+                  <button className="bg-[#1a1a2e] border border-gray-700 hover:bg-[#c9a84c] hover:text-black text-gray-400 rounded-md p-1.5 transition-colors" title="Copy">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                  </button>
                 </div>
               </div>
             </div>
