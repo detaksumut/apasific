@@ -12,7 +12,7 @@ async function getArticle(id: string) {
 
     const { data: article } = await supabase
       .from('submissions')
-      .select('*, journal:journals(name, issn)')
+      .select('*, journal:journals(name, eissn, pissn), profiles:author_id(id, full_name, orcid_id, email)')
       .eq('id', id)
       .single();
 
@@ -25,50 +25,60 @@ async function getArticle(id: string) {
       .eq('article_id', id)
       .order('author_order', { ascending: true });
 
-    // Enrich ORCID if missing in article_authors but present in researcher_identifiers
+    // Enrich each author with all academic identifiers from author_identifiers table
     const enrichedAuthors = await Promise.all((authors || []).map(async (author: any) => {
-      if (author.orcid_id) return author;
+      let profileId: string | null = null;
+      let orcid_id = author.orcid_id || '';
+      let sinta_id = '', scopus_id = '', wos_id = '', google_scholar = '', researchgate = '';
 
       if (author.email) {
-        // Find profile id
         const { data: profile } = await supabase
           .from('profiles')
-          .select('id')
+          .select('id, orcid_id')
           .eq('email', author.email)
           .maybeSingle();
 
         if (profile) {
-          // Find researcher identity
-          const { data: researcher } = await supabase
-            .from('researcher_identities')
-            .select('id')
-            .eq('user_id', profile.id)
-            .maybeSingle();
-
-          if (researcher) {
-            // Find verified ORCID identifier
-            const { data: identifier } = await supabase
-              .from('researcher_identifiers')
-              .select('identifier_value')
-              .eq('researcher_id', researcher.id)
-              .eq('provider', 'ORCID')
-              .eq('verification_status', 'VERIFIED')
-              .maybeSingle();
-
-            if (identifier) {
-              return {
-                ...author,
-                orcid_id: identifier.identifier_value
-              };
-            }
-          }
+          profileId = profile.id;
+          if (!orcid_id) orcid_id = profile.orcid_id || '';
         }
       }
-      return author;
+
+      // Also check via article's linked author_id
+      if (!profileId && article.author_id) {
+        profileId = article.author_id;
+      }
+
+      if (profileId) {
+        // Fetch from author_identifiers (primary source)
+        const { data: identifiers } = await supabase
+          .from('author_identifiers')
+          .select('identifier_type, identifier_value')
+          .eq('profile_id', profileId);
+
+        if (identifiers) {
+          identifiers.forEach((ident: any) => {
+            const type = ident.identifier_type.toUpperCase();
+            if (type === 'ORCID' && !orcid_id)       orcid_id      = ident.identifier_value;
+            else if (type === 'SINTA')               sinta_id      = ident.identifier_value;
+            else if (type === 'GOOGLE_SCHOLAR')      google_scholar = ident.identifier_value;
+            else if (type === 'SCOPUS')              scopus_id     = ident.identifier_value;
+            else if (type === 'WOS')                 wos_id        = ident.identifier_value;
+            else if (type === 'RESEARCHGATE')        researchgate  = ident.identifier_value;
+          });
+        }
+      }
+
+      return { ...author, orcid_id, sinta_id, scopus_id, wos_id, google_scholar, researchgate };
     }));
+
+    // Compute ISSN (prefer eissn, fallback pissn)
+    const journalObj = article.journal || {};
+    const issn = journalObj.eissn || journalObj.pissn || '';
 
     return {
       ...article,
+      journal: { ...journalObj, issn },
       authors: enrichedAuthors
     };
   } catch (e) {

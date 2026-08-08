@@ -91,11 +91,11 @@ useEffect(() => {
   const [showOverlay, setShowOverlay] = useState(false); // Toggle overlay: default OFF
 
   useEffect(() => {
-    if (!submission?.id) return;
+    if (!submission?.submission_id) return;
     async function loadCheckpoints() {
       setCheckpointsLoading(true);
       try {
-        const res = await fetch(`/api/reviewer/ai-findings?submissionId=${submission.id}`);
+        const res = await fetch(`/api/reviewer/ai-findings?submissionId=${submission.submission_id}`);
         const data = await res.json();
         if (data.success && data.findings) {
           setCheckpoints(data.findings);

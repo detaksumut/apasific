@@ -108,6 +108,11 @@ export async function GET(req: Request) {
                 query = query.eq('journal_id', set);
             }
 
+            const fromParam = url.searchParams.get('from');
+            const untilParam = url.searchParams.get('until');
+            if (fromParam)  (query as any) = query.gte('published_at', fromParam);
+            if (untilParam) (query as any) = query.lte('published_at', untilParam.length === 10 ? untilParam + 'T23:59:59Z' : untilParam);
+
             const { data: records, error } = await query;
             
             if (error || !records || records.length === 0) {
@@ -148,6 +153,10 @@ export async function GET(req: Request) {
                     const doiValue = cleanDoi(record.doi);
                     const doiUrl = doiValue ? `https://doi.org/${doiValue}` : '';
                     
+                    const stablePdfUrl = (record.file_url_galley || record.file_url)
+                        ? `${url.protocol}//${url.host}/api/article/${record.id}/pdf`
+                        : '';
+
                     xml += `
       <metadata>
         <oai_dc:dc 
@@ -175,6 +184,7 @@ export async function GET(req: Request) {
           <dc:type>info:eu-repo/semantics/article</dc:type>
           <dc:format>application/pdf</dc:format>
           <dc:identifier>${escapeXml(`${url.protocol}//${url.host}/article/${record.id}`)}</dc:identifier>
+${stablePdfUrl ? `          <dc:identifier>${escapeXml(stablePdfUrl)}</dc:identifier>` : ''}
           <dc:rights>info:eu-repo/semantics/openAccess</dc:rights>
           <dc:rights>${escapeXml(record.license || 'CC BY 4.0')}</dc:rights>`;
 
@@ -307,7 +317,13 @@ export async function GET(req: Request) {
         }
 
         xml += `\n</OAI-PMH>`;
-        return new NextResponse(xml, { headers: { 'Content-Type': 'text/xml' } });
+        return new NextResponse(xml, {
+            headers: {
+                'Content-Type': 'text/xml; charset=utf-8',
+                'Access-Control-Allow-Origin': '*',
+                'Cache-Control': 'no-store',
+            }
+        });
 
     } catch (e: any) {
         xml += `\n  <error code="badArgument">System Error: ${escapeXml(e.message)}</error>\n</OAI-PMH>`;

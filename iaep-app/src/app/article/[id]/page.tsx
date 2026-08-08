@@ -1,5 +1,7 @@
 // src/app/article/[id]/page.tsx
 
+export const dynamic = 'force-dynamic';
+
 import { createClient } from '@supabase/supabase-js';
 import ArticlePaywallClient from '@/components/article/ArticlePaywallClient';
 
@@ -13,12 +15,14 @@ async function getArticleData(id: string) {
     // Fetch the submission
     const { data: data, error: fetchErr } = await supabase
       .from('submissions')
-      .select('*, profiles:author_id(full_name, orcid, google_scholar, wos, ssrn), journals:journal_id(name, issn)')
+      .select('*, profiles:author_id(full_name, orcid_id), journals:journal_id(name, pissn, eissn)')
       .eq('id', id)
-      .eq('status', 'Published')
       .maybeSingle();
 
     if (fetchErr || !data) return null;
+    if (data.status !== 'Published' && data.status !== 'published') {
+      return null;
+    }
 
     // Fetch authors from article_authors
     const { data: dbAuthors } = await supabase
@@ -27,51 +31,80 @@ async function getArticleData(id: string) {
       .eq('article_id', id)
       .order('author_order', { ascending: true });
 
-    // Enrich ORCID if missing in article_authors but present in researcher_identifiers
+    // Fetch external publication records
+    const { data: extPubs } = await supabase
+      .from('external_publication_records')
+      .select('*')
+      .eq('publication_id', id);
+
+    // Fetch external discovery records
+    const { data: extDiscoveries } = await supabase
+      .from('external_discovery_records')
+      .select('*')
+      .eq('publication_id', id);
+
+
+    // Enrich ORCID and other identifiers if missing in article_authors
     const enrichedAuthors = await Promise.all((dbAuthors || []).map(async (author: any) => {
-      if (author.orcid_id) return author;
+      let orcid_id = author.orcid_id || "";
+      let sinta_id = "";
+      let scopus_id = "";
+      let wos_id = "";
+      let ssrn_id = "";
+      let google_scholar = "";
 
       if (author.email) {
+        // 1. Fetch profile matching the author's email
         const { data: profile } = await supabase
           .from('profiles')
-          .select('id')
+          .select('id, orcid_id')
           .eq('email', author.email)
           .maybeSingle();
 
         if (profile) {
-          const { data: researcher } = await supabase
-            .from('researcher_identities')
-            .select('id')
-            .eq('user_id', profile.id)
-            .maybeSingle();
+          if (!orcid_id) orcid_id = profile.orcid_id || "";
 
-          if (researcher) {
-            const { data: identifier } = await supabase
-              .from('researcher_identifiers')
-              .select('identifier_value')
-              .eq('researcher_id', researcher.id)
-              .eq('provider', 'ORCID')
-              .eq('verification_status', 'VERIFIED')
-              .maybeSingle();
+          // 2. Fetch identifiers from author_identifiers
+          const { data: identifiers } = await supabase
+            .from('author_identifiers')
+            .select('*')
+            .eq('profile_id', profile.id);
 
-            if (identifier) {
-              return {
-                ...author,
-                orcid_id: identifier.identifier_value
-              };
-            }
+          if (identifiers) {
+            identifiers.forEach((ident: any) => {
+              const type = ident.identifier_type.toUpperCase();
+              if (type === 'ORCID' && !orcid_id) orcid_id = ident.identifier_value;
+              else if (type === 'SINTA') sinta_id = ident.identifier_value;
+              else if (type === 'GOOGLE_SCHOLAR') google_scholar = ident.identifier_value;
+              else if (type === 'SCOPUS' || type === 'SCOPUS AUTHOR ID') scopus_id = ident.identifier_value;
+              else if (type === 'WOS' || type === 'RESEARCHERID (WOS)' || type === 'WEB OF SCIENCE') wos_id = ident.identifier_value;
+              else if (type === 'SSRN' || type === 'SSRN AUTHOR ID') ssrn_id = ident.identifier_value;
+            });
           }
         }
       }
-      return author;
+
+      return {
+        ...author,
+        orcid_id: orcid_id || "",
+        sinta_id,
+        google_scholar,
+        scopus_id,
+        wos_id,
+        ssrn_id
+      };
     }));
+
 
     // Construct the flat author string list for backward compatibility
     const authorNames = enrichedAuthors.map(a => a.full_name).join(', ');
-    const firstOrcid = enrichedAuthors.find(a => a.orcid_id)?.orcid_id || data.profiles?.orcid || "";
-    const googleScholar = data.profiles?.google_scholar || "";
-    const wos = data.profiles?.wos || "";
-    const ssrn = data.profiles?.ssrn || "";
+    const firstAuthor = enrichedAuthors[0] || {};
+    const firstOrcid = enrichedAuthors.find(a => a.orcid_id)?.orcid_id || data.profiles?.orcid_id || "";
+
+    const googleScholar = enrichedAuthors.find(a => a.google_scholar)?.google_scholar || "";
+    const wos = firstAuthor.wos_id || data.profiles?.wos || "";
+    const ssrn = firstAuthor.ssrn_id || data.profiles?.ssrn || "";
+
     
     let hiddenDoi = data.doi || "";
     if (!hiddenDoi && typeof data.abstract === 'string' && data.abstract.trim().startsWith('{')) {
@@ -83,7 +116,7 @@ async function getArticleData(id: string) {
 
     const journalObj = data.journals || {};
     const journalName = journalObj.name || "APASIFIC IAEP";
-    const journalIssn = journalObj.issn || "";
+    const journalIssn = journalObj.eissn || journalObj.pissn || "";
 
     return {
       id: data.id,
@@ -108,7 +141,9 @@ async function getArticleData(id: string) {
       created_at: data.created_at || "",
       published_at: data.published_at || "",
       issn: journalIssn,
-      article_authors: enrichedAuthors
+      article_authors: enrichedAuthors,
+      extPubs,
+      extDiscoveries
     };
   } catch (e) {
     console.error("Error loading article server-side:", e);

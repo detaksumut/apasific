@@ -1,5 +1,13 @@
 import { createClient } from '@supabase/supabase-js';
 import crypto from 'crypto';
+
+// Polyfills for browser APIs required by pdf-parse on server runtime
+if (typeof global !== 'undefined') {
+  if (!(global as any).DOMMatrix) (global as any).DOMMatrix = class {};
+  if (!(global as any).ImageData) (global as any).ImageData = class {};
+  if (!(global as any).Path2D) (global as any).Path2D = class {};
+}
+
 const pdfParse = require('pdf-parse');
 
 export interface CanonicalParagraph {

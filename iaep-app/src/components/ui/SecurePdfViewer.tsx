@@ -80,10 +80,14 @@ export default function SecurePdfViewer({ url, onDownload }: SecurePdfViewerProp
         const container = containerRef.current;
         if (!container || !isMounted) return;
         
-        // Calculate scale to fit width at high resolution
+        // Calculate scale to fit container height/width to show full page (A4)
         const viewportOriginal = page.getViewport({ scale: 1 });
         const containerWidth = container.clientWidth || 800;
+        const containerHeight = container.parentElement?.clientHeight || 900;
+        
+        // Scale to fit width so the page is fully readable, and let the container handle vertical scrolling
         const scale = containerWidth / viewportOriginal.width;
+        
         const viewport = page.getViewport({ scale: scale * 2.0 }); // 2x resolution for sharpness
         
         const canvas = document.createElement('canvas');
@@ -93,8 +97,8 @@ export default function SecurePdfViewer({ url, onDownload }: SecurePdfViewerProp
 
         canvas.height = viewport.height;
         canvas.width = viewport.width;
-        canvas.style.width = '100%';
-        canvas.style.height = 'auto';
+        canvas.style.width = `${viewport.width / 2.0}px`; // half of 2x scale
+        canvas.style.height = `${viewport.height / 2.0}px`;
         canvas.style.boxShadow = '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)';
         canvas.style.borderRadius = '4px';
         
@@ -282,7 +286,7 @@ export default function SecurePdfViewer({ url, onDownload }: SecurePdfViewerProp
 
       {/* PDF Viewport */}
       <div 
-        className="w-full flex-grow overflow-y-auto bg-[#e5e7eb] p-4 relative" 
+        className="w-full flex-grow overflow-y-auto bg-[#e5e7eb] p-4 relative flex justify-center items-start" 
         style={{ userSelect: 'none', WebkitUserSelect: 'none' }}
         onContextMenu={(e) => e.preventDefault()} // Disable right click
         onCopy={(e) => e.preventDefault()}       // Disable copy shortcut

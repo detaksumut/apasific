@@ -496,39 +496,55 @@ const [uploadingReviewId, setUploadingReviewId] = useState<string | null>(null);
             </div>
           </div>
           
-          {/* Workflow Tabs — Co-Admin only sees Submission & Review tabs */}
-          <div className="flex items-center mt-8 overflow-x-auto">
-            {isPureEditor ? (
-              (['Submission', 'Review', 'AI Assistant', 'Copyediting', 'Production'] as const).map((tab) => (
-                <button
-                  key={tab}
-                  onClick={() => setActiveTab(tab.toLowerCase())}
-                  className={`flex-1 py-3 px-6 text-sm font-semibold text-center whitespace-nowrap border-b-2 transition-colors ${
-                    activeTab === tab.toLowerCase() || (tab === 'AI Assistant' && activeTab === 'ai assistant')
-                      ? 'border-[#c9a84c] text-[#c9a84c]' 
-                      : 'border-transparent text-gray-500 hover:text-gray-300'
-                  }`}
-                >
-                  {tab}
-                </button>
-              ))
-            ) : (
-              (['Submission', 'Review', 'Copyediting', 'Production'] as const)
-                .filter(tab => isCoAdmin ? ['Submission', 'Review'].includes(tab) : true)
-                .map((tab) => (
-                <button
-                  key={tab}
-                  onClick={() => setActiveTab(tab.toLowerCase())}
-                  className={`flex-1 py-3 px-6 text-sm font-semibold text-center whitespace-nowrap border-b-2 transition-colors ${
-                    activeTab === tab.toLowerCase()
-                      ? 'border-[#c9a84c] text-[#c9a84c]' 
-                      : 'border-transparent text-gray-500 hover:text-gray-300'
-                  }`}
-                >
-                  {tab}
-                </button>
-              ))
-            )}
+          {/* OJS Workflow Progress Timeline — Premium Enterprise Design */}
+          <div className="w-full mt-10 bg-[#0c0c16]/50 border border-gray-800/80 rounded-3xl p-6 shadow-2xl backdrop-blur-md relative overflow-hidden">
+            <div className="absolute top-[48px] left-[8%] right-[8%] h-[2px] bg-gray-800 -z-10 hidden md:block">
+              <div 
+                className="h-full bg-gradient-to-r from-[#c9a84c] via-yellow-500 to-[#c9a84c] shadow-[0_0_8px_#c9a84c] transition-all duration-500"
+                style={{
+                  width: activeTab === 'submission' ? '0%' :
+                         activeTab === 'review' ? '25%' :
+                         activeTab === 'ai assistant' ? '50%' :
+                         activeTab === 'copyediting' ? '75%' : '100%'
+                }}
+              />
+            </div>
+
+            <div className="flex flex-col md:flex-row justify-between items-center gap-6 md:gap-4 w-full">
+              {(isPureEditor 
+                ? (['Submission', 'Review', 'AI Assistant', 'Copyediting', 'Production'] as const)
+                : (['Submission', 'Review', 'Copyediting', 'Production'] as const).filter(tab => isCoAdmin ? ['Submission', 'Review'].includes(tab) : true)
+              ).map((tab, idx) => {
+                const isActive = activeTab === tab.toLowerCase() || (tab === 'AI Assistant' && activeTab === 'ai assistant');
+                
+                // Determine step status colors
+                let statusColor = 'border-gray-800 text-gray-500 bg-[#07070d]';
+                let labelColor = 'text-gray-400';
+                
+                if (isActive) {
+                  statusColor = 'border-[#c9a84c] text-[#c9a84c] bg-[#c9a84c]/10 shadow-[0_0_20px_rgba(201,168,76,0.25)]';
+                  labelColor = 'text-[#c9a84c] font-bold';
+                }
+
+                return (
+                  <button
+                    key={tab}
+                    onClick={() => setActiveTab(tab.toLowerCase())}
+                    className="flex-1 flex flex-col items-center w-full focus:outline-none group transition-all duration-300"
+                  >
+                    <div className={`w-12 h-12 rounded-full flex items-center justify-center border-2 transition-all duration-300 ${statusColor} group-hover:scale-105`}>
+                      <span className="text-sm font-black">{idx + 1}</span>
+                    </div>
+                    <span className={`text-[11px] uppercase tracking-widest font-extrabold mt-3 transition-colors duration-300 ${labelColor}`}>
+                      {tab}
+                    </span>
+                    <span className={`text-[8px] tracking-wider uppercase font-semibold mt-1 transition-opacity ${isActive ? 'text-[#c9a84c]/80 opacity-100' : 'text-gray-600 opacity-60'}`}>
+                      {isActive ? 'Active Stage' : 'Workflow Step'}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
           </div>
         </div>
 
