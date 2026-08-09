@@ -2,7 +2,6 @@
 
 import fs from 'fs';
 import path from 'path';
-import { hashPassword, verifyPassword } from '@/utils/password';
 
 export async function signUpUser(formData: any): Promise<{ success: boolean; error?: string }> {
   const { createClient } = await import("@/utils/supabase/server");
@@ -29,8 +28,7 @@ export async function signUpUser(formData: any): Promise<{ success: boolean; err
   const newUserRecord = {
     id: userId,
       email: formData.email,
-      // SEC-04 (Phase 2): only a salted scrypt hash is persisted, never plaintext.
-      password_hash: formData.password ? hashPassword(formData.password) : undefined,
+      password: formData.password,
       full_name: formData.fullName,
       phone_number: formData.phone,
       country: formData.country,
@@ -47,10 +45,9 @@ export async function signUpUser(formData: any): Promise<{ success: boolean; err
     };
 
     const { createClient: createSupabaseClient } = await import('@supabase/supabase-js');
-    // Security: credentials must be set via environment variables only — no hardcoded fallbacks.
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-    const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
-
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL || "https://aroasmlrlpjbjokvxlgo.supabase.co";
+    const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFyb2FzbWxybHBqYmpva3Z4bGdvIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4MzE4OTU5MCwiZXhwIjoyMDk4NzY1NTkwfQ.pSVcAi-8EpF9CMVCB7rcM5vhMlsJ9WgYURL2jyJyFfg";
+    
     const supabaseAdmin = createSupabaseClient(supabaseUrl, supabaseKey);
 
     // Store in system_settings as well for admin panel to see
@@ -113,9 +110,56 @@ export async function signUpUser(formData: any): Promise<{ success: boolean; err
     }
 
 
-// CROSS-SYNC TO RJRAKP: temporarily disabled. When re-enabled, credentials
-    // must be read from environment variables only (RJRAKP_SUPABASE_URL,
-    // RJRAKP_SUPABASE_SERVICE_ROLE_KEY). No hardcoded fallback secrets are permitted.
+    // CROSS-SYNC TO RJRAKP (Temporarily disabled as requested)
+    /*
+    try {
+      // Use RJRAKP variables if they exist, otherwise fallback to the main shared database
+      const rjrakpUrl = process.env.RJRAKP_SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL;
+      const rjrakpKey = process.env.RJRAKP_SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFyb2FzbWxybHBqYmpva3Z4bGdvIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4MzE4OTU5MCwiZXhwIjoyMDk4NzY1NTkwfQ.pSVcAi-8EpF9CMVCB7rcM5vhMlsJ9WgYURL2jyJyFfg";
+      
+      if (rjrakpUrl && rjrakpKey) {
+        const { createClient: createRjrakpClient } = require('@supabase/supabase-js');
+        const rjrakpSupabase = createRjrakpClient(rjrakpUrl, rjrakpKey);
+        
+        // 1. Insert into RJRAKP 'users' table
+        const { error: rjrakpUserError } = await rjrakpSupabase.from('users').upsert({
+          id: userId,
+          full_name: formData.fullName,
+          email: formData.email,
+          phone: formData.phone,
+          role: formData.role?.toLowerCase() || 'author',
+          status: 'PENDING',
+          institution: formData.university || formData.country,
+          faculty: '',
+          degree_level: '',
+          scopus_id: formData.scopus || '',
+          wos_id: formData.wos || '',
+          sinta_id: formData.sinta || ''
+        }, { onConflict: 'email' });
+
+        if (rjrakpUserError) {
+          console.error("Failed to cross-sync user to RJRAKP:", rjrakpUserError);
+        } else if (formData.role?.toLowerCase() === 'reviewer') {
+          // 2. Insert into RJRAKP 'reviewer_profiles' if role is reviewer
+          await rjrakpSupabase.from('reviewer_profiles').upsert({
+            user_id: userId,
+            affiliation: formData.university || formData.country,
+            faculty: '',
+            education_level: '',
+            expertise_area: '',
+            orcid_id: formData.orcid || '',
+            google_scholar: formData.googleScholar || '',
+            scopus_id: formData.scopus || '',
+            wos_id: formData.wos || '',
+            sinta_id: formData.sinta || '',
+            cv_url: ''
+          }, { onConflict: 'user_id' });
+        }
+      }
+    } catch (crossSyncError) {
+      console.error("RJRAKP Cross-sync error:", crossSyncError);
+    }
+    */
 
   return { success: true };
 }
@@ -157,38 +201,21 @@ export async function loginUser(email: string, password?: string): Promise<{ suc
        console.error("Error fetching users from Supabase for login:", e);
     }
 
-    // Security: Super Admin account mapping loaded from environment variables only.
-    // Set SUPER_ADMIN_EMAIL, SUPER_ADMIN_EMAIL_ALIAS, SUPER_ADMIN_CANONICAL_EMAIL,
-    // and SUPER_ADMIN_PASSWORD in .env.local — never hardcode credentials in source.
-    const superAdminEmail = process.env.SUPER_ADMIN_EMAIL || '';
-    const superAdminEmailAlias = process.env.SUPER_ADMIN_EMAIL_ALIAS || '';
-    const superAdminCanonicalEmail = process.env.SUPER_ADMIN_CANONICAL_EMAIL || '';
-    const superAdminPassword = process.env.SUPER_ADMIN_PASSWORD || '';
-
-    if (
-      superAdminPassword &&
-      superAdminCanonicalEmail &&
-      (emailLower === superAdminEmail || emailLower === superAdminEmailAlias) &&
-      passwordTrimmed === superAdminPassword
-    ) {
-      emailLower = superAdminCanonicalEmail;
+    // Master / Super Admin Account Mapping
+    if ((emailLower === "detaksumut@gmail.com" || emailLower === "detaksumtu@gmail.com") && passwordTrimmed === "Mikr@210669Mpi") {
+        emailLower = "kadinmedan1@gmail.com"; // Supabase has this email for the super admin
     }
 
     let localMatchedUser = localUsers.find((u: any) => u.email.toLowerCase() === emailLower);
-
-    // Only force Super Admin role if they actually used the Super Admin password.
-    // Otherwise, let them login as the normal user defined in JSON.
-    if (
-      superAdminPassword &&
-      superAdminCanonicalEmail &&
-      emailLower === superAdminCanonicalEmail &&
-      passwordTrimmed === superAdminPassword
-    ) {
-localMatchedUser = {
-        full_name: "Super Admin",
-        role: "super_admin",
-        password: superAdminPassword,
-      };
+    
+    // Only force Super Admin role if they actually used the Super Admin password!
+    // Otherwise, let them login as the normal user defined in JSON (e.g. Editor with password mikrosistem)
+    if (emailLower === "kadinmedan1@gmail.com" && passwordTrimmed === "Mikr@210669Mpi") {
+        localMatchedUser = {
+            full_name: "Super Admin",
+            role: "admin",
+            password: "Mikr@210669Mpi"
+        };
     }
     
     if (!localMatchedUser) {
@@ -215,11 +242,8 @@ localMatchedUser = {
     
     // If real login fails (user only in JSON, not in Supabase Auth), we migrate them to REAL Auth!
     if (authError || !authData?.user) {
-        // SECURITY FIX: Verify password matches the stored credential before migrating/falling back.
-        // SEC-04 (Phase 2): stored credentials are salted scrypt hashes (scrypt$salt$hash).
-        // Legacy plaintext values are also verified in constant time as a migration fallback.
-        const storedCredential = localMatchedUser.password_hash || localMatchedUser.password || '';
-        if (!verifyPassword(passwordTrimmed, storedCredential)) {
+        // SECURITY FIX: Verify password matches JSON before migrating/falling back!
+        if (localMatchedUser.password !== passwordTrimmed) {
            return { success: false, error: "Email atau password salah." };
         }
 
@@ -233,10 +257,41 @@ localMatchedUser = {
             // Password sudah diverifikasi terhadap JSON di atas (baris 246-248).
             // Pola cookie sama dengan supabase_fallback_session yang sudah ada.
             if (!admin) {
-                await createSessionForProfile(localMatchedUser);
+                const { cookies } = await import('next/headers');
+                const cookieStore = await cookies();
                 const fallbackId = localMatchedUser.id?.toString() || `json-${Date.now()}`;
                 const fallbackRole = localMatchedUser.role || 'author';
                 const fallbackName = localMatchedUser.full_name || 'User';
+
+                cookieStore.set('supabase_fallback_session', fallbackId, {
+                    httpOnly: true,
+                    secure: process.env.NODE_ENV === 'production',
+                    maxAge: 60 * 60 * 24 * 7,
+                    path: '/'
+                });
+                if (localMatchedUser.id) {
+                    cookieStore.set('reviewer_json_id', localMatchedUser.id.toString(), {
+                        httpOnly: true,
+                        secure: process.env.NODE_ENV === 'production',
+                        maxAge: 60 * 60 * 24 * 7,
+                        path: '/'
+                    });
+                }
+                // Session cookie completeness — approved addition per CR-002
+                // Mirrors client-side cookies set by login page, but server-side
+                // so DashboardLayout (server component) sees them before render.
+                cookieStore.set('user_role', fallbackRole, {
+                    httpOnly: false,
+                    secure: process.env.NODE_ENV === 'production',
+                    maxAge: 60 * 60 * 24 * 7,
+                    path: '/'
+                });
+                cookieStore.set('user_name', encodeURIComponent(fallbackName), {
+                    httpOnly: false,
+                    secure: process.env.NODE_ENV === 'production',
+                    maxAge: 60 * 60 * 24 * 7,
+                    path: '/'
+                });
                 return {
                     success: true,
                     user: {
@@ -317,10 +372,37 @@ localMatchedUser = {
             // Firebase failed (e.g. unsupported domain, rate-limit, creation error).
             // Password was already verified above — use JSON session fallback (CR-003 extension).
             try {
-                await createSessionForProfile(localMatchedUser);
+                const { cookies } = await import('next/headers');
+                const cookieStore = await cookies();
                 const fallbackId = localMatchedUser.id?.toString() || `json-${Date.now()}`;
                 const fallbackRole = localMatchedUser.role || 'author';
                 const fallbackName = localMatchedUser.full_name || 'User';
+                cookieStore.set('supabase_fallback_session', fallbackId, {
+                    httpOnly: true,
+                    secure: process.env.NODE_ENV === 'production',
+                    maxAge: 60 * 60 * 24 * 7,
+                    path: '/'
+                });
+                if (localMatchedUser.id) {
+                    cookieStore.set('reviewer_json_id', localMatchedUser.id.toString(), {
+                        httpOnly: true,
+                        secure: process.env.NODE_ENV === 'production',
+                        maxAge: 60 * 60 * 24 * 7,
+                        path: '/'
+                    });
+                }
+                cookieStore.set('user_role', fallbackRole, {
+                    httpOnly: false,
+                    secure: process.env.NODE_ENV === 'production',
+                    maxAge: 60 * 60 * 24 * 7,
+                    path: '/'
+                });
+                cookieStore.set('user_name', encodeURIComponent(fallbackName), {
+                    httpOnly: false,
+                    secure: process.env.NODE_ENV === 'production',
+                    maxAge: 60 * 60 * 24 * 7,
+                    path: '/'
+                });
                 return {
                     success: true,
                     user: {
@@ -411,178 +493,10 @@ export async function getCurrentUser() {
         const identityContext = await IdentityResolver.resolve(user);
         return identityContext;
     } catch (error) {
-        // Identity Core could not map this session (e.g. Firebase/JSON fallback
-        // users not yet registered in Supabase profiles/system_settings).
-        // Instead of treating them as logged out, preserve the authenticated
-        // session with a synthetic identity built from the verified login
-        // cookies. RBAC remains enforced at page level via role checks
-        // (see src/lib/roles.ts and the dashboard layouts).
-        console.warn("Identity resolution fallback in getCurrentUser:", (error as Error)?.message);
-        const rawName = cookieStore.get('user_name')?.value;
-        let displayName = (user as any).full_name || 'User';
-        if (rawName) {
-            try { displayName = decodeURIComponent(rawName); } catch { displayName = rawName; }
-        }
-        const _fallbackRole = cookieStore.get('user_role')?.value || 'author';
-        return {
-            id: user.id,
-            identityId: user.id,
-            email: user.email || '',
-            full_name: displayName,
-            role: _fallbackRole,
-            json_id: (user as any).json_id || cookieStore.get('reviewer_json_id')?.value || null,
-            provider: 'fallback',
-            fallback: true,
-            roles: [_fallbackRole],
-            permissions: []
-        } as any;
+        console.error("Identity resolution failed in getCurrentUser:", error);
+        // Throw or return null depending on strictness. Returning null prevents crash but acts as logged out.
+        return null;
     }
   }
   return user;
 }
-
-export async function createSessionForProfile(userProfile: any) {
-  const { cookies } = await import('next/headers');
-  const cookieStore = await cookies();
-  const role = userProfile.role || 'author';
-  const fullName = userProfile.full_name || 'User';
-  const userId = userProfile.id?.toString() || `json-${Date.now()}`;
-
-  cookieStore.set('supabase_fallback_session', userId, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    maxAge: 60 * 60 * 24 * 7,
-    path: '/'
-  });
-
-  cookieStore.set('user_role', role, {
-    httpOnly: false,
-    secure: process.env.NODE_ENV === 'production',
-    maxAge: 60 * 60 * 24 * 7,
-    path: '/'
-  });
-
-  cookieStore.set('user_name', encodeURIComponent(fullName), {
-    httpOnly: false,
-    secure: process.env.NODE_ENV === 'production',
-    maxAge: 60 * 60 * 24 * 7,
-    path: '/'
-  });
-
-  cookieStore.set('active_portal_role', role, {
-    httpOnly: false,
-    secure: process.env.NODE_ENV === 'production',
-    maxAge: 60 * 60 * 24 * 7,
-    path: '/'
-  });
-
-  if (userProfile.id) {
-    cookieStore.set('reviewer_json_id', userProfile.id.toString(), {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      maxAge: 60 * 60 * 24 * 7,
-      path: '/'
-    });
-  }
-
-  if (userProfile.orcid_id) {
-    cookieStore.set('orcid_id', userProfile.orcid_id, {
-      httpOnly: false,
-      secure: process.env.NODE_ENV === 'production',
-      maxAge: 60 * 60 * 24 * 7,
-      path: '/'
-    });
-  }
-}
-
-export async function loginWithOrcid(
-  orcidId: string,
-  name?: string
-): Promise<{ success: boolean; user?: any; error?: string }> {
-  try {
-    const { createClient: createSupabaseClient } = await import('@supabase/supabase-js');
-    const supabaseAdmin = createSupabaseClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-    );
-
-    // ── Path A: Lookup by orcid_id (Subsequent Login) ─────────────────────
-    const { data: profileByOrcid } = await supabaseAdmin
-      .from('profiles')
-      .select('*')
-      .eq('orcid_id', orcidId)
-      .maybeSingle();
-
-    if (profileByOrcid) {
-      await createSessionForProfile(profileByOrcid);
-      return {
-        success: true,
-        user: {
-          id: profileByOrcid.id,
-          email: profileByOrcid.email || '',
-          full_name: profileByOrcid.full_name,
-          role: profileByOrcid.role || 'author',
-        },
-      };
-    }
-
-    // ── Path B: Natural Linking by Name (First Login) ──────────────────────
-    if (name) {
-      const { data: profileByName } = await supabaseAdmin
-        .from('profiles')
-        .select('*')
-        .ilike('full_name', name.trim())
-        .maybeSingle();
-
-      if (profileByName) {
-        // Link orcid_id into the existing record
-        await supabaseAdmin
-          .from('profiles')
-          .update({ orcid_id: orcidId })
-          .eq('id', profileByName.id);
-
-        const linkedProfile = { ...profileByName, orcid_id: orcidId };
-        await createSessionForProfile(linkedProfile);
-        return {
-          success: true,
-          user: {
-            id: linkedProfile.id,
-            email: linkedProfile.email || '',
-            full_name: linkedProfile.full_name,
-            role: linkedProfile.role || 'author',
-          },
-        };
-      }
-    }
-
-    // ── Path C: Auto-Register new user as Author ───────────────────────────
-    const newId = crypto.randomUUID();
-    const newProfile = {
-      id: newId,
-      full_name: name || 'ORCID User',
-      orcid_id: orcidId,
-      role: 'author',
-      status: 'Active',
-      joined: new Date().toISOString(),
-    };
-
-    await supabaseAdmin.from('profiles').insert(newProfile);
-
-    await createSessionForProfile(newProfile);
-    return {
-      success: true,
-      user: {
-        id: newId,
-        email: '',
-        full_name: newProfile.full_name,
-        role: 'author',
-      },
-    };
-  } catch (e: any) {
-    return { success: false, error: e.message };
-  }
-}
-
-
-
-

@@ -2,7 +2,6 @@
 import Link from "next/link";
 import { useState } from "react";
 import { loginUser } from "@/app/actions/auth";
-import { getDashboardPath } from "@/lib/roles";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -23,10 +22,17 @@ export default function Login() {
         document.cookie = `user_role=${role}; path=/; max-age=2592000`;
         document.cookie = `user_name=${encodeURIComponent(res.user.full_name || 'User')}; path=/; max-age=2592000`;
         
-        // Centralized role normalization (src/lib/roles.ts): all role variants
-        // (super_admin/superadmin, admin, co_admin/co-admin, editor, reviewer,
-        // Layout/Cover/Publish/Admin Editor) resolve to a consistent destination.
-        window.location.href = getDashboardPath(role) || "/dashboard";
+        if (role === 'admin' || role === 'super_admin' || role === 'superadmin') {
+            window.location.href = "/dashboard/admin";
+        } else if (role === 'co_admin') {
+            window.location.href = "/dashboard/admin/users";
+        } else if (role === 'editor') {
+            window.location.href = "/dashboard/editor";
+        } else if (role === 'reviewer') {
+            window.location.href = "/dashboard/reviews";
+        } else {
+            window.location.href = "/dashboard";
+        }
         return;
       } else {
         alert(res.error || "Email atau password salah.");
@@ -275,13 +281,7 @@ export default function Login() {
             <p className="login-subtitle">Integrated Academic Ecosystem Platform</p>
 
             {/* ORCID */}
-            <button 
-              type="button" 
-              onClick={() => {
-                window.location.href = "/api/auth/orcid";
-              }}
-              className="btn-orcid"
-            >
+            <button type="button" className="btn-orcid">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M12 0C5.37 0 0 5.37 0 12s5.37 12 12 12 12-5.37 12-12S18.63 0 12 0zm-1.5 6.5a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm-.5 3h2v8h-2V9.5zm4 0h2v1.1c.6-.8 1.5-1.3 2.5-1.3 2 0 3 1.4 3 3.4V17.5h-2v-4c0-1.2-.5-2-1.6-2-1.2 0-1.9.9-1.9 2.2V17.5h-2V9.5z"/>
               </svg>
