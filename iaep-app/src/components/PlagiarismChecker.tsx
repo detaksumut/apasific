@@ -284,21 +284,71 @@ console.log(result.rawContent);
                     fontSize: '13px',
                     textTransform: 'uppercase',
                     letterSpacing: '0.08em',
-                    marginBottom: '12px'
+                    marginBottom: '14px'
                   }}
                 >
                   Clue / Analisis UltimateAI
                 </div>
 
-                <div
-                  style={{
-                    color: 'rgba(255,255,255,0.78)',
-                    fontSize: '12px',
-                    lineHeight: 1.7,
-                    whiteSpace: 'pre-wrap'
-                  }}
-                >
-                  {aiAnalysis}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                  {aiAnalysis
+                    .split(/\n(?=\s*[1-7]\.\s*)/)
+                    .filter(section => section.trim())
+                    .map((section, index) => {
+                      const match = section.trim().match(/^([1-7])\.\s*([^:\n]+):?\s*([\s\S]*)$/);
+
+                      if (!match) {
+                        return (
+                          <div
+                            key={index}
+                            style={{
+                              color: 'rgba(255,255,255,0.78)',
+                              fontSize: '12px',
+                              lineHeight: 1.7,
+                              whiteSpace: 'pre-wrap'
+                            }}
+                          >
+                            {section.trim()}
+                          </div>
+                        );
+                      }
+
+                      const [, number, title, body] = match;
+
+                      return (
+                        <div
+                          key={number}
+                          style={{
+                            padding: '12px 14px',
+                            border: '1px solid rgba(255,255,255,0.08)',
+                            borderRadius: '9px',
+                            background: 'rgba(255,255,255,0.025)'
+                          }}
+                        >
+                          <div
+                            style={{
+                              color: '#34d399',
+                              fontWeight: 700,
+                              fontSize: '12px',
+                              marginBottom: '6px'
+                            }}
+                          >
+                            {number}. {title}
+                          </div>
+
+                          <div
+                            style={{
+                              color: 'rgba(255,255,255,0.78)',
+                              fontSize: '12px',
+                              lineHeight: 1.7,
+                              whiteSpace: 'pre-wrap'
+                            }}
+                          >
+                            {body.trim() || 'Belum ada analisis.'}
+                          </div>
+                        </div>
+                      );
+                    })}
                 </div>
               </div>
             )}
@@ -471,6 +521,7 @@ console.log(result.rawContent);
       )}    </div>
   );
 };
+
 
 
 
