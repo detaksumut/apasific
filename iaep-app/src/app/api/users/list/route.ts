@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+﻿import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import fs from 'fs';
 import path from 'path';
@@ -23,11 +23,11 @@ const supabaseAdmin = createClient(supabaseUrl, supabaseKey);
 // RBAC: only authenticated admins may list or mutate user data.
 // Uses the canonical getCurrentUser() session resolver (handles Supabase,
 // firebase_session, and supabase_fallback_session + user_role cookies) and
-// the centralized isAdminRole() from src/lib/roles — no hardcoded role list.
+// the centralized isAdminRole() from src/lib/roles â€” no hardcoded role list.
 //
 // Cookie-fallback tier: when IdentityResolver succeeds but returns roles:[]
 // (fake-UUID session IDs that pass the True UUID regex but have no profiles
-// row), we read the user_role cookie directly from the Request Cookie header —
+// row), we read the user_role cookie directly from the Request Cookie header â€”
 // the same role value the dashboard layout already trusts. The httpOnly
 // supabase_fallback_session cookie remains the session proof; user_role
 // is the role carrier. Reading from Request headers (not next/headers cookies())
@@ -49,16 +49,16 @@ async function isAdminRequest(request: Request): Promise<boolean> {
       return false;
     }
 
-    // Tier 1: roles[] from IdentityContext (from IdentityResolver → profiles.role
+    // Tier 1: roles[] from IdentityContext (from IdentityResolver â†’ profiles.role
     // or system_settings role). Scalar user.role used as fallback if array is empty.
-    let roles: string[] = Array.isArray(user.roles) && user.roles.length > 0
-      ? user.roles
-      : (user.role ? [user.role] : []);
+    let roles: string[] = Array.isArray(user.roles)
+  ? user.roles
+  : [];
 
-    // Tier 2: Cookie override — reads user_role directly from the incoming request.
+    // Tier 2: Cookie override â€” reads user_role directly from the incoming request.
     //
     // Activates in TWO cases:
-    //   A) roles is empty — identity resolution produced nothing; use cookie as identity.
+    //   A) roles is empty â€” identity resolution produced nothing; use cookie as identity.
     //   B) roles is non-empty but no role passes isAdminRole(), AND the user_role cookie
     //      claims an admin-class role (super_admin / admin).
     //      This handles the Super Admin whose kadinmedan1@gmail.com is registered with an
@@ -81,9 +81,9 @@ async function isAdminRequest(request: Request): Promise<boolean> {
     const allowed = roles.some((r: string) => isAdminRole(r));
     // TEMP DEBUG LOG (remove after diagnosis)
     console.error("[users/list.DEBUG] user.id=", user.id, "| email=", user.email,
-      "| roles=", JSON.stringify(user.roles), "| roleScalar=", user.role,
-      "| cookieRole=", cookieRole, "| alreadyAdmin=", alreadyAdmin,
-      "| resolvedRoles=", JSON.stringify(roles), "| isAdminAllowed=", allowed);
+  "| roles=", JSON.stringify(user.roles),
+  "| cookieRole=", cookieRole, "| alreadyAdmin=", alreadyAdmin,
+  "| resolvedRoles=", JSON.stringify(roles), "| isAdminAllowed=", allowed);
     return allowed;
   } catch (e: any) {
     console.error("[users/list.DEBUG] isAdminRequest threw:", e?.message);
@@ -289,3 +289,5 @@ if (!exists) {
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
 }
+
+
