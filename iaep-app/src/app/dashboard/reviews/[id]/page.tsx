@@ -1,13 +1,14 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { getAssignmentDetails, submitReviewResultsWithFile, autoRepairSubmissionFile, submitFinalAnnotatedFile } from "@/app/actions/reviewer";
 import { ReviewStep, ReviewStatus } from "@/domain/reviewer/ReviewStatus";
+import { PlagiarismChecker } from "@/components/PlagiarismChecker";
 import { ReviewStatusPolicy } from "@/domain/reviewer/ReviewStatusPolicy";
 
 export default function ReviewEvaluation({ params }: { params: any }) {
-  // AI Reviewer Assistant — advisory guidance for the HUMAN reviewer.
+  // AI Reviewer Assistant â€” advisory guidance for the HUMAN reviewer.
   // It never creates/replaces/submits a review and never uses reviewer_type='AI'.
   const [assistant, setAssistant] = useState<any>(null);
   const [assistantLoading, setAssistantLoading] = useState(false);
@@ -141,7 +142,7 @@ useEffect(() => {
             </div>
           </div>
           <Link href="/dashboard/reviews/pending" className="rev-back-btn">
-            ← Back to Pending Reviews
+            â† Back to Pending Reviews
           </Link>
         </div>
         <style>{`
@@ -187,7 +188,7 @@ useEffect(() => {
       <div className="rev-header">
         <div>
           <h1 className="rev-page-title">Tinjau Naskah</h1>
-          <p className="rev-page-sub">{`Naskah #${submission.id || ''} · ${submission.journal || 'Loading...'} · Putaran ${submission.round || 1}`}</p>
+          <p className="rev-page-sub">{`Naskah #${submission.id || ''} Â· ${submission.journal || 'Loading...'} Â· Putaran ${submission.round || 1}`}</p>
         </div>
         <div className="rev-deadline">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
@@ -310,10 +311,10 @@ useEffect(() => {
             <div className="rev-guidelines-box">
               <div className="rev-guide-title">APASIFIC IAEP Reviewer Code of Conduct</div>
               {[
-                { icon: "🔒", title: "Confidentiality", desc: "Treat the manuscript and your review as strictly confidential. Do not discuss the paper with third parties." },
-                { icon: "⚖️", title: "Objectivity", desc: "Reviews must be conducted objectively and based on academic merit. Personal criticism of the author is inappropriate." },
-                { icon: "⏱️", title: "Promptness", desc: "If you feel unqualified or unable to complete the review on time, please notify the editor immediately." },
-                { icon: "🚫", title: "Conflict of Interest", desc: "Disclose any conflicts of interest that may affect your review, including professional or personal relationships with authors." },
+                { icon: "ðŸ”’", title: "Confidentiality", desc: "Treat the manuscript and your review as strictly confidential. Do not discuss the paper with third parties." },
+                { icon: "âš–ï¸", title: "Objectivity", desc: "Reviews must be conducted objectively and based on academic merit. Personal criticism of the author is inappropriate." },
+                { icon: "â±ï¸", title: "Promptness", desc: "If you feel unqualified or unable to complete the review on time, please notify the editor immediately." },
+                { icon: "ðŸš«", title: "Conflict of Interest", desc: "Disclose any conflicts of interest that may affect your review, including professional or personal relationships with authors." },
               ].map((g, i) => (
                 <div key={i} className="rev-guide-item">
                   <div className="rev-guide-icon">{g.icon}</div>
@@ -333,9 +334,9 @@ useEffect(() => {
             </label>
 
             <div className="rev-actions-between">
-              <button className="rev-btn-ghost" onClick={() => setStep(ReviewStep.REQUEST)}>← Back</button>
+              <button className="rev-btn-ghost" onClick={() => setStep(ReviewStep.REQUEST)}>â† Back</button>
               <button className="rev-btn-primary" onClick={() => setStep(ReviewStep.REVIEW)} disabled={!agreed}>
-                Proceed to Review →
+                Proceed to Review â†’
               </button>
             </div>
           </div>
@@ -350,51 +351,7 @@ useEffect(() => {
             </div>
 
             <div className="rev-review-grid">
-              
-              {/* Kolom 1: System Checkpoints (List Clues Navigasi) */}
-              <div className="rev-checkpoints-sidebar">
-                <div className="rev-cp-header">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ width: 15, height: 15 }}><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                  Manuscript Checkpoints
-                </div>
-                
-                {checkpointsLoading && (
-                  <div className="rev-cp-loading">
-                    Memindai naskah...
-                  </div>
-                )}
-
-                {!checkpointsLoading && checkpoints.length === 0 && (
-                  <div className="rev-cp-empty">
-                    Semua poin pemeriksaan terverifikasi dengan baik. Tidak ada catatan khusus untuk naskah ini.
-                  </div>
-                )}
-
-                {!checkpointsLoading && checkpoints.length > 0 && (
-                  <div className="rev-cp-list">
-                    {checkpoints.map((cp, idx) => (
-                      <div 
-                        key={idx} 
-                        className={`rev-cp-card severity-${cp.severity}`}
-                        title="Klik untuk melihat detail atau arahkan ke halaman"
-                      >
-                        <div className="rev-cp-top">
-                          <span className={`rev-cp-indicator ${cp.severity === 'high' ? 'bg-red-500' : cp.severity === 'medium' ? 'bg-orange-500' : 'bg-yellow-500'}`} />
-                          <span className="rev-cp-cat">{cp.category}</span>
-                          <span className="rev-cp-page">Hlm {cp.page_number}</span>
-                        </div>
-                        <div className="rev-cp-title">{cp.finding_title}</div>
-                        <div className="rev-cp-desc">{cp.action_prompt}</div>
-                        <div className="rev-cp-reason">
-                          <strong>Analisis:</strong> {cp.reason}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              {/* Kolom 2: PDF Viewer Utama */}
+              {/* PDF Viewer Utama */}
               <div className="rev-pdf-panel">
                 <div className="rev-pdf-topbar">
                   <div className="rev-pdf-name">
@@ -406,14 +363,6 @@ useEffect(() => {
                   
                   {submission?.file_metadata?.status === 'AVAILABLE' && (
                     <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                      {/* Toggle Show AI Overlay */}
-                      <button 
-                        onClick={() => setShowOverlay(!showOverlay)}
-                        className={`rev-toggle-overlay-btn ${showOverlay ? 'active' : ''}`}
-                        title="Tampilkan indikator warning di sebelah halaman"
-                      >
-                        {showOverlay ? '🟢 Hide Checkpoint Markers' : '⚫ Show Checkpoint Markers'}
-                      </button>
 
                       {submission.file_metadata.legacyFallbackUsed && (
                         <span style={{ fontSize: '10px', background: 'rgba(245,158,11,0.2)', color: '#fcd34d', padding: '4px 8px', borderRadius: '12px', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '4px' }} title="Diselesaikan melalui pencarian Legacy">
@@ -435,49 +384,31 @@ useEffect(() => {
                   {submission?.file_metadata?.status === 'AVAILABLE' ? (
                     <div style={{ display: 'flex', flexDirection: 'column', height: '100%', minHeight: '600px', width: '100%' }}>
                       <div style={{ background: 'rgba(201,168,76,0.1)', borderBottom: '1px solid rgba(201,168,76,0.2)', padding: '8px 15px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '12px', color: '#c9a84c' }}>
-                        <span>📄 File Naskah Tersedia ({(submission.file_url).includes('.docx') ? 'Dokumen Word .docx' : 'Dokumen PDF'})</span>
+                        <span>ðŸ“„ File Naskah Tersedia ({(submission.file_url).includes('.docx') ? 'Dokumen Word .docx' : 'Dokumen PDF'})</span>
                         <a href={submission.file_url} target="_blank" rel="noreferrer" style={{ color: '#ffffff', textDecoration: 'underline', fontWeight: 'bold' }}>
-                          Klik disini jika iFrame tidak terbuka ➔
+                          Klik disini jika iFrame tidak terbuka âž”
                         </a>
                       </div>
                       
-                      <div style={{ display: 'flex', width: '100%', flex: 1, minHeight: '560px', position: 'relative' }}>
+                      <div style={{ display: 'flex', flexDirection: 'column', width: '100%', flex: 1, minHeight: '560px', position: 'relative' }}>
                         <iframe 
                             src={(submission.file_url).toLowerCase().includes('.pdf') ? (submission.file_url) : `https://docs.google.com/gview?url=${encodeURIComponent(submission.file_url)}&embedded=true`} 
                             style={{ width: '100%', height: '100%', border: 'none' }} 
                             title="Manuscript Document"
                         />
 
-                        {/* Margin Marker Indicators Overlay (🔴, 🟠, 🟡) */}
-                        {showOverlay && checkpoints.length > 0 && (
-                          <div className="rev-pdf-margin-overlay">
-                            {checkpoints.map((cp, idx) => (
-                              <div 
-                                key={idx}
-                                className={`rev-margin-marker severity-${cp.severity}`}
-                                style={{
-                                  // Spread markers vertically along the sidebar as indicator ticks
-                                  top: `${Math.max(10, Math.min(90, (cp.page_number * 10) % 95))}%`
-                                }}
-                                title={`Halaman ${cp.page_number}: [${cp.category}] ${cp.finding_title}`}
-                              >
-                                {cp.severity === 'high' ? '🔴' : cp.severity === 'medium' ? '🟠' : '🟡'}
-                              </div>
-                            ))}
-                          </div>
-                        )}
                       </div>
                     </div>
                   ) : (
                     <div className="rev-pdf-mock">
-                      <div className="rev-pdf-icon">📄</div>
+                      <div className="rev-pdf-icon">ðŸ“„</div>
                       <div className="rev-pdf-mock-title">
                         {submission?.file_metadata?.status === 'METADATA_MISSING' ? 'Metadata Kosong' : 
                          submission?.file_metadata?.status === 'FILE_MISSING' ? 'File Hilang di Storage' : 
                          submission?.file_metadata?.status === 'URL_GENERATION_FAILED' ? 'Gagal Membuat Link' : 'No File Attached'}
                       </div>
                       <div className="rev-pdf-mock-sub" style={{ marginBottom: '15px' }}>
-                        {submission?.file_metadata?.error ? submission.file_metadata.error.message : 'Blind review document · No file provided'}
+                        {submission?.file_metadata?.error ? submission.file_metadata.error.message : 'Blind review document Â· No file provided'}
                       </div>
                       <button 
                         onClick={handleAutoRepair} 
@@ -521,7 +452,7 @@ useEffect(() => {
                           onChange={e => setFinalFile(e.target.files?.[0] || null)}
                           style={{ width: '100%', padding: '10px 14px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(52,211,153,0.2)', borderRadius: '8px', color: '#fff', fontSize: '13px' }}
                         />
-                        {finalFile && <div style={{ fontSize: '11px', color: '#34d399', marginTop: '6px' }}>✓ File dipilih: {finalFile.name}</div>}
+                        {finalFile && <div style={{ fontSize: '11px', color: '#34d399', marginTop: '6px' }}>âœ“ File dipilih: {finalFile.name}</div>}
                       </div>
 
                       <div>
@@ -583,6 +514,29 @@ useEffect(() => {
 
               {/* Review Forms */}
               <div className="rev-forms-panel">
+                {/* =========================================================
+                    REVIEWER PLAGIARISM CHECK
+                    Menggunakan PlagiarismChecker yang sama dengan Author.
+                    Reviewer hanya melihat hasil ringkas/persentase.
+                    Tidak ada ekstraksi PDF.
+                   ========================================================= */}
+                <div
+                  style={{
+                    marginBottom: '18px',
+                    padding: '14px',
+                    border: '1px solid rgba(201,168,76,0.28)',
+                    borderRadius: '12px',
+                    background: 'rgba(10,10,20,0.55)'
+                  }}
+                >
+                  <PlagiarismChecker
+                    summaryOnly={true}
+                    onAnalysisComplete={(result) => {
+                      console.log('[Reviewer Plagiarism] Analysis Result:', result);
+                    }}
+                  />
+                </div>
+
                 <div className="rev-form-section">
                   <div className="rev-form-section-title">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
@@ -646,7 +600,7 @@ useEffect(() => {
                     {annotatedFile ? (
                       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', textAlign: 'center' }}>
                         <span style={{ color: '#34d399', fontWeight: 600, fontSize: '13px' }}>
-                          ✓ File siap dikirim: {annotatedFile.name}
+                          âœ“ File siap dikirim: {annotatedFile.name}
                         </span>
                         <label htmlFor="annotated-file" className="rev-browse-link" style={{ fontSize: '11.5px', opacity: 0.8 }}>
                           (Klik di sini untuk mengganti file)
@@ -677,9 +631,9 @@ useEffect(() => {
             {/* Removed AI Reviewer Assistant Panel to maintain pure independent human peer review */}
 
             <div className="rev-actions-between" style={{ marginTop: 24 }}>
-              <button className="rev-btn-ghost" onClick={() => setStep(ReviewStep.GUIDELINES)}>← Back</button>
+              <button className="rev-btn-ghost" onClick={() => setStep(ReviewStep.GUIDELINES)}>â† Back</button>
               <button className="rev-btn-primary" onClick={() => setStep(ReviewStep.SUBMIT)}>
-                Save & Continue →
+                Save & Continue â†’
               </button>
             </div>
           </div>
@@ -727,7 +681,7 @@ useEffect(() => {
             )}
 
             <div className="rev-actions-between" style={{ marginTop: 24 }}>
-              <button className="rev-btn-ghost" onClick={() => setStep(ReviewStep.REVIEW)}>← Back</button>
+              <button className="rev-btn-ghost" onClick={() => setStep(ReviewStep.REVIEW)}>â† Back</button>
               <button
                 className="rev-btn-success"
                 disabled={!recommendation || isSubmitting}
@@ -1115,7 +1069,7 @@ useEffect(() => {
         /* Review Grid */
         .rev-review-grid {
           display: grid;
-          grid-template-columns: 1fr 2.2fr 1.2fr;
+          grid-template-columns: minmax(0, 2.6fr) minmax(320px, 1.4fr);
           gap: 24px;
           align-items: start;
         }
@@ -1577,3 +1531,12 @@ useEffect(() => {
     </div>
   );
 }
+
+
+
+
+
+
+
+
+
