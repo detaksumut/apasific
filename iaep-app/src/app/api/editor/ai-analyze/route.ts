@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server';
+﻿import { NextResponse } from 'next/server';
 import { getCurrentUser } from '@/app/actions/auth';
 import { isEditorOrAbove } from '@/lib/permissions';
 import { AIReviewerService } from '@/services/reviewer/AIReviewerService';
@@ -12,7 +12,20 @@ export async function POST(req: Request) {
     }
 
     // 2. Authorize: must be Editor or above
-    const role = String(user.role || (user.roles && user.roles[0]) || '').toLowerCase();
+    const roles = Array.isArray(user.roles) ? user.roles : [];
+
+    const role =
+      roles.length > 0
+        ? String(roles[0]).toLowerCase()
+        : String(user.role || '').toLowerCase();
+
+    console.log('[AIAnalyzeRoute] Identity:', {
+      id: user.id,
+      email: user.email,
+      roles: user.roles,
+      resolvedRole: role,
+    });
+
     if (!isEditorOrAbove(role)) {
       return NextResponse.json({ error: 'Akses ditolak: Anda tidak memiliki hak akses Editor.' }, { status: 403 });
     }

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
@@ -68,7 +68,7 @@ const [uploadingReviewId, setUploadingReviewId] = useState<string | null>(null);
     }
   }, [customIssue, submissionId]);
 
-// AI-Assisted Review Enhancement Layer — load any existing enhancement
+// AI-Assisted Review Enhancement Layer â€” load any existing enhancement
   // records for completed HUMAN reviews so the editor can view them.
   // AI is advisory only; it never alters the human recommendation.
   useEffect(() => {
@@ -88,7 +88,7 @@ const [uploadingReviewId, setUploadingReviewId] = useState<string | null>(null);
             setEnhancementsMap(prev => ({ ...prev, [r.id]: res.enhancement }));
           }
         } catch {
-          // silent — enhancement panel is optional
+          // silent â€” enhancement panel is optional
         }
       }
     })().catch(() => {});
@@ -109,7 +109,7 @@ const [uploadingReviewId, setUploadingReviewId] = useState<string | null>(null);
     setTimeout(() => setToastMessage(""), 3000);
   };
 
-// AI-Assisted Review Enhancement — enhances a COMPLETED HUMAN review.
+// AI-Assisted Review Enhancement â€” enhances a COMPLETED HUMAN review.
   // AI is advisory only; it never alters the human recommendation or status.
   const handleRunEnhancement = async (reviewId: string) => {
     if (!reviewId || enhancementsLoading[reviewId]) return;
@@ -317,7 +317,7 @@ const [uploadingReviewId, setUploadingReviewId] = useState<string | null>(null);
       } : null);
 
       if (res.skippedDeposit) {
-        showToast(`Identifier yang sudah ada dipertahankan (DOI: ${res.doi || "-"}) — deposit duplikat dilewati.`);
+        showToast(`Identifier yang sudah ada dipertahankan (DOI: ${res.doi || "-"}) â€” deposit duplikat dilewati.`);
       } else {
         showToast(`Berhasil diterbitkan ke Zenodo! DOI: ${res.doi || "pending"}`);
       }
@@ -440,7 +440,7 @@ const [uploadingReviewId, setUploadingReviewId] = useState<string | null>(null);
   if (!loading && !isAuthorized) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] text-center p-6 bg-[#0c0c16] rounded-2xl border border-red-500/20 max-w-lg mx-auto mt-20 space-y-4">
-        <div className="w-16 h-16 bg-red-500/10 text-red-500 rounded-full flex items-center justify-center text-3xl">⚠️</div>
+        <div className="w-16 h-16 bg-red-500/10 text-red-500 rounded-full flex items-center justify-center text-3xl">âš ï¸</div>
         <h2 className="text-xl font-bold text-white font-['Cinzel']">Akses Ditolak (Access Denied)</h2>
         <p className="text-sm text-gray-400 leading-relaxed">
           Akun Anda ({currentUserRole}) tidak memiliki izin untuk mengakses halaman kontrol panel editor ini.
@@ -496,7 +496,7 @@ const [uploadingReviewId, setUploadingReviewId] = useState<string | null>(null);
             </div>
           </div>
           
-          {/* OJS Workflow Progress Timeline — Premium Enterprise Design */}
+          {/* OJS Workflow Progress Timeline â€” Premium Enterprise Design */}
           <div className="w-full mt-10 bg-[#0c0c16]/50 border border-gray-800/80 rounded-3xl p-6 shadow-2xl backdrop-blur-md relative overflow-hidden">
             <div className="absolute top-[48px] left-[8%] right-[8%] h-[2px] bg-gray-800 -z-10 hidden md:block">
               <div 
@@ -682,7 +682,7 @@ const [uploadingReviewId, setUploadingReviewId] = useState<string | null>(null);
             <div className="space-y-8">
               {/* Top Warning Banner: Human Authority Governance */}
               <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 flex gap-3">
-                <div className="text-xl text-amber-600">⚠️</div>
+                <div className="text-xl text-amber-600">âš ï¸</div>
                 <div>
                   <h4 className="text-xs font-bold text-amber-900 uppercase tracking-wide">Prinsip Tata Kelola AI (AI Governance Notice)</h4>
                   <p className="text-xs text-amber-700 mt-1 leading-relaxed">
@@ -697,7 +697,7 @@ const [uploadingReviewId, setUploadingReviewId] = useState<string | null>(null);
                   <h4 className="font-bold text-gray-800 text-xs tracking-wider uppercase">SKRINING NASKAH AWAL (AI SCREENING REPORT)</h4>
                   {aiAssessment && (
                     <span className="text-[10px] font-bold text-gray-500 bg-gray-200 px-2.5 py-1 rounded-full uppercase tracking-wide">
-                      Audit: {aiAssessment.model_name} • {aiAssessment.prompt_version}
+                      Audit: {aiAssessment.model_name} â€¢ {aiAssessment.prompt_version}
                     </span>
                   )}
                 </div>
@@ -705,7 +705,7 @@ const [uploadingReviewId, setUploadingReviewId] = useState<string | null>(null);
                 <div className="p-6">
                   {!aiAssessment ? (
                     <div className="text-center py-10 space-y-4">
-                      <div className="text-4xl">🤖</div>
+                      <div className="text-4xl">ðŸ¤–</div>
                       <h4 className="font-bold text-gray-800 text-sm">Analisis Akademis Awal belum dijalankan</h4>
                       <p className="text-xs text-gray-500 max-w-md mx-auto">
                         AI akan secara otomatis menganalisis kebaruan (novelty), metodologi, dan kejelasan (clarity) naskah ini tanpa membocorkan identitas penulis (double-blind compliant).
@@ -742,7 +742,7 @@ const [uploadingReviewId, setUploadingReviewId] = useState<string | null>(null);
                         disabled={aiLoading}
                         className="inline-flex items-center gap-2 bg-[#18182e] hover:bg-[#18182e]/90 text-white font-bold px-6 py-2.5 rounded-lg text-xs tracking-wider uppercase transition-colors shadow-sm disabled:opacity-50"
                       >
-                        {aiLoading ? 'Sedang Menganalisis...' : '🤖 Mulai Analisis Asisten AI'}
+                        {aiLoading ? 'Sedang Menganalisis...' : 'Analisis UltimateAI'}
                       </button>
                     </div>
                   ) : (
@@ -760,7 +760,7 @@ const [uploadingReviewId, setUploadingReviewId] = useState<string | null>(null);
                             </div>
                             <div className="flex text-amber-500 gap-0.5">
                               {Array.from({ length: 5 }).map((_, i) => (
-                                <span key={i} className="text-lg">{i < aiAssessment.novelty_rating ? '★' : '☆'}</span>
+                                <span key={i} className="text-lg">{i < aiAssessment.novelty_rating ? 'â˜…' : 'â˜†'}</span>
                               ))}
                             </div>
                           </div>
@@ -773,7 +773,7 @@ const [uploadingReviewId, setUploadingReviewId] = useState<string | null>(null);
                             </div>
                             <div className="flex text-amber-500 gap-0.5">
                               {Array.from({ length: 5 }).map((_, i) => (
-                                <span key={i} className="text-lg">{i < aiAssessment.methodology_rating ? '★' : '☆'}</span>
+                                <span key={i} className="text-lg">{i < aiAssessment.methodology_rating ? 'â˜…' : 'â˜†'}</span>
                               ))}
                             </div>
                           </div>
@@ -786,7 +786,7 @@ const [uploadingReviewId, setUploadingReviewId] = useState<string | null>(null);
                             </div>
                             <div className="flex text-amber-500 gap-0.5">
                               {Array.from({ length: 5 }).map((_, i) => (
-                                <span key={i} className="text-lg">{i < aiAssessment.clarity_rating ? '★' : '☆'}</span>
+                                <span key={i} className="text-lg">{i < aiAssessment.clarity_rating ? 'â˜…' : 'â˜†'}</span>
                               ))}
                             </div>
                           </div>
@@ -923,11 +923,11 @@ const [uploadingReviewId, setUploadingReviewId] = useState<string | null>(null);
                             (rev.recommendation === 'major_revision' || rev.recommendation === 'revisions_major') ? 'bg-orange-100 text-orange-800' :
                             'bg-red-100 text-red-800'
                           }`}>
-                            {rev.recommendation === 'accept' ? '✅ Accept' :
-                             (rev.recommendation === 'minor_revision' || rev.recommendation === 'revisions_minor') ? '🟡 Revisi Minor' :
-                             (rev.recommendation === 'major_revision' || rev.recommendation === 'revisions_major') ? '🟠 Revisi Mayor' :
-                             rev.recommendation === 'resubmit' ? '🔄 Resubmit' :
-                             rev.recommendation === 'reject' ? '❌ Decline' : rev.recommendation}
+                            {rev.recommendation === 'accept' ? 'âœ… Accept' :
+                             (rev.recommendation === 'minor_revision' || rev.recommendation === 'revisions_minor') ? 'ðŸŸ¡ Revisi Minor' :
+                             (rev.recommendation === 'major_revision' || rev.recommendation === 'revisions_major') ? 'ðŸŸ  Revisi Mayor' :
+                             rev.recommendation === 'resubmit' ? 'ðŸ”„ Resubmit' :
+                             rev.recommendation === 'reject' ? 'âŒ Decline' : rev.recommendation}
                           </span>
                           <span className="px-2 py-1 bg-green-100 text-green-800 text-xs font-bold rounded-full">Completed</span>
                         </div>
@@ -937,7 +937,7 @@ const [uploadingReviewId, setUploadingReviewId] = useState<string | null>(null);
                         {/* Comments for Author */}
                         <div>
                           <div className="flex items-center gap-2 mb-2">
-                            <span className="text-xs font-bold text-gray-500 uppercase tracking-wide">💬 Komentar untuk Penulis (Author)</span>
+                            <span className="text-xs font-bold text-gray-500 uppercase tracking-wide">ðŸ’¬ Komentar untuk Penulis (Author)</span>
                           </div>
                           <div className="bg-blue-50 border border-blue-100 rounded-lg p-3">
                             <p className="text-sm text-gray-800 whitespace-pre-wrap leading-relaxed">{rev.comments_for_author || 'Tidak ada komentar.'}</p>
@@ -948,7 +948,7 @@ const [uploadingReviewId, setUploadingReviewId] = useState<string | null>(null);
                         {(rev.correction_notes) && (
                           <div>
                             <div className="flex items-center gap-2 mb-2">
-                              <span className="text-xs font-bold text-yellow-700 uppercase tracking-wide">✏️ Correction Notes / Catatan Koreksi</span>
+                              <span className="text-xs font-bold text-yellow-700 uppercase tracking-wide">âœï¸ Correction Notes / Catatan Koreksi</span>
                             </div>
                             <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
                               <p className="text-sm text-gray-700 whitespace-pre-wrap leading-relaxed">{rev.correction_notes}</p>
@@ -960,7 +960,7 @@ const [uploadingReviewId, setUploadingReviewId] = useState<string | null>(null);
                         {(rev.comments_for_editor) && (
                           <div>
                             <div className="flex items-center gap-2 mb-2">
-                              <span className="text-xs font-bold text-purple-700 uppercase tracking-wide">🔒 Catatan Rahasia untuk Editor (Confidential)</span>
+                              <span className="text-xs font-bold text-purple-700 uppercase tracking-wide">ðŸ”’ Catatan Rahasia untuk Editor (Confidential)</span>
                               <span className="text-xs bg-purple-100 text-purple-600 px-2 py-0.5 rounded-full">Hanya Editor yang bisa melihat ini</span>
                             </div>
                             <div className="bg-purple-50 border border-purple-200 rounded-lg p-3">
@@ -972,11 +972,11 @@ const [uploadingReviewId, setUploadingReviewId] = useState<string | null>(null);
                         {/* Reviewer File */}
                         {(rev.annotated_file_url || rev.review_file_url) && (
                           <div className="pt-3 border-t border-gray-100">
-                            <div className="text-xs font-bold text-blue-700 mb-2 uppercase tracking-wide">📎 File Hasil Pemeriksaan (dari Reviewer)</div>
+                            <div className="text-xs font-bold text-blue-700 mb-2 uppercase tracking-wide">ðŸ“Ž File Hasil Pemeriksaan (dari Reviewer)</div>
                             <div className="flex items-center gap-3 bg-blue-50 border border-blue-200 rounded-lg p-3">
                               <div className="flex-1">
                                 <p className="text-xs text-blue-700 font-semibold">File telah diunggah oleh Reviewer</p>
-                                <p className="text-xs text-gray-500 mt-1">⬆ Download, periksa, lalu upload ulang di tab <strong>Copyediting</strong> untuk diteruskan ke Layout Editor.</p>
+                                <p className="text-xs text-gray-500 mt-1">â¬† Download, periksa, lalu upload ulang di tab <strong>Copyediting</strong> untuk diteruskan ke Layout Editor.</p>
                               </div>
                               <a
                                 href={rev.annotated_file_url || rev.review_file_url}
@@ -984,7 +984,7 @@ const [uploadingReviewId, setUploadingReviewId] = useState<string | null>(null);
                                 rel="noopener noreferrer"
                                 className="shrink-0 inline-flex items-center gap-2 text-xs bg-blue-600 text-white hover:bg-blue-700 font-bold py-2 px-4 rounded-lg transition-colors"
                               >
-                                ↓ Download
+                                â†“ Download
                               </a>
                             </div>
                           </div>
@@ -1058,7 +1058,7 @@ const [uploadingReviewId, setUploadingReviewId] = useState<string | null>(null);
                                     <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse mr-3"></div>
                                     <div>
                                       <div className="font-semibold text-sm text-gray-800">{rev.full_name}</div>
-                                      <div className="text-xs text-gray-500">Keahlian: {rev.expertise || 'Umum'} • Kontak: {rev.phone_number || '-'}</div>
+                                      <div className="text-xs text-gray-500">Keahlian: {rev.expertise || 'Umum'} â€¢ Kontak: {rev.phone_number || '-'}</div>
                                     </div>
                                   </div>
                                   <div className="flex items-center space-x-2">
@@ -1087,7 +1087,7 @@ const [uploadingReviewId, setUploadingReviewId] = useState<string | null>(null);
                                       }}
                                       className="text-xs bg-[#25D366] text-black font-semibold py-1 px-3 rounded hover:bg-[#22c35e] text-center"
                                     >
-                                      💬 Assign & Invite
+                                      ðŸ’¬ Assign & Invite
                                     </button>
                                     <button 
                                       onClick={async () => {
@@ -1817,7 +1817,7 @@ const [uploadingReviewId, setUploadingReviewId] = useState<string | null>(null);
                         ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/25' 
                         : 'bg-amber-500/10 text-amber-400 border-amber-500/25'
                     }`}>
-                      {submission?.status === 'Published' ? '✓ Diterbitkan (Published)' : '● Siap Terbit (Production Completed)'}
+                      {submission?.status === 'Published' ? 'âœ“ Diterbitkan (Published)' : 'â— Siap Terbit (Production Completed)'}
                     </span>
                   </div>
 
@@ -1885,11 +1885,11 @@ const [uploadingReviewId, setUploadingReviewId] = useState<string | null>(null);
                         <div className="space-y-4 pt-4">
                           {submission?.status === 'Published' ? (
                             <div className="p-4 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-lg text-xs font-medium">
-                              ✓ Naskah telah dipublikasikan. Anda dapat memperbarui data Volume & Edisi di bawah ini jika terdapat kesalahan, lalu klik tombol Perbarui.
+                              âœ“ Naskah telah dipublikasikan. Anda dapat memperbarui data Volume & Edisi di bawah ini jika terdapat kesalahan, lalu klik tombol Perbarui.
                             </div>
                           ) : (
                             <div className="p-4 bg-amber-500/10 border border-amber-500/20 text-amber-400 rounded-lg text-xs font-medium">
-                              ⚠️ Seluruh proses produksi (Layout, Cover, & API) telah disahkan oleh Supervisor. Anda sekarang dapat merilis naskah ini.
+                              âš ï¸ Seluruh proses produksi (Layout, Cover, & API) telah disahkan oleh Supervisor. Anda sekarang dapat merilis naskah ini.
                             </div>
                           )}
                           
@@ -2157,7 +2157,7 @@ const [uploadingReviewId, setUploadingReviewId] = useState<string | null>(null);
                       {generatedDoi && (
                         <div className="mt-4 p-4 bg-[#0c0c16] border border-zinc-800 rounded-lg text-[#e8e8f0] text-sm flex flex-col md:flex-row md:items-center justify-between gap-4 font-semibold">
                           <div className="text-emerald-400">
-                            ✅ Persistent Identifier (DOI): {generatedDoi}
+                            âœ… Persistent Identifier (DOI): {generatedDoi}
                           </div>
                           <button
                             onClick={async () => {
@@ -2359,15 +2359,15 @@ const [uploadingReviewId, setUploadingReviewId] = useState<string | null>(null);
                       type="tel"
                       value={authorPhone}
                       onChange={e => setAuthorPhone(e.target.value)}
-                      placeholder="Belum ada no HP — isi manual dengan kode negara, contoh: +62812xxxx"
+                      placeholder="Belum ada no HP â€” isi manual dengan kode negara, contoh: +62812xxxx"
                       className="block w-full rounded-md border border-gray-300 py-2.5 pl-10 pr-3 text-gray-900 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500 sm:text-sm"
                     />
                   </div>
                   {!authorPhone && (
-                    <p className="text-xs text-red-500 font-medium">⚠️ No HP Author tidak ditemukan di database. Isi manual sebelum kirim WA.</p>
+                    <p className="text-xs text-red-500 font-medium">âš ï¸ No HP Author tidak ditemukan di database. Isi manual sebelum kirim WA.</p>
                   )}
                   {authorPhone && (
-                    <p className="text-xs text-green-600 font-medium">✓ No HP Author terdeteksi: {authorPhone}</p>
+                    <p className="text-xs text-green-600 font-medium">âœ“ No HP Author terdeteksi: {authorPhone}</p>
                   )}
                   <p className="text-xs text-gray-500">Sertakan kode negara untuk integrasi WhatsApp (contoh: +62812xxxx).</p>
                 </div>
@@ -2401,7 +2401,7 @@ const [uploadingReviewId, setUploadingReviewId] = useState<string | null>(null);
             <div className="p-4 border-b border-gray-200 bg-white">
                 <input 
                     type="text" 
-                    placeholder="🔍 Cari berdasarkan nama, institusi, atau negara..." 
+                    placeholder="ðŸ” Cari berdasarkan nama, institusi, atau negara..." 
                     value={reviewerSearch}
                     onChange={(e) => { setReviewerSearch(e.target.value); setReviewerPage(1); }}
                     className="w-full px-4 py-2.5 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-shadow text-gray-800"
@@ -2412,12 +2412,12 @@ const [uploadingReviewId, setUploadingReviewId] = useState<string | null>(null);
               {/* Manual reviewer selection */}
               <h4 className="text-sm font-bold text-gray-800 mb-3">Semua Reviewer (Manual Selection)</h4>
 
-{/* AI-Assisted Review Enhancement (advisory) — enhances a COMPLETED HUMAN review */}
+{/* AI-Assisted Review Enhancement (advisory) â€” enhances a COMPLETED HUMAN review */}
               {!reviewerSearch && reviews.some((r: any) => r.status === 'completed') && (
                 <div className="mb-6 border border-cyan-200 bg-cyan-50/60 rounded-lg p-4">
                   <div className="flex items-center justify-between gap-2 mb-2 flex-wrap">
-                    <h4 className="text-sm font-bold text-cyan-800">🧠 AI Quality Observation</h4>
-                    <span className="text-[10px] text-cyan-700 bg-cyan-100 px-2 py-0.5 rounded-full font-semibold">Advisory — tidak mengubah rekomendasi manusia</span>
+                    <h4 className="text-sm font-bold text-cyan-800">ðŸ§  AI Quality Observation</h4>
+                    <span className="text-[10px] text-cyan-700 bg-cyan-100 px-2 py-0.5 rounded-full font-semibold">Advisory â€” tidak mengubah rekomendasi manusia</span>
                   </div>
                   <p className="text-[11px] text-cyan-700 mb-3">
                     AI hanya menganalisis laporan review <b>manusia yang sudah selesai (completed)</b> untuk
@@ -2492,7 +2492,7 @@ const [uploadingReviewId, setUploadingReviewId] = useState<string | null>(null);
                           <div key={rev.id || rev.email} className="flex justify-between items-center p-4 border rounded-lg hover:border-blue-500 hover:shadow-sm transition-all">
                             <div>
                               <div className="font-bold text-gray-800">{rev.full_name || rev.name}</div>
-                              <div className="text-sm text-gray-500">{rev.university || rev.institution || 'Unknown University'} • {rev.country || 'Unknown Country'}</div>
+                              <div className="text-sm text-gray-500">{rev.university || rev.institution || 'Unknown University'} â€¢ {rev.country || 'Unknown Country'}</div>
                               <div className="text-xs text-blue-600 font-semibold mt-1">{rev.email}</div>
                             </div>
                             <button 
@@ -2549,3 +2549,5 @@ const [uploadingReviewId, setUploadingReviewId] = useState<string | null>(null);
     </div>
   );
 }
+
+

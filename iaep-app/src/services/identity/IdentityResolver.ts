@@ -1,4 +1,4 @@
-import { IdentityContext } from "@/domain/identity/IdentityContext";
+﻿import { IdentityContext } from "@/domain/identity/IdentityContext";
 import { IdentityNotFoundException } from "@/domain/identity/IdentityNotFoundException";
 import { IdentityRepository } from "@/repositories/IdentityRepository";
 
@@ -69,6 +69,16 @@ export class IdentityResolver {
                 }
             }
         } else {
+            // True UUID: resolve canonical identity directly by profiles.id first.
+            const profileById = await IdentityRepository.findIdentityById(rawId);
+
+            if (profileById) {
+                if (profileById.full_name) resolvedFullName = profileById.full_name;
+                if (profileById.role) resolvedRole = profileById.role;
+                if (profileById.email) resolvedEmail = profileById.email;
+            }
+
+            // Fallback to email when canonical ID lookup is incomplete.
             // Even if it's a True UUID, enrich full_name and role from profiles if either is missing
             if (resolvedEmail && (!resolvedFullName || !resolvedRole)) {
                 const profile = await IdentityRepository.findIdentityByEmail(resolvedEmail);
@@ -95,3 +105,4 @@ export class IdentityResolver {
         return context;
     }
 }
+

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { normalizeRole } from "@/lib/roles";
@@ -202,6 +202,48 @@ export default function Sidebar({ role }: SidebarProps) {
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
           <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
           <polyline points="22 4 12 14.01 9 11.01" />
+        </svg>
+      ),
+    },
+    {
+      label: "Submisi Naskah",
+      path: "/dashboard/submit",
+      icon: (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M12 5v14" />
+          <path d="M5 12h14" />
+        </svg>
+      ),
+    },
+    {
+      label: "Lacak Naskah",
+      path: "/dashboard/track",
+      icon: (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+          <circle cx="11" cy="11" r="7" />
+          <path d="m20 20-4-4" />
+        </svg>
+      ),
+    },
+    {
+      label: "Acceptance Letter",
+      path: "/dashboard/loa",
+      icon: (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+          <polyline points="14 2 14 8 20 8" />
+          <line x1="16" y1="13" x2="8" y2="13" />
+          <line x1="16" y1="17" x2="8" y2="17" />
+        </svg>
+      ),
+    },
+    {
+      label: "Sertifikat Publikasi",
+      path: "/dashboard/certificates",
+      icon: (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+          <circle cx="12" cy="8" r="7" />
+          <polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88" />
         </svg>
       ),
     },
@@ -447,7 +489,7 @@ export default function Sidebar({ role }: SidebarProps) {
   const isCoAdminRoleRaw = rawRole === "co_admin" || rawRole === "co-admin";
 
   const getRoleLinks = () => {
-    // Co-Admin must be checked before normalizeRole (co_admin → ADMIN)
+    // Co-Admin must be checked before normalizeRole (co_admin â†’ ADMIN)
     if (isCoAdminRoleRaw) return coAdminLinks;
     switch (normalizedRole) {
       case "author":
@@ -554,7 +596,7 @@ export default function Sidebar({ role }: SidebarProps) {
         )}
 
         {/* MENU SUBMISSION - Unified Submission Capability for Operational Portals */}
-        {(normalizedRole === "editor" || normalizedRole === "co-admin" || normalizedRole === "PRODUCTION" || rawRole === "supervisor" || normalizedRole === "co_admin" || rawRole === "co-admin" || rawRole === "co_admin") && (
+        {(normalizedRole === "co-admin" || normalizedRole === "PRODUCTION" || rawRole === "supervisor" || normalizedRole === "co_admin" || rawRole === "co-admin" || rawRole === "co_admin") && (
           <>
             <div className="sidebar-section-label" style={{ marginTop: 24 }}>MENU SUBMISSION</div>
             <NavLink 
@@ -627,7 +669,7 @@ export default function Sidebar({ role }: SidebarProps) {
           </>
         )}
 
-        {/* Area Penulis — only visible for AUTHOR role; hidden for ADMIN/SUPER_ADMIN and other staff */}
+        {/* Area Penulis â€” only visible for AUTHOR role; hidden for ADMIN/SUPER_ADMIN and other staff */}
         {normalizedRole === "author" && (
           <>
             <div className="sidebar-section-label" style={{ marginTop: 24 }}>Area Penulis</div>
@@ -640,7 +682,7 @@ export default function Sidebar({ role }: SidebarProps) {
             <div className="sidebar-section-label" style={{ marginTop: 24 }}>Menu Produksi</div>
             {productionLinks.filter((link) => {
                if (normalizedRole === "SUPER_ADMIN") return true;
-               // Production sub-roles (layout/cover/publish/admin editor → PRODUCTION)
+               // Production sub-roles (layout/cover/publish/admin editor â†’ PRODUCTION)
                if (normalizedRole === "PRODUCTION") {
                  if (rawRole.includes("layout") && link.label === "Layout Editor") return true;
                  if (rawRole.includes("cover") && link.label === "Cover Editor") return true;
@@ -659,7 +701,7 @@ export default function Sidebar({ role }: SidebarProps) {
 
       {/* Footer */}
       <div className="sidebar-footer">
-        <div className="sidebar-footer-version">IAEP Platform · v1.0.0</div>
+        <div className="sidebar-footer-version">IAEP Platform Â· v1.0.0</div>
         <Link href="/" prefetch={false} className="sidebar-footer-link">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ width: 13, height: 13 }}>
             <polyline points="15 18 9 12 15 6" />
@@ -859,3 +901,4 @@ export default function Sidebar({ role }: SidebarProps) {
     </aside>
   );
 }
+

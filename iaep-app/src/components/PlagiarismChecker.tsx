@@ -34,7 +34,8 @@ export const PlagiarismChecker: React.FC<PlagiarismCheckerProps> = ({ initialTex
         const result = await ultimateAIAnalysis(text);
 
         console.log("[UltimateAI FULL OUTPUT]");
-console.log(result.rawContent);
+        console.log(result.rawContent);
+        setAiAnalysis(result.rawContent || "");
 
         if (onAnalysisComplete) {
           onAnalysisComplete(result);
@@ -521,6 +522,7 @@ console.log(result.rawContent);
       )}    </div>
   );
 };
+
 
 
 
