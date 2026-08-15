@@ -16,16 +16,13 @@ export default function Login() {
 
     try {
       const res = await loginUser(emailLower, password);
-      
       if (res.success && res.user) {
-        const role = emailLower === "detaksumut@gmail.com"
-          ? "super_admin"
-          : (res.user.role || "author");
-        document.cookie = `active_portal_role=${role}; path=/; max-age=2592000`;
-        document.cookie = `user_role=${role}; path=/; max-age=2592000`;
-        document.cookie = `user_name=${encodeURIComponent(res.user.full_name || 'User')}; path=/; max-age=2592000`;
-        
-        window.location.href = emailLower === "detaksumut@gmail.com" ? "/dashboard/admin" : getDashboardPath(role);
+        const role = res.user.role || "author";
+        document.cookie = `active_portal_role=${encodeURIComponent(role)}; path=/; max-age=2592000`;
+        document.cookie = `user_role=${encodeURIComponent(role)}; path=/; max-age=2592000`;
+        document.cookie = `user_name=${encodeURIComponent(res.user.full_name || "User")}; path=/; max-age=2592000`;
+
+        window.location.href = getDashboardPath(role);
         return;
       } else {
         alert(res.error || "Email atau password salah.");
