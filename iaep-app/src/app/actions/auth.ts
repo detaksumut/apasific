@@ -1,3 +1,4 @@
+import { verifyPassword } from "@/utils/password";
 "use server";
 
 import fs from 'fs';
@@ -243,7 +244,7 @@ export async function loginUser(email: string, password?: string): Promise<{ suc
     // If real login fails (user only in JSON, not in Supabase Auth), we migrate them to REAL Auth!
     if (authError || !authData?.user) {
         // SECURITY FIX: Verify password matches JSON before migrating/falling back!
-        if (localMatchedUser.password !== passwordTrimmed) {
+        if (!verifyPassword(passwordTrimmed, localMatchedUser.password)) {
            return { success: false, error: "Email atau password salah." };
         }
 
