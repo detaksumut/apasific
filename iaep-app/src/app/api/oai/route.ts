@@ -100,9 +100,9 @@ export async function GET(req: Request) {
 
             // Single Source of Truth: query from article_authors
             let query = supabase.from('submissions')
-                .select('*, article_authors(*, profiles:author_id(full_name)), profiles:author_id(full_name), journals:journal_id(name)')
+                .select('*, article_authors(*, profiles:author_id(full_name)), journals:journal_id(name)')
                 .eq('status', 'Published')
-                .order('updated_at', { ascending: false });
+                .order('created_at', { ascending: false });
 
             if (set) {
                 query = query.eq('journal_id', set);
@@ -114,8 +114,14 @@ export async function GET(req: Request) {
             if (untilParam) (query as any) = query.lte('published_at', untilParam.length === 10 ? untilParam + 'T23:59:59Z' : untilParam);
 
             const { data: records, error } = await query;
-            
-            if (error || !records || records.length === 0) {
+            if (error) {
+                console.error('[OAI] SUPABASE QUERY ERROR:', JSON.stringify(error));
+                xml += `\n  <error code="internalServerError">${escapeXml(error.message || 'Database query failed')}</error>\n</OAI-PMH>`;
+                return new NextResponse(xml, { headers: { 'Content-Type': 'text/xml' } });
+            }
+
+            if (!records || records.length === 0) {
+                console.error('[OAI] QUERY SUCCESS BUT ZERO RECORDS');
                 xml += `\n  <error code="noRecordsMatch">No matching records found</error>\n</OAI-PMH>`;
                 return new NextResponse(xml, { headers: { 'Content-Type': 'text/xml' } });
             }
@@ -232,7 +238,7 @@ ${stablePdfUrl ? `          <dc:identifier>${escapeXml(stablePdfUrl)}</dc:identi
             const uuid = idMatch[1];
             // Single Source of Truth: query from article_authors
             const { data: record, error } = await supabase.from('submissions')
-                .select('*, article_authors(*, profiles:author_id(full_name)), profiles:author_id(full_name), journals:journal_id(name)')
+                .select('*, article_authors(*, profiles:author_id(full_name)), journals:journal_id(name)')
                 .eq('id', uuid)
                 .eq('status', 'Published')
                 .single();
