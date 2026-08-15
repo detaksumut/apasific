@@ -59,7 +59,7 @@ export async function GET(req: Request) {
     <repositoryName>APASIFIC Journals Repository</repositoryName>
     <baseURL>${baseUrl}</baseURL>
     <protocolVersion>2.0</protocolVersion>
-    <adminEmail>admin@apasific.com</adminEmail>
+    <adminEmail>admin@apasific.org</adminEmail>
     <earliestDatestamp>2024-01-01T00:00:00Z</earliestDatestamp>
     <deletedRecord>no</deletedRecord>
     <granularity>YYYY-MM-DDThh:mm:ssZ</granularity>
@@ -100,7 +100,7 @@ export async function GET(req: Request) {
 
             // Single Source of Truth: query from article_authors
             let query = supabase.from('submissions')
-                .select('*, article_authors(*), profiles:author_id(full_name), journals:journal_id(name)')
+                .select('*, article_authors(*, profiles:author_id(full_name)), profiles:author_id(full_name), journals:journal_id(name)')
                 .eq('status', 'Published')
                 .order('updated_at', { ascending: false });
 
@@ -147,7 +147,7 @@ export async function GET(req: Request) {
 
                     const sortedAuthors = [...authorsList]
                         .sort((a, b) => (a.author_order || 0) - (b.author_order || 0))
-                        .map((a: any) => a.full_name)
+                        .map((a: any) => a.full_name || a.profiles?.full_name || '')
                         .filter(Boolean);
 
                     const doiValue = cleanDoi(record.doi);
@@ -164,14 +164,14 @@ export async function GET(req: Request) {
             xmlns:dc="http://purl.org/dc/elements/1.1/"
             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
             xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
-          <dc:title>${escapeXml(record.title)}</dc:title>`;
+          <dc:title>${escapeXml(String(record.title || '').replace(/^\s*\[[^\]]+\]\s*/i, '').trim())}</dc:title>`;
                     
                     for (const author of sortedAuthors) {
                         xml += `\n          <dc:creator>${escapeXml(author)}</dc:creator>`;
                     }
                     
                     if (record.keywords) {
-                        const kws = record.keywords.split(',').map((k: string) => k.trim());
+                        const kws = record.keywords.split(',').map((k: string) => k.replace(/^\s*\[[^\]]+\]\s*/i, '').trim()).filter(Boolean);
                         for (const kw of kws) {
                             if (kw) xml += `\n          <dc:subject>${escapeXml(kw)}</dc:subject>`;
                         }
@@ -184,6 +184,7 @@ export async function GET(req: Request) {
           <dc:type>info:eu-repo/semantics/article</dc:type>
           <dc:format>application/pdf</dc:format>
           <dc:identifier>${escapeXml(`${url.protocol}//${url.host}/article/${record.id}`)}</dc:identifier>
+          ${(record.file_url_galley || record.file_url) ? `<dc:identifier>${escapeXml(`${url.protocol}//${url.host}/api/article/${record.id}/pdf`)}</dc:identifier>` : ''}
 ${stablePdfUrl ? `          <dc:identifier>${escapeXml(stablePdfUrl)}</dc:identifier>` : ''}
           <dc:rights>info:eu-repo/semantics/openAccess</dc:rights>
           <dc:rights>${escapeXml(record.license || 'CC BY 4.0')}</dc:rights>`;
@@ -231,7 +232,7 @@ ${stablePdfUrl ? `          <dc:identifier>${escapeXml(stablePdfUrl)}</dc:identi
             const uuid = idMatch[1];
             // Single Source of Truth: query from article_authors
             const { data: record, error } = await supabase.from('submissions')
-                .select('*, article_authors(*), profiles:author_id(full_name), journals:journal_id(name)')
+                .select('*, article_authors(*, profiles:author_id(full_name)), profiles:author_id(full_name), journals:journal_id(name)')
                 .eq('id', uuid)
                 .eq('status', 'Published')
                 .single();
@@ -253,7 +254,7 @@ ${stablePdfUrl ? `          <dc:identifier>${escapeXml(stablePdfUrl)}</dc:identi
 
             const sortedAuthors = [...authorsList]
                 .sort((a, b) => (a.author_order || 0) - (b.author_order || 0))
-                .map((a: any) => a.full_name)
+                .map((a: any) => a.full_name || a.profiles?.full_name || '')
                 .filter(Boolean);
             
             const journalName = record.journals?.name || record.journal_id || 'APASIFIC';
@@ -275,14 +276,14 @@ ${stablePdfUrl ? `          <dc:identifier>${escapeXml(stablePdfUrl)}</dc:identi
             xmlns:dc="http://purl.org/dc/elements/1.1/"
             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
             xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
-          <dc:title>${escapeXml(record.title)}</dc:title>`;
+          <dc:title>${escapeXml(String(record.title || '').replace(/^\s*\[[^\]]+\]\s*/i, '').trim())}</dc:title>`;
             
             for (const author of sortedAuthors) {
                 xml += `\n          <dc:creator>${escapeXml(author)}</dc:creator>`;
             }
             
             if (record.keywords) {
-                const kws = record.keywords.split(',').map((k: string) => k.trim());
+                const kws = record.keywords.split(',').map((k: string) => k.replace(/^\s*\[[^\]]+\]\s*/i, '').trim()).filter(Boolean);
                 for (const kw of kws) {
                     if (kw) xml += `\n          <dc:subject>${escapeXml(kw)}</dc:subject>`;
                 }
@@ -295,6 +296,7 @@ ${stablePdfUrl ? `          <dc:identifier>${escapeXml(stablePdfUrl)}</dc:identi
           <dc:type>info:eu-repo/semantics/article</dc:type>
           <dc:format>application/pdf</dc:format>
           <dc:identifier>${escapeXml(`${url.protocol}//${url.host}/article/${record.id}`)}</dc:identifier>
+          ${(record.file_url_galley || record.file_url) ? `<dc:identifier>${escapeXml(`${url.protocol}//${url.host}/api/article/${record.id}/pdf`)}</dc:identifier>` : ''}
           <dc:rights>info:eu-repo/semantics/openAccess</dc:rights>
           <dc:rights>${escapeXml(record.license || 'CC BY 4.0')}</dc:rights>`;
 
