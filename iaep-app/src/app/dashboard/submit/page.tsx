@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 import React, { useState, useEffect } from 'react';
 import { submitManuscript } from '@/app/actions/submitManuscript';
 import { createClient } from '@/utils/supabase/client';
@@ -107,6 +107,7 @@ export default function AuthorSubmit() {
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState('');
   const [isTranslating, setIsTranslating] = useState(false);
+  const [pendingAiAnalysis, setPendingAiAnalysis] = useState<any>(null);
 
   const [formData, setFormData] = useState({
     journal_id: '5f6bca5a-39e2-442b-a2e0-5b3f35614b4e',
@@ -273,6 +274,11 @@ export default function AuthorSubmit() {
     
     form.append('journalId', formData.journal_id);
     form.append('title', finalTitle);
+
+    if (pendingAiAnalysis) {
+      form.append('aiResult', JSON.stringify(pendingAiAnalysis));
+      console.log('[UltimateAI] Hasil dikirim bersama submission:', pendingAiAnalysis);
+    }
     form.append('phone', formData.phone);
     
     const metadataObj = {
@@ -348,7 +354,12 @@ export default function AuthorSubmit() {
           </div>
         </div>
         <div className="p-4">
-          <PlagiarismChecker />
+          <PlagiarismChecker
+            onAnalysisComplete={(result) => {
+              setPendingAiAnalysis(result);
+              console.log('[UltimateAI] Hasil diterima oleh Submit:', result);
+            }}
+          />
         </div>
       </div>
 
@@ -672,3 +683,4 @@ export default function AuthorSubmit() {
     </div>
   );
 }
+

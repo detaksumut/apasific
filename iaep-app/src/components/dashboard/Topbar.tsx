@@ -1,26 +1,59 @@
 "use client";
 import { useState } from "react";
+import { usePathname } from "next/navigation";
 
+function getProductionBadge(pathname: string): string | null {
+  if (pathname.startsWith("/dashboard/production/layout")) {
+    return "Layout Editor";
+  }
+
+  if (pathname.startsWith("/dashboard/production/cover")) {
+    return "Cover Editor";
+  }
+
+  if (pathname.startsWith("/dashboard/production/publish")) {
+    return "Publish Editor";
+  }
+
+  if (pathname.startsWith("/dashboard/production/supervisor")) {
+    return "Supervisor";
+  }
+
+  return null;
+}
 export default function Topbar({ userName, role }: { userName: string; role: string }) {
   const [showNotif, setShowNotif] = useState(false);
+  const pathname = usePathname();
 
   const roleLabel: Record<string, string> = {
     admin: "Administrator",
+    ADMIN: "Administrator",
+    SUPER_ADMIN: "Administrator",
     editor: "Editor",
+    EDITOR: "Editor",
     reviewer: "Reviewer",
+    REVIEWER: "Reviewer",
     author: "Penulis",
     member: "Anggota",
   };
-
   const roleColor: Record<string, string> = {
     admin: "#f59e0b",
     editor: "#60a5fa",
     reviewer: "#34d399",
     author: "#c9a84c",
+    supervisor: "#a78bfa",
+    SUPERVISOR: "#a78bfa",
+    PRODUCTION: "#a78bfa",
+    ADMIN: "#f59e0b",
+    SUPER_ADMIN: "#f59e0b",
+    EDITOR: "#60a5fa",
+    REVIEWER: "#34d399",
     member: "#a78bfa",
   };
 
   const initials = userName.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2);
+  const productionBadge = getProductionBadge(pathname);
+  const badgeLabel = productionBadge || roleLabel[role] || role;
   const color = roleColor[role] || "#c9a84c";
 
   const notifications = [
@@ -92,7 +125,7 @@ export default function Topbar({ userName, role }: { userName: string; role: str
           <div className="topbar-user-info">
             <div className="topbar-user-name">{userName}</div>
             <div className="topbar-user-role" style={{ color }}>
-              {roleLabel[role] || role}
+              {badgeLabel}
             </div>
           </div>
           <div className="topbar-avatar" style={{ background: `${color}22`, border: `1.5px solid ${color}55`, color }}>
@@ -392,3 +425,9 @@ export default function Topbar({ userName, role }: { userName: string; role: str
     </header>
   );
 }
+
+
+
+
+
+

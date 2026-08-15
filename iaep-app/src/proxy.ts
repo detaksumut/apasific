@@ -1,5 +1,4 @@
-﻿import { NextResponse } from 'next/server';
-import type { NextRequest } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { updateSession } from '@/utils/supabase/middleware';
 
 /**
@@ -17,7 +16,14 @@ export async function proxy(request: NextRequest) {
   }
 
   // 2. Global Security Headers Injection & Supabase Auth
-  const response = await updateSession(request);
+  const requestHeaders = new Headers(request.headers);
+requestHeaders.set("x-dashboard-path", request.nextUrl.pathname);
+
+const requestWithPath = new NextRequest(request, {
+  headers: requestHeaders,
+});
+
+const response = await updateSession(requestWithPath);
   response.headers.set('X-Edge-Region', (request as any).geo?.region || 'unknown');
   response.headers.set('X-Content-Type-Options', 'nosniff');
   
@@ -40,5 +46,7 @@ return response;
 export const config = {
   matcher: ['/((?!api|_next/static|_next/image|favicon.ico).*)'],
 };
+
+
 
 

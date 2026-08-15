@@ -1,17 +1,35 @@
-import { NextResponse } from 'next/server';
+﻿import { NextResponse } from 'next/server';
 import { IdentityRepository } from '@/repositories/IdentityRepository';
+import { IdentityResolver } from '@/services/identity/IdentityResolver';
 
-export async function GET(request: Request) {
-  try {
-    const email = 'kadinmedan1@gmail.com';
-    const profile = await IdentityRepository.findIdentityByEmail(email);
-    const system = await IdentityRepository.findIdentityFromSystemSettings(email);
-    
+export async function GET() {
+  const email = 'danil@apasific.org';
+
+  const profile = await IdentityRepository.findIdentityByEmail(email);
+  const system = await IdentityRepository.findIdentityFromSystemSettings(email);
+
+  if (!profile) {
     return NextResponse.json({
+      email,
       profile,
-      system
+      system,
+      error: 'Profile not found'
     });
-  } catch (e: any) {
-    return NextResponse.json({ error: e.message, stack: e.stack });
   }
+
+  const sessionUser = {
+    id: profile.id,
+    email,
+    full_name: profile.full_name,
+    app_metadata: {}
+  };
+
+  const identity = await IdentityResolver.resolve(sessionUser);
+
+  return NextResponse.json({
+    email,
+    profile,
+    system,
+    resolver: identity
+  });
 }

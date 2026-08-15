@@ -1,4 +1,5 @@
-import { createClient } from "@/utils/supabase/server";
+﻿import { createClient } from "@/utils/supabase/server";
+import { getCurrentUser } from "@/app/actions/auth";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import DeleteSubmissionButton from "@/components/DeleteSubmissionButton";
@@ -7,29 +8,8 @@ import { cookies } from "next/headers";
 
 export default async function SupervisorDashboard() {
   const supabase = await createClient();
-  let { data: { user } } = await supabase.auth.getUser();
+  const user = await getCurrentUser();
 
-  if (!user) {
-    const cookieStore = await cookies();
-    const fbToken = cookieStore.get('firebase_session')?.value;
-    const fallbackUserId = cookieStore.get('supabase_fallback_session')?.value;
-    
-    if (fbToken || fallbackUserId) {
-        try {
-            if (fbToken) {
-               const payloadBase64 = fbToken.split('.')[1];
-               const payload = JSON.parse(Buffer.from(payloadBase64, 'base64').toString());
-               user = { id: payload.uid, email: "user@firebase.local" } as any;
-            }
-        } catch (e) {
-            console.error("Firebase token verification failed");
-        }
-        
-        if (!user && fallbackUserId) {
-           user = { id: fallbackUserId, email: "user@fallback.local" } as any;
-        }
-    }
-  }
   if (!user) redirect("/auth/login");
 
   let pendingArticles: any[] = [];
@@ -81,8 +61,8 @@ export default async function SupervisorDashboard() {
               
               if (subs && subs.length > 0) {
                   subId = subs[0].id;
-                  // Pemulihan administratif eksplisit (downgrade Production → Review)
-                  // → harus lewat lifecycle service dengan force + alasan tercatat.
+                  // Pemulihan administratif eksplisit (downgrade Production â†’ Review)
+                  // â†’ harus lewat lifecycle service dengan force + alasan tercatat.
                   const { SubmissionLifecycleService } = await import('@/services/SubmissionLifecycleService');
                   await SubmissionLifecycleService.transitionTo(supabaseAdmin, subId, {
                       stage: 'Review',
@@ -224,7 +204,7 @@ export default async function SupervisorDashboard() {
           <div className="p-6 border-b border-zinc-800/80 flex items-center justify-between">
             <h2 className="text-lg font-bold text-white flex items-center gap-2">
               <CheckCircle2 className="w-5 h-5 text-blue-400" />
-              Riwayat — Sudah Dikembalikan ke Editor
+              Riwayat â€” Sudah Dikembalikan ke Editor
               <span className="ml-2 px-2 py-0.5 bg-blue-500/10 text-blue-400 border border-blue-500/20 text-xs rounded-full font-semibold">{completedArticles.length}</span>
             </h2>
           </div>
@@ -238,7 +218,7 @@ export default async function SupervisorDashboard() {
                         {article.journals?.name || "Jurnal"}
                       </span>
                       <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/20">
-                        ✓ Produksi Selesai
+                        âœ“ Produksi Selesai
                       </span>
                     </div>
                     <h3 className="text-lg font-semibold text-zinc-400 line-clamp-1">
@@ -262,3 +242,5 @@ export default async function SupervisorDashboard() {
     </div>
   );
 }
+
+

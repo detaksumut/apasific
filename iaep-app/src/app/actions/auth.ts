@@ -1,6 +1,8 @@
 import { verifyPassword } from "@/utils/password";
 "use server";
 
+import { IdentityRepository } from "@/repositories/IdentityRepository";
+
 import fs from 'fs';
 import path from 'path';
 
@@ -201,23 +203,10 @@ export async function loginUser(email: string, password?: string): Promise<{ suc
     } catch(e) {
        console.error("Error fetching users from Supabase for login:", e);
     }
-
-    // Master / Super Admin Account Mapping
-    if ((emailLower === "detaksumut@gmail.com" || emailLower === "detaksumtu@gmail.com") && passwordTrimmed === "Mikr@210669Mpi") {
-        emailLower = "kadinmedan1@gmail.com"; // Supabase has this email for the super admin
-    }
-
     let localMatchedUser = localUsers.find((u: any) => u.email.toLowerCase() === emailLower);
     
     // Only force Super Admin role if they actually used the Super Admin password!
     // Otherwise, let them login as the normal user defined in JSON (e.g. Editor with password mikrosistem)
-    if (emailLower === "kadinmedan1@gmail.com" && passwordTrimmed === "Mikr@210669Mpi") {
-        localMatchedUser = {
-            full_name: "Super Admin",
-            role: "admin",
-            password: "Mikr@210669Mpi"
-        };
-    }
     
     if (!localMatchedUser) {
         localMatchedUser = { full_name: "User", role: "author" };
@@ -261,10 +250,18 @@ export async function loginUser(email: string, password?: string): Promise<{ suc
                 const { cookies } = await import('next/headers');
                 const cookieStore = await cookies();
                 const fallbackId = localMatchedUser.id?.toString() || `json-${Date.now()}`;
-                const fallbackRole = localMatchedUser.role || 'author';
+                const registryIdentity = await IdentityRepository.findIdentityFromSystemSettings(emailLower);
+                const fallbackRole = registryIdentity?.role || null;
                 const fallbackName = localMatchedUser.full_name || 'User';
 
                 cookieStore.set('supabase_fallback_session', fallbackId, {
+                    httpOnly: true,
+                    secure: process.env.NODE_ENV === 'production',
+                    maxAge: 60 * 60 * 24 * 7,
+                    path: '/'
+                });
+
+                cookieStore.set('fallback_user_email', emailLower, {
                     httpOnly: true,
                     secure: process.env.NODE_ENV === 'production',
                     maxAge: 60 * 60 * 24 * 7,
@@ -281,12 +278,14 @@ export async function loginUser(email: string, password?: string): Promise<{ suc
                 // Session cookie completeness — approved addition per CR-002
                 // Mirrors client-side cookies set by login page, but server-side
                 // so DashboardLayout (server component) sees them before render.
-                cookieStore.set('user_role', fallbackRole, {
+                if (fallbackRole) {
+                    cookieStore.set('user_role', fallbackRole, {
                     httpOnly: false,
                     secure: process.env.NODE_ENV === 'production',
                     maxAge: 60 * 60 * 24 * 7,
                     path: '/'
                 });
+                }
                 cookieStore.set('user_name', encodeURIComponent(fallbackName), {
                     httpOnly: false,
                     secure: process.env.NODE_ENV === 'production',
@@ -344,14 +343,17 @@ export async function loginUser(email: string, password?: string): Promise<{ suc
 
             // Session cookie completeness — same contract as null-guard (CR-002/CR-003)
             // Ensures DashboardLayout (server component) reads correct role/name before render.
-            const fbRole = localMatchedUser.role || 'author';
+            const registryIdentity = await IdentityRepository.findIdentityFromSystemSettings(emailLower);
+            const fbRole = registryIdentity?.role || null;
             const fbName = localMatchedUser.full_name || 'User';
-            cookieStore.set('user_role', fbRole, {
+            if (fbRole) {
+                cookieStore.set('user_role', fbRole, {
                 httpOnly: false,
                 secure: process.env.NODE_ENV === 'production',
                 maxAge: 60 * 60 * 24 * 7,
                 path: '/'
             });
+            }
             cookieStore.set('user_name', encodeURIComponent(fbName), {
                 httpOnly: false,
                 secure: process.env.NODE_ENV === 'production',
@@ -376,9 +378,17 @@ export async function loginUser(email: string, password?: string): Promise<{ suc
                 const { cookies } = await import('next/headers');
                 const cookieStore = await cookies();
                 const fallbackId = localMatchedUser.id?.toString() || `json-${Date.now()}`;
-                const fallbackRole = localMatchedUser.role || 'author';
+                const registryIdentity = await IdentityRepository.findIdentityFromSystemSettings(emailLower);
+                const fallbackRole = registryIdentity?.role || null;
                 const fallbackName = localMatchedUser.full_name || 'User';
                 cookieStore.set('supabase_fallback_session', fallbackId, {
+                    httpOnly: true,
+                    secure: process.env.NODE_ENV === 'production',
+                    maxAge: 60 * 60 * 24 * 7,
+                    path: '/'
+                });
+
+                cookieStore.set('fallback_user_email', emailLower, {
                     httpOnly: true,
                     secure: process.env.NODE_ENV === 'production',
                     maxAge: 60 * 60 * 24 * 7,
@@ -392,12 +402,14 @@ export async function loginUser(email: string, password?: string): Promise<{ suc
                         path: '/'
                     });
                 }
-                cookieStore.set('user_role', fallbackRole, {
+                if (fallbackRole) {
+                    cookieStore.set('user_role', fallbackRole, {
                     httpOnly: false,
                     secure: process.env.NODE_ENV === 'production',
                     maxAge: 60 * 60 * 24 * 7,
                     path: '/'
                 });
+                }
                 cookieStore.set('user_name', encodeURIComponent(fallbackName), {
                     httpOnly: false,
                     secure: process.env.NODE_ENV === 'production',
@@ -424,8 +436,8 @@ export async function loginUser(email: string, password?: string): Promise<{ suc
     }
 
     if (authData && authData.user) {
-       // Fetch role from profiles to return to client
-       const { data: profile } = await supabaseAdmin.from('profiles').select('role, full_name').eq('id', authData.user.id).single();
+       // Runtime role comes from the production identity registry.
+       const registryIdentity = authData.user.email ? await IdentityRepository.findIdentityFromSystemSettings(authData.user.email) : null;
        
        // Also set a backup cookie just in case
        const { cookies } = await import('next/headers');
@@ -442,8 +454,8 @@ export async function loginUser(email: string, password?: string): Promise<{ suc
          user: {
            id: authData.user.id,
            email: authData.user.email,
-           full_name: profile?.full_name || authData.user.user_metadata?.full_name,
-           role: profile?.role || 'author'
+           full_name: registryIdentity?.full_name || authData.user.user_metadata?.full_name,
+           role: registryIdentity?.role || null
          }
        };
     }
@@ -501,3 +513,21 @@ export async function getCurrentUser() {
   }
   return user;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

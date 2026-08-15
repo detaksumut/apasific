@@ -15,6 +15,42 @@ export default function Sidebar({ role }: SidebarProps) {
       label: "Dashboard",
       path: (() => {
         const r = (role || '').toLowerCase();
+
+        // Preserve the current operational portal when role metadata
+        // is unavailable in the presentation layer.
+        if (pathname.startsWith('/dashboard/editor')) {
+          return '/dashboard/editor';
+        }
+
+        if (pathname.startsWith('/dashboard/reviews')) {
+          return '/dashboard/reviews';
+        }
+
+        if (pathname.startsWith('/dashboard/production/layout')) {
+          return '/dashboard/production/layout';
+        }
+
+        if (pathname.startsWith('/dashboard/production/cover')) {
+          return '/dashboard/production/cover';
+        }
+
+        if (pathname.startsWith('/dashboard/production/publish')) {
+          return '/dashboard/production/publish';
+        }
+
+        if (pathname.startsWith('/dashboard/production/supervisor')) {
+          return '/dashboard/production/supervisor';
+        }
+
+        if (pathname.startsWith('/dashboard/admin')) {
+          return '/dashboard/admin';
+        }
+
+        if (pathname.startsWith('/dashboard/co-admin')) {
+          return '/dashboard/co-admin/naskah-masuk';
+        }
+
+        // Canonical role routing when role is available.
         if (r === 'editor') return '/dashboard/editor';
         if (r === 'reviewer') return '/dashboard/reviews';
         if (r === 'admin editor') return '/dashboard/production/supervisor';
@@ -23,6 +59,7 @@ export default function Sidebar({ role }: SidebarProps) {
         if (r === 'cover editor') return '/dashboard/production/cover';
         if (r === 'publish editor') return '/dashboard/production/publish';
         if (r === 'co_admin' || r === 'co-admin') return '/dashboard/co-admin/naskah-masuk';
+
         return '/dashboard';
       })(),
       icon: (
@@ -202,6 +239,48 @@ export default function Sidebar({ role }: SidebarProps) {
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
           <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
           <polyline points="22 4 12 14.01 9 11.01" />
+        </svg>
+      ),
+    },
+    {
+      label: "Submisi Naskah",
+      path: "/dashboard/submit",
+      icon: (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M12 5v14" />
+          <path d="M5 12h14" />
+        </svg>
+      ),
+    },
+    {
+      label: "Lacak Naskah",
+      path: "/dashboard/track",
+      icon: (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+          <circle cx="11" cy="11" r="7" />
+          <path d="m20 20-4-4" />
+        </svg>
+      ),
+    },
+    {
+      label: "Acceptance Letter",
+      path: "/dashboard/loa",
+      icon: (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+          <polyline points="14 2 14 8 20 8" />
+          <line x1="16" y1="13" x2="8" y2="13" />
+          <line x1="16" y1="17" x2="8" y2="17" />
+        </svg>
+      ),
+    },
+    {
+      label: "Sertifikat Publikasi",
+      path: "/dashboard/certificates",
+      icon: (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+          <circle cx="12" cy="8" r="7" />
+          <polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88" />
         </svg>
       ),
     },
@@ -444,31 +523,80 @@ export default function Sidebar({ role }: SidebarProps) {
 
   const rawRole = role ? role.toLowerCase() : "";
   const normalizedRole = normalizeRole(role) || rawRole;
+
+  console.log(
+    "[SIDEBAR-RBAC]",
+    "incomingRole=", role,
+    "rawRole=", rawRole,
+    "normalizedRole=", normalizedRole,
+    "editorLinksCount=", editorLinks.length
+  );
   const isCoAdminRoleRaw = rawRole === "co_admin" || rawRole === "co-admin";
 
   const getRoleLinks = () => {
-    // Co-Admin must be checked before normalizeRole (co_admin → ADMIN)
-    if (isCoAdminRoleRaw) return coAdminLinks;
+    /*
+     * ROLE MENU ISOLATION
+     *
+     * Author   -> authorLinks
+     * Reviewer -> reviewerLinks
+     * Editor   -> editorLinks
+     * Admin    -> adminLinks
+     *
+     * Portal pathname fallback hanya menentukan komposisi PRESENTATION.
+     * Tidak memberikan authorization baru.
+     */
+
+    // Existing Reviewer portal.
+    if (pathname.startsWith("/dashboard/reviews")) {
+      return reviewerLinks;
+    }
+
+    // Existing Editor portal.
+    if (pathname.startsWith("/dashboard/editor")) {
+      return editorLinks;
+    }
+
+    if (isCoAdminRoleRaw) {
+      return coAdminLinks;
+    }
+
     switch (normalizedRole) {
       case "author":
-      case "AUTHOR":       return authorLinks;
+      case "AUTHOR":
+        return authorLinks;
+
       case "reviewer":
-      case "REVIEWER":     return reviewerLinks;
+      case "REVIEWER":
+        return reviewerLinks;
+
       case "editor":
-      case "EDITOR":       return [...editorLinks, ...reviewerLinks];
+      case "EDITOR":
+        return editorLinks;
+
       case "admin":
       case "ADMIN":
-      case "SUPER_ADMIN":  return [...adminLinks, ...reviewerLinks];
-      default:             return [];
+      case "SUPER_ADMIN":
+        return adminLinks;
+
+      case "SUPERVISOR":
+        return productionLinks.filter(
+          (link) => link.label === "Supervisor"
+        );
+
+      case "PRODUCTION":
+        return [];
+
+      default:
+        return [];
     }
   };
-
   const roleLabelMap: Record<string, string> = {
     "SUPER_ADMIN": "Administrasi",
     "ADMIN":       "Administrasi",
     "EDITOR":      "Editorial",
     "REVIEWER":    "Reviewer",
     "PRODUCTION":  "Produksi",
+    "SUPERVISOR": "Supervisor",
     admin:    "Administrasi",
     co_admin: "Co-Admin",
     "co-admin": "Co-Admin",
@@ -528,7 +656,13 @@ export default function Sidebar({ role }: SidebarProps) {
       {/* Role Badge (Static - No longer clickable) */}
       <div className="sidebar-role-badge" style={{ "--role-color": roleColorMap[normalizedRole] || "#c9a84c" } as React.CSSProperties}>
         <div className="sidebar-role-dot" />
-        <span style={{ flex: 1 }}>{roleLabelMap[normalizedRole] || normalizedRole} Portal</span>
+        <span style={{ flex: 1 }}>{(() => {
+          if (pathname === "/dashboard/production/layout") return "Layout Editor Portal";
+          if (pathname === "/dashboard/production/cover") return "Cover Editor Portal";
+          if (pathname === "/dashboard/production/publish") return "Publish Editor Portal";
+          if (pathname === "/dashboard/production/supervisor") return "Supervisor Portal";
+          return (roleLabelMap[normalizedRole] || normalizedRole) + " Portal";
+        })()}</span>
       </div>
 
       {/* Nav */}
@@ -536,25 +670,37 @@ export default function Sidebar({ role }: SidebarProps) {
         <div className="sidebar-section-label">Utama</div>
         {commonLinks.map(link => <NavLink key={link.path} link={link} />)}
 
+        {/* MENU SUPERVISOR - Dedicated supervisor work record */}
+        {pathname === "/dashboard/production/supervisor" && (
+          <>
+            <div className="sidebar-section-label" style={{ marginTop: 24 }}>
+              Menu Supervisor
+            </div>
+            <NavLink
+              link={{
+                label: "Supervisor",
+                path: "/dashboard/production/supervisor",
+                icon: (
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M12 3l8 4v5c0 5-3.5 8.5-8 9-4.5-.5-8-4-8-9V7l8-4z" />
+                    <path d="M9 12l2 2 4-4" />
+                  </svg>
+                )
+              }}
+            />
+          </>
+        )}
         {getRoleLinks().length > 0 && (
           <>
             <div className="sidebar-section-label" style={{ marginTop: 24 }}>
               Menu {roleLabelMap[normalizedRole] || normalizedRole}
             </div>
-            {getRoleLinks().map(link => <NavLink key={link.path} link={link} />)}
-          </>
-        )}
-
-        {/* MENU AUTHOR - Full author capability for Reviewer role */}
-        {(normalizedRole === "reviewer" || normalizedRole === "REVIEWER") && (
-          <>
-            <div className="sidebar-section-label" style={{ marginTop: 24 }}>Menu Author</div>
-            {authorLinks.map(link => <NavLink key={`reviewer-author-${link.path}`} link={link} />)}
+            {getRoleLinks().map((link, index) => <NavLink key={`${link.path}-${index}`} link={link} />)}
           </>
         )}
 
         {/* MENU SUBMISSION - Unified Submission Capability for Operational Portals */}
-        {(normalizedRole === "editor" || normalizedRole === "co-admin" || normalizedRole === "PRODUCTION" || rawRole === "supervisor" || normalizedRole === "co_admin" || rawRole === "co-admin" || rawRole === "co_admin") && (
+        {(normalizedRole === "co-admin" || normalizedRole === "PRODUCTION" || normalizedRole === "co_admin" || rawRole === "co-admin" || rawRole === "co_admin") && (
           <>
             <div className="sidebar-section-label" style={{ marginTop: 24 }}>MENU SUBMISSION</div>
             <NavLink 
@@ -627,15 +773,7 @@ export default function Sidebar({ role }: SidebarProps) {
           </>
         )}
 
-        {/* Area Penulis — only visible for AUTHOR role; hidden for ADMIN/SUPER_ADMIN and other staff */}
-        {normalizedRole === "author" && (
-          <>
-            <div className="sidebar-section-label" style={{ marginTop: 24 }}>Area Penulis</div>
-            {authorLinks.map(link => <NavLink key={`author-${link.path}`} link={link} />)}
-          </>
-        )}
-
-        {(normalizedRole === "SUPER_ADMIN" || normalizedRole === "PRODUCTION" || rawRole === "supervisor") && (
+        {(normalizedRole === "SUPER_ADMIN" || normalizedRole === "PRODUCTION") && (
           <>
             <div className="sidebar-section-label" style={{ marginTop: 24 }}>Menu Produksi</div>
             {productionLinks.filter((link) => {
@@ -648,7 +786,7 @@ export default function Sidebar({ role }: SidebarProps) {
                  if (rawRole === "admin editor" && link.label === "Supervisor") return true;
                  return false;
                }
-               if (rawRole === "supervisor" && link.label === "Supervisor") return true;
+               return false;
                return false;
             }).map((link) => (
               <NavLink key={link.path} link={link} />
@@ -859,3 +997,32 @@ export default function Sidebar({ role }: SidebarProps) {
     </aside>
   );
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

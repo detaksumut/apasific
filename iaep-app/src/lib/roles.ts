@@ -17,7 +17,8 @@ export type NormalizedRole =
   | 'ADMIN'
   | 'EDITOR'
   | 'REVIEWER'
-  | 'PRODUCTION';
+  | 'PRODUCTION'
+  | 'SUPERVISOR';
 
 /** Raw (lowercased) role string → normalized role. */
 const ROLE_MAP: Record<string, NormalizedRole> = {
@@ -31,7 +32,8 @@ const ROLE_MAP: Record<string, NormalizedRole> = {
   'layout editor': 'PRODUCTION',
   'cover editor': 'PRODUCTION',
   'publish editor': 'PRODUCTION',
-  'admin editor': 'PRODUCTION',
+  'admin editor': 'SUPERVISOR',
+  'supervisor': 'SUPERVISOR',
 };
 
 /**
@@ -82,6 +84,8 @@ export function getDashboardPath(raw: string | null | undefined): string {
       return '/dashboard/editor';
     case 'REVIEWER':
       return '/dashboard/reviews';
+    case 'SUPERVISOR':
+      return '/dashboard/production/supervisor';
     case 'PRODUCTION':
       return getProductionPath(raw);
     default:
@@ -100,3 +104,9 @@ export function isAdminRole(raw: string | null | undefined): boolean {
   const r = normalizeRole(raw);
   return r === 'ADMIN' || r === 'SUPER_ADMIN';
 }
+
+
+
+
+
+
