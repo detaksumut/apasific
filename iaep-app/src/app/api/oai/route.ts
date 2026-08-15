@@ -100,7 +100,7 @@ export async function GET(req: Request) {
 
             // Single Source of Truth: query from article_authors
             let query = supabase.from('submissions')
-                .select('*, article_authors(*, profiles:author_id(full_name)), journals:journal_id(name)')
+                .select('*, article_authors(*), journals:journal_id(name)')
                 .eq('status', 'Published')
                 .order('created_at', { ascending: false });
 
@@ -238,7 +238,7 @@ ${stablePdfUrl ? `          <dc:identifier>${escapeXml(stablePdfUrl)}</dc:identi
             const uuid = idMatch[1];
             // Single Source of Truth: query from article_authors
             const { data: record, error } = await supabase.from('submissions')
-                .select('*, article_authors(*, profiles:author_id(full_name)), journals:journal_id(name)')
+                .select('*, article_authors(*), journals:journal_id(name)')
                 .eq('id', uuid)
                 .eq('status', 'Published')
                 .single();
