@@ -151,6 +151,55 @@ async function getArticleData(id: string) {
   }
 }
 
+export async function generateMetadata(
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const { id } = await params;
+  const article = await getArticleData(id);
+
+  if (!article) {
+    return {
+      title: 'Artikel Tidak Ditemukan | APASIFIC'
+    };
+  }
+
+  const authors = (article.article_authors || [])
+    .map((author: any) => author.full_name)
+    .filter(Boolean);
+
+  const publicationDate =
+    article.published_at ||
+    article.created_at ||
+    '';
+
+  const pdfUrl = article.pdf_url
+    ? `https://www.apasific.org/api/article/${article.id}/pdf`
+    : '';
+
+  return {
+    title: article.title,
+    description: article.abstract || '',
+    authors: authors.map((name: string) => ({ name })),
+    alternates: {
+      canonical: `https://www.apasific.org/article/${article.id}`
+    },
+    other: {
+      citation_title: article.title,
+      citation_author: authors,
+      citation_publication_date: publicationDate
+        ? new Date(publicationDate).toISOString().split('T')[0]
+        : '',
+      citation_journal_title: article.journal || '',
+      citation_volume: article.volume || '',
+      citation_issue: article.issue || '',
+      citation_issn: article.issn || '',
+      citation_pdf_url: pdfUrl,
+      citation_doi: article.doi
+        ? article.doi.replace(/^https?:\/\/doi\.org\//i, '')
+        : ''
+    }
+  };
+}
 export default async function ArticlePaywallPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const article = await getArticleData(id);
