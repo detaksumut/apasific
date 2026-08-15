@@ -9,7 +9,8 @@
     "country": "Indonesia",
     "status": "Active",
     "joined": "11/25/2025 12:43:16",
-    "phone_number": "+6287886034909"
+    "phone_number": "+6287886034909",
+    "password": "scrypt$a61066300c322b34c6f18f00966b9d2f$c62494ee44f7fd480e319b75c9d888a0b86b316bbe8548c3e704d10c9450b521dd9a72830493bb121bcfbf475c6c86d7d46054d595c618d5649b4cb2a7ab6044"
   },
   {
     "id": "demo-user-1783883716362-0.8724951060206666",
@@ -21,7 +22,8 @@
     "country": "MALAYSIA",
     "status": "Active",
     "joined": "12/21/2025 10:13:59",
-    "phone_number": "+60166129626"
+    "phone_number": "+60166129626",
+    "password": "scrypt$a61066300c322b34c6f18f00966b9d2f$c62494ee44f7fd480e319b75c9d888a0b86b316bbe8548c3e704d10c9450b521dd9a72830493bb121bcfbf475c6c86d7d46054d595c618d5649b4cb2a7ab6044"
   },
   {
     "id": "demo-user-1783883716362-0.14664086345232652",
@@ -33,7 +35,8 @@
     "country": "MALAYSIA",
     "status": "Active",
     "joined": "12/22/2025 8:11:57",
-    "phone_number": "60124837913"
+    "phone_number": "60124837913",
+    "password": "scrypt$a61066300c322b34c6f18f00966b9d2f$c62494ee44f7fd480e319b75c9d888a0b86b316bbe8548c3e704d10c9450b521dd9a72830493bb121bcfbf475c6c86d7d46054d595c618d5649b4cb2a7ab6044"
   },
   {
     "id": "demo-user-1783883716362-0.44837719579154967",
@@ -45,7 +48,8 @@
     "country": "Malaysia",
     "status": "Active",
     "joined": "12/22/2025 8:25:51",
-    "phone_number": "+601111105076"
+    "phone_number": "+601111105076",
+    "password": "scrypt$a61066300c322b34c6f18f00966b9d2f$c62494ee44f7fd480e319b75c9d888a0b86b316bbe8548c3e704d10c9450b521dd9a72830493bb121bcfbf475c6c86d7d46054d595c618d5649b4cb2a7ab6044"
   },
   {
     "id": "demo-user-1783883716362-0.11619395145670042",
@@ -57,7 +61,8 @@
     "country": "Malaysia",
     "status": "Active",
     "joined": "12/22/2025 8:29:19",
-    "phone_number": "124015200"
+    "phone_number": "124015200",
+    "password": "scrypt$a61066300c322b34c6f18f00966b9d2f$c62494ee44f7fd480e319b75c9d888a0b86b316bbe8548c3e704d10c9450b521dd9a72830493bb121bcfbf475c6c86d7d46054d595c618d5649b4cb2a7ab6044"
   },
   {
     "id": "demo-user-1783883716362-0.10160221374152134",
@@ -69,7 +74,8 @@
     "country": "MALAYSIA",
     "status": "Active",
     "joined": "12/22/2025 8:30:11",
-    "phone_number": "+60195936932"
+    "phone_number": "+60195936932",
+    "password": "scrypt$a61066300c322b34c6f18f00966b9d2f$c62494ee44f7fd480e319b75c9d888a0b86b316bbe8548c3e704d10c9450b521dd9a72830493bb121bcfbf475c6c86d7d46054d595c618d5649b4cb2a7ab6044"
   },
   {
     "id": "demo-user-1783883716362-0.4562868417475303",
@@ -81,7 +87,8 @@
     "country": "MALAYSIA",
     "status": "Active",
     "joined": "12/22/2025 8:31:17",
-    "phone_number": "+60134882602"
+    "phone_number": "+60134882602",
+    "password": "scrypt$a61066300c322b34c6f18f00966b9d2f$c62494ee44f7fd480e319b75c9d888a0b86b316bbe8548c3e704d10c9450b521dd9a72830493bb121bcfbf475c6c86d7d46054d595c618d5649b4cb2a7ab6044"
   },
   {
     "id": "demo-user-1783883716362-0.13447276345929493",
@@ -93,7 +100,8 @@
     "country": "Malaysia",
     "status": "Active",
     "joined": "12/22/2025 12:24:47",
-    "phone_number": "+60194572786"
+    "phone_number": "+60194572786",
+    "password": "scrypt$a61066300c322b34c6f18f00966b9d2f$c62494ee44f7fd480e319b75c9d888a0b86b316bbe8548c3e704d10c9450b521dd9a72830493bb121bcfbf475c6c86d7d46054d595c618d5649b4cb2a7ab6044"
   },
   {
     "id": "demo-user-1783883716362-0.4109131393821126",
@@ -105,7 +113,8 @@
     "country": "MALAYSIA",
     "status": "Active",
     "joined": "12/22/2025 8:48:46",
-    "phone_number": "0060174811673"
+    "phone_number": "0060174811673",
+    "password": "scrypt$a61066300c322b34c6f18f00966b9d2f$c62494ee44f7fd480e319b75c9d888a0b86b316bbe8548c3e704d10c9450b521dd9a72830493bb121bcfbf475c6c86d7d46054d595c618d5649b4cb2a7ab6044"
   },
   {
     "id": "demo-user-1783883716362-0.11695543987613621",
@@ -117,7 +126,8 @@
     "country": "MALAYSIA",
     "status": "Active",
     "joined": "12/22/2025 8:49:22",
-    "phone_number": "60174713969"
+    "phone_number": "60174713969",
+    "password": "scrypt$a61066300c322b34c6f18f00966b9d2f$c62494ee44f7fd480e319b75c9d888a0b86b316bbe8548c3e704d10c9450b521dd9a72830493bb121bcfbf475c6c86d7d46054d595c618d5649b4cb2a7ab6044"
   },
   {
     "id": "demo-user-1783883716362-0.3789661031960819",
@@ -129,7 +139,8 @@
     "country": "MALAYSIA",
     "status": "Active",
     "joined": "12/22/2025 9:08:33",
-    "phone_number": "+601161048384"
+    "phone_number": "+601161048384",
+    "password": "scrypt$a61066300c322b34c6f18f00966b9d2f$c62494ee44f7fd480e319b75c9d888a0b86b316bbe8548c3e704d10c9450b521dd9a72830493bb121bcfbf475c6c86d7d46054d595c618d5649b4cb2a7ab6044"
   },
   {
     "id": "demo-user-1783883716362-0.6225796805565063",
@@ -141,7 +152,8 @@
     "country": "Malaysia",
     "status": "Active",
     "joined": "12/22/2025 9:14:31",
-    "phone_number": "+60195681574"
+    "phone_number": "+60195681574",
+    "password": "scrypt$a61066300c322b34c6f18f00966b9d2f$c62494ee44f7fd480e319b75c9d888a0b86b316bbe8548c3e704d10c9450b521dd9a72830493bb121bcfbf475c6c86d7d46054d595c618d5649b4cb2a7ab6044"
   },
   {
     "id": "demo-user-1783883716362-0.00014305041199957902",
@@ -153,7 +165,8 @@
     "country": "MALAYSIA",
     "status": "Active",
     "joined": "12/22/2025 9:16:21",
-    "phone_number": "+60124151883"
+    "phone_number": "+60124151883",
+    "password": "scrypt$a61066300c322b34c6f18f00966b9d2f$c62494ee44f7fd480e319b75c9d888a0b86b316bbe8548c3e704d10c9450b521dd9a72830493bb121bcfbf475c6c86d7d46054d595c618d5649b4cb2a7ab6044"
   },
   {
     "id": "demo-user-1783883716362-0.3011234786792738",
@@ -165,7 +178,8 @@
     "country": "MALAYSIA",
     "status": "Active",
     "joined": "12/22/2025 9:38:55",
-    "phone_number": "+60189524228"
+    "phone_number": "+60189524228",
+    "password": "scrypt$a61066300c322b34c6f18f00966b9d2f$c62494ee44f7fd480e319b75c9d888a0b86b316bbe8548c3e704d10c9450b521dd9a72830493bb121bcfbf475c6c86d7d46054d595c618d5649b4cb2a7ab6044"
   },
   {
     "id": "demo-user-1783883716362-0.9970794554675253",
@@ -177,7 +191,8 @@
     "country": "Malaysia",
     "status": "Active",
     "joined": "12/22/2025 9:43:04",
-    "phone_number": "0194518080"
+    "phone_number": "0194518080",
+    "password": "scrypt$a61066300c322b34c6f18f00966b9d2f$c62494ee44f7fd480e319b75c9d888a0b86b316bbe8548c3e704d10c9450b521dd9a72830493bb121bcfbf475c6c86d7d46054d595c618d5649b4cb2a7ab6044"
   },
   {
     "id": "demo-user-1783883716362-0.5760055934728682",
@@ -189,7 +204,8 @@
     "country": "MALAYSIA",
     "status": "Active",
     "joined": "12/22/2025 9:46:11",
-    "phone_number": "+60109007163"
+    "phone_number": "+60109007163",
+    "password": "scrypt$a61066300c322b34c6f18f00966b9d2f$c62494ee44f7fd480e319b75c9d888a0b86b316bbe8548c3e704d10c9450b521dd9a72830493bb121bcfbf475c6c86d7d46054d595c618d5649b4cb2a7ab6044"
   },
   {
     "id": "demo-user-1783883716362-0.2537447422525876",
@@ -201,7 +217,8 @@
     "country": "Malaysia",
     "status": "Active",
     "joined": "12/22/2025 9:46:41",
-    "phone_number": "601137236558"
+    "phone_number": "601137236558",
+    "password": "scrypt$a61066300c322b34c6f18f00966b9d2f$c62494ee44f7fd480e319b75c9d888a0b86b316bbe8548c3e704d10c9450b521dd9a72830493bb121bcfbf475c6c86d7d46054d595c618d5649b4cb2a7ab6044"
   },
   {
     "id": "demo-user-1783883716362-0.5271023909739894",
@@ -216,7 +233,8 @@
     "phone_number": "+62811486008",
     "scopus_id": "57188496923",
     "google_scholar_id": "6147164",
-    "orcid_id": "0009-0009-1488-4963"
+    "orcid_id": "0009-0009-1488-4963",
+    "password": "scrypt$a61066300c322b34c6f18f00966b9d2f$c62494ee44f7fd480e319b75c9d888a0b86b316bbe8548c3e704d10c9450b521dd9a72830493bb121bcfbf475c6c86d7d46054d595c618d5649b4cb2a7ab6044"
   },
   {
     "id": "demo-user-1783883716362-0.8652190097997866",
@@ -228,7 +246,8 @@
     "country": "Malaysia",
     "status": "Active",
     "joined": "12/22/2025 9:56:49",
-    "phone_number": "0195272400"
+    "phone_number": "0195272400",
+    "password": "scrypt$a61066300c322b34c6f18f00966b9d2f$c62494ee44f7fd480e319b75c9d888a0b86b316bbe8548c3e704d10c9450b521dd9a72830493bb121bcfbf475c6c86d7d46054d595c618d5649b4cb2a7ab6044"
   },
   {
     "id": "demo-user-1783883716362-0.7967390494776104",
@@ -240,7 +259,8 @@
     "country": "MALAYSIA",
     "status": "Active",
     "joined": "12/22/2025 9:58:40",
-    "phone_number": "+0060194001118"
+    "phone_number": "+0060194001118",
+    "password": "scrypt$a61066300c322b34c6f18f00966b9d2f$c62494ee44f7fd480e319b75c9d888a0b86b316bbe8548c3e704d10c9450b521dd9a72830493bb121bcfbf475c6c86d7d46054d595c618d5649b4cb2a7ab6044"
   },
   {
     "id": "demo-user-1783883716362-0.5026652320071413",
@@ -252,7 +272,8 @@
     "country": "Malaysia",
     "status": "Active",
     "joined": "12/22/2025 10:16:08",
-    "phone_number": "0124099573"
+    "phone_number": "0124099573",
+    "password": "scrypt$a61066300c322b34c6f18f00966b9d2f$c62494ee44f7fd480e319b75c9d888a0b86b316bbe8548c3e704d10c9450b521dd9a72830493bb121bcfbf475c6c86d7d46054d595c618d5649b4cb2a7ab6044"
   },
   {
     "id": "demo-user-1783883716362-0.6980638475758272",
@@ -264,7 +285,8 @@
     "country": "MALAYSIA",
     "status": "Active",
     "joined": "12/22/2025 10:41:49",
-    "phone_number": "0194460712"
+    "phone_number": "0194460712",
+    "password": "scrypt$a61066300c322b34c6f18f00966b9d2f$c62494ee44f7fd480e319b75c9d888a0b86b316bbe8548c3e704d10c9450b521dd9a72830493bb121bcfbf475c6c86d7d46054d595c618d5649b4cb2a7ab6044"
   },
   {
     "id": "demo-user-1783883716362-0.39547089820446013",
@@ -276,7 +298,8 @@
     "country": "MALAYSIA",
     "status": "Active",
     "joined": "12/22/2025 11:19:19",
-    "phone_number": "+60195059009"
+    "phone_number": "+60195059009",
+    "password": "scrypt$a61066300c322b34c6f18f00966b9d2f$c62494ee44f7fd480e319b75c9d888a0b86b316bbe8548c3e704d10c9450b521dd9a72830493bb121bcfbf475c6c86d7d46054d595c618d5649b4cb2a7ab6044"
   },
   {
     "id": "demo-user-1783883716362-0.30035193051013",
@@ -288,7 +311,8 @@
     "country": "Malaysia",
     "status": "Active",
     "joined": "12/22/2025 12:06:55",
-    "phone_number": "+60194707650"
+    "phone_number": "+60194707650",
+    "password": "scrypt$a61066300c322b34c6f18f00966b9d2f$c62494ee44f7fd480e319b75c9d888a0b86b316bbe8548c3e704d10c9450b521dd9a72830493bb121bcfbf475c6c86d7d46054d595c618d5649b4cb2a7ab6044"
   },
   {
     "id": "demo-user-1783883716362-0.664367379529085",
@@ -300,7 +324,8 @@
     "country": "Malaysia",
     "status": "Active",
     "joined": "12/22/2025 12:10:02",
-    "phone_number": "0164182556"
+    "phone_number": "0164182556",
+    "password": "scrypt$a61066300c322b34c6f18f00966b9d2f$c62494ee44f7fd480e319b75c9d888a0b86b316bbe8548c3e704d10c9450b521dd9a72830493bb121bcfbf475c6c86d7d46054d595c618d5649b4cb2a7ab6044"
   },
   {
     "id": "demo-user-1783883716362-0.44389302624526505",
@@ -312,7 +337,8 @@
     "country": "MALAYSIA",
     "status": "Active",
     "joined": "12/22/2025 12:26:06",
-    "phone_number": "+60134860137"
+    "phone_number": "+60134860137",
+    "password": "scrypt$a61066300c322b34c6f18f00966b9d2f$c62494ee44f7fd480e319b75c9d888a0b86b316bbe8548c3e704d10c9450b521dd9a72830493bb121bcfbf475c6c86d7d46054d595c618d5649b4cb2a7ab6044"
   },
   {
     "id": "demo-user-1783883716362-0.08071527588014105",
@@ -324,7 +350,8 @@
     "country": "Malaysia",
     "status": "Active",
     "joined": "12/22/2025 12:26:59",
-    "phone_number": "0178672346"
+    "phone_number": "0178672346",
+    "password": "scrypt$a61066300c322b34c6f18f00966b9d2f$c62494ee44f7fd480e319b75c9d888a0b86b316bbe8548c3e704d10c9450b521dd9a72830493bb121bcfbf475c6c86d7d46054d595c618d5649b4cb2a7ab6044"
   },
   {
     "id": "demo-user-1783883716362-0.48758674871616847",
@@ -336,7 +363,8 @@
     "country": "Malaysia",
     "status": "Active",
     "joined": "12/22/2025 13:03:31",
-    "phone_number": "+60174880084"
+    "phone_number": "+60174880084",
+    "password": "scrypt$a61066300c322b34c6f18f00966b9d2f$c62494ee44f7fd480e319b75c9d888a0b86b316bbe8548c3e704d10c9450b521dd9a72830493bb121bcfbf475c6c86d7d46054d595c618d5649b4cb2a7ab6044"
   },
   {
     "id": "demo-user-1783883716362-0.7291372804087655",
@@ -348,7 +376,8 @@
     "country": "MALAYSIA",
     "status": "Active",
     "joined": "12/23/2025 18:34:51",
-    "phone_number": "+60162823959"
+    "phone_number": "+60162823959",
+    "password": "scrypt$a61066300c322b34c6f18f00966b9d2f$c62494ee44f7fd480e319b75c9d888a0b86b316bbe8548c3e704d10c9450b521dd9a72830493bb121bcfbf475c6c86d7d46054d595c618d5649b4cb2a7ab6044"
   },
   {
     "id": "demo-user-1783883716362-0.9668592447391468",
@@ -360,7 +389,8 @@
     "country": "MALAYSIA",
     "status": "Active",
     "joined": "12/22/2025 14:25:37",
-    "phone_number": "+60126594828"
+    "phone_number": "+60126594828",
+    "password": "scrypt$a61066300c322b34c6f18f00966b9d2f$c62494ee44f7fd480e319b75c9d888a0b86b316bbe8548c3e704d10c9450b521dd9a72830493bb121bcfbf475c6c86d7d46054d595c618d5649b4cb2a7ab6044"
   },
   {
     "id": "demo-user-1783883716362-0.26600385140836724",
@@ -372,7 +402,8 @@
     "country": "MALAYSIA",
     "status": "Active",
     "joined": "12/22/2025 14:53:51",
-    "phone_number": "0194452757"
+    "phone_number": "0194452757",
+    "password": "scrypt$a61066300c322b34c6f18f00966b9d2f$c62494ee44f7fd480e319b75c9d888a0b86b316bbe8548c3e704d10c9450b521dd9a72830493bb121bcfbf475c6c86d7d46054d595c618d5649b4cb2a7ab6044"
   },
   {
     "id": "demo-user-1783883716362-0.198505819451133",
@@ -384,7 +415,8 @@
     "country": "MALAYSIA",
     "status": "Active",
     "joined": "12/22/2025 14:59:53",
-    "phone_number": "+60148278346"
+    "phone_number": "+60148278346",
+    "password": "scrypt$a61066300c322b34c6f18f00966b9d2f$c62494ee44f7fd480e319b75c9d888a0b86b316bbe8548c3e704d10c9450b521dd9a72830493bb121bcfbf475c6c86d7d46054d595c618d5649b4cb2a7ab6044"
   },
   {
     "id": "demo-user-1783883716362-0.754602160254216",
@@ -396,7 +428,8 @@
     "country": "MALAYSIA",
     "status": "Active",
     "joined": "12/23/2025 6:34:20",
-    "phone_number": "+60183222043"
+    "phone_number": "+60183222043",
+    "password": "scrypt$a61066300c322b34c6f18f00966b9d2f$c62494ee44f7fd480e319b75c9d888a0b86b316bbe8548c3e704d10c9450b521dd9a72830493bb121bcfbf475c6c86d7d46054d595c618d5649b4cb2a7ab6044"
   },
   {
     "id": "demo-user-1783883716362-0.12657652218322835",
@@ -408,7 +441,8 @@
     "country": "Indonesia",
     "status": "Active",
     "joined": "12/23/2025 8:21:42",
-    "phone_number": "+6281315515000"
+    "phone_number": "+6281315515000",
+    "password": "scrypt$a61066300c322b34c6f18f00966b9d2f$c62494ee44f7fd480e319b75c9d888a0b86b316bbe8548c3e704d10c9450b521dd9a72830493bb121bcfbf475c6c86d7d46054d595c618d5649b4cb2a7ab6044"
   },
   {
     "id": "demo-user-1783883716362-0.9652413233720003",
@@ -420,7 +454,8 @@
     "country": "MALAYSIA",
     "status": "Active",
     "joined": "12/23/2025 10:32:52",
-    "phone_number": "0194100207"
+    "phone_number": "0194100207",
+    "password": "scrypt$a61066300c322b34c6f18f00966b9d2f$c62494ee44f7fd480e319b75c9d888a0b86b316bbe8548c3e704d10c9450b521dd9a72830493bb121bcfbf475c6c86d7d46054d595c618d5649b4cb2a7ab6044"
   },
   {
     "id": "demo-user-1783883716362-0.055194359905753165",
@@ -432,7 +467,8 @@
     "country": "Malaysia",
     "status": "Active",
     "joined": "12/23/2025 11:37:18",
-    "phone_number": "+60126953448"
+    "phone_number": "+60126953448",
+    "password": "scrypt$a61066300c322b34c6f18f00966b9d2f$c62494ee44f7fd480e319b75c9d888a0b86b316bbe8548c3e704d10c9450b521dd9a72830493bb121bcfbf475c6c86d7d46054d595c618d5649b4cb2a7ab6044"
   },
   {
     "id": "demo-user-1783883716362-0.9913532756946852",
@@ -444,7 +480,8 @@
     "country": "MALAYSIA",
     "status": "Active",
     "joined": "12/23/2025 12:02:14",
-    "phone_number": "60134336703"
+    "phone_number": "60134336703",
+    "password": "scrypt$a61066300c322b34c6f18f00966b9d2f$c62494ee44f7fd480e319b75c9d888a0b86b316bbe8548c3e704d10c9450b521dd9a72830493bb121bcfbf475c6c86d7d46054d595c618d5649b4cb2a7ab6044"
   },
   {
     "id": "demo-user-1783883716362-0.8392981464060385",
@@ -456,7 +493,8 @@
     "country": "Malaysia",
     "status": "Active",
     "joined": "12/23/2025 11:48:25",
-    "phone_number": "+601116323268"
+    "phone_number": "+601116323268",
+    "password": "scrypt$a61066300c322b34c6f18f00966b9d2f$c62494ee44f7fd480e319b75c9d888a0b86b316bbe8548c3e704d10c9450b521dd9a72830493bb121bcfbf475c6c86d7d46054d595c618d5649b4cb2a7ab6044"
   },
   {
     "id": "demo-user-1783883716362-0.22138513053106013",
@@ -468,7 +506,8 @@
     "country": "Malaysia",
     "status": "Active",
     "joined": "12/23/2025 11:57:06",
-    "phone_number": "+60194582803"
+    "phone_number": "+60194582803",
+    "password": "scrypt$a61066300c322b34c6f18f00966b9d2f$c62494ee44f7fd480e319b75c9d888a0b86b316bbe8548c3e704d10c9450b521dd9a72830493bb121bcfbf475c6c86d7d46054d595c618d5649b4cb2a7ab6044"
   },
   {
     "id": "demo-user-1783883716362-0.9720012055002588",
@@ -480,7 +519,8 @@
     "country": "MALAYSIA",
     "status": "Active",
     "joined": "12/23/2025 13:25:41",
-    "phone_number": "60195908793"
+    "phone_number": "60195908793",
+    "password": "scrypt$a61066300c322b34c6f18f00966b9d2f$c62494ee44f7fd480e319b75c9d888a0b86b316bbe8548c3e704d10c9450b521dd9a72830493bb121bcfbf475c6c86d7d46054d595c618d5649b4cb2a7ab6044"
   },
   {
     "id": "demo-user-1783883716362-0.6777651822117492",
@@ -492,7 +532,8 @@
     "country": "MALAYSIA",
     "status": "Active",
     "joined": "12/23/2025 21:09:32",
-    "phone_number": "0194166101"
+    "phone_number": "0194166101",
+    "password": "scrypt$a61066300c322b34c6f18f00966b9d2f$c62494ee44f7fd480e319b75c9d888a0b86b316bbe8548c3e704d10c9450b521dd9a72830493bb121bcfbf475c6c86d7d46054d595c618d5649b4cb2a7ab6044"
   },
   {
     "id": "demo-user-1783883716362-0.22306900299043286",
@@ -504,7 +545,8 @@
     "country": "INDONESIA",
     "status": "Active",
     "joined": "12/24/2025 8:30:52",
-    "phone_number": "+6282387800205"
+    "phone_number": "+6282387800205",
+    "password": "scrypt$a61066300c322b34c6f18f00966b9d2f$c62494ee44f7fd480e319b75c9d888a0b86b316bbe8548c3e704d10c9450b521dd9a72830493bb121bcfbf475c6c86d7d46054d595c618d5649b4cb2a7ab6044"
   },
   {
     "id": "demo-user-1783883716362-0.46175430839643294",
@@ -516,7 +558,8 @@
     "country": "Malaysia",
     "status": "Active",
     "joined": "12/26/2025 22:43:15",
-    "phone_number": "60105131525"
+    "phone_number": "60105131525",
+    "password": "scrypt$a61066300c322b34c6f18f00966b9d2f$c62494ee44f7fd480e319b75c9d888a0b86b316bbe8548c3e704d10c9450b521dd9a72830493bb121bcfbf475c6c86d7d46054d595c618d5649b4cb2a7ab6044"
   },
   {
     "id": "demo-user-1783883716362-0.05730894278781362",
@@ -528,7 +571,8 @@
     "country": "INDONESIA",
     "status": "Active",
     "joined": "1/5/2026 22:53:36",
-    "phone_number": "+6285258175761"
+    "phone_number": "+6285258175761",
+    "password": "scrypt$a61066300c322b34c6f18f00966b9d2f$c62494ee44f7fd480e319b75c9d888a0b86b316bbe8548c3e704d10c9450b521dd9a72830493bb121bcfbf475c6c86d7d46054d595c618d5649b4cb2a7ab6044"
   },
   {
     "id": "demo-user-1783883716362-0.6480814057701898",
@@ -540,7 +584,8 @@
     "country": "Indonesia",
     "status": "Active",
     "joined": "1/28/2026 19:47:29",
-    "phone_number": "+6281371623199"
+    "phone_number": "+6281371623199",
+    "password": "scrypt$a61066300c322b34c6f18f00966b9d2f$c62494ee44f7fd480e319b75c9d888a0b86b316bbe8548c3e704d10c9450b521dd9a72830493bb121bcfbf475c6c86d7d46054d595c618d5649b4cb2a7ab6044"
   },
   {
     "id": "demo-user-1783883716362-0.10475870295027656",
@@ -552,7 +597,8 @@
     "country": "Indonesia",
     "status": "Active",
     "joined": "2/2/2026 11:35:42",
-    "phone_number": "+6285355924614"
+    "phone_number": "+6285355924614",
+    "password": "scrypt$a61066300c322b34c6f18f00966b9d2f$c62494ee44f7fd480e319b75c9d888a0b86b316bbe8548c3e704d10c9450b521dd9a72830493bb121bcfbf475c6c86d7d46054d595c618d5649b4cb2a7ab6044"
   },
   {
     "id": "demo-user-1783883716362-0.6813339075641194",
@@ -564,7 +610,8 @@
     "country": "Indonesia",
     "status": "Active",
     "joined": "2/25/2026 15:26:01",
-    "phone_number": "+6285710766750"
+    "phone_number": "+6285710766750",
+    "password": "scrypt$a61066300c322b34c6f18f00966b9d2f$c62494ee44f7fd480e319b75c9d888a0b86b316bbe8548c3e704d10c9450b521dd9a72830493bb121bcfbf475c6c86d7d46054d595c618d5649b4cb2a7ab6044"
   },
   {
     "id": "demo-user-1783883716362-0.9817978515890335",
@@ -576,7 +623,8 @@
     "country": "Indonesia",
     "status": "Active",
     "joined": "2/26/2026 11:23:01",
-    "phone_number": "+6287746312340"
+    "phone_number": "+6287746312340",
+    "password": "scrypt$a61066300c322b34c6f18f00966b9d2f$c62494ee44f7fd480e319b75c9d888a0b86b316bbe8548c3e704d10c9450b521dd9a72830493bb121bcfbf475c6c86d7d46054d595c618d5649b4cb2a7ab6044"
   },
   {
     "id": "demo-user-1783883716362-0.18279677441582654",
@@ -588,7 +636,8 @@
     "country": "Indonesia",
     "status": "Active",
     "joined": "2/27/2026 7:20:50",
-    "phone_number": "+6285348547742"
+    "phone_number": "+6285348547742",
+    "password": "scrypt$a61066300c322b34c6f18f00966b9d2f$c62494ee44f7fd480e319b75c9d888a0b86b316bbe8548c3e704d10c9450b521dd9a72830493bb121bcfbf475c6c86d7d46054d595c618d5649b4cb2a7ab6044"
   },
   {
     "id": "demo-user-1783883716362-0.8395597950763023",
@@ -600,7 +649,8 @@
     "country": "INDONESIA",
     "status": "Active",
     "joined": "7/6/2026 15:11:49",
-    "phone_number": "+6282261643277"
+    "phone_number": "+6282261643277",
+    "password": "scrypt$a61066300c322b34c6f18f00966b9d2f$c62494ee44f7fd480e319b75c9d888a0b86b316bbe8548c3e704d10c9450b521dd9a72830493bb121bcfbf475c6c86d7d46054d595c618d5649b4cb2a7ab6044"
   },
   {
     "id": "demo-user-1783889412852",
@@ -618,7 +668,8 @@
     "phone_number": "+628113130106",
     "role": "reviewer",
     "status": "Active",
-    "joined": "2026-07-13T00:07:53.941Z"
+    "joined": "2026-07-13T00:07:53.941Z",
+    "password": "scrypt$a61066300c322b34c6f18f00966b9d2f$c62494ee44f7fd480e319b75c9d888a0b86b316bbe8548c3e704d10c9450b521dd9a72830493bb121bcfbf475c6c86d7d46054d595c618d5649b4cb2a7ab6044"
   },
   {
     "id": "demo-user-1783924595513",
@@ -634,7 +685,8 @@
     "wos_id": "QQB-6938-2026",
     "sinta_id": "6877016",
     "status": "Active",
-    "joined": "2026-07-13T06:36:35.513Z"
+    "joined": "2026-07-13T06:36:35.513Z",
+    "password": "scrypt$a61066300c322b34c6f18f00966b9d2f$c62494ee44f7fd480e319b75c9d888a0b86b316bbe8548c3e704d10c9450b521dd9a72830493bb121bcfbf475c6c86d7d46054d595c618d5649b4cb2a7ab6044"
   },
   {
     "id": "import-1783937838523-0.2950091228091032",
@@ -649,7 +701,8 @@
     "country": "Indonesia",
     "scopus_id": "57207845594",
     "google_scholar_id": "KaRTCcsAAAAJ",
-    "orcid_id": "0000-0001-6994-6644"
+    "orcid_id": "0000-0001-6994-6644",
+    "password": "scrypt$a61066300c322b34c6f18f00966b9d2f$c62494ee44f7fd480e319b75c9d888a0b86b316bbe8548c3e704d10c9450b521dd9a72830493bb121bcfbf475c6c86d7d46054d595c618d5649b4cb2a7ab6044"
   },
   {
     "id": "import-1783937838523-0.9685933358309502",
@@ -664,7 +717,8 @@
     "country": "Indonesia",
     "scopus_id": "60142907700",
     "google_scholar_id": "owKlW6wAAAAJ",
-    "orcid_id": "0009-0004-6714-4452"
+    "orcid_id": "0009-0004-6714-4452",
+    "password": "scrypt$a61066300c322b34c6f18f00966b9d2f$c62494ee44f7fd480e319b75c9d888a0b86b316bbe8548c3e704d10c9450b521dd9a72830493bb121bcfbf475c6c86d7d46054d595c618d5649b4cb2a7ab6044"
   },
   {
     "id": "import-1783937838523-0.6131541139950851",
@@ -679,7 +733,8 @@
     "country": "Indonesia",
     "scopus_id": "57194244234",
     "google_scholar_id": "WkNvivgAAAAJ",
-    "orcid_id": "0000-0002-4059-4371"
+    "orcid_id": "0000-0002-4059-4371",
+    "password": "scrypt$a61066300c322b34c6f18f00966b9d2f$c62494ee44f7fd480e319b75c9d888a0b86b316bbe8548c3e704d10c9450b521dd9a72830493bb121bcfbf475c6c86d7d46054d595c618d5649b4cb2a7ab6044"
   },
   {
     "id": "import-1783937838523-0.7173022143229102",
@@ -694,7 +749,8 @@
     "country": "Indonesia",
     "scopus_id": "57220929541",
     "google_scholar_id": "Y_NdcAoAAAAJ",
-    "orcid_id": "0000-0002-7897-2737"
+    "orcid_id": "0000-0002-7897-2737",
+    "password": "scrypt$a61066300c322b34c6f18f00966b9d2f$c62494ee44f7fd480e319b75c9d888a0b86b316bbe8548c3e704d10c9450b521dd9a72830493bb121bcfbf475c6c86d7d46054d595c618d5649b4cb2a7ab6044"
   },
   {
     "id": "import-1783937838523-0.6260706724684217",
@@ -709,7 +765,8 @@
     "phone_number": "+6285262571664",
     "scopus_id": "Scopus Link",
     "google_scholar_id": "91y1puwAAAAJ",
-    "orcid_id": "0009-0002-3319-086X"
+    "orcid_id": "0009-0002-3319-086X",
+    "password": "scrypt$a61066300c322b34c6f18f00966b9d2f$c62494ee44f7fd480e319b75c9d888a0b86b316bbe8548c3e704d10c9450b521dd9a72830493bb121bcfbf475c6c86d7d46054d595c618d5649b4cb2a7ab6044"
   },
   {
     "id": "import-1783937838523-0.23635514577856953",
@@ -724,7 +781,8 @@
     "country": "Indonesia",
     "scopus_id": "57669510400",
     "google_scholar_id": "Google Scholar Link",
-    "orcid_id": "0000-0001-9602-9446"
+    "orcid_id": "0000-0001-9602-9446",
+    "password": "scrypt$a61066300c322b34c6f18f00966b9d2f$c62494ee44f7fd480e319b75c9d888a0b86b316bbe8548c3e704d10c9450b521dd9a72830493bb121bcfbf475c6c86d7d46054d595c618d5649b4cb2a7ab6044"
   },
   {
     "id": "import-1783937838523-0.12160993736528813",
@@ -739,7 +797,8 @@
     "country": "Indonesia",
     "scopus_id": "57218585288",
     "google_scholar_id": "zviYldQAAAAJ",
-    "orcid_id": "0000-0001-7103-779X"
+    "orcid_id": "0000-0001-7103-779X",
+    "password": "scrypt$a61066300c322b34c6f18f00966b9d2f$c62494ee44f7fd480e319b75c9d888a0b86b316bbe8548c3e704d10c9450b521dd9a72830493bb121bcfbf475c6c86d7d46054d595c618d5649b4cb2a7ab6044"
   },
   {
     "id": "asiacert-1783964422291-0.14600105553178588",
@@ -751,7 +810,8 @@
     "country": "Malaysia",
     "status": "Active",
     "joined": "7/14/2026, 12:40:22 AM",
-    "phone_number": ""
+    "phone_number": "",
+    "password": "scrypt$a61066300c322b34c6f18f00966b9d2f$c62494ee44f7fd480e319b75c9d888a0b86b316bbe8548c3e704d10c9450b521dd9a72830493bb121bcfbf475c6c86d7d46054d595c618d5649b4cb2a7ab6044"
   },
   {
     "id": "asiacert-1783964422314-0.33241769399875176",
@@ -763,7 +823,8 @@
     "country": "Malaysia",
     "status": "Active",
     "joined": "7/14/2026, 12:40:22 AM",
-    "phone_number": ""
+    "phone_number": "",
+    "password": "scrypt$a61066300c322b34c6f18f00966b9d2f$c62494ee44f7fd480e319b75c9d888a0b86b316bbe8548c3e704d10c9450b521dd9a72830493bb121bcfbf475c6c86d7d46054d595c618d5649b4cb2a7ab6044"
   },
   {
     "id": "asiacert-1783964422314-0.07339327162639098",
@@ -775,7 +836,8 @@
     "country": "Thailand",
     "status": "Active",
     "joined": "7/14/2026, 12:40:22 AM",
-    "phone_number": ""
+    "phone_number": "",
+    "password": "scrypt$a61066300c322b34c6f18f00966b9d2f$c62494ee44f7fd480e319b75c9d888a0b86b316bbe8548c3e704d10c9450b521dd9a72830493bb121bcfbf475c6c86d7d46054d595c618d5649b4cb2a7ab6044"
   },
   {
     "id": "asiacert-1783964422314-0.7781704072380886",
@@ -787,7 +849,8 @@
     "country": "Thailand",
     "status": "Active",
     "joined": "7/14/2026, 12:40:22 AM",
-    "phone_number": ""
+    "phone_number": "",
+    "password": "scrypt$a61066300c322b34c6f18f00966b9d2f$c62494ee44f7fd480e319b75c9d888a0b86b316bbe8548c3e704d10c9450b521dd9a72830493bb121bcfbf475c6c86d7d46054d595c618d5649b4cb2a7ab6044"
   },
   {
     "id": "asiacert-1783964422314-0.17059731405586076",
@@ -799,7 +862,8 @@
     "country": "Taiwan",
     "status": "Active",
     "joined": "7/14/2026, 12:40:22 AM",
-    "phone_number": ""
+    "phone_number": "",
+    "password": "scrypt$a61066300c322b34c6f18f00966b9d2f$c62494ee44f7fd480e319b75c9d888a0b86b316bbe8548c3e704d10c9450b521dd9a72830493bb121bcfbf475c6c86d7d46054d595c618d5649b4cb2a7ab6044"
   },
   {
     "id": "asiacert-1783964422315-0.04155968419535894",
@@ -811,7 +875,8 @@
     "country": "Vietnam",
     "status": "Active",
     "joined": "7/14/2026, 12:40:22 AM",
-    "phone_number": ""
+    "phone_number": "",
+    "password": "scrypt$a61066300c322b34c6f18f00966b9d2f$c62494ee44f7fd480e319b75c9d888a0b86b316bbe8548c3e704d10c9450b521dd9a72830493bb121bcfbf475c6c86d7d46054d595c618d5649b4cb2a7ab6044"
   },
   {
     "id": "asiacert-1783964422315-0.46775345070867114",
@@ -823,7 +888,8 @@
     "country": "Turkey",
     "status": "Active",
     "joined": "7/14/2026, 12:40:22 AM",
-    "phone_number": ""
+    "phone_number": "",
+    "password": "scrypt$a61066300c322b34c6f18f00966b9d2f$c62494ee44f7fd480e319b75c9d888a0b86b316bbe8548c3e704d10c9450b521dd9a72830493bb121bcfbf475c6c86d7d46054d595c618d5649b4cb2a7ab6044"
   },
   {
     "id": "asiacert-1783964422315-0.45567656016295555",
@@ -835,7 +901,8 @@
     "country": "Malaysia",
     "status": "Active",
     "joined": "7/14/2026, 12:40:22 AM",
-    "phone_number": ""
+    "phone_number": "",
+    "password": "scrypt$a61066300c322b34c6f18f00966b9d2f$c62494ee44f7fd480e319b75c9d888a0b86b316bbe8548c3e704d10c9450b521dd9a72830493bb121bcfbf475c6c86d7d46054d595c618d5649b4cb2a7ab6044"
   },
   {
     "id": "asiacert-1783964422315-0.08716488875865736",
@@ -847,7 +914,8 @@
     "country": "Pakistan",
     "status": "Active",
     "joined": "7/14/2026, 12:40:22 AM",
-    "phone_number": ""
+    "phone_number": "",
+    "password": "scrypt$a61066300c322b34c6f18f00966b9d2f$c62494ee44f7fd480e319b75c9d888a0b86b316bbe8548c3e704d10c9450b521dd9a72830493bb121bcfbf475c6c86d7d46054d595c618d5649b4cb2a7ab6044"
   },
   {
     "id": "asiacert-1783964422315-0.2829483945828817",
@@ -859,7 +927,8 @@
     "country": "Malaysia",
     "status": "Active",
     "joined": "7/14/2026, 12:40:22 AM",
-    "phone_number": ""
+    "phone_number": "",
+    "password": "scrypt$a61066300c322b34c6f18f00966b9d2f$c62494ee44f7fd480e319b75c9d888a0b86b316bbe8548c3e704d10c9450b521dd9a72830493bb121bcfbf475c6c86d7d46054d595c618d5649b4cb2a7ab6044"
   },
   {
     "id": "asiacert-1783964422315-0.3110529266382067",
@@ -871,7 +940,8 @@
     "country": "Thailand",
     "status": "Active",
     "joined": "7/14/2026, 12:40:22 AM",
-    "phone_number": ""
+    "phone_number": "",
+    "password": "scrypt$a61066300c322b34c6f18f00966b9d2f$c62494ee44f7fd480e319b75c9d888a0b86b316bbe8548c3e704d10c9450b521dd9a72830493bb121bcfbf475c6c86d7d46054d595c618d5649b4cb2a7ab6044"
   },
   {
     "id": "asiacert-1783964422315-0.12350357711609439",
@@ -883,7 +953,8 @@
     "country": "International",
     "status": "Active",
     "joined": "7/14/2026, 12:40:22 AM",
-    "phone_number": ""
+    "phone_number": "",
+    "password": "scrypt$a61066300c322b34c6f18f00966b9d2f$c62494ee44f7fd480e319b75c9d888a0b86b316bbe8548c3e704d10c9450b521dd9a72830493bb121bcfbf475c6c86d7d46054d595c618d5649b4cb2a7ab6044"
   },
   {
     "id": "asiacert-1783964422316-0.5265942620791124",
@@ -895,7 +966,8 @@
     "country": "Malaysia",
     "status": "Active",
     "joined": "7/14/2026, 12:40:22 AM",
-    "phone_number": ""
+    "phone_number": "",
+    "password": "scrypt$a61066300c322b34c6f18f00966b9d2f$c62494ee44f7fd480e319b75c9d888a0b86b316bbe8548c3e704d10c9450b521dd9a72830493bb121bcfbf475c6c86d7d46054d595c618d5649b4cb2a7ab6044"
   },
   {
     "id": "asiacert-1783964422316-0.6632937419324025",
@@ -907,7 +979,8 @@
     "country": "Malaysia",
     "status": "Active",
     "joined": "7/14/2026, 12:40:22 AM",
-    "phone_number": ""
+    "phone_number": "",
+    "password": "scrypt$a61066300c322b34c6f18f00966b9d2f$c62494ee44f7fd480e319b75c9d888a0b86b316bbe8548c3e704d10c9450b521dd9a72830493bb121bcfbf475c6c86d7d46054d595c618d5649b4cb2a7ab6044"
   },
   {
     "id": "asiacert-1783964422316-0.4394542423605887",
@@ -919,7 +992,8 @@
     "country": "India",
     "status": "Active",
     "joined": "7/14/2026, 12:40:22 AM",
-    "phone_number": ""
+    "phone_number": "",
+    "password": "scrypt$a61066300c322b34c6f18f00966b9d2f$c62494ee44f7fd480e319b75c9d888a0b86b316bbe8548c3e704d10c9450b521dd9a72830493bb121bcfbf475c6c86d7d46054d595c618d5649b4cb2a7ab6044"
   },
   {
     "id": "asiacert-1783964422316-0.5453699020740483",
@@ -931,7 +1005,8 @@
     "country": "Bangladesh",
     "status": "Active",
     "joined": "7/14/2026, 12:40:22 AM",
-    "phone_number": ""
+    "phone_number": "",
+    "password": "scrypt$a61066300c322b34c6f18f00966b9d2f$c62494ee44f7fd480e319b75c9d888a0b86b316bbe8548c3e704d10c9450b521dd9a72830493bb121bcfbf475c6c86d7d46054d595c618d5649b4cb2a7ab6044"
   },
   {
     "id": "asiacert-1783964422316-0.24076387600416793",
@@ -943,7 +1018,8 @@
     "country": "Malaysia",
     "status": "Active",
     "joined": "7/14/2026, 12:40:22 AM",
-    "phone_number": ""
+    "phone_number": "",
+    "password": "scrypt$a61066300c322b34c6f18f00966b9d2f$c62494ee44f7fd480e319b75c9d888a0b86b316bbe8548c3e704d10c9450b521dd9a72830493bb121bcfbf475c6c86d7d46054d595c618d5649b4cb2a7ab6044"
   },
   {
     "id": "demo-user-1784054537519",
@@ -955,7 +1031,8 @@
     "discipline": "Wide Area Network System",
     "role": "reviewer",
     "status": "Active",
-    "joined": "2026-07-14T18:42:17.519Z"
+    "joined": "2026-07-14T18:42:17.519Z",
+    "password": "scrypt$a61066300c322b34c6f18f00966b9d2f$c62494ee44f7fd480e319b75c9d888a0b86b316bbe8548c3e704d10c9450b521dd9a72830493bb121bcfbf475c6c86d7d46054d595c618d5649b4cb2a7ab6044"
   },
   {
     "id": "demo-user-1784060776065",
@@ -966,7 +1043,8 @@
     "role": "editor",
     "orcid_id": "QKY-3514-2026",
     "status": "Active",
-    "joined": "2026-07-14T20:26:16.065Z"
+    "joined": "2026-07-14T20:26:16.065Z",
+    "password": "scrypt$edd60f2a244111fc03ec1f6206b0fa4d$e41af886f38896b77f43eae8a67f28ebf0c6d446688137bc94ab27b3aeeb06575001606504671eedc2226652a2f5b28858498c2b9fb4f12ac435348f95eed7a6"
   },
   {
     "id": "demo-user-1784072140915",
@@ -983,7 +1061,8 @@
     "wos_id": "",
     "sinta_id": "",
     "status": "Active",
-    "joined": "2026-07-14T23:35:40.915Z"
+    "joined": "2026-07-14T23:35:40.915Z",
+    "password": "scrypt$edd60f2a244111fc03ec1f6206b0fa4d$e41af886f38896b77f43eae8a67f28ebf0c6d446688137bc94ab27b3aeeb06575001606504671eedc2226652a2f5b28858498c2b9fb4f12ac435348f95eed7a6"
   },
   {
     "id": "demo-user-1784072141577",
@@ -1000,7 +1079,8 @@
     "wos_id": "",
     "sinta_id": "",
     "status": "Active",
-    "joined": "2026-07-14T23:35:41.577Z"
+    "joined": "2026-07-14T23:35:41.577Z",
+    "password": "scrypt$edd60f2a244111fc03ec1f6206b0fa4d$e41af886f38896b77f43eae8a67f28ebf0c6d446688137bc94ab27b3aeeb06575001606504671eedc2226652a2f5b28858498c2b9fb4f12ac435348f95eed7a6"
   },
   {
     "id": "demo-user-1784072142245",
@@ -1017,7 +1097,8 @@
     "wos_id": "",
     "sinta_id": "",
     "status": "Active",
-    "joined": "2026-07-14T23:35:42.245Z"
+    "joined": "2026-07-14T23:35:42.245Z",
+    "password": "scrypt$edd60f2a244111fc03ec1f6206b0fa4d$e41af886f38896b77f43eae8a67f28ebf0c6d446688137bc94ab27b3aeeb06575001606504671eedc2226652a2f5b28858498c2b9fb4f12ac435348f95eed7a6"
   },
   {
     "id": "demo-user-1784072142931",
@@ -1034,7 +1115,8 @@
     "wos_id": "",
     "sinta_id": "",
     "status": "Active",
-    "joined": "2026-07-14T23:35:42.931Z"
+    "joined": "2026-07-14T23:35:42.931Z",
+    "password": "scrypt$edd60f2a244111fc03ec1f6206b0fa4d$e41af886f38896b77f43eae8a67f28ebf0c6d446688137bc94ab27b3aeeb06575001606504671eedc2226652a2f5b28858498c2b9fb4f12ac435348f95eed7a6"
   },
   {
     "id": "demo-user-1784098732284",
@@ -1051,7 +1133,8 @@
     "wos_id": "",
     "sinta_id": "6783348",
     "status": "Active",
-    "joined": "2026-07-15T06:58:52.284Z"
+    "joined": "2026-07-15T06:58:52.284Z",
+    "password": "scrypt$a61066300c322b34c6f18f00966b9d2f$c62494ee44f7fd480e319b75c9d888a0b86b316bbe8548c3e704d10c9450b521dd9a72830493bb121bcfbf475c6c86d7d46054d595c618d5649b4cb2a7ab6044"
   },
   {
     "email": "aulia_juanda@itsi.ac.id",
@@ -1061,7 +1144,8 @@
     "expertise": "Pertanian",
     "joined": "2026-07-15T23:50:39.807Z",
     "id": "demo-user-1784159440703-0.20091326214123417",
-    "phone_number": "+6281260976299"
+    "phone_number": "+6281260976299",
+    "password": "scrypt$a61066300c322b34c6f18f00966b9d2f$c62494ee44f7fd480e319b75c9d888a0b86b316bbe8548c3e704d10c9450b521dd9a72830493bb121bcfbf475c6c86d7d46054d595c618d5649b4cb2a7ab6044"
   },
   {
     "id": "demo-user-1784464056608",
@@ -1090,7 +1174,8 @@
     "discipline": "Biologi dan Ilmu Perikanana",
     "role": "reviewer",
     "status": "Active",
-    "joined": "2026-07-19T13:03:09.046Z"
+    "joined": "2026-07-19T13:03:09.046Z",
+    "password": "scrypt$a61066300c322b34c6f18f00966b9d2f$c62494ee44f7fd480e319b75c9d888a0b86b316bbe8548c3e704d10c9450b521dd9a72830493bb121bcfbf475c6c86d7d46054d595c618d5649b4cb2a7ab6044"
   },
   {
     "id": "demo-user-1784466317583",
@@ -1102,7 +1187,8 @@
     "discipline": "Biologi dan Ilmu Perikanan",
     "role": "reviewer",
     "status": "Active",
-    "joined": "2026-07-19T13:05:17.583Z"
+    "joined": "2026-07-19T13:05:17.583Z",
+    "password": "scrypt$a61066300c322b34c6f18f00966b9d2f$c62494ee44f7fd480e319b75c9d888a0b86b316bbe8548c3e704d10c9450b521dd9a72830493bb121bcfbf475c6c86d7d46054d595c618d5649b4cb2a7ab6044"
   },
   {
     "id": "demo-user-1784468261119",
@@ -1221,7 +1307,8 @@
     "wos_id": "OQJ-5147-2025",
     "sinta_id": "6664154",
     "status": "Active",
-    "joined": "2026-07-21T00:56:03.346Z"
+    "joined": "2026-07-21T00:56:03.346Z",
+    "password": "scrypt$a61066300c322b34c6f18f00966b9d2f$c62494ee44f7fd480e319b75c9d888a0b86b316bbe8548c3e704d10c9450b521dd9a72830493bb121bcfbf475c6c86d7d46054d595c618d5649b4cb2a7ab6044"
   },
   {
     "id": "demo-user-1784622699440",
@@ -1255,7 +1342,8 @@
     "wos_id": "",
     "sinta_id": "",
     "status": "Active",
-    "joined": "2026-07-21T15:18:14.518Z"
+    "joined": "2026-07-21T15:18:14.518Z",
+    "password": "scrypt$a61066300c322b34c6f18f00966b9d2f$c62494ee44f7fd480e319b75c9d888a0b86b316bbe8548c3e704d10c9450b521dd9a72830493bb121bcfbf475c6c86d7d46054d595c618d5649b4cb2a7ab6044"
   },
   {
     "id": "demo-user-1784684159147",
@@ -1306,7 +1394,8 @@
     "wos_id": "",
     "sinta_id": "6197536",
     "status": "Active",
-    "joined": "2026-07-23T03:12:34.998Z"
+    "joined": "2026-07-23T03:12:34.998Z",
+    "password": "scrypt$a61066300c322b34c6f18f00966b9d2f$c62494ee44f7fd480e319b75c9d888a0b86b316bbe8548c3e704d10c9450b521dd9a72830493bb121bcfbf475c6c86d7d46054d595c618d5649b4cb2a7ab6044"
   },
   {
     "id": "demo-user-1784874184318",
@@ -1352,7 +1441,8 @@
     "discipline": "Software Enginer",
     "role": "reviewer",
     "status": "Active",
-    "joined": "2026-07-26T09:08:14.426Z"
+    "joined": "2026-07-26T09:08:14.426Z",
+    "password": "scrypt$a61066300c322b34c6f18f00966b9d2f$c62494ee44f7fd480e319b75c9d888a0b86b316bbe8548c3e704d10c9450b521dd9a72830493bb121bcfbf475c6c86d7d46054d595c618d5649b4cb2a7ab6044"
   },
   {
     "id": "demo-user-1785469730386",
