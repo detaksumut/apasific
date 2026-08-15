@@ -1,4 +1,5 @@
-import { createClient } from "@/utils/supabase/server";
+﻿import { createClient } from "@/utils/supabase/server";
+import { getCurrentUser } from "@/app/actions/auth";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import DeleteSubmissionButton from "@/components/DeleteSubmissionButton";
@@ -8,29 +9,8 @@ import { cookies } from "next/headers";
 
 export default async function PublishEditorDashboard() {
   const supabase = await createClient();
-  let { data: { user } } = await supabase.auth.getUser();
+  const user = await getCurrentUser();
 
-  if (!user) {
-    const cookieStore = await cookies();
-    const fbToken = cookieStore.get('firebase_session')?.value;
-    const fallbackUserId = cookieStore.get('supabase_fallback_session')?.value;
-    
-    if (fbToken || fallbackUserId) {
-        try {
-            if (fbToken) {
-               const payloadBase64 = fbToken.split('.')[1];
-               const payload = JSON.parse(Buffer.from(payloadBase64, 'base64').toString());
-               user = { id: payload.uid, email: "user@firebase.local" } as any;
-            }
-        } catch (e) {
-            console.error("Firebase token verification failed");
-        }
-        
-        if (!user && fallbackUserId) {
-           user = { id: fallbackUserId, email: "user@fallback.local" } as any;
-        }
-    }
-  }
   if (!user) redirect("/auth/login");
 
   // Semua status yang melewati tahap Publish Editor (aktif maupun selesai)
@@ -67,9 +47,9 @@ export default async function PublishEditorDashboard() {
       case 'Pending Supervisor':
         return <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/20">Menunggu Supervisor</span>;
       case 'Published':
-        return <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">✓ Terbit</span>;
+        return <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">âœ“ Terbit</span>;
       case 'Production Completed':
-        return <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">✓ Produksi Selesai</span>;
+        return <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">âœ“ Produksi Selesai</span>;
       default:
         return <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-zinc-800 text-zinc-300 border border-zinc-700">{status}</span>;
     }
@@ -88,7 +68,7 @@ export default async function PublishEditorDashboard() {
         </div>
       </div>
 
-      {/* ─── Antrean Aktif ─── */}
+      {/* â”€â”€â”€ Antrean Aktif â”€â”€â”€ */}
       <div className="bg-zinc-900/50 border border-zinc-800/80 rounded-xl overflow-hidden">
         <div className="p-6 border-b border-zinc-800/80 flex items-center justify-between">
           <h2 className="text-lg font-bold text-white flex items-center gap-2">
@@ -144,7 +124,7 @@ export default async function PublishEditorDashboard() {
         )}
       </div>
 
-      {/* ─── Riwayat Terbit ─── */}
+      {/* â”€â”€â”€ Riwayat Terbit â”€â”€â”€ */}
       <div className="bg-zinc-900/50 border border-zinc-800/80 rounded-xl overflow-hidden">
         <div className="p-6 border-b border-zinc-800/80 flex items-center justify-between">
           <h2 className="text-lg font-bold text-white flex items-center gap-2">
@@ -202,3 +182,5 @@ export default async function PublishEditorDashboard() {
     </div>
   );
 }
+
+

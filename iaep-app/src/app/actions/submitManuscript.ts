@@ -1,4 +1,4 @@
-"use server";
+﻿"use server";
 
 export async function submitManuscript(formData: FormData) {
   const { createClient } = await import("@/utils/supabase/server");
@@ -59,6 +59,7 @@ export async function submitManuscript(formData: FormData) {
     const file = formData.get('file') as File;
     const anonymousFile = formData.get('anonymousFile') as File | null;
     const supportingFile = formData.get('supportingFile') as File | null;
+    const aiResultRaw = formData.get('aiResult') as string | null;
 
     if (!title || !file) {
       return { success: false, error: "Title and file are required." };
@@ -129,6 +130,36 @@ export async function submitManuscript(formData: FormData) {
 
         if (submission) {
            finalSubmissionId = submission.id || submission.submission_id || finalSubmissionId;
+
+        // UltimateAI -> rumah submission
+        if (aiResultRaw) {
+          try {
+            const aiResult = JSON.parse(aiResultRaw);
+
+            if (aiResult.rawContent) {
+              const { error: aiSaveError } = await supabaseAdmin
+                .from('ai_reviewer_assessments')
+                .upsert({
+                  submission_id: finalSubmissionId,
+                  summary_evaluation: aiResult.rawContent,
+                  suggested_improvements: null,
+                  model_name: aiResult.model || 'UltimateAI',
+                  prompt_version: 'UltimateAI-Direct-v1',
+                  raw_ai_response: aiResult
+                }, {
+                  onConflict: 'submission_id'
+                });
+
+              if (aiSaveError) {
+                console.error('[UltimateAI Binding] GAGAL:', aiSaveError.message);
+              } else {
+                console.log('[UltimateAI Binding] BERHASIL:', finalSubmissionId);
+              }
+            }
+          } catch (aiError) {
+            console.error('[UltimateAI Binding] ERROR:', aiError);
+          }
+        }
         }
 
         // Transactional insert for article_authors

@@ -1,4 +1,4 @@
-import { ReactNode } from "react";
+﻿import { ReactNode } from "react";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { createClient } from "@/utils/supabase/server";
@@ -28,11 +28,13 @@ export default async function SubmitLayout({ children }: { children: ReactNode }
   } catch {}
 
   const roleLower = userRole.toLowerCase();
-  
-  // Co-Admin, Editor, and Reviewer should not be submitting articles
-  if (roleLower === "co_admin" || roleLower === "co-admin" || roleLower === "editor" || roleLower === "reviewer") {
-    redirect("/dashboard");
-  }
+  // Submission capability:
+  // Author, Reviewer, Editor, dan Co-Admin dapat menggunakan workflow submission.
 
   return <>{children}</>;
 }
+
+
+
+
+

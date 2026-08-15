@@ -788,7 +788,7 @@ export async function getAssignedVolumeAndIssue(submissionId: string, journalId:
     }
 }
 
-export async function publishArticle(submissionId: string, journalId: string, customVolume: string = "", customIssue: string = "", customAuthor: string = "") {
+export async function publishArticle(submissionId: string, journalId: string, customVolume: string = "", customIssue: string = "", customAuthor: string = "", customTitle: string = "") {
     try {
         const supabaseAdmin = (await import('@supabase/supabase-js')).createClient(
             process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -797,7 +797,7 @@ export async function publishArticle(submissionId: string, journalId: string, cu
 
         // 1. Get submission details from Supabase
         const { data } = await supabaseAdmin.from('submissions').select('title, author_id').eq('id', submissionId).single();
-        const submissionTitle = data?.title || '';
+        const submissionTitle = customTitle.trim() || data?.title || '';
         const authorId = data?.author_id || '';
 
         // Get journal name
@@ -826,6 +826,10 @@ export async function publishArticle(submissionId: string, journalId: string, cu
             volume: finalVolume,
             issue: finalIssue
         };
+
+        if (customTitle.trim()) {
+            extraFields.title = customTitle.trim();
+        }
         
         // Only set published_at once, during the transition to Published status
         if (currentSub && currentSub.status !== 'Published' && !currentSub.published_at) {

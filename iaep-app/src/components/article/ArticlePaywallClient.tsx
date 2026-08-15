@@ -311,6 +311,7 @@ export default function ArticlePaywallClient({ initialArticle, id }: ArticlePayw
   }, [article.journal_id]);
 
   let displayAuthors = "";
+  const editorAuthorNames = article.author || "";
   if (article.author && !['penulis tidak diketahui', 'penulis tidak di ketahui', 'author', 'unknown', 'unknown author'].includes(article.author.toLowerCase().trim())) {
     displayAuthors = article.author;
   }
@@ -403,8 +404,14 @@ export default function ArticlePaywallClient({ initialArticle, id }: ArticlePayw
                 {article.title}
               </h1>
 
-              {displayAuthors && (
+              {editorAuthorNames && (
                 <div className="text-[#c9a84c] font-bold text-lg mb-6 tracking-wide">
+                  {editorAuthorNames}
+                </div>
+              )}
+
+              {displayAuthors && (
+                <div className="hidden text-[#c9a84c] font-bold text-lg mb-6 tracking-wide">
                   {displayAuthors}
                 </div>
               )}

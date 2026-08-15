@@ -30,11 +30,29 @@ export interface TransitionValidation {
 /**
  * Pengecualian downgrade eksplisit (transisi mundur yang sah secara bisnis).
  */
-const DOWNGRADE_EXCEPTIONS: { to: string; maxFromLevel: number }[] = [
+const DOWNGRADE_EXCEPTIONS: {
+    to: string;
+    maxFromLevel: number;
+    fromStatuses?: string[];
+}[] = [
     // Koreksi editorial: naskah yang sudah Accepted dapat dikembalikan ke revisi.
     // (Status terminal sudah diblokir lebih dulu, jadi efektif hanya dari 'Accepted'.)
     { to: SUBMISSION_STATUS.NEEDS_REVISION, maxFromLevel: 5 },
     { to: SUBMISSION_STATUS.REVISION_REQUIRED, maxFromLevel: 5 },
+
+    // Production correction:
+    // Editor may return a manuscript from Layout to the revision stage.
+    // This is intentionally restricted to Assigned to Layout only.
+    {
+        to: SUBMISSION_STATUS.NEEDS_REVISION,
+        maxFromLevel: 6,
+        fromStatuses: [SUBMISSION_STATUS.ASSIGNED_TO_LAYOUT],
+    },
+    {
+        to: SUBMISSION_STATUS.REVISION_REQUIRED,
+        maxFromLevel: 6,
+        fromStatuses: [SUBMISSION_STATUS.ASSIGNED_TO_LAYOUT],
+    },
 ];
 
 /**
@@ -86,7 +104,16 @@ export function validateTransition(fromStatus: string, toStatus: string): Transi
 
     // Pengecualian downgrade eksplisit
     for (const ex of DOWNGRADE_EXCEPTIONS) {
-        if (toStatus === ex.to && fromLevel <= ex.maxFromLevel) return { valid: true };
+        const fromAllowed =
+            !ex.fromStatuses || ex.fromStatuses.includes(fromStatus);
+
+        if (
+            toStatus === ex.to &&
+            fromLevel <= ex.maxFromLevel &&
+            fromAllowed
+        ) {
+            return { valid: true };
+        }
     }
 
     return { valid: false, reason: `Transisi status tidak valid: "${fromStatus}" → "${toStatus}"` };
@@ -112,4 +139,7 @@ export function isDoiImmutable(existingDoi: string | null, newDoi: string | null
     }
     return false;
 }
+
+
+
 

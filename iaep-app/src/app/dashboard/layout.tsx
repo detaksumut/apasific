@@ -1,49 +1,61 @@
 import { ReactNode } from "react";
 import Sidebar from "@/components/dashboard/Sidebar";
 import Topbar from "@/components/dashboard/Topbar";
-import { cookies } from "next/headers";
+import { getCurrentUser } from "@/app/actions/auth";
 import { redirect } from "next/navigation";
-import { createClient } from "@/utils/supabase/server";
+import { headers } from "next/headers";
+import { normalizeRole } from "@/lib/roles";
+export const dynamic = "force-dynamic";
 
 export default async function DashboardLayout({ children }: { children: ReactNode }) {
-  let userRole = "author";
+  let userRole = "";
   let userName = "User";
   let isAuthenticated = false;
 
   try {
-    // 1. Try Supabase auth first
-    const supabase = await createClient();
-    const { data: { user } } = await supabase.auth.getUser();
+    // Canonical Identity Source
+    // Dashboard chrome must use the same identity/role resolution
+    // as the dashboard page and all protected application flows.
+    const identity = await getCurrentUser();
 
-    if (user) {
+    if (identity) {
       isAuthenticated = true;
-      const { data: profile } = await supabase.from('profiles').select('full_name, role').eq('id', user.id).single();
-      if (profile) {
-        userRole = profile.role || userRole;
-        userName = profile.full_name || user.email || userName;
-      } else {
-        userName = user.user_metadata?.full_name || user.email || userName;
-      }
-    } else {
-      // 2. Fallback: check cookie for Firebase-authenticated users
-      const cookieStore = await cookies();
-      const cookieRole = cookieStore.get('user_role')?.value;
-      const cookieName = cookieStore.get('user_name')?.value;
+const rawRole = identity.roles?.[0] || "";
+      userRole = normalizeRole(rawRole) || rawRole;
 
-      if (cookieRole) {
-        // Firebase user has a valid role cookie set during login
-        isAuthenticated = true;
-        userRole = cookieRole;
-        if (cookieName) userName = decodeURIComponent(cookieName);
+      const configuredSuperAdminEmail =
+        process.env.SUPER_ADMIN_CANONICAL_EMAIL ||
+        process.env.SUPER_ADMIN_EMAIL;
+
+      if (
+        identity.email?.toLowerCase() ===
+        configuredSuperAdminEmail?.toLowerCase()
+      ) {
+        userRole = "SUPER_ADMIN";
       }
-    }
-  } catch {
-    console.log("Using fallback dashboard data");
+      userName = identity.full_name || identity.email || userName;
+}
+  } catch (error) {
+    console.error("Dashboard identity resolution failed:", error);
   }
-
   // Block access if not authenticated via either Supabase or Firebase
   if (!isAuthenticated) {
     redirect("/auth/login");
+  }
+
+  const requestHeaders = await headers();
+  const dashboardPath =
+    requestHeaders.get("x-dashboard-path") || "/dashboard";
+
+  const normalizedUserRole = normalizeRole(userRole) || userRole;
+
+  // REVIEWER ISOLATION
+  // Reviewer hanya boleh mengakses Reviewer Portal.
+  if (
+    normalizedUserRole === "REVIEWER" &&
+    !dashboardPath.startsWith("/dashboard/reviews")
+  ) {
+    redirect("/dashboard/reviews");
   }
 
   return (
@@ -68,3 +80,18 @@ export default async function DashboardLayout({ children }: { children: ReactNod
     </div>
   );
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

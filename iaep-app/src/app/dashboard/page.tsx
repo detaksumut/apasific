@@ -1,86 +1,68 @@
 import { createClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
+import { getCurrentUser } from "@/app/actions/auth";
+import { normalizeRole } from "@/lib/roles";
 import Link from "next/link";
 import { FileText, Clock, CheckCircle, ArrowRight, Plus } from "lucide-react";
 import { cookies } from "next/headers";
 import { getFirebaseAdmin } from "@/utils/firebase/server";
 import { getFirestore } from "@/utils/firebase/db";
 
-export default async function AuthorDashboard() {
+export default async function DashboardRoot() {
   const supabase = await createClient();
   
-  // 1. Dual-Auth Check: Try Supabase first, fallback to Firebase Cookie
-  let { data: { user } } = await supabase.auth.getUser();
-  let userName = 'Author';
-  let userId = '';
-  
-  if (!user) {
-    const cookieStore = await cookies();
-    const fbToken = cookieStore.get('firebase_session')?.value;
-    const fallbackUserId = cookieStore.get('supabase_fallback_session')?.value;
-    
-    if (fbToken || fallbackUserId) {
-        try {
-            const admin = getFirebaseAdmin();
-            if (fbToken && admin) {
-               // fbToken is a Custom Token (JWT), not an ID Token. Decode it manually to get UID.
-               const payloadBase64 = fbToken.split('.')[1];
-               const payload = JSON.parse(Buffer.from(payloadBase64, 'base64').toString());
-               const fbUser = await admin.auth().getUser(payload.uid);
-               user = { id: fbUser.uid, email: fbUser.email, user_metadata: { full_name: fbUser.displayName } } as any;
-            }
-        } catch (e) {
-            console.error("Firebase token verification failed", e);
-        }
-        
-        if (!user && fallbackUserId) {
-           user = { id: fallbackUserId, email: "user@example.com", user_metadata: { full_name: "Author" } } as any;
-        }
-    }
-  }
+  // 1. Canonical Identity Resolution
+  // IdentityResolver is the authoritative source for authenticated identity and role.
+  const identity = await getCurrentUser();
 
-  if (!user) {
+  if (!identity) {
     redirect("/auth/login");
   }
 
-  userId = user.id;
+  let userId = identity.identityId || identity.id;
+  let userName = identity.full_name || identity.email || "Author";
+  const rawRole = identity.roles?.[0] || "";
+  const normalizedRole = normalizeRole(rawRole);
 
-  // FIX THE ROOT CAUSE: Convert Firebase UID into a deterministic 32-char valid UUID format
-  // so it matches what we save in submissions and profiles
-  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(userId)) {
-      const hex = Buffer.from(userId).toString('hex').padEnd(32, '0').slice(0, 32);
-      userId = `${hex.slice(0,8)}-${hex.slice(8,12)}-${hex.slice(12,16)}-${hex.slice(16,20)}-${hex.slice(20,32)}`;
+  // Explicit Super Admin dashboard routing.
+  // Scope: detaksumut@gmail.com ONLY.
+  if (identity.email?.toLowerCase() === "detaksumut@gmail.com") {
+    redirect("/dashboard/admin");
   }
 
-  // 2. Dual-Database Profile Fetch: Try Supabase, fallback to Firestore
-  let role = 'author';
-  try {
-      const { data: profile, error: profileError } = await supabase.from('profiles').select('full_name, role').eq('id', userId).single();
-      if (profile && !profileError) {
-          userName = profile.full_name;
-          if (profile.role) role = profile.role.toLowerCase();
-      } else {
-          throw new Error("Supabase profile failed or empty");
-      }
-  } catch (e) {
-      userName = user.user_metadata?.full_name || user.email || 'Author';
+  // Keep the canonical identity ID for downstream submission queries.
+  // Do NOT synthesize a UUID from legacy IDs here.
+  if (!userId) {
+    redirect("/auth/login");
   }
 
-  const cookieStore = await cookies();
-  const cookieRole = cookieStore.get('user_role')?.value;
-  if (cookieRole && role === 'author') role = cookieRole.toLowerCase();
+  // ROOT DASHBOARD IS A ROLE DISPATCHER.
+  // Unknown/empty roles MUST NEVER fall through to Author Dashboard.
+  switch (normalizedRole) {
+    case "EDITOR":
+      // redirect("/dashboard/editor");
 
-  // Redirect based on role if they hit the root dashboard
-  if (role === 'layout editor') redirect('/dashboard/production/layout');
-  if (role === 'cover editor') redirect('/dashboard/production/cover');
-  if (role === 'publish editor') redirect('/dashboard/production/publish');
-  if (role === 'admin editor') redirect('/dashboard/production/supervisor');
-  if (role === 'supervisor') redirect('/dashboard/production/supervisor');
-  if (role === 'editor') redirect('/dashboard/editor');
-  if (role === 'admin') redirect('/dashboard/admin');
-  if (role === 'reviewer') redirect('/dashboard/reviews');
-  if (role === 'co_admin' || role === 'co-admin') redirect('/dashboard/co-admin/naskah-masuk');
+    case "REVIEWER":
+      redirect("/dashboard/reviews");
 
+    case "PRODUCTION":
+      redirect("/dashboard/production/supervisor");
+
+    case "SUPERVISOR":
+      redirect("/dashboard/production/supervisor");
+
+    case "ADMIN":
+    case "SUPER_ADMIN":
+      redirect("/dashboard/admin");
+
+    default:
+      break;
+  }
+
+  // Only an explicitly resolved author may render this dashboard.
+  if (rawRole.trim().toLowerCase() !== "author") {
+    redirect("/auth/login");
+  }
   // 3. Pure Supabase SSOT Submissions Fetch (No Firestore read lag)
   let articles: any[] = [];
   try {
@@ -195,3 +177,9 @@ export default async function AuthorDashboard() {
     </div>
   );
 }
+
+
+
+
+
+

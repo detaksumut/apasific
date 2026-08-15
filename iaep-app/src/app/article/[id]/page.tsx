@@ -121,7 +121,7 @@ async function getArticleData(id: string) {
     return {
       id: data.id,
       title: data.title || "",
-      author: authorNames || data.profiles?.full_name || "Penulis Tidak Diketahui",
+      author: data.author || authorNames || data.profiles?.full_name || "Penulis Tidak Diketahui",
       journal: journalName,
       journal_id: data.journal_id || "",
       date: data.created_at ? new Date(data.created_at).toLocaleDateString('id-ID') : "Baru saja dipublikasi",

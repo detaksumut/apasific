@@ -1,4 +1,4 @@
-export class IdentityRepository {
+﻿export class IdentityRepository {
     private static getSupabaseAdmin() {
         const { createClient: createSupabaseClient } = require('@supabase/supabase-js');
         return createSupabaseClient(
@@ -7,6 +7,34 @@ export class IdentityRepository {
         );
     }
 
+    static async findIdentityById(id: string): Promise<{ id: string; full_name?: string; role?: string; email?: string } | null> {
+        try {
+            const supabaseAdmin = this.getSupabaseAdmin();
+            const { data: profile, error } = await supabaseAdmin
+                .from('profiles')
+                .select('id, full_name, role, email')
+                .eq('id', id)
+                .maybeSingle();
+
+            if (error) {
+                console.error("IdentityRepository findIdentityById failed:", error);
+                return null;
+            }
+
+            if (profile && profile.id) {
+                return {
+                    id: profile.id,
+                    full_name: profile.full_name,
+                    role: profile.role ?? undefined,
+                    email: profile.email ?? undefined
+                };
+            }
+        } catch (error) {
+            console.error("IdentityRepository findIdentityById failed:", error);
+        }
+
+        return null;
+    }
     static async findIdentityByEmail(email: string): Promise<{ id: string; full_name?: string; role?: string } | null> {
         try {
             const supabaseAdmin = this.getSupabaseAdmin();
@@ -130,3 +158,4 @@ export class IdentityRepository {
         }
     }
 }
+

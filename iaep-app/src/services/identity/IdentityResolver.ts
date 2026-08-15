@@ -23,20 +23,29 @@ export class IdentityResolver {
 
         // 1. Resolve Legacy / Fake UUIDs
         if (!isTrueUUID) {
-            // Attempt to look up by email first
+            // Canonical coexistence rule:
+            // Legacy production registry is authoritative during coexistence.
             if (resolvedEmail && !resolvedEmail.includes('fallback@')) {
-                const profile = await IdentityRepository.findIdentityByEmail(resolvedEmail);
-                if (profile && profile.id) {
-                    identityId = profile.id;
-                    if (profile.full_name) resolvedFullName = profile.full_name;
-                    if (profile.role) resolvedRole = profile.role;
+                const registryProfile = await IdentityRepository.findIdentityFromSystemSettings(resolvedEmail);
+
+console.log(
+    "[IDENTITY-ROLE-DIAGNOSTIC]",
+    "email=", resolvedEmail,
+    "registryProfile=", JSON.stringify(registryProfile)
+);
+
+                if (registryProfile && registryProfile.id) {
+                    identityId = registryProfile.id;
+                    if (registryProfile.full_name) resolvedFullName = registryProfile.full_name;
+                    if (registryProfile.email) resolvedEmail = registryProfile.email;
+                    if (registryProfile.role) resolvedRole = registryProfile.role;
                 } else {
-                    // Try system settings fallback just in case
-                    const fallbackProfile = await IdentityRepository.findIdentityFromSystemSettings(resolvedEmail);
-                    if (fallbackProfile && fallbackProfile.id) {
-                        identityId = fallbackProfile.id;
-                        if (fallbackProfile.full_name) resolvedFullName = fallbackProfile.full_name;
-                        if (fallbackProfile.role) resolvedRole = fallbackProfile.role;
+                    // Profiles remain compatibility fallback only.
+                    const profile = await IdentityRepository.findIdentityByEmail(resolvedEmail);
+
+                    if (profile && profile.id) {
+                        identityId = profile.id;
+                        if (profile.full_name) resolvedFullName = profile.full_name;
                     } else {
                         throw new IdentityNotFoundException(`Identity not found for legacy email: ${resolvedEmail}`);
                     }
@@ -53,7 +62,6 @@ export class IdentityResolver {
                 if (fallbackProfile && fallbackProfile.id) {
                     identityId = fallbackProfile.id;
                     if (fallbackProfile.full_name) resolvedFullName = fallbackProfile.full_name;
-                    if (fallbackProfile.role) resolvedRole = fallbackProfile.role;
                     if (fallbackProfile.email) {
                         resolvedEmail = fallbackProfile.email;
                         
@@ -61,7 +69,6 @@ export class IdentityResolver {
                         const trueProfile = await IdentityRepository.findIdentityByEmail(resolvedEmail);
                         if (trueProfile && trueProfile.id) {
                             identityId = trueProfile.id;
-                            if (trueProfile.role) resolvedRole = trueProfile.role;
                         }
                     }
                 } else {
@@ -69,14 +76,60 @@ export class IdentityResolver {
                 }
             }
         } else {
-            // Even if it's a True UUID, enrich full_name and role from profiles if either is missing
-            if (resolvedEmail && (!resolvedFullName || !resolvedRole)) {
-                const profile = await IdentityRepository.findIdentityByEmail(resolvedEmail);
-                if (profile) {
-                    if (profile.full_name && !resolvedFullName) resolvedFullName = profile.full_name;
-                    if (profile.role && !resolvedRole) resolvedRole = profile.role;
+            // True UUID:
+            // Keep canonical UUID as identityId.
+            // During coexistence, production registry is authoritative
+            // for production role assignment.
+
+            const profileById = await IdentityRepository.findIdentityById(rawId);
+
+            if (profileById) {
+                if (profileById.full_name) {
+                    resolvedFullName = profileById.full_name;
+                }
+
+                if (profileById.email) {
+                    resolvedEmail = profileById.email;
+                }
+
+            }
+
+            // Production registry overrides profiles.role during coexistence.
+            // IMPORTANT: this changes only the role, never the canonical identityId.
+            if (resolvedEmail && !resolvedEmail.includes("fallback@")) {
+                const registryProfile =
+                    await IdentityRepository.findIdentityFromSystemSettings(resolvedEmail);
+
+                if (registryProfile) {
+                    if (registryProfile.full_name) {
+                        resolvedFullName = registryProfile.full_name;
+                    }
+
+                    if (registryProfile.email) {
+                        resolvedEmail = registryProfile.email;
+                    }
+
+                    if (registryProfile.role) {
+                        resolvedRole = registryProfile.role;
+                    }
                 }
             }
+
+            // profiles.role is no longer used as a role source.
+        }
+
+        // Existing Super Admin configuration remains authoritative for the
+        // designated Super Admin account.
+        const configuredSuperAdminEmail =
+            process.env.SUPER_ADMIN_CANONICAL_EMAIL ||
+            process.env.SUPER_ADMIN_EMAIL;
+
+        if (
+            resolvedEmail &&
+            configuredSuperAdminEmail &&
+            resolvedEmail.toLowerCase() === configuredSuperAdminEmail.toLowerCase()
+        ) {
+            resolvedRole = "super_admin";
         }
 
         // 2. Build the new IdentityContext, do not mutate original sessionUser
@@ -86,12 +139,14 @@ export class IdentityResolver {
             email: resolvedEmail,
             full_name: resolvedFullName,
             provider: sessionUser.app_metadata?.provider || (isTrueUUID ? 'supabase' : 'firebase'),
-            roles: sessionUser.app_metadata?.roles?.length
-                ? sessionUser.app_metadata.roles
-                : (resolvedRole ? [resolvedRole] : []),
+            // Canonical role authority: resolvedRole wins over provider metadata.
+            // Production legacy roles must not be overridden by Supabase app_metadata.roles.
+            roles: resolvedRole ? [resolvedRole] : (sessionUser.app_metadata?.roles || []),
             permissions: sessionUser.app_metadata?.permissions || []
         };
 
         return context;
     }
 }
+
+

@@ -2,6 +2,7 @@ import { ReactNode } from "react";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { createClient } from "@/utils/supabase/server";
+import { getCurrentUser } from "@/app/actions/auth";
 
 export default async function AdminLayout({ children }: { children: ReactNode }) {
   let userRole = "author";
@@ -27,10 +28,14 @@ export default async function AdminLayout({ children }: { children: ReactNode })
     }
   } catch {}
 
+  const identity = await getCurrentUser();
+  const configuredSuperAdminEmail = process.env.SUPER_ADMIN_CANONICAL_EMAIL || process.env.SUPER_ADMIN_EMAIL;
+  const isConfiguredSuperAdmin = !!identity?.email && !!configuredSuperAdminEmail && identity.email.toLowerCase() === configuredSuperAdminEmail.toLowerCase();
+
   const roleLower = userRole.toLowerCase();
 
   // RBAC: consistent with permissions.ts isAdmin() — supports all three variants
-  const isAdmin = ["admin", "superadmin", "super_admin"].includes(roleLower);
+  const isAdmin = isConfiguredSuperAdmin || ["admin", "superadmin", "super_admin"].includes(roleLower);
   if (!isAdmin) {
     redirect("/dashboard");
   }
