@@ -1,4 +1,5 @@
-import { createClient } from "@/utils/supabase/server";
+﻿import { createClient } from "@/utils/supabase/server";
+import { getCurrentUser } from "@/app/actions/auth";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import DeleteSubmissionButton from "@/components/DeleteSubmissionButton";
@@ -8,29 +9,8 @@ import { cookies } from "next/headers";
 
 export default async function CoverEditorDashboard() {
   const supabase = await createClient();
-  let { data: { user } } = await supabase.auth.getUser();
+  const user = await getCurrentUser();
 
-  if (!user) {
-    const cookieStore = await cookies();
-    const fbToken = cookieStore.get('firebase_session')?.value;
-    const fallbackUserId = cookieStore.get('supabase_fallback_session')?.value;
-    
-    if (fbToken || fallbackUserId) {
-        try {
-            if (fbToken) {
-               const payloadBase64 = fbToken.split('.')[1];
-               const payload = JSON.parse(Buffer.from(payloadBase64, 'base64').toString());
-               user = { id: payload.uid, email: "user@firebase.local" } as any;
-            }
-        } catch (e) {
-            console.error("Firebase token verification failed");
-        }
-        
-        if (!user && fallbackUserId) {
-           user = { id: fallbackUserId, email: "user@fallback.local" } as any;
-        }
-    }
-  }
   if (!user) redirect("/auth/login");
 
   let articles: any[] = [];
@@ -182,3 +162,5 @@ export default async function CoverEditorDashboard() {
     </div>
   );
 }
+
+

@@ -28,6 +28,12 @@ export class IdentityResolver {
             if (resolvedEmail && !resolvedEmail.includes('fallback@')) {
                 const registryProfile = await IdentityRepository.findIdentityFromSystemSettings(resolvedEmail);
 
+console.log(
+    "[IDENTITY-ROLE-DIAGNOSTIC]",
+    "email=", resolvedEmail,
+    "registryProfile=", JSON.stringify(registryProfile)
+);
+
                 if (registryProfile && registryProfile.id) {
                     identityId = registryProfile.id;
                     if (registryProfile.full_name) resolvedFullName = registryProfile.full_name;
@@ -112,6 +118,20 @@ export class IdentityResolver {
             // profiles.role is no longer used as a role source.
         }
 
+        // Existing Super Admin configuration remains authoritative for the
+        // designated Super Admin account.
+        const configuredSuperAdminEmail =
+            process.env.SUPER_ADMIN_CANONICAL_EMAIL ||
+            process.env.SUPER_ADMIN_EMAIL;
+
+        if (
+            resolvedEmail &&
+            configuredSuperAdminEmail &&
+            resolvedEmail.toLowerCase() === configuredSuperAdminEmail.toLowerCase()
+        ) {
+            resolvedRole = "super_admin";
+        }
+
         // 2. Build the new IdentityContext, do not mutate original sessionUser
         const context: IdentityContext = {
             id: identityId,         // Alias to identityId for backward compatibility
@@ -128,4 +148,5 @@ export class IdentityResolver {
         return context;
     }
 }
+
 

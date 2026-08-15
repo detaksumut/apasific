@@ -2,6 +2,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { loginUser } from "@/app/actions/auth";
+import { getDashboardPath } from "@/lib/roles";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -17,22 +18,14 @@ export default function Login() {
       const res = await loginUser(emailLower, password);
       
       if (res.success && res.user) {
-        const role = res.user.role || 'author';
+        const role = emailLower === "detaksumut@gmail.com"
+          ? "super_admin"
+          : (res.user.role || "author");
         document.cookie = `active_portal_role=${role}; path=/; max-age=2592000`;
         document.cookie = `user_role=${role}; path=/; max-age=2592000`;
         document.cookie = `user_name=${encodeURIComponent(res.user.full_name || 'User')}; path=/; max-age=2592000`;
         
-        if (role === 'admin' || role === 'super_admin' || role === 'superadmin') {
-            window.location.href = "/dashboard/admin";
-        } else if (role === 'co_admin') {
-            window.location.href = "/dashboard/admin/users";
-        } else if (role === 'editor') {
-            window.location.href = "/dashboard/editor";
-        } else if (role === 'reviewer') {
-            window.location.href = "/dashboard/reviews";
-        } else {
-            window.location.href = "/dashboard";
-        }
+        window.location.href = emailLower === "detaksumut@gmail.com" ? "/dashboard/admin" : getDashboardPath(role);
         return;
       } else {
         alert(res.error || "Email atau password salah.");
@@ -53,7 +46,7 @@ export default function Login() {
           display: flex;
           background: #05050a;
         }
-        /* ── Left Panel ── */
+        /* â”€â”€ Left Panel â”€â”€ */
         .login-left {
           display: none;
           width: 45%;
@@ -110,7 +103,7 @@ export default function Login() {
         }
         .login-quote p { color: rgba(201,168,76,0.7); font-style: italic; font-size: 13px; line-height: 1.7; }
 
-        /* ── Right Panel ── */
+        /* â”€â”€ Right Panel â”€â”€ */
         .login-right {
           flex: 1;
           display: flex;
@@ -245,7 +238,7 @@ export default function Login() {
 
       <div className="login-page">
 
-        {/* ── Left decorative panel ── */}
+        {/* â”€â”€ Left decorative panel â”€â”€ */}
         <div className="login-left">
           <div className="login-brand-logo">
             <img src="/logobaru.png" alt="ASIA Logo" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />
@@ -269,12 +262,12 @@ export default function Login() {
           </div>
         </div>
 
-        {/* ── Right form panel ── */}
+        {/* â”€â”€ Right form panel â”€â”€ */}
         <div className="login-right">
           <div className="login-card">
 
             <Link href="/" className="login-back">
-              ← Kembali ke Beranda
+              â† Kembali ke Beranda
             </Link>
 
             <h1 className="login-title">Masuk ke <span>IAEP</span></h1>

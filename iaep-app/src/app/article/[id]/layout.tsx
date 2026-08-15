@@ -1,4 +1,4 @@
-// src/app/article/[id]/layout.tsx
+﻿// src/app/article/[id]/layout.tsx
 
 import { createClient } from '@supabase/supabase-js';
 import { Metadata } from 'next';
@@ -123,3 +123,4 @@ export default async function ArticleLayout({
     </>
   );
 }
+
