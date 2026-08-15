@@ -1,5 +1,6 @@
-import { verifyPassword } from "@/utils/password";
 "use server";
+
+import { verifyPassword } from "@/utils/password";
 
 import { IdentityRepository } from "@/repositories/IdentityRepository";
 
@@ -513,6 +514,7 @@ export async function getCurrentUser() {
   }
   return user;
 }
+
 
 
 
