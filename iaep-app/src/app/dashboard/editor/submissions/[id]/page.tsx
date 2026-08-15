@@ -42,6 +42,7 @@ export default function SubmissionControlPanel() {
   const [customVolume, setCustomVolume] = useState("");
   const [customIssue, setCustomIssue] = useState("");
   const [customAuthor, setCustomAuthor] = useState("");
+  const [customTitle, setCustomTitle] = useState("");
   const [additionalAuthor, setAdditionalAuthor] = useState("");
 const [uploadingReviewId, setUploadingReviewId] = useState<string | null>(null);
   const [isSendingFonnte, setIsSendingFonnte] = useState(false);
@@ -159,6 +160,8 @@ const [uploadingReviewId, setUploadingReviewId] = useState<string | null>(null);
         // Dynamically build the email text based on actual author and title
         const authorFirstName = data.profiles?.full_name ? data.profiles.full_name.split(' ')[0] : 'Author';
         setEmailText(`Dear ${authorFirstName},\n\nWe have reached a decision regarding your submission to APASIFIC IAEP: ${data.title}.\n\nOur decision is: `);
+
+        setCustomTitle(data.title || "");
 
         // Pre-fill volume and issue from database (database is always authoritative)
         // Also clear stale localStorage so database value always wins
@@ -1851,7 +1854,18 @@ const [uploadingReviewId, setUploadingReviewId] = useState<string | null>(null);
                     <div className="lg:col-span-7 space-y-6">
                       <div className="bg-zinc-900/40 p-6 rounded-xl border border-zinc-800/80 space-y-4">
                         <h5 className="text-xs font-bold text-zinc-400 uppercase tracking-wider">Metadata Penerbitan</h5>
-                        <div className="grid grid-cols-2 gap-6 text-sm">
+                        <div className="mb-6">
+                          <label className="text-zinc-500 block text-xs uppercase font-semibold mb-1">
+                            Judul Artikel
+                          </label>
+                          <input
+                            type="text"
+                            value={customTitle}
+                            onChange={(e) => setCustomTitle(e.target.value)}
+                            className="w-full p-3 border border-zinc-800 bg-[#0c0c16] text-[#e8e8f0] rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none transition-all text-sm font-medium"
+                            placeholder="Masukkan judul artikel"
+                          />
+                        </div>                        <div className="grid grid-cols-2 gap-6 text-sm">
                           <div>
                             <span className="text-zinc-500 block text-xs uppercase font-semibold">Jurnal</span>
                             <span className="font-semibold text-zinc-200">{submission?.journals?.name || '-'}</span>
@@ -1989,7 +2003,7 @@ const [uploadingReviewId, setUploadingReviewId] = useState<string | null>(null);
                               const confirmPublish = confirm(confirmMsg);
                               if (!confirmPublish) return;
                               const m = await import("@/app/actions/editor");
-                              const res = await m.publishArticle(submission.id, submission.journal_id || "", customVolume, customIssue, customAuthor);
+                              const res = await m.publishArticle(submission.id, submission.journal_id || "", customVolume, customIssue, customAuthor, customTitle);
                               if (res.success) {
                                 showToast(isRepublish ? "Metadata Publikasi Berhasil Diperbarui!" : "Naskah resmi diterbitkan!");
                                 setTimeout(() => window.location.reload(), 1000);
