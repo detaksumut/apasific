@@ -41,6 +41,8 @@ export default function SubmissionControlPanel() {
   const [currentUserRole, setCurrentUserRole] = useState<string>("");
   const [customVolume, setCustomVolume] = useState("");
   const [customIssue, setCustomIssue] = useState("");
+  const [publicationMonth, setPublicationMonth] = useState("");
+  const [publicationYear, setPublicationYear] = useState("");
   const [customAuthor, setCustomAuthor] = useState("");
   const [customTitle, setCustomTitle] = useState("");
   const [additionalAuthor, setAdditionalAuthor] = useState("");
@@ -176,6 +178,18 @@ const [uploadingReviewId, setUploadingReviewId] = useState<string | null>(null);
           localStorage.setItem(`draft_iss_${data.id}`, data.issue);
         } else {
           localStorage.removeItem(`draft_iss_${data.id}`);
+        }
+
+        if (data.publication_month) {
+          setPublicationMonth(data.publication_month);
+        } else {
+          setPublicationMonth("");
+        }
+
+        if (data.publication_year) {
+          setPublicationYear(String(data.publication_year));
+        } else {
+          setPublicationYear("");
         }
 
         if (data.author) {
@@ -1874,6 +1888,26 @@ const [uploadingReviewId, setUploadingReviewId] = useState<string | null>(null);
                             <span className="text-zinc-500 block text-xs uppercase font-semibold">ISSN</span>
                             <span className="font-semibold text-zinc-200">{submission?.issn || '-'}</span>
                           </div>
+                          <div>
+                            <span className="text-zinc-500 block text-xs uppercase font-semibold">Bulan Terbit</span>
+                            <input
+                              type="text"
+                              value={publicationMonth}
+                              onChange={(e) => setPublicationMonth(e.target.value)}
+                              className="w-full mt-1 p-2 border border-zinc-800 bg-[#0c0c16] text-[#e8e8f0] rounded-lg outline-none focus:ring-2 focus:ring-emerald-500 text-sm"
+                              placeholder="Contoh: Januari"
+                            />
+                          </div>
+                          <div>
+                            <span className="text-zinc-500 block text-xs uppercase font-semibold">Tahun Terbit</span>
+                            <input
+                              type="text"
+                              value={publicationYear}
+                              onChange={(e) => setPublicationYear(e.target.value)}
+                              className="w-full mt-1 p-2 border border-zinc-800 bg-[#0c0c16] text-[#e8e8f0] rounded-lg outline-none focus:ring-2 focus:ring-emerald-500 text-sm"
+                              placeholder="Contoh: 2026"
+                            />
+                          </div>
                           <div className="col-span-2">
                             <span className="text-zinc-500 block text-xs uppercase font-semibold">Digital Object Identifier (DOI)</span>
                             {(submission?.doi || generatedDoi) ? (
@@ -2003,7 +2037,7 @@ const [uploadingReviewId, setUploadingReviewId] = useState<string | null>(null);
                               const confirmPublish = confirm(confirmMsg);
                               if (!confirmPublish) return;
                               const m = await import("@/app/actions/editor");
-                              const res = await m.publishArticle(submission.id, submission.journal_id || "", customVolume, customIssue, customAuthor, customTitle);
+                              const res = await m.publishArticle(submission.id, submission.journal_id || "", customVolume, customIssue, customAuthor, customTitle, publicationMonth, publicationYear);
                               if (res.success) {
                                 showToast(isRepublish ? "Metadata Publikasi Berhasil Diperbarui!" : "Naskah resmi diterbitkan!");
                                 setTimeout(() => window.location.reload(), 1000);
@@ -2608,3 +2642,7 @@ const [uploadingReviewId, setUploadingReviewId] = useState<string | null>(null);
     </div>
   );
 }
+
+
+
+

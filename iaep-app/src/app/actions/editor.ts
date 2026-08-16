@@ -788,7 +788,7 @@ export async function getAssignedVolumeAndIssue(submissionId: string, journalId:
     }
 }
 
-export async function publishArticle(submissionId: string, journalId: string, customVolume: string = "", customIssue: string = "", customAuthor: string = "", customTitle: string = "") {
+export async function publishArticle(submissionId: string, journalId: string, customVolume: string = "", customIssue: string = "", customAuthor: string = "", customTitle: string = "", publicationMonth: string = "", publicationYear: string = "") {
     try {
         const supabaseAdmin = (await import('@supabase/supabase-js')).createClient(
             process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -824,7 +824,9 @@ export async function publishArticle(submissionId: string, journalId: string, cu
         
         const extraFields: Record<string, any> = {
             volume: finalVolume,
-            issue: finalIssue
+            issue: finalIssue,
+            publication_month: publicationMonth.trim() || null,
+            publication_year: publicationYear.trim() ? Number(publicationYear.trim()) : null
         };
 
         if (customTitle.trim()) {
@@ -1809,3 +1811,8 @@ export async function registerPublicationArtifact(
         return { success: false, error: e?.message || 'Registrasi artefak DataCite gagal.' };
     }
 }
+
+
+
+
+
