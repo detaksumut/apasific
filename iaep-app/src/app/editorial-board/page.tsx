@@ -189,7 +189,7 @@ export default function JournalPage() {
         <div style={{ marginBottom: "80px" }}>
           <div className="border-b border-[#c9a84c]/30 pb-4 mb-6 pl-4 border-l-4 border-l-[#c9a84c]">
             <h2 style={{ color: "#fff", fontSize: "24px", margin: 0, textTransform: "uppercase", letterSpacing: "2px", fontWeight: "900" }}>
-              Editorial Board (Global)
+              Editorial Board
             </h2>
           </div>
 
@@ -632,4 +632,6 @@ export default function JournalPage() {
     </main>
   );
 }
+
+
 
