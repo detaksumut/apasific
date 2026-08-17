@@ -5,8 +5,10 @@ import { useState, useEffect } from "react";
 import { createClient } from "@/utils/supabase/client";
 import SecurePdfViewer from "@/components/ui/SecurePdfViewer";
 import DynamicCover from "@/components/ui/DynamicCover";
-import { GlobalPublicationFederationCard } from "@/components/researcher/GlobalPublicationFederationCard";
 import { AcademicEvidenceCard } from "@/components/researcher/AcademicEvidenceCard";
+import { ApasificIndexPanel } from "@/components/publisher/ApasificIndexPanel";
+import { PublisherVerification } from '@/components/publisher/PublisherVerification';
+
 
 function getJournalImpactMetrics(journalName: string) {
   const code = (journalName || '').split('-')[0].trim().toUpperCase();
@@ -744,6 +746,9 @@ export default function ArticlePaywallClient({ initialArticle, id }: ArticlePayw
             {/* Citation */}
             <div className="bg-[#111120] border border-gray-800 rounded-3xl p-6 shadow-2xl space-y-4">
               <h4 className="text-sm font-bold text-gray-400 uppercase tracking-widest border-b border-gray-850 pb-2">Citation</h4>
+          
+          <div className="mt-8">
+          </div>
               
               <div className="bg-[#16162a] border border-gray-800 rounded-lg p-4 space-y-4">
                 <p id="citation-text" className="text-xs sm:text-sm text-gray-300 leading-relaxed font-serif">
@@ -941,16 +946,10 @@ export default function ArticlePaywallClient({ initialArticle, id }: ArticlePayw
               </div>
             </div>
 
-          </div>
-        </section>
+          </div></section>
 
-        {/* Global Scholarly Ecosystem Verification Panel */}
-        <section className="w-full mt-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <GlobalPublicationFederationCard article={article} />
-            <AcademicEvidenceCard article={article} />
-          </div>
-        </section>
+        <div className="w-full mt-8"><PublisherVerification /></div>
+        <div className="w-full mt-8"><ApasificIndexPanel /></div>
 
       </div>
     </div>

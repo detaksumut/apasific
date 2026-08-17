@@ -373,7 +373,7 @@ export default async function Home() {
 
 
     </div>
-  </section>
+  </section>      <AsiaIndexWidget />
 
 <!-- ═══════════════════════════════════════════
        ABOUT ASIA
