@@ -1,4 +1,4 @@
-﻿export class ReviewAssignmentRepository {
+export class ReviewAssignmentRepository {
   private static getSupabaseAdmin() {
     const { createClient: createSupabaseClient } = require('@supabase/supabase-js');
 
@@ -12,28 +12,35 @@
 
   static async getAssignmentsForReviewer(
     userId: string,
-    _email: string | null
+    email: string | null
   ): Promise<any[]> {
-    if (!userId) return [];
-
     const supabaseAdmin = this.getSupabaseAdmin();
 
     try {
       /*
-       * CANONICAL SOURCE OF TRUTH
+       * REVIEWER READ IDENTITY
        *
-       * Reviewer identity is determined exclusively by:
-       *   review_assignments.reviewer_id = Identity Core userId
+       * Reviewer dashboard lookup is EMAIL-FIRST.
+       * reviewer_email is the authoritative matching key for the
+       * reviewer assignment queue.
        *
-       * Email is intentionally NOT used for authorization,
-       * ownership, or assignment lookup.
-       *
-       * Firestore is not a production read fallback.
+       * userId is retained as an input for compatibility, but is NOT
+       * allowed to prevent a valid email assignment from being found.
        */
+      if (!email) {
+        return [];
+      }
+
+      const normalizedEmail = email.trim().toLowerCase();
+
+      if (!normalizedEmail) {
+        return [];
+      }
+
       const { data: assignments, error } = await supabaseAdmin
         .from("review_assignments")
         .select("*, submissions(*, journals(name))")
-        .eq("reviewer_id", userId)
+        .ilike("reviewer_email", normalizedEmail)
         .order("assigned_at", { ascending: false });
 
       if (error) {
