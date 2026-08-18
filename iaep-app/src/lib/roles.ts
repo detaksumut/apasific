@@ -38,7 +38,6 @@ const ROLE_MAP: Record<string, NormalizedRole> = {
   'layout': 'PRODUCTION',
   'cover': 'PRODUCTION',
   'publish': 'PRODUCTION',
-  'admin': 'SUPERVISOR',
 };
 
 /**
