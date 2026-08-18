@@ -9,7 +9,6 @@ import { useParams } from "next/navigation";
 import { getSubmissionDetailsEditor, updateIssn, updateDoi, removeCoverFile, sendRevisionForwardWaFonnte, publishToZenodo, refreshPublicationIndexStatus } from "@/app/actions/editor";
 import { createClient } from "@/utils/supabase/client";
 import DynamicCover from "@/components/ui/DynamicCover";
-import UltimateAIScoreAssessment from "@/components/UltimateAIScoreAssessment";
 
 export default function SubmissionControlPanel() {
   const params = useParams();
@@ -1172,12 +1171,7 @@ const [uploadingReviewId, setUploadingReviewId] = useState<string | null>(null);
                   </div>
                 </div>
 
-                {/* UltimateAI Assessment Score — di bawah Record Decision */}
-                <UltimateAIScoreAssessment
-                  submissionId={submissionId}
-                  pageCount={submission?.page_count ?? null}
-                />
-
+                {/* Right Column: Revision Management */}
                 {reviews.some(r => ['major_revision', 'revisions_major', 'minor_revision', 'revisions_minor'].includes(r.recommendation)) && (
                   <div>
                     <h3 className="text-lg font-bold text-gray-800 border-b pb-2 mb-4">Manajemen Revisi</h3>

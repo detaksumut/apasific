@@ -65,7 +65,7 @@ export default async function EditorLayout({
                            r.includes('layout') || 
                            r.includes('cover') || 
                            r.includes('publish') || 
-                           r.includes('supervisor') || 
+                           false || 
                            (r.includes('admin') && !r.includes('co'));
                            
       if (!isAuthorized) {

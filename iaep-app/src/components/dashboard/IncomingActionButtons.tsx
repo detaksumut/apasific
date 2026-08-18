@@ -19,7 +19,9 @@ export default function IncomingActionButtons({ articleId, authorPhone, articleT
         alert(res.error || "Failed to update status");
       } else {
         if (newStatus === "Awaiting Reviewers") {
-          window.location.href = "/dashboard/editor/assign-reviewer";
+          window.location.href = `/dashboard/editor/submissions/${articleId}`;
+        } else {
+          router.refresh();
         }
       }
     } catch (e) {
@@ -35,6 +37,8 @@ export default function IncomingActionButtons({ articleId, authorPhone, articleT
       const res = await deleteSubmission(articleId);
       if (!res.success) {
         alert(res.error || "Failed to delete submission");
+      } else {
+        router.refresh();
       }
     } catch (e) {
       alert("Error deleting submission");

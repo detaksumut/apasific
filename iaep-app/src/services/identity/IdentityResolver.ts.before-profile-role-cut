@@ -1,4 +1,4 @@
-import { IdentityContext } from "@/domain/identity/IdentityContext";
+﻿import { IdentityContext } from "@/domain/identity/IdentityContext";
 import { IdentityNotFoundException } from "@/domain/identity/IdentityNotFoundException";
 import { IdentityRepository } from "@/repositories/IdentityRepository";
 
@@ -28,12 +28,6 @@ export class IdentityResolver {
             if (resolvedEmail && !resolvedEmail.includes('fallback@')) {
                 const registryProfile = await IdentityRepository.findIdentityFromSystemSettings(resolvedEmail);
 
-console.log(
-    "[IDENTITY-ROLE-DIAGNOSTIC]",
-    "email=", resolvedEmail,
-    "registryProfile=", JSON.stringify(registryProfile)
-);
-
                 if (registryProfile && registryProfile.id) {
                     identityId = registryProfile.id;
                     if (registryProfile.full_name) resolvedFullName = registryProfile.full_name;
@@ -46,6 +40,7 @@ console.log(
                     if (profile && profile.id) {
                         identityId = profile.id;
                         if (profile.full_name) resolvedFullName = profile.full_name;
+                        if (profile.role) resolvedRole = profile.role;
                     } else {
                         throw new IdentityNotFoundException(`Identity not found for legacy email: ${resolvedEmail}`);
                     }
@@ -62,6 +57,7 @@ console.log(
                 if (fallbackProfile && fallbackProfile.id) {
                     identityId = fallbackProfile.id;
                     if (fallbackProfile.full_name) resolvedFullName = fallbackProfile.full_name;
+                    if (fallbackProfile.role) resolvedRole = fallbackProfile.role;
                     if (fallbackProfile.email) {
                         resolvedEmail = fallbackProfile.email;
                         
@@ -69,6 +65,7 @@ console.log(
                         const trueProfile = await IdentityRepository.findIdentityByEmail(resolvedEmail);
                         if (trueProfile && trueProfile.id) {
                             identityId = trueProfile.id;
+                            if (trueProfile.role) resolvedRole = trueProfile.role;
                         }
                     }
                 } else {
@@ -92,11 +89,9 @@ console.log(
                     resolvedEmail = profileById.email;
                 }
 
-                // Use profiles.role as a fallback — system_settings will override below if found
-                if ((profileById as any).role) {
-                    resolvedRole = (profileById as any).role;
+                if (profileById.role) {
+                    resolvedRole = profileById.role;
                 }
-
             }
 
             // Production registry overrides profiles.role during coexistence.
@@ -120,22 +115,20 @@ console.log(
                 }
             }
 
-            // profiles.role is no longer used as a role source.
-        }
+            // profiles.role remains compatibility fallback when registry has no role.
+            if (!resolvedRole && resolvedEmail) {
+                const profile = await IdentityRepository.findIdentityByEmail(resolvedEmail);
 
-        // Existing Super Admin configuration remains authoritative for the
-        // designated Super Admin account.
-        const configuredSuperAdminEmail =
-            process.env.SUPER_ADMIN_CANONICAL_EMAIL ||
-            process.env.SUPER_ADMIN_EMAIL;
+                if (profile) {
+                    if (profile.full_name) {
+                        resolvedFullName = profile.full_name;
+                    }
 
-        if (
-            resolvedEmail &&
-            configuredSuperAdminEmail &&
-            resolvedEmail.toLowerCase() === configuredSuperAdminEmail.toLowerCase()
-        ) {
-            resolvedRole = "super_admin";
-        }
+                    if (profile.role) {
+                        resolvedRole = profile.role;
+                    }
+                }
+            }        }
 
         // 2. Build the new IdentityContext, do not mutate original sessionUser
         const context: IdentityContext = {
@@ -153,5 +146,6 @@ console.log(
         return context;
     }
 }
+
 
 

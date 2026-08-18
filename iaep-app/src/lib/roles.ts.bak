@@ -34,11 +34,6 @@ const ROLE_MAP: Record<string, NormalizedRole> = {
   'publish editor': 'PRODUCTION',
   'admin editor': 'SUPERVISOR',
   'supervisor': 'SUPERVISOR',
-  // Short-form aliases (from create_production_users.js / Supabase profiles)
-  'layout': 'PRODUCTION',
-  'cover': 'PRODUCTION',
-  'publish': 'PRODUCTION',
-  'admin': 'SUPERVISOR',
 };
 
 /**

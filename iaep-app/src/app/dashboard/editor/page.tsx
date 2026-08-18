@@ -71,7 +71,7 @@ export default async function EditorDashboard() {
                            r.includes('layout') || 
                            r.includes('cover') || 
                            r.includes('publish') || 
-                           r.includes('supervisor') || 
+                           false || 
                            r.includes('admin');
                            
       if (!isAuthorized) {
