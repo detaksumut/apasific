@@ -17,11 +17,13 @@ export async function proxy(request: NextRequest) {
 
   // 2. Global Security Headers Injection & Supabase Auth
   const requestHeaders = new Headers(request.headers);
-requestHeaders.set("x-dashboard-path", request.nextUrl.pathname);
+  requestHeaders.set("x-dashboard-path", request.nextUrl.pathname);
+  requestHeaders.set("x-dashboard-query", request.nextUrl.search);
+  requestHeaders.set("x-dashboard-url", request.nextUrl.href);
 
-const requestWithPath = new NextRequest(request, {
-  headers: requestHeaders,
-});
+  const requestWithPath = new NextRequest(request, {
+    headers: requestHeaders,
+  });
 
 const response = await updateSession(requestWithPath);
   response.headers.set('X-Edge-Region', (request as any).geo?.region || 'unknown');

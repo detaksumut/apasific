@@ -532,10 +532,18 @@ export default function Sidebar({ role }: SidebarProps) {
      * Reviewer -> reviewerLinks
      * Editor   -> editorLinks
      * Admin    -> adminLinks
+     * Supervisor -> supervisor link
      *
      * Portal pathname fallback hanya menentukan komposisi PRESENTATION.
      * Tidak memberikan authorization baru.
      */
+
+    // Supervisor role strictly gets only Supervisor links regardless of sub-route
+    if (normalizedRole === "SUPERVISOR" || rawRole === "supervisor" || rawRole === "admin editor") {
+      return productionLinks.filter(
+        (link) => link.label === "Supervisor"
+      );
+    }
 
     // Existing Reviewer portal.
     if (pathname.startsWith("/dashboard/reviews")) {
@@ -587,7 +595,9 @@ export default function Sidebar({ role }: SidebarProps) {
     "EDITOR":      "Editorial",
     "REVIEWER":    "Reviewer",
     "PRODUCTION":  "Produksi",
-    "SUPERVISOR": "Supervisor",
+    "SUPERVISOR":  "Supervisor",
+    supervisor:    "Supervisor",
+    "admin editor": "Supervisor",
     admin:    "Administrasi",
     co_admin: "Co-Admin",
     "co-admin": "Co-Admin",
@@ -602,6 +612,9 @@ export default function Sidebar({ role }: SidebarProps) {
     "EDITOR":      "#60a5fa",
     "REVIEWER":    "#34d399",
     "PRODUCTION":  "#a78bfa",
+    "SUPERVISOR":  "#10b981",
+    supervisor:    "#10b981",
+    "admin editor": "#10b981",
     admin:    "#f59e0b",
     co_admin: "#ec4899",
     "co-admin": "#ec4899",
@@ -661,26 +674,6 @@ export default function Sidebar({ role }: SidebarProps) {
         <div className="sidebar-section-label">Utama</div>
         {commonLinks.map(link => <NavLink key={link.path} link={link} />)}
 
-        {/* MENU SUPERVISOR - Dedicated supervisor work record */}
-        {pathname === "/dashboard/production/supervisor" && (
-          <>
-            <div className="sidebar-section-label" style={{ marginTop: 24 }}>
-              Menu Supervisor
-            </div>
-            <NavLink
-              link={{
-                label: "Supervisor",
-                path: "/dashboard/production/supervisor",
-                icon: (
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M12 3l8 4v5c0 5-3.5 8.5-8 9-4.5-.5-8-4-8-9V7l8-4z" />
-                    <path d="M9 12l2 2 4-4" />
-                  </svg>
-                )
-              }}
-            />
-          </>
-        )}
         {getRoleLinks().length > 0 && (
           <>
             <div className="sidebar-section-label" style={{ marginTop: 24 }}>

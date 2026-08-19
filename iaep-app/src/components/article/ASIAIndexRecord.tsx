@@ -27,8 +27,8 @@ export default function ASIAIndexRecord({ article, asiaRecord }: ASIAIndexRecord
       title: article.title || 'Scholarly Article',
       doi: article.doi || '10.55927/apasific.v1i1',
       doiUrl: article.doi ? `https://doi.org/${article.doi.replace(/^https?:\/\/doi\.org\//i, '')}` : 'https://doi.org',
-      journal: article.journal || 'APASIFIC Journal',
-      issn: article.issn || '3048-1234',
+      journal: article.journal || article.journals?.name || 'APASIFIC Journal',
+      issn: article.issn || article.journals?.eissn || article.journals?.pissn || 'Dalam Antrean',
       subjectCategory: 'Education & Social Sciences',
       documentType: 'Research Article',
       language: 'English',
@@ -230,7 +230,16 @@ export default function ASIAIndexRecord({ article, asiaRecord }: ASIAIndexRecord
               </tr>
               <tr className="hover:bg-[#151833]/50 transition-colors">
                 <td className="py-2.5 px-4 text-gray-400 font-medium">ISSN / eISSN</td>
-                <td className="py-2.5 px-4 font-mono text-gray-300">{rec.identification.issn || '-'}</td>
+                <td className="py-2.5 px-4 font-mono text-gray-300">
+                  {rec.identification.issn && !rec.identification.issn.toLowerCase().includes('antrean') && !rec.identification.issn.toLowerCase().includes('antrian') && rec.identification.issn !== '-' ? (
+                    <span className="text-emerald-400 font-bold">{rec.identification.issn}</span>
+                  ) : (
+                    <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/30">
+                      <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
+                      Dalam Antrean
+                    </span>
+                  )}
+                </td>
               </tr>
               <tr className="hover:bg-[#151833]/50 transition-colors">
                 <td className="py-2.5 px-4 text-gray-400 font-medium">Subject Category</td>

@@ -1,6 +1,6 @@
 import { createClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 
 export default async function EditorLayout({
   children,
@@ -60,14 +60,33 @@ export default async function EditorLayout({
       r = cookieRole.toLowerCase();
   }
 
+  const requestHeaders = await headers();
+  const currentPath = requestHeaders.get("x-dashboard-path") || "";
+  const currentQuery = requestHeaders.get("x-dashboard-query") || "";
+
   if (r) {
-      const isAuthorized = r.includes('editor') || 
-                           r.includes('layout') || 
-                           r.includes('cover') || 
-                           r.includes('publish') || 
-                           false || 
-                           (r.includes('admin') && !r.includes('co'));
-                           
+      let isAuthorized = false;
+
+      // 1. General authorized roles for editor subtree
+      if (
+        r.includes('editor') || 
+        r.includes('layout') || 
+        r.includes('cover') || 
+        r.includes('publish') || 
+        (r.includes('admin') && !r.includes('co'))
+      ) {
+        isAuthorized = true;
+      }
+      // 2. Least-Privilege Controlled Access for Supervisor:
+      // Supervisor is strictly allowed ONLY on the exact submission detail route with production tab
+      else if (r.includes('supervisor')) {
+        const isSubmissionDetail = /^\/dashboard\/editor\/submissions\/[a-zA-Z0-9_-]+$/i.test(currentPath);
+        const isProductionContext = currentQuery.includes('tab=production');
+        if (isSubmissionDetail && isProductionContext) {
+          isAuthorized = true;
+        }
+      }
+                            
       if (!isAuthorized) {
           // Render server-side access denied screen
           return (

@@ -225,7 +225,7 @@ export class AsiaIndexService {
     const asiaRecordId = this.generateAsiaRecordId(submissionId, rawPubDate);
     const title = article?.title || 'Scholarly Research Article';
     const journalName = article?.journal || article?.journals?.name || 'APASIFIC Academic Journal';
-    const issn = article?.issn || article?.journals?.eissn || article?.journals?.pissn || '3048-1234';
+    const issn = article?.issn || article?.journals?.eissn || article?.journals?.pissn || 'Dalam Antrean';
     
     let rawDoi = article?.doi || '';
     if (!rawDoi && typeof article?.abstract === 'string' && article.abstract.trim().startsWith('{')) {

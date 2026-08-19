@@ -107,7 +107,14 @@ const [uploadingReviewId, setUploadingReviewId] = useState<string | null>(null);
   const isCoverEditor = roleStr.includes('cover');
   const isPublishEditor = roleStr.includes('publish');
   const isSupervisor = roleStr.includes('supervisor');
-  const isPureEditor = (roleStr.includes('admin') && !roleStr.includes('co')) || roleStr.includes('supervisor') || (roleStr.includes('editor') && !roleStr.includes('layout') && !roleStr.includes('cover') && !roleStr.includes('publish'));
+  const isPureEditor = (roleStr.includes('admin') && !roleStr.includes('co')) || (roleStr.includes('editor') && !roleStr.includes('layout') && !roleStr.includes('cover') && !roleStr.includes('publish') && !roleStr.includes('supervisor'));
+
+  // Ensure Supervisor is locked strictly to Production validation context
+  useEffect(() => {
+    if (isSupervisor && activeTab !== 'production') {
+      setActiveTab('production');
+    }
+  }, [isSupervisor, activeTab]);
 
   const showToast = (msg: string) => {
     setToastMessage(msg);
@@ -530,7 +537,9 @@ const [uploadingReviewId, setUploadingReviewId] = useState<string | null>(null);
             </div>
 
             <div className="flex flex-col md:flex-row justify-between items-center gap-6 md:gap-4 w-full">
-              {(isPureEditor
+              {(isSupervisor
+                ? (['Production'] as const)
+                : isPureEditor
                 ? (['Submission', 'Review', 'AI Assistant', 'Copyediting', 'Production'] as const)
                 : (['Submission', 'Review', 'Copyediting', 'Production'] as const).filter(tab => isCoAdmin ? ['Submission', 'Review'].includes(tab) : true)
               ).map((tab, idx) => {
