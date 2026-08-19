@@ -4,6 +4,7 @@ export const dynamic = 'force-dynamic';
 
 import { createClient } from '@supabase/supabase-js';
 import ArticlePaywallClient from '@/components/article/ArticlePaywallClient';
+import { AsiaIndexService } from '@/services/asia-index/AsiaIndexService';
 
 async function getArticleData(id: string) {
   try {
@@ -42,7 +43,6 @@ async function getArticleData(id: string) {
       .from('external_discovery_records')
       .select('*')
       .eq('publication_id', id);
-
 
     // Enrich ORCID and other identifiers if missing in article_authors
     const enrichedAuthors = await Promise.all((dbAuthors || []).map(async (author: any) => {
@@ -95,7 +95,6 @@ async function getArticleData(id: string) {
       };
     }));
 
-
     // Construct the flat author string list for backward compatibility
     const authorNames = enrichedAuthors.map(a => a.full_name).join(', ');
     const firstAuthor = enrichedAuthors[0] || {};
@@ -104,7 +103,6 @@ async function getArticleData(id: string) {
     const googleScholar = enrichedAuthors.find(a => a.google_scholar)?.google_scholar || "";
     const wos = firstAuthor.wos_id || data.profiles?.wos || "";
     const ssrn = firstAuthor.ssrn_id || data.profiles?.ssrn || "";
-
     
     let hiddenDoi = data.doi || "";
     if (!hiddenDoi && typeof data.abstract === 'string' && data.abstract.trim().startsWith('{')) {
@@ -118,7 +116,7 @@ async function getArticleData(id: string) {
     const journalName = journalObj.name || "APASIFIC IAEP";
     const journalIssn = journalObj.eissn || journalObj.pissn || "";
 
-    return {
+    const baseArticle = {
       id: data.id,
       title: data.title || "",
       author: data.author || authorNames || data.profiles?.full_name || "Penulis Tidak Diketahui",
@@ -143,7 +141,21 @@ async function getArticleData(id: string) {
       issn: journalIssn,
       article_authors: enrichedAuthors,
       extPubs,
-      extDiscoveries
+      extDiscoveries,
+      scopus_citations: data.scopus_citations
+    };
+
+    // Additive ASIA Index Record Resolution (fail-safe)
+    let asiaRecord = null;
+    try {
+      asiaRecord = await AsiaIndexService.resolveOrRegisterAsiaRecord(id, baseArticle);
+    } catch (asiaErr) {
+      console.warn('[Article Page] AsiaIndexService resolution skipped:', asiaErr);
+    }
+
+    return {
+      ...baseArticle,
+      asiaRecord
     };
   } catch (e) {
     console.error("Error loading article server-side:", e);
@@ -200,6 +212,7 @@ export async function generateMetadata(
     }
   };
 }
+
 export default async function ArticlePaywallPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const article = await getArticleData(id);

@@ -1,4 +1,5 @@
 import OrgStructure from "@/components/OrgStructure";
+import AsiaMatrixMethodologySection from "@/components/home/AsiaMatrixMethodologySection";
 import { createClient } from '@supabase/supabase-js';
 
 // SEC-03: Service role key must be provided via environment variables only.
@@ -269,11 +270,14 @@ export default async function Home() {
     </div>
   </section>
 
-    <!-- ═══════════════════════════════════════════
-       JOURNAL INDEXING STATUS
-  ═══════════════════════════════════════════ -->
-    <section class="section index-section" id="journal-indexing">
-      <div class="container">
+  `}} />
+
+  {/* ═══════════════════════════════════════════
+       JOURNAL INDEXING STATUS & ASIA MATRIX
+  ═══════════════════════════════════════════ */}
+  <section className="section index-section" id="journal-indexing">
+    <div className="container">
+      <div dangerouslySetInnerHTML={{ __html: `
         <div class="section-header">
           <p class="section-eyebrow">PUBLIKASI AKADEMIK</p>
           <h2 class="section-title">Status <span class="gold">Indeks Jurnal</span></h2>
@@ -299,7 +303,12 @@ export default async function Home() {
             </span>
           </div>
         </div>
+      ` }} />
 
+      {/* ASIA MATRIX — Formula & Methodology Public Section */}
+      <AsiaMatrixMethodologySection />
+
+      <div dangerouslySetInnerHTML={{ __html: `
         <!-- Database Status Grid -->
         <div class="db-status-grid" data-aos="fade-up">
 
@@ -370,24 +379,21 @@ export default async function Home() {
           </div>
 
         </div>
-
-
+      ` }} />
     </div>
-  </section>      <AsiaIndexWidget />
+  </section>
 
-<!-- ═══════════════════════════════════════════
+  {/* ═══════════════════════════════════════════
        ABOUT ASIA
-  ═══════════════════════════════════════════ -->
-`}} />
-
+  ═══════════════════════════════════════════ */}
   <section className="section about-section" id="about">
     <div className="container">
       <div dangerouslySetInnerHTML={{ __html: `
-      <div class="section-header">
-        <p class="section-eyebrow">SIAPA KAMI</p>
-        <h2 class="section-title">Tentang <span class="gold">ASIA</span></h2>
-        <div class="title-ornament"><span></span><svg width="20" height="20" viewBox="0 0 20 20"><polygon points="10,1 12.9,7 19.5,7.6 14.7,12 16.2,18.5 10,15 3.8,18.5 5.3,12 0.5,7.6 7.1,7" fill="#c9a84c"/></svg><span></span></div>
-      </div>
+        <div class="section-header">
+          <p class="section-eyebrow">SIAPA KAMI</p>
+          <h2 class="section-title">Tentang <span class="gold">ASIA</span></h2>
+          <div class="title-ornament"><span></span><svg width="20" height="20" viewBox="0 0 20 20"><polygon points="10,1 12.9,7 19.5,7.6 14.7,12 16.2,18.5 10,15 3.8,18.5 5.3,12 0.5,7.6 7.1,7" fill="#c9a84c"/></svg><span></span></div>
+        </div>
 
       <!-- Vision & Mission -->
       <div class="about-vm" id="vision-mission">

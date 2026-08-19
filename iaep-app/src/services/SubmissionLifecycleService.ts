@@ -19,6 +19,8 @@
  */
 import { isKnownSubmissionStage, isKnownSubmissionStatus } from '../domain/submission/SubmissionStatus';
 import { validateTransition } from '../utils/SubmissionStateMachine';
+import { AsiaIndexService } from './asia-index/AsiaIndexService';
+import { ASIACitationGraphService } from './asia-index/ASIACitationGraphService';
 
 export interface SubmissionTransitionInput {
     /** Status target (opsional jika hanya mengubah stage/extraFields). */
@@ -229,6 +231,19 @@ export class SubmissionLifecycleService {
                         console.warn('[WordPress Sync] Error during article syndication:', syncErr);
                     }
                 }, 100);
+            }
+
+            // 7. Registrasi Otomatis ke ASIA Index & Citation Graph Ingestion (non-blocking background)
+            if (toStatus === 'Published') {
+                setTimeout(async () => {
+                    try {
+                        await AsiaIndexService.resolveOrRegisterAsiaRecord(submissionId);
+                        await ASIACitationGraphService.syncCitations(submissionId);
+                        console.log(`[ASIA Index Hook] Successfully registered/resolved ASIA Record and Citation Graph for article ${submissionId}`);
+                    } catch (asiaErr) {
+                        console.warn('[ASIA Index Hook] Non-blocking ASIA registration/graph sync skipped:', asiaErr);
+                    }
+                }, 150);
             }
 
             return {

@@ -5,6 +5,7 @@ import { useState, useEffect } from "react";
 import { createClient } from "@/utils/supabase/client";
 import SecurePdfViewer from "@/components/ui/SecurePdfViewer";
 import DynamicCover from "@/components/ui/DynamicCover";
+import ASIAIndexRecord from "@/components/article/ASIAIndexRecord";
 import { AcademicEvidenceCard } from "@/components/researcher/AcademicEvidenceCard";
 import { ApasificIndexPanel } from "@/components/publisher/ApasificIndexPanel";
 import { PublisherVerification } from '@/components/publisher/PublisherVerification';
@@ -553,7 +554,8 @@ export default function ArticlePaywallClient({ initialArticle, id }: ArticlePayw
               </div>
             </div>
 
-
+            {/* OFFICIAL ASIA INDEX RECORD PASSPORT (UNDER PDF VIEWER) */}
+            <ASIAIndexRecord article={article} asiaRecord={article.asiaRecord} />
 
             
           </div>
