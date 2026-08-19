@@ -12,7 +12,7 @@ export default function ASIAIndexRecord({ article, asiaRecord }: ASIAIndexRecord
   if (!article) return null;
 
   // Fallback defaults if asiaRecord is loading or partially provided
-  const rec = asiaRecord || {
+  const rec: AsiaFullRecord = (asiaRecord as AsiaFullRecord) || {
     recordInfo: {
       asiaRecordId: `ASIA-2026-${String(article.id || '000001').substring(0, 6).toUpperCase()}`,
       indexStatus: 'VERIFIED & INDEXED',
@@ -273,7 +273,7 @@ export default function ASIAIndexRecord({ article, asiaRecord }: ASIAIndexRecord
                 <td className="py-2.5 px-4">
                   {rec.authorIdentity.orcidList.length > 0 ? (
                     <div className="flex flex-wrap gap-2">
-                      {rec.authorIdentity.orcidList.map((o, idx) => (
+                      {rec.authorIdentity.orcidList.map((o: { name: string; orcid: string }, idx: number) => (
                         <a
                           key={idx}
                           href={`https://orcid.org/${o.orcid}`}
