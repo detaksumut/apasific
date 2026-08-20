@@ -833,8 +833,8 @@ export async function publishArticle(submissionId: string, journalId: string, cu
             extraFields.title = customTitle.trim();
         }
         
-        // Only set published_at once, during the transition to Published status
-        if (currentSub && currentSub.status !== 'Published' && !currentSub.published_at) {
+        // Only set published_at once, during the first publish action (immutable once set)
+        if (currentSub && !currentSub.published_at) {
             extraFields.published_at = new Date().toISOString();
         }
         
