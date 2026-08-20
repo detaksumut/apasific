@@ -122,7 +122,9 @@ async function getArticleData(id: string) {
       author: data.author || authorNames || data.profiles?.full_name || "Penulis Tidak Diketahui",
       journal: journalName,
       journal_id: data.journal_id || "",
-      date: data.created_at ? new Date(data.created_at).toLocaleDateString('id-ID') : "Baru saja dipublikasi",
+      date: (data.published_at || data.created_at) 
+        ? new Date(data.published_at || data.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })
+        : "12 Agustus 2026",
       abstract: data.abstract || "Abstrak tidak tersedia.",
       keywords: data.keywords ? data.keywords.split(',') : [],
       price: 50000,
