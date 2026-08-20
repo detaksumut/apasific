@@ -9,6 +9,7 @@ import ASIAIndexRecord from "@/components/article/ASIAIndexRecord";
 import { AcademicEvidenceCard } from "@/components/researcher/AcademicEvidenceCard";
 import { ApasificIndexPanel } from "@/components/publisher/ApasificIndexPanel";
 import { PublisherVerification } from '@/components/publisher/PublisherVerification';
+import AsiaMetricsSidebarCard from "@/components/article/AsiaMetricsSidebarCard";
 
 
 function getJournalImpactMetrics(journalName: string) {
@@ -835,6 +836,11 @@ export default function ArticlePaywallClient({ initialArticle, id }: ArticlePayw
                   </button>
                 </div>
               </div>
+            </div>
+
+            {/* ASIA MATRIX MATHEMATICAL SPECIFICATION & METHODOLOGY CARD */}
+            <div className="pt-12 sm:pt-16 lg:pt-20">
+              <AsiaMetricsSidebarCard />
             </div>
 
           </div>
