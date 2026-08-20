@@ -10,6 +10,7 @@ import { AcademicEvidenceCard } from "@/components/researcher/AcademicEvidenceCa
 import { ApasificIndexPanel } from "@/components/publisher/ApasificIndexPanel";
 import { PublisherVerification } from '@/components/publisher/PublisherVerification';
 import AsiaMetricsSidebarCard from "@/components/article/AsiaMetricsSidebarCard";
+import UltimateAIPublicScoreCard from "@/components/article/UltimateAIPublicScoreCard";
 
 
 function getJournalImpactMetrics(journalName: string) {
@@ -573,6 +574,14 @@ export default function ArticlePaywallClient({ initialArticle, id }: ArticlePayw
                 coverUrl={article.cover_file_url}
               />
             </div>
+
+            {/* UltimateAI Official Assessment Score Card */}
+            <UltimateAIPublicScoreCard 
+              articleId={article.id}
+              title={article.title}
+              abstract={article.abstract}
+              doi={article.doi}
+            />
 
             {/* Metrics Dashboard */}
             <div className="bg-[#111120] border border-gray-800 rounded-3xl p-6 shadow-2xl space-y-6">
