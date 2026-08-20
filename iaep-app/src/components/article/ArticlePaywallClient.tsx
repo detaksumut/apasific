@@ -817,14 +817,16 @@ export default function ArticlePaywallClient({ initialArticle, id }: ArticlePayw
               </div>
             </div>
 
-            {/* PUBLISHER VERIFICATION CARD */}
-            <PublisherVerification />
-
             {/* ASIA MATRIX MATHEMATICAL SPECIFICATION & METHODOLOGY CARD */}
             <AsiaMetricsSidebarCard />
 
           </div>
           
+        </div>
+
+        {/* PUBLISHER VERIFICATION CARD (ABOVE PUBLICATION LIFECYCLE PASSPORT) */}
+        <div className="w-full mt-8">
+          <PublisherVerification />
         </div>
 
         {/* Publication Lifecycle Passport */}
