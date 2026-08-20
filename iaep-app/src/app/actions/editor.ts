@@ -833,10 +833,9 @@ export async function publishArticle(submissionId: string, journalId: string, cu
             extraFields.title = customTitle.trim();
         }
         
-        // Only set published_at once, during the first publish action (immutable once set)
-        if (currentSub && !currentSub.published_at) {
-            extraFields.published_at = new Date().toISOString();
-        }
+        // Ensure published_at is strictly recorded if not already present
+        const resolvedPublishedAt = currentSub?.published_at || new Date().toISOString();
+        extraFields.published_at = resolvedPublishedAt;
         
         if (customAuthor !== undefined) {
             extraFields.author = customAuthor;
@@ -855,6 +854,11 @@ export async function publishArticle(submissionId: string, journalId: string, cu
         if (!transisi.success) {
             return { success: false, error: transisi.error || 'Publikasi ditolak oleh lifecycle service.' };
         }
+
+        // Direct guarantee write for published_at to Supabase
+        await supabaseAdmin.from('submissions').update({
+            published_at: resolvedPublishedAt
+        }).eq('id', submissionId);
 
         // 3. Ensure Certificate exists and is up to date in Supabase
         const { data: certSupabase } = await supabaseAdmin.from('certificates').select('id').eq('reference_id', submissionId);
