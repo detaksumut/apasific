@@ -290,7 +290,7 @@ export class AsiaIndexService {
         weight: 30
       },
       {
-        source: 'DOI / Crossref',
+        source: 'DOI / Zenodo',
         status: cleanDoi ? '✓ Verified' : '✓ Assigned',
         evidence: cleanDoi ? cleanDoi : 'DOI Active Link',
         url: doiUrl || undefined,
