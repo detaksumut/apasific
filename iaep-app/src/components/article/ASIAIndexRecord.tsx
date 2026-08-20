@@ -18,9 +18,10 @@ export default function ASIAIndexRecord({ article, asiaRecord }: ASIAIndexRecord
       indexStatus: 'VERIFIED & INDEXED',
       recordType: 'Scholarly Article',
       publicationOrigin: 'APASIFIC Scholarly Ecosystem',
-      datePublished: article.date || '20 August 2026',
-      dateIndexed: article.date || '20 August 2026',
-      lastUpdated: article.date || '20 August 2026',
+      dateSubmitted: article.created_at ? new Date(article.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) : (article.date || '12 Agustus 2026'),
+      datePublished: article.published_at ? new Date(article.published_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) : (article.date || '20 Agustus 2026'),
+      dateIndexed: article.date || '20 Agustus 2026',
+      lastUpdated: article.date || '20 Agustus 2026',
       recordVersion: '1.0'
     },
     identification: {
@@ -174,7 +175,11 @@ export default function ASIAIndexRecord({ article, asiaRecord }: ASIAIndexRecord
               </tr>
               <tr className="hover:bg-[#151833]/50 transition-colors">
                 <td className="py-2.5 px-4 font-sans text-gray-400 font-medium">Date Submit</td>
-                <td className="py-2.5 px-4 font-sans text-gray-300">{rec.recordInfo.datePublished}</td>
+                <td className="py-2.5 px-4 font-sans text-gray-300">{rec.recordInfo.dateSubmitted || rec.recordInfo.datePublished}</td>
+              </tr>
+              <tr className="hover:bg-[#151833]/50 transition-colors">
+                <td className="py-2.5 px-4 font-sans text-gray-400 font-medium">Date Published</td>
+                <td className="py-2.5 px-4 font-sans text-gray-300 font-semibold text-white">{rec.recordInfo.datePublished}</td>
               </tr>
               <tr className="hover:bg-[#151833]/50 transition-colors">
                 <td className="py-2.5 px-4 font-sans text-gray-400 font-medium">Record Version</td>

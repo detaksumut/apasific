@@ -20,6 +20,7 @@ export interface AsiaRecordInfo {
   indexStatus: string;
   recordType: string;
   publicationOrigin: string;
+  dateSubmitted: string;
   datePublished: string;
   dateIndexed: string;
   lastUpdated: string;
@@ -215,6 +216,13 @@ export class AsiaIndexService {
    * Deterministic Record Builder from article metadata.
    */
   private static buildDeterministicRecord(submissionId: string, article?: any): AsiaFullRecord {
+    const rawSubmitDate = article?.created_at || new Date().toISOString();
+    const submitDateFormatted = new Date(rawSubmitDate).toLocaleDateString('id-ID', {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric'
+    });
+
     const rawPubDate = article?.published_at || article?.created_at || new Date().toISOString();
     const pubDateFormatted = new Date(rawPubDate).toLocaleDateString('id-ID', {
       day: 'numeric',
@@ -356,6 +364,7 @@ export class AsiaIndexService {
         indexStatus: 'VERIFIED & INDEXED',
         recordType: 'Scholarly Article',
         publicationOrigin: 'APASIFIC Scholarly Ecosystem',
+        dateSubmitted: submitDateFormatted,
         datePublished: pubDateFormatted,
         dateIndexed: pubDateFormatted,
         lastUpdated: pubDateFormatted,
