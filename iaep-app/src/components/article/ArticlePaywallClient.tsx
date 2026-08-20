@@ -479,53 +479,6 @@ export default function ArticlePaywallClient({ initialArticle, id }: ArticlePayw
                   </a>
                 )}
               </div>
-
-              {/* Bibliographic Info grid */}
-              <div className="grid grid-cols-2 sm:grid-cols-5 gap-4 pt-6 border-t border-gray-800 text-xs sm:text-sm">
-                <div>
-                  <span className="block text-gray-500 mb-1">Date Submit</span>
-                  <span className="font-semibold text-gray-300">
-                    {article.created_at ? new Date(article.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) : '-'}
-                  </span>
-                </div>
-                <div>
-                  <span className="block text-gray-500 mb-1">Date Published</span>
-                  <span className="font-semibold text-white">
-                    {article.published_at ? new Date(article.published_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) : article.date}
-                  </span>
-                </div>
-                <div>
-                  <span className="block text-gray-500 mb-1">DOI</span>
-                  <span className="font-semibold text-[#c9a84c] truncate block max-w-full">
-                    {article.doi ? (
-                      <a
-                        href={article.doi.startsWith('http') ? article.doi : `https://doi.org/${article.doi}`}
-                        target="_blank" rel="noopener noreferrer"
-                        className="hover:underline break-all"
-                        title={article.doi}
-                      >
-                        {article.doi.replace(/https?:\/\/doi\.org\//i, '')}
-                      </a>
-                    ) : '-'}
-                  </span>
-                </div>
-                <div>
-                  <span className="block text-gray-500 mb-1">Volume &amp; Isu</span>
-                  <span className="font-semibold text-white">Vol. {article.volume || '-'}, No. {article.issue || '-'}</span>
-                </div>
-                <div>
-                  <span className="block text-gray-500 mb-1">ISSN</span>
-                  {article.issn ? (
-                    <a
-                      href={`https://portal.issn.org/resource/ISSN/${article.issn}`}
-                      target="_blank" rel="noopener noreferrer"
-                      className="font-semibold text-white hover:text-[#c9a84c] transition-colors"
-                    >
-                      {article.issn}
-                    </a>
-                  ) : <span className="font-semibold text-white">-</span>}
-                </div>
-              </div>
             </div>
 
             {/* Abstract */}
