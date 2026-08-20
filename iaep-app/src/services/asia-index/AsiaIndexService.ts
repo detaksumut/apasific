@@ -223,12 +223,12 @@ export class AsiaIndexService {
       year: 'numeric'
     }) : '-';
 
-    const rawPubDate = article?.published_at;
+    const rawPubDate = article?.published_at || article?.created_at;
     const pubDateFormatted = rawPubDate ? new Date(rawPubDate).toLocaleDateString('id-ID', {
       day: 'numeric',
       month: 'long',
       year: 'numeric'
-    }) : 'Sebelum Perbaikan Sistem';
+    }) : '-';
 
     const asiaRecordId = this.generateAsiaRecordId(submissionId, rawPubDate || rawSubmitDate || new Date().toISOString());
     const title = article?.title || 'Scholarly Research Article';

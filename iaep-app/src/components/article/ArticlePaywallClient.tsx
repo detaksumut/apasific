@@ -481,10 +481,18 @@ export default function ArticlePaywallClient({ initialArticle, id }: ArticlePayw
               </div>
 
               {/* Bibliographic Info grid */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-6 border-t border-gray-800 text-xs sm:text-sm">
+              <div className="grid grid-cols-2 sm:grid-cols-5 gap-4 pt-6 border-t border-gray-800 text-xs sm:text-sm">
                 <div>
-                  <span className="block text-gray-500 mb-1">Tanggal Terbit</span>
-                  <span className="font-semibold text-white">{article.date}</span>
+                  <span className="block text-gray-500 mb-1">Date Submit</span>
+                  <span className="font-semibold text-gray-300">
+                    {article.created_at ? new Date(article.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) : '-'}
+                  </span>
+                </div>
+                <div>
+                  <span className="block text-gray-500 mb-1">Date Published</span>
+                  <span className="font-semibold text-white">
+                    {article.published_at ? new Date(article.published_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) : article.date}
+                  </span>
                 </div>
                 <div>
                   <span className="block text-gray-500 mb-1">DOI</span>
