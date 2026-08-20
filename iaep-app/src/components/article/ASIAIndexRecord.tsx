@@ -173,7 +173,7 @@ export default function ASIAIndexRecord({ article, asiaRecord }: ASIAIndexRecord
                 <td className="py-2.5 px-4 font-sans text-gray-200">{rec.recordInfo.publicationOrigin}</td>
               </tr>
               <tr className="hover:bg-[#151833]/50 transition-colors">
-                <td className="py-2.5 px-4 font-sans text-gray-400 font-medium">Date Published / Indexed</td>
+                <td className="py-2.5 px-4 font-sans text-gray-400 font-medium">Date Submitted / Indexed</td>
                 <td className="py-2.5 px-4 font-sans text-gray-300">{rec.recordInfo.datePublished}</td>
               </tr>
               <tr className="hover:bg-[#151833]/50 transition-colors">
