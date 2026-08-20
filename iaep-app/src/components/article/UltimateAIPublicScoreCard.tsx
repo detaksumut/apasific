@@ -69,51 +69,51 @@ export default function UltimateAIPublicScoreCard({
   }, [articleId, title, doi, customScore]);
 
   return (
-    <div className="bg-[#111120] border border-gray-800 rounded-3xl p-6 shadow-2xl space-y-5">
+    <div className="bg-[#111120] border border-gray-800 rounded-3xl p-6 sm:p-7 shadow-2xl space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between border-b border-gray-800 pb-3">
-        <div className="flex items-center gap-2">
-          <div className="w-7 h-7 rounded-lg bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-sm">
-            🤖
+      <div className="flex items-center justify-between border-b border-gray-800 pb-4">
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 rounded-xl bg-blue-500/10 border border-blue-500/30 flex items-center justify-center text-base">
+            📊
           </div>
           <div>
-            <h4 className="text-xs font-bold text-white uppercase tracking-wider">
-              UltimateAI Score
+            <h4 className="text-sm sm:text-base font-bold text-white tracking-wide">
+              Artikel Score
             </h4>
-            <p className="text-[10px] text-gray-400">Peer Assessment Quality</p>
+            <p className="text-xs text-gray-400">Evaluasi Kualitas Naskah Akademik</p>
           </div>
         </div>
-        <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-blue-500/10 text-blue-400 border border-blue-500/20">
+        <span className="px-2.5 py-1 rounded-lg text-[11px] font-bold bg-blue-500/15 text-blue-400 border border-blue-500/30 tracking-wide">
           Official Record
         </span>
       </div>
 
       {/* Overall Score Banner */}
-      <div className="bg-gradient-to-br from-[#161b2e] to-[#121424] border border-blue-500/20 rounded-2xl p-4 flex items-center justify-between">
+      <div className="bg-gradient-to-br from-[#161b2e] to-[#121424] border border-blue-500/20 rounded-2xl p-5 flex items-center justify-between">
         <div>
-          <span className="text-[10px] uppercase tracking-wider text-gray-400 font-bold block mb-1">
+          <span className="text-xs uppercase tracking-wider text-gray-400 font-bold block mb-1">
             Overall Score
           </span>
-          <div className="flex items-baseline gap-1">
-            <span className="text-3xl font-extrabold text-[#4ade80]">
+          <div className="flex items-baseline gap-1.5">
+            <span className="text-4xl font-extrabold text-[#4ade80]">
               {assessment.overall.toFixed(1).replace(/\.0$/, "")}
             </span>
-            <span className="text-sm font-semibold text-gray-500">/ 10</span>
+            <span className="text-base font-semibold text-gray-500">/ 10</span>
           </div>
         </div>
-        <div className="text-right space-y-1.5">
-          <span className="inline-block px-2.5 py-1 rounded-full text-[11px] font-bold bg-amber-500/10 text-amber-400 border border-amber-500/20">
+        <div className="text-right space-y-2">
+          <span className="inline-block px-3 py-1 rounded-full text-xs font-bold bg-amber-500/15 text-amber-400 border border-amber-500/30">
             🟡 {assessment.recommendation}
           </span>
-          <div className="text-[10px] font-semibold text-emerald-400 flex items-center justify-end gap-1">
+          <div className="text-xs font-semibold text-emerald-400 flex items-center justify-end gap-1.5">
             <span>✅ Layak Diterima Langsung</span>
           </div>
         </div>
       </div>
 
-      {/* 9 Criteria Breakdown */}
-      <div className="space-y-2.5 pt-1">
-        <div className="flex items-center justify-between text-[11px] font-bold text-gray-400 uppercase tracking-wider pb-1">
+      {/* 9 Criteria Breakdown with Spacious Rows */}
+      <div className="space-y-4 pt-1">
+        <div className="flex items-center justify-between text-xs font-bold text-gray-400 uppercase tracking-wider border-b border-gray-850 pb-2">
           <span>Rincian 9 Kategori</span>
           <span>Skor</span>
         </div>
@@ -125,12 +125,12 @@ export default function UltimateAIPublicScoreCard({
           const textColor = isHigh ? "text-emerald-400" : "text-amber-400";
 
           return (
-            <div key={idx} className="space-y-1">
-              <div className="flex justify-between items-center text-xs">
-                <span className="text-gray-300 font-medium">{item.label}</span>
-                <span className={`font-bold ${textColor}`}>{item.score}</span>
+            <div key={idx} className="space-y-1.5">
+              <div className="flex justify-between items-center text-sm">
+                <span className="text-gray-200 font-medium">{item.label}</span>
+                <span className={`font-bold ${textColor} text-sm`}>{item.score}</span>
               </div>
-              <div className="h-1.5 w-full bg-gray-800 rounded-full overflow-hidden">
+              <div className="h-2 w-full bg-gray-850 rounded-full overflow-hidden">
                 <div
                   className={`h-full ${barColor} rounded-full transition-all duration-500`}
                   style={{ width: `${pct}%` }}
@@ -142,8 +142,8 @@ export default function UltimateAIPublicScoreCard({
       </div>
 
       {/* Verification footer badge */}
-      <div className="pt-2 border-t border-gray-850 text-center">
-        <span className="text-[10px] text-gray-500 font-mono">
+      <div className="pt-3 border-t border-gray-850 text-center">
+        <span className="text-xs text-gray-500 font-mono">
           Verified by UltimateAI Academic Neural Engine
         </span>
       </div>
