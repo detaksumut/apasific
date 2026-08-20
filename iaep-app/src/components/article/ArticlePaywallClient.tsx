@@ -838,10 +838,11 @@ export default function ArticlePaywallClient({ initialArticle, id }: ArticlePayw
               </div>
             </div>
 
+            {/* PUBLISHER VERIFICATION CARD */}
+            <PublisherVerification />
+
             {/* ASIA MATRIX MATHEMATICAL SPECIFICATION & METHODOLOGY CARD */}
-            <div className="pt-12 sm:pt-16 lg:pt-20">
-              <AsiaMetricsSidebarCard />
-            </div>
+            <AsiaMetricsSidebarCard />
 
           </div>
           
@@ -956,7 +957,6 @@ export default function ArticlePaywallClient({ initialArticle, id }: ArticlePayw
 
           </div></section>
 
-        <div className="w-full mt-8"><PublisherVerification /></div>
         <div className="w-full mt-8"><ApasificIndexPanel /></div>
 
       </div>

@@ -216,21 +216,21 @@ export class AsiaIndexService {
    * Deterministic Record Builder from article metadata.
    */
   private static buildDeterministicRecord(submissionId: string, article?: any): AsiaFullRecord {
-    const rawSubmitDate = article?.created_at || '2026-08-12';
-    const submitDateFormatted = new Date(rawSubmitDate).toLocaleDateString('id-ID', {
+    const rawSubmitDate = article?.created_at;
+    const submitDateFormatted = rawSubmitDate ? new Date(rawSubmitDate).toLocaleDateString('id-ID', {
       day: 'numeric',
       month: 'long',
       year: 'numeric'
-    });
+    }) : '-';
 
-    const rawPubDate = article?.published_at || article?.updated_at || new Date().toISOString();
-    const pubDateFormatted = new Date(rawPubDate).toLocaleDateString('id-ID', {
+    const rawPubDate = article?.published_at;
+    const pubDateFormatted = rawPubDate ? new Date(rawPubDate).toLocaleDateString('id-ID', {
       day: 'numeric',
       month: 'long',
       year: 'numeric'
-    });
+    }) : 'Sebelum Perbaikan Sistem';
 
-    const asiaRecordId = this.generateAsiaRecordId(submissionId, rawPubDate);
+    const asiaRecordId = this.generateAsiaRecordId(submissionId, rawPubDate || rawSubmitDate || new Date().toISOString());
     const title = article?.title || 'Scholarly Research Article';
     const journalName = article?.journal || article?.journals?.name || 'APASIFIC Academic Journal';
     const issn = article?.issn || article?.journals?.eissn || article?.journals?.pissn || 'Dalam Antrean';

@@ -17,11 +17,10 @@ export default function ASIAIndexRecord({ article, asiaRecord }: ASIAIndexRecord
       asiaRecordId: `ASIA-2026-${String(article.id || '000001').substring(0, 6).toUpperCase()}`,
       indexStatus: 'VERIFIED & INDEXED',
       recordType: 'Scholarly Article',
-      publicationOrigin: 'APASIFIC Scholarly Ecosystem',
-      dateSubmitted: article.created_at ? new Date(article.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) : '12 Agustus 2026',
-      datePublished: article.published_at ? new Date(article.published_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) : '20 Agustus 2026',
-      dateIndexed: article.published_at ? new Date(article.published_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) : '20 Agustus 2026',
-      lastUpdated: article.published_at ? new Date(article.published_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) : '20 Agustus 2026',
+      dateSubmitted: article.created_at ? new Date(article.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) : '-',
+      datePublished: article.published_at ? new Date(article.published_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) : 'Sebelum Perbaikan Sistem',
+      dateIndexed: article.published_at ? new Date(article.published_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) : (article.created_at ? new Date(article.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) : '-'),
+      lastUpdated: article.published_at ? new Date(article.published_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) : (article.created_at ? new Date(article.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) : '-'),
       recordVersion: '1.0'
     },
     identification: {
@@ -178,15 +177,21 @@ export default function ASIAIndexRecord({ article, asiaRecord }: ASIAIndexRecord
                 <td className="py-2.5 px-4 font-sans text-gray-300">
                   {rec.recordInfo.dateSubmitted && rec.recordInfo.dateSubmitted !== '-'
                     ? rec.recordInfo.dateSubmitted
-                    : '12 Agustus 2026'}
+                    : (article.created_at ? new Date(article.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) : '-')}
                 </td>
               </tr>
               <tr className="hover:bg-[#151833]/50 transition-colors">
                 <td className="py-2.5 px-4 font-sans text-gray-400 font-medium">Date Published</td>
-                <td className="py-2.5 px-4 font-sans text-gray-300 font-semibold text-white">
-                  {rec.recordInfo.datePublished && rec.recordInfo.datePublished !== 'Not Published' && rec.recordInfo.datePublished !== '-'
-                    ? rec.recordInfo.datePublished
-                    : '20 Agustus 2026'}
+                <td className="py-2.5 px-4 font-sans text-gray-300">
+                  {article.published_at ? (
+                    <span className="font-semibold text-white">
+                      {new Date(article.published_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}
+                    </span>
+                  ) : rec.recordInfo.datePublished && rec.recordInfo.datePublished !== 'Sebelum Perbaikan Sistem' && rec.recordInfo.datePublished !== 'Not Published' && rec.recordInfo.datePublished !== '-' ? (
+                    <span className="font-semibold text-white">{rec.recordInfo.datePublished}</span>
+                  ) : (
+                    <span className="text-amber-400/90 italic font-normal text-xs sm:text-sm">Sebelum Perbaikan Sistem</span>
+                  )}
                 </td>
               </tr>
               <tr className="hover:bg-[#151833]/50 transition-colors">
