@@ -482,7 +482,7 @@ export default function ArticlePaywallClient({ initialArticle, id }: ArticlePayw
               {/* Bibliographic Info grid */}
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-6 border-t border-gray-800 text-xs sm:text-sm">
                 <div>
-                  <span className="block text-gray-500 mb-1">Date Submit</span>
+                  <span className="block text-gray-500 mb-1">Tanggal Terbit</span>
                   <span className="font-semibold text-white">{article.date}</span>
                 </div>
                 <div>
