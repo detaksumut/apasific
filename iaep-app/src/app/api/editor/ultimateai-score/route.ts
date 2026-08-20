@@ -38,11 +38,14 @@ Berikan output HANYA dalam format JSON berikut, tanpa teks tambahan apapun:
   "recommendation": "<Accept | Minor Revision | Major Revision | Reject>"
 }`;
 
-    const response = await fetch('http://localhost:20128/v1/chat/completions', {
+    const baseUrl = (process.env.NINE_ROUTER_BASE_URL || 'http://localhost:20128/v1').replace(/\/$/, '');
+    const apiKey = process.env.NINE_ROUTER_API_KEY || 'sk-254-local';
+
+    const response = await fetch(`${baseUrl}/chat/completions`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer sk-254-local'
+        'Authorization': `Bearer ${apiKey}`
       },
       body: JSON.stringify({
         model: 'UltimateAI',
