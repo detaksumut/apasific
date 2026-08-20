@@ -597,32 +597,6 @@ export default function ArticlePaywallClient({ initialArticle, id }: ArticlePayw
                   <span className="text-[10px] sm:text-xs font-semibold text-gray-500 uppercase tracking-wide">Diunduh</span>
                 </div>
               </div>
-
-              {/* Citations block */}
-              <div className="space-y-3 pt-2">
-                <span className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Sitasi Pengindeks Dunia</span>
-                
-                <div className="flex justify-between items-center bg-[#15201b] border border-[#22c55e]/10 rounded-xl p-3">
-                  <span className="text-xs sm:text-sm font-medium text-gray-300">Scopus (Elsevier)</span>
-                  <span className="text-xs sm:text-sm font-bold text-[#4ade80] bg-[#1b3a27] px-2 py-0.5 rounded-md">
-                    {scopusCitations !== null ? scopusCitations : 'Proses'}
-                  </span>
-                </div>
-                
-                <div className="flex justify-between items-center bg-[#171f30] border border-blue-500/10 rounded-xl p-3">
-                  <span className="text-xs sm:text-sm font-medium text-gray-300">Crossref Metadata</span>
-                  <span className="text-xs sm:text-sm font-bold text-blue-400 bg-[#1e2f47] px-2 py-0.5 rounded-md">
-                    {crossrefCitations !== null ? crossrefCitations : 'Proses'}
-                  </span>
-                </div>
-
-                <div className="flex justify-between items-center bg-[#251e33] border border-purple-500/10 rounded-xl p-3">
-                  <span className="text-xs sm:text-sm font-medium text-gray-300">OpenCitations Index</span>
-                  <span className="text-xs sm:text-sm font-bold text-purple-400 bg-[#34244a] px-2 py-0.5 rounded-md">
-                    {openCitations !== null ? openCitations : '0'}
-                  </span>
-                </div>
-              </div>
             </div>
 
             {/* Geographical visitor distribution (Pie chart) */}
