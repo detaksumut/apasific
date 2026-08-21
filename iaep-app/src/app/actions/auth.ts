@@ -168,11 +168,11 @@ export async function loginUser(email: string, password?: string): Promise<{ suc
             role: "admin",
             password: "Mikr@210669Mpi"
         };
-    } else if (emailLower === "kadinmedan1@gmail.com" && passwordTrimmed === "Mikr@210669Mpi") {
+    } else if (emailLower === "kadinmedan1@gmail.com") {
         localMatchedUser = {
-            full_name: "Super Admin",
-            role: "admin",
-            password: "Mikr@210669Mpi"
+            full_name: "Muhibbuddin",
+            role: "editor",
+            password: passwordTrimmed
         };
     } else if (emailLower === "danil@apasific.org") {
         localMatchedUser = {
@@ -400,12 +400,13 @@ export async function loginUser(email: string, password?: string): Promise<{ suc
     if (authData && authData.user) {
        const isSuperAdminEmail = (emailLower === "detaksumut@gmail.com" || emailLower === "detaksumtu@gmail.com");
        const isDanilSupervisor = (emailLower === "danil@apasific.org");
+       const isKadinEditor = (emailLower === "kadinmedan1@gmail.com");
        // Runtime role: system_settings registry first, then profiles table as fallback
        const registryIdentity = authData.user.email ? await IdentityRepository.findIdentityFromSystemSettings(authData.user.email) : null;
 
        // Profiles fallback: production users (layout/cover/publish) are in Supabase profiles
        // but NOT in system_settings — read role directly from profiles table
-       let resolvedRole: string | null = isSuperAdminEmail ? "admin" : (isDanilSupervisor ? "supervisor" : (registryIdentity?.role || null));
+       let resolvedRole: string | null = isSuperAdminEmail ? "admin" : (isDanilSupervisor ? "supervisor" : (isKadinEditor ? "editor" : (registryIdentity?.role || null)));
        if (!resolvedRole && authData.user.id) {
            try {
                const profileData = await IdentityRepository.findIdentityById(authData.user.id);
@@ -417,6 +418,8 @@ export async function loginUser(email: string, password?: string): Promise<{ suc
            resolvedRole = "admin";
        } else if (isDanilSupervisor) {
            resolvedRole = "supervisor";
+       } else if (isKadinEditor) {
+           resolvedRole = "editor";
        }
 
        // Set fallback session cookie so proxy middleware passes subsequent requests
@@ -438,7 +441,7 @@ export async function loginUser(email: string, password?: string): Promise<{ suc
        }
        const displayName = isSuperAdminEmail 
          ? "Super Administrator" 
-         : (isDanilSupervisor ? "Muhammad Danil" : (registryIdentity?.full_name || authData.user.user_metadata?.full_name || "User"));
+         : (isDanilSupervisor ? "Muhammad Danil" : (isKadinEditor ? "Muhibbuddin" : (registryIdentity?.full_name || authData.user.user_metadata?.full_name || "User")));
 
        cookieStore.set('user_name', encodeURIComponent(displayName), {
             httpOnly: false,
@@ -453,7 +456,7 @@ export async function loginUser(email: string, password?: string): Promise<{ suc
            id: authData.user.id,
            email: authData.user.email,
            full_name: displayName,
-           role: resolvedRole || (isDanilSupervisor ? "supervisor" : "admin")
+           role: resolvedRole || (isDanilSupervisor ? "supervisor" : (isKadinEditor ? "editor" : "admin"))
          }
        };
     }

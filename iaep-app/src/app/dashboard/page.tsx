@@ -34,6 +34,11 @@ export default async function DashboardRoot() {
     redirect("/dashboard/production/supervisor");
   }
 
+  // Explicit Editor dashboard routing.
+  if (identity.email?.toLowerCase() === "kadinmedan1@gmail.com") {
+    redirect("/dashboard/editor");
+  }
+
   // Keep the canonical identity ID for downstream submission queries.
   // Do NOT synthesize a UUID from legacy IDs here.
   if (!userId) {

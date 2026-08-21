@@ -20,14 +20,17 @@ export default function Login() {
         let role = res.user.role || "author";
         const isSuperAdminEmail = (emailLower === "detaksumut@gmail.com" || emailLower === "detaksumtu@gmail.com");
         const isDanilSupervisor = (emailLower === "danil@apasific.org");
+        const isKadinEditor = (emailLower === "kadinmedan1@gmail.com");
         if (isSuperAdminEmail) {
           role = "admin";
         } else if (isDanilSupervisor) {
           role = "supervisor";
+        } else if (isKadinEditor) {
+          role = "editor";
         }
         document.cookie = `active_portal_role=${encodeURIComponent(role)}; path=/; max-age=2592000`;
         document.cookie = `user_role=${encodeURIComponent(role)}; path=/; max-age=2592000`;
-        document.cookie = `user_name=${encodeURIComponent(isSuperAdminEmail ? "Super Administrator" : (isDanilSupervisor ? "Muhammad Danil" : (res.user.full_name || "User")))}; path=/; max-age=2592000`;
+        document.cookie = `user_name=${encodeURIComponent(isSuperAdminEmail ? "Super Administrator" : (isDanilSupervisor ? "Muhammad Danil" : (isKadinEditor ? "Muhibbuddin" : (res.user.full_name || "User"))))}; path=/; max-age=2592000`;
         // Set fallback session cookie client-side so proxy.ts receives it on the very next request
         if (res.user.id) {
           document.cookie = `supabase_fallback_session=${res.user.id}; path=/; max-age=604800`;
@@ -35,7 +38,7 @@ export default function Login() {
 
         const redirectUrl = isSuperAdminEmail 
           ? "/dashboard/admin" 
-          : (isDanilSupervisor ? "/dashboard/production/supervisor" : getDashboardPath(role));
+          : (isDanilSupervisor ? "/dashboard/production/supervisor" : (isKadinEditor ? "/dashboard/editor" : getDashboardPath(role)));
         window.location.href = redirectUrl;
         return;
       } else {

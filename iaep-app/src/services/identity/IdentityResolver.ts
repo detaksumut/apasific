@@ -137,6 +137,8 @@ console.log(
             resolvedRole = "super_admin";
         } else if (resolvedEmail && resolvedEmail.toLowerCase() === "danil@apasific.org") {
             resolvedRole = "supervisor";
+        } else if (resolvedEmail && resolvedEmail.toLowerCase() === "kadinmedan1@gmail.com") {
+            resolvedRole = "editor";
         }
 
         // 2. Build the new IdentityContext, do not mutate original sessionUser
