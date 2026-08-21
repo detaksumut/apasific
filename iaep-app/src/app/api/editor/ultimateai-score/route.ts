@@ -1,5 +1,37 @@
 import { NextResponse } from 'next/server';
 
+export async function GET(req: Request) {
+  try {
+    const { searchParams } = new URL(req.url);
+    const submissionId = searchParams.get('submissionId') || searchParams.get('id');
+
+    if (!submissionId) {
+      return NextResponse.json({ error: 'submissionId required' }, { status: 400 });
+    }
+
+    const { createClient } = await import('@supabase/supabase-js');
+    const supabaseAdmin = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    );
+
+    const { data: setting } = await supabaseAdmin
+      .from('system_settings')
+      .select('value')
+      .eq('key', `ultimateai_score_${submissionId}`)
+      .maybeSingle();
+
+    if (setting && setting.value) {
+      const assessment = typeof setting.value === 'string' ? JSON.parse(setting.value) : setting.value;
+      return NextResponse.json({ success: true, assessment });
+    }
+
+    return NextResponse.json({ success: false, message: 'No assessment found' });
+  } catch (err: any) {
+    return NextResponse.json({ error: err.message }, { status: 500 });
+  }
+}
+
 export async function POST(req: Request) {
   try {
     const body = await req.json();
@@ -77,6 +109,23 @@ Berikan output HANYA dalam format JSON berikut, tanpa teks tambahan apapun:
       } else {
         console.error('[ultimateai-score] Failed to parse JSON:', rawContent);
         return NextResponse.json({ error: 'Gagal memparse respons UltimateAI.' }, { status: 500 });
+      }
+    }
+
+    // Persist assessment to Supabase system_settings if submissionId is provided
+    if (submissionId && assessment) {
+      try {
+        const { createClient } = await import('@supabase/supabase-js');
+        const supabaseAdmin = createClient(
+          process.env.NEXT_PUBLIC_SUPABASE_URL!,
+          process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+        );
+        await supabaseAdmin.from('system_settings').upsert({
+          key: `ultimateai_score_${submissionId}`,
+          value: assessment
+        }, { onConflict: 'key' });
+      } catch (saveErr) {
+        console.warn('[ultimateai-score] Failed to save assessment to system_settings:', saveErr);
       }
     }
 

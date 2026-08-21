@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 interface Props {
   submissionId: string;
@@ -84,6 +84,30 @@ export default function UltimateAIScoreAssessment({
   const [assessment, setAssessment] = useState<Assessment | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Auto-load saved assessment if available
+  useEffect(() => {
+    if (!submissionId) return;
+    let isMounted = true;
+
+    async function loadSavedAssessment() {
+      try {
+        const res = await fetch(`/api/editor/ultimateai-score?submissionId=${encodeURIComponent(submissionId)}`);
+        if (!res.ok) return;
+        const data = await res.json();
+        if (data.success && data.assessment && isMounted) {
+          setAssessment(data.assessment);
+        }
+      } catch (err) {
+        // silent
+      }
+    }
+
+    loadSavedAssessment();
+    return () => {
+      isMounted = false;
+    };
+  }, [submissionId]);
 
   const canAnalyze = manuscriptText.trim().length >= 100;
 
@@ -198,80 +222,51 @@ export default function UltimateAIScoreAssessment({
             {/* Overall */}
             <div className="flex items-center justify-between bg-white rounded-lg px-4 py-3 border border-blue-100 shadow-sm">
               <div>
-                <p className="text-xs text-gray-500 font-medium uppercase tracking-wide">
-                  Overall Score
+                <p className="text-[11px] text-gray-400 uppercase font-semibold">
+                  OVERALL SCORE
                 </p>
-                <p
-                  className="text-3xl font-black mt-0.5"
-                  style={{
-                    color:
-                      assessment.overall_score >= 7.5
-                        ? "#10b981"
-                        : assessment.overall_score >= 6
-                        ? "#f59e0b"
-                        : "#ef4444",
-                  }}
-                >
-                  {assessment.overall_score}
-                  <span className="text-sm text-gray-400 font-medium">/10</span>
-                </p>
+                <div className="flex items-baseline gap-1">
+                  <span className="text-2xl font-extrabold text-emerald-600">
+                    {assessment.overall_score}
+                  </span>
+                  <span className="text-xs text-gray-400">/10</span>
+                </div>
               </div>
               <div className="text-right space-y-1">
                 <RecommendationBadge rec={assessment.recommendation} />
-                {assessment.direct_acceptance && (
-                  <p className="text-[10px] text-emerald-600 font-semibold mt-1">
-                    ✅ Layak Diterima Langsung
-                  </p>
-                )}
-                {!assessment.direct_acceptance && (
-                  <p className="text-[10px] text-orange-500 font-semibold mt-1">
-                    ⚠️ Perlu Revisi / Evaluasi
-                  </p>
-                )}
+                <div className="text-[10px] text-emerald-600 font-semibold">
+                  {assessment.direct_acceptance ? "✅ Layak Diterima Langsung" : "Perlu Peninjauan Lanjutan"}
+                </div>
               </div>
             </div>
 
             {/* Page Count */}
-            <div className="flex items-center gap-2 text-xs text-gray-500 bg-white rounded px-3 py-2 border border-blue-100">
-              <span className="font-medium text-gray-600">Jumlah Halaman:</span>
-              {assessment.page_count_available ? (
-                <span className="font-bold text-blue-700">
-                  {assessment.page_count} halaman
-                </span>
-              ) : (
-                <span className="text-gray-400 italic">Tidak terdeteksi</span>
-              )}
+            <div className="text-[11px] text-gray-500 bg-white/70 rounded px-3 py-1.5 border border-blue-50">
+              <span className="font-semibold">Jumlah Halaman: </span>
+              {assessment.page_count_available
+                ? `${assessment.page_count} halaman`
+                : "Tidak terdeteksi"}
             </div>
 
-            {/* Score Table */}
-            <div className="bg-white rounded-lg border border-blue-100 overflow-hidden">
-              <div className="px-3 py-2 bg-blue-50 border-b border-blue-100">
-                <p className="text-[10px] font-bold text-blue-700 uppercase tracking-wider">
-                  Rincian Skor
-                </p>
-              </div>
-              <div className="divide-y divide-gray-50">
-                {SCORE_LABELS.map(([label, key]) => (
-                  <div key={key} className="px-3 py-2">
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="text-[11px] text-gray-700 font-medium">
-                        {label}
-                      </span>
-                    </div>
-                    <ScoreBar score={assessment[key] as number} />
+            {/* Breakdown */}
+            <div className="bg-white rounded-lg p-3 border border-blue-100 shadow-sm space-y-2">
+              <p className="text-[11px] font-bold text-gray-700 uppercase tracking-wide border-b border-gray-100 pb-1">
+                RINCIAN SKOR
+              </p>
+              {SCORE_LABELS.map(([label, key]) => (
+                <div key={key}>
+                  <div className="flex justify-between text-xs text-gray-600 mb-0.5">
+                    <span>{label}</span>
                   </div>
-                ))}
-              </div>
+                  <ScoreBar score={assessment[key] as number} />
+                </div>
+              ))}
             </div>
 
-            {/* Reset */}
+            {/* Re-analyze button */}
             <button
-              onClick={() => {
-                setAssessment(null);
-                setManuscriptText("");
-                setError(null);
-              }}
-              className="w-full py-2 text-xs text-gray-500 hover:text-gray-700 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+              onClick={() => setAssessment(null)}
+              className="w-full text-xs text-blue-600 hover:text-blue-800 underline text-center py-1 transition-colors"
             >
               Analisis Ulang
             </button>

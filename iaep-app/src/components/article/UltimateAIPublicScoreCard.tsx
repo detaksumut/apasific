@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 
 interface Props {
   articleId?: string;
@@ -22,9 +22,33 @@ export default function UltimateAIPublicScoreCard({
   doi = "",
   customScore
 }: Props) {
-  // Deterministic canonical scoring for published articles
-  const assessment = useMemo(() => {
-    // Generate deterministic variation from article signature
+  const [realAssessment, setRealAssessment] = useState<any>(null);
+
+  useEffect(() => {
+    if (!articleId) return;
+    let isMounted = true;
+
+    async function fetchSavedAssessment() {
+      try {
+        const res = await fetch(`/api/editor/ultimateai-score?submissionId=${encodeURIComponent(articleId!)}`);
+        if (!res.ok) return;
+        const data = await res.json();
+        if (data.success && data.assessment && isMounted) {
+          setRealAssessment(data.assessment);
+        }
+      } catch (err) {
+        // silent fallback
+      }
+    }
+
+    fetchSavedAssessment();
+    return () => {
+      isMounted = false;
+    };
+  }, [articleId]);
+
+  // Deterministic canonical scoring fallback if not yet analyzed by UltimateAI
+  const fallbackAssessment = useMemo(() => {
     let hash = 0;
     const sig = (articleId || title || "default") + (doi || "");
     for (let i = 0; i < sig.length; i++) {
@@ -33,7 +57,6 @@ export default function UltimateAIPublicScoreCard({
     }
     const absHash = Math.abs(hash);
 
-    // Calculate realistic academic scores
     const s1 = 8 + (absHash % 2); // 8-9 (Topik & Relevansi)
     const s2 = 8 + ((absHash >> 2) % 2); // 8-9 (Struktur Artikel)
     const s3 = 8; // Abstract
@@ -67,6 +90,36 @@ export default function UltimateAIPublicScoreCard({
       items,
     };
   }, [articleId, title, doi, customScore]);
+
+  // Combine: prioritize real UltimateAI Assessment if available
+  const assessment = useMemo(() => {
+    if (!realAssessment) return fallbackAssessment;
+
+    const items: ScoreItem[] = [
+      { label: "Topik & Relevansi", score: Number(realAssessment.topic_relevance ?? 9) },
+      { label: "Struktur Artikel", score: Number(realAssessment.article_structure ?? 9) },
+      { label: "Abstract", score: Number(realAssessment.abstract ?? 9) },
+      { label: "Research Gap", score: Number(realAssessment.research_gap ?? 8) },
+      { label: "Metodologi", score: Number(realAssessment.methodology ?? 9) },
+      { label: "Data & Statistik", score: Number(realAssessment.data_statistics ?? 9) },
+      { label: "Discussion", score: Number(realAssessment.discussion ?? 9) },
+      { label: "Conclusion", score: Number(realAssessment.conclusion ?? 9) },
+      { label: "References", score: Number(realAssessment.references ?? 9) },
+    ];
+
+    const overall = Number(realAssessment.overall_score ?? customScore ?? 8.9);
+    const rec = realAssessment.recommendation || (overall >= 8.5 ? "Accept" : "Minor Revision");
+    const isDirectAccept = realAssessment.direct_acceptance ?? (overall >= 7.5);
+
+    return {
+      overall,
+      recommendation: rec,
+      directAcceptance: isDirectAccept,
+      items,
+    };
+  }, [realAssessment, fallbackAssessment, customScore]);
+
+  const isAccept = assessment.recommendation.toLowerCase().includes("accept");
 
   return (
     <div className="bg-[#111120] border border-gray-800 rounded-3xl p-6 sm:p-7 shadow-2xl space-y-6">
@@ -102,8 +155,14 @@ export default function UltimateAIPublicScoreCard({
           </div>
         </div>
         <div className="text-right space-y-2">
-          <span className="inline-block px-3 py-1 rounded-full text-xs font-bold bg-amber-500/15 text-amber-400 border border-amber-500/30">
-            🟡 {assessment.recommendation}
+          <span
+            className={`inline-block px-3 py-1 rounded-full text-xs font-bold ${
+              isAccept
+                ? "bg-emerald-500/15 text-emerald-400 border border-emerald-500/30"
+                : "bg-amber-500/15 text-amber-400 border border-amber-500/30"
+            }`}
+          >
+            {isAccept ? "✅ Accept" : `🟡 ${assessment.recommendation}`}
           </span>
           <div className="text-xs font-semibold text-emerald-400 flex items-center justify-end gap-1.5">
             <span>✅ Layak Diterima Langsung</span>
