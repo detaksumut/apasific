@@ -154,7 +154,7 @@ export default function UltimateAIPublicScoreCard({
             <span className="text-base font-semibold text-gray-500">/ 10</span>
           </div>
         </div>
-        <div className="text-right space-y-2">
+        <div className="text-right space-y-1.5">
           <span
             className={`inline-block px-3 py-1 rounded-full text-xs font-bold ${
               isAccept
@@ -164,9 +164,16 @@ export default function UltimateAIPublicScoreCard({
           >
             {isAccept ? "✅ Accept" : `🟡 ${assessment.recommendation}`}
           </span>
-          <div className="text-xs font-semibold text-emerald-400 flex items-center justify-end gap-1.5">
-            <span>✅ Layak Diterima Langsung</span>
-          </div>
+          {assessment.overall >= 7.0 && (
+            <div className="text-xs font-semibold text-emerald-400 flex items-center justify-end gap-1.5">
+              <span>✅ Layak Diterima Langsung</span>
+            </div>
+          )}
+          {!isAccept && (
+            <div className="text-[11px] font-semibold text-amber-400 flex items-center justify-end gap-1">
+              <span>⚠️ Perlu Peninjauan Lanjutan</span>
+            </div>
+          )}
         </div>
       </div>
 
