@@ -101,20 +101,36 @@ export default async function ProductionResultsPage() {
 
   const getDisciplineCode = (jName?: string, titleStr?: string) => {
     const name = (jName || '').toUpperCase();
+    if (name) {
+      if (name.includes('AJCS') || name.includes('COMMUNITY') || name.includes('MASYARAKAT') || name.includes('PKM')) {
+        return 'AJCS - PENGABDIAN KEPADA MASYARAKAT (PKM)';
+      }
+      if (name.includes('AJAF') || name.includes('AKUNTANSI') || name.includes('AUDITING') || name.includes('TAXATION')) {
+        return 'AJAF - ACCOUNTING, AUDITING & TAXATION';
+      }
+      if (name.includes('AJITE') || name.includes('KOMPUTER') || name.includes('TEKNOLOGI')) {
+        return 'AJITE - TEKNOLOGI INFORMASI & ILMU KOMPUTER';
+      }
+      if (name.includes('AJEP') || name.includes('ECONOMICS') || name.includes('EKONOMI')) {
+        return 'AJEP - EKONOMI & KEBIJAKAN';
+      }
+      return name;
+    }
+
     const title = (titleStr || '').toLowerCase();
-    if (name.includes('AJAF') || name.includes('AKUNTANSI') || title.includes('zakat') || title.includes('accounting') || title.includes('tax')) {
+    if (title.includes('community') || title.includes('pkm') || title.includes('masyarakat')) {
+      return 'AJCS - PENGABDIAN KEPADA MASYARAKAT (PKM)';
+    }
+    if (title.includes('zakat') || title.includes('accounting') || title.includes('tax')) {
       return 'AJAF - ACCOUNTING, AUDITING & TAXATION';
     }
-    if (name.includes('AJITE') || name.includes('KOMPUTER') || title.includes('technology') || title.includes('software')) {
+    if (title.includes('technology') || title.includes('software') || title.includes('komputer')) {
       return 'AJITE - TEKNOLOGI INFORMASI & ILMU KOMPUTER';
     }
-    if (name.includes('AJCS') || name.includes('COMMUNITY')) {
-      return 'AJCS - PENGABDIAN KEPADA MASYARAKAT';
-    }
-    if (name.includes('AJEP') || name.includes('ECONOMICS')) {
+    if (title.includes('economics') || title.includes('ekonomi')) {
       return 'AJEP - EKONOMI & KEBIJAKAN';
     }
-    return name ? `${name.split('-')[0].trim()} - DISIPLIN ILMU` : 'AJAF - ACCOUNTING, AUDITING & TAXATION';
+    return 'JURNAL ASIA';
   };
 
   return (

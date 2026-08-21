@@ -1690,7 +1690,7 @@ const [uploadingReviewId, setUploadingReviewId] = useState<string | null>(null);
                                         <div className="bg-gray-50 p-3 rounded-lg border border-gray-100 space-y-2">
                                           <div>
                                             <span className="inline-block bg-[#18182e] text-[#f0c05a] text-xs font-bold px-2.5 py-1 rounded border border-[#c9a84c]/40 uppercase tracking-wider font-mono">
-                                              AJAF - ACCOUNTING, AUDITING & TAXATION
+                                              {submission?.journals?.name || submission?.journal || 'JURNAL ASIA'}
                                             </span>
                                           </div>
                                           <p className="text-sm font-bold text-gray-900 leading-snug">{submission.title || 'Judul tidak tersedia'}</p>
