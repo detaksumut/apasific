@@ -58,6 +58,15 @@ const rawRole = identity.roles?.[0] || "";
     redirect("/dashboard/reviews");
   }
 
+  // SUPERVISOR ISOLATION
+  // Supervisor hanya boleh mengakses /dashboard/production/supervisor (dan subpath production).
+  if (
+    normalizedUserRole === "SUPERVISOR" &&
+    !dashboardPath.startsWith("/dashboard/production")
+  ) {
+    redirect("/dashboard/production/supervisor");
+  }
+
   return (
     <div style={{ display: "flex", height: "100vh", background: "#07070e", overflow: "hidden" }}>
       <Sidebar role={userRole} />

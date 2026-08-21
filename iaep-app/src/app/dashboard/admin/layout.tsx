@@ -29,6 +29,10 @@ export default async function AdminLayout({ children }: { children: ReactNode })
   } catch {}
 
   const identity = await getCurrentUser();
+  if (identity?.email && identity.email.toLowerCase() === "danil@apasific.org") {
+    redirect("/dashboard/production/supervisor");
+  }
+
   const configuredSuperAdminEmail = process.env.SUPER_ADMIN_CANONICAL_EMAIL || process.env.SUPER_ADMIN_EMAIL;
   const isConfiguredSuperAdmin = !!identity?.email && !!configuredSuperAdminEmail && identity.email.toLowerCase() === configuredSuperAdminEmail.toLowerCase();
 

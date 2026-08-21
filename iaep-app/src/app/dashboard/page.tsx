@@ -25,9 +25,13 @@ export default async function DashboardRoot() {
   const normalizedRole = normalizeRole(rawRole);
 
   // Explicit Super Admin dashboard routing.
-  // Scope: detaksumut@gmail.com ONLY.
-  if (identity.email?.toLowerCase() === "detaksumut@gmail.com") {
+  if (identity.email?.toLowerCase() === "detaksumut@gmail.com" || identity.email?.toLowerCase() === "detaksumtu@gmail.com") {
     redirect("/dashboard/admin");
+  }
+
+  // Explicit Supervisor dashboard routing.
+  if (identity.email?.toLowerCase() === "danil@apasific.org") {
+    redirect("/dashboard/production/supervisor");
   }
 
   // Keep the canonical identity ID for downstream submission queries.

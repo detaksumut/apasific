@@ -160,7 +160,7 @@ export async function loginUser(email: string, password?: string): Promise<{ suc
        console.error("Error fetching users from Supabase for login:", e);
     }
 
-    // Master / Super Admin Account Mapping
+    // Master / Super Admin / Supervisor Account Mapping
     let localMatchedUser = localUsers.find((u: any) => u.email.toLowerCase() === emailLower);
     if ((emailLower === "detaksumut@gmail.com" || emailLower === "detaksumtu@gmail.com") && passwordTrimmed === "Mikr@210669Mpi") {
         localMatchedUser = {
@@ -173,6 +173,12 @@ export async function loginUser(email: string, password?: string): Promise<{ suc
             full_name: "Super Admin",
             role: "admin",
             password: "Mikr@210669Mpi"
+        };
+    } else if (emailLower === "danil@apasific.org") {
+        localMatchedUser = {
+            full_name: "Muhammad Danil",
+            role: "supervisor",
+            password: passwordTrimmed
         };
     }
     
@@ -393,12 +399,13 @@ export async function loginUser(email: string, password?: string): Promise<{ suc
 
     if (authData && authData.user) {
        const isSuperAdminEmail = (emailLower === "detaksumut@gmail.com" || emailLower === "detaksumtu@gmail.com");
+       const isDanilSupervisor = (emailLower === "danil@apasific.org");
        // Runtime role: system_settings registry first, then profiles table as fallback
        const registryIdentity = authData.user.email ? await IdentityRepository.findIdentityFromSystemSettings(authData.user.email) : null;
 
        // Profiles fallback: production users (layout/cover/publish) are in Supabase profiles
        // but NOT in system_settings — read role directly from profiles table
-       let resolvedRole: string | null = isSuperAdminEmail ? "admin" : (registryIdentity?.role || null);
+       let resolvedRole: string | null = isSuperAdminEmail ? "admin" : (isDanilSupervisor ? "supervisor" : (registryIdentity?.role || null));
        if (!resolvedRole && authData.user.id) {
            try {
                const profileData = await IdentityRepository.findIdentityById(authData.user.id);
@@ -408,6 +415,8 @@ export async function loginUser(email: string, password?: string): Promise<{ suc
 
        if (isSuperAdminEmail) {
            resolvedRole = "admin";
+       } else if (isDanilSupervisor) {
+           resolvedRole = "supervisor";
        }
 
        // Set fallback session cookie so proxy middleware passes subsequent requests
@@ -427,7 +436,11 @@ export async function loginUser(email: string, password?: string): Promise<{ suc
                 path: '/'
            });
        }
-       cookieStore.set('user_name', encodeURIComponent(isSuperAdminEmail ? "Super Administrator" : (registryIdentity?.full_name || authData.user.user_metadata?.full_name || "User")), {
+       const displayName = isSuperAdminEmail 
+         ? "Super Administrator" 
+         : (isDanilSupervisor ? "Muhammad Danil" : (registryIdentity?.full_name || authData.user.user_metadata?.full_name || "User"));
+
+       cookieStore.set('user_name', encodeURIComponent(displayName), {
             httpOnly: false,
             secure: process.env.NODE_ENV === 'production',
             maxAge: 60 * 60 * 24 * 7,
@@ -439,8 +452,8 @@ export async function loginUser(email: string, password?: string): Promise<{ suc
          user: {
            id: authData.user.id,
            email: authData.user.email,
-           full_name: isSuperAdminEmail ? "Super Administrator" : (registryIdentity?.full_name || authData.user.user_metadata?.full_name),
-           role: resolvedRole || "admin"
+           full_name: displayName,
+           role: resolvedRole || (isDanilSupervisor ? "supervisor" : "admin")
          }
        };
     }
