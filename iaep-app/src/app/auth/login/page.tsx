@@ -17,16 +17,20 @@ export default function Login() {
     try {
       const res = await loginUser(emailLower, password);
       if (res.success && res.user) {
-        const role = res.user.role || "author";
+        let role = res.user.role || "author";
+        const isSuperAdminEmail = (emailLower === "detaksumut@gmail.com" || emailLower === "detaksumtu@gmail.com");
+        if (isSuperAdminEmail) {
+          role = "admin";
+        }
         document.cookie = `active_portal_role=${encodeURIComponent(role)}; path=/; max-age=2592000`;
         document.cookie = `user_role=${encodeURIComponent(role)}; path=/; max-age=2592000`;
-        document.cookie = `user_name=${encodeURIComponent(res.user.full_name || "User")}; path=/; max-age=2592000`;
+        document.cookie = `user_name=${encodeURIComponent(isSuperAdminEmail ? "Super Administrator" : (res.user.full_name || "User"))}; path=/; max-age=2592000`;
         // Set fallback session cookie client-side so proxy.ts receives it on the very next request
         if (res.user.id) {
           document.cookie = `supabase_fallback_session=${res.user.id}; path=/; max-age=604800`;
         }
 
-        const redirectUrl = getDashboardPath(role);
+        const redirectUrl = isSuperAdminEmail ? "/dashboard/admin" : getDashboardPath(role);
         window.location.href = redirectUrl;
         return;
       } else {

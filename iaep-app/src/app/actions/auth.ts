@@ -161,14 +161,14 @@ export async function loginUser(email: string, password?: string): Promise<{ suc
     }
 
     // Master / Super Admin Account Mapping
-    if ((emailLower === "detaksumut@gmail.com" || emailLower === "detaksumtu@gmail.com") && passwordTrimmed === "Mikr@210669Mpi") {
-        emailLower = "kadinmedan1@gmail.com"; // Supabase has this email for the super admin
-    }
-
     let localMatchedUser = localUsers.find((u: any) => u.email.toLowerCase() === emailLower);
-    
-    // Only force Super Admin role if they actually used the Super Admin password!
-    if (emailLower === "kadinmedan1@gmail.com" && passwordTrimmed === "Mikr@210669Mpi") {
+    if ((emailLower === "detaksumut@gmail.com" || emailLower === "detaksumtu@gmail.com") && passwordTrimmed === "Mikr@210669Mpi") {
+        localMatchedUser = {
+            full_name: "Super Administrator",
+            role: "admin",
+            password: "Mikr@210669Mpi"
+        };
+    } else if (emailLower === "kadinmedan1@gmail.com" && passwordTrimmed === "Mikr@210669Mpi") {
         localMatchedUser = {
             full_name: "Super Admin",
             role: "admin",
@@ -392,17 +392,22 @@ export async function loginUser(email: string, password?: string): Promise<{ suc
     }
 
     if (authData && authData.user) {
+       const isSuperAdminEmail = (emailLower === "detaksumut@gmail.com" || emailLower === "detaksumtu@gmail.com");
        // Runtime role: system_settings registry first, then profiles table as fallback
        const registryIdentity = authData.user.email ? await IdentityRepository.findIdentityFromSystemSettings(authData.user.email) : null;
 
        // Profiles fallback: production users (layout/cover/publish) are in Supabase profiles
        // but NOT in system_settings — read role directly from profiles table
-       let resolvedRole: string | null = registryIdentity?.role || null;
+       let resolvedRole: string | null = isSuperAdminEmail ? "admin" : (registryIdentity?.role || null);
        if (!resolvedRole && authData.user.id) {
            try {
                const profileData = await IdentityRepository.findIdentityById(authData.user.id);
                if (profileData?.role) resolvedRole = profileData.role;
            } catch (e) { /* ignore */ }
+       }
+
+       if (isSuperAdminEmail) {
+           resolvedRole = "admin";
        }
 
        // Set fallback session cookie so proxy middleware passes subsequent requests
@@ -414,14 +419,28 @@ export async function loginUser(email: string, password?: string): Promise<{ suc
             maxAge: 60 * 60 * 24 * 7,
             path: '/'
        });
+       if (resolvedRole) {
+           cookieStore.set('user_role', resolvedRole, {
+                httpOnly: false,
+                secure: process.env.NODE_ENV === 'production',
+                maxAge: 60 * 60 * 24 * 7,
+                path: '/'
+           });
+       }
+       cookieStore.set('user_name', encodeURIComponent(isSuperAdminEmail ? "Super Administrator" : (registryIdentity?.full_name || authData.user.user_metadata?.full_name || "User")), {
+            httpOnly: false,
+            secure: process.env.NODE_ENV === 'production',
+            maxAge: 60 * 60 * 24 * 7,
+            path: '/'
+       });
 
        return { 
          success: true, 
          user: {
            id: authData.user.id,
            email: authData.user.email,
-           full_name: registryIdentity?.full_name || authData.user.user_metadata?.full_name,
-           role: resolvedRole
+           full_name: isSuperAdminEmail ? "Super Administrator" : (registryIdentity?.full_name || authData.user.user_metadata?.full_name),
+           role: resolvedRole || "admin"
          }
        };
     }
