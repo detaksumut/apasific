@@ -11,6 +11,7 @@ import { ApasificIndexPanel } from "@/components/publisher/ApasificIndexPanel";
 import { PublisherVerification } from '@/components/publisher/PublisherVerification';
 import AsiaMetricsSidebarCard from "@/components/article/AsiaMetricsSidebarCard";
 import UltimateAIPublicScoreCard from "@/components/article/UltimateAIPublicScoreCard";
+import ApasificResearchQualityProfile from "@/components/article/ApasificResearchQualityProfile";
 
 
 function getJournalImpactMetrics(journalName: string) {
@@ -551,6 +552,9 @@ export default function ArticlePaywallClient({ initialArticle, id }: ArticlePayw
                 />
               </div>
             </div>
+
+            {/* APASIFIC RESEARCH QUALITY PROFILE™ (POWERED BY AT-RQS™ v1.0) */}
+            <ApasificResearchQualityProfile article={article} />
 
             {/* OFFICIAL ASIA INDEX RECORD PASSPORT (UNDER PDF VIEWER) */}
             <ASIAIndexRecord article={article} asiaRecord={article.asiaRecord} />
