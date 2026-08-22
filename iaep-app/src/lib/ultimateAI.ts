@@ -1,49 +1,26 @@
 export const ultimateAIAnalysis = async (text: string) => {
-  const baseUrl = (process.env.NINE_ROUTER_BASE_URL || 'http://localhost:20128/v1').replace(/\/$/, '');
-  const apiKey = process.env.NINE_ROUTER_API_KEY || 'sk-254-local';
-
-  const response = await fetch(`${baseUrl}/chat/completions`, {
+  // Call through Next.js Server API Route so Vercel environment variables
+  // (NINE_ROUTER_BASE_URL) are securely utilized and Mixed Content is prevented.
+  const response = await fetch('/api/reviewer/ultimateai-clue', {
     method: 'POST',
     headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${apiKey}`
+      'Content-Type': 'application/json'
     },
-    body: JSON.stringify({
-      model: 'UltimateAI',
-      messages: [{
-        role: 'user',
-        content: `Analisis artikel berikut secara mendalam:
-
-${text}
-
-Berikan output dengan format berikut:
-1. Ringkasan:
-2. Tujuan Penelitian:
-3. Metodologi:
-4. Temuan Utama:
-5. Kesimpulan:
-6. Catatan Analisis:
-7. Kelemahan/Keterbatasan:`
-      }],
-      stream: false,
-      temperature: 0
-    })
+    body: JSON.stringify({ text })
   });
 
   if (!response.ok) {
-    throw new Error(`UltimateAI HTTP ${response.status}: ${await response.text()}`);
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData.error || `UltimateAI HTTP ${response.status}`);
   }
 
-  const json = await response.json();
-
-  const fullContent =
-    json.choices?.[0]?.message?.content || '';
+  const data = await response.json();
 
   return {
-    rawContent: fullContent,
-    provider: '9Router',
-    model: 'UltimateAI',
-    status: 'COMPLETED',
+    rawContent: data.rawContent || '',
+    provider: data.provider || '9Router',
+    model: data.model || 'UltimateAI',
+    status: data.status || 'COMPLETED',
     inputLength: text.length
   };
 };
