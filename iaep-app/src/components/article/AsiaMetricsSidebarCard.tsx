@@ -158,11 +158,11 @@ export default function AsiaMetricsSidebarCard() {
         </div>
       </div>
 
-      {/* 05. ASIA INDEX — AI */}
+      {/* 05. AI — ASIA INDEX */}
       <div className="space-y-3 relative z-10 pt-2 border-t border-gray-850">
         <div className="flex items-center justify-between">
           <span className="text-xs sm:text-sm font-bold text-[#facc15] uppercase tracking-wide">
-            05. ASIA INDEX — AI
+            05. AI — ASIA INDEX
           </span>
           <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-yellow-500/10 text-yellow-300 border border-yellow-500/20">
             Composite Metric

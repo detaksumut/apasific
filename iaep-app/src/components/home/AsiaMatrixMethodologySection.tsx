@@ -384,14 +384,14 @@ export default function AsiaMatrixMethodologySection() {
         )}
 
         {/* ══════════════════════════════════════════════════════════
-            05. ASIA INDEX — AI (COMPOSITE INDEX)
+            05. AI — ASIA INDEX (COMPOSITE INDEX)
         ══════════════════════════════════════════════════════════ */}
         {(activeTab === 'all' || activeTab === 'ai') && (
           <div className="space-y-4">
             <div className="flex items-center justify-between gap-2 border-l-4 border-amber-500 pl-3">
               <div>
                 <span className="text-[10px] font-mono text-amber-400 font-bold uppercase tracking-widest">MODULE 05 &bull; COMPOSITE INDEX</span>
-                <h4 className="text-base sm:text-lg font-bold text-white">05. ASIA INDEX &mdash; AI</h4>
+                <h4 className="text-base sm:text-lg font-bold text-white">05. AI &mdash; ASIA INDEX</h4>
               </div>
               <span className="text-[11px] font-mono text-amber-300 bg-amber-500/10 px-3 py-1 rounded-lg border border-amber-500/30">
                 Flagship Composite Metric
