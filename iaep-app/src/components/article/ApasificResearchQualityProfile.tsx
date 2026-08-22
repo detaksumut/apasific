@@ -15,7 +15,9 @@ import {
   X,
   Layers,
   Sparkles,
-  ExternalLink
+  ExternalLink,
+  Download,
+  FileText
 } from "lucide-react";
 import { ATRQSEngine } from "@/services/at-rqs/ATRQSEngine";
 import { ATRQSSnapshot, TriSourceInput } from "@/services/at-rqs/types";
@@ -246,19 +248,19 @@ export default function ApasificResearchQualityProfile({ article }: Props) {
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
           <div>
             <div className="flex justify-between mb-1 text-gray-400 font-medium">
-              <span>SCORE (Quality Rubric)</span>
-              <span className="text-white font-bold">{snapshot.provenance.score_layer_norm}</span>
+              <span>Layer 1: CLUE (Evidence &amp; Limits)</span>
+              <span className="text-white font-bold">{snapshot.provenance.clue_layer_norm}</span>
             </div>
             <div className="h-2 w-full bg-gray-800 rounded-full overflow-hidden">
               <div 
-                className="h-full bg-gradient-to-r from-[#c9a84c] to-[#e5c76b] rounded-full" 
-                style={{ width: `${snapshot.provenance.score_layer_norm}%` }} 
+                className="h-full bg-gradient-to-r from-emerald-500 to-emerald-300 rounded-full" 
+                style={{ width: `${snapshot.provenance.clue_layer_norm}%` }} 
               />
             </div>
           </div>
           <div>
             <div className="flex justify-between mb-1 text-gray-400 font-medium">
-              <span>SCREEN (Risk &amp; Novelty)</span>
+              <span>Layer 2: SCREEN (Risk &amp; Novelty)</span>
               <span className="text-white font-bold">{snapshot.provenance.screen_layer_norm}</span>
             </div>
             <div className="h-2 w-full bg-gray-800 rounded-full overflow-hidden">
@@ -270,13 +272,13 @@ export default function ApasificResearchQualityProfile({ article }: Props) {
           </div>
           <div>
             <div className="flex justify-between mb-1 text-gray-400 font-medium">
-              <span>CLUE (Evidence &amp; Limits)</span>
-              <span className="text-white font-bold">{snapshot.provenance.clue_layer_norm}</span>
+              <span>Layer 3: SCORE (Quality Rubric)</span>
+              <span className="text-white font-bold">{snapshot.provenance.score_layer_norm}</span>
             </div>
             <div className="h-2 w-full bg-gray-800 rounded-full overflow-hidden">
               <div 
-                className="h-full bg-gradient-to-r from-emerald-500 to-emerald-300 rounded-full" 
-                style={{ width: `${snapshot.provenance.clue_layer_norm}%` }} 
+                className="h-full bg-gradient-to-r from-[#c9a84c] to-[#e5c76b] rounded-full" 
+                style={{ width: `${snapshot.provenance.score_layer_norm}%` }} 
               />
             </div>
           </div>
@@ -450,16 +452,16 @@ export default function ApasificResearchQualityProfile({ article }: Props) {
                   </p>
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
                     <div className="p-3.5 rounded-xl bg-[#15162a] border border-gray-800">
-                      <strong className="text-[#c9a84c] block mb-1">Layer 1: SCORE</strong>
-                      <span className="text-gray-400">Structured quality evaluation across 9 canonical rubric dimensions (0–10 scale).</span>
+                      <strong className="text-emerald-400 block mb-1">Layer 1: CLUE</strong>
+                      <span className="text-gray-400">Substantive verification of objectives, data consistency, regression models, and limitations.</span>
                     </div>
                     <div className="p-3.5 rounded-xl bg-[#15162a] border border-gray-800">
                       <strong className="text-cyan-400 block mb-1">Layer 2: SCREEN</strong>
                       <span className="text-gray-400">Academic risk, methodological rigor, novelty, and baseline clarity evaluation.</span>
                     </div>
                     <div className="p-3.5 rounded-xl bg-[#15162a] border border-gray-800">
-                      <strong className="text-emerald-400 block mb-1">Layer 3: CLUE</strong>
-                      <span className="text-gray-400">Substantive verification of objectives, data consistency, regression models, and limitations.</span>
+                      <strong className="text-[#c9a84c] block mb-1">Layer 3: SCORE</strong>
+                      <span className="text-gray-400">Structured quality evaluation across 9 canonical rubric dimensions (0–10 scale).</span>
                     </div>
                   </div>
                   <div className="p-3.5 rounded-xl bg-[#121b19] border border-emerald-500/30 mt-3">
@@ -508,11 +510,21 @@ export default function ApasificResearchQualityProfile({ article }: Props) {
               )}
             </div>
 
-            {/* Modal Footer */}
-            <div className="mt-6 pt-4 border-t border-gray-800 flex justify-end">
+            {/* Modal Footer with Direct Methodology Download */}
+            <div className="mt-6 pt-4 border-t border-gray-800 flex flex-col sm:flex-row items-center justify-between gap-3">
+              <a
+                href="/docs/AT-RQS-TRI-SOURCE-RESEARCH-QUALITY-METHODOLOGY.md"
+                download="AT-RQS-TRI-SOURCE-RESEARCH-QUALITY-METHODOLOGY.md"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#16182c] hover:bg-[#20233d] border border-[#c9a84c]/50 hover:border-[#c9a84c] text-[#ffd977] font-bold text-xs transition-all shadow-md cursor-pointer w-full sm:w-auto justify-center group"
+              >
+                <Download className="w-4 h-4 text-[#c9a84c] group-hover:scale-110 transition-transform" />
+                <span>Download Methodology Specification (MD)</span>
+              </a>
               <button
                 onClick={() => setIsModalOpen(false)}
-                className="px-5 py-2.5 rounded-xl bg-[#c9a84c] hover:bg-[#ffd977] text-gray-950 font-bold text-xs transition-colors cursor-pointer"
+                className="px-5 py-2.5 rounded-xl bg-[#c9a84c] hover:bg-[#ffd977] text-gray-950 font-bold text-xs transition-colors cursor-pointer w-full sm:w-auto"
               >
                 Close Explanation
               </button>
