@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 import React, { useState, useEffect } from 'react';
 import { ultimateAIAnalysis } from '@/lib/ultimateAI';
 import { 
@@ -318,7 +318,7 @@ export const PlagiarismChecker: React.FC<PlagiarismCheckerProps> = ({ initialTex
 
                       return (
                         <div
-                          key={number}
+                          key={`clue-${number}-${index}`}
                           style={{
                             padding: '12px 14px',
                             border: '1px solid rgba(255,255,255,0.08)',

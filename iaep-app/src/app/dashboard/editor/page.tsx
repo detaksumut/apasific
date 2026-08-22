@@ -62,23 +62,32 @@ export default async function EditorDashboard() {
       r = cookieRole.toLowerCase();
   }
 
-  if (r) {
-      // Co-Admin is allowed into the editor dashboard but with restricted article view
-      const isCoAdmin = r.includes('co-admin') || r.includes('co_admin');
-      
-      const isAuthorized = isCoAdmin ||
-                           r.includes('editor') || 
-                           r.includes('layout') || 
-                           r.includes('cover') || 
-                           r.includes('publish') || 
-                           false || 
-                           r.includes('admin');
-                           
-      if (!isAuthorized) {
-          redirect('/dashboard');
-      }
-  } else {
-      redirect('/dashboard');
+  // Access control & Role Dispatcher: Strict isolation
+  const emailLower = (user.email || "").toLowerCase();
+
+  // 1. Explicit production team & co-admin auto-redirect
+  if (emailLower === "kun@apasific.org" || r === "layout" || r === "layout editor") {
+    redirect("/dashboard/production/layout");
+  }
+  if (emailLower === "rizky@apasific.org" || r === "cover" || r === "cover editor") {
+    redirect("/dashboard/production/cover");
+  }
+  if (emailLower === "parida@apasific.org" || r === "publish" || r === "publish editor") {
+    redirect("/dashboard/production/publish");
+  }
+  if (emailLower === "danil@apasific.org" || r === "supervisor" || r === "admin editor") {
+    redirect("/dashboard/production/supervisor");
+  }
+  if (emailLower === "arfanihksan@unimed.ac.id" || r.includes("co-admin") || r.includes("co_admin")) {
+    redirect("/dashboard/co-admin/naskah-masuk");
+  }
+
+  // 2. Only Editor and Super Admin are authorized
+  const isSuperAdmin = emailLower === "detaksumut@gmail.com" || emailLower === "detaksumtu@gmail.com" || r === "super_admin" || r === "superadmin" || r === "admin";
+  const isEditor = emailLower === "kadinmedan1@gmail.com" || r === "editor";
+
+  if (!isSuperAdmin && !isEditor) {
+    redirect("/dashboard");
   }
 
 

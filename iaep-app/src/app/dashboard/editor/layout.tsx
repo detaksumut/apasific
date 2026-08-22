@@ -64,25 +64,51 @@ export default async function EditorLayout({
   const currentPath = requestHeaders.get("x-dashboard-path") || "";
   const currentQuery = requestHeaders.get("x-dashboard-query") || "";
 
+  const emailLower = (user.email || "").toLowerCase();
+  const isSubmissionDetail = /^\/dashboard\/editor\/submissions\/[a-zA-Z0-9_-]+$/i.test(currentPath);
+
+  // 1. If production staff opens non-submission pages in editor, auto-redirect to their production portal
+  if (!isSubmissionDetail) {
+    if (emailLower === "kun@apasific.org" || r === "layout" || r === "layout editor") {
+      redirect("/dashboard/production/layout");
+    }
+    if (emailLower === "rizky@apasific.org" || r === "cover" || r === "cover editor") {
+      redirect("/dashboard/production/cover");
+    }
+    if (emailLower === "parida@apasific.org" || r === "publish" || r === "publish editor") {
+      redirect("/dashboard/production/publish");
+    }
+    if (emailLower === "danil@apasific.org" || r === "supervisor" || r === "admin editor") {
+      redirect("/dashboard/production/supervisor");
+    }
+    if (emailLower === "arfanihksan@unimed.ac.id" || r.includes("co-admin") || r.includes("co_admin")) {
+      redirect("/dashboard/co-admin/naskah-masuk");
+    }
+  }
+
   if (r) {
       let isAuthorized = false;
 
-      // 1. General authorized roles for editor subtree
+      // True Editor & Super Admin have full access to editor subtree
       if (
-        r.includes('editor') || 
-        r.includes('layout') || 
-        r.includes('cover') || 
-        r.includes('publish') || 
+        r === 'editor' || 
+        emailLower === 'kadinmedan1@gmail.com' ||
+        emailLower === 'detaksumut@gmail.com' ||
+        emailLower === 'detaksumtu@gmail.com' ||
+        r === 'super_admin' ||
+        r === 'superadmin' ||
         (r.includes('admin') && !r.includes('co'))
       ) {
         isAuthorized = true;
       }
-      // 2. Least-Privilege Controlled Access for Supervisor:
-      // Supervisor is strictly allowed ONLY on the exact submission detail route with production tab
-      else if (r.includes('supervisor')) {
-        const isSubmissionDetail = /^\/dashboard\/editor\/submissions\/[a-zA-Z0-9_-]+$/i.test(currentPath);
-        const isProductionContext = currentQuery.includes('tab=production');
-        if (isSubmissionDetail && isProductionContext) {
+      // Production team is strictly permitted ONLY inside submission workspace
+      else if (isSubmissionDetail) {
+        if (
+          r.includes('layout') || 
+          r.includes('cover') || 
+          r.includes('publish') || 
+          r.includes('supervisor')
+        ) {
           isAuthorized = true;
         }
       }
