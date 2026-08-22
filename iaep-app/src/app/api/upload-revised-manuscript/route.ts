@@ -36,7 +36,9 @@ export async function POST(req: Request) {
     try {
       const { getFirestore } = await import('@/utils/firebase/db');
       const db = getFirestore();
-      await db.collection('submissions').doc(submissionId).update({ revised_file_url: revisedUrl });
+      if (db) {
+        await db.collection('submissions').doc(submissionId).update({ revised_file_url: revisedUrl });
+      }
     } catch(fbErr) {
       console.warn("Firestore revised_file_url update failed", fbErr);
     }
