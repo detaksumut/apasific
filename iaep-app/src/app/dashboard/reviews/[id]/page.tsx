@@ -183,12 +183,10 @@ useEffect(() => {
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6" /></svg>
         <span>Review Evaluation</span>
       </div>
-
-      {/* Page Header */}
       <div className="rev-header">
         <div>
           <h1 className="rev-page-title">Tinjau Naskah</h1>
-          <p className="rev-page-sub">{`Naskah #${submission.id || ''} Ã‚Â· ${submission.journal || 'Loading...'} Ã‚Â· Putaran ${submission.round || 1}`}</p>
+          <p className="rev-page-sub">{`Naskah #${submission.id || ''} · ${submission.journal || 'Loading...'} · Putaran ${submission.round || 1}`}</p>
         </div>
         <div className="rev-deadline">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
@@ -311,10 +309,10 @@ useEffect(() => {
             <div className="rev-guidelines-box">
               <div className="rev-guide-title">APASIFIC IAEP Reviewer Code of Conduct</div>
               {[
-                { icon: "ðŸ”’", title: "Confidentiality", desc: "Treat the manuscript and your review as strictly confidential. Do not discuss the paper with third parties." },
-                { icon: "âš–ï¸Â", title: "Objectivity", desc: "Reviews must be conducted objectively and based on academic merit. Personal criticism of the author is inappropriate." },
+                { icon: "🔒", title: "Confidentiality", desc: "Treat the manuscript and your review as strictly confidential. Do not discuss the paper with third parties." },
+                { icon: "⚖️", title: "Objectivity", desc: "Reviews must be conducted objectively and based on academic merit. Personal criticism of the author is inappropriate." },
                 { icon: "⏱️", title: "Promptness", desc: "If you feel unqualified or unable to complete the review on time, please notify the editor immediately." },
-                { icon: "ðŸš«", title: "Conflict of Interest", desc: "Disclose any conflicts of interest that may affect your review, including professional or personal relationships with authors." },
+                { icon: "🚫", title: "Conflict of Interest", desc: "Disclose any conflicts of interest that may affect your review, including professional or personal relationships with authors." },
               ].map((g, i) => (
                 <div key={i} className="rev-guide-item">
                   <div className="rev-guide-icon">{g.icon}</div>
@@ -334,9 +332,9 @@ useEffect(() => {
             </label>
 
             <div className="rev-actions-between">
-              <button className="rev-btn-ghost" onClick={() => setStep(ReviewStep.REQUEST)}>Ã¢â€ Â Back</button>
+              <button className="rev-btn-ghost" onClick={() => setStep(ReviewStep.REQUEST)}>← Back</button>
               <button className="rev-btn-primary" onClick={() => setStep(ReviewStep.REVIEW)} disabled={!agreed}>
-                Proceed to Review â†’
+                Proceed to Review →
               </button>
             </div>
           </div>
@@ -384,9 +382,9 @@ useEffect(() => {
                   {submission?.file_metadata?.status === 'AVAILABLE' ? (
                     <div style={{ display: 'flex', flexDirection: 'column', height: '100%', minHeight: '600px', width: '100%' }}>
                       <div style={{ background: 'rgba(201,168,76,0.1)', borderBottom: '1px solid rgba(201,168,76,0.2)', padding: '8px 15px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '12px', color: '#c9a84c' }}>
-                        <span>ðŸ“„ File Naskah Tersedia ({(submission.file_url).includes('.docx') ? 'Dokumen Word .docx' : 'Dokumen PDF'})</span>
+                        <span>📄 File Naskah Tersedia ({(submission.file_url).includes('.docx') ? 'Dokumen Word .docx' : 'Dokumen PDF'})</span>
                         <a href={submission.file_url} target="_blank" rel="noreferrer" style={{ color: '#ffffff', textDecoration: 'underline', fontWeight: 'bold' }}>
-                          Klik disini jika iFrame tidak terbuka Ã¢Å¾â€
+                          Klik disini jika iFrame tidak terbuka ↗
                         </a>
                       </div>
                       
@@ -401,14 +399,14 @@ useEffect(() => {
                     </div>
                   ) : (
                     <div className="rev-pdf-mock">
-                      <div className="rev-pdf-icon">ðŸ“„</div>
+                      <div className="rev-pdf-icon">📄</div>
                       <div className="rev-pdf-mock-title">
                         {submission?.file_metadata?.status === 'METADATA_MISSING' ? 'Metadata Kosong' : 
                          submission?.file_metadata?.status === 'FILE_MISSING' ? 'File Hilang di Storage' : 
                          submission?.file_metadata?.status === 'URL_GENERATION_FAILED' ? 'Gagal Membuat Link' : 'No File Attached'}
                       </div>
                       <div className="rev-pdf-mock-sub" style={{ marginBottom: '15px' }}>
-                        {submission?.file_metadata?.error ? submission.file_metadata.error.message : 'Blind review document Ã‚Â· No file provided'}
+                        {submission?.file_metadata?.error ? submission.file_metadata.error.message : 'Blind review document · No file provided'}
                       </div>
                       <button 
                         onClick={handleAutoRepair} 
