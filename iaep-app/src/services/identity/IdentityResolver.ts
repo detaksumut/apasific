@@ -139,6 +139,14 @@ console.log(
             resolvedRole = "supervisor";
         } else if (resolvedEmail && resolvedEmail.toLowerCase() === "kadinmedan1@gmail.com") {
             resolvedRole = "editor";
+        } else if (resolvedEmail && resolvedEmail.toLowerCase() === "kun@apasific.org") {
+            resolvedRole = "layout";
+        } else if (resolvedEmail && resolvedEmail.toLowerCase() === "rizky@apasific.org") {
+            resolvedRole = "cover";
+        } else if (resolvedEmail && resolvedEmail.toLowerCase() === "parida@apasific.org") {
+            resolvedRole = "publish";
+        } else if (resolvedEmail && resolvedEmail.toLowerCase() === "arfanihksan@unimed.ac.id") {
+            resolvedRole = "co-admin";
         }
 
         // 2. Build the new IdentityContext, do not mutate original sessionUser

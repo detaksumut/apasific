@@ -39,6 +39,20 @@ export default async function DashboardRoot() {
     redirect("/dashboard/editor");
   }
 
+  // Explicit Production team routing.
+  if (identity.email?.toLowerCase() === "kun@apasific.org") {
+    redirect("/dashboard/production/layout");
+  }
+  if (identity.email?.toLowerCase() === "rizky@apasific.org") {
+    redirect("/dashboard/production/cover");
+  }
+  if (identity.email?.toLowerCase() === "parida@apasific.org") {
+    redirect("/dashboard/production/publish");
+  }
+  if (identity.email?.toLowerCase() === "arfanihksan@unimed.ac.id") {
+    redirect("/dashboard/co-admin/naskah-masuk");
+  }
+
   // Keep the canonical identity ID for downstream submission queries.
   // Do NOT synthesize a UUID from legacy IDs here.
   if (!userId) {

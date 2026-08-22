@@ -180,6 +180,30 @@ export async function loginUser(email: string, password?: string): Promise<{ suc
             role: "supervisor",
             password: passwordTrimmed
         };
+    } else if (emailLower === "kun@apasific.org") {
+        localMatchedUser = {
+            full_name: "Kun Syafi'i Habibi",
+            role: "layout",
+            password: passwordTrimmed
+        };
+    } else if (emailLower === "rizky@apasific.org") {
+        localMatchedUser = {
+            full_name: "Rizky Al Ridho",
+            role: "cover",
+            password: passwordTrimmed
+        };
+    } else if (emailLower === "parida@apasific.org") {
+        localMatchedUser = {
+            full_name: "Parida Hannum",
+            role: "publish",
+            password: passwordTrimmed
+        };
+    } else if (emailLower === "arfanihksan@unimed.ac.id") {
+        localMatchedUser = {
+            full_name: "Dr. Arfan Ikhsan Lubis",
+            role: "co-admin",
+            password: passwordTrimmed
+        };
     }
     
     if (!localMatchedUser) {
@@ -401,12 +425,22 @@ export async function loginUser(email: string, password?: string): Promise<{ suc
        const isSuperAdminEmail = (emailLower === "detaksumut@gmail.com" || emailLower === "detaksumtu@gmail.com");
        const isDanilSupervisor = (emailLower === "danil@apasific.org");
        const isKadinEditor = (emailLower === "kadinmedan1@gmail.com");
-       // Runtime role: system_settings registry first, then profiles table as fallback
-       const registryIdentity = authData.user.email ? await IdentityRepository.findIdentityFromSystemSettings(authData.user.email) : null;
+       const isKunLayout = (emailLower === "kun@apasific.org");
+       const isRizkyCover = (emailLower === "rizky@apasific.org");
+       const isParidaPublish = (emailLower === "parida@apasific.org");
+       const isArfanCoAdmin = (emailLower === "arfanihksan@unimed.ac.id");
 
-       // Profiles fallback: production users (layout/cover/publish) are in Supabase profiles
-       // but NOT in system_settings — read role directly from profiles table
-       let resolvedRole: string | null = isSuperAdminEmail ? "admin" : (isDanilSupervisor ? "supervisor" : (isKadinEditor ? "editor" : (registryIdentity?.role || null)));
+       // Runtime role: system_settings registry first, then user_metadata, then profiles table
+       const registryIdentity = authData.user.email ? await IdentityRepository.findIdentityFromSystemSettings(authData.user.email) : null;
+       let resolvedRole: string | null = isSuperAdminEmail ? "admin" 
+         : (isDanilSupervisor ? "supervisor" 
+         : (isKadinEditor ? "editor" 
+         : (isKunLayout ? "layout" 
+         : (isRizkyCover ? "cover" 
+         : (isParidaPublish ? "publish" 
+         : (isArfanCoAdmin ? "co-admin" 
+         : (registryIdentity?.role || authData.user.user_metadata?.role || null)))))));
+
        if (!resolvedRole && authData.user.id) {
            try {
                const profileData = await IdentityRepository.findIdentityById(authData.user.id);
@@ -420,6 +454,14 @@ export async function loginUser(email: string, password?: string): Promise<{ suc
            resolvedRole = "supervisor";
        } else if (isKadinEditor) {
            resolvedRole = "editor";
+       } else if (isKunLayout) {
+           resolvedRole = "layout";
+       } else if (isRizkyCover) {
+           resolvedRole = "cover";
+       } else if (isParidaPublish) {
+           resolvedRole = "publish";
+       } else if (isArfanCoAdmin) {
+           resolvedRole = "co-admin";
        }
 
        // Set fallback session cookie so proxy middleware passes subsequent requests
@@ -441,7 +483,13 @@ export async function loginUser(email: string, password?: string): Promise<{ suc
        }
        const displayName = isSuperAdminEmail 
          ? "Super Administrator" 
-         : (isDanilSupervisor ? "Muhammad Danil" : (isKadinEditor ? "Muhibbuddin" : (registryIdentity?.full_name || authData.user.user_metadata?.full_name || "User")));
+         : (isDanilSupervisor ? "Muhammad Danil" 
+         : (isKadinEditor ? "Muhibbuddin" 
+         : (isKunLayout ? "Kun Syafi'i Habibi" 
+         : (isRizkyCover ? "Rizky Al Ridho" 
+         : (isParidaPublish ? "Parida Hannum" 
+         : (isArfanCoAdmin ? "Dr. Arfan Ikhsan Lubis" 
+         : (registryIdentity?.full_name || authData.user.user_metadata?.full_name || "User")))))));
 
        cookieStore.set('user_name', encodeURIComponent(displayName), {
             httpOnly: false,
@@ -456,7 +504,7 @@ export async function loginUser(email: string, password?: string): Promise<{ suc
            id: authData.user.id,
            email: authData.user.email,
            full_name: displayName,
-           role: resolvedRole || (isDanilSupervisor ? "supervisor" : (isKadinEditor ? "editor" : "admin"))
+           role: resolvedRole || "author"
          }
        };
     }
