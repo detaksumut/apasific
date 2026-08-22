@@ -2,20 +2,23 @@
 import { useState } from "react";
 import { usePathname } from "next/navigation";
 
-function getProductionBadge(pathname: string): string | null {
-  if (pathname.startsWith("/dashboard/production/layout")) {
+function getProductionBadge(pathname: string, role?: string, userName?: string): string | null {
+  const r = (role || "").toLowerCase();
+  const u = (userName || "").toLowerCase();
+
+  if (r.includes("layout") || u.includes("kun") || pathname.startsWith("/dashboard/production/layout") || (pathname.includes("copyediting") && (r.includes("layout") || r === "production" || u.includes("kun")))) {
     return "Layout Editor";
   }
 
-  if (pathname.startsWith("/dashboard/production/cover")) {
+  if (r.includes("cover") || u.includes("rizky") || pathname.startsWith("/dashboard/production/cover")) {
     return "Cover Editor";
   }
 
-  if (pathname.startsWith("/dashboard/production/publish")) {
+  if (r.includes("publish") || u.includes("parida") || pathname.startsWith("/dashboard/production/publish")) {
     return "Publish Editor";
   }
 
-  if (pathname.startsWith("/dashboard/production/supervisor")) {
+  if (r.includes("supervisor") || u.includes("danil") || pathname.startsWith("/dashboard/production/supervisor")) {
     return "Supervisor";
   }
 
@@ -52,7 +55,7 @@ export default function Topbar({ userName, role }: { userName: string; role: str
   };
 
   const initials = userName.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2);
-  const productionBadge = getProductionBadge(pathname);
+  const productionBadge = getProductionBadge(pathname, role, userName);
   const badgeLabel = productionBadge || roleLabel[role] || role;
   const color = roleColor[role] || "#c9a84c";
 

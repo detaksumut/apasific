@@ -107,7 +107,7 @@ const [uploadingReviewId, setUploadingReviewId] = useState<string | null>(null);
   const isCoverEditor = roleStr.includes('cover');
   const isPublishEditor = roleStr.includes('publish');
   const isSupervisor = roleStr.includes('supervisor');
-  const isPureEditor = (roleStr.includes('admin') && !roleStr.includes('co')) || (roleStr.includes('editor') && !roleStr.includes('layout') && !roleStr.includes('cover') && !roleStr.includes('publish') && !roleStr.includes('supervisor'));
+  const isPureEditor = !isLayoutEditor && !isCoverEditor && !isPublishEditor && !isSupervisor && !isCoAdmin && (roleStr.includes('editor') || roleStr.includes('admin'));
 
   // Ensure Supervisor is locked strictly to Production validation context
   useEffect(() => {
@@ -240,28 +240,33 @@ const [uploadingReviewId, setUploadingReviewId] = useState<string | null>(null);
       // Fetch current user role to customize UI
       const { data: { user } } = await supabase.auth.getUser();
       let roleStr = "";
-      if (user) {
-         const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single();
-         if (profile && profile.role) {
-             roleStr = profile.role.toLowerCase();
-         } else if (user.email) {
-             // Fallbacks for the explicitly created production accounts
-             if (user.email.includes('kun@apasific.org')) roleStr = 'layout editor';
-             if (user.email.includes('rizky@apasific.org')) roleStr = 'cover editor';
-             if (user.email.includes('parida@apasific.org')) roleStr = 'publish editor';
-             if (user.email.includes('danil@apasific.org')) roleStr = 'supervisor';
-         }
+      if (user?.email) {
+          const emailLower = user.email.toLowerCase();
+          if (emailLower.includes('kun@apasific.org')) roleStr = 'layout editor';
+          else if (emailLower.includes('rizky@apasific.org')) roleStr = 'cover editor';
+          else if (emailLower.includes('parida@apasific.org')) roleStr = 'publish editor';
+          else if (emailLower.includes('danil@apasific.org')) roleStr = 'supervisor';
+          else if (emailLower.includes('arfanihksan@unimed.ac.id')) roleStr = 'co-admin';
+          else if (emailLower.includes('kadinmedan1@gmail.com')) roleStr = 'editor';
+          else if (emailLower.includes('detaksumut@gmail.com') || emailLower.includes('detaksumtu@gmail.com')) roleStr = 'super_admin';
+      }
+
+      if (!roleStr && user) {
+          const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single();
+          if (profile && profile.role) {
+              roleStr = profile.role.toLowerCase();
+          }
       }
 
       if (!roleStr) {
-         const match = document.cookie.match(new RegExp('(^| )active_portal_role=([^;]+)')) ||
-                       document.cookie.match(new RegExp('(^| )user_role=([^;]+)'));
-         if (match) {
-             roleStr = decodeURIComponent(match[2]).toLowerCase();
-         } else if (user?.email) {
-             if (user.email.includes('editor')) roleStr = 'editor';
-             if (user.email.includes('admin')) roleStr = 'admin';
-         }
+          const match = document.cookie.match(new RegExp('(^| )active_portal_role=([^;]+)')) ||
+                        document.cookie.match(new RegExp('(^| )user_role=([^;]+)'));
+          if (match) {
+              roleStr = decodeURIComponent(match[2]).toLowerCase();
+          } else if (user?.email) {
+              if (user.email.includes('editor')) roleStr = 'editor';
+              if (user.email.includes('admin')) roleStr = 'admin';
+          }
       }
 
       setCurrentUserRole(roleStr || 'editor');
@@ -1648,7 +1653,7 @@ const [uploadingReviewId, setUploadingReviewId] = useState<string | null>(null);
                           )}
                         </label>
 
-                        {isLayoutEditor && submission?.status === 'Assigned to Layout' && (
+                        {isLayoutEditor && (
                            <div className="mt-6 p-4 bg-blue-50/50 border border-blue-100 rounded-xl flex items-center justify-between">
                              <div>
                                <h5 className="font-bold text-blue-900 text-sm">Tugas Layout Selesai?</h5>

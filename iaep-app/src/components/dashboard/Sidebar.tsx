@@ -16,6 +16,13 @@ export default function Sidebar({ role }: SidebarProps) {
       path: (() => {
         const r = (role || '').toLowerCase();
 
+        // 1. Explicit production role routing
+        if (r.includes('layout')) return '/dashboard/production/layout';
+        if (r.includes('cover')) return '/dashboard/production/cover';
+        if (r.includes('publish')) return '/dashboard/production/publish';
+        if (r.includes('supervisor') || r === 'admin editor') return '/dashboard/production/supervisor';
+        if (r.includes('co-admin') || r.includes('co_admin')) return '/dashboard/co-admin/naskah-masuk';
+
         // Preserve the current operational portal when role metadata
         // is unavailable in the presentation layer.
         if (pathname.startsWith('/dashboard/editor')) {
@@ -538,6 +545,11 @@ export default function Sidebar({ role }: SidebarProps) {
      * Tidak memberikan authorization baru.
      */
 
+    // Production staff roles (Layout, Cover, Publish) strictly get clean sidebar (no editorLinks)
+    if (rawRole.includes("layout") || rawRole.includes("cover") || rawRole.includes("publish") || normalizedRole === "PRODUCTION") {
+      return [];
+    }
+
     // Supervisor role strictly gets only Supervisor links regardless of sub-route
     if (normalizedRole === "SUPERVISOR" || rawRole === "supervisor" || rawRole === "admin editor") {
       return productionLinks.filter(
@@ -648,12 +660,11 @@ export default function Sidebar({ role }: SidebarProps) {
           <svg viewBox="0 0 32 32" fill="none">
             <circle cx="16" cy="16" r="15" stroke="#c9a84c" strokeWidth="1.5" />
             <path d="M8 22L16 8l8 14" stroke="#c9a84c" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-            <path d="M10.5 18h11" stroke="#c9a84c" strokeWidth="1.4" strokeLinecap="round" />
           </svg>
         </div>
-        <div>
-          <div className="sidebar-brand-name">APASIFIC</div>
-          <div className="sidebar-brand-sub">Academic Hub</div>
+        <div className="sidebar-brand-text">
+          <span className="sidebar-brand-name">APASIFIC</span>
+          <span className="sidebar-brand-sub">Academic Hub</span>
         </div>
       </div>
 
@@ -661,10 +672,11 @@ export default function Sidebar({ role }: SidebarProps) {
       <div className="sidebar-role-badge" style={{ "--role-color": roleColorMap[normalizedRole] || "#c9a84c" } as React.CSSProperties}>
         <div className="sidebar-role-dot" />
         <span style={{ flex: 1 }}>{(() => {
-          if (pathname === "/dashboard/production/layout") return "Layout Editor Portal";
-          if (pathname === "/dashboard/production/cover") return "Cover Editor Portal";
-          if (pathname === "/dashboard/production/publish") return "Publish Editor Portal";
-          if (pathname === "/dashboard/production/supervisor") return "Supervisor Portal";
+          const raw = (role || "").toLowerCase();
+          if (raw.includes("layout") || pathname.startsWith("/dashboard/production/layout") || (pathname.includes("copyediting") && (raw === "production" || raw.includes("layout")))) return "Layout Editor Portal";
+          if (raw.includes("cover") || pathname.startsWith("/dashboard/production/cover")) return "Cover Editor Portal";
+          if (raw.includes("publish") || pathname.startsWith("/dashboard/production/publish")) return "Publish Editor Portal";
+          if (raw.includes("supervisor") || pathname.startsWith("/dashboard/production/supervisor")) return "Supervisor Portal";
           return (roleLabelMap[normalizedRole] || normalizedRole) + " Portal";
         })()}</span>
       </div>
