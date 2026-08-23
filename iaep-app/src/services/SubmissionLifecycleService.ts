@@ -206,24 +206,64 @@ export class SubmissionLifecycleService {
 
                                 const authHeader = 'Basic ' + Buffer.from(`${wpUser}:${wpPass}`).toString('base64');
                                 
+                                let featuredMediaId: number | undefined = undefined;
+                                if (article.cover_file_url) {
+                                    try {
+                                        let cleanCoverUrl = article.cover_file_url;
+                                        if (cleanCoverUrl.includes('?token=')) {
+                                            const path = cleanCoverUrl.split('/manuscripts/')[1].split('?')[0];
+                                            const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
+                                            const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
+                                            cleanCoverUrl = `${supabaseUrl}/storage/v1/object/authenticated/manuscripts/${path}`;
+                                            const imgRes = await fetch(cleanCoverUrl, {
+                                                headers: { 'Authorization': 'Bearer ' + supabaseKey }
+                                            });
+                                            const imgBuf = await imgRes.arrayBuffer();
+                                            if (imgBuf.byteLength > 1000) {
+                                                const mediaEndpoint = wpUrl.replace(/\/posts\/?$/, '/media');
+                                                const uploadRes = await fetch(mediaEndpoint, {
+                                                    method: 'POST',
+                                                    headers: {
+                                                        'Authorization': authHeader,
+                                                        'Content-Type': 'image/png',
+                                                        'Content-Disposition': `attachment; filename=cover-${submissionId}.png`
+                                                    },
+                                                    body: Buffer.from(imgBuf)
+                                                });
+                                                const mediaData = await uploadRes.json();
+                                                if (mediaData && mediaData.id) {
+                                                    featuredMediaId = mediaData.id;
+                                                }
+                                            }
+                                        }
+                                    } catch (mediaErr) {
+                                        console.warn('[WordPress Sync] Failed to upload featured media:', mediaErr);
+                                    }
+                                }
+
+                                const wpPayload: any = {
+                                    title: title,
+                                    content: wpContent,
+                                    status: 'publish', // Terbit langsung sebagai artikel/post berita
+                                };
+                                if (featuredMediaId) {
+                                    wpPayload.featured_media = featuredMediaId;
+                                }
+
                                 const response = await fetch(wpUrl, {
                                     method: 'POST',
                                     headers: {
                                         'Content-Type': 'application/json',
                                         'Authorization': authHeader
                                     },
-                                    body: JSON.stringify({
-                                        title: title,
-                                        content: wpContent,
-                                        status: 'publish', // Terbit langsung sebagai artikel/post berita
-                                    })
+                                    body: JSON.stringify(wpPayload)
                                 });
 
                                 if (!response.ok) {
                                     const errText = await response.text();
                                     console.warn(`[WordPress Sync] Failed to post article ${submissionId} to WordPress: ${response.status} ${errText}`);
                                 } else {
-                                    console.log(`[WordPress Sync] Successfully syndicated article ${submissionId} to beritaindonesia.news`);
+                                    console.log(`[WordPress Sync] Successfully syndicated article ${submissionId} to beritaindonesia.news (featured_media: ${featuredMediaId || 'none'})`);
                                 }
                             }
                         }
