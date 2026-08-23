@@ -192,16 +192,24 @@ export class SubmissionLifecycleService {
                                     .map((a: any) => a.full_name)
                                     .join(', ');
 
-                                const authorPrefix = sortedAuthors ? `<strong>Penulis:</strong> ${sortedAuthors}<br><br>` : '';
-                                const doiPrefix = article.doi ? `<strong>DOI:</strong> <a href="https://doi.org/${article.doi}" target="_blank">${article.doi}</a><br><br>` : '';
-                                const sourcePrefix = `<em>Diterbitkan secara resmi di portal jurnal APASIFIC.</em><br><br>`;
+                                const authorPrefix = sortedAuthors ? `<p><strong>Penulis:</strong> ${sortedAuthors}</p>` : (article.author ? `<p><strong>Penulis:</strong> ${article.author}</p>` : '');
+                                const doiPrefix = article.doi ? `<p><strong>DOI:</strong> <a href="https://doi.org/${article.doi}" target="_blank" rel="noopener noreferrer">${article.doi}</a></p>` : '';
+                                const journalPrefix = article.volume && article.issue ? `<p><strong>Terbitan:</strong> Volume ${article.volume}, Issue ${article.issue}</p>` : '';
+                                
+                                const apasificLink = `<div style="background: #f0f4f8; border-left: 4px solid #c9a84c; padding: 14px 18px; margin: 20px 0; border-radius: 4px;">
+                                    <p style="margin: 0 0 6px 0; font-size: 14px; font-weight: bold; color: #1e293b;">🌐 Akses Naskah &amp; Sertifikat Resmi:</p>
+                                    <p style="margin: 0; font-size: 14px;"><a href="https://apasific.org/article/${submissionId}" target="_blank" rel="noopener noreferrer" style="color: #2563eb; font-weight: bold; text-decoration: underline;">https://apasific.org/article/${submissionId}</a></p>
+                                </div>`;
 
                                 const wpContent = `
                                     ${authorPrefix}
                                     ${doiPrefix}
-                                    ${sourcePrefix}
-                                    <strong>Abstrak / Konten:</strong><br>
-                                    ${abstract}
+                                    ${journalPrefix}
+                                    ${apasificLink}
+                                    <hr style="margin: 20px 0; border: 0; border-top: 1px solid #e2e8f0;">
+                                    <p><strong>Abstrak:</strong></p>
+                                    <p style="text-align: justify; line-height: 1.7;">${abstract}</p>
+                                    ${article.keywords ? `<p style="margin-top: 15px;"><strong>Kata Kunci:</strong> <em>${article.keywords}</em></p>` : ''}
                                 `;
 
                                 const authHeader = 'Basic ' + Buffer.from(`${wpUser}:${wpPass}`).toString('base64');
