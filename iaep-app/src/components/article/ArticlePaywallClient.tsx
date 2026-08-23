@@ -710,6 +710,77 @@ export default function ArticlePaywallClient({ initialArticle, id }: ArticlePayw
                 </div>
               </div>
 
+              {/* DEFINISI & DASAR RUMUS PERHITUNGAN 3 METRIK */}
+              <div className="bg-[#0b0c18] border border-gray-800/90 rounded-2xl p-4 space-y-3 text-left">
+                <div className="text-[11px] font-bold text-gray-300 uppercase tracking-wider flex items-center justify-between border-b border-gray-800 pb-2">
+                  <div className="flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-[#c9a84c]" />
+                    <span>Definisi &amp; Kerangka Metrik</span>
+                  </div>
+                  <span className="text-[9px] text-gray-500 font-mono">STANDAR BIBLIOMETRIK</span>
+                </div>
+
+                <div className="space-y-2.5 text-[11px]">
+                  {/* 1. H-Index */}
+                  <div className="p-2.5 rounded-xl bg-[#141528] border border-blue-500/20">
+                    <div className="flex items-center justify-between font-bold text-blue-400 mb-0.5">
+                      <span>1. H-INDEX</span>
+                      <span className="text-[9px] text-gray-500 font-normal">Jorge E. Hirsch (2005)</span>
+                    </div>
+                    <p className="italic text-gray-200 font-medium">"How often is the research cited?"</p>
+                    <p className="text-[10px] text-gray-400 mt-0.5">
+                      Mengukur produktivitas dan akumulasi dampak sitasi secara bersamaan.
+                    </p>
+                  </div>
+
+                  {/* 2. i10-Index */}
+                  <div className="p-2.5 rounded-xl bg-[#141528] border border-cyan-500/20">
+                    <div className="flex items-center justify-between font-bold text-cyan-400 mb-0.5">
+                      <span>2. i10-INDEX</span>
+                      <span className="text-[9px] text-gray-500 font-normal">Google Scholar (2011)</span>
+                    </div>
+                    <p className="italic text-gray-200 font-medium">"How many works achieved meaningful citation impact?"</p>
+                    <p className="text-[10px] text-gray-400 mt-0.5">
+                      Mengukur jumlah publikasi yang mencapai ambang batas minimal 10 sitasi.
+                    </p>
+                  </div>
+
+                  {/* 3. AT-RQS™ Index + Rumus */}
+                  <div className="p-3 rounded-xl bg-gradient-to-b from-[#181932] to-[#101122] border-2 border-[#c9a84c]/50 shadow-md space-y-2">
+                    <div className="flex items-center justify-between font-extrabold text-[#ffd977]">
+                      <span>3. AT-RQS™ INDEX</span>
+                      <span className="text-[9px] text-[#c9a84c] font-bold px-1.5 py-0.5 rounded bg-[#c9a84c]/15 border border-[#c9a84c]/30">
+                        APASIFIC PROPRIETARY
+                      </span>
+                    </div>
+                    <p className="italic text-[#ffd977] font-semibold">
+                      "How strong is the research quality behind the evidence?"
+                    </p>
+                    <p className="text-[10px] text-gray-300">
+                      Mengukur kekuatan mutu substansi, keketatan metodologi, dan konsistensi bukti penelitian secara ilmiah.
+                    </p>
+
+                    {/* Formula Perhitungan AT-RQS */}
+                    <div className="bg-[#090a14] rounded-lg p-2.5 border border-[#c9a84c]/30 font-mono text-[10px] text-[#e5c76b] space-y-1.5 mt-2">
+                      <div className="font-bold text-[10px] text-[#ffd977] uppercase tracking-wider font-sans border-b border-gray-800 pb-1 flex justify-between">
+                        <span>Dasar Rumus Perhitungan:</span>
+                        <span className="text-gray-400 font-mono text-[9px]">Skala 0–10.0 / 0–100</span>
+                      </div>
+                      <div className="text-gray-200 leading-snug">
+                        <strong className="text-[#ffd977]">AT-RQS</strong> = 30%(Evidence Quality) + 25%(Methodological Rigor) + 20%(Statistical Strength) + 15%(Research Integrity) + 10%(Scholarly Impact)
+                      </div>
+                      <div className="text-gray-400 text-[9px] pt-1 border-t border-gray-850">
+                        <span className="text-[#c9a84c] font-semibold">Bounded Consistency:</span> AT-RQS<sub>final</sub> = Base Score × [0.85 + 0.15 × (AECI / 100)]
+                      </div>
+                      <div className="flex justify-between text-[9px] text-gray-400 pt-0.5 font-sans">
+                        <span>Skala Kategori:</span>
+                        <span className="text-[#ffd977] font-medium">9.0–10.0 (Exceptional) • 8.0–8.9 (Strong) • 7.0–7.9 (Good)</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
               {/* Monthly Publication Trend Sparkline */}
               <div>
                 <span className="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-3">Tren Publikasi Bulanan (2026)</span>
