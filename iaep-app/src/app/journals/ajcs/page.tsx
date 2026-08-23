@@ -25,7 +25,7 @@ export default async function AJCSJournal() {
     
     let supabaseQuery = supabaseAdmin
       .from("submissions")
-      .select(`id, title, abstract, status, created_at, doi, volume, issue, cover_file_url, journal_id, journals(name)`)
+      .select(`id, title, abstract, author, author_name, status, created_at, published_at, doi, volume, issue, cover_file_url, journal_id, journals(name)`)
       .eq("status", "Published")
       .order("created_at", { ascending: false });
 
@@ -42,7 +42,7 @@ export default async function AJCSJournal() {
       // Fallback: filter by nama jurnal jika journal_id tidak ditemukan
       const { data: allData } = await supabaseAdmin
         .from("submissions")
-        .select(`id, title, abstract, status, created_at, doi, volume, issue, cover_file_url, journal_id, journals(name)`)
+        .select(`id, title, abstract, author, author_name, status, created_at, published_at, doi, volume, issue, cover_file_url, journal_id, journals(name)`)
         .eq("status", "Published")
         .order("created_at", { ascending: false });
       
@@ -97,21 +97,32 @@ export default async function AJCSJournal() {
               
               {/* Info Section */}
               <div className="flex-1 p-6 md:p-8 flex flex-col">
-                <div className="flex items-center gap-3 mb-4 flex-wrap">
+                <div className="flex items-center gap-3 mb-3 flex-wrap">
                   <span className="text-[10px] font-bold tracking-widest uppercase px-2 py-1 bg-zinc-800 text-zinc-400 rounded border border-zinc-700">
                     #sub_{pub.id.substring(0,8)}
                   </span>
                   <span className="text-[10px] font-bold tracking-widest uppercase px-2 py-1 bg-emerald-500/10 text-emerald-400 rounded border border-emerald-500/20">
                     {pub.journals?.name || "AJCS - PENGABDIAN KEPADA MASYARAKAT (PKM)"}
                   </span>
+                  {pub.volume && pub.issue && (
+                    <span className="text-[10px] font-bold tracking-widest uppercase px-2 py-1 bg-blue-500/10 text-blue-400 rounded border border-blue-500/20">
+                      Vol. {pub.volume} No. {pub.issue} ({new Date(pub.published_at || pub.created_at).getFullYear()})
+                    </span>
+                  )}
                 </div>
                 
-                <h2 className="text-2xl md:text-3xl font-bold text-white mb-4 leading-snug group-hover:text-emerald-400 transition-colors">
+                <h2 className="text-2xl md:text-3xl font-bold text-white mb-2 leading-snug group-hover:text-emerald-400 transition-colors">
                   {pub.title}
                 </h2>
+
+                {(pub.author || pub.author_name) && (
+                  <p className="text-emerald-400 text-sm font-semibold mb-4">
+                    Penulis: <span className="text-zinc-300 font-normal">{pub.author || pub.author_name}</span>
+                  </p>
+                )}
                 
                 {pub.abstract && (
-                  <p className="text-zinc-400 mb-6 line-clamp-[12] text-sm leading-relaxed">
+                  <p className="text-zinc-400 mb-6 line-clamp-[6] text-sm leading-relaxed">
                     {(() => {
                       try {
                         const abs = JSON.parse(pub.abstract);
