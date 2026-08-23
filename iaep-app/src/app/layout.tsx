@@ -302,7 +302,7 @@ export default function RootLayout({
         <div class="footer-grid">
           <div class="footer-brand">
             <div class="footer-logo">
-              <img src="/logo-apasific.png" className="w-10 h-10 shrink-0 object-contain rounded-md" alt="ASIA" style="width: 40px; height: 40px; object-fit: contain;" />
+              <img src="/logobaru.png" width="40" height="40" loading="lazy" className="w-10 h-10 shrink-0 object-contain rounded-md" alt="ASIA" style="width: 40px; height: 40px; object-fit: contain;" />
               <div>
                 <p class="footer-logo-main">ASIA</p>
                 <p class="footer-logo-sub">Association of Asia Pacific Academician</p>

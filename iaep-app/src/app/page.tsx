@@ -113,7 +113,7 @@ export default async function Home() {
   <section class="hero" id="home" style="height: auto !important; min-height: unset !important; position: relative;">
     <!-- Full-width background image — width 100% to touch left and right edges -->
     <div class="hero-bg-image" style="height: auto; width: 100%; overflow: hidden; margin-top: -15px;">
-      <img src="/banner-apasific.png" alt="ASIA – Association of Asia Pacific Academician" id="hero-bg-img" fetchpriority="high" style="width: 100%; height: auto; object-fit: contain; object-position: top center; display: block;" />
+      <img src="/banner-apasific.png" alt="ASIA – Association of Asia Pacific Academician" id="hero-bg-img" width="1440" height="720" fetchpriority="high" style="width: 100%; height: auto; object-fit: contain; object-position: top center; display: block;" />
     </div>
 
     <!-- Logo overlay: di sebelah kanan teks ASSOCIATION di banner -->
@@ -139,6 +139,8 @@ export default async function Home() {
       <img src="/logobaru.png"
            alt="ASIA Logo"
            class="hero-logo-img"
+           width="500"
+           height="500"
            fetchpriority="high"
            onerror="this.style.display='none'" />
     </div>
@@ -842,11 +844,11 @@ export default async function Home() {
         <div class="title-ornament"><span></span><svg width="20" height="20" viewBox="0 0 20 20"><polygon points="10,1 12.9,7 19.5,7.6 14.7,12 16.2,18.5 10,15 3.8,18.5 5.3,12 0.5,7.6 7.1,7" fill="#c9a84c"/></svg><span></span></div>
       </div>
       <div class="partners-grid" style="display: flex; flex-wrap: wrap; justify-content: center; gap: 30px; align-items: center; margin-top: 40px; padding: 60px; background: rgba(255,255,255,0.02); border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); box-shadow: 0 10px 30px rgba(0,0,0,0.2);">
-        <img src="/ADAI.jpeg" alt="ADAI" style="height: 150px; object-fit: contain; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3)); transition: transform 0.3s; border-radius: 8px;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'" />
-        <img src="/ADIHGI.jpeg" alt="ADIHGI" style="height: 150px; object-fit: contain; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3)); transition: transform 0.3s; border-radius: 8px;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'" />
-        <img src="/AMAS.jpeg" alt="AMAS" style="height: 150px; object-fit: contain; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3)); transition: transform 0.3s; border-radius: 8px;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'" />
-        <img src="/APFEA.jpeg" alt="APFEA" style="height: 150px; object-fit: contain; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3)); transition: transform 0.3s; border-radius: 8px;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'" />
-        <img src="/KEMDESIA.jpeg" alt="KEMDESIA" style="height: 150px; object-fit: contain; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3)); transition: transform 0.3s; border-radius: 8px;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'" />
+        <img src="/ADAI.jpeg" alt="ADAI" width="150" height="150" loading="lazy" style="height: 150px; width: auto; object-fit: contain; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3)); transition: transform 0.3s; border-radius: 8px;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'" />
+        <img src="/ADIHGI.jpeg" alt="ADIHGI" width="150" height="150" loading="lazy" style="height: 150px; width: auto; object-fit: contain; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3)); transition: transform 0.3s; border-radius: 8px;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'" />
+        <img src="/AMAS.jpeg" alt="AMAS" width="150" height="150" loading="lazy" style="height: 150px; width: auto; object-fit: contain; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3)); transition: transform 0.3s; border-radius: 8px;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'" />
+        <img src="/APFEA.jpeg" alt="APFEA" width="150" height="150" loading="lazy" style="height: 150px; width: auto; object-fit: contain; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3)); transition: transform 0.3s; border-radius: 8px;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'" />
+        <img src="/KEMDESIA.jpeg" alt="KEMDESIA" width="150" height="150" loading="lazy" style="height: 150px; width: auto; object-fit: contain; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3)); transition: transform 0.3s; border-radius: 8px;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'" />
       </div>
     </div>
   </section>
