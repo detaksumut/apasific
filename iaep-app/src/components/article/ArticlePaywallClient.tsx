@@ -754,7 +754,7 @@ export default function ArticlePaywallClient({ initialArticle, id }: ArticlePayw
                       </span>
                     </div>
                     <p className="italic text-[#ffd977] font-semibold">
-                      "How strong is the research quality behind the evidence?"
+                      "How robust is the research quality supporting the evidence?"
                     </p>
                     <p className="text-[10px] text-gray-300">
                       Mengukur kekuatan mutu substansi, keketatan metodologi, dan konsistensi bukti penelitian secara ilmiah.
