@@ -29,9 +29,9 @@ Sistem AT-RQS™ mengekstraksi data secara simultan dari 3 lapisan analitik inde
                   ┌──────────────────────────────────────────────┐
                   │        3 LAPISAN SUMBER ANALISIS AI          │
                   ├──────────────────────────────────────────────┤
-                  │ 1. CLUE   : Evidence, Findings & Limitations │
-                  │ 2. SCREEN : Academic Risk, Novelty & Clarity │
-                  │ 3. SCORE  : Structured Quality Rubrics (0-10)│
+                  │ 1. SCORE  : Structured Quality Rubrics (0-10) │
+                  │ 2. SCREEN : Academic Risk, Novelty & Clarity  │
+                  │ 3. CLUE   : Evidence, Findings & Limitations  │
                   └──────────────────────┬───────────────────────┘
                                          │
                                          ▼
@@ -239,7 +239,7 @@ Komponen `ApasificResearchQualityProfile.tsx` disematkan secara elegan pada seti
 │  │ (Strong Rigor)    │ (High Alignment)  │ (Consensus)   │  │
 │  └───────────────────┴───────────────────┴───────────────┘  │
 │                                                             │
-│  📊 Tri-Source Layer Contribution (CLUE: 90, SCREEN: 72, SCORE: 89)
+│  📊 Tri-Source Layer Contribution (SCORE: 89, SCREEN: 72, CLUE: 90)
 │  📊 8 APASIFIC Research Quality Dimensions Matrix           │
 │     [A, P, A, S, I, F, I (Weighted) + C (Meta Non-Weighted)]│
 │  🟢 Research Strengths (Kekuatan Metodologi & Model Fit)    │
@@ -259,7 +259,7 @@ Komponen `ApasificResearchQualityProfile.tsx` disematkan secara elegan pada seti
 Sesuai standar etika penerbitan ilmiah internasional (*COPE / Committee on Publication Ethics* dan *WAME / World Association of Medical Editors*), setiap tampilan publik menyertakan penegasan tata kelola baku:
 
 > **Official Governance Statement:**  
-> *"This score is an assessment indicator, not a certification of research validity, originality, or scientific truth. Assessment methodology: AI-assisted multi-source triangulation using CLUE, SCREEN, and SCORE analytical layers under APASIFIC Tri-Source Research Quality Methodology v1.0."*
+> *"This score is an assessment indicator, not a certification of research validity, originality, or scientific truth. Assessment methodology: AI-assisted multi-source triangulation using SCORE, SCREEN, and CLUE analytical layers under APASIFIC Tri-Source Research Quality Methodology v1.0."*
 
 ---
 
@@ -290,9 +290,9 @@ interface ATRQSSnapshot {
     impact_applicability: number;
   };
   provenance: {
-    clue_layer_norm: number;
-    screen_layer_norm: number;
     score_layer_norm: number;
+    screen_layer_norm: number;
+    clue_layer_norm: number;
     base_weighted_score: number;
     consistency_factor: number;
     evidence_elements_detected: number;

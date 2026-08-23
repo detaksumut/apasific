@@ -513,20 +513,20 @@ export default function ApasificResearchQualityProfile({ article }: Props) {
             {/* Modal Footer with Direct Methodology Download */}
             <div className="mt-6 pt-4 border-t border-gray-800 flex flex-col sm:flex-row items-center justify-between gap-3">
               <a
-                href="/docs/AT-RQS-TRI-SOURCE-RESEARCH-QUALITY-METHODOLOGY.md"
-                download="AT-RQS-TRI-SOURCE-RESEARCH-QUALITY-METHODOLOGY.md"
+                href="/docs/AT-RQS-Methodology-Specification-v1.0.pdf"
+                download="AT-RQS-Methodology-Specification-v1.0.pdf"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#16182c] hover:bg-[#20233d] border border-[#c9a84c]/50 hover:border-[#c9a84c] text-[#ffd977] font-bold text-xs transition-all shadow-md cursor-pointer w-full sm:w-auto justify-center group"
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#1e293b] to-[#0f172a] hover:from-[#334155] hover:to-[#1e293b] border border-[#c9a84c]/60 hover:border-[#c9a84c] text-[#ffd977] font-bold text-xs transition-all shadow-lg cursor-pointer w-full sm:w-auto justify-center group"
               >
                 <Download className="w-4 h-4 text-[#c9a84c] group-hover:scale-110 transition-transform" />
-                <span>Download Methodology Specification (MD)</span>
+                <span>📄 Unduh Dokumen Metodologi Resmi (PDF)</span>
               </a>
               <button
                 onClick={() => setIsModalOpen(false)}
-                className="px-5 py-2.5 rounded-xl bg-[#c9a84c] hover:bg-[#ffd977] text-gray-950 font-bold text-xs transition-colors cursor-pointer w-full sm:w-auto"
+                className="px-6 py-2.5 rounded-xl bg-[#c9a84c] hover:bg-[#ffd977] text-gray-950 font-bold text-xs transition-colors cursor-pointer w-full sm:w-auto shadow"
               >
-                Close Explanation
+                Tutup Penjelasan
               </button>
             </div>
           </div>
