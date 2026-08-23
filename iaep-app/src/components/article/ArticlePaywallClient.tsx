@@ -699,12 +699,12 @@ export default function ArticlePaywallClient({ initialArticle, id }: ArticlePayw
                   <span className="text-[8px] sm:text-[9px] text-gray-500 font-medium mt-1">Google Scholar</span>
                 </div>
 
-                {/* 3. AT-RQS™ INDEX (APASIFIC PROPRIETARY) */}
+                {/* 3. AT-RQS™ RESEARCH QUALITY INDEX (APASIFIC PROPRIETARY) */}
                 <div className="bg-gradient-to-b from-[#1c1a2e] to-[#121324] rounded-xl p-2.5 sm:p-3 text-center border-2 border-[#c9a84c]/60 shadow-lg shadow-[#c9a84c]/10 hover:border-[#c9a84c] transition-all flex flex-col justify-between relative overflow-hidden group">
                   <div className="absolute top-0 right-0 w-8 h-8 bg-[#c9a84c]/10 rounded-full blur-sm pointer-events-none" />
                   <div>
                     <span className="block text-lg sm:text-2xl font-black text-[#ffd977] group-hover:scale-105 transition-transform">{finalATRQSIndex}</span>
-                    <span className="text-[10px] sm:text-[11px] font-black text-[#ffd977] uppercase tracking-tight block mt-0.5">AT-RQS™ Indeks</span>
+                    <span className="text-[9px] sm:text-[10px] font-black text-[#ffd977] uppercase tracking-tight block mt-0.5 leading-tight">AT-RQS™ RESEARCH QUALITY INDEX</span>
                   </div>
                   <span className="text-[8px] sm:text-[9px] text-[#c9a84c] font-bold mt-1">APASIFIC</span>
                 </div>
@@ -745,10 +745,10 @@ export default function ArticlePaywallClient({ initialArticle, id }: ArticlePayw
                     </p>
                   </div>
 
-                  {/* 3. AT-RQS™ Index + Rumus */}
+                  {/* 3. AT-RQS™ RESEARCH QUALITY INDEX + Rumus */}
                   <div className="p-3 rounded-xl bg-gradient-to-b from-[#181932] to-[#101122] border-2 border-[#c9a84c]/50 shadow-md space-y-2">
                     <div className="flex items-center justify-between font-extrabold text-[#ffd977]">
-                      <span>3. AT-RQS™ INDEX</span>
+                      <span>3. AT-RQS™ RESEARCH QUALITY INDEX</span>
                       <span className="text-[9px] text-[#c9a84c] font-bold px-1.5 py-0.5 rounded bg-[#c9a84c]/15 border border-[#c9a84c]/30">
                         APASIFIC PROPRIETARY
                       </span>
