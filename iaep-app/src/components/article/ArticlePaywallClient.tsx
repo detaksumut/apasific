@@ -370,6 +370,7 @@ export default function ArticlePaywallClient({ initialArticle, id }: ArticlePayw
 
   const finalHIndex = realHIndex || hIndex;
   const finalI10Index = realI10Index || i10Index;
+  const finalATRQSIndex = 84; // APASIFIC Proprietary Research Quality Intelligence Score
   const normalizedTrend: { label: string; count: number }[] =
     realTrend.length > 0
       ? realTrend
@@ -670,18 +671,42 @@ export default function ArticlePaywallClient({ initialArticle, id }: ArticlePayw
               </div>
             </div>
 
-            {/* Dynamic Journal Metrics (H-Index & i10-Index) */}
-            <div className="bg-[#111120] border border-gray-800 rounded-3xl p-6 shadow-2xl space-y-4">
-              <h4 className="text-sm font-bold text-gray-400 uppercase tracking-widest border-b border-gray-850 pb-2">Kinerja Jurnal Akademik</h4>
+            {/* Dynamic Journal Metrics (H-Index, i10-Index & AT-RQS™ Index) */}
+            <div className="bg-[#111120] border border-gray-800 rounded-3xl p-5 sm:p-6 shadow-2xl space-y-4">
+              <div className="flex items-center justify-between border-b border-gray-850 pb-2">
+                <h4 className="text-xs sm:text-sm font-bold text-gray-300 uppercase tracking-widest">Kinerja Jurnal Akademik</h4>
+                <span className="text-[10px] font-semibold text-[#c9a84c] bg-[#c9a84c]/10 px-2 py-0.5 rounded border border-[#c9a84c]/20">
+                  Tri-Metric Model
+                </span>
+              </div>
               
-              <div className="grid grid-cols-2 gap-4">
-                <div className="bg-[#16162a] rounded-xl p-3 text-center border border-gray-850">
-                  <span className="block text-xl font-bold text-[#c9a84c]">{finalHIndex}</span>
-                  <span className="text-[10px] text-gray-500 uppercase tracking-wider">H-Index</span>
+              <div className="grid grid-cols-3 gap-2.5 sm:gap-3">
+                {/* 1. H-INDEX */}
+                <div className="bg-[#16162a] rounded-xl p-2.5 sm:p-3 text-center border border-blue-500/20 hover:border-blue-500/40 transition-all flex flex-col justify-between">
+                  <div>
+                    <span className="block text-lg sm:text-2xl font-black text-blue-400">{finalHIndex}</span>
+                    <span className="text-[10px] sm:text-[11px] font-bold text-gray-300 uppercase tracking-tight block mt-0.5">H-Index</span>
+                  </div>
+                  <span className="text-[8px] sm:text-[9px] text-gray-500 font-medium mt-1">Hirsch (2005)</span>
                 </div>
-                <div className="bg-[#16162a] rounded-xl p-3 text-center border border-gray-850">
-                  <span className="block text-xl font-bold text-blue-400">{finalI10Index}</span>
-                  <span className="text-[10px] text-gray-500 uppercase tracking-wider">i10-Index</span>
+
+                {/* 2. i10-INDEX */}
+                <div className="bg-[#16162a] rounded-xl p-2.5 sm:p-3 text-center border border-cyan-500/20 hover:border-cyan-500/40 transition-all flex flex-col justify-between">
+                  <div>
+                    <span className="block text-lg sm:text-2xl font-black text-cyan-400">{finalI10Index}</span>
+                    <span className="text-[10px] sm:text-[11px] font-bold text-gray-300 uppercase tracking-tight block mt-0.5">i10-Index</span>
+                  </div>
+                  <span className="text-[8px] sm:text-[9px] text-gray-500 font-medium mt-1">Google Scholar</span>
+                </div>
+
+                {/* 3. AT-RQS™ INDEX (APASIFIC PROPRIETARY) */}
+                <div className="bg-gradient-to-b from-[#1c1a2e] to-[#121324] rounded-xl p-2.5 sm:p-3 text-center border-2 border-[#c9a84c]/60 shadow-lg shadow-[#c9a84c]/10 hover:border-[#c9a84c] transition-all flex flex-col justify-between relative overflow-hidden group">
+                  <div className="absolute top-0 right-0 w-8 h-8 bg-[#c9a84c]/10 rounded-full blur-sm pointer-events-none" />
+                  <div>
+                    <span className="block text-lg sm:text-2xl font-black text-[#ffd977] group-hover:scale-105 transition-transform">{finalATRQSIndex}</span>
+                    <span className="text-[10px] sm:text-[11px] font-black text-[#ffd977] uppercase tracking-tight block mt-0.5">AT-RQS™</span>
+                  </div>
+                  <span className="text-[8px] sm:text-[9px] text-[#c9a84c] font-bold mt-1">APASIFIC</span>
                 </div>
               </div>
 
