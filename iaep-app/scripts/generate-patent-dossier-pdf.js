@@ -1078,14 +1078,58 @@ const PatentDossierPDF = () => (
         )
       ),
 
-      React.createElement(Text, { style: styles.subSectionTitle }, "3. MATRIKS KETAHANAN KONDISI BATAS EKSTREM (EDGE-CASES)"),
+      React.createElement(Text, { style: styles.subSectionTitle }, "3. MATRIKS KETAHANAN KONDISI BATAS EKSTREM (EDGE-CASES DETERMINISM MATRIX)"),
       React.createElement(
-        Text,
-        { style: styles.paragraph },
-        "• Edge 1 (Dokumen Kosong Total): N_detected = 0 ──> AECI = 0.0, CF = 0.850, BWS = 0.0 ──> AT-RQS = 0.0, AAC = 0.0% (Stabil, bounded floor).\n" +
-        "• Edge 2 (Data Parsial 1/8 Field): D = 12.5%, AECI = 0.0 ──> AT-RQS ≤ 12.0, AAC ≤ 15.0% (Tidak terjadi pembagian nol/crash).\n" +
-        "• Edge 3 (Input Di Luar Batas S > 10, R < 1): Dijepit otomatis via clamp(x, min, max) ──> S_norm = 100.0, R_norm = 0.0 (Guaranteed Range).\n" +
-        "• Edge 4 (Divergensi Ekstrem S=100, R=0, C=0): ARTI = 100 − [200/2] = 0.0, E_consistency = 33.3 ──> AAC ≤ 20.0% (Zero Consensus Terdeteksi)."
+        View,
+        { style: styles.table },
+        React.createElement(
+          View,
+          { style: styles.tableHeader },
+          React.createElement(Text, { style: [styles.tableCellBold, { width: '22%' }] }, "Kondisi Batas (Edge)"),
+          React.createElement(Text, { style: [styles.tableCellBold, { width: '18%' }] }, "Masukan Data"),
+          React.createElement(Text, { style: [styles.tableCellBold, { width: '38%' }] }, "Transformasi Formula Deterministik"),
+          React.createElement(Text, { style: [styles.tableCellBold, { width: '22%' }] }, "Nilai Output & Status")
+        ),
+        React.createElement(
+          View,
+          { style: styles.tableRow },
+          React.createElement(Text, { style: [styles.tableCellBold, { width: '22%' }] }, "1. Dokumen Kosong Total"),
+          React.createElement(Text, { style: [styles.tableCell, { width: '18%' }] }, "Teks & data = \u2205"),
+          React.createElement(Text, { style: [styles.tableCell, { width: '38%' }] }, "N_det = 0 \u2192 AECI = 0.0, CF = 0.850, BWS = 0.0"),
+          React.createElement(Text, { style: [styles.tableCellBold, { width: '22%', color: '#16a34a' }] }, "AT-RQS = 0.0 (Floor)")
+        ),
+        React.createElement(
+          View,
+          { style: styles.tableRow },
+          React.createElement(Text, { style: [styles.tableCellBold, { width: '22%' }] }, "2. Data Parsial Minimal"),
+          React.createElement(Text, { style: [styles.tableCell, { width: '18%' }] }, "1 dari 8 field ada"),
+          React.createElement(Text, { style: [styles.tableCell, { width: '38%' }] }, "D = (1/8)\u00D7100 = 12.5%, AECI = 0.0, CF = 0.850"),
+          React.createElement(Text, { style: [styles.tableCellBold, { width: '22%', color: '#16a34a' }] }, "AT-RQS \u2264 12, AAC \u2264 15%")
+        ),
+        React.createElement(
+          View,
+          { style: styles.tableRow },
+          React.createElement(Text, { style: [styles.tableCellBold, { width: '22%' }] }, "3. Input Di Luar Batas"),
+          React.createElement(Text, { style: [styles.tableCell, { width: '18%' }] }, "S = 15.0, R = -2.0"),
+          React.createElement(Text, { style: [styles.tableCell, { width: '38%' }] }, "S_clamp = 10.0, R_clamp = 1.0 (Penjepit)"),
+          React.createElement(Text, { style: [styles.tableCellBold, { width: '22%', color: '#16a34a' }] }, "S_norm=100, R_norm=0")
+        ),
+        React.createElement(
+          View,
+          { style: styles.tableRow },
+          React.createElement(Text, { style: [styles.tableCellBold, { width: '22%' }] }, "4. Divergensi Ekstrem"),
+          React.createElement(Text, { style: [styles.tableCell, { width: '18%' }] }, "S=100, R=0, C=0"),
+          React.createElement(Text, { style: [styles.tableCell, { width: '38%' }] }, "ARTI = 100 \u2212 [200/2] = 0.0, E_cons = 33.3"),
+          React.createElement(Text, { style: [styles.tableCellBold, { width: '22%', color: '#16a34a' }] }, "ARTI = 0, AAC \u2264 20%")
+        ),
+        React.createElement(
+          View,
+          { style: styles.tableRow },
+          React.createElement(Text, { style: [styles.tableCellBold, { width: '22%' }] }, "5. Konflik Lintas Kanal"),
+          React.createElement(Text, { style: [styles.tableCell, { width: '18%' }] }, "S=80, R=40, C=60"),
+          React.createElement(Text, { style: [styles.tableCell, { width: '38%' }] }, "Deviasi selisih absolut berpasangan tanpa acak"),
+          React.createElement(Text, { style: [styles.tableCellBold, { width: '22%', color: '#16a34a' }] }, "ARTI = 70.0, E = 73.3")
+        )
       )
     ),
 
