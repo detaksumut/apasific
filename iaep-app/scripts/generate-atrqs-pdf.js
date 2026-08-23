@@ -814,6 +814,12 @@ const ATRQSSpecDocument = () => {
           { style: styles.mathMetaRow },
           React.createElement(Text, { style: styles.mathDomainLabel }, "Domain:"),
           React.createElement(Text, { style: styles.mathDomainValue }, "0 \u2264 AAC \u2264 100%  (Diverifikasi deterministik oleh Schema Validator)")
+        ),
+        React.createElement(
+          View,
+          { style: styles.varList },
+          React.createElement(Text, { style: styles.varItem }, "• ", React.createElement(Text, { style: styles.varName }, "D_completeness (6.5a):"), " ( \u2211_{j=1}^{8} \uD835\uDF59(F_j \u2260 \u2205) / 8 ) \u00D7 100 [Evaluasi 8 field wajib skema non-null]"),
+          React.createElement(Text, { style: styles.varItem }, "• ", React.createElement(Text, { style: styles.varName }, "E_consistency (6.5b):"), " 100 \u2212 [ ( |S_norm\u2212R_norm| + |S_norm\u2212C_norm| + |R_norm\u2212C_norm| ) / 3 ] [Deviasi silang 3 kanal]")
         )
       )
     ),

@@ -313,8 +313,18 @@ $$\text{AAC} = 0.50(\text{ARTI}) + 0.30(D_{\text{completeness}}) + 0.20(E_{\text
 **Domain:**
 $$0 \le \text{AAC} \le 100\%$$
 
-**Keterangan:**
-* $D_{\text{completeness}}$ dan $E_{\text{consistency}}$ dihitung secara independen oleh *Deterministic Schema Validator*.
+**Definisi Tertutup Parameter Keyakinan Deterministik:**
+1. **Rasio Kelengkapan Data ($D_{\text{completeness}}$):**  
+   Dievaluasi oleh *Deterministic Schema Validator* yang menguji kehadiran $M = 8$ himpunan parameter wajib non-null:
+   $$D_{\text{completeness}} = \left( \frac{\sum_{j=1}^{M} \mathbb{I}(F_j \neq \emptyset)}{M} \right) \times 100 \tag{6.5a}$$
+   Di mana $F = \{\text{Judul}, \text{Abstrak}, \text{DOI}, \text{SCORE}_{\text{rubrics}}, \text{SCREEN}_{\text{ratings}}, \text{CLUE}_{\text{objective}}, \text{CLUE}_{\text{methodology}}, \text{CLUE}_{\text{findings}}\}$.
+
+2. **Indeks Konsistensi Ekstraksi Lintas Lapisan ($E_{\text{consistency}}$):**  
+   Mengukur rata-rata deviasi berpasangan lintas tiga kanal analitik terstandarisasi:
+   $$E_{\text{consistency}} = 100 - \left( \frac{|S_{\text{norm}} - R_{\text{norm}}| + |S_{\text{norm}} - C_{\text{norm}}| + |R_{\text{norm}} - C_{\text{norm}}|}{3} \right) \tag{6.5b}$$
+
+**Keterangan Tata Kelola:**
+* Seluruh parameter $D_{\text{completeness}}$ dan $E_{\text{consistency}}$ dihitung secara independen oleh modul aturan kode deterministik tanpa melibatkan inferensi model kecerdasan buatan, sehingga bebas dari *self-assessment bias*.
 
 ---
 
