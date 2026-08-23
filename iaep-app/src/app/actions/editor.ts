@@ -788,7 +788,7 @@ export async function getAssignedVolumeAndIssue(submissionId: string, journalId:
     }
 }
 
-export async function publishArticle(submissionId: string, journalId: string, customVolume: string = "", customIssue: string = "", customAuthor: string = "", customTitle: string = "", publicationMonth: string = "", publicationYear: string = "") {
+export async function publishArticle(submissionId: string, journalId: string, customVolume: string = "", customIssue: string = "", customAuthor: string = "", customTitle: string = "", publicationMonth: string = "", publicationYear: string = "", customDoi: string = "") {
     try {
         const supabaseAdmin = (await import('@supabase/supabase-js')).createClient(
             process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -831,6 +831,15 @@ export async function publishArticle(submissionId: string, journalId: string, cu
 
         if (customTitle.trim()) {
             extraFields.title = customTitle.trim();
+        }
+
+        if (customDoi.trim()) {
+            const cleanDoi = customDoi.trim().replace(/^https?:\/\/doi\.org\//i, '');
+            extraFields.doi = cleanDoi;
+            const match = cleanDoi.match(/zenodo\.(\d+)/i);
+            if (match) {
+                extraFields.zenodo_id = match[1];
+            }
         }
         
         // Ensure published_at is strictly recorded if not already present
@@ -1813,6 +1822,26 @@ export async function registerPublicationArtifact(
     } catch (e: any) {
         console.error('registerPublicationArtifact failed:', e);
         return { success: false, error: e?.message || 'Registrasi artefak DataCite gagal.' };
+    }
+}
+
+export async function updateSubmissionDoi(submissionId: string, doi: string) {
+    try {
+        const supabaseAdmin = (await import('@supabase/supabase-js')).createClient(
+            process.env.NEXT_PUBLIC_SUPABASE_URL!,
+            process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+        );
+        const cleanDoi = doi.trim().replace(/^https?:\/\/doi\.org\//i, '');
+        const updateData: Record<string, any> = { doi: cleanDoi };
+        const match = cleanDoi.match(/zenodo\.(\d+)/i);
+        if (match) {
+            updateData.zenodo_id = match[1];
+        }
+        const { error } = await supabaseAdmin.from('submissions').update(updateData).eq('id', submissionId);
+        if (error) throw error;
+        return { success: true };
+    } catch (e: any) {
+        return { success: false, error: e.message };
     }
 }
 

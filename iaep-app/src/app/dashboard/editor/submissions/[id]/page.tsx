@@ -46,6 +46,9 @@ export default function SubmissionControlPanel() {
   const [publicationYear, setPublicationYear] = useState("");
   const [customAuthor, setCustomAuthor] = useState("");
   const [customTitle, setCustomTitle] = useState("");
+  const [customDoi, setCustomDoi] = useState("");
+  const [isEditingDoi, setIsEditingDoi] = useState(false);
+  const [isUpdatingDoi, setIsUpdatingDoi] = useState(false);
   const [additionalAuthor, setAdditionalAuthor] = useState("");
 const [uploadingReviewId, setUploadingReviewId] = useState<string | null>(null);
   const [isSendingFonnte, setIsSendingFonnte] = useState(false);
@@ -204,6 +207,12 @@ const [uploadingReviewId, setUploadingReviewId] = useState<string | null>(null);
           setCustomAuthor(data.author);
         } else if (data.profiles?.full_name) {
           setCustomAuthor(data.profiles.full_name);
+        }
+
+        if (data.doi) {
+          setCustomDoi(data.doi);
+        } else {
+          setCustomDoi("");
         }
 
         // Auto set active tab based on stage
@@ -1929,21 +1938,80 @@ const [uploadingReviewId, setUploadingReviewId] = useState<string | null>(null);
                             />
                           </div>
                           <div className="col-span-2">
-                            <span className="text-zinc-500 block text-xs uppercase font-semibold">Digital Object Identifier (DOI)</span>
-                            {(submission?.doi || generatedDoi) ? (
-                              <a
-                                href={(() => {
-                                  const doiVal = submission.doi || generatedDoi;
-                                  return `https://doi.org/${doiVal}`;
-                                })()}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="font-mono text-emerald-400 hover:text-emerald-300 hover:underline break-all"
+                            <div className="flex items-center justify-between mb-1.5">
+                              <span className="text-zinc-400 block text-xs uppercase font-bold tracking-wider">Digital Object Identifier (DOI)</span>
+                              <button
+                                type="button"
+                                onClick={() => setIsEditingDoi(!isEditingDoi)}
+                                className="text-xs text-[#c9a84c] hover:text-yellow-300 font-semibold flex items-center gap-1 transition-colors px-2 py-0.5 rounded bg-zinc-900 border border-zinc-800"
                               >
-                                {submission?.doi || generatedDoi}
-                              </a>
+                                {isEditingDoi ? "✕ Batal" : "✏️ Edit DOI"}
+                              </button>
+                            </div>
+
+                            {isEditingDoi ? (
+                              <div className="space-y-2 mt-1 p-3 bg-zinc-900/90 border border-[#c9a84c]/40 rounded-xl">
+                                <label className="block text-[11px] text-zinc-300 font-medium">Koreksi / Masukkan DOI Baru:</label>
+                                <div className="flex gap-2">
+                                  <input
+                                    type="text"
+                                    value={customDoi}
+                                    onChange={(e) => setCustomDoi(e.target.value)}
+                                    placeholder="Contoh: 10.5281/zenodo.20637314"
+                                    className="flex-1 p-2.5 border border-zinc-700 bg-[#0c0c16] text-[#e8e8f0] rounded-lg focus:ring-2 focus:ring-[#c9a84c] outline-none text-xs font-mono"
+                                  />
+                                  <button
+                                    type="button"
+                                    disabled={isUpdatingDoi}
+                                    onClick={async () => {
+                                      if (!customDoi.trim()) {
+                                        alert("Silakan masukkan DOI yang valid");
+                                        return;
+                                      }
+                                      setIsUpdatingDoi(true);
+                                      const m = await import("@/app/actions/editor");
+                                      const res = await m.updateSubmissionDoi(submission.id, customDoi.trim());
+                                      setIsUpdatingDoi(false);
+                                      if (res.success) {
+                                        showToast("DOI berhasil diperbarui!");
+                                        setIsEditingDoi(false);
+                                        const clean = customDoi.trim().replace(/^https?:\/\/doi\.org\//i, '');
+                                        setSubmission((prev: any) => ({ ...prev, doi: clean }));
+                                      } else {
+                                        showToast("Gagal memperbarui DOI: " + res.error);
+                                      }
+                                    }}
+                                    className="px-4 py-2 bg-[#c9a84c] hover:bg-[#d8b95d] text-black font-bold text-xs rounded-lg transition-colors whitespace-nowrap shadow"
+                                  >
+                                    {isUpdatingDoi ? "Menyimpan..." : "Simpan DOI"}
+                                  </button>
+                                </div>
+                                <p className="text-[10px] text-zinc-400 leading-relaxed">
+                                  *Masukkan format DOI (misal: <code className="text-[#c9a84c]">10.5281/zenodo.20637314</code>). Sistem otomatis memperbarui nomor DOI di database, sampul jurnal, dan sertifikat penulis.
+                                </p>
+                              </div>
                             ) : (
-                              <span className="text-zinc-500">Menunggu API Publish Editor</span>
+                              <div className="flex items-center justify-between bg-[#0c0c16] border border-zinc-800 p-2.5 rounded-lg mt-1">
+                                {(submission?.doi || customDoi || generatedDoi) ? (
+                                  <a
+                                    href={`https://doi.org/${(submission?.doi || customDoi || generatedDoi).replace(/^https?:\/\/doi\.org\//i, '')}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="font-mono text-xs text-emerald-400 hover:text-emerald-300 hover:underline break-all"
+                                  >
+                                    {submission?.doi || customDoi || generatedDoi}
+                                  </a>
+                                ) : (
+                                  <span className="text-xs text-zinc-500">Menunggu API Publish Editor</span>
+                                )}
+                                <button
+                                  type="button"
+                                  onClick={() => setIsEditingDoi(true)}
+                                  className="text-[11px] bg-zinc-800 hover:bg-zinc-700 text-zinc-300 hover:text-white px-2.5 py-1 rounded border border-zinc-700 transition-colors ml-2 whitespace-nowrap"
+                                >
+                                  Ubah DOI
+                                </button>
+                              </div>
                             )}
                           </div>
                         </div>
@@ -2051,13 +2119,13 @@ const [uploadingReviewId, setUploadingReviewId] = useState<string | null>(null);
                             onClick={async () => {
                               const isRepublish = submission.status === 'Published';
                               const confirmMsg = isRepublish
-                                ? "Apakah Anda yakin ingin memperbarui metadata Volume dan Edisi untuk naskah yang sudah terbit ini?"
+                                ? "Apakah Anda yakin ingin memperbarui metadata Volume, Edisi, dan DOI untuk naskah yang sudah terbit ini?"
                                 : "Apakah Anda yakin ingin menerbitkan naskah ini? Status naskah akan berubah menjadi Published dan Sertifikat Publikasi penulis akan diterbitkan secara otomatis.";
 
                               const confirmPublish = confirm(confirmMsg);
                               if (!confirmPublish) return;
                               const m = await import("@/app/actions/editor");
-                              const res = await m.publishArticle(submission.id, submission.journal_id || "", customVolume, customIssue, customAuthor, customTitle, publicationMonth, publicationYear);
+                              const res = await m.publishArticle(submission.id, submission.journal_id || "", customVolume, customIssue, customAuthor, customTitle, publicationMonth, publicationYear, customDoi);
                               if (res.success) {
                                 showToast(isRepublish ? "Metadata Publikasi Berhasil Diperbarui!" : "Naskah resmi diterbitkan!");
                                 setTimeout(() => window.location.reload(), 1000);
