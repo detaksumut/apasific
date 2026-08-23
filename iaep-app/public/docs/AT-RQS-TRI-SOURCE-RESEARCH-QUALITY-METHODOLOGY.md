@@ -231,51 +231,57 @@ Di mana:
 
 ---
 
-## BAB VI: FORMULASI MATEMATIS 4 METRIK RESMI
+## BAB VI: FORMULASI MATEMATIS 5 PERSAMAAN RESMI
 
-### 6.1 🛡️ AECI™ (APASIFIC Evidence Consistency Index)
+### 6.1 AECI™ — Evidence Consistency Index
 Mengukur keselarasan vertikal struktur logika naskah dari Tujuan ↔ Metode ↔ Hasil ↔ Kesimpulan ↔ Keterbatasan:
 
-$$\text{AECI} = 100.0 \times \left( \frac{N_{\text{detected}}}{5} \right)$$
+$$\text{AECI} = 100 \times \left( \frac{N_{\text{detected}}}{5} \right) \tag{6.1}$$
 
-Di mana $N_{\text{detected}} \in \{0, 1, 2, 3, 4, 5\}$ menghitung keberadaan 5 elemen struktural wajib:
-1. Rumusan Masalah / Tujuan Riset Terdefinisi
-2. Desain Metodologi & Populasi Terpapar
-3. Sampel / Data Empiris Terverifikasi
-4. Temuan Analisis & Pembahasan Relevan
-5. Keterbatasan Riset / Bias Dinyatakan
+**Domain:**
+$$0 \le \text{AECI} \le 100, \quad N_{\text{detected}} \in \{0, 1, 2, 3, 4, 5\}$$
 
-*Tabel Distribusi Proporsional Murni AECI [0, 100]:*
-| Elemen Terdeteksi ($N_{\text{detected}}$) | Rasio Bukti (ECF) | Skor AECI | Kategori Keselarasan Struktural |
-| :---: | :---: | :---: | :--- |
-| **5 / 5** | **1.00** | **100.0** | *High Structural Alignment (Lengkap & Selaras)* |
-| **4 / 5** | **0.80** | **80.0** | *Substantial Alignment (Struktur Kuat)* |
-| **3 / 5** | **0.60** | **60.0** | *Moderate Alignment (Struktur Cukup)* |
-| **2 / 5** | **0.40** | **40.0** | *Weak Alignment (Struktur Kurang Lengkap)* |
-| **1 / 5** | **0.20** | **20.0** | *Fragmented Structure (Terfragmentasi)* |
-| **0 / 5** | **0.00** | **0.0** | *Non-Compliant (Tidak Memenuhi Syarat)* |
+**Definisi Variabel:**
+* $N_{\text{detected}}$ = Jumlah elemen inti struktural yang terdeteksi secara tekstual (*Rumusan Masalah/Tujuan, Desain Metodologi, Sampel/Data Empiris, Temuan Pembahasan, Keterbatasan/Bias*).
+* $5$ = Jumlah elemen struktural wajib standar naskah ilmiah IMRAD.
+
+**Tabel Distribusi:**
+$$\begin{array}{rcl}
+5/5 &\to& 100 \quad (\text{High Structural Alignment}) \\
+4/5 &\to& 80 \quad (\text{Substantial Alignment}) \\
+3/5 &\to& 60 \quad (\text{Moderate Alignment}) \\
+2/5 &\to& 40 \quad (\text{Weak Alignment}) \\
+1/5 &\to& 20 \quad (\text{Fragmented Structure}) \\
+0/5 &\to& 0 \quad (\text{Non-Compliant})
+\end{array}$$
 
 ---
 
-### 6.2 🥇 AT-RQS™ (APASIFIC Tri-Source Research Quality Score)
-Skor akhir kualitas riset menggabungkan $\text{BWS}$ dengan **Bounded Consistency Adjustment** untuk mengoreksi naskah yang memiliki inkonsistensi struktur tanpa menjatuhkan penalti ganda:
+### 6.2 CF — Consistency Factor (Bounded Attenuator)
+Faktor pengali peredam untuk mengoreksi naskah yang memiliki inkonsistensi struktur bukti:
 
-$$\text{Consistency Factor (CF)} = 0.85 + 0.15 \times \left( \frac{\text{AECI}}{100} \right)$$
-$$\text{AT-RQS} = \text{BWS} \times \text{CF}$$
+$$\text{CF} = 0.85 + 0.15 \times \left( \frac{\text{AECI}}{100} \right) \tag{6.2}$$
 
-#### Sifat Matematis Consistency Factor (CF):
-* Jika $\text{AECI} = 100.0 \implies \text{CF} = 0.85 + 0.15(1.000) = \mathbf{1.000}$ (Tanpa atenuasi / naskah utuh).
-* Jika $\text{AECI} = 80.0 \implies \text{CF} = 0.85 + 0.15(0.800) = \mathbf{0.970}$ (Atenuasi 3%).
-* Jika $\text{AECI} = 60.0 \implies \text{CF} = 0.85 + 0.15(0.600) = \mathbf{0.940}$ (Atenuasi 6%).
-* Jika $\text{AECI} = 40.0 \implies \text{CF} = 0.85 + 0.15(0.400) = \mathbf{0.910}$ (Atenuasi 9%).
-* Jika $\text{AECI} = 20.0 \implies \text{CF} = 0.85 + 0.15(0.200) = \mathbf{0.880}$ (Atenuasi 12%).
-* Jika $\text{AECI} = 0.0 \implies \text{CF} = 0.85 + 0.15(0.000) = \mathbf{0.850}$ (Atenuasi batas bawah 15%).
+**Domain:**
+$$0.85 \le \text{CF} \le 1.00 \quad (\text{Batas atenuasi maksimal } 15\%)$$
 
-#### Skala Tampilan Resmi:
-* **Skala 100:** $\text{AT-RQS} \in [0.0, 100.0]$
-* **Skala 10:** $\text{AT-RQS}_{10} = \frac{\text{AT-RQS}}{10} \in [0.00, 10.00]$
+---
 
-#### Kategori Tingkat Mutu Resmi (Official Quality Categories):
+### 6.3 AT-RQS™ — Tri-Source Research Quality Score
+Skor akhir kualitas riset yang menggabungkan Base Weighted Score dengan Bounded Consistency Factor:
+
+$$\text{AT-RQS} = \text{BWS} \times \text{CF} \tag{6.3}$$
+
+Di mana:
+$$\text{BWS} = \sum_{i=1}^{7} D_i W_i \quad \text{dengan} \quad \sum_{i=1}^{7} W_i = 1.00$$
+
+**Konversi Skala 10:**
+$$\text{AT-RQS}_{10} = \frac{\text{AT-RQS}}{10}$$
+
+**Domain:**
+$$0 \le \text{AT-RQS} \le 100, \quad 0.00 \le \text{AT-RQS}_{10} \le 10.00$$
+
+**Kategori Tingkat Mutu Resmi (Official Quality Categories):**
 * $\text{AT-RQS} \ge 88.0$ $\rightarrow$ **EXEMPLARY RESEARCH RIGOR**
 * $80.0 \le \text{AT-RQS} < 88.0$ $\rightarrow$ **STRONG RESEARCH QUALITY**
 * $70.0 \le \text{AT-RQS} < 80.0$ $\rightarrow$ **GOOD RESEARCH QUALITY**
@@ -284,24 +290,31 @@ $$\text{AT-RQS} = \text{BWS} \times \text{CF}$$
 
 ---
 
-### 6.3 📊 ARTI™ (APASIFIC Research Triangulation Index)
-Mengukur tingkat konvergensi antar 3 lapisan independen:
+### 6.4 ARTI™ — Research Triangulation Index
+Mengukur tingkat konvergensi dan kesepakatan antar 3 lapisan independen:
 
-$$\text{ARTI} = 100 - \left[ \frac{|\text{SCORE}_{\text{norm}} - \text{SCREEN}_{\text{norm}}| + |\text{SCORE}_{\text{norm}} - \text{CLUE}_{\text{norm}}|}{2} \right]$$
+$$\text{ARTI} = 100 - \left[ \frac{|\text{S}_{\text{norm}} - \text{R}_{\text{norm}}| + |\text{S}_{\text{norm}} - \text{C}_{\text{norm}}|}{2} \right] \tag{6.4}$$
 
-Di mana seluruh nilai lapisan telah dinormalisasi ke skala $[0, 100]$. Nilai $\text{ARTI} \ge 85.0$ mengindikasikan konsensus triangulasi yang sangat kuat.
+**Definisi Variabel:**
+* $\text{S}_{\text{norm}} = \text{SCORE}_{\text{norm}} \in [0, 100]$ (Layer I - Rubrik Kualitas Terstruktur)
+* $\text{R}_{\text{norm}} = \text{SCREEN}_{\text{norm}} \in [0, 100]$ (Layer II - Penyaringan Risiko & Kebaruan)
+* $\text{C}_{\text{norm}} = \text{CLUE}_{\text{norm}} = \text{CESS} \in [0, 100]$ (Layer III - Skor Kekuatan Bukti Substantif)
+
+**Domain:**
+$$0 \le \text{ARTI} \le 100$$
 
 ---
 
-### 6.4 ◈ AAC™ (APASIFIC Assessment Confidence)
+### 6.5 AAC™ — Assessment Confidence
 Mengukur tingkat keyakinan dan kelengkapan data dalam menghasilkan asesmen:
 
-$$\text{AAC} = 0.50(\text{ARTI}) + 0.30(D_{\text{completeness}}) + 0.20(E_{\text{consistency}})$$
+$$\text{AAC} = 0.50(\text{ARTI}) + 0.30(D_{\text{completeness}}) + 0.20(E_{\text{consistency}}) \tag{6.5}$$
 
-Di mana:
-* $\text{ARTI} \in [0, 100]$: Indeks Kesepakatan Triangulasi.
-* $D_{\text{completeness}} \in [0, 100]$: Rasio Kelengkapan Data Faktual (dihitung oleh *Deterministic Schema Validator*, bukan oleh AI penilai).
-* $E_{\text{consistency}} \in [0, 100]$: Indeks Konsistensi Ekstraksi Lintas Lapisan.
+**Domain:**
+$$0 \le \text{AAC} \le 100\%$$
+
+**Keterangan:**
+* $D_{\text{completeness}}$ dan $E_{\text{consistency}}$ dihitung secara independen oleh *Deterministic Schema Validator*.
 
 ---
 

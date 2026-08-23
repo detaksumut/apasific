@@ -11,7 +11,7 @@ const styles = StyleSheet.create({
     paddingBottom: 50,
     paddingHorizontal: 45,
     fontFamily: 'Helvetica',
-    fontSize: 9.2,
+    fontSize: 8.8,
     color: '#1e293b',
     lineHeight: 1.45,
   },
@@ -32,7 +32,7 @@ const styles = StyleSheet.create({
     top: 20,
     left: 45,
     right: 45,
-    fontSize: 7.5,
+    fontSize: 7.2,
     color: '#94a3b8',
     borderBottomWidth: 0.5,
     borderBottomColor: '#cbd5e1',
@@ -46,7 +46,7 @@ const styles = StyleSheet.create({
     bottom: 20,
     left: 45,
     right: 45,
-    fontSize: 7.5,
+    fontSize: 7.2,
     color: '#94a3b8',
     borderTopWidth: 0.5,
     borderTopColor: '#cbd5e1',
@@ -76,7 +76,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   coverSubtitle: {
-    fontSize: 12,
+    fontSize: 11.5,
     color: '#c9a84c',
     fontFamily: 'Helvetica-Bold',
     marginBottom: 20,
@@ -89,7 +89,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   coverDesc: {
-    fontSize: 9.5,
+    fontSize: 9.2,
     color: '#cbd5e1',
     lineHeight: 1.55,
     marginBottom: 24,
@@ -109,13 +109,13 @@ const styles = StyleSheet.create({
   },
   coverMetaLabel: {
     width: 145,
-    fontSize: 8.2,
+    fontSize: 8,
     color: '#94a3b8',
     fontFamily: 'Helvetica-Bold',
   },
   coverMetaValue: {
     flex: 1,
-    fontSize: 8.2,
+    fontSize: 8,
     color: '#f1f5f9',
   },
   coverFooter: {
@@ -128,38 +128,38 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   coverFooterText: {
-    fontSize: 7.8,
+    fontSize: 7.5,
     color: '#64748b',
   },
   h1: {
-    fontSize: 14,
+    fontSize: 13.5,
     fontFamily: 'Helvetica-Bold',
     color: '#0a1128',
-    marginTop: 12,
+    marginTop: 10,
     marginBottom: 6,
     borderBottomWidth: 1,
     borderBottomColor: '#c9a84c',
     paddingBottom: 3,
   },
   h2: {
-    fontSize: 10.5,
+    fontSize: 10,
     fontFamily: 'Helvetica-Bold',
     color: '#1e293b',
     marginTop: 8,
     marginBottom: 4,
   },
   h3: {
-    fontSize: 9.2,
+    fontSize: 8.8,
     fontFamily: 'Helvetica-Bold',
     color: '#334155',
     marginTop: 6,
     marginBottom: 3,
   },
   p: {
-    marginBottom: 5.5,
+    marginBottom: 5,
     textAlign: 'justify',
-    fontSize: 8.8,
-    lineHeight: 1.42,
+    fontSize: 8.5,
+    lineHeight: 1.4,
   },
   callout: {
     backgroundColor: '#f8fafc',
@@ -170,14 +170,14 @@ const styles = StyleSheet.create({
     borderRadius: 2,
   },
   calloutText: {
-    fontSize: 8,
+    fontSize: 7.8,
     color: '#334155',
     fontStyle: 'italic',
     lineHeight: 1.35,
   },
   table: {
     width: '100%',
-    marginVertical: 6,
+    marginVertical: 5,
     borderWidth: 0.5,
     borderColor: '#cbd5e1',
     borderRadius: 3,
@@ -186,44 +186,113 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     borderBottomWidth: 0.5,
     borderBottomColor: '#e2e8f0',
-    minHeight: 16,
+    minHeight: 15,
     alignItems: 'center',
   },
   tableHeader: {
     backgroundColor: '#0a1128',
     color: '#ffffff',
     fontFamily: 'Helvetica-Bold',
-    fontSize: 7.5,
+    fontSize: 7.2,
   },
   tableCell: {
-    padding: 3.5,
-    fontSize: 7.2,
+    padding: 3,
+    fontSize: 7,
   },
   tableCellBold: {
-    padding: 3.5,
-    fontSize: 7.2,
+    padding: 3,
+    fontSize: 7,
     fontFamily: 'Helvetica-Bold',
   },
-  formulaBox: {
+  // FORMAL MATHEMATICAL SPECIFICATION STYLES
+  mathCard: {
     backgroundColor: '#f8fafc',
-    borderWidth: 0.5,
+    borderWidth: 0.8,
     borderColor: '#cbd5e1',
-    borderLeftWidth: 3,
-    borderLeftColor: '#2563eb',
-    borderRadius: 3,
-    padding: 6.5,
+    borderLeftWidth: 3.5,
+    borderLeftColor: '#0a1128',
+    borderRadius: 4,
+    paddingVertical: 7,
+    paddingHorizontal: 10,
     marginVertical: 5,
   },
-  formulaText: {
-    fontFamily: 'Courier-Bold',
-    fontSize: 8,
-    color: '#0f172a',
-    marginBottom: 2,
+  mathHeaderRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 4,
+    borderBottomWidth: 0.5,
+    borderBottomColor: '#e2e8f0',
+    paddingBottom: 3,
   },
-  formulaDesc: {
-    fontSize: 7.4,
+  mathTitle: {
+    fontSize: 8.8,
+    fontFamily: 'Helvetica-Bold',
+    color: '#0a1128',
+  },
+  mathEquationNumber: {
+    fontSize: 8.2,
+    fontFamily: 'Helvetica-Bold',
+    color: '#64748b',
+  },
+  equationBox: {
+    backgroundColor: '#ffffff',
+    borderWidth: 0.5,
+    borderColor: '#e2e8f0',
+    borderRadius: 3,
+    paddingVertical: 5,
+    paddingHorizontal: 8,
+    marginVertical: 4,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  equationTextLarge: {
+    fontSize: 11,
+    fontFamily: 'Helvetica-Bold',
+    color: '#0f172a',
+    letterSpacing: 0.5,
+  },
+  mathMetaRow: {
+    flexDirection: 'row',
+    marginTop: 2,
+    marginBottom: 3,
+  },
+  mathDomainLabel: {
+    fontSize: 7.5,
+    fontFamily: 'Helvetica-Bold',
+    color: '#2563eb',
+    width: 65,
+  },
+  mathDomainValue: {
+    fontSize: 7.5,
+    fontFamily: 'Helvetica-Bold',
+    color: '#1e293b',
+    flex: 1,
+  },
+  varList: {
+    marginTop: 2,
+    paddingLeft: 4,
+  },
+  varItem: {
+    fontSize: 7.3,
     color: '#475569',
-    lineHeight: 1.25,
+    lineHeight: 1.3,
+    marginBottom: 1.5,
+  },
+  varName: {
+    fontFamily: 'Helvetica-Bold',
+    color: '#1e293b',
+  },
+  distributionBox: {
+    backgroundColor: '#f1f5f9',
+    borderRadius: 2,
+    padding: 4,
+    marginTop: 3,
+  },
+  distributionText: {
+    fontSize: 7,
+    color: '#334155',
+    fontFamily: 'Courier-Bold',
   }
 });
 
@@ -233,24 +302,26 @@ const ATRQSSpecDocument = () => {
     {
       title: "APASIFIC TRI-SOURCE RESEARCH QUALITY SCORE (AT-RQS) Specification v1.0",
       author: "Association of Asia Pacific Academician (ASIA) / APASIFIC",
-      subject: "Official Technical & Mathematical Formulation Specification v1.0",
-      keywords: "AT-RQS, AECI, ARTI, AAC, CESS, Research Quality Score, AI Triangulation, APASIFIC"
+      subject: "Formal Mathematical Specification & Multi-Layer Assessment Architecture",
+      keywords: "AT-RQS, AECI, ARTI, AAC, CESS, Mathematical Specification, ASIA"
     },
+    // =========================================================================
     // PAGE 1: COVER PAGE
+    // =========================================================================
     React.createElement(
       Page,
       { size: "A4", style: styles.coverPage },
       React.createElement(
         View,
         null,
-        React.createElement(Text, { style: styles.coverBadge }, "Official Technical Specification • Standard v1.0"),
+        React.createElement(Text, { style: styles.coverBadge }, "Formal Technical Specification • Standard v1.0"),
         React.createElement(Text, { style: styles.coverTitle }, "APASIFIC TRI-SOURCE RESEARCH QUALITY SCORE™\n(AT-RQS™)"),
         React.createElement(Text, { style: styles.coverSubtitle }, "Metodologi Baku, Arsitektur Tri-Source, Protokol Normalisasi & Formulasi Matematika"),
         React.createElement(View, { style: styles.coverDivider }),
         React.createElement(
           Text,
           { style: styles.coverDesc },
-          "Dokumen spesifikasi formal metodologi proprietary evaluasi kualitas naskah ilmiah berbasis sintesis dan triangulasi tiga lapisan analitik (SCORE, SCREEN, CLUE) dengan jaminan objektivitas deterministik, auditabilitas penuh, dan keterlacakan permanen."
+          "Dokumen spesifikasi formal metodologi proprietary evaluasi kualitas naskah ilmiah berbasis sintesis dan triangulasi tiga lapisan analitik (SCORE, SCREEN, CLUE) dengan formulasi matematis deterministik, auditabilitas penuh, dan keterlacakan permanen."
         ),
         React.createElement(
           View,
@@ -301,7 +372,9 @@ const ATRQSSpecDocument = () => {
       )
     ),
 
-    // PAGE 2: BAB I & II
+    // =========================================================================
+    // PAGE 2: BAB I & BAB II
+    // =========================================================================
     React.createElement(
       Page,
       { size: "A4", style: styles.page },
@@ -362,17 +435,19 @@ const ATRQSSpecDocument = () => {
       ),
       React.createElement(
         View,
-        { style: styles.formulaBox },
-        React.createElement(Text, { style: styles.formulaText }, "1. LAYER SCORE  : Structured Quality Rubrics (Skala Mentah 0 - 10)"),
-        React.createElement(Text, { style: styles.formulaDesc }, "Mengevaluasi 8 parameter struktural naskah: kesenjangan riset, relevansi topik, metodologi, data/statistik, struktur artikel, kualitas abstrak, diskusi, dan referensi."),
-        React.createElement(Text, { style: styles.formulaText, marginTop: 3 }, "2. LAYER SCREEN : Academic Risk, Novelty & Clarity (Skala Mentah 1 - 5)"),
-        React.createElement(Text, { style: styles.formulaDesc }, "Menilai tingkat kebaruan konsep, risiko metodologis, kejelasan narasi akademik, dan usulan perbaikan penelaah."),
-        React.createElement(Text, { style: styles.formulaText, marginTop: 3 }, "3. LAYER CLUE   : Deep Evidence & Limitations (Verifikasi Substantif Faktual)"),
-        React.createElement(Text, { style: styles.formulaDesc }, "Mengekstraksi bukti kuantitatif spesifik (R², nilai-p, statistik uji), transparansi batasan sampel, agenda riset lanjutan, serta implikasi praktis/kebijakan.")
+        { style: styles.mathCard },
+        React.createElement(Text, { style: styles.mathTitle }, "Layer 1: SCORE — Structured Quality Rubrics (Skala Mentah 0 - 10)"),
+        React.createElement(Text, { style: styles.varItem }, "Mengevaluasi 8 parameter struktural naskah: kesenjangan riset, relevansi topik, metodologi, data/statistik, struktur artikel, kualitas abstrak, diskusi, dan referensi."),
+        React.createElement(Text, { style: [styles.mathTitle, { marginTop: 4 }] }, "Layer 2: SCREEN — Academic Risk, Novelty & Clarity (Skala Mentah 1 - 5)"),
+        React.createElement(Text, { style: styles.varItem }, "Menilai tingkat kebaruan konsep, risiko metodologis, kejelasan narasi akademik, dan usulan perbaikan penelaah."),
+        React.createElement(Text, { style: [styles.mathTitle, { marginTop: 4 }] }, "Layer 3: CLUE — Deep Evidence & Limitations (Verifikasi Substantif Faktual)"),
+        React.createElement(Text, { style: styles.varItem }, "Mengekstraksi bukti kuantitatif spesifik (R², nilai-p, statistik uji), transparansi batasan sampel, agenda riset lanjutan, serta implikasi praktis/kebijakan.")
       )
     ),
 
-    // PAGE 3: BAB III & IV
+    // =========================================================================
+    // PAGE 3: BAB III & BAB IV
+    // =========================================================================
     React.createElement(
       Page,
       { size: "A4", style: styles.page },
@@ -397,13 +472,13 @@ const ATRQSSpecDocument = () => {
       React.createElement(Text, { style: styles.h2 }, "3.1 Formula Normalisasi Masing-Masing Lapisan"),
       React.createElement(
         View,
-        { style: styles.formulaBox },
-        React.createElement(Text, { style: styles.formulaText }, "1. Normalisasi Layer SCORE (S in [0, 10]):"),
-        React.createElement(Text, { style: styles.formulaDesc }, "SCORE_norm = (S / 10) * 100"),
-        React.createElement(Text, { style: styles.formulaText, marginTop: 3 }, "2. Normalisasi Layer SCREEN (R in [1, 5]):"),
-        React.createElement(Text, { style: styles.formulaDesc }, "SCREEN_norm = ((R - 1) / 4) * 100   [1->0, 2->25, 3->50, 4->75, 5->100]"),
-        React.createElement(Text, { style: styles.formulaText, marginTop: 3 }, "3. Normalisasi Layer CLUE: CLUE Evidence Strength Score (CESS in [0, 100]):"),
-        React.createElement(Text, { style: styles.formulaDesc }, "CLUE_norm = CESS = 0.30(c1) + 0.25(c2) + 0.15(c3) + 0.15(c4) + 0.15(c5)\nDi mana: c1 = Model Fit & Stat (90/82/70/50), c2 = Sampling Rigor (60-90), c3 = Limitations (90/75/50), c4 = Future Research (88/75/50), c5 = Utility (90/80/50).")
+        { style: styles.mathCard },
+        React.createElement(Text, { style: styles.mathTitle }, "1. Normalisasi Layer SCORE (S in [0, 10]):"),
+        React.createElement(Text, { style: styles.varItem }, "SCORE_norm = ( S / 10 ) * 100"),
+        React.createElement(Text, { style: [styles.mathTitle, { marginTop: 4 }] }, "2. Normalisasi Layer SCREEN (R in [1, 5]):"),
+        React.createElement(Text, { style: styles.varItem }, "SCREEN_norm = ( (R - 1) / 4 ) * 100   [1 -> 0,  2 -> 25,  3 -> 50,  4 -> 75,  5 -> 100]"),
+        React.createElement(Text, { style: [styles.mathTitle, { marginTop: 4 }] }, "3. Normalisasi Layer CLUE: CLUE Evidence Strength Score (CESS in [0, 100]):"),
+        React.createElement(Text, { style: styles.varItem }, "CLUE_norm = CESS = 0.30(c1) + 0.25(c2) + 0.15(c3) + 0.15(c4) + 0.15(c5)\nDi mana: c1 = Model Fit & Stat (90/82/70/50), c2 = Sampling Rigor (60-90), c3 = Limitations (90/75/50), c4 = Future Research (88/75/50), c5 = Utility (90/80/50).")
       ),
       React.createElement(Text, { style: styles.h1 }, "BAB IV: STANDAR EVALUASI MULTI-FAKTOR SAMPLING RIGOR"),
       React.createElement(
@@ -461,7 +536,9 @@ const ATRQSSpecDocument = () => {
       )
     ),
 
-    // PAGE 4: BAB V & VI
+    // =========================================================================
+    // PAGE 4: BAB V (MATRIKS 7+1 DIMENSI)
+    // =========================================================================
     React.createElement(
       Page,
       { size: "A4", style: styles.page },
@@ -469,7 +546,7 @@ const ATRQSSpecDocument = () => {
         View,
         { style: styles.header },
         React.createElement(Text, null, "APASIFIC ACADEMIC • SPEC-AT-RQS-2026-V1.0"),
-        React.createElement(Text, null, "BAB V & VI: MATRIKS 7+1 DIMENSI & FORMULASI RESMI")
+        React.createElement(Text, null, "BAB V: MATRIKS 7+1 DIMENSI MUTU APASIFIC")
       ),
       React.createElement(
         View,
@@ -479,104 +556,118 @@ const ATRQSSpecDocument = () => {
       ),
       React.createElement(Text, { style: styles.h1 }, "BAB V: MATRIKS 8 DIMENSI APASIFIC (7 QUALITY + 1 META-DIMENSION)"),
       React.createElement(
+        Text,
+        { style: styles.p },
+        "Struktur matriks A-P-A-S-I-F-I-C membagi parameter evaluasi ke dalam 7 Dimensi Kualitas Substantif Tertimbang (Total Bobot = 100%) dan 1 Meta-Dimensi Non-Tertimbang yang mengevaluasi keyakinan asesmen:"
+      ),
+      React.createElement(
         View,
         { style: styles.table },
         React.createElement(
           View,
           { style: [styles.tableRow, styles.tableHeader] },
-          React.createElement(Text, { style: [styles.tableCellBold, { width: '10%', color: '#ffffff' }] }, "Kode"),
+          React.createElement(Text, { style: [styles.tableCellBold, { width: '8%', color: '#ffffff' }] }, "Kode"),
           React.createElement(Text, { style: [styles.tableCellBold, { width: '38%', color: '#ffffff' }] }, "Dimensi Mutu Akademik"),
-          React.createElement(Text, { style: [styles.tableCellBold, { width: '14%', color: '#ffffff' }] }, "Bobot"),
-          React.createElement(Text, { style: [styles.tableCellBold, { width: '38%', color: '#ffffff' }] }, "Formula Agregasi Sub-Indikator")
+          React.createElement(Text, { style: [styles.tableCellBold, { width: '12%', color: '#ffffff' }] }, "Bobot"),
+          React.createElement(Text, { style: [styles.tableCellBold, { width: '42%', color: '#ffffff' }] }, "Formula Agregasi Sub-Indikator")
         ),
         React.createElement(
           View,
           { style: styles.tableRow },
-          React.createElement(Text, { style: [styles.tableCellBold, { width: '10%' }] }, "D1"),
+          React.createElement(Text, { style: [styles.tableCellBold, { width: '8%' }] }, "D1"),
           React.createElement(Text, { style: [styles.tableCell, { width: '38%' }] }, "A — Academic Contribution"),
-          React.createElement(Text, { style: [styles.tableCellBold, { width: '14%' }] }, "18%"),
-          React.createElement(Text, { style: [styles.tableCell, { width: '38%' }] }, "0.40(A1.1) + 0.35(A1.2) + 0.25(A1.3)")
+          React.createElement(Text, { style: [styles.tableCellBold, { width: '12%' }] }, "18%"),
+          React.createElement(Text, { style: [styles.tableCell, { width: '42%' }] }, "0.40(A1.1) + 0.35(A1.2) + 0.25(A1.3)")
         ),
         React.createElement(
           View,
           { style: styles.tableRow },
-          React.createElement(Text, { style: [styles.tableCellBold, { width: '10%' }] }, "D2"),
+          React.createElement(Text, { style: [styles.tableCellBold, { width: '8%' }] }, "D2"),
           React.createElement(Text, { style: [styles.tableCell, { width: '38%' }] }, "P — Procedural Rigor"),
-          React.createElement(Text, { style: [styles.tableCellBold, { width: '14%' }] }, "18%"),
-          React.createElement(Text, { style: [styles.tableCell, { width: '38%' }] }, "0.50(P.1) + 0.30(P.2) + 0.20(P.3)")
+          React.createElement(Text, { style: [styles.tableCellBold, { width: '12%' }] }, "18%"),
+          React.createElement(Text, { style: [styles.tableCell, { width: '42%' }] }, "0.50(P.1) + 0.30(P.2) + 0.20(P.3)")
         ),
         React.createElement(
           View,
           { style: styles.tableRow },
-          React.createElement(Text, { style: [styles.tableCellBold, { width: '10%' }] }, "D3"),
+          React.createElement(Text, { style: [styles.tableCellBold, { width: '8%' }] }, "D3"),
           React.createElement(Text, { style: [styles.tableCell, { width: '38%' }] }, "A — Analytical Strength"),
-          React.createElement(Text, { style: [styles.tableCellBold, { width: '14%' }] }, "16%"),
-          React.createElement(Text, { style: [styles.tableCell, { width: '38%' }] }, "0.60(A2.1) + 0.40(A2.2)")
+          React.createElement(Text, { style: [styles.tableCellBold, { width: '12%' }] }, "16%"),
+          React.createElement(Text, { style: [styles.tableCell, { width: '42%' }] }, "0.60(A2.1) + 0.40(A2.2)")
         ),
         React.createElement(
           View,
           { style: styles.tableRow },
-          React.createElement(Text, { style: [styles.tableCellBold, { width: '10%' }] }, "D4"),
+          React.createElement(Text, { style: [styles.tableCellBold, { width: '8%' }] }, "D4"),
           React.createElement(Text, { style: [styles.tableCell, { width: '38%' }] }, "S — Scholarly Communication"),
-          React.createElement(Text, { style: [styles.tableCellBold, { width: '14%' }] }, "12%"),
-          React.createElement(Text, { style: [styles.tableCell, { width: '38%' }] }, "0.35(S.1) + 0.25(S.2) + 0.20(S.3) + 0.20(S.4)")
+          React.createElement(Text, { style: [styles.tableCellBold, { width: '12%' }] }, "12%"),
+          React.createElement(Text, { style: [styles.tableCell, { width: '42%' }] }, "0.35(S.1) + 0.25(S.2) + 0.20(S.3) + 0.20(S.4)")
         ),
         React.createElement(
           View,
           { style: styles.tableRow },
-          React.createElement(Text, { style: [styles.tableCellBold, { width: '10%' }] }, "D5"),
+          React.createElement(Text, { style: [styles.tableCellBold, { width: '8%' }] }, "D5"),
           React.createElement(Text, { style: [styles.tableCell, { width: '38%' }] }, "I — Integrity & Transparency"),
-          React.createElement(Text, { style: [styles.tableCellBold, { width: '14%' }] }, "12%"),
-          React.createElement(Text, { style: [styles.tableCell, { width: '38%' }] }, "0.50(I1.1) + 0.50(I1.2)")
+          React.createElement(Text, { style: [styles.tableCellBold, { width: '12%' }] }, "12%"),
+          React.createElement(Text, { style: [styles.tableCell, { width: '42%' }] }, "0.50(I1.1) + 0.50(I1.2)")
         ),
         React.createElement(
           View,
           { style: styles.tableRow },
-          React.createElement(Text, { style: [styles.tableCellBold, { width: '10%' }] }, "D6"),
+          React.createElement(Text, { style: [styles.tableCellBold, { width: '8%' }] }, "D6"),
           React.createElement(Text, { style: [styles.tableCell, { width: '38%' }] }, "F — Future Research Value"),
-          React.createElement(Text, { style: [styles.tableCellBold, { width: '14%' }] }, "10%"),
-          React.createElement(Text, { style: [styles.tableCell, { width: '38%' }] }, "0.60(F.1) + 0.40(F.2)")
+          React.createElement(Text, { style: [styles.tableCellBold, { width: '12%' }] }, "10%"),
+          React.createElement(Text, { style: [styles.tableCell, { width: '42%' }] }, "0.60(F.1) + 0.40(F.2)")
         ),
         React.createElement(
           View,
           { style: styles.tableRow },
-          React.createElement(Text, { style: [styles.tableCellBold, { width: '10%' }] }, "D7"),
+          React.createElement(Text, { style: [styles.tableCellBold, { width: '8%' }] }, "D7"),
           React.createElement(Text, { style: [styles.tableCell, { width: '38%' }] }, "I — Impact & Applicability"),
-          React.createElement(Text, { style: [styles.tableCellBold, { width: '14%' }] }, "14%"),
-          React.createElement(Text, { style: [styles.tableCell, { width: '38%' }] }, "0.50(I2.1) + 0.50(I2.2)")
+          React.createElement(Text, { style: [styles.tableCellBold, { width: '12%' }] }, "14%"),
+          React.createElement(Text, { style: [styles.tableCell, { width: '42%' }] }, "0.50(I2.1) + 0.50(I2.2)")
         ),
         React.createElement(
           View,
           { style: [styles.tableRow, { backgroundColor: '#f1f5f9' }] },
-          React.createElement(Text, { style: [styles.tableCellBold, { width: '10%' }] }, "M1"),
+          React.createElement(Text, { style: [styles.tableCellBold, { width: '8%' }] }, "M1"),
           React.createElement(Text, { style: [styles.tableCellBold, { width: '38%' }] }, "C — Confidence Assessment"),
-          React.createElement(Text, { style: [styles.tableCellBold, { width: '14%', color: '#2563eb' }] }, "META"),
-          React.createElement(Text, { style: [styles.tableCell, { width: '38%' }] }, "Non-Weighted Meta-Dimension (AAC™ %)")
+          React.createElement(Text, { style: [styles.tableCellBold, { width: '12%', color: '#2563eb' }] }, "META"),
+          React.createElement(Text, { style: [styles.tableCell, { width: '42%' }] }, "Non-Weighted Meta-Dimension (AAC™ %)")
         )
       ),
-      React.createElement(Text, { style: styles.h2 }, "Formulasi Base Weighted Score (BWS):"),
       React.createElement(
         View,
-        { style: styles.formulaBox },
-        React.createElement(Text, { style: styles.formulaText }, "BWS = SUM_{i=1}^{7} (D_i * W_i)"),
-        React.createElement(Text, { style: styles.formulaDesc }, "Di mana SUM W_i = 0.18 + 0.18 + 0.16 + 0.12 + 0.12 + 0.10 + 0.14 = 1.00.")
-      ),
-      React.createElement(Text, { style: styles.h1 }, "BAB VI: FORMULASI MATEMATIS 4 METRIK RESMI"),
-      React.createElement(
-        View,
-        { style: styles.formulaBox },
-        React.createElement(Text, { style: styles.formulaText }, "1. AECI™ (Evidence Consistency Index in [0, 100]):"),
-        React.createElement(Text, { style: styles.formulaDesc }, "AECI = 100.0 * (Elemen_Inti_Terdeteksi / 5)\nDistribusi Proporsional Murni: 5/5 -> 100.0, 4/5 -> 80.0, 3/5 -> 60.0, 2/5 -> 40.0, 1/5 -> 20.0, 0/5 -> 0.0."),
-        React.createElement(Text, { style: styles.formulaText, marginTop: 3 }, "2. AT-RQS™ (Tri-Source Research Quality Score in [0, 100]):"),
-        React.createElement(Text, { style: styles.formulaDesc }, "Consistency_Factor (CF) = 0.85 + 0.15 * (AECI / 100)    [Rentang Terkendali 0.85 - 1.00]\nAT-RQS = BWS * CF    |    AT-RQS_10 = AT-RQS / 10"),
-        React.createElement(Text, { style: styles.formulaText, marginTop: 3 }, "3. ARTI™ (Research Triangulation Index in [0, 100]):"),
-        React.createElement(Text, { style: styles.formulaDesc }, "ARTI = 100 - [ (|SCORE_norm - SCREEN_norm| + |SCORE_norm - CLUE_norm|) / 2 ]"),
-        React.createElement(Text, { style: styles.formulaText, marginTop: 3 }, "4. AAC™ (Assessment Confidence in [0, 100%]):"),
-        React.createElement(Text, { style: styles.formulaDesc }, "AAC = 0.50(ARTI) + 0.30(D_completeness) + 0.20(E_consistency)\nDi mana D_completeness dan E_consistency diverifikasi oleh Schema Validator deterministik.")
+        { style: [styles.mathCard, { marginTop: 10 }] },
+        React.createElement(
+          View,
+          { style: styles.mathHeaderRow },
+          React.createElement(Text, { style: styles.mathTitle }, "FORMULASI BASE WEIGHTED SCORE (BWS)"),
+          React.createElement(Text, { style: styles.mathEquationNumber }, "(5.1)")
+        ),
+        React.createElement(
+          View,
+          { style: styles.equationBox },
+          React.createElement(Text, { style: styles.equationTextLarge }, "BWS = \u2211_{i=1}^{7} ( D_i \u00D7 W_i )")
+        ),
+        React.createElement(
+          View,
+          { style: styles.mathMetaRow },
+          React.createElement(Text, { style: styles.mathDomainLabel }, "Domain:"),
+          React.createElement(Text, { style: styles.mathDomainValue }, "0 \u2264 BWS \u2264 100,  \u2211_{i=1}^{7} W_i = 1.00")
+        ),
+        React.createElement(
+          View,
+          { style: styles.varList },
+          React.createElement(Text, { style: styles.varItem }, "• ", React.createElement(Text, { style: styles.varName }, "D_i"), " = Skor terstandardisasi masing-masing dimensi kualitas ke-i (D_i \u2208 [0, 100])"),
+          React.createElement(Text, { style: styles.varItem }, "• ", React.createElement(Text, { style: styles.varName }, "W_i"), " = Bobot proporsional dimensi ke-i (0.18 + 0.18 + 0.16 + 0.12 + 0.12 + 0.10 + 0.14 = 1.00)")
+        )
       )
     ),
 
-    // PAGE 5: BAB VII, VIII, IX
+    // =========================================================================
+    // PAGE 5: BAB VI (FORMULASI MATEMATIS 5 PERSAMAAN RESMI)
+    // =========================================================================
     React.createElement(
       Page,
       { size: "A4", style: styles.page },
@@ -584,7 +675,7 @@ const ATRQSSpecDocument = () => {
         View,
         { style: styles.header },
         React.createElement(Text, null, "APASIFIC ACADEMIC • SPEC-AT-RQS-2026-V1.0"),
-        React.createElement(Text, null, "BAB VII, VIII & IX: CONTOH KALKULASI & INTEGRITAS")
+        React.createElement(Text, null, "BAB VI: FORMULASI MATEMATIS 5 PERSAMAAN RESMI")
       ),
       React.createElement(
         View,
@@ -592,118 +683,144 @@ const ATRQSSpecDocument = () => {
         React.createElement(Text, null, "Official Specification Document • AT-RQS™ v1.0"),
         React.createElement(Text, null, "Halaman 5")
       ),
-      React.createElement(Text, { style: styles.h1 }, "BAB VII: CONTOH PERHITUNGAN END-TO-END (WORKED EXAMPLE)"),
-      React.createElement(
-        Text,
-        { style: styles.p },
-        "Simulasi komputasi lengkap pada artikel empiris terbitan:"
-      ),
+      React.createElement(Text, { style: styles.h1 }, "BAB VI: FORMULASI MATEMATIS 5 PERSAMAAN RESMI"),
+
+      // 6.1 AECI
       React.createElement(
         View,
-        { style: styles.table },
+        { style: styles.mathCard },
         React.createElement(
           View,
-          { style: [styles.tableRow, styles.tableHeader] },
-          React.createElement(Text, { style: [styles.tableCellBold, { width: '10%', color: '#ffffff' }] }, "Dim"),
-          React.createElement(Text, { style: [styles.tableCellBold, { width: '40%', color: '#ffffff' }] }, "Nama Dimensi"),
-          React.createElement(Text, { style: [styles.tableCellBold, { width: '15%', color: '#ffffff' }] }, "Skor (Di)"),
-          React.createElement(Text, { style: [styles.tableCellBold, { width: '15%', color: '#ffffff' }] }, "Bobot (Wi)"),
-          React.createElement(Text, { style: [styles.tableCellBold, { width: '20%', color: '#ffffff' }] }, "Kontribusi (Di*Wi)")
+          { style: styles.mathHeaderRow },
+          React.createElement(Text, { style: styles.mathTitle }, "6.1 AECI™ — Evidence Consistency Index"),
+          React.createElement(Text, { style: styles.mathEquationNumber }, "(6.1)")
         ),
         React.createElement(
           View,
-          { style: styles.tableRow },
-          React.createElement(Text, { style: [styles.tableCellBold, { width: '10%' }] }, "D1"),
-          React.createElement(Text, { style: [styles.tableCell, { width: '40%' }] }, "Academic Contribution"),
-          React.createElement(Text, { style: [styles.tableCell, { width: '15%' }] }, "79.50"),
-          React.createElement(Text, { style: [styles.tableCell, { width: '15%' }] }, "0.18"),
-          React.createElement(Text, { style: [styles.tableCellBold, { width: '20%' }] }, "14.31")
+          { style: styles.equationBox },
+          React.createElement(Text, { style: styles.equationTextLarge }, "AECI = 100 \u00D7 ( N_detected / 5 )")
         ),
         React.createElement(
           View,
-          { style: styles.tableRow },
-          React.createElement(Text, { style: [styles.tableCellBold, { width: '10%' }] }, "D2"),
-          React.createElement(Text, { style: [styles.tableCell, { width: '40%' }] }, "Procedural Rigor"),
-          React.createElement(Text, { style: [styles.tableCell, { width: '15%' }] }, "80.50"),
-          React.createElement(Text, { style: [styles.tableCell, { width: '15%' }] }, "0.18"),
-          React.createElement(Text, { style: [styles.tableCellBold, { width: '20%' }] }, "14.49")
+          { style: styles.mathMetaRow },
+          React.createElement(Text, { style: styles.mathDomainLabel }, "Domain:"),
+          React.createElement(Text, { style: styles.mathDomainValue }, "0 \u2264 AECI \u2264 100,  N_detected \u2208 {0, 1, 2, 3, 4, 5}")
         ),
         React.createElement(
           View,
-          { style: styles.tableRow },
-          React.createElement(Text, { style: [styles.tableCellBold, { width: '10%' }] }, "D3"),
-          React.createElement(Text, { style: [styles.tableCell, { width: '40%' }] }, "Analytical Strength"),
-          React.createElement(Text, { style: [styles.tableCell, { width: '15%' }] }, "87.00"),
-          React.createElement(Text, { style: [styles.tableCell, { width: '15%' }] }, "0.16"),
-          React.createElement(Text, { style: [styles.tableCellBold, { width: '20%' }] }, "13.92")
+          { style: styles.varList },
+          React.createElement(Text, { style: styles.varItem }, "• ", React.createElement(Text, { style: styles.varName }, "N_detected"), " = Jumlah elemen inti struktural yang terdeteksi (Tujuan, Metode, Sampel, Temuan, Keterbatasan)"),
+          React.createElement(Text, { style: styles.varItem }, "• ", React.createElement(Text, { style: styles.varName }, "5"), " = Jumlah elemen struktural wajib standar IMRAD")
         ),
         React.createElement(
           View,
-          { style: styles.tableRow },
-          React.createElement(Text, { style: [styles.tableCellBold, { width: '10%' }] }, "D4"),
-          React.createElement(Text, { style: [styles.tableCell, { width: '40%' }] }, "Scholarly Communication"),
-          React.createElement(Text, { style: [styles.tableCell, { width: '15%' }] }, "82.00"),
-          React.createElement(Text, { style: [styles.tableCell, { width: '15%' }] }, "0.12"),
-          React.createElement(Text, { style: [styles.tableCellBold, { width: '20%' }] }, "9.84")
-        ),
-        React.createElement(
-          View,
-          { style: styles.tableRow },
-          React.createElement(Text, { style: [styles.tableCellBold, { width: '10%' }] }, "D5"),
-          React.createElement(Text, { style: [styles.tableCell, { width: '40%' }] }, "Integrity & Transparency"),
-          React.createElement(Text, { style: [styles.tableCell, { width: '15%' }] }, "85.00"),
-          React.createElement(Text, { style: [styles.tableCell, { width: '15%' }] }, "0.12"),
-          React.createElement(Text, { style: [styles.tableCellBold, { width: '20%' }] }, "10.20")
-        ),
-        React.createElement(
-          View,
-          { style: styles.tableRow },
-          React.createElement(Text, { style: [styles.tableCellBold, { width: '10%' }] }, "D6"),
-          React.createElement(Text, { style: [styles.tableCell, { width: '40%' }] }, "Future Research Value"),
-          React.createElement(Text, { style: [styles.tableCell, { width: '15%' }] }, "81.00"),
-          React.createElement(Text, { style: [styles.tableCell, { width: '15%' }] }, "0.10"),
-          React.createElement(Text, { style: [styles.tableCellBold, { width: '20%' }] }, "8.10")
-        ),
-        React.createElement(
-          View,
-          { style: styles.tableRow },
-          React.createElement(Text, { style: [styles.tableCellBold, { width: '10%' }] }, "D7"),
-          React.createElement(Text, { style: [styles.tableCell, { width: '40%' }] }, "Impact & Applicability"),
-          React.createElement(Text, { style: [styles.tableCell, { width: '15%' }] }, "87.00"),
-          React.createElement(Text, { style: [styles.tableCell, { width: '15%' }] }, "0.14"),
-          React.createElement(Text, { style: [styles.tableCellBold, { width: '20%' }] }, "12.18")
-        ),
-        React.createElement(
-          View,
-          { style: [styles.tableRow, { backgroundColor: '#f1f5f9' }] },
-          React.createElement(Text, { style: [styles.tableCellBold, { width: '50%' }] }, "BASE WEIGHTED SCORE (BWS)"),
-          React.createElement(Text, { style: [styles.tableCellBold, { width: '15%' }] }, "-"),
-          React.createElement(Text, { style: [styles.tableCellBold, { width: '15%' }] }, "1.00"),
-          React.createElement(Text, { style: [styles.tableCellBold, { width: '20%', color: '#2563eb' }] }, "83.04")
+          { style: styles.distributionBox },
+          React.createElement(Text, { style: styles.distributionText }, "Distribusi: 5/5 \u2192 100  |  4/5 \u2192 80  |  3/5 \u2192 60  |  2/5 \u2192 40  |  1/5 \u2192 20  |  0/5 \u2192 0")
         )
       ),
+
+      // 6.2 CF
       React.createElement(
         View,
-        { style: styles.formulaBox },
-        React.createElement(Text, { style: styles.formulaText }, "Hasil Akhir Evaluasi:"),
-        React.createElement(Text, { style: styles.formulaDesc }, "• Evaluasi Bukti: 5/5 Elemen Terdeteksi -> AECI = 100.0 (High Structural Alignment)\n• Consistency Factor: CF = 0.85 + 0.15*(100.0/100) = 1.000 (Tanpa Atenuasi)\n• Final AT-RQS Score: 83.04 * 1.000 = 83.04 -> 83.0 / 100 (Skala 10: 8.30 / 10)\n• Kategori Mutu Resmi: STRONG RESEARCH QUALITY (Kualitas Riset Kuat)")
+        { style: styles.mathCard },
+        React.createElement(
+          View,
+          { style: styles.mathHeaderRow },
+          React.createElement(Text, { style: styles.mathTitle }, "6.2 CF — Consistency Factor (Bounded Attenuator)"),
+          React.createElement(Text, { style: styles.mathEquationNumber }, "(6.2)")
+        ),
+        React.createElement(
+          View,
+          { style: styles.equationBox },
+          React.createElement(Text, { style: styles.equationTextLarge }, "CF = 0.85 + 0.15 \u00D7 ( AECI / 100 )")
+        ),
+        React.createElement(
+          View,
+          { style: styles.mathMetaRow },
+          React.createElement(Text, { style: styles.mathDomainLabel }, "Domain:"),
+          React.createElement(Text, { style: styles.mathDomainValue }, "0.85 \u2264 CF \u2264 1.00  (Batas atenuasi maksimal 15%)")
+        )
       ),
-      React.createElement(Text, { style: styles.h1 }, "BAB VIII & IX: MITIGASI BIAS & ARSITEKTUR IMMUTABLE SNAPSHOT"),
-      React.createElement(Text, { style: styles.h2 }, "8.1 Mitigasi Self-Assessment Bias pada AAC™"),
+
+      // 6.3 AT-RQS
       React.createElement(
-        Text,
-        { style: styles.p },
-        "Untuk menjamin tidak terjadi bias AI menilai kualitas ekstraksinya sendiri, kelengkapan skema data (D_completeness) dan konsistensi lintas lapisan (E_consistency) diuji secara deterministik oleh Schema Validator terpisah."
+        View,
+        { style: styles.mathCard },
+        React.createElement(
+          View,
+          { style: styles.mathHeaderRow },
+          React.createElement(Text, { style: styles.mathTitle }, "6.3 AT-RQS™ — Tri-Source Research Quality Score"),
+          React.createElement(Text, { style: styles.mathEquationNumber }, "(6.3)")
+        ),
+        React.createElement(
+          View,
+          { style: styles.equationBox },
+          React.createElement(Text, { style: styles.equationTextLarge }, "AT-RQS = BWS \u00D7 CF   |   AT-RQS_10 = AT-RQS / 10")
+        ),
+        React.createElement(
+          View,
+          { style: styles.mathMetaRow },
+          React.createElement(Text, { style: styles.mathDomainLabel }, "Domain:"),
+          React.createElement(Text, { style: styles.mathDomainValue }, "0 \u2264 AT-RQS \u2264 100,  0.00 \u2264 AT-RQS_10 \u2264 10.00")
+        ),
+        React.createElement(
+          View,
+          { style: styles.varList },
+          React.createElement(Text, { style: styles.varItem }, "• ", React.createElement(Text, { style: styles.varName }, "BWS"), " = Base Weighted Score dari 7 dimensi kualitas mutu tertimbang"),
+          React.createElement(Text, { style: styles.varItem }, "• ", React.createElement(Text, { style: styles.varName }, "CF"), " = Faktor koreksi keselarasan bukti struktural")
+        )
       ),
-      React.createElement(Text, { style: styles.h2 }, "9.1 Cryptographic Provenance Ledger"),
+
+      // 6.4 ARTI
       React.createElement(
-        Text,
-        { style: styles.p },
-        "Setiap hasil penilaian diserialisasi ke Canonical JSON (RFC 8785), dihitung nilai ringkasan SHA-256 Digest, dan disimpan bersama timestamp permanen menghasilkan assessment_id unik (misal: APS-AT-RQS-60047abe-v1.0). Setiap modifikasi data retrospektif akan merusak integritas hash kriptografis."
+        View,
+        { style: styles.mathCard },
+        React.createElement(
+          View,
+          { style: styles.mathHeaderRow },
+          React.createElement(Text, { style: styles.mathTitle }, "6.4 ARTI™ — Research Triangulation Index"),
+          React.createElement(Text, { style: styles.mathEquationNumber }, "(6.4)")
+        ),
+        React.createElement(
+          View,
+          { style: styles.equationBox },
+          React.createElement(Text, { style: styles.equationTextLarge }, "ARTI = 100 \u2212 [ ( |S_norm \u2212 R_norm| + |S_norm \u2212 C_norm| ) / 2 ]")
+        ),
+        React.createElement(
+          View,
+          { style: styles.mathMetaRow },
+          React.createElement(Text, { style: styles.mathDomainLabel }, "Domain:"),
+          React.createElement(Text, { style: styles.mathDomainValue }, "0 \u2264 ARTI \u2264 100  (S_norm = SCORE_norm, R_norm = SCREEN_norm, C_norm = CLUE_norm)")
+        )
+      ),
+
+      // 6.5 AAC
+      React.createElement(
+        View,
+        { style: styles.mathCard },
+        React.createElement(
+          View,
+          { style: styles.mathHeaderRow },
+          React.createElement(Text, { style: styles.mathTitle }, "6.5 AAC™ — Assessment Confidence"),
+          React.createElement(Text, { style: styles.mathEquationNumber }, "(6.5)")
+        ),
+        React.createElement(
+          View,
+          { style: styles.equationBox },
+          React.createElement(Text, { style: styles.equationTextLarge }, "AAC = 0.50(ARTI) + 0.30(D_completeness) + 0.20(E_consistency)")
+        ),
+        React.createElement(
+          View,
+          { style: styles.mathMetaRow },
+          React.createElement(Text, { style: styles.mathDomainLabel }, "Domain:"),
+          React.createElement(Text, { style: styles.mathDomainValue }, "0 \u2264 AAC \u2264 100%  (Diverifikasi deterministik oleh Schema Validator)")
+        )
       )
     ),
 
-    // PAGE 6: BAB X, XI, XII & PENGESAHAN
+    // =========================================================================
+    // PAGE 6: BAB VII & BAB VIII (WORKED EXAMPLE & MITIGASI BIAS)
+    // =========================================================================
     React.createElement(
       Page,
       { size: "A4", style: styles.page },
@@ -711,7 +828,7 @@ const ATRQSSpecDocument = () => {
         View,
         { style: styles.header },
         React.createElement(Text, null, "APASIFIC ACADEMIC • SPEC-AT-RQS-2026-V1.0"),
-        React.createElement(Text, null, "BAB X, XI & XII: HKI, VALIDASI & PENGESAHAN")
+        React.createElement(Text, null, "BAB VII & VIII: CONTOH KALKULASI & MITIGASI BIAS")
       ),
       React.createElement(
         View,
@@ -719,15 +836,141 @@ const ATRQSSpecDocument = () => {
         React.createElement(Text, null, "Official Specification Document • AT-RQS™ v1.0"),
         React.createElement(Text, null, "Halaman 6")
       ),
-      React.createElement(Text, { style: styles.h1 }, "BAB X: STATUS HAK KEKAYAAN INTELEKTUAL (HKI) & KLAIM PATEN"),
+      React.createElement(Text, { style: styles.h1 }, "BAB VII: CONTOH PERHITUNGAN END-TO-END (WORKED EXAMPLE)"),
       React.createElement(
         Text,
         { style: styles.p },
-        "1. Hak Cipta (Copyright): Dokumen Spesifikasi Metodologi AT-RQS™ v1.0 dan Source Code Engine Komputasi Tri-Source Scoring terdaftar pada DJKI Kemenkumham RI.\n" +
-        "2. Merek Dagang (Trademark): Tanda dagang pada Kelas 41 & 42: AT-RQS™, AECI™, AAC™, ARTI™, IAEEA™, APASIFIC®.\n" +
-        "3. Permohonan Paten Invensi: Dokumen spesifikasi teknis dan klaim metode komputasi dipersiapkan untuk pendaftaran paten invensi di DJKI RI dan PCT/WIPO."
+        "Simulasi komputasi lengkap pada artikel empiris terbitan (BPPRD Barito Kuala):"
       ),
-      React.createElement(Text, { style: styles.h1 }, "BAB XI: PROTOKOL VALIDASI EMPIRIS & REGISTRI BENCHMARK"),
+      React.createElement(
+        View,
+        { style: styles.table },
+        React.createElement(
+          View,
+          { style: [styles.tableRow, styles.tableHeader] },
+          React.createElement(Text, { style: [styles.tableCellBold, { width: '8%', color: '#ffffff' }] }, "Dim"),
+          React.createElement(Text, { style: [styles.tableCellBold, { width: '38%', color: '#ffffff' }] }, "Nama Dimensi Mutu"),
+          React.createElement(Text, { style: [styles.tableCellBold, { width: '16%', color: '#ffffff' }] }, "Skor (Di)"),
+          React.createElement(Text, { style: [styles.tableCellBold, { width: '16%', color: '#ffffff' }] }, "Bobot (Wi)"),
+          React.createElement(Text, { style: [styles.tableCellBold, { width: '22%', color: '#ffffff' }] }, "Kontribusi (Di*Wi)")
+        ),
+        React.createElement(
+          View,
+          { style: styles.tableRow },
+          React.createElement(Text, { style: [styles.tableCellBold, { width: '8%' }] }, "D1"),
+          React.createElement(Text, { style: [styles.tableCell, { width: '38%' }] }, "Academic Contribution"),
+          React.createElement(Text, { style: [styles.tableCell, { width: '16%' }] }, "79.50"),
+          React.createElement(Text, { style: [styles.tableCell, { width: '16%' }] }, "0.18"),
+          React.createElement(Text, { style: [styles.tableCellBold, { width: '22%' }] }, "14.31")
+        ),
+        React.createElement(
+          View,
+          { style: styles.tableRow },
+          React.createElement(Text, { style: [styles.tableCellBold, { width: '8%' }] }, "D2"),
+          React.createElement(Text, { style: [styles.tableCell, { width: '38%' }] }, "Procedural Rigor"),
+          React.createElement(Text, { style: [styles.tableCell, { width: '16%' }] }, "80.50"),
+          React.createElement(Text, { style: [styles.tableCell, { width: '16%' }] }, "0.18"),
+          React.createElement(Text, { style: [styles.tableCellBold, { width: '22%' }] }, "14.49")
+        ),
+        React.createElement(
+          View,
+          { style: styles.tableRow },
+          React.createElement(Text, { style: [styles.tableCellBold, { width: '8%' }] }, "D3"),
+          React.createElement(Text, { style: [styles.tableCell, { width: '38%' }] }, "Analytical Strength"),
+          React.createElement(Text, { style: [styles.tableCell, { width: '16%' }] }, "87.00"),
+          React.createElement(Text, { style: [styles.tableCell, { width: '16%' }] }, "0.16"),
+          React.createElement(Text, { style: [styles.tableCellBold, { width: '22%' }] }, "13.92")
+        ),
+        React.createElement(
+          View,
+          { style: styles.tableRow },
+          React.createElement(Text, { style: [styles.tableCellBold, { width: '8%' }] }, "D4"),
+          React.createElement(Text, { style: [styles.tableCell, { width: '38%' }] }, "Scholarly Communication"),
+          React.createElement(Text, { style: [styles.tableCell, { width: '16%' }] }, "82.00"),
+          React.createElement(Text, { style: [styles.tableCell, { width: '16%' }] }, "0.12"),
+          React.createElement(Text, { style: [styles.tableCellBold, { width: '22%' }] }, "9.84")
+        ),
+        React.createElement(
+          View,
+          { style: styles.tableRow },
+          React.createElement(Text, { style: [styles.tableCellBold, { width: '8%' }] }, "D5"),
+          React.createElement(Text, { style: [styles.tableCell, { width: '38%' }] }, "Integrity & Transparency"),
+          React.createElement(Text, { style: [styles.tableCell, { width: '16%' }] }, "85.00"),
+          React.createElement(Text, { style: [styles.tableCell, { width: '16%' }] }, "0.12"),
+          React.createElement(Text, { style: [styles.tableCellBold, { width: '22%' }] }, "10.20")
+        ),
+        React.createElement(
+          View,
+          { style: styles.tableRow },
+          React.createElement(Text, { style: [styles.tableCellBold, { width: '8%' }] }, "D6"),
+          React.createElement(Text, { style: [styles.tableCell, { width: '38%' }] }, "Future Research Value"),
+          React.createElement(Text, { style: [styles.tableCell, { width: '16%' }] }, "81.00"),
+          React.createElement(Text, { style: [styles.tableCell, { width: '16%' }] }, "0.10"),
+          React.createElement(Text, { style: [styles.tableCellBold, { width: '22%' }] }, "8.10")
+        ),
+        React.createElement(
+          View,
+          { style: styles.tableRow },
+          React.createElement(Text, { style: [styles.tableCellBold, { width: '8%' }] }, "D7"),
+          React.createElement(Text, { style: [styles.tableCell, { width: '38%' }] }, "Impact & Applicability"),
+          React.createElement(Text, { style: [styles.tableCell, { width: '16%' }] }, "87.00"),
+          React.createElement(Text, { style: [styles.tableCell, { width: '16%' }] }, "0.14"),
+          React.createElement(Text, { style: [styles.tableCellBold, { width: '22%' }] }, "12.18")
+        ),
+        React.createElement(
+          View,
+          { style: [styles.tableRow, { backgroundColor: '#f1f5f9' }] },
+          React.createElement(Text, { style: [styles.tableCellBold, { width: '46%' }] }, "BASE WEIGHTED SCORE (BWS)"),
+          React.createElement(Text, { style: [styles.tableCellBold, { width: '16%' }] }, "-"),
+          React.createElement(Text, { style: [styles.tableCellBold, { width: '16%' }] }, "1.00"),
+          React.createElement(Text, { style: [styles.tableCellBold, { width: '22%', color: '#2563eb' }] }, "83.04")
+        )
+      ),
+      React.createElement(
+        View,
+        { style: styles.mathCard },
+        React.createElement(Text, { style: styles.mathTitle }, "Hasil Akhir Evaluasi:"),
+        React.createElement(Text, { style: styles.varItem }, "• ", React.createElement(Text, { style: styles.varName }, "Evaluasi Bukti:"), " 5/5 Elemen Terdeteksi \u2192 AECI = 100.0 (High Structural Alignment)"),
+        React.createElement(Text, { style: styles.varItem }, "• ", React.createElement(Text, { style: styles.varName }, "Consistency Factor:"), " CF = 0.85 + 0.15*(100.0/100) = 1.000 (Tanpa Atenuasi)"),
+        React.createElement(Text, { style: styles.varItem }, "• ", React.createElement(Text, { style: styles.varName }, "Final AT-RQS Score:"), " 83.04 \u00D7 1.000 = 83.04 \u2192 ", React.createElement(Text, { style: styles.varName }, "83.0 / 100 (Skala 10: 8.30 / 10)")),
+        React.createElement(Text, { style: styles.varItem }, "• ", React.createElement(Text, { style: styles.varName }, "Kategori Mutu Resmi:"), " STRONG RESEARCH QUALITY (Kualitas Riset Kuat)")
+      ),
+      React.createElement(Text, { style: styles.h1 }, "BAB VIII: MITIGASI BIAS & TATA KELOLA KEPERCAYAAN (AAC™)"),
+      React.createElement(
+        Text,
+        { style: styles.p },
+        "Untuk menjamin tidak terjadi bias AI menilai kualitas ekstraksinya sendiri (self-assessment bias), kelengkapan skema data (D_completeness) dan konsistensi lintas lapisan (E_consistency) diuji secara deterministik oleh Schema Validator terpisah."
+      )
+    ),
+
+    // =========================================================================
+    // PAGE 7: BAB IX, X, XI, XII & PENGESAHAN
+    // =========================================================================
+    React.createElement(
+      Page,
+      { size: "A4", style: styles.page },
+      React.createElement(
+        View,
+        { style: styles.header },
+        React.createElement(Text, null, "APASIFIC ACADEMIC • SPEC-AT-RQS-2026-V1.0"),
+        React.createElement(Text, null, "BAB IX, X, XI & XII: HKI, VALIDASI & PENGESAHAN")
+      ),
+      React.createElement(
+        View,
+        { style: styles.footer },
+        React.createElement(Text, null, "Official Specification Document • AT-RQS™ v1.0"),
+        React.createElement(Text, null, "Halaman 7")
+      ),
+      React.createElement(Text, { style: styles.h1 }, "BAB IX & X: INTEGRITAS KRIPTOGRAFIS & HKI / PATEN"),
+      React.createElement(
+        Text,
+        { style: styles.p },
+        "1. Cryptographic Provenance Ledger: Setiap hasil penilaian diserialisasi ke Canonical JSON (RFC 8785), dihitung nilai ringkasan SHA-256 Digest, dan disimpan bersama timestamp permanen menghasilkan assessment_id unik (misal: APS-AT-RQS-60047abe-v1.0).\n" +
+        "2. Hak Cipta (Copyright): Spesifikasi Metodologi AT-RQS™ v1.0 dan Source Code Engine Komputasi Tri-Source Scoring terdaftar pada DJKI Kemenkumham RI.\n" +
+        "3. Merek Dagang (Trademark): Tanda dagang pada Kelas 41 & 42: AT-RQS™, AECI™, AAC™, ARTI™, IAEEA™, APASIFIC®.\n" +
+        "4. Permohonan Paten Invensi: Dokumen spesifikasi teknis dan klaim metode komputasi dipersiapkan untuk pendaftaran paten invensi di DJKI RI dan PCT/WIPO."
+      ),
+      React.createElement(Text, { style: styles.h1 }, "BAB XI: PROTOKOL VALIDASI EMPIRIS & KALIBRASI DATA-DRIVEN"),
       React.createElement(
         View,
         { style: styles.table },
@@ -786,9 +1029,9 @@ const ATRQSSpecDocument = () => {
       ),
       React.createElement(
         View,
-        { style: { marginTop: 10, textAlign: 'center', alignItems: 'center' } },
+        { style: { marginTop: 8, textAlign: 'center', alignItems: 'center' } },
         React.createElement(Text, { style: { fontSize: 8.5, fontFamily: 'Helvetica-Bold', color: '#0a1128' } }, "DITETAPKAN & DIBERLAKUKAN SECARA RESMI"),
-        React.createElement(Text, { style: { fontSize: 8, color: '#64748b', marginTop: 2 } }, "Berdasarkan Keputusan Sidang Dewan Redaksi ASIA Academic Nomor 01/SK-MTH/ASIA/2026")
+        React.createElement(Text, { style: { fontSize: 7.8, color: '#64748b', marginTop: 2 } }, "Berdasarkan Keputusan Sidang Dewan Redaksi ASIA Academic Nomor 01/SK-MTH/ASIA/2026")
       )
     )
   );
@@ -798,7 +1041,7 @@ async function generatePdf() {
   const outputPath1 = path.join(__dirname, '../public/docs/AT-RQS-Methodology-Specification-v1.0.pdf');
   const outputPath2 = path.join(__dirname, '../public/AT-RQS-Methodology-Specification-v1.0.pdf');
 
-  console.log('Generating Enhanced AT-RQS Methodology Specification PDF v1.0...');
+  console.log('Generating Formal Mathematical Specification PDF v1.0...');
   
   await ReactPDF.renderToFile(
     React.createElement(ATRQSSpecDocument),
