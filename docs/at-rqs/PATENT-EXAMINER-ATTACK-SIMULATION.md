@@ -39,6 +39,10 @@ Simulasi ini membedah 5 skenario serangan fatal yang paling mungkin diajukan ole
 3. **Efek Teknis Baru (*Technical Effect*):**  
    Interaksi antara modul penerima dokumen, tiga modul ekstraksi independen, engine normalisasi deterministik, validator skema independen, dan modul serialisasi kanonikal RFC 8785 menghasilkan **rekaman data asesmen yang dapat diverifikasi integritas kriptografisnya (*tamper-evident verifiable data object*)**, suatu efek teknis yang mustahil dilakukan oleh kegiatan mental manusia.
 
+### 🔬 BUKTI TEKNIS YANG DITUNJUKKAN (SHOWN EVIDENCE):
+* **Bukti 1 (Hardware-Interacting Pipeline):** Interaksi modul penerima naskah (102), prosesor komputasi CPU/NPU (106), memori buffer (104), dan media penyimpan non-transitori permanen (108) pada **FIG. 1** dan **FIG. 9**.
+* **Bukti 2 (Kriptografi Terverifikasi):** Pembangkitan representasi Canonical JSON (RFC 8785) dan 256-bit SHA-256 Digest bertanda waktu (`assessment_id = "APS-AT-RQS-48a3f81e...-v1.0"`) pada **FIG. 8 (802, 804, 806)** yang secara otomatis mendeteksi modifikasi retrospektif tidak sah (**FIG. 8 (808)**) — suatu transformasi teknis data permanen.
+
 ---
 
 ## 3. SKENARIO SERANGAN 2: MOSAICING D1 (WO'780) + D2 (US'973)
@@ -59,6 +63,10 @@ Simulasi ini membedah 5 skenario serangan fatal yang paling mungkin diajukan ole
    $$\text{AECI} = 100 \times \left(\frac{N_{\text{detected}}}{5}\right) \quad \longrightarrow \quad \text{CF} = 0.85 + 0.15 \times \left(\frac{\text{AECI}}{100}\right) \quad \longrightarrow \quad \text{AT-RQS} = \text{BWS} \times \text{CF}$$
    Mekanisme ini secara teknis mengoreksi naskah yang kehilangan pilar struktural tanpa menjatuhkan penalti ganda linier. Interaksi fungsional non-linier ini tidak diajarkan oleh D1 maupun D2.
 
+### 🔬 BUKTI EMPIRIS & MATEMATIS YANG DITUNJUKKAN (SHOWN EVIDENCE):
+* **Bukti 1 (Data Uji Komparatif Ablasi N=24):** Pada naskah tanpa bukti empiris ($N_{\text{detected}} = 0$), Model B (D1+D2) meloloskan skor palsu tinggi (*False High Score* sebesar $29.2\%$, skor $82.4$), sedangkan sistem AT-RQS meredamnya secara deterministik via $\text{CF} = 0.850$ sehingga *False High Score Rate* turun mutlak menjadi **$0.0\%$** (skor teratenuasi ke $70.04$; MAE membaik dari $10.2$ ke $3.8$ poin; Tabel Bagian IV.2).
+* **Bukti 2 (Formulasi Terikat Non-Linier):** Formula $\text{CF} = 0.85 + 0.15 \times (\text{AECI}/100) \in [0.85, 1.00]$ pada **FIG. 5 (506)** yang membatasi penalti redaman maksimal 15% secara terkendali.
+
 ---
 
 ## 4. SKENARIO SERANGAN 3: MOSAICING D1 (WO'780) + D3 (US'311) + D6 (US'810)
@@ -74,6 +82,10 @@ Simulasi ini membedah 5 skenario serangan fatal yang paling mungkin diajukan ole
    $\text{AAC}$ **tidak pernah dimasukkan ke dalam persamaan $\text{AT-RQS}$**, sehingga mencegah cacat sirkularitas di mana ekstraksi AI yang salah namun berkeyakinan tinggi menggelembungkan skor mutu naskah. D6 mengajarkan hal yang sebaliknya.
 2. **Isolasi Validator Skema Deterministik (Anti-Self-Assessment Bias):**  
    D3 mengandalkan model NLP internal untuk memprediksi replikabilitas. AT-RQS™ menerapkan **modul validator skema independen berbasis aturan statis** yang menguji kelengkapan skema ($D$) dan divergensi ekstraksi lintas-lapisan ($E$) di luar model AI, menghasilkan jaminan auditabilitas yang tidak diungkapkan oleh D1, D3, maupun D6.
+
+### 🔬 BUKTI TOPOLOGI & ELIMINASI BIAS YANG DITUNJUKKAN (SHOWN EVIDENCE):
+* **Bukti 1 (Data Eliminasi Circular Bias N=24):** Pada kasus halusinasi AI berkeyakinan tinggi ($95\%$), D6 mendongkrak skor akhir secara keliru (*Circularity Bias Rate* sebesar $41.7\%$), sedangkan pada AT-RQS, *Circularity Bias Rate* tereliminasi menjadi mutlak **$0.0\%$** karena $\text{AAC}$ terisolasi di luar formula $\text{AT-RQS}$ (**FIG. 6 (604)**).
+* **Bukti 2 (Schema Validator Non-AI):** Parameter $D_{\text{completeness}}$ (6.5a) dan $E_{\text{consistency}}$ (6.5b) dievaluasi oleh aturan kode statis pada **FIG. 7 (702, 704)** tanpa melibatkan model AI, menjamin *zero self-assessment bias*.
 
 ---
 

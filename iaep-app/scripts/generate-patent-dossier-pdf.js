@@ -1090,7 +1090,7 @@ const PatentDossierPDF = () => (
     ),
 
     // =========================================================================
-    // PAGE 12: BAGIAN V - SIMULASI SERANGAN PEMERIKSA & SANGGAHAN
+    // PAGE 12: BAGIAN V - SIMULASI SERANGAN PEMERIKSA & SANGGAHAN BERBUKTI
     // =========================================================================
     React.createElement(
       Page,
@@ -1099,7 +1099,7 @@ const PatentDossierPDF = () => (
         View,
         { style: styles.header },
         React.createElement(Text, null, "DOSIR PATEN AT-RQS™ v1.0 • ASIA INTELLECTUAL PROPERTY"),
-        React.createElement(Text, null, "BAGIAN V: SIMULASI SERANGAN PEMERIKSA")
+        React.createElement(Text, null, "BAGIAN V: SIMULASI SERANGAN PEMERIKSA & BUKTI SANGGAHAN")
       ),
       React.createElement(
         View,
@@ -1108,33 +1108,42 @@ const PatentDossierPDF = () => (
         React.createElement(Text, null, "Halaman 12")
       ),
 
-      React.createElement(Text, { style: styles.sectionTitle }, "BAGIAN V: SIMULASI SERANGAN PEMERIKSA PATEN & SANGGAHAN"),
+      React.createElement(Text, { style: styles.sectionTitle }, "BAGIAN V: SIMULASI SERANGAN PEMERIKSA PATEN & SANGGAHAN BERBUKTI"),
       
+      // SERANGAN 1
       React.createElement(
         View,
         { style: styles.warningBox },
-        React.createElement(Text, { style: styles.bold }, "SERANGAN 1 (Pasal 4 UU Paten — Metode Matematika):"),
-        React.createElement(Text, null, "Tuduhan: 'Klaim 1–3 sekadar metode matematika atau aturan mental evaluasi naskah.'"),
-        React.createElement(Text, { style: [styles.bold, { color: '#16a34a', marginTop: 3 }] }, "Sanggahan Applicant:"),
-        React.createElement(Text, null, "Invensi adalah arsitektur pemrosesan data bukti heterogen (CII Architecture) yang memecahkan masalah distorsi skala dan bias halusinasi model AI, menghasilkan efek teknis nyata berupa rekaman data asesmen yang dapat diverifikasi integritas kriptografisnya (tamper-evident verifiable data object) sesuai Penjelasan Pasal 4 UU No. 65 Tahun 2024.")
+        React.createElement(Text, { style: styles.bold }, "SERANGAN 1 (Pasal 4 UU Paten — Metode Matematika / Aturan Mental):"),
+        React.createElement(Text, null, "Tuduhan: 'Klaim 1–3 sekadar metode matematika atau aturan mental evaluasi naskah tanpa efek teknis.'"),
+        React.createElement(Text, { style: [styles.bold, { color: '#0369a1', marginTop: 2.5 }] }, "Sanggahan Hukum-Teknis:"),
+        React.createElement(Text, null, "Invensi bukan penilaian mental manusia, melainkan arsitektur pemrosesan aliran data heterogen (CII) yang mengonversi naskah digital menjadi rekaman data terverifikasi permanen (tamper-evident verifiable data object) sesuai Penjelasan Pasal 4 UU No. 65 Tahun 2024."),
+        React.createElement(Text, { style: [styles.bold, { color: '#16a34a', marginTop: 2.5 }] }, "BUKTI TEKNIS YANG DITUNJUKKAN (SHOWN EVIDENCE):"),
+        React.createElement(Text, null, "• Bukti 1 (Hardware-Interacting Pipeline): Blok fisik modul penerima (102), prosesor CPU/NPU (106), memori buffer (104), dan media penyimpan non-transitori (108) pada FIG. 1 dan FIG. 9.\n• Bukti 2 (Kriptografi Terverifikasi): Pembangkitan representasi Canonical JSON (RFC 8785) dan 256-bit SHA-256 Digest bertanda waktu (FIG. 8 (802, 804, 806)) yang secara otomatis mendeteksi modifikasi retrospektif tidak sah (FIG. 8 (808)) — efek teknis yang mustahil dilakukan mental manusia.")
       ),
 
+      // SERANGAN 2
       React.createElement(
         View,
         { style: styles.warningBox },
-        React.createElement(Text, { style: styles.bold }, "SERANGAN 2 (Mosaicing D1 WO'780 + D2 US'973):"),
-        React.createElement(Text, null, "Tuduhan: 'Skoring riset D1 digabung pembobotan AI D2 adalah kombinasi yang jelas (obvious).'"),
-        React.createElement(Text, { style: [styles.bold, { color: '#16a34a', marginTop: 3 }] }, "Sanggahan Applicant:"),
-        React.createElement(Text, null, "Penggabungan D1+D2 hanya menghasilkan penjumlahan linier sederhana. Invensi AT-RQS menghasilkan efek teknis non-linier tak terduga melalui Bounded Attenuation Engine: CF = 0.85 + 0.15 × (AECI/100) yang mengoreksi kehilangan bukti struktural tanpa penalti ganda linier.")
+        React.createElement(Text, { style: styles.bold }, "SERANGAN 2 (Mosaicing D1 WO'780 + D2 US'973 — AI & Linear Scoring):"),
+        React.createElement(Text, null, "Tuduhan: 'Penggabungan skoring D1 dan AI pembobotan multisinjal D2 adalah kombinasi yang jelas (obvious).'"),
+        React.createElement(Text, { style: [styles.bold, { color: '#0369a1', marginTop: 2.5 }] }, "Sanggahan Hukum-Teknis:"),
+        React.createElement(Text, null, "D1 dan D2 hanya mengajarkan penjumlahan linier sederhana. Invensi AT-RQS menghasilkan efek teknis non-linier tak terduga via Bounded Structural Feedforward Attenuation yang mengoreksi kehilangan bukti struktural tanpa penalti ganda linier."),
+        React.createElement(Text, { style: [styles.bold, { color: '#16a34a', marginTop: 2.5 }] }, "BUKTI EMPIRIS & MATEMATIS YANG DITUNJUKKAN (SHOWN EVIDENCE):"),
+        React.createElement(Text, null, "• Bukti 1 (Data Uji Komparatif N=24): Pada naskah tanpa bukti empiris (N_detected = 0), Model B (D1+D2) meloloskan skor palsu tinggi (False High Score 29.2%, skor 82.4), sedangkan AT-RQS Bounded Attenuation meredamnya deterministik via CF = 0.850 sehingga False High Score turun mutlak ke 0.0% (skor teratenuasi ke 70.04; MAE membaik dari 10.2 ke 3.8 poin; Tabel Bagian IV.2).\n• Bukti 2 (Formulasi Terikat Non-Linier): Formula CF = 0.85 + 0.15 × (AECI/100) ∈ [0.85, 1.00] pada FIG. 5 (506) yang membatasi penalti maksimal 15% secara terkendali.")
       ),
 
+      // SERANGAN 3
       React.createElement(
         View,
         { style: styles.warningBox },
-        React.createElement(Text, { style: styles.bold }, "SERANGAN 3 (Mosaicing D1 + D3 US'311 + D6 US'810 — Triple Check):"),
+        React.createElement(Text, { style: styles.bold }, "SERANGAN 3 (Mosaicing D1 + D3 US'311 + D6 US'810 — Triple Check & Replicability):"),
         React.createElement(Text, null, "Tuduhan: 'Ekstraksi statistik D3 dan triple-check D6 membuat Tri-Source & AAC menjadi obvious.'"),
-        React.createElement(Text, { style: [styles.bold, { color: '#16a34a', marginTop: 3 }] }, "Sanggahan Applicant:"),
-        React.createElement(Text, null, "D6 mengajarkan skor keyakinan langsung memodifikasi hasil akhir. Invensi AT-RQS secara topologis mengisolasi AAC dari AT-RQS secara non-sirkular dan mengevaluasi kelengkapan data (D) serta konsistensi silang (E) via Schema Validator terpisah untuk mencegah AI self-assessment bias.")
+        React.createElement(Text, { style: [styles.bold, { color: '#0369a1', marginTop: 2.5 }] }, "Sanggahan Hukum-Teknis:"),
+        React.createElement(Text, null, "D6 mengajarkan skor keyakinan langsung memodifikasi hasil akhir (memicu bias). Invensi AT-RQS secara topologis mengisolasi AAC dari AT-RQS secara non-sirkular dan mengevaluasi integritas via Validator Skema aturan kode independen."),
+        React.createElement(Text, { style: [styles.bold, { color: '#16a34a', marginTop: 2.5 }] }, "BUKTI TOPOLOGI & ELIMINASI BIAS YANG DITUNJUKKAN (SHOWN EVIDENCE):"),
+        React.createElement(Text, null, "• Bukti 1 (Data Eliminasi Circular Bias N=24): Pada halusinasi AI berkeyakinan tinggi (95%), D6 mendongkrak skor akhir secara keliru (Circularity Bias Rate 41.7%), sedangkan pada AT-RQS, Circularity Bias Rate tereliminasi menjadi mutlak 0.0% karena AAC terisolasi di luar formula AT-RQS (FIG. 6 (604)).\n• Bukti 2 (Schema Validator Non-AI): Parameter D_completeness (6.5a) dan E_consistency (6.5b) dievaluasi oleh aturan kode statis pada FIG. 7 (702, 704) tanpa model AI, menjamin zero self-assessment bias.")
       )
     ),
 
