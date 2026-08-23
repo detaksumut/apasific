@@ -135,11 +135,13 @@ const IndexerCard: React.FC<IndexerCardProps> = ({ logo, alt, title, status, sta
       logo: "/logo-scopus.jpg",
       alt: "Scopus",
       title: "Scopus",
-      status: "Roadmap 2028",
-      statusColor: "bg-gray-700 text-gray-300",
-      description: "Scopus indexing is a development target after editorial requirements and an adequate publication record are fulfilled.",
-      linkText: "View Roadmap"
-    },    {
+      status: "Verified Author Profile",
+      statusColor: "bg-orange-900/60 text-orange-300 border border-orange-500/30",
+      description: "Official Scopus Author Profile (ID: 59675598500) integrated via ORCID, with 7 Scopus publications and h-index 2.",
+      linkText: "View Scopus Profile",
+      linkHref: "https://www.scopus.com/pages/authors/59675598500"
+    },
+    {
       logo: "/logo-WoS.png",
       alt: "Web of Science",
       title: "Web of Science",
