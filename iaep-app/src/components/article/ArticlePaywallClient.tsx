@@ -370,7 +370,7 @@ export default function ArticlePaywallClient({ initialArticle, id }: ArticlePayw
 
   const finalHIndex = realHIndex || hIndex;
   const finalI10Index = realI10Index || i10Index;
-  const finalATRQSIndex = 84; // APASIFIC Proprietary Research Quality Intelligence Score
+  const finalATRQSIndex = "8.4"; // APASIFIC Proprietary Research Quality Intelligence Score (10-scale)
   const normalizedTrend: { label: string; count: number }[] =
     realTrend.length > 0
       ? realTrend
@@ -704,7 +704,7 @@ export default function ArticlePaywallClient({ initialArticle, id }: ArticlePayw
                   <div className="absolute top-0 right-0 w-8 h-8 bg-[#c9a84c]/10 rounded-full blur-sm pointer-events-none" />
                   <div>
                     <span className="block text-lg sm:text-2xl font-black text-[#ffd977] group-hover:scale-105 transition-transform">{finalATRQSIndex}</span>
-                    <span className="text-[10px] sm:text-[11px] font-black text-[#ffd977] uppercase tracking-tight block mt-0.5">AT-RQS™</span>
+                    <span className="text-[10px] sm:text-[11px] font-black text-[#ffd977] uppercase tracking-tight block mt-0.5">AT-RQS™ Indeks</span>
                   </div>
                   <span className="text-[8px] sm:text-[9px] text-[#c9a84c] font-bold mt-1">APASIFIC</span>
                 </div>
