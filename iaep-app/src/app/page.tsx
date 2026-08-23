@@ -113,7 +113,7 @@ export default async function Home() {
   <section class="hero" id="home" style="height: auto !important; min-height: unset !important; position: relative;">
     <!-- Full-width background image — width 100% to touch left and right edges -->
     <div class="hero-bg-image" style="height: auto; width: 100%; overflow: hidden; margin-top: -15px;">
-      <img src="/banner-apasific.png" alt="ASIA – Association of Asia Pacific Academician" id="hero-bg-img" style="width: 100%; height: auto; object-fit: contain; object-position: top center; display: block;" />
+      <img src="/banner-apasific.png" alt="ASIA – Association of Asia Pacific Academician" id="hero-bg-img" fetchpriority="high" style="width: 100%; height: auto; object-fit: contain; object-position: top center; display: block;" />
     </div>
 
     <!-- Logo overlay: di sebelah kanan teks ASSOCIATION di banner -->
@@ -139,6 +139,7 @@ export default async function Home() {
       <img src="/logobaru.png"
            alt="ASIA Logo"
            class="hero-logo-img"
+           fetchpriority="high"
            onerror="this.style.display='none'" />
     </div>
 
