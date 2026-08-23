@@ -382,7 +382,7 @@ export default function RootLayout({
     </div>
   </footer>` }} />
         <LiveChatWidget />
-        <Script src="/main.js" strategy="afterInteractive" />
+        <Script src="/main.js" strategy="lazyOnload" />
       </body>
     </html>
   );
