@@ -190,7 +190,8 @@ export default function ArticlePaywallClient({ initialArticle, id }: ArticlePayw
 
   // Zenodo Stats API Fetch
   useEffect(() => {
-    const zenodoId = article.zenodo_id || (article.doi && article.doi.includes('zenodo.') ? article.doi.split('zenodo.').slice(-1)[0].trim() : "");
+    const rawZenodo = article.zenodo_id && article.zenodo_id !== "0" && article.zenodo_id !== "null" ? article.zenodo_id : "";
+    const zenodoId = rawZenodo || (article.doi && article.doi.includes('zenodo.') ? article.doi.split('zenodo.').slice(-1)[0].replace(/[^0-9]/g, '').trim() : "");
     if (!zenodoId) return;
 
     async function fetchZenodoStats() {
