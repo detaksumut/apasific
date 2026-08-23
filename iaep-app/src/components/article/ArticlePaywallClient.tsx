@@ -127,14 +127,17 @@ export default function ArticlePaywallClient({ initialArticle, id }: ArticlePayw
   const article = initialArticle;
   const { hIndex, i10Index, trend } = getJournalImpactMetrics(article.journal);
 
+  // Clean DOI for API queries (strips https://doi.org/)
+  const cleanDoi = article.doi ? article.doi.replace(/^https?:\/\/(dx\.)?doi\.org\//i, '').trim() : '';
+
   // Scopus API Fetch
   useEffect(() => {
     async function fetchScopusCitations() {
-      if (!article.doi) return;
+      if (!cleanDoi) return;
       try {
         const apiKey = process.env.NEXT_PUBLIC_SCOPUS_API_KEY || process.env.VITE_SCOPUS_API_KEY;
         if (!apiKey) return;
-        const res = await fetch(`https://api.elsevier.com/content/search/scopus?query=DOI(${article.doi})`, {
+        const res = await fetch(`https://api.elsevier.com/content/search/scopus?query=DOI(${encodeURIComponent(cleanDoi)})`, {
           headers: { 'X-ELS-APIKey': apiKey, 'Accept': 'application/json' }
         });
         if (!res.ok) return;
@@ -144,19 +147,20 @@ export default function ArticlePaywallClient({ initialArticle, id }: ArticlePayw
           setScopusCitations(parseInt(count, 10));
         }
       } catch (err) {
-        console.error("Error fetching Scopus data:", err);
+        // Silently catch external API issues
       }
     }
     fetchScopusCitations();
-  }, [article.doi]);
+  }, [cleanDoi]);
 
   // Crossref/WoS API Fetch
   useEffect(() => {
     async function fetchCrossrefCitations() {
-      if (!article.doi) return;
+      // DataCite/Zenodo DOIs (10.5281) are not indexed in Crossref works API
+      if (!cleanDoi || cleanDoi.startsWith('10.5281/')) return;
       try {
         const email = 'admin@apasific.com'; 
-        const res = await fetch(`https://api.crossref.org/works/${article.doi}?mailto=${email}`);
+        const res = await fetch(`https://api.crossref.org/works/${encodeURIComponent(cleanDoi)}?mailto=${email}`);
         if (!res.ok) return;
         const data = await res.json();
         const count = data?.message?.['is-referenced-by-count'];
@@ -164,29 +168,29 @@ export default function ArticlePaywallClient({ initialArticle, id }: ArticlePayw
           setCrossrefCitations(count);
         }
       } catch (err) {
-        console.error("Error fetching Crossref data:", err);
+        // Silently catch external API issues
       }
     }
     fetchCrossrefCitations();
-  }, [article.doi]);
+  }, [cleanDoi]);
 
   // OpenCitations API Fetch
   useEffect(() => {
     async function fetchOpenCitations() {
-      if (!article.doi) return;
+      if (!cleanDoi) return;
       try {
-        const res = await fetch(`https://opencitations.net/index/coci/api/v1/citation-count/${article.doi}`);
+        const res = await fetch(`https://opencitations.net/index/coci/api/v1/citation-count/${encodeURIComponent(cleanDoi)}`);
         if (!res.ok) return;
         const data = await res.json();
         if (data && data[0] && data[0].count !== undefined) {
           setOpenCitations(parseInt(data[0].count, 10));
         }
       } catch (err) {
-        console.error("Error fetching OpenCitations data:", err);
+        // Silently catch external API issues
       }
     }
     fetchOpenCitations();
-  }, [article.doi]);
+  }, [cleanDoi]);
 
   // Zenodo Stats API Fetch
   useEffect(() => {
