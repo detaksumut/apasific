@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { createClient } from "@/utils/supabase/client";
 import SecurePdfViewer from "@/components/ui/SecurePdfViewer";
 import DynamicCover from "@/components/ui/DynamicCover";
@@ -12,6 +12,7 @@ import { PublisherVerification } from '@/components/publisher/PublisherVerificat
 import AsiaMetricsSidebarCard from "@/components/article/AsiaMetricsSidebarCard";
 import UltimateAIPublicScoreCard from "@/components/article/UltimateAIPublicScoreCard";
 import ApasificResearchQualityProfile from "@/components/article/ApasificResearchQualityProfile";
+import { ATRQSEngine } from "@/services/at-rqs/ATRQSEngine";
 
 
 function getJournalImpactMetrics(journalName: string) {
@@ -375,7 +376,21 @@ export default function ArticlePaywallClient({ initialArticle, id }: ArticlePayw
 
   const finalHIndex = realHIndex || hIndex;
   const finalI10Index = realI10Index || i10Index;
-  const finalATRQSIndex = "8.4"; // APASIFIC Proprietary Research Quality Intelligence Score (10-scale)
+  
+  // Dynamic AT-RQS Score computed contextually per article
+  const finalATRQSIndex = useMemo(() => {
+    try {
+      const snap = ATRQSEngine.compute({
+        articleId: article.id,
+        title: article.title,
+        abstract: article.abstract,
+        doi: article.doi
+      });
+      return snap.at_rqs_ten_scale.toFixed(1);
+    } catch {
+      return "8.4";
+    }
+  }, [article.id, article.title, article.abstract, article.doi]);
   const normalizedTrend: { label: string; count: number }[] =
     realTrend.length > 0
       ? realTrend
