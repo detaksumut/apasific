@@ -317,7 +317,7 @@ export default function RootLayout({
           </div>
 
           <div class="footer-links-col">
-            <h4>Tentang ASIA</h4>
+            <h3>Tentang ASIA</h3>
             <ul>
               <li><a href="/vision-mission.html">Visi &amp; Misi</a></li>
               <li><a href="#leadership">Kepemimpinan</a></li>
@@ -327,7 +327,7 @@ export default function RootLayout({
             </ul>
           </div>
           <div class="footer-links-col">
-            <h4>Program Kami</h4>
+            <h3>Program Kami</h3>
             <ul>
               <li><a href="#certification">Sertifikasi</a></li>
               <li><a href="#conferences">Konferensi</a></li>
@@ -338,7 +338,7 @@ export default function RootLayout({
             </ul>
           </div>
           <div class="footer-links-col">
-            <h4>Publikasi</h4>
+            <h3>Publikasi</h3>
             <ul>
               <li><a href="/journals">Jurnal Akademik</a></li>
               <li><a href="#proceedings">Prosiding</a></li>
