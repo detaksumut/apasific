@@ -301,10 +301,10 @@ export class ATRQSEngine {
     if (c?.findings || /hasil|temuan|findings|result|signifikan/i.test(abs)) detected++;
     if (c?.conclusion || c?.limitations || /kesimpulan|conclusion|implikasi/i.test(abs)) detected++;
 
-    const ecf = detected / 5; // e.g. 5/5 = 1.0, 4/5 = 0.8
-    const alignmentScore = 94.0; // High canonical alignment between stated goals & conclusions
+    const ecf = detected / 5; // e.g. 5/5 = 1.0, 4/5 = 0.8, 3/5 = 0.6
+    const structuralAlignmentBase = 100.0; // Pure theoretical maximum (100.0 scale)
 
-    const aeci = alignmentScore * ecf;
+    const aeci = structuralAlignmentBase * ecf;
     return { aeci: Math.round(aeci * 10) / 10, ecf, detectedElements: detected };
   }
 

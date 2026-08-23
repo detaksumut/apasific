@@ -234,30 +234,26 @@ Di mana:
 ## BAB VI: FORMULASI MATEMATIS 4 METRIK RESMI
 
 ### 6.1 🛡️ AECI™ (APASIFIC Evidence Consistency Index)
-Mengukur keselarasan vertikal struktur logika naskah dari Tujuan $\leftrightarrow$ Metode $\leftrightarrow$ Hasil $\leftrightarrow$ Kesimpulan $\leftrightarrow$ Keterbatasan:
+Mengukur keselarasan vertikal struktur logika naskah dari Tujuan ↔ Metode ↔ Hasil ↔ Kesimpulan ↔ Keterbatasan:
 
-$$\text{AECI} = \text{Structural Alignment Base (SAB)} \times \text{Evidence Coverage Factor (ECF)}$$
+$$\text{AECI} = 100.0 \times \left( \frac{N_{\text{detected}}}{5} \right)$$
 
-Di mana:
-* $\text{Structural Alignment Base (SAB)} = 100.0$ (skala ideal).
-* $\text{Evidence Coverage Factor (ECF)} = \frac{N_{\text{detected}}}{5} \in [0.0, 1.0]$, menghitung keberadaan 5 elemen struktural wajib:
-  1. Rumusan Masalah / Tujuan Riset Terdefinisi
-  2. Desain Metodologi & Populasi Terpapar
-  3. Sampel / Data Empiris Terverifikasi
-  4. Temuan Analisis & Pembahasan Relevan
-  5. Keterbatasan Riset / Bias Dinyatakan
+Di mana $N_{\text{detected}} \in \{0, 1, 2, 3, 4, 5\}$ menghitung keberadaan 5 elemen struktural wajib:
+1. Rumusan Masalah / Tujuan Riset Terdefinisi
+2. Desain Metodologi & Populasi Terpapar
+3. Sampel / Data Empiris Terverifikasi
+4. Temuan Analisis & Pembahasan Relevan
+5. Keterbatasan Riset / Bias Dinyatakan
 
-*Tabel Distribusi AECI Berskala Penuh $[0, 100]$:*
-| Elemen Terdeteksi ($N_{\text{detected}}$) | ECF | Skor AECI | Kategori Keselarasan Struktural |
+*Tabel Distribusi Proporsional Murni AECI [0, 100]:*
+| Elemen Terdeteksi ($N_{\text{detected}}$) | Rasio Bukti (ECF) | Skor AECI | Kategori Keselarasan Struktural |
 | :---: | :---: | :---: | :--- |
-| **5 / 5** | **1.00** | **100.0** (atau $94.0^{\ast}$) | *High Structural Alignment* |
-| **4 / 5** | **0.80** | **80.0** | *Substantial Alignment* |
-| **3 / 5** | **0.60** | **60.0** | *Moderate Alignment* |
-| **2 / 5** | **0.40** | **40.0** | *Weak Alignment* |
-| **1 / 5** | **0.20** | **20.0** | *Fragmented Structure* |
-| **0 / 5** | **0.00** | **0.0** | *Non-Compliant* |
-
-> $^{\ast}$*Catatan Kalibrasi Dataset Baseline:* Pada dataset kalibrasi empiris $N=24$, nilai kongruensi kanonikal naskah yang lolos peer-review berada pada rata-rata $\text{AECI}_{\text{calibrated}} = 94.0$. Namun fungsi matematis sistem tetap mendukung rentang teoretis penuh $[0, 100]$.
+| **5 / 5** | **1.00** | **100.0** | *High Structural Alignment (Lengkap & Selaras)* |
+| **4 / 5** | **0.80** | **80.0** | *Substantial Alignment (Struktur Kuat)* |
+| **3 / 5** | **0.60** | **60.0** | *Moderate Alignment (Struktur Cukup)* |
+| **2 / 5** | **0.40** | **40.0** | *Weak Alignment (Struktur Kurang Lengkap)* |
+| **1 / 5** | **0.20** | **20.0** | *Fragmented Structure (Terfragmentasi)* |
+| **0 / 5** | **0.00** | **0.0** | *Non-Compliant (Tidak Memenuhi Syarat)* |
 
 ---
 
@@ -268,11 +264,12 @@ $$\text{Consistency Factor (CF)} = 0.85 + 0.15 \times \left( \frac{\text{AECI}}{
 $$\text{AT-RQS} = \text{BWS} \times \text{CF}$$
 
 #### Sifat Matematis Consistency Factor (CF):
-* Jika $\text{AECI} = 100.0 \implies \text{CF} = 0.85 + 0.15(1.000) = \mathbf{1.000}$ (Tanpa atenuasi).
-* Jika $\text{AECI} = 94.0 \implies \text{CF} = 0.85 + 0.15(0.940) = \mathbf{0.991}$ (Atenuasi sangat minimal).
-* Jika $\text{AECI} = 80.0 \implies \text{CF} = 0.85 + 0.15(0.800) = \mathbf{0.970}$.
-* Jika $\text{AECI} = 60.0 \implies \text{CF} = 0.85 + 0.15(0.600) = \mathbf{0.940}$.
-* Jika $\text{AECI} = 0.0 \implies \text{CF} = 0.85 + 0.15(0.000) = \mathbf{0.850}$ (Atenuasi maksimal 15%).
+* Jika $\text{AECI} = 100.0 \implies \text{CF} = 0.85 + 0.15(1.000) = \mathbf{1.000}$ (Tanpa atenuasi / naskah utuh).
+* Jika $\text{AECI} = 80.0 \implies \text{CF} = 0.85 + 0.15(0.800) = \mathbf{0.970}$ (Atenuasi 3%).
+* Jika $\text{AECI} = 60.0 \implies \text{CF} = 0.85 + 0.15(0.600) = \mathbf{0.940}$ (Atenuasi 6%).
+* Jika $\text{AECI} = 40.0 \implies \text{CF} = 0.85 + 0.15(0.400) = \mathbf{0.910}$ (Atenuasi 9%).
+* Jika $\text{AECI} = 20.0 \implies \text{CF} = 0.85 + 0.15(0.200) = \mathbf{0.880}$ (Atenuasi 12%).
+* Jika $\text{AECI} = 0.0 \implies \text{CF} = 0.85 + 0.15(0.000) = \mathbf{0.850}$ (Atenuasi batas bawah 15%).
 
 #### Skala Tampilan Resmi:
 * **Skala 100:** $\text{AT-RQS} \in [0.0, 100.0]$
@@ -330,11 +327,11 @@ $$\begin{aligned}
 \end{aligned}$$
 
 ### Langkah 3: Evaluasi AECI & Consistency Factor (CF)
-* $5 / 5$ Elemen Terdeteksi $\implies \text{AECI} = 94.0$
-* $\text{CF} = 0.85 + 0.15 \times (94.0 / 100) = 0.85 + 0.141 = \mathbf{0.991}$
+* $5 / 5$ Elemen Terdeteksi $\implies \text{AECI} = 100.0$
+* $\text{CF} = 0.85 + 0.15 \times (100.0 / 100) = 0.85 + 0.15(1.000) = \mathbf{1.000}$
 
 ### Langkah 4: Kalkulasi Skor Akhir AT-RQS™
-$$\text{AT-RQS} = 83.04 \times 0.991 = \mathbf{82.29} \implies \mathbf{82.3 / 100} \quad (\text{Skala 10: } \mathbf{8.23 / 10})$$
+$$\text{AT-RQS} = 83.04 \times 1.000 = \mathbf{83.04} \implies \mathbf{83.0 / 100} \quad (\text{Skala 10: } \mathbf{8.30 / 10})$$
 **Kategori Mutu:** **STRONG RESEARCH QUALITY**
 
 ---
@@ -383,13 +380,24 @@ Untuk menjaga akurasi terminologi hukum kekayaan intelektual:
 
 ---
 
-## BAB XI: PROTOKOL VALIDASI EMPIRIS & REGISTRI BENCHMARK
+## BAB XI: PROTOKOL VALIDASI EMPIRIS & KALIBRASI DATA-DRIVEN
 
+### 11.1 Hasil Uji Benchmark v1.0
 Metodologi AT-RQS™ v1.0 telah melalui pengujian kalibrasi berbasis dataset tolak ukur resmi:
 * **Registri Laporan Validasi:** `VAL-AT-RQS-2026-B01`
 * **Ukuran Dataset Kalibrasi:** $N = 24$ artikel ilmiah lintas disiplin (Ekonomi & Manajemen, Hukum & Kebijakan Publik, Pendidikan, Sains Terapan).
 * **Koefisien Kesepakatan Inter-Rater (Inter-Rater Agreement):** Nilai Cohen's Kappa $\kappa = 0.88$ dan Krippendorff's Alpha $\alpha = 0.89$ menunjukkan konkordansi sangat tinggi antara skor AT-RQS™ dengan evaluasi dewan editor manusia (*gold-standard review*).
 * **Mean Absolute Error (MAE):** Disparitas deviasi antar-lapisan $\le 4.2$ poin pada skala 100.
+
+### 11.2 Protokol Kalibrasi Data-Driven (Calibration Derivation Protocol)
+Untuk menjaga prinsip integritas data dan menghindari pemilihan konstanta sembarangan (*arbitrary parameter selection*), setiap penetapan konstanta empiris wajib mengikuti siklus protokol kalibrasi ilmiah:
+
+$$\text{Multi-Center Benchmark} \longrightarrow \text{Human Expert Gold-Standard (HSAS)} \longrightarrow \text{Distribution Metrics (Mean, SD, 95\% CI)} \longrightarrow \text{Data-Driven Constant}$$
+
+1. **Penetapan Sasaran Ukur:** Menentukan indikator struktural yang hendak dikalibrasi (misal: *Human Structural Alignment Score - HSAS*).
+2. **Evaluasi Gold-Standard Independen:** Penilaian naskah oleh minimal 3 penelaah sejawat manusia independen berbasis rubrik baku.
+3. **Analisis Statistik Derivasi:** Menghitung nilai $\text{Mean}$, $\text{Median}$, $\text{SD}$, dan selang kepercayaan $\text{95\% CI}$.
+4. **Pemberlakuan:** Nilai konstanta kalibrasi hanya dapat diadopsi ke dalam algoritma jika telah lolos uji signifikansi empiris dan terdokumentasi dalam *Validation Benchmark Report*. Sebelum adanya laporan kalibrasi empiris bertaraf multi-senter, formula AT-RQS™ v1.0 beroperasi murni secara deterministik berbasis skala teoretis penuh $[0, 100]$.
 
 ---
 

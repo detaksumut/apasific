@@ -566,7 +566,7 @@ const ATRQSSpecDocument = () => {
         View,
         { style: styles.formulaBox },
         React.createElement(Text, { style: styles.formulaText }, "1. AECI™ (Evidence Consistency Index in [0, 100]):"),
-        React.createElement(Text, { style: styles.formulaDesc }, "AECI = Structural_Alignment_Base (100.0) * (Elemen_Inti_Terdeteksi / 5)\nDistribusi: 5/5 -> 100.0 (Kalibrasi baseline: 94.0), 4/5 -> 80.0, 3/5 -> 60.0, 2/5 -> 40.0, 1/5 -> 20.0, 0/5 -> 0.0."),
+        React.createElement(Text, { style: styles.formulaDesc }, "AECI = 100.0 * (Elemen_Inti_Terdeteksi / 5)\nDistribusi Proporsional Murni: 5/5 -> 100.0, 4/5 -> 80.0, 3/5 -> 60.0, 2/5 -> 40.0, 1/5 -> 20.0, 0/5 -> 0.0."),
         React.createElement(Text, { style: styles.formulaText, marginTop: 3 }, "2. AT-RQS™ (Tri-Source Research Quality Score in [0, 100]):"),
         React.createElement(Text, { style: styles.formulaDesc }, "Consistency_Factor (CF) = 0.85 + 0.15 * (AECI / 100)    [Rentang Terkendali 0.85 - 1.00]\nAT-RQS = BWS * CF    |    AT-RQS_10 = AT-RQS / 10"),
         React.createElement(Text, { style: styles.formulaText, marginTop: 3 }, "3. ARTI™ (Research Triangulation Index in [0, 100]):"),
@@ -686,7 +686,7 @@ const ATRQSSpecDocument = () => {
         View,
         { style: styles.formulaBox },
         React.createElement(Text, { style: styles.formulaText }, "Hasil Akhir Evaluasi:"),
-        React.createElement(Text, { style: styles.formulaDesc }, "• Evaluasi Bukti: 5/5 Elemen Terdeteksi -> AECI = 94.0 (High Structural Alignment)\n• Consistency Factor: CF = 0.85 + 0.15*(94.0/100) = 0.991\n• Final AT-RQS Score: 83.04 * 0.991 = 82.29 -> 82.3 / 100 (Skala 10: 8.23 / 10)\n• Kategori Mutu Resmi: STRONG RESEARCH QUALITY (Kualitas Riset Kuat)")
+        React.createElement(Text, { style: styles.formulaDesc }, "• Evaluasi Bukti: 5/5 Elemen Terdeteksi -> AECI = 100.0 (High Structural Alignment)\n• Consistency Factor: CF = 0.85 + 0.15*(100.0/100) = 1.000 (Tanpa Atenuasi)\n• Final AT-RQS Score: 83.04 * 1.000 = 83.04 -> 83.0 / 100 (Skala 10: 8.30 / 10)\n• Kategori Mutu Resmi: STRONG RESEARCH QUALITY (Kualitas Riset Kuat)")
       ),
       React.createElement(Text, { style: styles.h1 }, "BAB VIII & IX: MITIGASI BIAS & ARSITEKTUR IMMUTABLE SNAPSHOT"),
       React.createElement(Text, { style: styles.h2 }, "8.1 Mitigasi Self-Assessment Bias pada AAC™"),
