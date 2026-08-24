@@ -87,50 +87,135 @@ Invensi ini diilustrasikan melalui 9 lembar gambar teknik fungsional:
 
 ---
 
-## 6. URAIAN LENGKAP INVENSI
+## 6. URAIAN LENGKAP INVENSI DAN FORMULASI DETERMINISTIK
 
-### 6.1 Arsitektur Perangkat Keras dan Lingkungan Komputasi
-Merujuk pada **FIG. 1**, sistem komputasi mencakup setidaknya satu unit pemroses pusat (*Central Processing Unit / CPU* atau *Neural Processing Unit / NPU*), memori kerja berkecepatan tinggi (*RAM*), media penyimpan data non-transitori permanen (*Solid-State Drive / Database Server*), antarmuka jaringan (*Network Interface Controller*), serta sejumlah modul perangkat lunak terkonfigurasi.
+### 6.1 Pipeline Normalisasi Skala Deterministik
+Sistem menerima masukan analitik yang berasal dari tiga kanal penilaian independen, yaitu SCORE, SCREEN, dan CLUE. Karena ketiga kanal tersebut menggunakan rentang nilai awal yang berbeda, masing-masing nilai terlebih dahulu ditransformasikan secara deterministik ke dalam domain komputasi terpadu $[0, 100]$.
 
-### 6.2 Modul Ekstraksi Tiga Kanal Independen (Tri-Source)
-Merujuk pada **FIG. 2**, dokumen penelitian digital diterima oleh modul penerima dan diproses secara simultan oleh tiga modul analitik independen:
-1. **Modul Ekstraksi Pertama (SCORE):** Mengekstraksi 8 parameter rubrik struktural ($S_1 \dots S_8$) dalam skala diskret mentah $[0, 10]$ (*topic relevance, article structure, abstract, research gap, methodology, data/statistics, discussion, references*).
-2. **Modul Ekstraksi Kedua (SCREEN):** Mengekstraksi 3 parameter penapisan risiko dan kebaruan ($R_1 \dots R_3$) dalam skala ordinal mentah $[1, 5]$ (*novelty rating, methodology risk rating, clarity rating*).
-3. **Modul Ekstraksi Ketiga (CLUE):** Mengekstraksi bukti faktual substantif kuantitatif ($R^2$, nilai-$p$, uji statistik $t/F$, ukuran sampel $n$, teknik sampling, batasan penelitian eksplisit, implikasi kebijakan, dan agenda riset lanjutan).
+#### 6.1.1 Normalisasi SCORE
+Nilai SCORE memiliki rentang masukan dari 0 sampai 10. Nilai tersebut dinormalisasi menjadi $\text{SCORE}_{\text{norm}}$ dengan persamaan:
+$$\text{SCORE}_{\text{norm}} = \left( \frac{S}{10} \right) \times 100$$
+dengan:
+* $S$ = nilai SCORE asli ($0 \le S \le 10$);
+* $S_{\text{norm}}$ = nilai SCORE setelah normalisasi ($0 \le S_{\text{norm}} \le 100$).
 
-### 6.3 Pipeline Normalisasi Skala Deterministik
-Merujuk pada **FIG. 3**, engine normalisasi memetakan seluruh masukan mentah heterogen ke dalam domain nilai baku $x_{\text{norm}} \in [0, 100]$:
-$$\text{SCORE}_{\text{norm}} = \left( \frac{\text{SCORE}}{10} \right) \times 100$$
-$$\text{SCREEN}_{\text{norm}} = \left( \frac{\text{SCREEN} - 1}{4} \right) \times 100$$
-$$\text{CLUE}_{\text{norm}} = \text{CESS} = \sum_{k=1}^{5} w_k \cdot c_k = 0.30(c_1) + 0.25(c_2) + 0.15(c_3) + 0.15(c_4) + 0.15(c_5)$$
+Dengan demikian, nilai SCORE sebesar 0 menghasilkan nilai normalisasi 0, sedangkan nilai SCORE sebesar 10 menghasilkan nilai normalisasi 100.
 
-### 6.4 Matriks 7 Dimensi Kualitas Baku & Base Weighted Score (BWS)
-Merujuk pada **FIG. 4**, nilai terstandardisasi diagregasikan ke dalam 7 Dimensi Kualitas Substantif Tertimbang ($D_1 \dots D_7$):
-$$\text{BWS} = \sum_{i=1}^{7} (D_i \times W_i)$$
-dengan bobot terkalibrasi tetap:
-$$W = [0.18, 0.18, 0.16, 0.12, 0.12, 0.10, 0.14], \quad \sum_{i=1}^{7} W_i = 1.00$$
+#### 6.1.2 Normalisasi SCREEN
+Nilai SCREEN memiliki rentang ordinal 1 sampai 5. Karena nilai minimum bukan nol, normalisasi dilakukan dengan menggeser titik awal sebesar 1 dan membagi dengan rentang efektif sebesar 4:
+$$\text{SCREEN}_{\text{norm}} = \left( \frac{R - 1}{4} \right) \times 100$$
+dengan:
+* $R$ = nilai SCREEN asli ($1 \le R \le 5$);
+* $R_{\text{norm}}$ = nilai SCREEN setelah normalisasi ($0 \le R_{\text{norm}} \le 100$).
 
-### 6.5 Deteksi 5 Pilar Bukti Struktural & Bounded Attenuation Engine
-Merujuk pada **FIG. 5**, sistem mendeteksi keberadaan 5 elemen struktural wajib:
-$$\text{AECI} = 100 \times \left( \frac{N_{\text{detected}}}{5} \right), \quad N_{\text{detected}} \in \{0, 1, 2, 3, 4, 5\}$$
-Nilai $\text{AECI}$ dimasukkan ke dalam fungsi redaman terikat:
-$$\text{CF} = 0.85 + 0.15 \times \left( \frac{\text{AECI}}{100} \right), \quad \text{CF} \in [0.85, 1.00]$$
-Skor kualitas substantif akhir dihasilkan melalui perkalian:
+Dengan persamaan tersebut: $R = 1 \implies R_{\text{norm}} = 0$, dan $R = 5 \implies R_{\text{norm}} = 100$. Transformasi ini mempertahankan urutan ordinal SCREEN sekaligus menyelaraskannya dengan domain komputasi $[0, 100]$.
+
+#### 6.1.3 Pembentukan CLUE / CESS
+Kanal CLUE menghasilkan pasangan nilai bobot dan nilai bukti faktual. Kontribusi setiap elemen CLUE dihitung sebagai:
+$$\text{CESS}_k = w_k \times c_k$$
+dengan:
+* $w_k$ = bobot elemen bukti ke-$k$;
+* $c_k$ = nilai atau kekuatan bukti faktual elemen ke-$k$;
+* $\text{CESS}_k$ = kontribusi elemen ke-$k$.
+
+Apabila terdapat beberapa elemen CLUE, kontribusi tersebut diakumulasikan sesuai struktur skema yang ditetapkan, sehingga menghasilkan nilai $\text{CESS}$ yang digunakan sebagai representasi kanal CLUE dalam domain komputasi terpadu:
+$$C_{\text{norm}} = \text{CESS}$$
+dengan nilai $C_{\text{norm}}$ berada pada domain komputasi yang ditetapkan oleh skema CLUE ($0 \le C_{\text{norm}} \le 100$).
+
+### 6.2 Matriks 7 Dimensi Kualitas Substantif Baku
+Setelah normalisasi, sistem membentuk Base Weighted Score ($\text{BWS}$) berdasarkan tujuh dimensi kualitas substantif:
+$$\text{BWS} = \sum_{i=1}^{7} D_i W_i$$
+dengan:
+* $D_i$ = nilai dimensi kualitas ke-$i$;
+* $W_i$ = bobot dimensi kualitas ke-$i$;
+* $i$ = indeks dimensi, dengan $i = 1, \dots, 7$.
+
+Vektor bobot yang digunakan adalah:
+$$\mathbf{W} = [0.18, 0.18, 0.16, 0.12, 0.12, 0.10, 0.14], \quad \sum_{i=1}^{7} W_i = 1.00$$
+Secara eksplisit:
+$$\text{BWS} = 0.18 D_1 + 0.18 D_2 + 0.16 D_3 + 0.12 D_4 + 0.12 D_5 + 0.10 D_6 + 0.14 D_7$$
+Dengan demikian, $\text{BWS}$ merupakan skor kualitas substantif dasar sebelum faktor redaman struktural diterapkan.
+
+### 6.3 Deteksi Lima Bukti Struktural dan AECI
+Sistem selanjutnya mendeteksi keberadaan lima elemen struktural wajib dalam materi yang dianalisis, yaitu: (1) Tujuan, (2) Metode, (3) Sampel, (4) Temuan, dan (5) Batasan. Jumlah elemen yang berhasil dideteksi dinyatakan sebagai $N_{\text{detected}} \in \{0, 1, 2, 3, 4, 5\}$.
+
+Indeks kelengkapan bukti struktural atau $\text{AECI}$ (Assessment Evidence Completeness Index) dihitung:
+$$\text{AECI} = 100 \times \left( \frac{N_{\text{detected}}}{5} \right)$$
+Rentang nilai: $0 \le \text{AECI} \le 100$. Setiap tambahan satu elemen struktural yang terdeteksi meningkatkan $\text{AECI}$ sebesar 20 poin.
+
+### 6.4 Bounded Attenuation Factor (CF)
+Nilai $\text{AECI}$ selanjutnya digunakan untuk menentukan Bounded Attenuation Factor ($\text{CF}$):
+$$\text{CF} = 0.85 + 0.15 \times \left( \frac{\text{AECI}}{100} \right)$$
+Karena $0 \le \text{AECI} \le 100$, maka $0.85 \le \text{CF} \le 1.00$. Batas bawah dan atas tersebut bersifat tertutup.
+* Pada kondisi tanpa bukti struktural ($N_{\text{detected}} = 0 \implies \text{AECI} = 0$), diperoleh $\text{CF} = 0.850$.
+* Pada kondisi seluruh lima bukti struktural terdeteksi ($N_{\text{detected}} = 5 \implies \text{AECI} = 100$), diperoleh $\text{CF} = 1.000$.
+
+Dengan demikian, faktor redaman tidak pernah turun di bawah 0.85 dan tidak pernah melebihi 1.00.
+
+### 6.5 Pembentukan AT-RQS
+Skor kualitas substantif akhir diperoleh dengan mengalikan $\text{BWS}$ dengan $\text{CF}$:
 $$\text{AT-RQS} = \text{BWS} \times \text{CF}, \quad \text{AT-RQS}_{10} = \frac{\text{AT-RQS}}{10}$$
+Karena $\text{CF} \in [0.85, 1.00]$, maka faktor tersebut berfungsi sebagai *bounded attenuation factor*, bukan sebagai pengali yang dapat meningkatkan $\text{BWS}$ di atas nilai dasarnya. Khusus pada kondisi $\text{AECI} = 0$, diperoleh $\text{AT-RQS} = 0.85 \times \text{BWS}$, yang berarti tidak adanya bukti struktural inti menghasilkan batas redaman tepat sebesar 15% terhadap $\text{BWS}$ dan tidak menghasilkan penalti linier ganda di luar faktor $\text{CF}$ tersebut.
 
-### 6.6 Pemisahan Mutu vs Keyakinan & Validator Skema Independen
-Merujuk pada **FIG. 6** dan **FIG. 7**, sistem menghitung indeks triangulasi konvergensi:
-$$\text{ARTI} = 100 - \left[ \frac{|\text{S}_{\text{norm}} - \text{R}_{\text{norm}}| + |\text{S}_{\text{norm}} - \text{C}_{\text{norm}}|}{2} \right]$$
-Indeks keyakinan asesmen dihitung pada jalur data terpisah:
+### 6.6 Triangulasi Konvergensi (ARTI)
+Setelah tiga kanal dinormalisasi ke domain komputasi terpadu, sistem menghitung tingkat konvergensinya. Selisih absolut antara dua nilai dinyatakan dengan operator $|x - y|$ yang menunjukkan jarak numerik tanpa memperhatikan arah selisih.
+$$\text{ARTI} = 100 - \left[ \frac{|S_{\text{norm}} - R_{\text{norm}}| + |S_{\text{norm}} - C_{\text{norm}}|}{2} \right]$$
+Jika ketiga kanal memiliki nilai yang semakin berdekatan, $\text{ARTI}$ semakin tinggi; jika perbedaan antar-kanal semakin besar, $\text{ARTI}$ semakin rendah. $\text{ARTI}$ mengukur konvergensi antar-sumber, bukan kualitas substantif yang telah dihitung oleh $\text{BWS}$.
+
+### 6.7 Confidence Index (AAC)
+Sistem kemudian membentuk Assessment Assurance/Confidence ($\text{AAC}$) dari tiga komponen independen:
 $$\text{AAC} = 0.50(\text{ARTI}) + 0.30(D_{\text{completeness}}) + 0.20(E_{\text{consistency}})$$
-Di mana validator skema deterministik independen mengevaluasi:
-$$D_{\text{completeness}} = \left( \frac{\sum_{j=1}^{8} \mathbb{I}(F_j \neq \emptyset)}{8} \right) \times 100$$
-$$E_{\text{consistency}} = 100 - \left( \frac{|\text{S}_{\text{norm}} - \text{R}_{\text{norm}}| + |\text{S}_{\text{norm}} - \text{C}_{\text{norm}}| + |\text{R}_{\text{norm}} - \text{C}_{\text{norm}}|}{3} \right)$$
+dengan total bobot $0.50 + 0.30 + 0.20 = 1.00$. $\text{AAC}$ merupakan indeks keyakinan terhadap kualitas proses asesmen berdasarkan konvergensi, kelengkapan data, dan konsistensi antar-kanal.
 
-### 6.7 Pembangkitan Asal-Usul Kriptografis Permanen
-Merujuk pada **FIG. 8** dan **FIG. 9**, seluruh struktur data hasil evaluasi diserialisasi ke dalam format Canonical JSON sesuai standar RFC 8785, dihitung nilai ringkasan kriptografis SHA-256 Digest, dan dibangkitkan identifier unik `assessment_id` yang terkunci bersama timestamp ISO 8601 pada basis data permanen.
+$\text{AAC}$ tidak digunakan sebagai faktor pengali terhadap $\text{AT-RQS}$. Secara topologis:
+$$\text{AAC} \not\to \text{AT-RQS}$$
+$\text{AAC}$ tidak boleh masuk kembali ke jalur perhitungan $\text{BWS}$, $\text{CF}$, atau $\text{AT-RQS}$. Pemisahan tersebut mencegah terjadinya *circular self-assessment bias*.
+
+### 6.8 Validator Kelengkapan Skema Deterministik
+$D_{\text{completeness}}$ mengukur kelengkapan delapan parameter wajib ($F_1 \dots F_8$) yang harus tersedia dan tidak kosong. Digunakan fungsi indikator biner:
+$$\mathbb{I}(F_j \neq \emptyset) = \begin{cases} 1, & \text{jika parameter } F_j \text{ tersedia/non-null} \\ 0, & \text{jika parameter } F_j \text{ kosong/null} \end{cases}, \quad j = 1, \dots, 8$$
+$$D_{\text{completeness}} = \left( \frac{\sum_{j=1}^{8} \mathbb{I}(F_j \neq \emptyset)}{8} \right) \times 100$$
+Evaluasi dilakukan oleh validator berbasis aturan kode statis independen, bukan oleh model AI.
+
+### 6.9 Validator Konsistensi Antar-Kanal
+$E_{\text{consistency}}$ mengukur konsistensi numerik tiga kanal setelah normalisasi berdasarkan rata-rata tiga perbedaan absolut berpasangan:
+$$E_{\text{consistency}} = 100 - \left[ \frac{|S_{\text{norm}} - R_{\text{norm}}| + |S_{\text{norm}} - C_{\text{norm}}| + |R_{\text{norm}} - C_{\text{norm}}|}{3} \right]$$
+Semakin kecil perbedaan antar-kanal, semakin besar nilai $E_{\text{consistency}}$.
+
+### 6.10 Hubungan Deterministik Keseluruhan
+Pipeline komputasi mutu substantif:
+$$(S, R, C) \longrightarrow (S_{\text{norm}}, R_{\text{norm}}, C_{\text{norm}}) \longrightarrow \text{BWS} \longrightarrow \text{AECI} \longrightarrow \text{CF} \longrightarrow \text{AT-RQS}$$
+Jalur keyakinan asesmen berjalan secara terpisah:
+$$(S_{\text{norm}}, R_{\text{norm}}, C_{\text{norm}}) \longrightarrow \text{ARTI} \longrightarrow \{D_{\text{completeness}}, E_{\text{consistency}}\} \longrightarrow \text{AAC}$$
+Isolasi mutlak non-sirkular: $\text{AAC} \not\to \text{AT-RQS}$.
+
+### 6.11 Asal-Usul Kriptografis Kanonikal
+Snapshot data asesmen diserialisasi menggunakan JSON Canonicalization Scheme (JCS) sesuai RFC 8785, kemudian diproses menggunakan fungsi hash SHA-256:
+$$H = \text{SHA256}(\text{CanonicalJSON}(\text{AssessmentSnapshot}))$$
+Digest $H$ (256-bit) dikaitkan dengan `assessment_id`, `timestamp` ISO 8601, dan dicatat pada ledger database permanen untuk memberikan jaminan *tamper-evident provenance*.
+
+### 6.12 Ringkasan Variabel dan Fungsi
+| Simbol | Pengertian | Fungsi Teknis |
+| :--- | :--- | :--- |
+| $S$ / $S_{\text{norm}}$ | SCORE asli / ternormalisasi | Input kanal SCORE (0–10) $\to$ Domain $[0, 100]$ |
+| $R$ / $R_{\text{norm}}$ | SCREEN asli / ternormalisasi | Input kanal SCREEN (1–5) $\to$ Domain $[0, 100]$ |
+| $C$ / $C_{\text{norm}}$ | CLUE / CESS | Representasi kanal bukti substantif $\to$ Domain $[0, 100]$ |
+| $D_i$ / $W_i$ | Dimensi / Bobot kualitas ke-$i$ | Komponen dan pembobot $\text{BWS}$ ($i = 1 \dots 7, \sum W_i = 1.00$) |
+| $\text{BWS}$ | Base Weighted Score | Skor kualitas substantif dasar |
+| $N_{\text{detected}}$ / $\text{AECI}$ | Jumlah bukti / Indeks bukti | Deteksi 5 pilar $\to$ Indeks kelengkapan struktural $[0, 100]$ |
+| $\text{CF}$ | Bounded Attenuation Factor | Faktor redaman terikat $[0.85, 1.00]$ |
+| $\text{AT-RQS}$ | Tri-Source Research Quality Score | Output mutu substantif akhir ($\text{BWS} \times \text{CF}$) |
+| $\text{ARTI}$ | Research Triangulation Index | Konvergensi deviasi absolut 3 kanal |
+| $D_{\text{completeness}}$ | Kelengkapan 8 parameter wajib | Evaluasi rasio biner skema statis non-null (6.5a) |
+| $E_{\text{consistency}}$ | Konsistensi silang 3 kanal | Evaluasi deviasi berpasangan 3 kanal (6.5b) |
+| $\text{AAC}$ | Assessment Assurance/Confidence | Indeks keyakinan asesmen terisolasi ($\text{AAC} \not\to \text{AT-RQS}$) |
+| $H$ / `assessment_id` | SHA-256 Digest / Identifier | Identitas kriptografis kanonikal RFC 8785 snapshot |
+
+### 6.13 Prinsip Deterministik
+Seluruh formula dirancang deterministik, terikat (*bounded*), terpisah secara topologis (*non-circular*), dapat diaudit (*auditable*), dapat direproduksi (*reproducible*), dan dapat diverifikasi secara kriptografis (*tamper-evident verifiable*).
 
 ---
+
 
 ## 7. KLAIM-KLAIM PATEN (20 KLAIM HIERARKIS RESMI)
 

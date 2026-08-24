@@ -456,76 +456,76 @@ const PatentDossierPDF = () => (
 
       React.createElement(Text, { style: styles.subSectionTitle }, "5. URAIAN LENGKAP INVENSI & FORMULASI DETERMINISTIK"),
       
-      React.createElement(Text, { style: styles.bold }, "A. Pipeline Normalisasi Skala Deterministik"),
+      React.createElement(Text, { style: styles.bold }, "A. Pipeline Normalisasi Skala Deterministik (5.1)"),
       React.createElement(
         Text,
         { style: styles.paragraph },
-        "Seluruh masukan analitik heterogen dipetakan secara deterministik ke dalam domain komputasi terpadu [0, 100]:"
+        "Tiga kanal analitik heterogen (SCORE 0–10, SCREEN 1–5, CLUE faktual) ditransformasikan secara deterministik ke domain terpadu [0, 100]:"
       ),
       React.createElement(
         Text,
         { style: styles.mathBox },
-        "SCORE_norm = (SCORE / 10) × 100   |   SCREEN_norm = ((SCREEN − 1) / 4) × 100   |   CLUE_norm = CESS = ∑ wk · ck"
+        "SCORE_norm = (S / 10) \u00D7 100   |   SCREEN_norm = ((R \u2212 1) / 4) \u00D7 100   |   C_norm = CESS_k = w_k \u00D7 c_k"
       ),
 
-      React.createElement(Text, { style: styles.bold }, "B. Matriks 7 Dimensi Kualitas Substantif Baku (BWS)"),
+      React.createElement(Text, { style: styles.bold }, "B. Matriks 7 Dimensi Kualitas Substantif Baku (BWS) (5.2)"),
       React.createElement(
         Text,
         { style: styles.paragraph },
-        "Base Weighted Score (BWS) dihitung melalui penjumlahan terbobot dari 7 dimensi kualitas baku dengan total bobot tepat 100%:"
+        "Base Weighted Score (BWS) dihitung sebagai penjumlahan terbobot 7 dimensi kualitas dengan total bobot tepat 100%:"
       ),
       React.createElement(
         Text,
         { style: styles.mathBox },
-        "BWS = ∑_{i=1}^{7} (D_i × W_i)   |   W = [0.18, 0.18, 0.16, 0.12, 0.12, 0.10, 0.14],  ∑ W_i = 1.00"
+        "BWS = \u2211_{i=1}^{7} (D_i \u00D7 W_i)   |   W = [0.18, 0.18, 0.16, 0.12, 0.12, 0.10, 0.14],  \u2211 W_i = 1.00"
       ),
 
-      React.createElement(Text, { style: styles.bold }, "C. Deteksi 5 Bukti Struktural (AECI) & Bounded Attenuation Engine (CF)"),
+      React.createElement(Text, { style: styles.bold }, "C. Deteksi 5 Bukti Struktural (AECI) & Bounded Attenuation (CF) (5.3–5.5)"),
       React.createElement(
         Text,
         { style: styles.paragraph },
-        "Sistem mendeteksi kehadiran 5 elemen struktural wajib (Tujuan, Metode, Sampel, Temuan, Batasan) untuk mengendalikan faktor pengali redaman terikat CF ∈ [0.85, 1.00]:"
+        "Deteksi 5 pilar wajib (Tujuan, Metode, Sampel, Temuan, Batasan) mengendalikan faktor redaman terikat CF \u2208 [0.85, 1.00]:"
       ),
       React.createElement(
         Text,
         { style: styles.mathBox },
-        "AECI = 100 × (N_detected / 5)   ──>   CF = 0.85 + 0.15 × (AECI / 100)   ──>   AT-RQS = BWS × CF"
+        "AECI = 100 \u00D7 (N_det / 5)   \u2192   CF = 0.85 + 0.15 \u00D7 (AECI / 100)   \u2192   AT-RQS = BWS \u00D7 CF"
       ),
       React.createElement(
         Text,
         { style: styles.paragraph },
-        "Saat naskah tidak memiliki bukti metodologis inti (AECI = 0.0), skor mutu teredam tepat 15% (CF = 0.850) tanpa penalti ganda linier."
+        "Saat naskah tanpa bukti metodologi inti (N_det = 0 \u2192 AECI = 0), skor mutu teredam tepat 15% (CF = 0.850 \u2192 AT-RQS = 0.85 \u00D7 BWS) tanpa penalti ganda linier."
       ),
 
-      React.createElement(Text, { style: styles.bold }, "D. Triangulasi Konvergensi (ARTI) & Isolasi Keyakinan Non-Sirkular (AAC)"),
+      React.createElement(Text, { style: styles.bold }, "D. Triangulasi Konvergensi (ARTI) & Isolasi Non-Sirkular AAC (5.6–5.7)"),
       React.createElement(
         Text,
         { style: styles.paragraph },
-        "Tingkat kesepakatan antar 3 kanal dihitung melalui ARTI, sedangkan indeks keyakinan AAC diisolasi mutlak dari skor mutu substantif:"
+        "Konvergensi 3 kanal dihitung via ARTI, sedangkan indeks keyakinan AAC diisolasi mutlak (AAC \u2280 AT-RQS):"
       ),
       React.createElement(
         Text,
         { style: styles.mathBox },
-        "ARTI = 100 − [ (|S_norm − R_norm| + |S_norm − C_norm|) / 2 ]\nAAC = 0.50(ARTI) + 0.30(D_completeness) + 0.20(E_consistency)"
+        "ARTI = 100 \u2212 [ (|S_norm \u2212 R_norm| + |S_norm \u2212 C_norm|) / 2 ]\nAAC = 0.50(ARTI) + 0.30(D_completeness) + 0.20(E_consistency)   |   [ AAC \u2280 AT-RQS ]"
       ),
 
-      React.createElement(Text, { style: styles.bold }, "E. Validator Skema Deterministik Independen (Anti-Self-Assessment Bias)"),
+      React.createElement(Text, { style: styles.bold }, "E. Validator Skema Deterministik Independen (5.8–5.9)"),
       React.createElement(
         Text,
         { style: styles.paragraph },
-        "Parameter D_completeness dan E_consistency dievaluasi secara aturan kode statis di luar model kecerdasan buatan:"
+        "D_completeness dan E_consistency dievaluasi secara aturan kode statis independen (anti AI self-assessment bias):"
       ),
       React.createElement(
         Text,
         { style: styles.mathBox },
-        "D_completeness = ( ∑_{j=1}^{8} \uD835\uDF59(F_j ≠ ∅) / 8 ) × 100   [Evaluasi 8 Parameter Wajib Skema Non-Null]\nE_consistency = 100 − [ (|S_norm − R_norm| + |S_norm − C_norm| + |R_norm − C_norm|) / 3 ]"
+        "D_comp = ( \u2211_{j=1}^{8} \uD835\uDF59(F_j \u2260 \u2205) / 8 ) \u00D7 100   |   E_cons = 100 \u2212 [ (|S\u2212R| + |S\u2212C| + |R\u2212C|) / 3 ]"
       ),
 
-      React.createElement(Text, { style: styles.bold }, "F. Asal-Usul Kriptografis Kanonikal Permanen"),
+      React.createElement(Text, { style: styles.bold }, "F. Asal-Usul Kriptografis Kanonikal Permanen (5.10–5.13)"),
       React.createElement(
         Text,
         { style: styles.paragraph },
-        "Seluruh parameter penilaian diserialisasi ke Canonical JSON (RFC 8785) dan dibangkitkan ringkasan SHA-256 Digest bertanda waktu yang mengunci snapshot asesmen secara permanen pada ledger database."
+        "Snapshot data diserialisasi sesuai RFC 8785 (Canonical JSON) dan dihitung ringkasan SHA-256 Digest 256-bit: H = SHA256(CanonicalJSON(Snapshot)), dikunci permanen bersama assessment_id dan timestamp ISO 8601."
       )
     ),
 
