@@ -661,77 +661,118 @@ const PatentDossierPDF = () => (
 
       React.createElement(Text, { style: styles.sectionTitle }, "BAGIAN II: SPESIFIKASI 9 LEMBAR GAMBAR TEKNIK (FIG. 1–9)"),
       
-      React.createElement(Text, { style: styles.subSectionTitle }, "FIG. 1 — DIAGRAM BLOK ARSITEKTUR SISTEM KOMPUTASI KESELURUHAN"),
+      // FIG. 1
       React.createElement(
-        Text,
-        { style: styles.drawingBox },
-        "               ┌────────────────────────────┐\n" +
-        "               │   102 MODUL PENERIMA       │\n" +
-        "               │   DOKUMEN PENELITIAN       │\n" +
-        "               └─────────────┬──────────────┘\n" +
-        "                             │\n" +
-        "                             ▼\n" +
-        "┌─────────────────────────────────────────────────────────┐\n" +
-        "│  100 SISTEM KOMPUTASI ASESMEN DOKUMEN PENELITIAN        │\n" +
-        "│  ┌────────────────┐  ┌────────────────┐  ┌───────────┐  │\n" +
-        "│  │ 106 PROSESOR   │  │ 104 MEMORI     │  │ 110 BUS   │  │\n" +
-        "│  │ KOMPUTASI (CPU)│◄─┼─► KERJA BUFFER │◄─┼─► SISTEM  │  │\n" +
-        "│  └────────┬───────┘  └────────────────┘  └─────┬─────┘  │\n" +
-        "│           ▼                                    ▼        │\n" +
-        "│  ┌───────────────────────────────────────────────────┐  │\n" +
-        "│  │ 200 SUB-SISTEM EKSTRAKSI TIGA KANAL (TRI-SOURCE)  │  │\n" +
-        "│  ├───────────────────────────────────────────────────┤  │\n" +
-        "│  │ 300 ENGINE NORMALISASI SKALA DETERMINISTIK        │  │\n" +
-        "│  ├───────────────────────────────────────────────────┤  │\n" +
-        "│  │ 400 ENGINE PEMBOBOTAN MATRIKS 7 DIMENSI (BWS)     │  │\n" +
-        "│  ├───────────────────────────────────────────────────┤  │\n" +
-        "│  │ 500 MODUL DETEKSI 5 BUKTI & BOUNDED CF ENGINE     │  │\n" +
-        "│  ├───────────────────────────────────────────────────┤  │\n" +
-        "│  │ 600 ENGINE TRIANGULASI & KEYAKINAN NON-SIRKULAR   │  │\n" +
-        "│  ├───────────────────────────────────────────────────┤  │\n" +
-        "│  │ 700 MODUL VALIDATOR SKEMA INDEPENDEN              │  │\n" +
-        "│  ├───────────────────────────────────────────────────┤  │\n" +
-        "│  │ 800 MODUL ASAL-USUL KRIPTOGRAFIS (RFC8785/SHA256) │  │\n" +
-        "│  └────────────────────────┬──────────────────────────┘  │\n" +
-        "│                           ▼                             │\n" +
-        "│  ┌───────────────────────────────────────────────────┐  │\n" +
-        "│  │ 108 MEDIA PENYIMPAN NON-TRANSITORI PERMANEN       │  │\n" +
-        "│  └───────────────────────────────────────────────────┘  │\n" +
-        "└─────────────────────────────────────────────────────────┘"
+        View,
+        { style: styles.card },
+        React.createElement(Text, { style: styles.bold }, "FIG. 1 — DIAGRAM BLOK ARSITEKTUR SISTEM KOMPUTASI KESELURUHAN"),
+        React.createElement(
+          View,
+          { style: [styles.card, { backgroundColor: '#f0f9ff', borderColor: '#0284c7', marginVertical: 3 }] },
+          React.createElement(Text, { style: [styles.bold, { color: '#0369a1', textAlign: 'center' }] }, "[ 102 ] MODUL PENERIMA DOKUMEN NASKAH DIGITAL"),
+          React.createElement(Text, { style: { fontSize: 6.8, textAlign: 'center', color: '#475569' } }, "Menerima file PDF/XML naskah penelitian dan metadata pendukung")
+        ),
+        React.createElement(Text, { style: { textAlign: 'center', color: '#64748b', fontSize: 7 } }, "|  (Data Input Stream)"),
+        React.createElement(Text, { style: { textAlign: 'center', color: '#64748b', fontSize: 7 } }, "v"),
+        React.createElement(
+          View,
+          { style: [styles.card, { backgroundColor: '#ffffff', borderColor: '#0f172a', padding: 5, marginVertical: 2 }] },
+          React.createElement(Text, { style: [styles.bold, { fontSize: 7.4, color: '#0f172a', marginBottom: 3 }] }, "[ 100 ] SISTEM KOMPUTASI ASESMEN DETERMINISTIK"),
+          React.createElement(
+            View,
+            { style: { display: 'flex', flexDirection: 'row', justifyContent: 'space-between', marginBottom: 4 } },
+            React.createElement(View, { style: [styles.card, { width: '31%', padding: 3, marginVertical: 0 }] }, React.createElement(Text, { style: [styles.bold, { fontSize: 6.8 }] }, "[ 106 ] PROSESOR (CPU/NPU)"), React.createElement(Text, { style: { fontSize: 6.2, color: '#475569' } }, "Eksekusi pipeline deterministik")),
+            React.createElement(View, { style: [styles.card, { width: '31%', padding: 3, marginVertical: 0 }] }, React.createElement(Text, { style: [styles.bold, { fontSize: 6.8 }] }, "[ 104 ] MEMORI BUFFER"), React.createElement(Text, { style: { fontSize: 6.2, color: '#475569' } }, "Penyimpan teks & token sementara")),
+            React.createElement(View, { style: [styles.card, { width: '31%', padding: 3, marginVertical: 0 }] }, React.createElement(Text, { style: [styles.bold, { fontSize: 6.8 }] }, "[ 110 ] BUS SISTEM / NETWORK"), React.createElement(Text, { style: { fontSize: 6.2, color: '#475569' } }, "Komunikasi data internal"))
+          ),
+          React.createElement(
+            View,
+            { style: [styles.card, { backgroundColor: '#f8fafc', padding: 4, marginVertical: 0 }] },
+            React.createElement(Text, { style: { fontSize: 6.8, color: '#0f172a' } }, "• [ 200 ] Sub-Sistem Ekstraksi Tiga Kanal Independen (SCORE, SCREEN, CLUE)"),
+            React.createElement(Text, { style: { fontSize: 6.8, color: '#0f172a' } }, "• [ 300 ] Engine Normalisasi Skala Deterministik [0, 100]"),
+            React.createElement(Text, { style: { fontSize: 6.8, color: '#0f172a' } }, "• [ 400 ] Engine Pembobotan Matriks 7 Dimensi (BWS, Total Bobot 1.00)"),
+            React.createElement(Text, { style: { fontSize: 6.8, color: '#0f172a' } }, "• [ 500 ] Modul Deteksi 5 Bukti (AECI) & Bounded Attenuation Engine (CF)"),
+            React.createElement(Text, { style: { fontSize: 6.8, color: '#0f172a' } }, "• [ 600 ] Engine Triangulasi Konvergensi (ARTI) & Keyakinan Non-Sirkular (AAC)"),
+            React.createElement(Text, { style: { fontSize: 6.8, color: '#0f172a' } }, "• [ 700 ] Modul Validator Skema Deterministik Independen (D_comp & E_cons)"),
+            React.createElement(Text, { style: { fontSize: 6.8, color: '#0f172a' } }, "• [ 800 ] Modul Asal-Usul Kriptografis Kanonikal (RFC 8785 + SHA-256 Digest)")
+          )
+        ),
+        React.createElement(Text, { style: { textAlign: 'center', color: '#64748b', fontSize: 7 } }, "|  (Snapshot Hashing & Storage)"),
+        React.createElement(Text, { style: { textAlign: 'center', color: '#64748b', fontSize: 7 } }, "v"),
+        React.createElement(
+          View,
+          { style: [styles.card, { backgroundColor: '#f0fdf4', borderColor: '#16a34a', marginVertical: 2 }] },
+          React.createElement(Text, { style: [styles.bold, { color: '#16a34a', textAlign: 'center' }] }, "[ 108 ] MEDIA PENYIMPAN NON-TRANSITORI PERMANEN (LEDGER DATABASE)"),
+          React.createElement(Text, { style: { fontSize: 6.8, textAlign: 'center', color: '#475569' } }, "Pencatatan snapshot immutable asesmen terverifikasi hash SHA-256 bertanda waktu")
+        )
       ),
 
-      React.createElement(Text, { style: styles.subSectionTitle }, "FIG. 2 — SUB-SISTEM EKSTRAKSI TIGA KANAL INDEPENDEN (TRI-SOURCE)"),
+      // FIG. 2
       React.createElement(
-        Text,
-        { style: styles.drawingBox },
-        "                    ┌──────────────────────────────┐\n" +
-        "                    │ 102 DOKUMEN NASKAH DIGITAL   │\n" +
-        "                    └──────────────┬───────────────┘\n" +
-        "                                   │\n" +
-        "         ┌─────────────────────────┼─────────────────────────┐\n" +
-        "         ▼                         ▼                         ▼\n" +
-        "  ┌──────────────┐          ┌──────────────┐          ┌──────────────┐\n" +
-        "  │ 202 LAPISAN  │          │ 204 LAPISAN  │          │ 206 LAPISAN  │\n" +
-        "  │ SCORE (0–10) │          │ SCREEN (1–5) │          │ CLUE (CESS)  │\n" +
-        "  └──────┬───────┘          └──────┬───────┘          └──────┬───────┘\n" +
-        "         ▼                         ▼                         ▼\n" +
-        "  [Data S1–S8]              [Data R1–R3]              [Data C1–C5]"
+        View,
+        { style: styles.card },
+        React.createElement(Text, { style: styles.bold }, "FIG. 2 — SUB-SISTEM EKSTRAKSI TIGA KANAL INDEPENDEN (TRI-SOURCE)"),
+        React.createElement(Text, { style: { fontSize: 6.8, color: '#475569', marginBottom: 3 } }, "Aliran pemrosesan paralel dari dokumen naskah digital [ 102 ] ke tiga kanal analitik terisolasi:"),
+        React.createElement(
+          View,
+          { style: { display: 'flex', flexDirection: 'row', justifyContent: 'space-between' } },
+          React.createElement(
+            View,
+            { style: [styles.card, { width: '31%', backgroundColor: '#f8fafc', borderColor: '#cbd5e1', marginVertical: 0 }] },
+            React.createElement(Text, { style: [styles.bold, { color: '#0369a1', fontSize: 7 }] }, "[ 202 ] KANAL SCORE"),
+            React.createElement(Text, { style: { fontSize: 6.4 } }, "Skala Diskret Mentah 0–10"),
+            React.createElement(Text, { style: { fontSize: 6.0, color: '#64748b' } }, "8 Rubrik: S1 s/d S8 (Relevansi, Struktur, Metodologi, Statistik, dll.)")
+          ),
+          React.createElement(
+            View,
+            { style: [styles.card, { width: '31%', backgroundColor: '#f8fafc', borderColor: '#cbd5e1', marginVertical: 0 }] },
+            React.createElement(Text, { style: [styles.bold, { color: '#0369a1', fontSize: 7 }] }, "[ 204 ] KANAL SCREEN"),
+            React.createElement(Text, { style: { fontSize: 6.4 } }, "Skala Ordinal Mentah 1–5"),
+            React.createElement(Text, { style: { fontSize: 6.0, color: '#64748b' } }, "3 Dimensi: R1 s/d R3 (Kebaruan, Risiko Metodologi, Kejelasan)")
+          ),
+          React.createElement(
+            View,
+            { style: [styles.card, { width: '31%', backgroundColor: '#f8fafc', borderColor: '#cbd5e1', marginVertical: 0 }] },
+            React.createElement(Text, { style: [styles.bold, { color: '#0369a1', fontSize: 7 }] }, "[ 206 ] KANAL CLUE"),
+            React.createElement(Text, { style: { fontSize: 6.4 } }, "Ekstraksi Bukti Faktual"),
+            React.createElement(Text, { style: { fontSize: 6.0, color: '#64748b' } }, "5 Elemen: C1 s/d C5 (CESS = ∑ wk × ck dari data empiris, sampel, batasan)")
+          )
+        )
       ),
 
-      React.createElement(Text, { style: styles.subSectionTitle }, "FIG. 3 — ENGINE NORMALISASI SKALA DETERMINISTIK TERPADU"),
+      // FIG. 3
       React.createElement(
-        Text,
-        { style: styles.drawingBox },
-        "   [Data S1–S8 (0–10)]       [Data R1–R3 (1–5)]       [Data C1–C5 (Faktual)]\n" +
-        "           │                         │                         │\n" +
-        "           ▼                         ▼                         ▼\n" +
-        "    ┌──────────────┐          ┌──────────────┐          ┌──────────────┐\n" +
-        "    │ 302 S_norm = │          │ 304 R_norm = │          │ 306 C_norm = │\n" +
-        "    │ (S / 10)*100 │          │ ((R-1)/4)*100│          │ CESS (0-100) │\n" +
-        "    └──────┬───────┘          └──────┬───────┘          └──────┬───────┘\n" +
-        "           └─────────────────────────┼─────────────────────────┘\n" +
-        "                                     ▼\n" +
-        "                   [ COMMON DOMAIN x_norm ∈ [0, 100] ]"
+        View,
+        { style: styles.card },
+        React.createElement(Text, { style: styles.bold }, "FIG. 3 — ENGINE NORMALISASI SKALA DETERMINISTIK TERPADU"),
+        React.createElement(Text, { style: { fontSize: 6.8, color: '#475569', marginBottom: 3 } }, "Pemetaan seluruh masukan heterogen ke Common Computational Domain [0, 100]:"),
+        React.createElement(
+          View,
+          { style: { display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' } },
+          React.createElement(
+            View,
+            { style: [styles.card, { width: '30%', marginVertical: 0, padding: 3 }] },
+            React.createElement(Text, { style: [styles.bold, { fontSize: 6.8 }] }, "[ 302 ] Unit SCORE"),
+            React.createElement(Text, { style: { fontSize: 6.2 } }, "S_norm = (S / 10) × 100")
+          ),
+          React.createElement(
+            View,
+            { style: [styles.card, { width: '30%', marginVertical: 0, padding: 3 }] },
+            React.createElement(Text, { style: [styles.bold, { fontSize: 6.8 }] }, "[ 304 ] Unit SCREEN"),
+            React.createElement(Text, { style: { fontSize: 6.2 } }, "R_norm = ((R−1)/4) × 100")
+          ),
+          React.createElement(
+            View,
+            { style: [styles.card, { width: '30%', marginVertical: 0, padding: 3 }] },
+            React.createElement(Text, { style: [styles.bold, { fontSize: 6.8 }] }, "[ 306 ] Unit CLUE"),
+            React.createElement(Text, { style: { fontSize: 6.2 } }, "C_norm = CESS (0–100)")
+          )
+        ),
+        React.createElement(
+          View,
+          { style: [styles.card, { backgroundColor: '#f1f5f9', marginVertical: 3, padding: 3 }] },
+          React.createElement(Text, { style: [styles.bold, { textAlign: 'center', fontSize: 6.8, color: '#0f172a' }] }, "COMMON COMPUTATIONAL DOMAIN: x_norm ∈ [0, 100] (Deterministik & Terstandarisasi)")
+        )
       )
     ),
 
@@ -754,80 +795,91 @@ const PatentDossierPDF = () => (
         React.createElement(Text, null, "Halaman 8")
       ),
 
-      React.createElement(Text, { style: styles.subSectionTitle }, "FIG. 4 — ENGINE PEMBOBOTAN MATRIKS 7 DIMENSI KUALITAS (BWS)"),
+      // FIG. 4
       React.createElement(
-        Text,
-        { style: styles.drawingBox },
-        "   Normalized Features (D1, D2, D3, D4, D5, D6, D7)\n" +
-        "           │\n" +
-        "           ▼\n" +
-        "    ┌────────────────────────────────────────────────────────┐\n" +
-        "    │ 402 REGISTER BOBOT BAKU 7 DIMENSI (Σ Wi = 1.00)        │\n" +
-        "    │ W = [0.18, 0.18, 0.16, 0.12, 0.12, 0.10, 0.14]         │\n" +
-        "    └────────────────────────┬───────────────────────────────┘\n" +
-        "                             ▼\n" +
-        "    ┌────────────────────────────────────────────────────────┐\n" +
-        "    │ 404 AKUMULATOR BASE WEIGHTED SCORE (BWS)               │\n" +
-        "    │ BWS = ∑_{i=1}^{7} ( D_i × W_i )  ∈ [0, 100]            │\n" +
-        "    └────────────────────────────────────────────────────────┘"
+        View,
+        { style: styles.card },
+        React.createElement(Text, { style: styles.bold }, "FIG. 4 — ENGINE PEMBOBOTAN MATRIKS 7 DIMENSI KUALITAS (BWS)"),
+        React.createElement(
+          View,
+          { style: [styles.card, { backgroundColor: '#f8fafc', padding: 4, marginVertical: 2 }] },
+          React.createElement(Text, { style: [styles.bold, { fontSize: 7 }] }, "[ 402 ] REGISTER BOBOT BAKU 7 DIMENSI SUBSTANTIF (∑ Wi = 1.00):"),
+          React.createElement(Text, { style: { fontSize: 6.4, color: '#334155' } }, "• D1: Academic Contribution (W1 = 0.18)      • D5: Integrity & Transparency (W5 = 0.12)"),
+          React.createElement(Text, { style: { fontSize: 6.4, color: '#334155' } }, "• D2: Procedural Rigor (W2 = 0.18)           • D6: Future Research Value (W6 = 0.10)"),
+          React.createElement(Text, { style: { fontSize: 6.4, color: '#334155' } }, "• D3: Analytical Strength (W3 = 0.16)         • D7: Impact & Applicability (W7 = 0.14)"),
+          React.createElement(Text, { style: { fontSize: 6.4, color: '#334155' } }, "• D4: Scholarly Communication (W4 = 0.12)")
+        ),
+        React.createElement(Text, { style: { textAlign: 'center', color: '#64748b', fontSize: 6.5 } }, "v  (Penjumlahan Terbobot Deterministik)"),
+        React.createElement(
+          View,
+          { style: [styles.card, { backgroundColor: '#f0f9ff', borderColor: '#0284c7', padding: 4, marginVertical: 2 }] },
+          React.createElement(Text, { style: [styles.bold, { color: '#0369a1', textAlign: 'center', fontSize: 7.2 }] }, "[ 404 ] AKUMULATOR BASE WEIGHTED SCORE (BWS)"),
+          React.createElement(Text, { style: { fontSize: 6.6, textAlign: 'center', color: '#0f172a' } }, "BWS = ∑_{i=1}^{7} ( D_i × W_i ) ∈ [0, 100]")
+        )
       ),
 
-      React.createElement(Text, { style: styles.subSectionTitle }, "FIG. 5 — DETEKSI 5 BUKTI STRUKTURAL & BOUNDED ATTENUATION ENGINE"),
+      // FIG. 5
       React.createElement(
-        Text,
-        { style: styles.drawingBox },
-        "                   ┌───────────────────────────────┐\n" +
-        "                   │ 102 DOKUMEN NASKAH DIGITAL    │\n" +
-        "                   └───────────────┬───────────────┘\n" +
-        "                                   ▼\n" +
-        "                   ┌───────────────────────────────┐\n" +
-        "                   │ 502 DETEKSI 5 PILAR STRUKTUR  │\n" +
-        "                   │ N_detected ∈ {0, 1, 2, 3, 4, 5}│\n" +
-        "                   └───────────────┬───────────────┘\n" +
-        "                                   ▼\n" +
-        "                   ┌───────────────────────────────┐\n" +
-        "                   │ 504 KOMPUTATOR INDEKS AECI    │\n" +
-        "                   │ AECI = 100 × (N_detected / 5) │\n" +
-        "                   └───────────────┬───────────────┘\n" +
-        "                                   ▼\n" +
-        "                   ┌───────────────────────────────┐\n" +
-        "                   │ 506 BOUNDED ATTENUATION ENGINE│\n" +
-        "                   │ CF = 0.85 + 0.15 × (AECI/100) │\n" +
-        "                   └───────────────┬───────────────┘\n" +
-        "                                   │\n" +
-        "            404 BWS ───────────────┼───────────────┐\n" +
-        "                                   ▼               │\n" +
-        "                   ┌───────────────────────────┐   │\n" +
-        "                   │ 508 PENGALI MUTU AKHIR    │   │\n" +
-        "                   │ AT-RQS = BWS × CF         │   │\n" +
-        "                   └───────────────────────────┘   ▼"
+        View,
+        { style: styles.card },
+        React.createElement(Text, { style: styles.bold }, "FIG. 5 — DETEKSI 5 BUKTI STRUKTURAL & BOUNDED ATTENUATION ENGINE"),
+        React.createElement(
+          View,
+          { style: { display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' } },
+          React.createElement(
+            View,
+            { style: [styles.card, { width: '28%', marginVertical: 0, padding: 3 }] },
+            React.createElement(Text, { style: [styles.bold, { fontSize: 6.8 }] }, "[ 502 ] Deteksi 5 Pilar"),
+            React.createElement(Text, { style: { fontSize: 6.0, color: '#475569' } }, "Tujuan, Metode, Sampel, Temuan, Batasan"),
+            React.createElement(Text, { style: [styles.bold, { fontSize: 6.2, color: '#0369a1' }] }, "N_det ∈ {0,1,2,3,4,5}")
+          ),
+          React.createElement(Text, { style: { fontSize: 7, color: '#64748b' } }, "──>"),
+          React.createElement(
+            View,
+            { style: [styles.card, { width: '31%', marginVertical: 0, padding: 3 }] },
+            React.createElement(Text, { style: [styles.bold, { fontSize: 6.8 }] }, "[ 504 ] Komputator AECI"),
+            React.createElement(Text, { style: { fontSize: 6.2 } }, "AECI = 100 × (N_det / 5)"),
+            React.createElement(Text, { style: [styles.bold, { fontSize: 6.2, color: '#0369a1' }] }, "AECI ∈ [0, 100]")
+          ),
+          React.createElement(Text, { style: { fontSize: 7, color: '#64748b' } }, "──>"),
+          React.createElement(
+            View,
+            { style: [styles.card, { width: '31%', marginVertical: 0, padding: 3 }] },
+            React.createElement(Text, { style: [styles.bold, { fontSize: 6.8 }] }, "[ 506 ] Bounded CF Engine"),
+            React.createElement(Text, { style: { fontSize: 6.2 } }, "CF = 0.85 + 0.15×(AECI/100)"),
+            React.createElement(Text, { style: [styles.bold, { fontSize: 6.2, color: '#0369a1' }] }, "CF ∈ [0.85, 1.00]")
+          )
+        ),
+        React.createElement(
+          View,
+          { style: [styles.card, { backgroundColor: '#f0fdf4', borderColor: '#16a34a', marginVertical: 2, padding: 3 }] },
+          React.createElement(Text, { style: [styles.bold, { textAlign: 'center', fontSize: 7, color: '#16a34a' }] }, "[ 508 ] PENGALI SKOR MUTU AKHIR: AT-RQS = BWS × CF   (Batas Redaman Maksimal 15%)")
+        )
       ),
 
-      React.createElement(Text, { style: styles.subSectionTitle }, "FIG. 6 — TOPOLOGI PEMISAHAN NON-SIRKULAR MUTU VS KEYAKINAN (AAC)"),
+      // FIG. 6
       React.createElement(
-        Text,
-        { style: styles.drawingBox },
-        "  S_norm, R_norm, C_norm ───► ┌───────────────────────────────────────────────┐\n" +
-        "                              │ 602 KOMPUTATOR INDEKS TRIANGULASI (ARTI)      │\n" +
-        "                              │ ARTI = 100 − [ (|S−R| + |S−C|) / 2 ]          │\n" +
-        "                              └──────────────────────┬────────────────────────┘\n" +
-        "                       ┌─────────────────────────────┴─────────────────────────────┐\n" +
-        "                       ▼                                                           │\n" +
-        "        ┌──────────────────────────────┐                                           │\n" +
-        "        │ 700 SCHEMA VALIDATOR         │                                           │\n" +
-        "        │ • D_completeness (6.5a)      │                                           │\n" +
-        "        │ • E_consistency (6.5b)       │                                           │\n" +
-        "        └──────────────┬───────────────┘                                           │\n" +
-        "                       ▼                                                           │\n" +
-        "        ┌────────────────────────────────────────────────────────┐                 │\n" +
-        "        │ 606 KOMPUTATOR KEYAKINAN ASESMEN (AAC)                 │                 │\n" +
-        "        │ AAC = 0.50(ARTI) + 0.30(D_comp) + 0.20(E_cons)         │                 │\n" +
-        "        └──────────────────────────────┬─────────────────────────┘                 │\n" +
-        "  ═════════════════════════════════════╪═══════════════════════════════════════════╪═════\n" +
-        "     604 ISOLASI MUTLAK NON-SIRKULAR   │ (AAC TIDAK MASUK KE FORMULA AT-RQS)       │\n" +
-        "  ═════════════════════════════════════╪═══════════════════════════════════════════╪═════\n" +
-        "                                       ▼                                           ▼\n" +
-        "                       [ AAC % (Confidence) ]                      [ AT-RQS Score ]"
+        View,
+        { style: styles.card },
+        React.createElement(Text, { style: styles.bold }, "FIG. 6 — TOPOLOGI PEMISAHAN NON-SIRKULAR MUTU VS KEYAKINAN (AAC)"),
+        React.createElement(
+          View,
+          { style: [styles.card, { backgroundColor: '#f8fafc', padding: 3, marginVertical: 1 }] },
+          React.createElement(Text, { style: [styles.bold, { fontSize: 6.8 }] }, "[ 602 ] KOMPUTATOR TRIANGULASI (ARTI):"),
+          React.createElement(Text, { style: { fontSize: 6.2 } }, "ARTI = 100 − [ ( |S_norm − R_norm| + |S_norm − C_norm| ) / 2 ] ∈ [0, 100]")
+        ),
+        React.createElement(
+          View,
+          { style: [styles.card, { backgroundColor: '#f8fafc', padding: 3, marginVertical: 1 }] },
+          React.createElement(Text, { style: [styles.bold, { fontSize: 6.8 }] }, "[ 606 ] KOMPUTATOR KEYAKINAN ASESMEN (AAC):"),
+          React.createElement(Text, { style: { fontSize: 6.2 } }, "AAC = 0.50(ARTI) + 0.30(D_completeness) + 0.20(E_consistency) ∈ [0, 100%]")
+        ),
+        React.createElement(
+          View,
+          { style: [styles.card, { backgroundColor: '#fef2f2', borderColor: '#ef4444', borderStyle: 'dashed', padding: 3, marginVertical: 2 }] },
+          React.createElement(Text, { style: [styles.bold, { color: '#b91c1c', textAlign: 'center', fontSize: 6.8 }] }, "=== [ 604 ] ISOLASI MUTLAK NON-SIRKULAR: AAC \u2280 AT-RQS (Zero Circular Bias) ==="),
+          React.createElement(Text, { style: { fontSize: 6.0, textAlign: 'center', color: '#7f1d1d' } }, "Nilai keyakinan AAC tidak pernah menjadi faktor pengali kualitas substantif AT-RQS")
+        )
       )
     ),
 
@@ -850,56 +902,84 @@ const PatentDossierPDF = () => (
         React.createElement(Text, null, "Halaman 9")
       ),
 
-      React.createElement(Text, { style: styles.subSectionTitle }, "FIG. 7 — MODUL VALIDATOR SKEMA DETERMINISTIK INDEPENDEN"),
+      // FIG. 7
       React.createElement(
-        Text,
-        { style: styles.drawingBox },
-        "               ┌─────────────────────────────────────────────────┐\n" +
-        "               │ EKSTRAKSI TIGA KANAL (SCORE, SCREEN, CLUE)      │\n" +
-        "               └────────────────────────┬────────────────────────┘\n" +
-        "             ┌──────────────────────────┴──────────────────────────┐\n" +
-        "             ▼                                                     ▼\n" +
-        "  ┌─────────────────────────────────────┐   ┌─────────────────────────────────────┐\n" +
-        "  │ 702 UNIT KELENGKAPAN SKEMA STATIS   │   │ 704 UNIT PENGUKUR DIVERGENSI SILANG │\n" +
-        "  │ D_comp = ( ∑_{j=1}^8 I(Fj≠∅) / 8)*100│   │ E_cons = 100 − [(|S−R|+|S−C|+|R−C|)/3│\n" +
-        "  └──────────────────┬──────────────────┘   └──────────────────┬──────────────────┘\n" +
-        "                     └────────────────────┬────────────────────┘\n" +
-        "                                          ▼\n" +
-        "                     [ Parameter Bebas AI Self-Assessment Bias ]"
+        View,
+        { style: styles.card },
+        React.createElement(Text, { style: styles.bold }, "FIG. 7 — MODUL VALIDATOR SKEMA DETERMINISTIK INDEPENDEN"),
+        React.createElement(Text, { style: { fontSize: 6.8, color: '#475569', marginBottom: 3 } }, "Evaluasi integritas data berbasis aturan statis tanpa inferensi AI (Anti-Self-Assessment Bias):"),
+        React.createElement(
+          View,
+          { style: { display: 'flex', flexDirection: 'row', justifyContent: 'space-between' } },
+          React.createElement(
+            View,
+            { style: [styles.card, { width: '48%', backgroundColor: '#f8fafc', marginVertical: 0, padding: 4 }] },
+            React.createElement(Text, { style: [styles.bold, { fontSize: 6.8, color: '#0369a1' }] }, "[ 702 ] UNIT KELENGKAPAN SKEMA (D_comp)"),
+            React.createElement(Text, { style: { fontSize: 6.2 } }, "Uji 8 Parameter Wajib Non-Null:"),
+            React.createElement(Text, { style: { fontSize: 6.0, color: '#475569' } }, "D = ( ∑_{j=1}^{8} \uD835\uDF59(F_j ≠ ∅) / 8 ) × 100")
+          ),
+          React.createElement(
+            View,
+            { style: [styles.card, { width: '48%', backgroundColor: '#f8fafc', marginVertical: 0, padding: 4 }] },
+            React.createElement(Text, { style: [styles.bold, { fontSize: 6.8, color: '#0369a1' }] }, "[ 704 ] UNIT DIVERGENSI SILANG (E_cons)"),
+            React.createElement(Text, { style: { fontSize: 6.2 } }, "Deviasi Rata-rata 3 Kanal Terstandarisasi:"),
+            React.createElement(Text, { style: { fontSize: 6.0, color: '#475569' } }, "E = 100 − [ (|S−R| + |S−C| + |R−C|) / 3 ]")
+          )
+        )
       ),
 
-      React.createElement(Text, { style: styles.subSectionTitle }, "FIG. 8 — MODUL PEMBUKTIAN ASAL-USUL KRIPTOGRAFIS PERMANEN"),
+      // FIG. 8
       React.createElement(
-        Text,
-        { style: styles.drawingBox },
-        "      [Hasil Asesmen: AT-RQS, AECI, ARTI, AAC, D1-D7, Bukti Faktual, Timestamp]\n" +
-        "                                     │\n" +
-        "                                     ▼\n" +
-        "      ┌────────────────────────────────────────────────────────┐\n" +
-        "      │ 802 KANONISASI DATA SKEMA RFC 8785 (Canonical JSON)    │\n" +
-        "      └──────────────────────────────┬─────────────────────────┘\n" +
-        "                                     ▼\n" +
-        "      ┌────────────────────────────────────────────────────────┐\n" +
-        "      │ 804 GENERATOR RINGKASAN HASH SHA-256 (256-bit Digest)  │\n" +
-        "      └──────────────────────────────┬─────────────────────────┘\n" +
-        "                                     ▼\n" +
-        "      ┌────────────────────────────────────────────────────────┐\n" +
-        "      │ 806 PEMBANGKIT BLOCK IDENTIFIER ASESMEN (assessment_id)│\n" +
-        "      └──────────────────────────────┬─────────────────────────┘\n" +
-        "                                     ▼\n" +
-        "      ┌────────────────────────────────────────────────────────┐\n" +
-        "      │ 808 LEDGER DATABASE NON-TRANSITORI PERMANEN            │\n" +
-        "      └────────────────────────────────────────────────────────┘"
+        View,
+        { style: styles.card },
+        React.createElement(Text, { style: styles.bold }, "FIG. 8 — MODUL PEMBUKTIAN ASAL-USUL KRIPTOGRAFIS PERMANEN"),
+        React.createElement(
+          View,
+          { style: { display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' } },
+          React.createElement(
+            View,
+            { style: [styles.card, { width: '22%', marginVertical: 0, padding: 3 }] },
+            React.createElement(Text, { style: [styles.bold, { fontSize: 6.6 }] }, "[ 802 ] Kanonisasi"),
+            React.createElement(Text, { style: { fontSize: 5.8, color: '#475569' } }, "RFC 8785 Canonical JSON")
+          ),
+          React.createElement(Text, { style: { fontSize: 7, color: '#64748b' } }, "──>"),
+          React.createElement(
+            View,
+            { style: [styles.card, { width: '22%', marginVertical: 0, padding: 3 }] },
+            React.createElement(Text, { style: [styles.bold, { fontSize: 6.6 }] }, "[ 804 ] SHA-256"),
+            React.createElement(Text, { style: { fontSize: 5.8, color: '#475569' } }, "256-bit Immutable Signature")
+          ),
+          React.createElement(Text, { style: { fontSize: 7, color: '#64748b' } }, "──>"),
+          React.createElement(
+            View,
+            { style: [styles.card, { width: '22%', marginVertical: 0, padding: 3 }] },
+            React.createElement(Text, { style: [styles.bold, { fontSize: 6.6 }] }, "[ 806 ] Identifier"),
+            React.createElement(Text, { style: { fontSize: 5.8, color: '#475569' } }, "assessment_id + timestamp")
+          ),
+          React.createElement(Text, { style: { fontSize: 7, color: '#64748b' } }, "──>"),
+          React.createElement(
+            View,
+            { style: [styles.card, { width: '22%', marginVertical: 0, padding: 3, backgroundColor: '#f0fdf4', borderColor: '#16a34a' }] },
+            React.createElement(Text, { style: [styles.bold, { fontSize: 6.6, color: '#16a34a' }] }, "[ 808 ] Ledger"),
+            React.createElement(Text, { style: { fontSize: 5.8, color: '#475569' } }, "Immutable Storage Database")
+          )
+        )
       ),
 
-      React.createElement(Text, { style: styles.subSectionTitle }, "FIG. 9 — DIAGRAM ALIR EKSEKUSI KOMPUTASI MENYELURUH (END-TO-END)"),
+      // FIG. 9
       React.createElement(
-        Text,
-        { style: styles.drawingBox },
-        "  102 INPUT NASKAH ──> 200 TRI-SOURCE ──> 300 NORMALISASI ──> 400 BWS (7 DIMENSI)\n" +
-        "                             │\n" +
-        "                             ▼\n" +
-        "  500 DETEKSI 5 BUKTI & CF ──> 600 TRIANGULASI & AAC ──> 800 RFC8785/SHA256 ──> 902 ASIA RECORD"
+        View,
+        { style: styles.card },
+        React.createElement(Text, { style: styles.bold }, "FIG. 9 — DIAGRAM ALIR EKSEKUSI KOMPUTASI MENYELURUH (END-TO-END)"),
+        React.createElement(
+          View,
+          { style: [styles.card, { backgroundColor: '#f8fafc', padding: 4, marginVertical: 1 }] },
+          React.createElement(Text, { style: { fontSize: 6.4, color: '#0f172a', textAlign: 'center' } }, "[ 102 ] Input Naskah  ──>  [ 200 ] Tri-Source Ekstraksi  ──>  [ 300 ] Normalisasi [0, 100]  ──>  [ 400 ] BWS 7 Dimensi"),
+          React.createElement(Text, { style: { fontSize: 6.4, color: '#64748b', textAlign: 'center', marginVertical: 1 } }, "│"),
+          React.createElement(Text, { style: { fontSize: 6.4, color: '#0f172a', textAlign: 'center' } }, "[ 500 ] Deteksi 5 Pilar & Redaman CF  ──>  [ 600 ] Triangulasi ARTI & AAC  ──>  [ 800 ] RFC8785 + SHA-256 Ledger"),
+          React.createElement(Text, { style: { fontSize: 6.4, color: '#64748b', textAlign: 'center', marginVertical: 1 } }, "│"),
+          React.createElement(Text, { style: [styles.bold, { fontSize: 6.6, color: '#0284c7', textAlign: 'center' }] }, "[ 902 ] PENYEMATAN KARTU IDENTITAS PUBLIK: ASIA INDEX RECORD / DIGITAL QUALITY PASSPORT")
+        )
       )
     ),
 
