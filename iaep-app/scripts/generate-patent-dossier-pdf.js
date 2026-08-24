@@ -438,6 +438,8 @@ const PatentDossierPDF = () => (
     // =========================================================================
     // PAGE 4: DRAF SPESIFIKASI (URAIAN LENGKAP INVENSI & FORMULASI)
     // =========================================================================
+    // PAGE 4: DRAF SPESIFIKASI - URAIAN LENGKAP INVENSI & FORMULASI DETERMINISTIK
+    // =========================================================================
     React.createElement(
       Page,
       { size: "A4", style: styles.page },
@@ -445,7 +447,7 @@ const PatentDossierPDF = () => (
         View,
         { style: styles.header },
         React.createElement(Text, null, "DOSIR PATEN AT-RQS™ v1.0 • ASIA INTELLECTUAL PROPERTY"),
-        React.createElement(Text, null, "BAGIAN I: DRAF SPESIFIKASI (URAIAN LENGKAP)")
+        React.createElement(Text, null, "BAGIAN I: DRAF SPESIFIKASI (URAIAN LENGKAP & FORMULASI)")
       ),
       React.createElement(
         View,
@@ -454,80 +456,332 @@ const PatentDossierPDF = () => (
         React.createElement(Text, null, "Halaman 4")
       ),
 
-      React.createElement(Text, { style: styles.subSectionTitle }, "5. URAIAN LENGKAP INVENSI & FORMULASI DETERMINISTIK"),
-      
-      React.createElement(Text, { style: styles.bold }, "A. Pipeline Normalisasi Skala Deterministik (5.1)"),
+      // PANEL A
       React.createElement(
-        Text,
-        { style: styles.paragraph },
-        "Tiga kanal analitik heterogen (SCORE 0–10, SCREEN 1–5, CLUE faktual) ditransformasikan secara deterministik ke domain terpadu [0, 100]:"
-      ),
-      React.createElement(
-        Text,
-        { style: styles.mathBox },
-        "SCORE_norm = (S / 10) \u00D7 100   |   SCREEN_norm = ((R \u2212 1) / 4) \u00D7 100   |   C_norm = CESS_k = w_k \u00D7 c_k"
-      ),
-
-      React.createElement(Text, { style: styles.bold }, "B. Matriks 7 Dimensi Kualitas Substantif Baku (BWS) (5.2)"),
-      React.createElement(
-        Text,
-        { style: styles.paragraph },
-        "Base Weighted Score (BWS) dihitung sebagai penjumlahan terbobot 7 dimensi kualitas dengan total bobot tepat 100%:"
-      ),
-      React.createElement(
-        Text,
-        { style: styles.mathBox },
-        "BWS = \u2211_{i=1}^{7} (D_i \u00D7 W_i)   |   W = [0.18, 0.18, 0.16, 0.12, 0.12, 0.10, 0.14],  \u2211 W_i = 1.00"
-      ),
-
-      React.createElement(Text, { style: styles.bold }, "C. Deteksi 5 Bukti Struktural (AECI) & Bounded Attenuation (CF) (5.3–5.5)"),
-      React.createElement(
-        Text,
-        { style: styles.paragraph },
-        "Deteksi 5 pilar wajib (Tujuan, Metode, Sampel, Temuan, Batasan) mengendalikan faktor redaman terikat CF \u2208 [0.85, 1.00]:"
-      ),
-      React.createElement(
-        Text,
-        { style: styles.mathBox },
-        "AECI = 100 \u00D7 (N_det / 5)   \u2192   CF = 0.85 + 0.15 \u00D7 (AECI / 100)   \u2192   AT-RQS = BWS \u00D7 CF"
-      ),
-      React.createElement(
-        Text,
-        { style: styles.paragraph },
-        "Saat naskah tanpa bukti metodologi inti (N_det = 0 \u2192 AECI = 0), skor mutu teredam tepat 15% (CF = 0.850 \u2192 AT-RQS = 0.85 \u00D7 BWS) tanpa penalti ganda linier."
-      ),
-
-      React.createElement(Text, { style: styles.bold }, "D. Triangulasi Konvergensi (ARTI) & Isolasi Non-Sirkular AAC (5.6–5.7)"),
-      React.createElement(
-        Text,
-        { style: styles.paragraph },
-        "Konvergensi 3 kanal dihitung via ARTI, sedangkan indeks keyakinan AAC diisolasi mutlak (AAC \u2280 AT-RQS):"
-      ),
-      React.createElement(
-        Text,
-        { style: styles.mathBox },
-        "ARTI = 100 \u2212 [ (|S_norm \u2212 R_norm| + |S_norm \u2212 C_norm|) / 2 ]\nAAC = 0.50(ARTI) + 0.30(D_completeness) + 0.20(E_consistency)   |   [ AAC \u2280 AT-RQS ]"
+        View,
+        { style: [styles.card, { padding: 4, marginBottom: 3, borderColor: '#0284c7' }] },
+        React.createElement(
+          View,
+          { style: { display: 'flex', flexDirection: 'row', alignItems: 'center', marginBottom: 1.5 } },
+          React.createElement(View, { style: { backgroundColor: '#0f172a', paddingHorizontal: 3.5, paddingVertical: 1, borderRadius: 2, marginRight: 4 } }, React.createElement(Text, { style: { color: '#ffffff', fontFamily: 'Helvetica-Bold', fontSize: 6.8 } }, "A.")),
+          React.createElement(Text, { style: { fontFamily: 'Helvetica-Bold', fontSize: 7.2, color: '#0369a1' } }, "PIPELINE NORMALISASI SKALA DETERMINISTIK "),
+          React.createElement(Text, { style: { fontFamily: 'Helvetica-Bold', fontSize: 6.8, color: '#0284c7' } }, "(5.1)")
+        ),
+        React.createElement(Text, { style: { fontSize: 5.8, color: '#334155', marginBottom: 2 } }, "Tiga kanal analitik heterogen (SCORE 0–10, SCREEN 1–5, CLUE faktual) ditransformasikan secara deterministik ke domain terpadu [0, 100]:"),
+        React.createElement(
+          View,
+          { style: { display: 'flex', flexDirection: 'row', justifyContent: 'space-between' } },
+          // A.1
+          React.createElement(
+            View,
+            { style: [styles.card, { width: '32%', backgroundColor: '#f8fafc', padding: 2.5, marginVertical: 0 }] },
+            React.createElement(View, { style: { backgroundColor: '#0f172a', paddingVertical: 1, borderRadius: 1.5, marginBottom: 1.5 } }, React.createElement(Text, { style: { color: '#ffffff', fontFamily: 'Helvetica-Bold', fontSize: 5.8, textAlign: 'center' } }, "SCORE Normalisasi")),
+            React.createElement(Text, { style: { fontSize: 6.2, fontFamily: 'Helvetica-Bold', textAlign: 'center', color: '#0f172a' } }, "SCORE_norm = ( S / 10 ) × 100"),
+            React.createElement(Text, { style: { fontSize: 5.2, color: '#0284c7', textAlign: 'right' } }, "(5.1a)")
+          ),
+          // A.2
+          React.createElement(
+            View,
+            { style: [styles.card, { width: '32%', backgroundColor: '#f8fafc', padding: 2.5, marginVertical: 0 }] },
+            React.createElement(View, { style: { backgroundColor: '#0f172a', paddingVertical: 1, borderRadius: 1.5, marginBottom: 1.5 } }, React.createElement(Text, { color: '#ffffff', fontFamily: 'Helvetica-Bold', fontSize: 5.8, textAlign: 'center', style: { color: '#ffffff', textAlign: 'center', fontSize: 5.8, fontFamily: 'Helvetica-Bold' } }, "SCREEN Normalisasi")),
+            React.createElement(Text, { style: { fontSize: 6.2, fontFamily: 'Helvetica-Bold', textAlign: 'center', color: '#0f172a' } }, "SCREEN_norm = ( (R − 1) / 4 ) × 100"),
+            React.createElement(Text, { style: { fontSize: 5.2, color: '#0284c7', textAlign: 'right' } }, "(5.1b)")
+          ),
+          // A.3
+          React.createElement(
+            View,
+            { style: [styles.card, { width: '32%', backgroundColor: '#f8fafc', padding: 2.5, marginVertical: 0 }] },
+            React.createElement(View, { style: { backgroundColor: '#0f172a', paddingVertical: 1, borderRadius: 1.5, marginBottom: 1.5 } }, React.createElement(Text, { style: { color: '#ffffff', fontFamily: 'Helvetica-Bold', fontSize: 5.8, textAlign: 'center' } }, "CLUE Normalisasi (CESS)")),
+            React.createElement(Text, { style: { fontSize: 6.2, fontFamily: 'Helvetica-Bold', textAlign: 'center', color: '#0f172a' } }, "C_norm = ∑_k w_k × c_k"),
+            React.createElement(Text, { style: { fontSize: 5.2, color: '#0284c7', textAlign: 'right' } }, "(5.1c)")
+          )
+        ),
+        React.createElement(Text, { style: { fontSize: 5.2, color: '#475569', textAlign: 'center', marginTop: 2 } }, "dengan S ∈ [0, 10], R ∈ [1, 5], c_k ∈ [0, 100], w_k ≥ 0 dan ∑_k w_k = 1.00 sehingga C_norm ∈ [0, 100].")
       ),
 
-      React.createElement(Text, { style: styles.bold }, "E. Validator Skema Deterministik Independen (5.8–5.9)"),
+      // PANEL B
       React.createElement(
-        Text,
-        { style: styles.paragraph },
-        "D_completeness dan E_consistency dievaluasi secara aturan kode statis independen (anti AI self-assessment bias):"
-      ),
-      React.createElement(
-        Text,
-        { style: styles.mathBox },
-        "D_comp = ( \u2211_{j=1}^{8} \uD835\uDF59(F_j \u2260 \u2205) / 8 ) \u00D7 100   |   E_cons = 100 \u2212 [ (|S\u2212R| + |S\u2212C| + |R\u2212C|) / 3 ]"
+        View,
+        { style: [styles.card, { padding: 4, marginBottom: 3, borderColor: '#0284c7' }] },
+        React.createElement(
+          View,
+          { style: { display: 'flex', flexDirection: 'row', alignItems: 'center', marginBottom: 1.5 } },
+          React.createElement(View, { style: { backgroundColor: '#0f172a', paddingHorizontal: 3.5, paddingVertical: 1, borderRadius: 2, marginRight: 4 } }, React.createElement(Text, { style: { color: '#ffffff', fontFamily: 'Helvetica-Bold', fontSize: 6.8 } }, "B.")),
+          React.createElement(Text, { style: { fontFamily: 'Helvetica-Bold', fontSize: 7.2, color: '#0369a1' } }, "MATRIKS 7 DIMENSI KUALITAS SUBSTANTIF BAKU (BWS) "),
+          React.createElement(Text, { style: { fontFamily: 'Helvetica-Bold', fontSize: 6.8, color: '#0284c7' } }, "(5.2)")
+        ),
+        React.createElement(Text, { style: { fontSize: 5.8, color: '#334155', marginBottom: 2 } }, "Base Weighted Score (BWS) dihitung sebagai penjumlahan terbobot 7 dimensi kualitas dengan total bobot tepat 100%."),
+        React.createElement(
+          View,
+          { style: [styles.card, { backgroundColor: '#f8fafc', padding: 2.5, marginVertical: 0, display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }] },
+          React.createElement(Text, { style: { fontSize: 6.2, fontFamily: 'Helvetica-Bold', color: '#0f172a' } }, "BWS = ∑_{i=1}^{7} ( D_i × W_i )"),
+          React.createElement(Text, { style: { fontSize: 5.8, color: '#334155' } }, "W = [0.18, 0.18, 0.16, 0.12, 0.12, 0.10, 0.14]"),
+          React.createElement(Text, { style: { fontSize: 5.8, fontFamily: 'Helvetica-Bold', color: '#0369a1' } }, "∑_{i=1}^{7} W_i = 1.00"),
+          React.createElement(Text, { style: { fontSize: 5.2, color: '#0284c7' } }, "(5.2)")
+        ),
+        // Mini Table
+        React.createElement(
+          View,
+          { style: { marginTop: 2, borderWidth: 0.5, borderColor: '#cbd5e1', borderRadius: 2 } },
+          React.createElement(
+            View,
+            { style: { display: 'flex', flexDirection: 'row', backgroundColor: '#0f172a' } },
+            React.createElement(Text, { style: { width: '14.28%', color: '#ffffff', fontSize: 5.2, fontFamily: 'Helvetica-Bold', textAlign: 'center', padding: 1 } }, "1"),
+            React.createElement(Text, { style: { width: '14.28%', color: '#ffffff', fontSize: 5.2, fontFamily: 'Helvetica-Bold', textAlign: 'center', padding: 1 } }, "2"),
+            React.createElement(Text, { style: { width: '14.28%', color: '#ffffff', fontSize: 5.2, fontFamily: 'Helvetica-Bold', textAlign: 'center', padding: 1 } }, "3"),
+            React.createElement(Text, { style: { width: '14.28%', color: '#ffffff', fontSize: 5.2, fontFamily: 'Helvetica-Bold', textAlign: 'center', padding: 1 } }, "4"),
+            React.createElement(Text, { style: { width: '14.28%', color: '#ffffff', fontSize: 5.2, fontFamily: 'Helvetica-Bold', textAlign: 'center', padding: 1 } }, "5"),
+            React.createElement(Text, { style: { width: '14.28%', color: '#ffffff', fontSize: 5.2, fontFamily: 'Helvetica-Bold', textAlign: 'center', padding: 1 } }, "6"),
+            React.createElement(Text, { style: { width: '14.28%', color: '#ffffff', fontSize: 5.2, fontFamily: 'Helvetica-Bold', textAlign: 'center', padding: 1 } }, "7")
+          ),
+          React.createElement(
+            View,
+            { style: { display: 'flex', flexDirection: 'row', backgroundColor: '#ffffff' } },
+            React.createElement(Text, { style: { width: '14.28%', fontSize: 4.8, textAlign: 'center', padding: 1, borderRightWidth: 0.5, borderRightColor: '#e2e8f0' } }, "Originalitas &\nKebaruan"),
+            React.createElement(Text, { style: { width: '14.28%', fontSize: 4.8, textAlign: 'center', padding: 1, borderRightWidth: 0.5, borderRightColor: '#e2e8f0' } }, "Kedalaman\nTeoretis"),
+            React.createElement(Text, { style: { width: '14.28%', fontSize: 4.8, textAlign: 'center', padding: 1, borderRightWidth: 0.5, borderRightColor: '#e2e8f0' } }, "Ketepatan\nMetodologi"),
+            React.createElement(Text, { style: { width: '14.28%', fontSize: 4.8, textAlign: 'center', padding: 1, borderRightWidth: 0.5, borderRightColor: '#e2e8f0' } }, "Validitas Data\n& Sampel"),
+            React.createElement(Text, { style: { width: '14.28%', fontSize: 4.8, textAlign: 'center', padding: 1, borderRightWidth: 0.5, borderRightColor: '#e2e8f0' } }, "Kejelasan &\nStruktur"),
+            React.createElement(Text, { style: { width: '14.28%', fontSize: 4.8, textAlign: 'center', padding: 1, borderRightWidth: 0.5, borderRightColor: '#e2e8f0' } }, "Kontribusi\nPraktis"),
+            React.createElement(Text, { style: { width: '14.28%', fontSize: 4.8, textAlign: 'center', padding: 1 } }, "Etika &\nReplikasi")
+          ),
+          React.createElement(
+            View,
+            { style: { display: 'flex', flexDirection: 'row', backgroundColor: '#f1f5f9', borderTopWidth: 0.5, borderTopColor: '#cbd5e1' } },
+            React.createElement(Text, { style: { width: '14.28%', fontSize: 5.2, fontFamily: 'Helvetica-Bold', textAlign: 'center', padding: 1 } }, "W1 = 0.18"),
+            React.createElement(Text, { style: { width: '14.28%', fontSize: 5.2, fontFamily: 'Helvetica-Bold', textAlign: 'center', padding: 1 } }, "W2 = 0.18"),
+            React.createElement(Text, { style: { width: '14.28%', fontSize: 5.2, fontFamily: 'Helvetica-Bold', textAlign: 'center', padding: 1 } }, "W3 = 0.16"),
+            React.createElement(Text, { style: { width: '14.28%', fontSize: 5.2, fontFamily: 'Helvetica-Bold', textAlign: 'center', padding: 1 } }, "W4 = 0.12"),
+            React.createElement(Text, { style: { width: '14.28%', fontSize: 5.2, fontFamily: 'Helvetica-Bold', textAlign: 'center', padding: 1 } }, "W5 = 0.12"),
+            React.createElement(Text, { style: { width: '14.28%', fontSize: 5.2, fontFamily: 'Helvetica-Bold', textAlign: 'center', padding: 1 } }, "W6 = 0.10"),
+            React.createElement(Text, { style: { width: '14.28%', fontSize: 5.2, fontFamily: 'Helvetica-Bold', textAlign: 'center', padding: 1 } }, "W7 = 0.14")
+          )
+        ),
+        React.createElement(Text, { style: { fontSize: 5.2, color: '#475569', textAlign: 'center', marginTop: 1.5 } }, "D_i ∈ [0, 100] (i = 1, ..., 7),   BWS ∈ [0, 100].")
       ),
 
-      React.createElement(Text, { style: styles.bold }, "F. Asal-Usul Kriptografis Kanonikal Permanen (5.10–5.13)"),
+      // PANEL C
       React.createElement(
-        Text,
-        { style: styles.paragraph },
-        "Snapshot data diserialisasi sesuai RFC 8785 (Canonical JSON) dan dihitung ringkasan SHA-256 Digest 256-bit: H = SHA256(CanonicalJSON(Snapshot)), dikunci permanen bersama assessment_id dan timestamp ISO 8601."
+        View,
+        { style: [styles.card, { padding: 4, marginBottom: 3, borderColor: '#0284c7' }] },
+        React.createElement(
+          View,
+          { style: { display: 'flex', flexDirection: 'row', alignItems: 'center', marginBottom: 1.5 } },
+          React.createElement(View, { style: { backgroundColor: '#0f172a', paddingHorizontal: 3.5, paddingVertical: 1, borderRadius: 2, marginRight: 4 } }, React.createElement(Text, { style: { color: '#ffffff', fontFamily: 'Helvetica-Bold', fontSize: 6.8 } }, "C.")),
+          React.createElement(Text, { style: { fontFamily: 'Helvetica-Bold', fontSize: 7.2, color: '#0369a1' } }, "DETEKSI 5 BUKTI STRUKTURAL (AECI) & BOUNDED ATTENUATION (CF) "),
+          React.createElement(Text, { style: { fontFamily: 'Helvetica-Bold', fontSize: 6.8, color: '#0284c7' } }, "(5.3–5.5)")
+        ),
+        React.createElement(Text, { style: { fontSize: 5.8, color: '#334155', marginBottom: 2 } }, "Deteksi 5 pilar wajib (Tujuan, Metode, Sampel, Temuan, Batasan) mengendalikan faktor redaman terikat CF ∈ [0.85, 1.00]."),
+        React.createElement(
+          View,
+          { style: { display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' } },
+          // C.1
+          React.createElement(
+            View,
+            { style: [styles.card, { width: '22%', backgroundColor: '#f8fafc', padding: 2, marginVertical: 0 }] },
+            React.createElement(Text, { style: { fontSize: 5.4, fontFamily: 'Helvetica-Bold', textAlign: 'center', color: '#0369a1' } }, "Jumlah Bukti Terdeteksi"),
+            React.createElement(Text, { style: { fontSize: 5.8, textAlign: 'center', fontFamily: 'Helvetica-Bold', marginVertical: 1 } }, "N_det = ∑_{p=1}^5 I_p"),
+            React.createElement(Text, { style: { fontSize: 4.8, color: '#475569', textAlign: 'center' } }, "I_p = 1 (ada) / 0 (tdk)"),
+            React.createElement(Text, { style: { fontSize: 5.0, color: '#0284c7', textAlign: 'right' } }, "(5.3)")
+          ),
+          React.createElement(Text, { style: { fontSize: 6.5, color: '#64748b' } }, "──>"),
+          // C.2
+          React.createElement(
+            View,
+            { style: [styles.card, { width: '23%', backgroundColor: '#f8fafc', padding: 2, marginVertical: 0 }] },
+            React.createElement(Text, { style: { fontSize: 5.4, fontFamily: 'Helvetica-Bold', textAlign: 'center', color: '#0369a1' } }, "Indeks Bukti (AECI)"),
+            React.createElement(Text, { style: { fontSize: 5.8, textAlign: 'center', fontFamily: 'Helvetica-Bold', marginVertical: 1 } }, "AECI = 100 × (N_det/5)"),
+            React.createElement(Text, { style: { fontSize: 4.8, color: '#475569', textAlign: 'center' } }, "AECI ∈ [0, 100]"),
+            React.createElement(Text, { style: { fontSize: 5.0, color: '#0284c7', textAlign: 'right' } }, "(5.4)")
+          ),
+          React.createElement(Text, { style: { fontSize: 6.5, color: '#64748b' } }, "──>"),
+          // C.3
+          React.createElement(
+            View,
+            { style: [styles.card, { width: '23%', backgroundColor: '#f8fafc', padding: 2, marginVertical: 0 }] },
+            React.createElement(Text, { style: { fontSize: 5.4, fontFamily: 'Helvetica-Bold', textAlign: 'center', color: '#0369a1' } }, "Faktor Redaman (CF)"),
+            React.createElement(Text, { style: { fontSize: 5.8, textAlign: 'center', fontFamily: 'Helvetica-Bold', marginVertical: 1 } }, "CF = 0.85 + 0.15×(AECI/100)"),
+            React.createElement(Text, { style: { fontSize: 4.8, color: '#475569', textAlign: 'center' } }, "CF ∈ [0.85, 1.00]"),
+            React.createElement(Text, { style: { fontSize: 5.0, color: '#0284c7', textAlign: 'right' } }, "(5.5a)")
+          ),
+          React.createElement(Text, { style: { fontSize: 6.5, color: '#64748b' } }, "──>"),
+          // C.4
+          React.createElement(
+            View,
+            { style: [styles.card, { width: '22%', backgroundColor: '#f0fdf4', borderColor: '#16a34a', padding: 2, marginVertical: 0 }] },
+            React.createElement(Text, { style: { fontSize: 5.4, fontFamily: 'Helvetica-Bold', textAlign: 'center', color: '#16a34a' } }, "Skor Mutu Teredam"),
+            React.createElement(Text, { style: { fontSize: 6.0, textAlign: 'center', fontFamily: 'Helvetica-Bold', color: '#16a34a', marginVertical: 1 } }, "AT-RQS = BWS × CF"),
+            React.createElement(Text, { style: { fontSize: 4.8, color: '#475569', textAlign: 'center' } }, "AT-RQS_10 = AT-RQS/10"),
+            React.createElement(Text, { style: { fontSize: 5.0, color: '#0284c7', textAlign: 'right' } }, "(5.5b)")
+          )
+        ),
+        React.createElement(
+          View,
+          { style: [styles.alertBox, { marginVertical: 2, padding: 2, backgroundColor: '#f0f9ff', borderLeftColor: '#0284c7' }] },
+          React.createElement(Text, { style: { fontSize: 5.4, color: '#0369a1' } }, "ⓘ Jika naskah tanpa bukti metodologi inti (N_det = 0 ──> AECI = 0), maka CF = 0.850 ──> AT-RQS = 0.85 × BWS (teredam tepat 15%) tanpa penalti ganda linier.")
+        )
+      ),
+
+      // PANEL D
+      React.createElement(
+        View,
+        { style: [styles.card, { padding: 4, marginBottom: 3, borderColor: '#0284c7' }] },
+        React.createElement(
+          View,
+          { style: { display: 'flex', flexDirection: 'row', alignItems: 'center', marginBottom: 1.5 } },
+          React.createElement(View, { style: { backgroundColor: '#0f172a', paddingHorizontal: 3.5, paddingVertical: 1, borderRadius: 2, marginRight: 4 } }, React.createElement(Text, { style: { color: '#ffffff', fontFamily: 'Helvetica-Bold', fontSize: 6.8 } }, "D.")),
+          React.createElement(Text, { style: { fontFamily: 'Helvetica-Bold', fontSize: 7.2, color: '#0369a1' } }, "TRIANGULASI KONVERGENSI (ARTI) & ISOLASI NON-SIRKULAR AAC "),
+          React.createElement(Text, { style: { fontFamily: 'Helvetica-Bold', fontSize: 6.8, color: '#0284c7' } }, "(5.6–5.7)")
+        ),
+        React.createElement(
+          View,
+          { style: { display: 'flex', flexDirection: 'row', justifyContent: 'space-between' } },
+          React.createElement(
+            View,
+            { style: [styles.card, { width: '48%', backgroundColor: '#f8fafc', padding: 2.5, marginVertical: 0 }] },
+            React.createElement(Text, { style: { fontSize: 5.6, fontFamily: 'Helvetica-Bold', color: '#0369a1', textAlign: 'center', marginBottom: 1 } }, "Indeks Konvergensi 3 Kanal (ARTI)"),
+            React.createElement(Text, { style: { fontSize: 6.0, fontFamily: 'Helvetica-Bold', textAlign: 'center', color: '#0f172a' } }, "ARTI = 100 − [ ( |S_norm − R_norm| + |S_norm − C_norm| ) / 2 ]"),
+            React.createElement(
+              View,
+              { style: { display: 'flex', flexDirection: 'row', justifyContent: 'space-between', marginTop: 1 } },
+              React.createElement(Text, { style: { fontSize: 5.0, color: '#475569' } }, "ARTI ∈ [0, 100]"),
+              React.createElement(Text, { style: { fontSize: 5.0, color: '#0284c7' } }, "(5.6)")
+            )
+          ),
+          React.createElement(
+            View,
+            { style: [styles.card, { width: '48%', backgroundColor: '#f8fafc', padding: 2.5, marginVertical: 0 }] },
+            React.createElement(Text, { style: { fontSize: 5.6, fontFamily: 'Helvetica-Bold', color: '#0369a1', textAlign: 'center', marginBottom: 1 } }, "Indeks Keyakinan Isolasi (AAC)"),
+            React.createElement(Text, { style: { fontSize: 6.0, fontFamily: 'Helvetica-Bold', textAlign: 'center', color: '#0f172a' } }, "AAC = 0.50(ARTI) + 0.30(D_comp) + 0.20(E_cons)"),
+            React.createElement(
+              View,
+              { style: { display: 'flex', flexDirection: 'row', justifyContent: 'space-between', marginTop: 1 } },
+              React.createElement(Text, { style: { fontSize: 5.0, fontFamily: 'Helvetica-Bold', color: '#b91c1c' } }, "[ AAC ↛ AT-RQS ]"),
+              React.createElement(Text, { style: { fontSize: 5.0, color: '#0284c7' } }, "(5.7)")
+            )
+          )
+        ),
+        React.createElement(
+          View,
+          { style: [styles.alertBox, { marginVertical: 2, padding: 2, backgroundColor: '#f0fdf4', borderLeftColor: '#16a34a' }] },
+          React.createElement(Text, { style: { fontSize: 5.4, color: '#166534' } }, "ⓘ AAC diisolasi mutlak dari AT-RQS untuk mencegah sirkularitas dan bias konfirmasi AI self-assessment.")
+        )
+      ),
+
+      // PANEL E
+      React.createElement(
+        View,
+        { style: [styles.card, { padding: 4, marginBottom: 3, borderColor: '#0284c7' }] },
+        React.createElement(
+          View,
+          { style: { display: 'flex', flexDirection: 'row', alignItems: 'center', marginBottom: 1.5 } },
+          React.createElement(View, { style: { backgroundColor: '#0f172a', paddingHorizontal: 3.5, paddingVertical: 1, borderRadius: 2, marginRight: 4 } }, React.createElement(Text, { style: { color: '#ffffff', fontFamily: 'Helvetica-Bold', fontSize: 6.8 } }, "E.")),
+          React.createElement(Text, { style: { fontFamily: 'Helvetica-Bold', fontSize: 7.2, color: '#0369a1' } }, "VALIDATOR SKEMA DETERMINISTIK INDEPENDEN "),
+          React.createElement(Text, { style: { fontFamily: 'Helvetica-Bold', fontSize: 6.8, color: '#0284c7' } }, "(5.8–5.9)")
+        ),
+        React.createElement(
+          View,
+          { style: { display: 'flex', flexDirection: 'row', justifyContent: 'space-between' } },
+          // E.1
+          React.createElement(
+            View,
+            { style: [styles.card, { width: '56%', backgroundColor: '#f8fafc', padding: 2.5, marginVertical: 0 }] },
+            React.createElement(Text, { style: { fontSize: 5.6, fontFamily: 'Helvetica-Bold', color: '#0369a1', marginBottom: 1 } }, "Kelengkapan Deskriptif (D_completeness)"),
+            React.createElement(
+              View,
+              { style: { display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' } },
+              React.createElement(
+                View,
+                { style: { width: '52%' } },
+                React.createElement(Text, { style: { fontSize: 5.8, fontFamily: 'Helvetica-Bold', color: '#0f172a' } }, "D_comp = ( ∑_{j=1}^{8} 𝕀(F_j ≠ ∅) / 8 ) × 100"),
+                React.createElement(Text, { style: { fontSize: 5.0, color: '#475569', marginTop: 1 } }, "𝕀 = 1 (terpenuhi) / 0 (tdk)"),
+                React.createElement(Text, { style: { fontSize: 5.0, color: '#0284c7' } }, "(5.8)")
+              ),
+              React.createElement(
+                View,
+                { style: { width: '46%', backgroundColor: '#ffffff', padding: 2, borderWidth: 0.5, borderColor: '#cbd5e1', borderRadius: 2 } },
+                React.createElement(Text, { style: { fontSize: 4.6, fontFamily: 'Helvetica-Bold', color: '#0f172a' } }, "Daftar 8 Elemen (F_j):"),
+                React.createElement(Text, { style: { fontSize: 4.2, color: '#475569' } }, "1. Judul spesifik  5. Data/sampel jelas\n2. Abstrak ringkas  6. Temuan eksplisit\n3. Tujuan terukur  7. Diskusi/implikasi\n4. Metode rinci  8. Batasan/replikasi")
+              )
+            )
+          ),
+          // E.2
+          React.createElement(
+            View,
+            { style: [styles.card, { width: '42%', backgroundColor: '#f8fafc', padding: 2.5, marginVertical: 0 }] },
+            React.createElement(Text, { style: { fontSize: 5.6, fontFamily: 'Helvetica-Bold', color: '#0369a1', marginBottom: 1 } }, "Konsistensi Evidensial (E_consistency)"),
+            React.createElement(Text, { style: { fontSize: 5.8, fontFamily: 'Helvetica-Bold', color: '#0f172a' } }, "E_cons = 100 − [ ( |SR| + |SC| + |RC| ) / 3 ]"),
+            React.createElement(Text, { style: { fontSize: 4.8, color: '#475569', marginVertical: 1 } }, "SR = |S_norm − R_norm|,  SC = |S_norm − C_norm|\nRC = |R_norm − C_norm|,  E_cons ∈ [0, 100]"),
+            React.createElement(Text, { style: { fontSize: 5.0, color: '#0284c7', textAlign: 'right' } }, "(5.9)")
+          )
+        ),
+        React.createElement(
+          View,
+          { style: [styles.alertBox, { marginVertical: 2, padding: 2, backgroundColor: '#f0f9ff', borderLeftColor: '#0284c7' }] },
+          React.createElement(Text, { style: { fontSize: 5.4, color: '#0369a1' } }, "ⓘ Evaluasi D_completeness dan E_consistency dilakukan oleh aturan kode statis independen (anti AI self-assessment bias).")
+        )
+      ),
+
+      // PANEL F
+      React.createElement(
+        View,
+        { style: [styles.card, { padding: 4, marginBottom: 2, borderColor: '#0284c7' }] },
+        React.createElement(
+          View,
+          { style: { display: 'flex', flexDirection: 'row', alignItems: 'center', marginBottom: 1.5 } },
+          React.createElement(View, { style: { backgroundColor: '#0f172a', paddingHorizontal: 3.5, paddingVertical: 1, borderRadius: 2, marginRight: 4 } }, React.createElement(Text, { style: { color: '#ffffff', fontFamily: 'Helvetica-Bold', fontSize: 6.8 } }, "F.")),
+          React.createElement(Text, { style: { fontFamily: 'Helvetica-Bold', fontSize: 7.2, color: '#0369a1' } }, "ASAL-USUL KRIPTOGRAFIS KANONIKAL PERMANEN "),
+          React.createElement(Text, { style: { fontFamily: 'Helvetica-Bold', fontSize: 6.8, color: '#0284c7' } }, "(5.10–5.13)")
+        ),
+        React.createElement(
+          View,
+          { style: { display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' } },
+          // F.1
+          React.createElement(
+            View,
+            { style: [styles.card, { width: '22%', backgroundColor: '#f8fafc', padding: 2, marginVertical: 0 }] },
+            React.createElement(Text, { style: { fontSize: 5.2, fontFamily: 'Helvetica-Bold', textAlign: 'center', color: '#0369a1' } }, "1. Snapshot Data"),
+            React.createElement(Text, { style: { fontSize: 4.6, color: '#475569', textAlign: 'center', marginVertical: 1 } }, "Kumpulkan seluruh data asesmen pada waktu t."),
+            React.createElement(Text, { style: { fontSize: 4.8, color: '#0284c7', textAlign: 'right' } }, "(5.10)")
+          ),
+          React.createElement(Text, { style: { fontSize: 6.5, color: '#64748b' } }, "──>"),
+          // F.2
+          React.createElement(
+            View,
+            { style: [styles.card, { width: '23%', backgroundColor: '#f8fafc', padding: 2, marginVertical: 0 }] },
+            React.createElement(Text, { style: { fontSize: 5.2, fontFamily: 'Helvetica-Bold', textAlign: 'center', color: '#0369a1' } }, "2. Canonical JSON"),
+            React.createElement(Text, { style: { fontSize: 5.0, fontFamily: 'Helvetica-Bold', textAlign: 'center', marginVertical: 1 } }, "J_can = RFC8785(Data)"),
+            React.createElement(Text, { style: { fontSize: 4.8, color: '#0284c7', textAlign: 'right' } }, "(5.11)")
+          ),
+          React.createElement(Text, { style: { fontSize: 6.5, color: '#64748b' } }, "──>"),
+          // F.3
+          React.createElement(
+            View,
+            { style: [styles.card, { width: '23%', backgroundColor: '#f8fafc', padding: 2, marginVertical: 0 }] },
+            React.createElement(Text, { style: { fontSize: 5.2, fontFamily: 'Helvetica-Bold', textAlign: 'center', color: '#0369a1' } }, "3. Ringkasan SHA-256"),
+            React.createElement(Text, { style: { fontSize: 5.0, fontFamily: 'Helvetica-Bold', textAlign: 'center', marginVertical: 1 } }, "H = SHA256(J_can)"),
+            React.createElement(Text, { style: { fontSize: 4.8, color: '#0284c7', textAlign: 'right' } }, "(5.12)")
+          ),
+          React.createElement(Text, { style: { fontSize: 6.5, color: '#64748b' } }, "──>"),
+          // F.4
+          React.createElement(
+            View,
+            { style: [styles.card, { width: '22%', backgroundColor: '#f0fdf4', borderColor: '#16a34a', padding: 2, marginVertical: 0 }] },
+            React.createElement(Text, { style: { fontSize: 5.2, fontFamily: 'Helvetica-Bold', textAlign: 'center', color: '#16a34a' } }, "4. Kunci Permanen"),
+            React.createElement(Text, { style: { fontSize: 4.6, color: '#166534', textAlign: 'center', marginVertical: 1 } }, "Simpan { id, t, H } (immutable)."),
+            React.createElement(Text, { style: { fontSize: 4.8, color: '#0284c7', textAlign: 'right' } }, "(5.13)")
+          )
+        )
+      ),
+
+      // FOOTER LEGEND
+      React.createElement(
+        View,
+        { style: [styles.card, { backgroundColor: '#f1f5f9', padding: 2, marginVertical: 0 }] },
+        React.createElement(Text, { style: { fontSize: 4.8, color: '#475569', textAlign: 'center' } }, "Keterangan: S: SCORE (0–10) | R: SCREEN (1–5) | c_k: CLUE ke-k (0–100) | w_k: bobot CLUE ke-k | 𝕀: indikator elemen ke-j | H: digest SHA-256 (256-bit) | t_ISO8601: timestamp ISO 8601")
       )
     ),
+
 
     // =========================================================================
     // PAGE 5: DRAF KLAIM PATEN (KLAIM 1–10)
