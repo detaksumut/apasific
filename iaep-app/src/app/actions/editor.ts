@@ -1221,8 +1221,11 @@ export async function getPublishedArticles(journalId?: string) {
                 abstract: a.abstract,
                 author: authorName,
                 doi: a.doi,
+                volume: a.volume,
+                issue: a.issue,
                 cover_file_url: a.cover_file_url,
                 created_at: a.created_at,
+                published_at: a.published_at,
                 journal: a.journals?.name || 'APASIFIC IAEP'
             };
         }));

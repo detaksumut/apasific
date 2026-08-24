@@ -20,8 +20,11 @@ export default async function AJEDJournal() {
         id,
         title,
         abstract,
+        author,
+        author_name,
         status,
         created_at,
+        published_at,
         doi,
         volume,
         issue,
@@ -29,8 +32,7 @@ export default async function AJEDJournal() {
         journal_id,
         journals(name)
       `)
-      .eq("status", "Published")
-      .order("created_at", { ascending: false });
+      .eq("status", "Published");
 
     if (!error && data) {
       articles = data.filter((pub: any) => 
@@ -38,6 +40,19 @@ export default async function AJEDJournal() {
         pub.journals.name && 
         pub.journals.name.toUpperCase().includes("AJED")
       );
+
+      // Urutkan artikel sesuai Edisi Terbit: Volume -> Issue -> Tanggal Terbit
+      articles.sort((a: any, b: any) => {
+        const volA = parseInt(a.volume || '1', 10);
+        const volB = parseInt(b.volume || '1', 10);
+        if (volA !== volB) return volA - volB;
+        const issA = parseInt(a.issue || '1', 10);
+        const issB = parseInt(b.issue || '1', 10);
+        if (issA !== issB) return issA - issB;
+        const dtA = new Date(a.published_at || a.created_at || 0).getTime();
+        const dtB = new Date(b.published_at || b.created_at || 0).getTime();
+        return dtA - dtB;
+      });
     } else if (error) {
       console.error("Supabase Error:", error.message || error);
     }
@@ -59,10 +74,10 @@ export default async function AJEDJournal() {
         <div className="mb-12 border-b border-zinc-800 pb-8">
           <h1 className="text-4xl md:text-5xl font-bold mb-4 leading-tight text-white flex flex-wrap items-center gap-4">
             <span className="bg-emerald-500/10 text-emerald-500 px-4 py-2 rounded-xl text-2xl font-black">AJED</span>
-            Ekonomi Pembangunan & Keuangan
+            Pendidikan & Pembelajaran Terapan
           </h1>
           <p className="text-zinc-400 text-lg max-w-3xl">
-            Repositori resmi publikasi artikel ilmiah untuk <strong className="text-emerald-500">AJED - Ekonomi Pembangunan & Keuangan</strong>. 
+            Repositori resmi publikasi artikel ilmiah untuk <strong className="text-emerald-500">AJED - Pendidikan & Pembelajaran Terapan</strong>. 
             Semua naskah di bawah ini telah melalui proses telaah sejawat (*peer-review*) dan dinyatakan sah untuk dipublikasikan.
           </p>
         </div>
@@ -78,13 +93,24 @@ export default async function AJEDJournal() {
                     #sub_{pub.id.substring(0,8)}
                   </span>
                   <span className="text-[10px] font-bold tracking-widest uppercase px-2 py-1 bg-emerald-500/10 text-emerald-400 rounded border border-emerald-500/20">
-                    {pub.journals?.name || "AJED - EKONOMI PEMBANGUNAN & KEUANGAN"}
+                    {pub.journals?.name || "AJED - PENDIDIKAN & PEMBELAJARAN TERAPAN"}
                   </span>
+                  {pub.volume && pub.issue && (
+                    <span className="text-[10px] font-bold tracking-widest uppercase px-2 py-1 bg-blue-500/10 text-blue-400 rounded border border-blue-500/20">
+                      Vol. {pub.volume} No. {pub.issue} ({new Date(pub.published_at || pub.created_at).getFullYear()})
+                    </span>
+                  )}
                 </div>
                 
-                <h2 className="text-2xl md:text-3xl font-bold text-white mb-4 leading-snug group-hover:text-emerald-400 transition-colors">
+                <h2 className="text-2xl md:text-3xl font-bold text-white mb-2 leading-snug group-hover:text-emerald-400 transition-colors">
                   {pub.title}
                 </h2>
+
+                {(pub.author || pub.author_name) && (
+                  <p className="text-emerald-400 text-sm font-semibold mb-4">
+                    Penulis: <span className="text-zinc-300 font-normal">{pub.author || pub.author_name}</span>
+                  </p>
+                )}
                 
                 {pub.abstract && (
                   <p className="text-zinc-400 mb-6 line-clamp-[12] text-sm leading-relaxed">
@@ -107,7 +133,7 @@ export default async function AJEDJournal() {
                       •
                     </span>
                     <div className="text-sm text-zinc-500 font-medium">
-                      Dikirim: {new Date(pub.created_at).toLocaleDateString('id-ID')}
+                      Terbit: {new Date(pub.published_at || pub.created_at).toLocaleDateString('id-ID')}
                     </div>
                   </div>
                   

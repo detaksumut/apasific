@@ -20,8 +20,11 @@ export default async function AJESJournal() {
         id,
         title,
         abstract,
+        author,
+        author_name,
         status,
         created_at,
+        published_at,
         doi,
         volume,
         issue,
@@ -38,6 +41,19 @@ export default async function AJESJournal() {
         pub.journals.name && 
         pub.journals.name.toUpperCase().includes("AJES")
       );
+
+      // Urutkan artikel sesuai Edisi Terbit: Volume -> Issue -> Tanggal Terbit
+      articles.sort((a: any, b: any) => {
+        const volA = parseInt(a.volume || '1', 10);
+        const volB = parseInt(b.volume || '1', 10);
+        if (volA !== volB) return volA - volB;
+        const issA = parseInt(a.issue || '1', 10);
+        const issB = parseInt(b.issue || '1', 10);
+        if (issA !== issB) return issA - issB;
+        const dtA = new Date(a.published_at || a.created_at || 0).getTime();
+        const dtB = new Date(b.published_at || b.created_at || 0).getTime();
+        return dtA - dtB;
+      });
     } else if (error) {
       console.error("Supabase Error:", error.message || error);
     }
@@ -80,11 +96,22 @@ export default async function AJESJournal() {
                   <span className="text-[10px] font-bold tracking-widest uppercase px-2 py-1 bg-emerald-500/10 text-emerald-400 rounded border border-emerald-500/20">
                     {pub.journals?.name || "AJES - ILMU LINGKUNGAN & KEBERLANJUTAN"}
                   </span>
+                  {pub.volume && pub.issue && (
+                    <span className="text-[10px] font-bold tracking-widest uppercase px-2 py-1 bg-blue-500/10 text-blue-400 rounded border border-blue-500/20">
+                      Vol. {pub.volume} No. {pub.issue} ({new Date(pub.published_at || pub.created_at).getFullYear()})
+                    </span>
+                  )}
                 </div>
                 
-                <h2 className="text-2xl md:text-3xl font-bold text-white mb-4 leading-snug group-hover:text-emerald-400 transition-colors">
+                <h2 className="text-2xl md:text-3xl font-bold text-white mb-2 leading-snug group-hover:text-emerald-400 transition-colors">
                   {pub.title}
                 </h2>
+
+                {(pub.author || pub.author_name) && (
+                  <p className="text-emerald-400 text-sm font-semibold mb-4">
+                    Penulis: <span className="text-zinc-300 font-normal">{pub.author || pub.author_name}</span>
+                  </p>
+                )}
                 
                 {pub.abstract && (
                   <p className="text-zinc-400 mb-6 line-clamp-[12] text-sm leading-relaxed">
@@ -107,7 +134,7 @@ export default async function AJESJournal() {
                       •
                     </span>
                     <div className="text-sm text-zinc-500 font-medium">
-                      Dikirim: {new Date(pub.created_at).toLocaleDateString('id-ID')}
+                      Terbit: {new Date(pub.published_at || pub.created_at).toLocaleDateString('id-ID')}
                     </div>
                   </div>
                   

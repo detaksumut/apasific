@@ -54,12 +54,23 @@ export default async function AJCSJournal() {
     } else if (error) {
       console.error("Supabase Error:", error.message || error);
     }
+
+    // Urutkan artikel sesuai Edisi Terbit: Volume -> Issue -> Tanggal Terbit
+    articles.sort((a: any, b: any) => {
+      const volA = parseInt(a.volume || '1', 10);
+      const volB = parseInt(b.volume || '1', 10);
+      if (volA !== volB) return volA - volB;
+      const issA = parseInt(a.issue || '1', 10);
+      const issB = parseInt(b.issue || '1', 10);
+      if (issA !== issB) return issA - issB;
+      const dtA = new Date(a.published_at || a.created_at || 0).getTime();
+      const dtB = new Date(b.published_at || b.created_at || 0).getTime();
+      return dtA - dtB;
+    });
   } catch (err) {
     console.error("Fetch Error:", err);
   }
 
-  // 2. Fallback ke Firestore HANYA jika Supabase tidak ada data
-  // PERBAIKAN BUG #7: Gunakan .where() untuk filter di server, BUKAN scan seluruh collection
   // Pure Supabase SSOT Read (No Firestore read lag)
 
   // Deduplicate by title
