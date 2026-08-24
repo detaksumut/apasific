@@ -11,6 +11,8 @@ import { ApasificIndexPanel } from "@/components/publisher/ApasificIndexPanel";
 import { PublisherVerification } from '@/components/publisher/PublisherVerification';
 import AsiaMetricsSidebarCard from "@/components/article/AsiaMetricsSidebarCard";
 import UltimateAIPublicScoreCard from "@/components/article/UltimateAIPublicScoreCard";
+import ArticleScreeningReportCard from "@/components/article/ArticleScreeningReportCard";
+import ArticleEvidenceClueCard from "@/components/article/ArticleEvidenceClueCard";
 import ApasificResearchQualityProfile from "@/components/article/ApasificResearchQualityProfile";
 import { ATRQSEngine } from "@/services/at-rqs/ATRQSEngine";
 
@@ -573,6 +575,22 @@ export default function ArticlePaywallClient({ initialArticle, id }: ArticlePayw
                 />
               </div>
             </div>
+
+            {/* Kanal 1: AI INITIAL SCREENING REPORT (SCREEN Layer) */}
+            <ArticleScreeningReportCard 
+              articleId={article.id}
+              title={article.title}
+              abstract={article.abstract}
+              doi={article.doi}
+            />
+
+            {/* Kanal 3: RESEARCH EVIDENCE & STRUCTURAL SYNTHESIS (CLUE Layer) */}
+            <ArticleEvidenceClueCard 
+              articleId={article.id}
+              title={article.title}
+              abstract={article.abstract}
+              doi={article.doi}
+            />
 
             {/* APASIFIC RESEARCH QUALITY PROFILE™ (POWERED BY AT-RQS™ v1.0) */}
             <ApasificResearchQualityProfile article={article} />
