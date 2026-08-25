@@ -974,7 +974,7 @@ export default function ArticlePaywallClient({ initialArticle, id }: ArticlePayw
         <section className="w-full mt-8 bg-[#070714] border border-blue-950/40 rounded-3xl p-6 shadow-2xl relative overflow-hidden text-xs sm:text-sm font-sans">
           {/* Background watermarks */}
           <div className="absolute inset-0 opacity-10 pointer-events-none flex justify-center items-center">
-            <img src="/logobaru1.png" className="w-[300px] object-contain" alt="watermark" />
+            <img src="/logobaru2.png" className="w-[300px] object-contain" alt="watermark" />
           </div>
 
           <h2 className="text-xl sm:text-3xl font-extrabold text-[#c9a84c] tracking-widest uppercase mb-6 border-b border-blue-950/60 pb-3 flex items-center gap-2.5 relative z-10">
