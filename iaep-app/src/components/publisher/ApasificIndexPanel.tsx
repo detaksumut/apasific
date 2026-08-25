@@ -154,8 +154,76 @@ const IndexerCard: React.FC<IndexerCardProps> = ({ logo, alt, title, status, sta
   ];
 
 
-export const ApasificIndexPanel = () => {
+interface ApasificIndexPanelProps {
+  isSidebar?: boolean;
+}
 
+export const ApasificIndexPanel: React.FC<ApasificIndexPanelProps> = ({ isSidebar = false }) => {
+  if (isSidebar) {
+    return (
+      <div className="bg-[#111120] border border-gray-800 rounded-3xl p-5 sm:p-6 shadow-2xl space-y-4 text-xs font-sans">
+        {/* Header */}
+        <div className="border-b border-gray-800 pb-3">
+          <div className="flex items-center justify-between gap-2 mb-1">
+            <span className="text-[10px] font-bold text-[#c9a84c] tracking-widest uppercase">
+              Academic Publication
+            </span>
+            <span className="text-[9px] font-extrabold bg-[#c9a84c]/20 text-[#c9a84c] border border-[#c9a84c]/40 px-2 py-0.5 rounded-full">
+              APASIFIC INDEX
+            </span>
+          </div>
+          <h3 className="text-base font-extrabold text-white tracking-tight">
+            Journal Indexing Status
+          </h3>
+          <p className="text-[11px] text-gray-400 mt-1 leading-relaxed">
+            Status pengindeksan dan registrasi resmi dengan basis data akademik internasional.
+          </p>
+        </div>
+
+        {/* Compact Indexers List */}
+        <div className="space-y-2.5 max-h-[500px] overflow-y-auto pr-1 custom-scrollbar">
+          {indexers.map((item, index) => (
+            <div
+              key={index}
+              className="bg-[#16162a] border border-gray-800/80 hover:border-[#c9a84c]/50 rounded-xl p-3 transition-all duration-200"
+            >
+              <div className="flex items-center gap-3">
+                <div className={`h-9 w-9 flex-shrink-0 flex items-center justify-center rounded-lg ${item.logo.includes('sinta') || item.logo.includes('zenodo') ? 'bg-white' : 'bg-[#0d0e1b]'} p-1 border border-gray-800`}>
+                  <img src={item.logo} alt={item.alt} className="h-6 object-contain" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center justify-between gap-1 mb-0.5">
+                    <h5 className="font-bold text-gray-200 text-xs truncate">
+                      {item.title}
+                    </h5>
+                    <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded ${item.statusColor} whitespace-nowrap uppercase tracking-wider`}>
+                      {item.status}
+                    </span>
+                  </div>
+                  <p className="text-[10px] text-gray-400 line-clamp-2 leading-tight">
+                    {item.description}
+                  </p>
+                </div>
+              </div>
+              {item.linkHref && (
+                <div className="mt-2 pt-1.5 border-t border-gray-800/50 flex justify-end">
+                  <a
+                    href={item.linkHref}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-[10px] text-[#c9a84c] hover:underline flex items-center gap-1 font-semibold"
+                  >
+                    <span>{item.linkText}</span>
+                    <span>→</span>
+                  </a>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-[#0D0D1B] py-12 sm:py-16">

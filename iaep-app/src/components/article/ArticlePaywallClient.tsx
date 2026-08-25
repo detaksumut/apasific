@@ -958,6 +958,9 @@ export default function ArticlePaywallClient({ initialArticle, id }: ArticlePayw
             {/* ASIA MATRIX MATHEMATICAL SPECIFICATION & METHODOLOGY CARD */}
             <AsiaMetricsSidebarCard />
 
+            {/* JOURNAL INDEXING STATUS / APASIFIC INDEX SIDEBAR WIDGET */}
+            <ApasificIndexPanel isSidebar={true} />
+
           </div>
           
         </div>
@@ -1079,8 +1082,6 @@ export default function ArticlePaywallClient({ initialArticle, id }: ArticlePayw
 
           </div>
         </section>
-
-        <div className="w-full mt-8"><ApasificIndexPanel /></div>
 
       </div>
     </div>
