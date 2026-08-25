@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 
 interface TikTokArticleShareModalProps {
   isOpen: boolean;
@@ -13,6 +13,7 @@ interface TikTokArticleShareModalProps {
     issue?: string | number;
     year?: string | number;
     authors?: string[];
+    cover_file_url?: string;
   };
   displayAuthors?: string;
 }
@@ -25,13 +26,22 @@ export const TikTokArticleShareModal: React.FC<TikTokArticleShareModalProps> = (
 }) => {
   const [copied, setCopied] = useState(false);
   const [downloading, setDownloading] = useState(false);
+  
+  // Direct publish states
+  const [activePublish, setActivePublish] = useState<'instagram' | 'facebook' | 'tiktok' | null>(null);
+  const [publishStatus, setPublishStatus] = useState<{
+    type: 'idle' | 'success' | 'error' | 'info';
+    platform?: string;
+    message?: string;
+    postUrl?: string;
+  }>({ type: 'idle' });
 
   if (!isOpen) return null;
 
   const articleUrl = typeof window !== 'undefined' ? window.location.href : 'https://apasific.org';
   const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(articleUrl)}&color=c9a84c&bgcolor=070714`;
 
-  const captionText = `📚 NEW PUBLICATION HIGHLIGHT!\n\nJudul: ${article.title}\nPenulis: ${displayAuthors}\nJurnal: ${article.journal || 'ASIA Journal'}\nDOI: https://doi.org/${article.doi || '10.xxxx'}\n\nBaca naskah lengkap: ${articleUrl}\n\n#APASIFIC #JurnalIlmiah #RisetAkademik #PublikasiInternasional #OpenScience #AsiaPacificAcademician`;
+  const captionText = `📚 PUBLIKASI ILMIAH RESMI APASIFIC\n\nJudul: ${article.title}\nPenulis: ${displayAuthors}\nJurnal: ${article.journal || 'ASIA Academic Journal'}\nDOI: https://doi.org/${article.doi || 'iaep.2026.verified'}\n\nBaca naskah lengkap: ${articleUrl}\n\n#APASIFIC #JurnalIlmiah #RisetAkademik #PublikasiInternasional #OpenScience #AsiaPacificAcademician`;
 
   const handleCopyCaption = () => {
     navigator.clipboard.writeText(captionText);
@@ -39,14 +49,63 @@ export const TikTokArticleShareModal: React.FC<TikTokArticleShareModalProps> = (
     setTimeout(() => setCopied(false), 3000);
   };
 
-  const handleShareFacebook = () => {
-    const fbUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(articleUrl)}&quote=${encodeURIComponent(`📚 Publikasi Ilmiah APASIFIC: ${article.title}`)}`;
-    window.open(fbUrl, '_blank', 'width=600,height=500');
-  };
+  // 1-Click Server Direct Post Function
+  const handleDirectPublish = async (platform: 'instagram' | 'facebook' | 'tiktok') => {
+    setActivePublish(platform);
+    setPublishStatus({ type: 'idle' });
 
-  const handleShareWhatsApp = () => {
-    const waUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(captionText)}`;
-    window.open(waUrl, '_blank');
+    try {
+      const res = await fetch('/api/social/publish', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          platform,
+          title: article.title,
+          journal: article.journal,
+          doi: article.doi,
+          authors: displayAuthors,
+          articleUrl,
+          coverUrl: article.cover_file_url || '',
+          caption: captionText
+        })
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+        setPublishStatus({
+          type: 'success',
+          platform,
+          message: data.message || `Berhasil diposting langsung ke ${platform}!`,
+          postUrl: data.postUrl
+        });
+      } else if (data.status === 'NEEDS_CREDENTIALS') {
+        setPublishStatus({
+          type: 'info',
+          platform,
+          message: data.message,
+          postUrl: data.fallbackUrl || data.channelUrl
+        });
+        if (data.fallbackUrl) {
+          window.open(data.fallbackUrl, '_blank', 'width=600,height=500');
+        }
+      } else {
+        setPublishStatus({
+          type: 'error',
+          platform,
+          message: data.error || `Gagal mengirim ke ${platform}. Silakan periksa kredensial API.`
+        });
+      }
+    } catch (err: any) {
+      console.error(err);
+      setPublishStatus({
+        type: 'error',
+        platform,
+        message: 'Koneksi ke server terputus saat memproses pengiriman.'
+      });
+    } finally {
+      setActivePublish(null);
+    }
   };
 
   const handleDownloadCanvas = async () => {
@@ -204,8 +263,8 @@ export const TikTokArticleShareModal: React.FC<TikTokArticleShareModalProps> = (
   };
 
   return (
-    <div className="fixed inset-0 z-[99999] bg-black/80 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
-      <div className="bg-[#0b0c16] border border-[#c9a84c]/50 rounded-3xl max-w-2xl w-full p-6 shadow-2xl relative text-white my-8">
+    <div className="fixed inset-0 z-[99999] bg-black/85 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
+      <div className="bg-[#0b0c16] border border-[#c9a84c]/60 rounded-3xl max-w-2xl w-full p-6 sm:p-7 shadow-2xl relative text-white my-8">
         
         {/* Close Button */}
         <button
@@ -219,89 +278,134 @@ export const TikTokArticleShareModal: React.FC<TikTokArticleShareModalProps> = (
 
         {/* Modal Header */}
         <div className="flex items-center gap-3 mb-6 border-b border-gray-800 pb-4">
-          <div className="w-10 h-10 rounded-full bg-[#c9a84c]/20 border border-[#c9a84c] flex items-center justify-center text-lg">
-            🌐
+          <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-[#c9a84c] to-amber-600 flex items-center justify-center text-xl text-black font-extrabold shadow-lg">
+            🚀
           </div>
           <div>
             <h3 className="text-lg font-bold text-white flex items-center gap-2">
-              Diseminasi Naskah: TikTok, FB &amp; Instagram
+              1-Click Direct Social Publishing
             </h3>
             <p className="text-xs text-gray-400">
-              Bagikan publikasi resmi ke Facebook, Instagram Story, TikTok (@apasificacademician), dan WhatsApp.
+              Kirim naskah yang telah terbit langsung ke feed Instagram, Facebook, dan TikTok dengan satu klik tombol.
             </p>
           </div>
         </div>
 
+        {/* Live Status Notification Box */}
+        {publishStatus.type !== 'idle' && (
+          <div className={`mb-5 p-4 rounded-2xl border text-xs leading-relaxed flex items-start gap-3 ${
+            publishStatus.type === 'success' 
+              ? 'bg-green-950/40 border-green-500/50 text-green-300' 
+              : publishStatus.type === 'info'
+              ? 'bg-blue-950/40 border-blue-500/50 text-blue-300'
+              : 'bg-red-950/40 border-red-500/50 text-red-300'
+          }`}>
+            <span className="text-lg">
+              {publishStatus.type === 'success' ? '✅' : publishStatus.type === 'info' ? 'ℹ️' : '⚠️'}
+            </span>
+            <div className="flex-1 space-y-1">
+              <p className="font-semibold">{publishStatus.message}</p>
+              {publishStatus.postUrl && (
+                <a
+                  href={publishStatus.postUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 font-bold underline text-white hover:text-yellow-300 pt-1"
+                >
+                  <span>Buka Halaman Akun</span>
+                  <span>↗</span>
+                </a>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* 1-CLICK DIRECT PUBLISH BUTTONS */}
+        <div className="space-y-3 mb-6">
+          <div className="text-[11px] font-bold text-[#c9a84c] tracking-widest uppercase mb-1">
+            ✦ PILIH SALURAN PUBLIKASI LANGSUNG (SERVER ENGINE) ✦
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            {/* Instagram Direct Button */}
+            <button
+              onClick={() => handleDirectPublish('instagram')}
+              disabled={activePublish !== null}
+              className="bg-gradient-to-r from-purple-600 via-pink-600 to-amber-500 hover:opacity-95 text-white font-bold py-3.5 px-3 rounded-2xl text-xs flex flex-col items-center justify-center gap-1.5 shadow-lg transition-all transform hover:-translate-y-0.5 cursor-pointer disabled:opacity-50"
+            >
+              <div className="flex items-center gap-1.5 text-sm">
+                <span>📸</span>
+                <span>INSTAGRAM</span>
+              </div>
+              <span className="text-[10px] font-normal opacity-90">
+                {activePublish === 'instagram' ? 'Mengirim Data...' : 'Posting ke Feed'}
+              </span>
+            </button>
+
+            {/* Facebook Direct Button */}
+            <button
+              onClick={() => handleDirectPublish('facebook')}
+              disabled={activePublish !== null}
+              className="bg-gradient-to-r from-blue-700 to-blue-500 hover:opacity-95 text-white font-bold py-3.5 px-3 rounded-2xl text-xs flex flex-col items-center justify-center gap-1.5 shadow-lg transition-all transform hover:-translate-y-0.5 cursor-pointer disabled:opacity-50"
+            >
+              <div className="flex items-center gap-1.5 text-sm">
+                <span>🟦</span>
+                <span>FACEBOOK</span>
+              </div>
+              <span className="text-[10px] font-normal opacity-90">
+                {activePublish === 'facebook' ? 'Mengirim Data...' : 'Posting ke Halaman'}
+              </span>
+            </button>
+
+            {/* TikTok Direct Button */}
+            <button
+              onClick={() => handleDirectPublish('tiktok')}
+              disabled={activePublish !== null}
+              className="bg-gradient-to-r from-[#121226] via-red-900 to-black border border-red-500/50 hover:border-red-400 text-white font-bold py-3.5 px-3 rounded-2xl text-xs flex flex-col items-center justify-center gap-1.5 shadow-lg transition-all transform hover:-translate-y-0.5 cursor-pointer disabled:opacity-50"
+            >
+              <div className="flex items-center gap-1.5 text-sm">
+                <span>📱</span>
+                <span>TIKTOK</span>
+              </div>
+              <span className="text-[10px] font-normal text-red-300">
+                {activePublish === 'tiktok' ? 'Mengirim Data...' : 'Posting ke TikTok'}
+              </span>
+            </button>
+          </div>
+        </div>
+
         {/* 9:16 Visual Preview Card */}
-        <div className="bg-[#05050a] border border-[#c9a84c]/40 rounded-2xl p-5 mb-6 text-center space-y-3 relative overflow-hidden shadow-inner">
+        <div className="bg-[#05050a] border border-[#c9a84c]/40 rounded-2xl p-4 mb-5 text-center space-y-2 relative overflow-hidden shadow-inner">
           <span className="text-[10px] font-bold text-[#c9a84c] uppercase tracking-widest block">
-            ✦ ASSOCIATION OF ASIA PACIFIC ACADEMICIAN ✦
+            ✦ DRAF DISPENSI NASKAH ILMIAH ✦
           </span>
-          <span className="inline-block text-xs font-bold bg-[#16162a] text-[#e8c97a] border border-[#c9a84c]/50 px-3 py-1 rounded-full">
+          <span className="inline-block text-xs font-bold bg-[#16162a] text-[#e8c97a] border border-[#c9a84c]/50 px-3 py-0.5 rounded-full">
             {article.journal || 'ASIA Academic Journal'}
           </span>
-          <h4 className="text-sm sm:text-base font-extrabold text-white line-clamp-3 leading-snug">
+          <h4 className="text-sm font-bold text-white line-clamp-2 leading-snug">
             {article.title}
           </h4>
           <p className="text-xs text-[#c9a84c]">
             ✍️ {displayAuthors}
           </p>
-
-          <div className="bg-[#111120] border border-gray-800 rounded-xl p-3 text-left text-[11px] space-y-1 text-gray-300 max-w-md mx-auto">
-            <div className="text-green-400 font-bold">STATUS: PEER REVIEW VERIFIED (AT-RQS)</div>
-            <div className="text-gray-400 font-mono text-[10px]">DOI: https://doi.org/{article.doi || '10.xxxx'}</div>
-          </div>
-
-          <div className="flex justify-center py-2">
-            <img src={qrCodeUrl} alt="QR Code" className="w-24 h-24 border-2 border-[#c9a84c] rounded-lg p-1 bg-[#070714]" />
-          </div>
-          <p className="text-[10px] text-gray-400">Scan QR Code untuk membaca artikel lengkap</p>
         </div>
 
-        {/* Action Buttons Grid */}
+        {/* Secondary Manual Utilities Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
           <button
             onClick={handleDownloadCanvas}
             disabled={downloading}
-            className="w-full bg-[#c9a84c] hover:bg-yellow-400 text-black font-bold py-3 px-4 rounded-xl text-xs flex items-center justify-center gap-2 transition-all shadow-lg cursor-pointer"
+            className="w-full bg-[#16162a] hover:bg-[#20203a] text-[#e8c97a] border border-[#c9a84c]/40 font-bold py-2.5 px-3 rounded-xl text-xs flex items-center justify-center gap-2 transition-all cursor-pointer"
           >
-            {downloading ? (
-              <span>Memproses Kartu HD...</span>
-            ) : (
-              <>
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                </svg>
-                <span>Unduh Kartu Story (9:16 PNG)</span>
-              </>
-            )}
-          </button>
-
-          <button
-            onClick={handleShareFacebook}
-            className="w-full bg-[#1877f2] hover:bg-[#166fe5] text-white font-bold py-3 px-4 rounded-xl text-xs flex items-center justify-center gap-2 transition-all shadow-lg cursor-pointer"
-          >
-            <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
-              <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
-            </svg>
-            <span>Bagikan ke Facebook</span>
-          </button>
-
-          <button
-            onClick={handleShareWhatsApp}
-            className="w-full bg-[#25d366] hover:bg-[#20bd5a] text-black font-bold py-2.5 px-4 rounded-xl text-xs flex items-center justify-center gap-2 transition-all shadow-md cursor-pointer"
-          >
-            <span>💬</span>
-            <span>Kirim ke WhatsApp</span>
+            <span>📱</span>
+            <span>{downloading ? 'Memproses HD...' : 'Unduh Poster Story 9:16 PNG'}</span>
           </button>
 
           <button
             onClick={handleCopyCaption}
-            className="w-full bg-[#16162a] hover:bg-[#20203a] text-white border border-gray-700 font-bold py-2.5 px-4 rounded-xl text-xs flex items-center justify-center gap-2 transition-all cursor-pointer"
+            className="w-full bg-[#16162a] hover:bg-[#20203a] text-white border border-gray-700 font-bold py-2.5 px-3 rounded-xl text-xs flex items-center justify-center gap-2 transition-all cursor-pointer"
           >
-            <svg className="w-4 h-4 text-[#c9a84c]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-            </svg>
+            <span>📋</span>
             <span>{copied ? '✅ Caption & Link Tersalin!' : 'Salin Teks & Tagar'}</span>
           </button>
         </div>
@@ -309,7 +413,17 @@ export const TikTokArticleShareModal: React.FC<TikTokArticleShareModalProps> = (
         {/* Official Channels Footer */}
         <div className="mt-4 pt-3 border-t border-gray-800 flex flex-wrap items-center justify-between gap-2 text-[11px] text-gray-400">
           <div className="flex items-center gap-3">
-            <span>Official:</span>
+            <span>Official Channels:</span>
+            <a
+              href="https://www.instagram.com/apasificacademician/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-pink-400 hover:underline flex items-center gap-1 font-semibold"
+            >
+              <span>Instagram (@apasificacademician)</span>
+              <span>↗</span>
+            </a>
+            <span>•</span>
             <a
               href="https://www.facebook.com/profile.php?id=61593446475544"
               target="_blank"
@@ -326,17 +440,7 @@ export const TikTokArticleShareModal: React.FC<TikTokArticleShareModalProps> = (
               rel="noopener noreferrer"
               className="text-[#c9a84c] hover:underline flex items-center gap-1 font-semibold"
             >
-              <span>TikTok (@apasificacademician)</span>
-              <span>↗</span>
-            </a>
-            <span>•</span>
-            <a
-              href="https://www.instagram.com/apasificacademician/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-pink-400 hover:underline flex items-center gap-1 font-semibold"
-            >
-              <span>Instagram (@apasificacademician)</span>
+              <span>TikTok</span>
               <span>↗</span>
             </a>
           </div>
