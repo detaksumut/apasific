@@ -329,6 +329,16 @@ export const TikTokArticleShareModal: React.FC<TikTokArticleShareModalProps> = (
               <span>TikTok (@apasificacademician)</span>
               <span>↗</span>
             </a>
+            <span>•</span>
+            <a
+              href="https://www.instagram.com/marahman2169/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-pink-400 hover:underline flex items-center gap-1 font-semibold"
+            >
+              <span>Instagram (@marahman2169)</span>
+              <span>↗</span>
+            </a>
           </div>
         </div>
 
