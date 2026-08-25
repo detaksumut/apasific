@@ -311,12 +311,12 @@ export const TikTokArticleShareModal: React.FC<TikTokArticleShareModalProps> = (
           <div className="flex items-center gap-3">
             <span>Official:</span>
             <a
-              href="https://www.facebook.com/muhibuddin.a.rahman"
+              href="https://www.facebook.com/profile.php?id=61593446475544"
               target="_blank"
               rel="noopener noreferrer"
               className="text-blue-400 hover:underline flex items-center gap-1 font-semibold"
             >
-              <span>Facebook (Muhibuddin A. Rahman)</span>
+              <span>Facebook Official</span>
               <span>↗</span>
             </a>
             <span>•</span>
