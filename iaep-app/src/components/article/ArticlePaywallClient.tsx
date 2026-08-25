@@ -541,41 +541,6 @@ export default function ArticlePaywallClient({ initialArticle, id }: ArticlePayw
                   ) : <span className="font-semibold text-white">-</span>}
                 </div>
               </div>
-
-              {/* Quick Action Toolbar with TikTok 9:16 Dissemination Button */}
-              <div className="pt-5 mt-5 border-t border-gray-800 flex flex-wrap items-center gap-3">
-                <button
-                  onClick={() => setShowTikTokModal(true)}
-                  className="bg-gradient-to-r from-red-600 via-[#e11d48] to-[#c9a84c] hover:opacity-95 text-white font-bold px-4 py-2.5 rounded-xl text-xs sm:text-sm flex items-center gap-2 transition-all shadow-lg cursor-pointer transform hover:-translate-y-0.5"
-                >
-                  <span className="text-base">📱</span>
-                  <span>Bagikan ke TikTok (Story Card 9:16)</span>
-                </button>
-
-                {article.pdf_url && (
-                  <a
-                    href={article.pdf_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="bg-[#1a1a2e] hover:bg-[#252542] text-white border border-gray-700 font-semibold px-4 py-2.5 rounded-xl text-xs sm:text-sm flex items-center gap-2 transition-all no-underline"
-                  >
-                    <span>📄</span>
-                    <span>Unduh PDF Naskah</span>
-                  </a>
-                )}
-
-                <button
-                  onClick={() => {
-                    const text = document.getElementById('citation-text')?.innerText || article.title;
-                    navigator.clipboard.writeText(text);
-                    alert('Sitasi ilmiah berhasil disalin!');
-                  }}
-                  className="bg-[#16162a] hover:bg-[#20203a] text-gray-300 border border-gray-700 font-semibold px-4 py-2.5 rounded-xl text-xs sm:text-sm flex items-center gap-2 transition-all cursor-pointer"
-                >
-                  <span>📋</span>
-                  <span>Salin Sitasi</span>
-                </button>
-              </div>
             </div>
 
             {/* Abstract */}
@@ -641,32 +606,6 @@ export default function ArticlePaywallClient({ initialArticle, id }: ArticlePayw
           {/* RIGHT SECTION: SIDEBAR METRICS (4 cols) */}
           <div className="lg:col-span-4 space-y-8">
             
-            {/* TIKTOK & SOCIAL MEDIA DISSEMINATION CARD (TOP OF SIDEBAR) */}
-            <div className="bg-gradient-to-br from-[#1b1226] via-[#121226] to-[#070714] border-2 border-[#c9a84c] rounded-3xl p-5 shadow-2xl space-y-3 relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-bl from-red-600/20 to-transparent rounded-bl-full pointer-events-none" />
-              <div className="flex items-center justify-between">
-                <span className="text-[10px] font-bold text-[#c9a84c] tracking-widest uppercase">
-                  ✦ Social Dissemination ✦
-                </span>
-                <span className="text-[9px] font-extrabold bg-red-600 text-white px-2.5 py-0.5 rounded-full shadow-md">
-                  TIKTOK 9:16
-                </span>
-              </div>
-              <h4 className="text-base font-extrabold text-white leading-snug">
-                Bagikan Naskah ke TikTok
-              </h4>
-              <p className="text-[11px] text-gray-300 leading-relaxed">
-                Hasilkan kartu vertikal resmi 9:16 ber-QR Code untuk diunggah ke TikTok Story <strong className="text-yellow-400">@apasificacademician</strong>, Reels, dan Status WA.
-              </p>
-              <button
-                onClick={() => setShowTikTokModal(true)}
-                className="w-full bg-gradient-to-r from-red-600 via-[#e11d48] to-[#c9a84c] hover:opacity-95 text-white font-bold py-3 px-4 rounded-xl text-xs flex items-center justify-center gap-2 transition-all cursor-pointer shadow-lg transform hover:-translate-y-0.5"
-              >
-                <span className="text-base">📱</span>
-                <span>Buka Generator TikTok Story</span>
-              </button>
-            </div>
-
             {/* Front Cover Visual */}
             <div className="bg-[#111120] border border-gray-800 rounded-3xl p-6 shadow-2xl text-center">
               <h4 className="text-sm font-bold text-gray-500 uppercase tracking-widest mb-4">Sampul Depan (Cover)</h4>
@@ -1023,6 +962,31 @@ export default function ArticlePaywallClient({ initialArticle, id }: ArticlePayw
 
             {/* JOURNAL INDEXING STATUS / APASIFIC INDEX SIDEBAR WIDGET */}
             <ApasificIndexPanel isSidebar={true} />
+
+            {/* TIKTOK & SOCIAL MEDIA DISSEMINATION CARD (BOTTOM OF SIDEBAR) */}
+            <div className="bg-gradient-to-br from-[#1b1226] via-[#121226] to-[#070714] border border-[#c9a84c]/50 rounded-3xl p-5 shadow-2xl space-y-3 relative overflow-hidden">
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] font-bold text-[#c9a84c] tracking-widest uppercase">
+                  ✦ Social Dissemination ✦
+                </span>
+                <span className="text-[9px] font-extrabold bg-red-600/30 text-red-300 border border-red-500/40 px-2 py-0.5 rounded-full">
+                  TIKTOK READY
+                </span>
+              </div>
+              <h4 className="text-sm font-bold text-white leading-snug">
+                Bagikan Naskah ke TikTok & Reels
+              </h4>
+              <p className="text-[11px] text-gray-400 leading-relaxed">
+                Hasilkan kartu vertikal resmi 9:16 ber-QR Code untuk diunggah ke TikTok Story <strong className="text-gray-200">@apasificacademician</strong>, Reels, dan Status WA.
+              </p>
+              <button
+                onClick={() => setShowTikTokModal(true)}
+                className="w-full bg-[#1b1c32] hover:bg-[#c9a84c] hover:text-black text-[#e8c97a] border border-[#c9a84c]/50 font-bold py-2.5 px-4 rounded-xl text-xs flex items-center justify-center gap-2 transition-all cursor-pointer shadow-md"
+              >
+                <span>📱</span>
+                <span>Buka Generator TikTok Story (9:16)</span>
+              </button>
+            </div>
 
           </div>
           
