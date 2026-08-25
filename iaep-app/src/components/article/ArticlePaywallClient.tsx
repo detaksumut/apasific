@@ -15,6 +15,7 @@ import ArticleScreeningReportCard from "@/components/article/ArticleScreeningRep
 import ArticleEvidenceClueCard from "@/components/article/ArticleEvidenceClueCard";
 import ApasificResearchQualityProfile from "@/components/article/ApasificResearchQualityProfile";
 import { ATRQSEngine } from "@/services/at-rqs/ATRQSEngine";
+import { TikTokArticleShareModal } from "@/components/article/TikTokArticleShareModal";
 
 
 function getJournalImpactMetrics(journalName: string) {
@@ -99,6 +100,7 @@ export default function ArticlePaywallClient({ initialArticle, id }: ArticlePayw
   
   const [metrics, setMetrics] = useState({ views: 0, downloads: 0 });
   const [zenodoMetrics, setZenodoMetrics] = useState({ views: 0, downloads: 0 });
+  const [showTikTokModal, setShowTikTokModal] = useState(false);
   
   // Set initial country distribution based on ID to avoid empty UI before metrics load
   const getInitialCountries = () => {
@@ -955,6 +957,31 @@ export default function ArticlePaywallClient({ initialArticle, id }: ArticlePayw
               </div>
             </div>
 
+            {/* TIKTOK & SOCIAL MEDIA DISSEMINATION CARD */}
+            <div className="bg-gradient-to-br from-[#121226] to-[#070714] border border-[#c9a84c]/40 rounded-3xl p-5 shadow-2xl space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] font-bold text-[#c9a84c] tracking-widest uppercase">
+                  ✦ Social Media Dissemination ✦
+                </span>
+                <span className="text-[9px] font-extrabold bg-red-600/30 text-red-300 border border-red-500/40 px-2 py-0.5 rounded-full">
+                  TIKTOK READY
+                </span>
+              </div>
+              <h4 className="text-sm font-bold text-white">
+                Bagikan Naskah ke TikTok & Reels
+              </h4>
+              <p className="text-[11px] text-gray-400 leading-relaxed">
+                Hasilkan kartu vertikal resmi 9:16 ber-QR Code untuk diunggah ke TikTok Story <strong className="text-gray-200">@apasificacademician</strong>, Instagram Reels, dan Status WA.
+              </p>
+              <button
+                onClick={() => setShowTikTokModal(true)}
+                className="w-full bg-[#1b1c32] hover:bg-[#c9a84c] hover:text-black text-[#e8c97a] border border-[#c9a84c]/50 font-bold py-2.5 px-4 rounded-xl text-xs flex items-center justify-center gap-2 transition-all cursor-pointer shadow-md"
+              >
+                <span>📱</span>
+                <span>Buka Generator TikTok Story (9:16)</span>
+              </button>
+            </div>
+
             {/* ASIA MATRIX MATHEMATICAL SPECIFICATION & METHODOLOGY CARD */}
             <AsiaMetricsSidebarCard />
 
@@ -1082,6 +1109,14 @@ export default function ArticlePaywallClient({ initialArticle, id }: ArticlePayw
 
           </div>
         </section>
+
+        {/* TikTok Article Dissemination & Story Card Modal */}
+        <TikTokArticleShareModal
+          isOpen={showTikTokModal}
+          onClose={() => setShowTikTokModal(false)}
+          article={article}
+          displayAuthors={displayAuthors}
+        />
 
       </div>
     </div>

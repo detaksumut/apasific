@@ -312,7 +312,8 @@ export default function RootLayout({
             <p class="footer-motto">✦ Keunggulan, Kompeten, dan Berdedikasi adalah Tradisi Kami ✦</p>
             <div class="footer-contact" style="margin-top: 24px;">
               <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 8px;"><strong>Email:</strong> <a href="mailto:admin@apasific.org" style="color: var(--gold); transition: color var(--transition);">admin@apasific.org</a></p>
-              <p style="font-size: 12px; color: var(--text-muted);"><strong>Phone / WA:</strong> <a href="https://wa.me/6281370062009" target="_blank" style="color: var(--gold); transition: color var(--transition);">+62 813-7006-2009</a></p>
+              <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 8px;"><strong>Phone / WA:</strong> <a href="https://wa.me/6281370062009" target="_blank" style="color: var(--gold); transition: color var(--transition);">+62 813-7006-2009</a></p>
+              <p style="font-size: 12px; color: var(--text-muted);"><strong>TikTok Official:</strong> <a href="https://www.tiktok.com/@apasificacademician" target="_blank" rel="noopener noreferrer" style="color: var(--gold); transition: color var(--transition); display: inline-flex; align-items: center; gap: 4px;">@apasificacademician ↗</a></p>
             </div>
           </div>
 
