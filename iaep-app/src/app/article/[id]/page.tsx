@@ -190,12 +190,69 @@ export async function generateMetadata(
     ? `https://www.apasific.org/api/article/${article.id}/pdf`
     : '';
 
+  // Determine absolute cover image URL for Facebook OpenGraph & Twitter Cards
+  let coverImageUrl = article.cover_file_url || '';
+  if (!coverImageUrl) {
+    const jUpper = (article.journal || '').toUpperCase();
+    if (jUpper.includes('AJAF') || jUpper.includes('AKUNTANSI') || jUpper.includes('ACCOUNTING')) {
+      coverImageUrl = 'https://www.apasific.org/coverAJAF.png';
+    } else if (jUpper.includes('AJITE') || jUpper.includes('TEKNOLOGI') || jUpper.includes('IT')) {
+      coverImageUrl = 'https://www.apasific.org/coverAJITE.png';
+    } else if (jUpper.includes('AJES') || jUpper.includes('ENVIRONMENT')) {
+      coverImageUrl = 'https://www.apasific.org/coverAJES.png';
+    } else if (jUpper.includes('HUKUM') || jUpper.includes('LAW') || jUpper.includes('AJLS')) {
+      coverImageUrl = 'https://www.apasific.org/law_journal_cover.png';
+    } else if (jUpper.includes('BISNIS') || jUpper.includes('BUSINESS') || jUpper.includes('AJBA')) {
+      coverImageUrl = 'https://www.apasific.org/business_journal_cover.png';
+    } else if (jUpper.includes('EKONOMI') || jUpper.includes('ECONOM') || jUpper.includes('AJEP')) {
+      coverImageUrl = 'https://www.apasific.org/economics_journal_cover.png';
+    } else if (jUpper.includes('SOSIAL') || jUpper.includes('SOCIAL') || jUpper.includes('AJSSH')) {
+      coverImageUrl = 'https://www.apasific.org/social_journal_cover.png';
+    } else if (jUpper.includes('ISLAM') || jUpper.includes('AJIS')) {
+      coverImageUrl = 'https://www.apasific.org/islamic_journal_cover.png';
+    } else if (jUpper.includes('COMMUNITY') || jUpper.includes('PENGABDIAN') || jUpper.includes('PKM') || jUpper.includes('RJRAKP')) {
+      coverImageUrl = 'https://www.apasific.org/coverPKM.png';
+    } else {
+      coverImageUrl = 'https://www.apasific.org/coverAJAF.png';
+    }
+  } else if (!coverImageUrl.startsWith('http')) {
+    coverImageUrl = `https://www.apasific.org${coverImageUrl.startsWith('/') ? '' : '/'}${coverImageUrl}`;
+  }
+
+  const cleanDescription = article.abstract
+    ? article.abstract.replace(/\s+/g, ' ').trim().substring(0, 260) + '...'
+    : 'Publikasi Ilmiah Resmi - Association of Asia Pacific Academician';
+
   return {
-    title: article.title,
-    description: article.abstract || '',
+    title: `${article.title} | ${article.journal || 'APASIFIC'}`,
+    description: cleanDescription,
     authors: authors.map((name: string) => ({ name })),
     alternates: {
       canonical: `https://www.apasific.org/article/${article.id}`
+    },
+    openGraph: {
+      title: article.title,
+      description: cleanDescription,
+      url: `https://www.apasific.org/article/${article.id}`,
+      siteName: 'APASIFIC - Association of Asia Pacific Academician',
+      images: [
+        {
+          url: coverImageUrl,
+          width: 1200,
+          height: 1600,
+          alt: `Cover ${article.journal || 'Jurnal'} - ${article.title}`
+        }
+      ],
+      locale: 'id_ID',
+      type: 'article',
+      publishedTime: publicationDate ? new Date(publicationDate).toISOString() : undefined,
+      authors: authors
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: article.title,
+      description: cleanDescription,
+      images: [coverImageUrl]
     },
     other: {
       citation_title: article.title,
