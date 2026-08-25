@@ -89,17 +89,60 @@ export default function ArticleEvidenceClueCard({
     return null;
   }, [reviewsData]);
 
+  // Clean and sanitize abstract text into a proper executive summary
+  const cleanAbstractSummary = (raw: string): string => {
+    if (!raw) return "Studi ini menyajikan investigasi mendalam terhadap fenomena akademik terkait melalui kerangka analisis baku.";
+    
+    let text = raw;
+    try {
+      const parsed = JSON.parse(raw);
+      text = parsed.abstract_en || parsed.abstract || parsed.abstrak || raw;
+    } catch {
+      // not JSON
+    }
+
+    if (typeof text === 'string') {
+      if (text.includes('<h3>Abstract</h3>') || text.includes('<h3>Abstrak</h3>') || text.includes('<p>')) {
+        const enMatch = text.match(/<h3>Abstract<\/h3>[\s\S]*?<p>([\s\S]*?)<\/p>/i);
+        const idMatch = text.match(/<h3>Abstrak<\/h3>[\s\S]*?<p>([\s\S]*?)<\/p>/i);
+        if (enMatch && enMatch[1]) {
+          text = enMatch[1];
+        } else if (idMatch && idMatch[1]) {
+          text = idMatch[1];
+        } else {
+          text = text.replace(/<[^>]*>/g, ' ');
+        }
+      } else {
+        text = text.replace(/<[^>]*>/g, ' ');
+      }
+
+      // Strip keywords & section headers
+      text = text.replace(/Keywords:[\s\S]*$/i, '')
+                 .replace(/Kata\s*Kunci:[\s\S]*$/i, '')
+                 .replace(/^\s*Abstract\s*[:\-]?\s*/i, '')
+                 .replace(/^\s*Abstrak\s*[:\-]?\s*/i, '')
+                 .replace(/\s+/g, ' ')
+                 .trim();
+    }
+
+    // Keep a coherent executive summary (1-3 sentences or ~450 chars)
+    if (text.length > 450) {
+      const sentences = text.match(/[^.!?]+[.!?]+/g);
+      if (sentences && sentences.length >= 2) {
+        text = sentences.slice(0, 3).join(' ').trim();
+      } else {
+        text = text.slice(0, 420).trim() + '...';
+      }
+    }
+
+    return text || "Studi ini menyajikan investigasi mendalam terhadap fenomena akademik terkait melalui kerangka analisis baku.";
+  };
+
   // Deterministic fallback derived from abstract
   const fallbackClue = useMemo(() => {
-    let cleanAbs = abstract;
-    try {
-      const parsed = JSON.parse(abstract);
-      cleanAbs = parsed.abstract_en || parsed.abstract || abstract;
-    } catch { /* raw string */ }
-
     return {
       hasStructured: true,
-      summary: cleanAbs || "Studi ini menyajikan investigasi mendalam terhadap fenomena akademik terkait melalui kerangka analisis baku.",
+      summary: cleanAbstractSummary(abstract),
       objective: "Menganalisis dan mengidentifikasi determinan utama pada objek kajian serta mengeksplorasi implikasi substantifnya.",
       methodology: "Pendekatan telaah ilmiah terpadu melalui verifikasi data, perumusan kerangka teoritis, dan pengujian konsistensi.",
       findings: "Pemeriksaan menghasilkan bukti ilmiah yang selaras dengan hipotesis/premis dasar serta menegaskan signifikansi temuan.",
