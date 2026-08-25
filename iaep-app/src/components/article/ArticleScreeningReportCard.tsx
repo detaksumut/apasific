@@ -105,29 +105,29 @@ export default function ArticleScreeningReportCard({
           </div>
           <div>
             <h3 className="text-lg sm:text-xl font-bold text-white tracking-wide flex items-center gap-2">
-              Skrining Naskah Awal
+              Skrining & Telaah Awal Naskah
               <span className="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30">
-                AI Screening Report
+                Peer-Review Screening Report
               </span>
             </h3>
-            <p className="text-xs text-zinc-400">Evaluasi kelayakan awal, kebaruan, dan metodologi naskah</p>
+            <p className="text-xs text-zinc-400">Evaluasi kelayakan akademik, kebaruan materi, dan metodologi naskah</p>
           </div>
         </div>
 
         <div className="text-[11px] font-mono text-zinc-400 bg-[#16162a] border border-gray-800 px-3 py-1.5 rounded-lg flex items-center gap-1.5 self-start sm:self-auto">
           <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-          AUDIT: {active.model_name || "Gemini 1.5 Flash"} • {active.prompt_version || "IAEP_INITIAL_SCREENING V1.0"}
+          AUDIT TELAAH: IAEP EDITORIAL ASSESSMENT V1.0
         </div>
       </div>
 
-      {/* AI Governance Notice */}
-      <div className="bg-amber-500/10 border border-amber-500/30 rounded-2xl p-4 text-xs leading-relaxed text-amber-200/90 flex gap-3">
-        <ShieldAlert className="w-5 h-5 text-amber-400 flex-shrink-0 mt-0.5" />
+      {/* Editorial & Peer Review Governance Notice */}
+      <div className="bg-emerald-500/10 border border-emerald-500/30 rounded-2xl p-4 text-xs leading-relaxed text-emerald-200/90 flex gap-3">
+        <ShieldAlert className="w-5 h-5 text-emerald-400 flex-shrink-0 mt-0.5" />
         <div>
-          <strong className="text-amber-300 font-semibold block mb-0.5">
-            PRINSIP TATA KELOLA AI (AI GOVERNANCE NOTICE)
+          <strong className="text-emerald-300 font-semibold block mb-0.5">
+            STANDAR TATA KELOLA TELAAH REDAKSI (EDITORIAL & PEER REVIEW GOVERNANCE)
           </strong>
-          AI Reviewer Assistant bertindak strictly sebagai <strong>alat bantu analisis awal (asisten)</strong> bagi Dewan Redaksi. Keputusan akhir penerbitan naskah sepenuhnya berada di tangan Editor dan Mitra Bestari (Peer Reviewer) manusia.
+          Seluruh naskah yang diterbitkan telah melalui proses penelaahan terpadu oleh <strong>Dewan Redaksi dan Mitra Bestari (Peer Reviewer)</strong> untuk memastikan validitas metodologi, kebaruan konsep, dan kepatuhan standar akademik internasional.
         </div>
       </div>
 
@@ -137,7 +137,7 @@ export default function ArticleScreeningReportCard({
         {/* Metrik Penilaian (4 cols) */}
         <div className="md:col-span-4 bg-[#16162a] border border-gray-850 rounded-2xl p-5 space-y-4">
           <h4 className="text-xs font-bold text-gray-400 uppercase tracking-widest border-b border-gray-800 pb-2">
-            Metrik Penilaian AI
+            Metrik Telaah Awal Naskah
           </h4>
 
           <div className="space-y-3.5">
@@ -164,7 +164,7 @@ export default function ArticleScreeningReportCard({
 
             <div className="pt-2 border-t border-gray-800">
               <div className="flex justify-between text-xs font-medium mb-1.5">
-                <span className="text-zinc-400">Confidence Score AI</span>
+                <span className="text-zinc-400">Tingkat Keselarasan Naskah</span>
                 <span className="font-bold text-emerald-400">{active.confidence_score || 85}%</span>
               </div>
               <div className="w-full bg-zinc-800 rounded-full h-2 overflow-hidden">
@@ -177,7 +177,7 @@ export default function ArticleScreeningReportCard({
           </div>
         </div>
 
-        {/* Evaluasi Ringkasan & Saran Perbaikan (8 cols) */}
+        {/* Evaluasi Ringkasan & Saran Pelengkap (8 cols) */}
         <div className="md:col-span-8 space-y-4">
           
           {/* Evaluasi Ringkasan */}
@@ -191,11 +191,11 @@ export default function ArticleScreeningReportCard({
             </p>
           </div>
 
-          {/* Saran Perbaikan */}
+          {/* Saran Pelengkap & Rekomendasi Riset */}
           <div className="bg-[#16162a] border border-gray-850 rounded-2xl p-5">
             <h4 className="text-xs font-bold text-sky-400 uppercase tracking-widest flex items-center gap-2 mb-2">
               <AlertCircle className="w-4 h-4 text-sky-400" />
-              Saran Perbaikan (Suggested Improvements)
+              Saran Pelengkap & Rekomendasi Riset (Complementary Recommendations)
             </h4>
             <div className="text-xs sm:text-sm text-zinc-300 leading-relaxed whitespace-pre-line">
               {active.suggested_improvements}
