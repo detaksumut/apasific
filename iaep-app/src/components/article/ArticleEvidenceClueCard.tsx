@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useMemo } from "react";
-import { Layers, FileText, CheckCircle2, Target, Microscope, Award, Lightbulb, ShieldCheck } from "lucide-react";
+import { Layers, FileText, CheckCircle2, Target, Microscope, Award, Lightbulb, ShieldAlert } from "lucide-react";
 
 interface Props {
   articleId?: string;
@@ -197,21 +197,21 @@ export default function ArticleEvidenceClueCard({
           </div>
         </div>
 
-        {/* Catatan Tata Kelola Kerahasiaan Reviewer & Editor */}
-        <div className="bg-[#16162a] border border-blue-500/20 rounded-2xl p-4 sm:p-5 text-xs text-zinc-400 space-y-2">
-          <div className="flex items-center gap-2 font-bold text-blue-400 uppercase tracking-wider">
-            <ShieldCheck className="w-4 h-4 text-blue-400" />
+        {/* Catatan Tata Kelola Kerahasiaan Reviewer & Editor (Warna Merah) */}
+        <div className="bg-red-500/10 border border-red-500/30 rounded-2xl p-4 sm:p-5 text-xs space-y-2.5">
+          <div className="flex items-center gap-2 font-bold text-red-400 uppercase tracking-wider">
+            <ShieldAlert className="w-4 h-4 text-red-400 flex-shrink-0" />
             Catatan Tata Kelola & Kerahasiaan Telaah (Editorial Confidentiality Note)
           </div>
-          <p className="leading-relaxed text-zinc-300">
+          <p className="leading-relaxed text-red-200/90">
             Demi menjunjung tinggi hak kerahasiaan Mitra Bestari (*Peer Reviewer*) serta integritas independensi proses telaah redaksi, 2 instrumen telaah internal berikut <strong>tidak dipublikasikan ke publik</strong>:
           </p>
-          <ul className="list-disc list-inside space-y-1 text-zinc-400 pl-1">
+          <ul className="list-disc list-inside space-y-1.5 text-red-200/80 pl-1">
             <li>
-              <strong className="text-zinc-200">1. Notifikasi / Catatan Koreksi untuk Penulis (Author Revision Directives)</strong> — Digunakan strictly selama proses revisi internal sebelum naskah disetujui terbit.
+              <strong className="text-red-100">1. Notifikasi / Catatan Koreksi untuk Penulis (Author Revision Directives)</strong> — Digunakan strictly selama proses revisi internal sebelum naskah disetujui terbit.
             </li>
             <li>
-              <strong className="text-zinc-200">2. Catatan Khusus Dewan Redaksi (Confidential Reviewer-to-Editor Notes)</strong> — Komunikasi independen dan rahasia antara Mitra Bestari dan Dewan Redaksi.
+              <strong className="text-red-100">2. Catatan Khusus Dewan Redaksi (Confidential Reviewer-to-Editor Notes)</strong> — Komunikasi independen dan rahasia antara Mitra Bestari dan Dewan Redaksi.
             </li>
           </ul>
         </div>
