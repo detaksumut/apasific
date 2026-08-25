@@ -269,13 +269,44 @@ export class AsiaIndexService {
       affiliations.push('Academic & Research Institution');
     }
 
-    let subjectCategory = 'Multidisciplinary & Social Sciences';
+    // 16 Official APASIFIC Journals Subject Mapping
+    const jSlug = (article?.journals?.slug || article?.journal_slug || '').toLowerCase();
     const jUpper = journalName.toUpperCase();
-    if (jUpper.includes('EDUCATION') || jUpper.includes('AJED') || jUpper.includes('AJEP')) subjectCategory = 'Education & Learning Systems';
-    else if (jUpper.includes('COMPUTER') || jUpper.includes('AJCS') || jUpper.includes('IT')) subjectCategory = 'Computer Science & Informatics';
-    else if (jUpper.includes('HEALTH') || jUpper.includes('AJPH')) subjectCategory = 'Public Health & Medicine';
-    else if (jUpper.includes('MANAGEMENT') || jUpper.includes('AJADM')) subjectCategory = 'Economics, Business & Management';
-    else if (jUpper.includes('LAW') || jUpper.includes('AJLS')) subjectCategory = 'Legal & Social Studies';
+    
+    let subjectCategory = 'Multidisciplinary & Social Sciences';
+    if (jSlug === 'ajaf' || jUpper.includes('AJAF') || (jUpper.includes('AKUNTANSI') && (jUpper.includes('AUDIT') || jUpper.includes('PERPAJAKAN')))) {
+      subjectCategory = 'Accounting, Auditing & Taxation';
+    } else if (jSlug === 'ajafr' || jUpper.includes('AJAFR') || jUpper.includes('PERTANIAN') || jUpper.includes('KEHUTANAN') || jUpper.includes('PERIKANAN')) {
+      subjectCategory = 'Agriculture, Forestry & Fisheries';
+    } else if (jSlug === 'ajba' || jUpper.includes('AJBA') || (jUpper.includes('MANAJEMEN') && jUpper.includes('BISNIS'))) {
+      subjectCategory = 'Business, Management & Administration';
+    } else if (jSlug === 'ajadm' || jUpper.includes('AJADM') || jUpper.includes('SENI') || jUpper.includes('DESAIN') || jUpper.includes('MEDIA KREATIF')) {
+      subjectCategory = 'Arts, Design & Creative Media';
+    } else if (jSlug === 'ajcs' || jUpper.includes('AJCS') || jUpper.includes('PENGABDIAN') || jUpper.includes('PKM') || jUpper.includes('COMMUNITY SERVICE')) {
+      subjectCategory = 'Community Services & Applied Development';
+    } else if (jSlug === 'ajite' || jUpper.includes('AJITE') || (jUpper.includes('KOMPUTER') && jUpper.includes('TEKNOLOGI INFORMASI')) || jUpper.includes('INFORMATIKA')) {
+      subjectCategory = 'Computer Science & Information Technology';
+    } else if (jSlug === 'ajce' || jUpper.includes('AJCE') || jUpper.includes('SIPIL') || jUpper.includes('MESIN') || jUpper.includes('ELEKTRO') || jUpper.includes('ENGINEERING')) {
+      subjectCategory = 'Civil, Mechanical & Electrical Engineering';
+    } else if (jSlug === 'ajes' || jUpper.includes('AJES') || jUpper.includes('LINGKUNGAN') || jUpper.includes('KEBERLANJUTAN') || jUpper.includes('ENVIRONMENT')) {
+      subjectCategory = 'Environmental Science & Sustainability';
+    } else if (jSlug === 'ajed' || jUpper.includes('AJED') || (jUpper.includes('EKONOMI') && jUpper.includes('PEMBANGUNAN'))) {
+      subjectCategory = 'Development Economics & Finance';
+    } else if (jSlug === 'ajep' || jUpper.includes('AJEP') || jUpper.includes('PENDIDIKAN') || jUpper.includes('PEDAGOGI') || jUpper.includes('EDUCATION')) {
+      subjectCategory = 'Education & Pedagogical Sciences';
+    } else if (jSlug === 'ajls' || jUpper.includes('AJLS') || jUpper.includes('HUKUM') || jUpper.includes('HAK ASASI') || jUpper.includes('LEGAL') || jUpper.includes('LAW')) {
+      subjectCategory = 'Legal Studies & Human Rights';
+    } else if (jSlug === 'ajph' || jUpper.includes('AJPH') || jUpper.includes('KEDOKTERAN') || jUpper.includes('KESEHATAN') || jUpper.includes('KEPERAWATAN') || jUpper.includes('HEALTH')) {
+      subjectCategory = 'Medicine, Public Health & Nursing';
+    } else if (jSlug === 'ajssh' || jUpper.includes('AJSSH') || jUpper.includes('SOSIOLOGI') || jUpper.includes('BUDAYA') || jUpper.includes('HUMANIORA')) {
+      subjectCategory = 'Sociology & Cultural Studies';
+    } else if (jSlug === 'ajis' || jUpper.includes('AJIS') || jUpper.includes('AGAMA') || jUpper.includes('ISLAM') || jUpper.includes('ISLAMIC')) {
+      subjectCategory = 'Islamic Studies & Religious Civilization';
+    } else if (jSlug === 'ajir' || jUpper.includes('AJIR') || jUpper.includes('POLITIK') || jUpper.includes('INTERNASIONAL') || jUpper.includes('DIPLOMASI')) {
+      subjectCategory = 'Political Science & International Relations';
+    } else if (jSlug === 'ajthm' || jUpper.includes('AJTHM') || jUpper.includes('PARIWISATA') || jUpper.includes('PERHOTELAN') || jUpper.includes('TOURISM') || jUpper.includes('HOSPITALITY')) {
+      subjectCategory = 'Tourism & Hospitality Management';
+    }
 
     const zenodoId = article?.zenodo_id || (cleanDoi.includes('zenodo.') ? cleanDoi.split('zenodo.').slice(-1)[0] : '');
 

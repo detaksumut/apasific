@@ -8,6 +8,29 @@ interface ASIAIndexRecordProps {
   asiaRecord?: AsiaFullRecord | null;
 }
 
+function resolveSubjectCategory(article: any): string {
+  const jName = (article.journal || article.journals?.name || '').toLowerCase();
+  const jSlug = (article.journals?.slug || article.journal_slug || '').toLowerCase();
+  const s = `${jSlug} ${jName}`;
+  if (s.includes('ajaf') || (s.includes('akuntansi') && (s.includes('audit') || s.includes('perpajakan')))) return 'Accounting, Auditing & Taxation';
+  if (s.includes('ajafr') || s.includes('pertanian') || s.includes('kehutanan') || s.includes('perikanan')) return 'Agriculture, Forestry & Fisheries';
+  if (s.includes('ajba') || (s.includes('manajemen') && s.includes('bisnis'))) return 'Business, Management & Administration';
+  if (s.includes('ajadm') || s.includes('seni') || s.includes('desain') || s.includes('media')) return 'Arts, Design & Creative Media';
+  if (s.includes('ajcs') || s.includes('pengabdian') || s.includes('pkm') || s.includes('community')) return 'Community Services & Applied Development';
+  if (s.includes('ajite') || (s.includes('komputer') && s.includes('teknologi')) || s.includes('informatika')) return 'Computer Science & Information Technology';
+  if (s.includes('ajce') || s.includes('sipil') || s.includes('mesin') || s.includes('elektro') || s.includes('engineering')) return 'Civil, Mechanical & Electrical Engineering';
+  if (s.includes('ajes') || s.includes('lingkungan') || s.includes('keberlanjutan') || s.includes('environment')) return 'Environmental Science & Sustainability';
+  if (s.includes('ajed') || (s.includes('ekonomi') && s.includes('pembangunan'))) return 'Development Economics & Finance';
+  if (s.includes('ajep') || s.includes('pendidikan') || s.includes('pedagogi') || s.includes('education')) return 'Education & Pedagogical Sciences';
+  if (s.includes('ajls') || s.includes('hukum') || s.includes('hak asasi') || s.includes('legal') || s.includes('law')) return 'Legal Studies & Human Rights';
+  if (s.includes('ajph') || s.includes('kedokteran') || s.includes('kesehatan') || s.includes('keperawatan') || s.includes('health') || s.includes('medicine')) return 'Medicine, Public Health & Nursing';
+  if (s.includes('ajssh') || s.includes('sosiologi') || s.includes('budaya') || s.includes('humaniora')) return 'Sociology & Cultural Studies';
+  if (s.includes('ajis') || s.includes('agama') || s.includes('islam')) return 'Islamic Studies & Religious Civilization';
+  if (s.includes('ajir') || s.includes('politik') || s.includes('internasional') || s.includes('diplomasi')) return 'Political Science & International Relations';
+  if (s.includes('ajthm') || s.includes('pariwisata') || s.includes('perhotelan') || s.includes('tourism') || s.includes('hospitality')) return 'Tourism & Hospitality Management';
+  return 'Multidisciplinary & Social Sciences';
+}
+
 export default function ASIAIndexRecord({ article, asiaRecord }: ASIAIndexRecordProps) {
   if (!article) return null;
 
@@ -28,7 +51,7 @@ export default function ASIAIndexRecord({ article, asiaRecord }: ASIAIndexRecord
       doiUrl: article.doi ? `https://doi.org/${article.doi.replace(/^https?:\/\/doi\.org\//i, '')}` : 'https://doi.org',
       journal: article.journal || article.journals?.name || 'APASIFIC Journal',
       issn: article.issn || article.journals?.eissn || article.journals?.pissn || 'Dalam Antrean',
-      subjectCategory: 'Education & Social Sciences',
+      subjectCategory: resolveSubjectCategory(article),
       documentType: 'Research Article',
       language: 'English',
       volume: article.volume || '1',
