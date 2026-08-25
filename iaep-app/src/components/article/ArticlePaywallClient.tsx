@@ -963,28 +963,28 @@ export default function ArticlePaywallClient({ initialArticle, id }: ArticlePayw
             {/* JOURNAL INDEXING STATUS / APASIFIC INDEX SIDEBAR WIDGET */}
             <ApasificIndexPanel isSidebar={true} />
 
-            {/* TIKTOK & SOCIAL MEDIA DISSEMINATION CARD (BOTTOM OF SIDEBAR) */}
+            {/* TIKTOK & FACEBOOK SOCIAL MEDIA DISSEMINATION CARD (BOTTOM OF SIDEBAR) */}
             <div className="bg-gradient-to-br from-[#1b1226] via-[#121226] to-[#070714] border border-[#c9a84c]/50 rounded-3xl p-5 shadow-2xl space-y-3 relative overflow-hidden">
               <div className="flex items-center justify-between">
                 <span className="text-[10px] font-bold text-[#c9a84c] tracking-widest uppercase">
                   ✦ Social Dissemination ✦
                 </span>
-                <span className="text-[9px] font-extrabold bg-red-600/30 text-red-300 border border-red-500/40 px-2 py-0.5 rounded-full">
-                  TIKTOK READY
+                <span className="text-[9px] font-extrabold bg-blue-600/30 text-blue-300 border border-blue-500/40 px-2 py-0.5 rounded-full">
+                  TIKTOK &amp; FB READY
                 </span>
               </div>
               <h4 className="text-sm font-bold text-white leading-snug">
-                Bagikan Naskah ke TikTok & Reels
+                Bagikan Naskah ke Media Sosial
               </h4>
               <p className="text-[11px] text-gray-400 leading-relaxed">
-                Hasilkan kartu vertikal resmi 9:16 ber-QR Code untuk diunggah ke TikTok Story <strong className="text-gray-200">@apasificacademician</strong>, Reels, dan Status WA.
+                Bagikan langsung ke Facebook, WhatsApp, atau buat kartu Story 9:16 untuk TikTok <strong className="text-gray-200">@apasificacademician</strong>.
               </p>
               <button
                 onClick={() => setShowTikTokModal(true)}
                 className="w-full bg-[#1b1c32] hover:bg-[#c9a84c] hover:text-black text-[#e8c97a] border border-[#c9a84c]/50 font-bold py-2.5 px-4 rounded-xl text-xs flex items-center justify-center gap-2 transition-all cursor-pointer shadow-md"
               >
-                <span>📱</span>
-                <span>Buka Generator TikTok Story (9:16)</span>
+                <span>🌐</span>
+                <span>Bagikan ke TikTok / Facebook</span>
               </button>
             </div>
 

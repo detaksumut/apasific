@@ -25,24 +25,33 @@ export const TikTokArticleShareModal: React.FC<TikTokArticleShareModalProps> = (
 }) => {
   const [copied, setCopied] = useState(false);
   const [downloading, setDownloading] = useState(false);
-  const cardRef = useRef<HTMLDivElement>(null);
 
   if (!isOpen) return null;
 
   const articleUrl = typeof window !== 'undefined' ? window.location.href : 'https://apasific.org';
   const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(articleUrl)}&color=c9a84c&bgcolor=070714`;
 
+  const captionText = `📚 NEW PUBLICATION HIGHLIGHT!\n\nJudul: ${article.title}\nPenulis: ${displayAuthors}\nJurnal: ${article.journal || 'ASIA Journal'}\nDOI: https://doi.org/${article.doi || '10.xxxx'}\n\nBaca naskah lengkap: ${articleUrl}\n\n#APASIFIC #JurnalIlmiah #RisetAkademik #PublikasiInternasional #OpenScience #AsiaPacificAcademician`;
+
   const handleCopyCaption = () => {
-    const caption = `📚 NEW PUBLICATION HIGHLIGHT!\n\nJudul: ${article.title}\nPenulis: ${displayAuthors}\nJurnal: ${article.journal || 'ASIA Journal'}\nDOI: https://doi.org/${article.doi || '10.xxxx'}\n\nBaca naskah lengkap melalui tautan di profil @apasificacademician 🌐\n\n#APASIFIC #JurnalIlmiah #RisetAkademik #PublikasiInternasional #OpenScience #AsiaPacificAcademician`;
-    navigator.clipboard.writeText(caption);
+    navigator.clipboard.writeText(captionText);
     setCopied(true);
     setTimeout(() => setCopied(false), 3000);
+  };
+
+  const handleShareFacebook = () => {
+    const fbUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(articleUrl)}&quote=${encodeURIComponent(`📚 Publikasi Ilmiah APASIFIC: ${article.title}`)}`;
+    window.open(fbUrl, '_blank', 'width=600,height=500');
+  };
+
+  const handleShareWhatsApp = () => {
+    const waUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(captionText)}`;
+    window.open(waUrl, '_blank');
   };
 
   const handleDownloadCanvas = async () => {
     setDownloading(true);
     try {
-      // Create high-res offscreen canvas (1080 x 1920 standard 9:16)
       const canvas = document.createElement('canvas');
       canvas.width = 1080;
       canvas.height = 1920;
@@ -50,7 +59,7 @@ export const TikTokArticleShareModal: React.FC<TikTokArticleShareModalProps> = (
 
       if (!ctx) return;
 
-      // 1. Background Gradient
+      // Background Gradient
       const grad = ctx.createLinearGradient(0, 0, 0, 1920);
       grad.addColorStop(0, '#05050f');
       grad.addColorStop(0.5, '#0b0c1b');
@@ -68,7 +77,6 @@ export const TikTokArticleShareModal: React.FC<TikTokArticleShareModalProps> = (
       ctx.lineWidth = 2;
       ctx.strokeRect(50, 50, 980, 1820);
 
-      // Helper function to draw wrapped text
       const wrapText = (text: string, x: number, y: number, maxWidth: number, lineHeight: number, maxLines = 4) => {
         const words = text.split(' ');
         let line = '';
@@ -174,18 +182,17 @@ export const TikTokArticleShareModal: React.FC<TikTokArticleShareModalProps> = (
       ctx.font = 'bold 30px Arial, sans-serif';
       ctx.fillText('📱 SCAN UNTUK BACA NASKAH LENGKAP', 540, qrY + 420);
 
-      // TikTok & Footer
+      // TikTok & Facebook Footer
       ctx.fillStyle = '#ffffff';
-      ctx.font = 'bold 32px Arial, sans-serif';
-      ctx.fillText('Follow TikTok: @apasificacademician', 540, qrY + 490);
+      ctx.font = 'bold 30px Arial, sans-serif';
+      ctx.fillText('TikTok: @apasificacademician · Facebook: Muhibuddin A. Rahman', 540, qrY + 490);
 
       ctx.fillStyle = '#9ca3af';
       ctx.font = '24px Arial, sans-serif';
       ctx.fillText('🌐 https://apasific.org · Integrated Academic Ecosystem Platform', 540, qrY + 540);
 
-      // Download
       const link = document.createElement('a');
-      link.download = `APASIFIC-TikTok-Story-${(article.journal || 'Journal').replace(/\s+/g, '-')}.png`;
+      link.download = `APASIFIC-Story-${(article.journal || 'Journal').replace(/\s+/g, '-')}.png`;
       link.href = canvas.toDataURL('image/png');
       link.click();
     } catch (err) {
@@ -213,17 +220,14 @@ export const TikTokArticleShareModal: React.FC<TikTokArticleShareModalProps> = (
         {/* Modal Header */}
         <div className="flex items-center gap-3 mb-6 border-b border-gray-800 pb-4">
           <div className="w-10 h-10 rounded-full bg-[#c9a84c]/20 border border-[#c9a84c] flex items-center justify-center text-lg">
-            📱
+            🌐
           </div>
           <div>
             <h3 className="text-lg font-bold text-white flex items-center gap-2">
-              Diseminasi TikTok & Media Sosial
-              <span className="text-[10px] bg-red-600/30 text-red-300 border border-red-500/40 px-2 py-0.5 rounded-full font-bold">
-                @apasificacademician
-              </span>
+              Diseminasi Naskah: TikTok & Facebook
             </h3>
             <p className="text-xs text-gray-400">
-              Buat kartu vertikal standar 9:16 untuk diunggah ke TikTok Story, Instagram Reels, & WhatsApp Status.
+              Bagikan publikasi resmi ke Facebook, TikTok Story (9:16), Reels, dan WhatsApp.
             </p>
           </div>
         </div>
@@ -254,8 +258,8 @@ export const TikTokArticleShareModal: React.FC<TikTokArticleShareModalProps> = (
           <p className="text-[10px] text-gray-400">Scan QR Code untuk membaca artikel lengkap</p>
         </div>
 
-        {/* Action Buttons */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        {/* Action Buttons Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
           <button
             onClick={handleDownloadCanvas}
             disabled={downloading}
@@ -274,28 +278,58 @@ export const TikTokArticleShareModal: React.FC<TikTokArticleShareModalProps> = (
           </button>
 
           <button
+            onClick={handleShareFacebook}
+            className="w-full bg-[#1877f2] hover:bg-[#166fe5] text-white font-bold py-3 px-4 rounded-xl text-xs flex items-center justify-center gap-2 transition-all shadow-lg cursor-pointer"
+          >
+            <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
+              <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+            </svg>
+            <span>Bagikan ke Facebook</span>
+          </button>
+
+          <button
+            onClick={handleShareWhatsApp}
+            className="w-full bg-[#25d366] hover:bg-[#20bd5a] text-black font-bold py-2.5 px-4 rounded-xl text-xs flex items-center justify-center gap-2 transition-all shadow-md cursor-pointer"
+          >
+            <span>💬</span>
+            <span>Kirim ke WhatsApp</span>
+          </button>
+
+          <button
             onClick={handleCopyCaption}
-            className="w-full bg-[#16162a] hover:bg-[#20203a] text-white border border-gray-700 font-bold py-3 px-4 rounded-xl text-xs flex items-center justify-center gap-2 transition-all cursor-pointer"
+            className="w-full bg-[#16162a] hover:bg-[#20203a] text-white border border-gray-700 font-bold py-2.5 px-4 rounded-xl text-xs flex items-center justify-center gap-2 transition-all cursor-pointer"
           >
             <svg className="w-4 h-4 text-[#c9a84c]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
             </svg>
-            <span>{copied ? '✅ Caption & Tagar Tersalin!' : 'Salin Caption + Tagar'}</span>
+            <span>{copied ? '✅ Caption & Link Tersalin!' : 'Salin Teks & Tagar'}</span>
           </button>
         </div>
 
-        {/* Direct TikTok Visit */}
-        <div className="mt-4 pt-3 border-t border-gray-800 flex items-center justify-between text-[11px] text-gray-400">
-          <span>Official Channel: <strong className="text-white">@apasificacademician</strong></span>
-          <a
-            href="https://www.tiktok.com/@apasificacademician"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-[#c9a84c] hover:underline flex items-center gap-1 font-semibold"
-          >
-            <span>Buka TikTok</span>
-            <span>↗</span>
-          </a>
+        {/* Official Channels Footer */}
+        <div className="mt-4 pt-3 border-t border-gray-800 flex flex-wrap items-center justify-between gap-2 text-[11px] text-gray-400">
+          <div className="flex items-center gap-3">
+            <span>Official:</span>
+            <a
+              href="https://www.facebook.com/muhibuddin.a.rahman"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-400 hover:underline flex items-center gap-1 font-semibold"
+            >
+              <span>Facebook (Muhibuddin A. Rahman)</span>
+              <span>↗</span>
+            </a>
+            <span>•</span>
+            <a
+              href="https://www.tiktok.com/@apasificacademician"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-[#c9a84c] hover:underline flex items-center gap-1 font-semibold"
+            >
+              <span>TikTok (@apasificacademician)</span>
+              <span>↗</span>
+            </a>
+          </div>
         </div>
 
       </div>
