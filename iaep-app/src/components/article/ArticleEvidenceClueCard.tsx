@@ -124,16 +124,16 @@ export default function ArticleEvidenceClueCard({
             <h3 className="text-lg sm:text-xl font-bold text-white tracking-wide flex items-center gap-2">
               Sintesis Bukti & Struktur Riset
               <span className="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded bg-blue-500/20 text-blue-300 border border-blue-500/30">
-                Research Evidence Synthesis
+                Evidence Synthesis
               </span>
             </h3>
-            <p className="text-xs text-zinc-400">Ekstraksi 5 pilar struktur riset dan sintesis verifikasi substantif dewan redaksi</p>
+            <p className="text-xs text-zinc-400">System-generated synthesis derived from the completed peer-review and editorial assessment process</p>
           </div>
         </div>
 
         <div className="text-[11px] font-mono text-zinc-400 bg-[#16162a] border border-gray-800 px-3 py-1.5 rounded-lg flex items-center gap-1.5 self-start sm:self-auto">
           <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-          <span>STATUS: TERVERIFIKASI TELAHAAN SEJAWAT (PEER-REVIEWED)</span>
+          <span>STATUS: TELAAH SEJAWAT TERVERIFIKASI</span>
         </div>
       </div>
 

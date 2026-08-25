@@ -105,29 +105,29 @@ export default function ArticleScreeningReportCard({
           </div>
           <div>
             <h3 className="text-lg sm:text-xl font-bold text-white tracking-wide flex items-center gap-2">
-              Skrining & Telaah Awal Naskah
+              Hasil Analisis Sistem atas Data Telaah
               <span className="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30">
-                Peer-Review Screening Report
+                System Assessment Report
               </span>
             </h3>
-            <p className="text-xs text-zinc-400">Evaluasi kelayakan akademik, kebaruan materi, dan metodologi naskah</p>
+            <p className="text-xs text-zinc-400">Evaluasi berbasis sistem terhadap data telaah substantif dan metodologis naskah</p>
           </div>
         </div>
 
         <div className="text-[11px] font-mono text-zinc-400 bg-[#16162a] border border-gray-800 px-3 py-1.5 rounded-lg flex items-center gap-1.5 self-start sm:self-auto">
-          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-          AUDIT TELAAH: IAEP EDITORIAL ASSESSMENT V1.0
+          <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+          <span>STATUS: TELAAH SEJAWAT TERVERIFIKASI</span>
         </div>
       </div>
 
-      {/* Editorial & Peer Review Governance Notice */}
+      {/* Official Transparency & Governance Disclaimer */}
       <div className="bg-emerald-500/10 border border-emerald-500/30 rounded-2xl p-4 text-xs leading-relaxed text-emerald-200/90 flex gap-3">
         <ShieldAlert className="w-5 h-5 text-emerald-400 flex-shrink-0 mt-0.5" />
         <div>
-          <strong className="text-emerald-300 font-semibold block mb-0.5">
-            STANDAR TATA KELOLA TELAAH REDAKSI (EDITORIAL & PEER REVIEW GOVERNANCE)
+          <strong className="text-emerald-300 font-semibold block mb-1 uppercase tracking-wider">
+            Transparansi Penilaian & Tata Kelola Editorial:
           </strong>
-          Seluruh naskah yang diterbitkan telah melalui proses penelaahan terpadu oleh <strong>Dewan Redaksi dan Mitra Bestari (Peer Reviewer)</strong> untuk memastikan validitas metodologi, kebaruan konsep, dan kepatuhan standar akademik internasional.
+          Skor, indeks, ringkasan evaluasi, dan sintesis yang ditampilkan pada halaman ini merupakan keluaran sistem yang dihasilkan berdasarkan data telaah sejawat yang telah diverifikasi serta kriteria penilaian editorial jurnal. Mitra Bestari memberikan data dan pertimbangan telaah, bukan skor numerik yang ditampilkan pada halaman ini. <strong>Keluaran sistem tersebut tidak menggantikan kewenangan Dewan Redaksi dalam menetapkan keputusan editorial.</strong>
         </div>
       </div>
 
@@ -136,11 +136,16 @@ export default function ArticleScreeningReportCard({
         
         {/* Metrik Penilaian (4 cols) */}
         <div className="md:col-span-4 bg-[#16162a] border border-gray-850 rounded-2xl p-5 space-y-4">
-          <h4 className="text-xs font-bold text-gray-400 uppercase tracking-widest border-b border-gray-800 pb-2">
-            Metrik Telaah Awal Naskah
-          </h4>
+          <div>
+            <h4 className="text-xs font-bold text-gray-300 uppercase tracking-widest border-b border-gray-800 pb-1.5 mb-1">
+              Hasil Analisis Sistem
+            </h4>
+            <p className="text-[10px] text-zinc-500 leading-tight">
+              Komputasi sistem berdasarkan kriteria editorial baku jurnal.
+            </p>
+          </div>
 
-          <div className="space-y-3.5">
+          <div className="space-y-3.5 pt-1">
             <div>
               <div className="flex justify-between text-xs font-medium text-zinc-300 mb-1">
                 <span>Kebaruan (Novelty)</span>
@@ -173,6 +178,7 @@ export default function ArticleScreeningReportCard({
                   style={{ width: `${Math.min(100, Math.max(10, active.confidence_score || 85))}%` }}
                 ></div>
               </div>
+              <span className="text-[10px] text-zinc-500 block mt-1">Script Alignment Index</span>
             </div>
           </div>
         </div>
@@ -182,10 +188,15 @@ export default function ArticleScreeningReportCard({
           
           {/* Evaluasi Ringkasan */}
           <div className="bg-[#16162a] border border-gray-850 rounded-2xl p-5">
-            <h4 className="text-xs font-bold text-amber-400 uppercase tracking-widest flex items-center gap-2 mb-2">
-              <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-              Evaluasi Ringkasan (Evaluation Summary)
-            </h4>
+            <div className="mb-2">
+              <h4 className="text-xs font-bold text-amber-400 uppercase tracking-widest flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                Evaluasi Ringkasan (Evaluation Summary)
+              </h4>
+              <span className="text-[10px] text-zinc-500 font-mono">
+                System-generated synthesis based on verified peer-review data.
+              </span>
+            </div>
             <p className="text-xs sm:text-sm text-zinc-300 leading-relaxed">
               {active.summary_evaluation}
             </p>
@@ -193,10 +204,15 @@ export default function ArticleScreeningReportCard({
 
           {/* Saran Pelengkap & Rekomendasi Riset */}
           <div className="bg-[#16162a] border border-gray-850 rounded-2xl p-5">
-            <h4 className="text-xs font-bold text-sky-400 uppercase tracking-widest flex items-center gap-2 mb-2">
-              <AlertCircle className="w-4 h-4 text-sky-400" />
-              Saran Pelengkap & Rekomendasi Riset (Complementary Recommendations)
-            </h4>
+            <div className="mb-2">
+              <h4 className="text-xs font-bold text-sky-400 uppercase tracking-widest flex items-center gap-2">
+                <AlertCircle className="w-4 h-4 text-sky-400" />
+                Saran Pelengkap & Rekomendasi Riset
+              </h4>
+              <span className="text-[10px] text-zinc-500 font-mono">
+                System-generated complementary recommendations for future research expansion.
+              </span>
+            </div>
             <div className="text-xs sm:text-sm text-zinc-300 leading-relaxed whitespace-pre-line">
               {active.suggested_improvements}
             </div>
