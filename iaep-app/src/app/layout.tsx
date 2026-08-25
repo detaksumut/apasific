@@ -380,8 +380,28 @@ export default function RootLayout({
         </div>
       </div>
     </div>
-  </footer>` }} />
         <LiveChatWidget />
+        <Script id="logo-protection" strategy="afterInteractive">
+          {`
+            (function() {
+              document.addEventListener('contextmenu', function(e) {
+                var target = e.target;
+                if (target && (target.tagName === 'IMG' || target.closest('img') || (target.src && target.src.indexOf('logo') !== -1))) {
+                  e.preventDefault();
+                  return false;
+                }
+              }, false);
+
+              document.addEventListener('dragstart', function(e) {
+                var target = e.target;
+                if (target && target.tagName === 'IMG') {
+                  e.preventDefault();
+                  return false;
+                }
+              }, false);
+            })();
+          `}
+        </Script>
         <Script src="/main.js" strategy="lazyOnload" />
       </body>
     </html>

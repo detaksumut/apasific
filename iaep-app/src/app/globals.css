@@ -49,7 +49,31 @@ body {
 
 a { text-decoration: none; color: inherit; }
 ul { list-style: none; }
-img { max-width: 100%; display: block; }
+img { 
+  max-width: 100%; 
+  display: block; 
+  -webkit-user-drag: none;
+  -khtml-user-drag: none;
+  -moz-user-drag: none;
+  -o-user-drag: none;
+  user-drag: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  -webkit-touch-callout: none;
+}
+
+/* ── DIGITAL ASSET & LOGO ANTI-DOWNLOAD PROTECTION ── */
+.protected-image, 
+img[src*="logo"], 
+img[src*="logobaru"],
+.no-save {
+  -webkit-user-drag: none !important;
+  user-select: none !important;
+  -webkit-user-select: none !important;
+  -webkit-touch-callout: none !important;
+}
 
 .container { max-width: 1240px; margin: 0 auto; padding: 0 24px; }
 .gold { color: var(--gold); }
