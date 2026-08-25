@@ -182,10 +182,10 @@ export const TikTokArticleShareModal: React.FC<TikTokArticleShareModalProps> = (
       ctx.font = 'bold 30px Arial, sans-serif';
       ctx.fillText('📱 SCAN UNTUK BACA NASKAH LENGKAP', 540, qrY + 420);
 
-      // TikTok & Facebook Footer
+      // Social Channels Canvas Footer
       ctx.fillStyle = '#ffffff';
-      ctx.font = 'bold 30px Arial, sans-serif';
-      ctx.fillText('TikTok: @apasificacademician · Facebook: Muhibuddin A. Rahman', 540, qrY + 490);
+      ctx.font = 'bold 28px Arial, sans-serif';
+      ctx.fillText('TikTok & IG: @apasificacademician · FB: APASIFIC Official', 540, qrY + 490);
 
       ctx.fillStyle = '#9ca3af';
       ctx.font = '24px Arial, sans-serif';
@@ -224,10 +224,10 @@ export const TikTokArticleShareModal: React.FC<TikTokArticleShareModalProps> = (
           </div>
           <div>
             <h3 className="text-lg font-bold text-white flex items-center gap-2">
-              Diseminasi Naskah: TikTok & Facebook
+              Diseminasi Naskah: TikTok, FB &amp; Instagram
             </h3>
             <p className="text-xs text-gray-400">
-              Bagikan publikasi resmi ke Facebook, TikTok Story (9:16), Reels, dan WhatsApp.
+              Bagikan publikasi resmi ke Facebook, Instagram Story, TikTok (@apasificacademician), dan WhatsApp.
             </p>
           </div>
         </div>
@@ -316,7 +316,7 @@ export const TikTokArticleShareModal: React.FC<TikTokArticleShareModalProps> = (
               rel="noopener noreferrer"
               className="text-blue-400 hover:underline flex items-center gap-1 font-semibold"
             >
-              <span>Facebook Official</span>
+              <span>Facebook</span>
               <span>↗</span>
             </a>
             <span>•</span>
@@ -331,12 +331,12 @@ export const TikTokArticleShareModal: React.FC<TikTokArticleShareModalProps> = (
             </a>
             <span>•</span>
             <a
-              href="https://www.instagram.com/marahman2169/"
+              href="https://www.instagram.com/apasificacademician/"
               target="_blank"
               rel="noopener noreferrer"
               className="text-pink-400 hover:underline flex items-center gap-1 font-semibold"
             >
-              <span>Instagram (@marahman2169)</span>
+              <span>Instagram (@apasificacademician)</span>
               <span>↗</span>
             </a>
           </div>

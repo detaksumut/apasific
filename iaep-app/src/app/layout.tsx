@@ -315,7 +315,7 @@ export default function RootLayout({
               <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 8px;"><strong>Phone / WA:</strong> <a href="https://wa.me/6281370062009" target="_blank" style="color: var(--gold); transition: color var(--transition);">+62 813-7006-2009</a></p>
               <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 8px;"><strong>TikTok Official:</strong> <a href="https://www.tiktok.com/@apasificacademician" target="_blank" rel="noopener noreferrer" style="color: var(--gold); transition: color var(--transition); display: inline-flex; align-items: center; gap: 4px;">@apasificacademician ↗</a></p>
               <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 8px;"><strong>Facebook Official:</strong> <a href="https://www.facebook.com/profile.php?id=61593446475544" target="_blank" rel="noopener noreferrer" style="color: var(--gold); transition: color var(--transition); display: inline-flex; align-items: center; gap: 4px;">Facebook Page ↗</a></p>
-              <p style="font-size: 12px; color: var(--text-muted);"><strong>Instagram Official:</strong> <a href="https://www.instagram.com/marahman2169/" target="_blank" rel="noopener noreferrer" style="color: var(--gold); transition: color var(--transition); display: inline-flex; align-items: center; gap: 4px;">@marahman2169 ↗</a></p>
+              <p style="font-size: 12px; color: var(--text-muted);"><strong>Instagram Official:</strong> <a href="https://www.instagram.com/apasificacademician/" target="_blank" rel="noopener noreferrer" style="color: var(--gold); transition: color var(--transition); display: inline-flex; align-items: center; gap: 4px;">@apasificacademician ↗</a></p>
             </div>
           </div>
 
