@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useMemo } from "react";
-import { Layers, FileText, CheckCircle2, Bookmark, Target, Microscope, Award, Lightbulb } from "lucide-react";
+import { Layers, FileText, CheckCircle2, Target, Microscope, Award, Lightbulb, ShieldCheck } from "lucide-react";
 
 interface Props {
   articleId?: string;
@@ -53,7 +53,6 @@ export default function ArticleEvidenceClueCard({
   const parsedReview = useMemo(() => {
     if (reviewsData.length > 0 && reviewsData[0].comments_for_author) {
       const raw = reviewsData[0].comments_for_author;
-      const correction = reviewsData[0].correction_notes;
       const reviewerName = reviewsData[0].reviewer_name || "Mitra Bestari / Peer Reviewer";
 
       // Helper to extract numbered sections (1. Ringkasan, 2. Tujuan, 3. Metodologi, 4. Temuan Utama, 5. Kesimpulan)
@@ -83,7 +82,6 @@ export default function ArticleEvidenceClueCard({
         methodology: s3 || "Menggunakan pendekatan analisis ilmiah terstruktur dengan parameter operasional yang baku.",
         findings: s4 || "Menemukan signifikansi hubungan antar variabel dan pola hubungan terukur dalam objek penelitian.",
         conclusion: s5 || "Sintesis hasil penelitian menegaskan tercapainya sasaran riset serta membuka ruang bagi telaah lanjutan.",
-        correctionNotes: correction || null,
         reviewerName,
         completedAt: reviewsData[0].completed_at
       };
@@ -106,7 +104,6 @@ export default function ArticleEvidenceClueCard({
       methodology: "Pendekatan telaah ilmiah terpadu melalui verifikasi data, perumusan kerangka teoritis, dan pengujian konsistensi.",
       findings: "Pemeriksaan menghasilkan bukti ilmiah yang selaras dengan hipotesis/premis dasar serta menegaskan signifikansi temuan.",
       conclusion: "Penelitian berhasil membuktikan relevansi konsep yang diuji dan menyajikan landasan kokoh bagi pengembangan keilmuan.",
-      correctionNotes: "- Penyelarasan metodologi dan penguatan konsistensi literatur telah diperiksa dan disetujui.\n- Artikel memenuhi standar publikasi ilmiah bereputasi.",
       reviewerName: "Board Peer Reviewer (Verified)",
       completedAt: null
     };
@@ -200,18 +197,24 @@ export default function ArticleEvidenceClueCard({
           </div>
         </div>
 
-        {/* 4. Catatan Koreksi & Implikasi Praktis (jika ada) */}
-        {active.correctionNotes && (
-          <div className="bg-[#16162a] border border-amber-500/20 rounded-2xl p-4 sm:p-5">
-            <div className="flex items-center gap-2 text-xs font-bold text-amber-300 uppercase tracking-widest mb-2">
-              <Bookmark className="w-4 h-4" />
-              Catatan Koreksi & Implikasi Substantif (Correction Notes & Implications)
-            </div>
-            <div className="text-xs sm:text-sm text-zinc-300 leading-relaxed whitespace-pre-line">
-              {active.correctionNotes}
-            </div>
+        {/* Catatan Tata Kelola Kerahasiaan Reviewer & Editor */}
+        <div className="bg-[#16162a] border border-blue-500/20 rounded-2xl p-4 sm:p-5 text-xs text-zinc-400 space-y-2">
+          <div className="flex items-center gap-2 font-bold text-blue-400 uppercase tracking-wider">
+            <ShieldCheck className="w-4 h-4 text-blue-400" />
+            Catatan Tata Kelola & Kerahasiaan Telaah (Editorial Confidentiality Note)
           </div>
-        )}
+          <p className="leading-relaxed text-zinc-300">
+            Demi menjunjung tinggi hak kerahasiaan Mitra Bestari (*Peer Reviewer*) serta integritas independensi proses telaah redaksi, 2 instrumen telaah internal berikut <strong>tidak dipublikasikan ke publik</strong>:
+          </p>
+          <ul className="list-disc list-inside space-y-1 text-zinc-400 pl-1">
+            <li>
+              <strong className="text-zinc-200">1. Notifikasi / Catatan Koreksi untuk Penulis (Author Revision Directives)</strong> — Digunakan strictly selama proses revisi internal sebelum naskah disetujui terbit.
+            </li>
+            <li>
+              <strong className="text-zinc-200">2. Catatan Khusus Dewan Redaksi (Confidential Reviewer-to-Editor Notes)</strong> — Komunikasi independen dan rahasia antara Mitra Bestari dan Dewan Redaksi.
+            </li>
+          </ul>
+        </div>
 
       </div>
 

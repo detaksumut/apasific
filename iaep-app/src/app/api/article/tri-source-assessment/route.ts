@@ -37,10 +37,10 @@ export async function GET(req: Request) {
     }
 
     // 3. Fetch Completed Peer Reviews / Evidence (CLUE Layer)
-    // NOTE: comments_for_editor is STRICTLY EXCLUDED for public privacy governance
+    // NOTE: comments_for_editor and correction_notes are STRICTLY EXCLUDED for public privacy governance
     const { data: reviews } = await supabaseAdmin
       .from('review_assignments')
-      .select('id, reviewer_name, status, recommendation, comments_for_author, correction_notes, completed_at')
+      .select('id, reviewer_name, status, recommendation, comments_for_author, completed_at')
       .eq('submission_id', submissionId)
       .eq('status', 'completed')
       .order('completed_at', { ascending: false });
