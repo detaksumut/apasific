@@ -966,109 +966,109 @@ export default function ArticlePaywallClient({ initialArticle, id }: ArticlePayw
             {/* PUBLISHER VERIFICATION CARD */}
             <PublisherVerification />
 
-            {/* PUBLICATION LIFECYCLE PASSPORT (SIDEBAR FORMAT) */}
-            <section className="bg-[#070714] border border-blue-950/50 rounded-3xl p-5 shadow-2xl relative overflow-hidden text-xs font-sans space-y-4">
+            {/* PUBLICATION LIFECYCLE PASSPORT (SIDEBAR FORMAT - ENLARGED LEGIBILITY) */}
+            <section className="bg-[#070714] border border-blue-950/60 rounded-3xl p-6 shadow-2xl relative overflow-hidden font-sans space-y-5">
               {/* Background watermarks */}
               <div className="absolute inset-0 opacity-5 pointer-events-none flex justify-center items-center">
-                <img src="/logobaru2.png" className="w-[200px] object-contain" alt="watermark" />
+                <img src="/logobaru2.png" className="w-[220px] object-contain" alt="watermark" />
               </div>
 
-              <h3 className="text-xs sm:text-sm font-extrabold text-[#c9a84c] tracking-widest uppercase border-b border-blue-950/60 pb-2.5 flex items-center gap-2 relative z-10">
-                <span className="w-2.5 h-2.5 rounded-full bg-[#c9a84c] animate-pulse" />
+              <h3 className="text-sm sm:text-base font-extrabold text-[#c9a84c] tracking-widest uppercase border-b border-blue-950/80 pb-3 flex items-center gap-2.5 relative z-10">
+                <span className="w-3 h-3 rounded-full bg-[#c9a84c] animate-pulse shadow-[0_0_10px_#c9a84c]" />
                 Publication Lifecycle Passport
               </h3>
 
-              <div className="space-y-3 relative z-10">
+              <div className="space-y-4 relative z-10">
                 {/* Box 1: Publication Lifecycle */}
-                <div className="bg-[#0b0c16]/90 border border-blue-950/40 rounded-2xl p-3.5 space-y-2">
-                  <span className="block text-[10px] font-bold text-gray-400 uppercase tracking-wider">Publication Lifecycle</span>
-                  <div className="grid grid-cols-2 gap-2 text-[11px]">
-                    <div>
-                      <span className="block text-gray-500 text-[10px]">Submitted</span>
-                      <span className="font-semibold text-white">
-                        {article.created_at ? new Date(article.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }) : '2026-08-01'}
+                <div className="bg-[#0b0c16]/95 border border-blue-950/50 rounded-2xl p-4 space-y-2.5">
+                  <span className="block text-xs font-bold text-gray-300 uppercase tracking-wider">Publication Lifecycle</span>
+                  <div className="grid grid-cols-2 gap-3 text-xs">
+                    <div className="space-y-0.5">
+                      <span className="block text-gray-400 text-xs">Submitted</span>
+                      <span className="font-bold text-white text-xs sm:text-sm">
+                        {article.created_at ? new Date(article.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }) : '18 Agu 2026'}
                       </span>
                     </div>
-                    <div>
-                      <span className="block text-gray-500 text-[10px]">AI Screening</span>
-                      <span className="font-semibold text-green-400">COMPLETED</span>
+                    <div className="space-y-0.5">
+                      <span className="block text-gray-400 text-xs">AI Screening</span>
+                      <span className="font-bold text-green-400 text-xs sm:text-sm">COMPLETED</span>
                     </div>
-                    <div>
-                      <span className="block text-gray-500 text-[10px]">Peer Review</span>
-                      <span className="font-semibold text-green-400">COMPLETED</span>
+                    <div className="space-y-0.5">
+                      <span className="block text-gray-400 text-xs">Peer Review</span>
+                      <span className="font-bold text-green-400 text-xs sm:text-sm">COMPLETED</span>
                     </div>
-                    <div>
-                      <span className="block text-gray-500 text-[10px]">Published</span>
-                      <span className="font-semibold text-white">
-                        {article.published_at ? new Date(article.published_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }) : '2026-08-06'}
+                    <div className="space-y-0.5">
+                      <span className="block text-gray-400 text-xs">Published</span>
+                      <span className="font-bold text-white text-xs sm:text-sm">
+                        {article.published_at ? new Date(article.published_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }) : '25 Agu 2026'}
                       </span>
                     </div>
                   </div>
                 </div>
 
                 {/* Box 2: Membership Evidence */}
-                <div className="bg-[#0b0c16]/90 border border-blue-950/40 rounded-2xl p-3.5 space-y-1.5">
-                  <span className="block text-[10px] font-bold text-green-400 uppercase tracking-wider">Membership Evidence</span>
-                  <div className="space-y-1 text-[11px]">
-                    <div className="flex justify-between"><span className="text-gray-500">Status:</span> <span className="font-bold text-green-400">ACTIVE</span></div>
-                    <div className="flex justify-between"><span className="text-gray-500">Member ID:</span> <span className="font-semibold text-white font-mono">APS-2026-00125</span></div>
-                    <div className="flex justify-between"><span className="text-gray-500">Member Since:</span> <span className="font-semibold text-white">2026</span></div>
-                    <div className="flex justify-between"><span className="text-gray-500">Expiration:</span> <span className="font-semibold text-green-400">2027 (Verified)</span></div>
+                <div className="bg-[#0b0c16]/95 border border-blue-950/50 rounded-2xl p-4 space-y-2">
+                  <span className="block text-xs font-bold text-green-400 uppercase tracking-wider">Membership Evidence</span>
+                  <div className="space-y-1.5 text-xs sm:text-sm">
+                    <div className="flex justify-between items-center"><span className="text-gray-400 text-xs">Status:</span> <span className="font-bold text-green-400">ACTIVE</span></div>
+                    <div className="flex justify-between items-center"><span className="text-gray-400 text-xs">Member ID:</span> <span className="font-semibold text-white font-mono">APS-2026-00125</span></div>
+                    <div className="flex justify-between items-center"><span className="text-gray-400 text-xs">Member Since:</span> <span className="font-semibold text-white">2026</span></div>
+                    <div className="flex justify-between items-center"><span className="text-gray-400 text-xs">Expiration:</span> <span className="font-semibold text-green-400">2027 (Verified)</span></div>
                   </div>
                 </div>
 
                 {/* Box 3: Professional Certification */}
-                <div className="bg-[#0b0c16]/90 border border-blue-950/40 rounded-2xl p-3.5 space-y-1.5">
-                  <span className="block text-[10px] font-bold text-purple-400 uppercase tracking-wider">Professional Certification</span>
-                  <div className="space-y-1 text-[11px]">
-                    <div className="flex justify-between"><span className="text-gray-500">Status:</span> <span className="font-bold text-purple-400">Certified</span></div>
-                    <div className="flex justify-between"><span className="text-gray-500">Field:</span> <span className="font-semibold text-white">Research Methodology</span></div>
-                    <div className="flex justify-between"><span className="text-gray-500">Cert Number:</span> <span className="font-semibold text-white font-mono">CERT-2026-0042</span></div>
-                    <div className="flex justify-between"><span className="text-gray-500">Verification:</span> <span className="font-semibold text-purple-400">Verified System</span></div>
+                <div className="bg-[#0b0c16]/95 border border-blue-950/50 rounded-2xl p-4 space-y-2">
+                  <span className="block text-xs font-bold text-purple-400 uppercase tracking-wider">Professional Certification</span>
+                  <div className="space-y-1.5 text-xs sm:text-sm">
+                    <div className="flex justify-between items-center"><span className="text-gray-400 text-xs">Status:</span> <span className="font-bold text-purple-400">Certified</span></div>
+                    <div className="flex justify-between items-center"><span className="text-gray-400 text-xs">Field:</span> <span className="font-semibold text-white">Research Methodology</span></div>
+                    <div className="flex justify-between items-center"><span className="text-gray-400 text-xs">Cert Number:</span> <span className="font-semibold text-white font-mono">CERT-2026-0042</span></div>
+                    <div className="flex justify-between items-center"><span className="text-gray-400 text-xs">Verification:</span> <span className="font-semibold text-purple-300">Verified System</span></div>
                   </div>
                 </div>
 
                 {/* Box 4: Journal Specifications */}
-                <div className="bg-[#0b0c16]/90 border border-blue-950/40 rounded-2xl p-3.5 space-y-1.5">
-                  <span className="block text-[10px] font-bold text-yellow-500 uppercase tracking-wider">Journal Specifications</span>
-                  <div className="space-y-1 text-[11px]">
-                    <div className="flex justify-between"><span className="text-gray-500">Model:</span> <span className="font-semibold text-white">Diamond Open Access</span></div>
-                    <div className="flex justify-between"><span className="text-gray-500">APC Charges:</span> <span className="font-semibold text-green-400">Free (Fully Funded)</span></div>
-                    <div className="flex justify-between"><span className="text-gray-500">Peer Review:</span> <span className="font-semibold text-white">Double Blind</span></div>
-                    <div className="flex justify-between"><span className="text-gray-500">Language:</span> <span className="font-semibold text-white">English</span></div>
+                <div className="bg-[#0b0c16]/95 border border-blue-950/50 rounded-2xl p-4 space-y-2">
+                  <span className="block text-xs font-bold text-yellow-500 uppercase tracking-wider">Journal Specifications</span>
+                  <div className="space-y-1.5 text-xs sm:text-sm">
+                    <div className="flex justify-between items-center"><span className="text-gray-400 text-xs">Model:</span> <span className="font-semibold text-white">Diamond Open Access</span></div>
+                    <div className="flex justify-between items-center"><span className="text-gray-400 text-xs">APC Charges:</span> <span className="font-semibold text-green-400">Free (Fully Funded)</span></div>
+                    <div className="flex justify-between items-center"><span className="text-gray-400 text-xs">Peer Review:</span> <span className="font-semibold text-white">Double Blind</span></div>
+                    <div className="flex justify-between items-center"><span className="text-gray-400 text-xs">Language:</span> <span className="font-semibold text-white">English</span></div>
                   </div>
                 </div>
 
                 {/* Box 5: Editorial Process Evidence */}
-                <div className="bg-[#0b0c16]/90 border border-blue-950/40 rounded-2xl p-3.5 space-y-1.5">
-                  <span className="block text-[10px] font-bold text-blue-400 uppercase tracking-wider">Editorial Process Evidence</span>
-                  <div className="space-y-1 text-[11px]">
-                    <div className="flex justify-between"><span className="text-gray-500">Handling Editor:</span> <span className="font-semibold text-white">Editorial Office</span></div>
-                    <div className="flex justify-between"><span className="text-gray-500">Assigned Reviewers:</span> <span className="font-semibold text-white">2 Reviewers</span></div>
-                    <div className="flex justify-between"><span className="text-gray-500">Review Duration:</span> <span className="font-semibold text-white">14 days (Average)</span></div>
-                    <div className="flex justify-between"><span className="text-gray-500">Revision Count:</span> <span className="font-semibold text-white">1 revision</span></div>
+                <div className="bg-[#0b0c16]/95 border border-blue-950/50 rounded-2xl p-4 space-y-2">
+                  <span className="block text-xs font-bold text-blue-400 uppercase tracking-wider">Editorial Process Evidence</span>
+                  <div className="space-y-1.5 text-xs sm:text-sm">
+                    <div className="flex justify-between items-center"><span className="text-gray-400 text-xs">Handling Editor:</span> <span className="font-semibold text-white">Editorial Office</span></div>
+                    <div className="flex justify-between items-center"><span className="text-gray-400 text-xs">Assigned Reviewers:</span> <span className="font-semibold text-white">2 Reviewers</span></div>
+                    <div className="flex justify-between items-center"><span className="text-gray-400 text-xs">Review Duration:</span> <span className="font-semibold text-white">14 days (Average)</span></div>
+                    <div className="flex justify-between items-center"><span className="text-gray-400 text-xs">Revision Count:</span> <span className="font-semibold text-white">1 revision</span></div>
                   </div>
                 </div>
 
                 {/* Box 6: AI Screening Assistant Logs */}
-                <div className="bg-[#0b0c16]/90 border border-blue-950/40 rounded-2xl p-3.5 space-y-1.5">
-                  <span className="block text-[10px] font-bold text-emerald-400 uppercase tracking-wider">AI Screening Assistant Logs</span>
-                  <div className="space-y-1 text-[11px]">
-                    <div className="flex justify-between"><span className="text-gray-500">AI Screening:</span> <span className="font-bold text-green-400">Completed (PASS)</span></div>
-                    <div className="flex justify-between"><span className="text-gray-500">Similarity Score:</span> <span className="font-semibold text-white">14% Match (Safe)</span></div>
-                    <div className="flex justify-between"><span className="text-gray-500">COI:</span> <span className="font-semibold text-green-400">Not Detected</span></div>
-                    <div className="flex justify-between"><span className="text-gray-500">AI Recommendation:</span> <span className="font-semibold text-white">Accept</span></div>
+                <div className="bg-[#0b0c16]/95 border border-blue-950/50 rounded-2xl p-4 space-y-2">
+                  <span className="block text-xs font-bold text-emerald-400 uppercase tracking-wider">AI Screening Assistant Logs</span>
+                  <div className="space-y-1.5 text-xs sm:text-sm">
+                    <div className="flex justify-between items-center"><span className="text-gray-400 text-xs">AI Screening:</span> <span className="font-bold text-green-400">Completed (PASS)</span></div>
+                    <div className="flex justify-between items-center"><span className="text-gray-400 text-xs">Similarity Score:</span> <span className="font-semibold text-white">14% Match (Safe)</span></div>
+                    <div className="flex justify-between items-center"><span className="text-gray-400 text-xs">COI:</span> <span className="font-semibold text-green-400">Not Detected</span></div>
+                    <div className="flex justify-between items-center"><span className="text-gray-400 text-xs">AI Recommendation:</span> <span className="font-semibold text-white">Accept</span></div>
                   </div>
                 </div>
 
                 {/* Box 7: Technical Runtime Diagnostics */}
-                <div className="bg-[#0b0c16]/90 border border-blue-950/40 rounded-2xl p-3.5 space-y-1 text-[11px]">
-                  <span className="block text-[10px] font-bold text-cyan-400 uppercase tracking-wider mb-1">Technical Diagnostics</span>
-                  <div className="grid grid-cols-2 gap-x-2 gap-y-1 text-[10px]">
-                    <div><span className="text-gray-500">ROBOTS:</span> <span className="font-bold text-green-400">PASS</span></div>
-                    <div><span className="text-gray-500">SITEMAP:</span> <span className="font-bold text-green-400">PASS</span></div>
-                    <div><span className="text-gray-500">OAI:</span> <span className="font-semibold text-cyan-400">ACTIVE</span></div>
-                    <div><span className="text-gray-500">SCHEMA:</span> <span className="font-semibold text-green-400">VALID JATS</span></div>
+                <div className="bg-[#0b0c16]/95 border border-blue-950/50 rounded-2xl p-4 space-y-2">
+                  <span className="block text-xs font-bold text-cyan-400 uppercase tracking-wider">Technical Diagnostics</span>
+                  <div className="grid grid-cols-2 gap-x-3 gap-y-2 text-xs">
+                    <div className="flex items-center gap-1.5"><span className="text-gray-400">ROBOTS:</span> <span className="font-bold text-green-400">PASS</span></div>
+                    <div className="flex items-center gap-1.5"><span className="text-gray-400">SITEMAP:</span> <span className="font-bold text-green-400">PASS</span></div>
+                    <div className="flex items-center gap-1.5"><span className="text-gray-400">OAI:</span> <span className="font-semibold text-cyan-300">ACTIVE</span></div>
+                    <div className="flex items-center gap-1.5"><span className="text-gray-400">SCHEMA:</span> <span className="font-semibold text-green-400">VALID</span></div>
                   </div>
                 </div>
               </div>
