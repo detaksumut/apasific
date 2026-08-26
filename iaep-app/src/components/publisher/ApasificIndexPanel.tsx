@@ -161,57 +161,57 @@ interface ApasificIndexPanelProps {
 export const ApasificIndexPanel: React.FC<ApasificIndexPanelProps> = ({ isSidebar = false }) => {
   if (isSidebar) {
     return (
-      <div className="bg-[#111120] border border-gray-800 rounded-3xl p-5 sm:p-6 shadow-2xl space-y-4 text-xs font-sans">
+      <div className="bg-[#111120] border border-gray-800 rounded-3xl p-6 shadow-2xl space-y-5 font-sans">
         {/* Header */}
         <div className="border-b border-gray-800 pb-3">
-          <div className="flex items-center justify-between gap-2 mb-1">
-            <span className="text-[10px] font-bold text-[#c9a84c] tracking-widest uppercase">
+          <div className="flex items-center justify-between gap-2 mb-1.5">
+            <span className="text-xs font-bold text-[#c9a84c] tracking-widest uppercase">
               Academic Publication
             </span>
-            <span className="text-[9px] font-extrabold bg-[#c9a84c]/20 text-[#c9a84c] border border-[#c9a84c]/40 px-2 py-0.5 rounded-full">
+            <span className="text-[10px] font-extrabold bg-[#c9a84c]/20 text-[#c9a84c] border border-[#c9a84c]/40 px-2.5 py-0.5 rounded-full">
               APASIFIC INDEX
             </span>
           </div>
-          <h3 className="text-base font-extrabold text-white tracking-tight">
+          <h3 className="text-base sm:text-lg font-extrabold text-white tracking-tight">
             Journal Indexing Status
           </h3>
-          <p className="text-[11px] text-gray-400 mt-1 leading-relaxed">
+          <p className="text-xs text-gray-400 mt-1 leading-relaxed">
             Status pengindeksan dan registrasi resmi dengan basis data akademik internasional.
           </p>
         </div>
 
-        {/* Compact Indexers List */}
-        <div className="space-y-2.5 max-h-[500px] overflow-y-auto pr-1 custom-scrollbar">
+        {/* Indexers List - Enlarged & High Legibility */}
+        <div className="space-y-3.5 max-h-[750px] overflow-y-auto pr-1 custom-scrollbar">
           {indexers.map((item, index) => (
             <div
               key={index}
-              className="bg-[#16162a] border border-gray-800/80 hover:border-[#c9a84c]/50 rounded-xl p-3 transition-all duration-200"
+              className="bg-[#16162a] border border-gray-800/90 hover:border-[#c9a84c]/60 rounded-2xl p-4 transition-all duration-200 shadow-md"
             >
-              <div className="flex items-center gap-3">
-                <div className={`h-9 w-9 flex-shrink-0 flex items-center justify-center rounded-lg ${item.logo.includes('sinta') || item.logo.includes('zenodo') ? 'bg-white' : 'bg-[#0d0e1b]'} p-1 border border-gray-800`}>
-                  <img src={item.logo} alt={item.alt} className="h-6 object-contain" />
+              <div className="flex items-start gap-3.5">
+                <div className={`h-11 w-11 flex-shrink-0 flex items-center justify-center rounded-xl ${item.logo.includes('sinta') || item.logo.includes('zenodo') ? 'bg-white' : 'bg-[#0d0e1b]'} p-1.5 border border-gray-700/60 shadow-sm mt-0.5`}>
+                  <img src={item.logo} alt={item.alt} className="h-7 w-7 object-contain" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center justify-between gap-1 mb-0.5">
-                    <h5 className="font-bold text-gray-200 text-xs truncate">
+                  <div className="flex flex-wrap items-center justify-between gap-1.5 mb-1">
+                    <h5 className="font-bold text-white text-sm">
                       {item.title}
                     </h5>
-                    <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded ${item.statusColor} whitespace-nowrap uppercase tracking-wider`}>
+                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${item.statusColor} whitespace-nowrap uppercase tracking-wider`}>
                       {item.status}
                     </span>
                   </div>
-                  <p className="text-[10px] text-gray-400 line-clamp-2 leading-tight">
+                  <p className="text-xs text-gray-300 leading-relaxed">
                     {item.description}
                   </p>
                 </div>
               </div>
               {item.linkHref && (
-                <div className="mt-2 pt-1.5 border-t border-gray-800/50 flex justify-end">
+                <div className="mt-2.5 pt-2 border-t border-gray-800 flex justify-end">
                   <a
                     href={item.linkHref}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-[10px] text-[#c9a84c] hover:underline flex items-center gap-1 font-semibold"
+                    className="text-xs text-[#c9a84c] hover:text-[#e8c96a] hover:underline flex items-center gap-1.5 font-bold"
                   >
                     <span>{item.linkText}</span>
                     <span>→</span>
