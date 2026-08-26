@@ -427,62 +427,64 @@ export default function ASIAIndexRecord({ article, asiaRecord }: ASIAIndexRecord
         {/* 5. ASIA ARTICLE METRICS */}
         <section className="space-y-3">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <span className="w-3 h-3 rounded-full bg-purple-400" />
-              <h3 className="text-sm sm:text-base font-extrabold text-purple-400 uppercase tracking-wider">
+            <div className="flex items-center gap-2.5">
+              <span className="w-3.5 h-3.5 rounded-full bg-purple-400 shadow-[0_0_10px_rgba(192,132,252,0.6)]" />
+              <h3 className="text-base sm:text-lg lg:text-xl font-black text-purple-300 uppercase tracking-wider">
                 5. ASIA Article Metrics (Individual)
               </h3>
             </div>
-            <span className="text-xs font-bold uppercase tracking-wider text-gray-400">Article Level</span>
+            <span className="text-xs sm:text-sm font-bold uppercase tracking-wider bg-purple-950/70 text-purple-300 px-3 py-1 rounded-md border border-purple-800/60">
+              Article Level
+            </span>
           </div>
-          <div className="rounded-2xl border border-gray-800 bg-[#0e101f] overflow-hidden">
-            <table className="w-full text-left text-sm sm:text-base">
-              <thead className="bg-[#14172e] text-gray-300 text-xs sm:text-sm uppercase tracking-wider border-b border-gray-800">
+          <div className="rounded-2xl border-2 border-gray-800 bg-[#0e101f] overflow-hidden">
+            <table className="w-full text-left text-base sm:text-lg">
+              <thead className="bg-[#181c38] text-gray-200 text-sm sm:text-base uppercase tracking-wider border-b-2 border-gray-700 font-bold">
                 <tr>
-                  <th className="py-3.5 px-4 font-bold">Article Metric</th>
-                  <th className="py-3.5 px-4 font-bold text-right">Value</th>
+                  <th className="py-4 px-5 font-bold">Article Metric</th>
+                  <th className="py-4 px-5 font-bold text-right">Value</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-800/60 text-sm">
-                <tr className="hover:bg-[#151833]/50 transition-colors">
-                  <td className="py-3 px-4 text-gray-300 font-semibold">
+              <tbody className="divide-y divide-gray-800/80 text-sm sm:text-base">
+                <tr className="hover:bg-[#151833]/60 transition-colors">
+                  <td className="py-4 px-5 text-gray-200 font-bold">
                     Total Citations
-                    <span className="block text-xs text-gray-400 font-normal mt-0.5">
+                    <span className="block text-xs sm:text-sm text-gray-400 font-normal mt-1">
                       Non-Self: {rec.articleMetrics.nonSelfCitations} · Author Self: {rec.articleMetrics.authorSelfCitations} · Journal Self: {rec.articleMetrics.journalSelfCitations}
                     </span>
                   </td>
-                  <td className="py-3 px-4 text-right font-mono font-black text-white text-base sm:text-lg">
+                  <td className="py-4 px-5 text-right font-mono font-black text-white text-xl sm:text-2xl">
                     {rec.articleMetrics.citationCount}
                   </td>
                 </tr>
-                <tr className="hover:bg-[#151833]/50 transition-colors">
-                  <td className="py-3 px-4 text-gray-300 font-semibold">ASIA Article Score (AAS)</td>
-                  <td className="py-3 px-4 text-right font-mono font-black text-purple-400 text-base sm:text-lg">
+                <tr className="hover:bg-[#151833]/60 transition-colors">
+                  <td className="py-4 px-5 text-gray-200 font-bold">ASIA Article Score (AAS)</td>
+                  <td className="py-4 px-5 text-right font-mono font-black text-purple-400 text-xl sm:text-2xl">
                     {rec.articleMetrics.articleScore}
                   </td>
                 </tr>
-                <tr className="hover:bg-[#151833]/50 transition-colors">
-                  <td className="py-3 px-4 text-gray-300 font-semibold">Citation Velocity</td>
-                  <td className="py-3 px-4 text-right font-mono font-bold text-gray-200 text-sm sm:text-base">
+                <tr className="hover:bg-[#151833]/60 transition-colors">
+                  <td className="py-4 px-5 text-gray-200 font-bold">Citation Velocity</td>
+                  <td className="py-4 px-5 text-right font-mono font-bold text-gray-100 text-base sm:text-lg">
                     {rec.articleMetrics.citationVelocity} / Year
                   </td>
                 </tr>
-                <tr className="hover:bg-[#151833]/50 transition-colors">
-                  <td className="py-3 px-4 text-gray-300 font-semibold">Citation Network Status</td>
-                  <td className="py-3 px-4 text-right font-bold text-green-400 text-sm sm:text-base">
+                <tr className="hover:bg-[#151833]/60 transition-colors">
+                  <td className="py-4 px-5 text-gray-200 font-bold">Citation Network Status</td>
+                  <td className="py-4 px-5 text-right font-bold text-emerald-400 text-base sm:text-lg">
                     {rec.articleMetrics.citationNetwork}
                   </td>
                 </tr>
-                <tr className="hover:bg-[#151833]/50 transition-colors">
-                  <td className="py-3 px-4 text-gray-300 font-semibold">Scholarly Chain Score</td>
-                  <td className="py-3 px-4 text-right font-mono font-black text-[#c9a84c] text-base sm:text-lg">
+                <tr className="hover:bg-[#151833]/60 transition-colors">
+                  <td className="py-4 px-5 text-gray-200 font-bold">Scholarly Chain Score</td>
+                  <td className="py-4 px-5 text-right font-mono font-black text-[#c9a84c] text-xl sm:text-2xl">
                     {rec.articleMetrics.scholarlyChainScore} / 100
                   </td>
                 </tr>
-                <tr className="hover:bg-[#151833]/50 transition-colors">
-                  <td className="py-3 px-4 text-gray-300 font-semibold">Metric Status</td>
-                  <td className="py-3 px-4 text-right">
-                    <span className="px-2.5 py-1 rounded text-xs font-black bg-green-500/20 text-green-400 border border-green-500/30">
+                <tr className="hover:bg-[#151833]/60 transition-colors">
+                  <td className="py-4 px-5 text-gray-200 font-bold">Metric Status</td>
+                  <td className="py-4 px-5 text-right">
+                    <span className="px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-black bg-emerald-500/25 text-emerald-300 border border-emerald-500/50">
                       {rec.articleMetrics.metricStatus}
                     </span>
                   </td>
@@ -495,64 +497,66 @@ export default function ASIAIndexRecord({ article, asiaRecord }: ASIAIndexRecord
         {/* 6. JOURNAL-LEVEL ASIA METRICS */}
         <section className="space-y-3">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <span className="w-3 h-3 rounded-full bg-[#c9a84c]" />
-              <h3 className="text-sm sm:text-base font-extrabold text-[#c9a84c] uppercase tracking-wider">
+            <div className="flex items-center gap-2.5">
+              <span className="w-3.5 h-3.5 rounded-full bg-[#c9a84c] shadow-[0_0_10px_rgba(201,168,76,0.6)]" />
+              <h3 className="text-base sm:text-lg lg:text-xl font-black text-[#c9a84c] uppercase tracking-wider">
                 6. Journal-Level ASIA Metrics
               </h3>
             </div>
-            <span className="text-xs font-bold uppercase tracking-wider text-[#c9a84c]">Prestige Rank</span>
+            <span className="text-xs sm:text-sm font-bold uppercase tracking-wider bg-[#c9a84c]/20 text-[#e8c97a] px-3 py-1 rounded-md border border-[#c9a84c]/40">
+              Prestige Rank
+            </span>
           </div>
-          <div className="rounded-2xl border border-gray-800 bg-[#0e101f] overflow-hidden">
-            <table className="w-full text-left text-sm sm:text-base">
-              <thead className="bg-[#14172e] text-gray-300 text-xs sm:text-sm uppercase tracking-wider border-b border-gray-800">
+          <div className="rounded-2xl border-2 border-gray-800 bg-[#0e101f] overflow-hidden">
+            <table className="w-full text-left text-base sm:text-lg">
+              <thead className="bg-[#181c38] text-gray-200 text-sm sm:text-base uppercase tracking-wider border-b-2 border-gray-700 font-bold">
                 <tr>
-                  <th className="py-3.5 px-4 font-bold">Journal Metric</th>
-                  <th className="py-3.5 px-4 font-bold text-right">Value</th>
+                  <th className="py-4 px-5 font-bold">Journal Metric</th>
+                  <th className="py-4 px-5 font-bold text-right">Value</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-800/60 text-sm">
-                <tr className="hover:bg-[#151833]/50 transition-colors">
-                  <td className="py-3 px-4 text-gray-300 font-semibold">
+              <tbody className="divide-y divide-gray-800/80 text-sm sm:text-base">
+                <tr className="hover:bg-[#151833]/60 transition-colors">
+                  <td className="py-4 px-5 text-gray-200 font-bold">
                     ASIA Citation Score (ACS)
-                    <span className="block text-xs text-gray-400 font-normal mt-0.5">Corpus Network Density: {rec.journalMetrics.internalNetworkDensity || 0.0158}</span>
+                    <span className="block text-xs sm:text-sm text-gray-400 font-normal mt-1">Corpus Network Density: {rec.journalMetrics.internalNetworkDensity || 0.0158}</span>
                   </td>
-                  <td className="py-3 px-4 text-right font-mono font-black text-white text-base sm:text-lg">
+                  <td className="py-4 px-5 text-right font-mono font-black text-white text-xl sm:text-2xl">
                     {rec.journalMetrics.citationScore}
                   </td>
                 </tr>
-                <tr className="hover:bg-[#151833]/50 transition-colors bg-[#c9a84c]/5">
-                  <td className="py-3 px-4 text-[#e8c97a] font-bold text-sm sm:text-base">
+                <tr className="hover:bg-[#151833]/60 transition-colors bg-[#c9a84c]/10">
+                  <td className="py-4 px-5 text-[#e8c97a] font-black text-base sm:text-lg">
                     ASIA Scholarly Rank (ASR)
-                    <span className="block text-xs text-gray-400 font-normal mt-0.5">Prestige-weighted Network Metric</span>
+                    <span className="block text-xs sm:text-sm text-gray-300 font-normal mt-1">Prestige-weighted Network Metric</span>
                   </td>
-                  <td className="py-3 px-4 text-right font-mono font-black text-[#c9a84c] text-base sm:text-lg">
+                  <td className="py-4 px-5 text-right font-mono font-black text-[#c9a84c] text-xl sm:text-2xl">
                     {rec.journalMetrics.scholarlyRank}
                   </td>
                 </tr>
-                <tr className="hover:bg-[#151833]/50 transition-colors">
-                  <td className="py-3 px-4 text-gray-300 font-semibold">ASIA Impact Factor (AIF)</td>
-                  <td className="py-3 px-4 text-right font-mono font-bold text-gray-200 text-sm sm:text-base">
+                <tr className="hover:bg-[#151833]/60 transition-colors">
+                  <td className="py-4 px-5 text-gray-200 font-bold">ASIA Impact Factor (AIF)</td>
+                  <td className="py-4 px-5 text-right font-mono font-black text-gray-100 text-lg sm:text-xl">
                     {rec.journalMetrics.impactFactor}
                   </td>
                 </tr>
-                <tr className="hover:bg-[#151833]/50 transition-colors">
-                  <td className="py-3 px-4 text-gray-300 font-semibold">ASIA Percentile</td>
-                  <td className="py-3 px-4 text-right font-mono font-bold text-blue-400 text-sm sm:text-base">
+                <tr className="hover:bg-[#151833]/60 transition-colors">
+                  <td className="py-4 px-5 text-gray-200 font-bold">ASIA Percentile</td>
+                  <td className="py-4 px-5 text-right font-mono font-black text-blue-400 text-lg sm:text-xl">
                     {rec.journalMetrics.percentile}th Percentile
                   </td>
                 </tr>
-                <tr className="hover:bg-[#151833]/50 transition-colors">
-                  <td className="py-3 px-4 text-gray-300 font-semibold">ASIA Metric Quartile</td>
-                  <td className="py-3 px-4 text-right">
-                    <span className="px-3 py-1 rounded-md text-xs sm:text-sm font-black bg-amber-400/20 text-amber-300 border border-amber-400/40">
+                <tr className="hover:bg-[#151833]/60 transition-colors">
+                  <td className="py-4 px-5 text-gray-200 font-bold">ASIA Metric Quartile</td>
+                  <td className="py-4 px-5 text-right">
+                    <span className="px-4 py-2 rounded-lg text-sm sm:text-base font-black bg-amber-400/25 text-amber-200 border border-amber-400/60 shadow-[0_0_12px_rgba(251,191,36,0.3)]">
                       {rec.journalMetrics.quartile}
                     </span>
                   </td>
                 </tr>
-                <tr className="hover:bg-[#151833]/50 transition-colors">
-                  <td className="py-3 px-4 text-gray-300 font-semibold">Category Rank</td>
-                  <td className="py-3 px-4 text-right font-mono font-bold text-gray-200 text-sm sm:text-base">
+                <tr className="hover:bg-[#151833]/60 transition-colors">
+                  <td className="py-4 px-5 text-gray-200 font-bold">Category Rank</td>
+                  <td className="py-4 px-5 text-right font-mono font-black text-gray-100 text-lg sm:text-xl">
                     {rec.journalMetrics.categoryRank}
                   </td>
                 </tr>
@@ -564,47 +568,47 @@ export default function ASIAIndexRecord({ article, asiaRecord }: ASIAIndexRecord
       </div>
 
       {/* 7. RECORD VERIFICATION & INTEGRITY LAYER */}
-      <section className="space-y-3 relative z-10">
-        <div className="flex items-center gap-2">
-          <span className="w-3 h-3 rounded-full bg-green-400" />
-          <h3 className="text-sm sm:text-base font-extrabold text-green-400 uppercase tracking-wider">
+      <section className="space-y-4 relative z-10">
+        <div className="flex items-center gap-2.5">
+          <span className="w-3.5 h-3.5 rounded-full bg-emerald-400 shadow-[0_0_10px_rgba(52,211,153,0.6)]" />
+          <h3 className="text-base sm:text-lg lg:text-xl font-black text-emerald-400 uppercase tracking-wider">
             7. Record Verification Layer
           </h3>
         </div>
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-          <div className="bg-[#0e101f] border border-gray-800 rounded-xl p-3.5 text-center">
-            <span className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5">Metadata</span>
-            <span className="text-sm sm:text-base font-black text-green-400">{rec.verification.metadataIntegrity}</span>
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3.5">
+          <div className="bg-[#0e101f] border-2 border-gray-800 hover:border-emerald-500/40 rounded-2xl p-4 sm:p-5 text-center transition-colors">
+            <span className="block text-xs sm:text-sm font-bold text-gray-400 uppercase tracking-wider mb-2">Metadata</span>
+            <span className="text-base sm:text-lg font-black text-emerald-400">{rec.verification.metadataIntegrity}</span>
           </div>
-          <div className="bg-[#0e101f] border border-gray-800 rounded-xl p-3.5 text-center">
-            <span className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5">DOI Resolution</span>
-            <span className="text-sm sm:text-base font-black text-green-400">{rec.verification.doiResolution}</span>
+          <div className="bg-[#0e101f] border-2 border-gray-800 hover:border-emerald-500/40 rounded-2xl p-4 sm:p-5 text-center transition-colors">
+            <span className="block text-xs sm:text-sm font-bold text-gray-400 uppercase tracking-wider mb-2">DOI Resolution</span>
+            <span className="text-base sm:text-lg font-black text-emerald-400">{rec.verification.doiResolution}</span>
           </div>
-          <div className="bg-[#0e101f] border border-gray-800 rounded-xl p-3.5 text-center">
-            <span className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5">Provenance</span>
-            <span className="text-sm sm:text-base font-black text-green-400">{rec.verification.publicationProvenance}</span>
+          <div className="bg-[#0e101f] border-2 border-gray-800 hover:border-emerald-500/40 rounded-2xl p-4 sm:p-5 text-center transition-colors">
+            <span className="block text-xs sm:text-sm font-bold text-gray-400 uppercase tracking-wider mb-2">Provenance</span>
+            <span className="text-base sm:text-lg font-black text-emerald-400">{rec.verification.publicationProvenance}</span>
           </div>
-          <div className="bg-[#0e101f] border border-gray-800 rounded-xl p-3.5 text-center">
-            <span className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5">Duplicates</span>
-            <span className="text-sm sm:text-base font-black text-green-400">{rec.verification.duplicateDetection}</span>
+          <div className="bg-[#0e101f] border-2 border-gray-800 hover:border-emerald-500/40 rounded-2xl p-4 sm:p-5 text-center transition-colors">
+            <span className="block text-xs sm:text-sm font-bold text-gray-400 uppercase tracking-wider mb-2">Duplicates</span>
+            <span className="text-base sm:text-lg font-black text-emerald-400">{rec.verification.duplicateDetection}</span>
           </div>
-          <div className="bg-[#0e101f] border border-gray-800 rounded-xl p-3.5 text-center">
-            <span className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5">Citation Data</span>
-            <span className="text-sm sm:text-base font-black text-green-400">{rec.verification.citationData}</span>
+          <div className="bg-[#0e101f] border-2 border-gray-800 hover:border-emerald-500/40 rounded-2xl p-4 sm:p-5 text-center transition-colors">
+            <span className="block text-xs sm:text-sm font-bold text-gray-400 uppercase tracking-wider mb-2">Citation Data</span>
+            <span className="text-base sm:text-lg font-black text-emerald-400">{rec.verification.citationData}</span>
           </div>
-          <div className="bg-[#0e101f] border border-gray-800 rounded-xl p-3.5 text-center">
-            <span className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5">ASIA Integrity</span>
-            <span className="text-sm sm:text-base font-black text-[#c9a84c]">{rec.verification.indexIntegrity}</span>
+          <div className="bg-[#0e101f] border-2 border-gray-800 hover:border-[#c9a84c]/50 rounded-2xl p-4 sm:p-5 text-center transition-colors bg-[#c9a84c]/5">
+            <span className="block text-xs sm:text-sm font-bold text-[#e8c97a] uppercase tracking-wider mb-2">ASIA Integrity</span>
+            <span className="text-base sm:text-lg font-black text-[#c9a84c]">{rec.verification.indexIntegrity}</span>
           </div>
         </div>
       </section>
 
       {/* OFFICIAL SEAL & STATEMENT FOOTER */}
-      <div className="border-t border-gray-800/80 pt-5 flex flex-col sm:flex-row items-center justify-between gap-4 text-gray-300 text-sm relative z-10">
-        <p className="leading-relaxed text-center sm:text-left text-gray-200 text-sm sm:text-base font-serif italic">
+      <div className="border-t-2 border-gray-800/90 pt-6 flex flex-col sm:flex-row items-center justify-between gap-5 text-gray-200 text-sm relative z-10">
+        <p className="leading-relaxed text-center sm:text-left text-gray-200 text-sm sm:text-base font-serif italic max-w-3xl">
           This record represents the indexed scholarly identity, publication provenance, metadata connectivity, and metric status of this article within the ASIA Index ecosystem.
         </p>
-        <span className="px-4 py-1.5 rounded-full bg-[#16162a] border border-[#c9a84c]/50 text-[#c9a84c] font-mono text-xs sm:text-sm font-black tracking-widest flex-shrink-0 shadow-[0_0_14px_rgba(201,168,76,0.25)]">
+        <span className="px-5 py-2.5 rounded-full bg-[#16162a] border-2 border-[#c9a84c] text-[#c9a84c] font-mono text-sm sm:text-base font-black tracking-widest flex-shrink-0 shadow-[0_0_20px_rgba(201,168,76,0.35)]">
           ASIA-CANONICAL-RECORD
         </span>
       </div>
