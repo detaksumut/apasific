@@ -113,20 +113,79 @@ function LoginFormContent() {
         }
         .login-brand-name { font-size: 22px; font-weight: 800; color: #c9a84c; letter-spacing: 2px; }
         .login-brand-sub  { font-size: 11px; color: rgba(201,168,76,0.6); letter-spacing: 1px; margin-top: 2px; }
-        .login-hero-text  { position: relative; z-index: 1; }
+        .login-hero-text  { position: relative; z-index: 1; max-width: 440px; }
         .login-hero-text h1 {
-          font-size: 38px; font-weight: 900;
-          color: #fff; line-height: 1.2;
-          margin-bottom: 20px;
+          font-size: 32px; font-weight: 900;
+          color: #fff; line-height: 1.25;
+          margin-bottom: 14px;
         }
         .login-hero-text h1 span { color: #c9a84c; }
-        .login-hero-text p { color: rgba(255,255,255,0.5); font-size: 14px; line-height: 1.7; max-width: 340px; }
+        
+        .hero-tagline {
+          font-size: 13px; font-weight: 900;
+          color: #fff; letter-spacing: 1.5px;
+          text-transform: uppercase;
+          margin: 16px 0 10px;
+          line-height: 1.4;
+        }
+        .hero-tagline span { 
+          color: #c9a84c; 
+          text-shadow: 0 0 10px rgba(201,168,76,0.3);
+        }
+
+        .hero-manifesto {
+          color: rgba(255,255,255,0.7);
+          font-size: 13px;
+          line-height: 1.6;
+          margin-bottom: 16px;
+        }
+
+        .hero-pillars {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 6px;
+          margin-bottom: 16px;
+        }
+        .pillar-chip {
+          font-size: 10px;
+          font-weight: 800;
+          letter-spacing: 0.8px;
+          color: #e8c96a;
+          background: rgba(201,168,76,0.08);
+          border: 1px solid rgba(201,168,76,0.25);
+          padding: 4px 9px;
+          border-radius: 6px;
+          text-transform: uppercase;
+        }
+
+        .hero-badge {
+          font-size: 11px;
+          font-weight: 700;
+          color: #a3c94c;
+          background: rgba(163,201,76,0.08);
+          border: 1px solid rgba(163,201,76,0.25);
+          padding: 6px 10px;
+          border-radius: 8px;
+          margin-bottom: 14px;
+          display: inline-block;
+          letter-spacing: 0.5px;
+        }
+
+        .hero-disclaimer {
+          font-size: 11px;
+          color: rgba(255,255,255,0.4);
+          line-height: 1.5;
+          margin-bottom: 20px;
+          border-left: 2px solid rgba(201,168,76,0.4);
+          padding-left: 10px;
+        }
+
         .login-quote {
           border-left: 3px solid #c9a84c;
-          padding-left: 20px;
+          padding-left: 16px;
           position: relative; z-index: 1;
         }
-        .login-quote p { color: rgba(201,168,76,0.7); font-style: italic; font-size: 13px; line-height: 1.7; }
+        .login-quote p { color: rgba(201,168,76,0.7); font-style: italic; font-size: 12px; line-height: 1.6; }
 
         /* Right Panel */
         .login-right {
@@ -363,8 +422,30 @@ function LoginFormContent() {
 
           <div className="login-hero-text">
             <h1>Portal Akademik <span>Terpadu</span> Asia Pasifik</h1>
-            <p>
-              Ekosistem publikasi ilmiah, identitas peneliti, dan asesmen mutu penelitian AT-RQS™ berstandar internasional.
+            
+            <div className="hero-tagline">
+              RESEARCH QUALITY IS NOT OPTIONAL.<br />
+              <span>IT IS OUR STANDARD.</span>
+            </div>
+
+            <p className="hero-manifesto">
+              Kami tidak hanya menerbitkan naskah. Kami menjaga kualitas ilmu yang diterbitkan.
+            </p>
+
+            <div className="hero-pillars">
+              <span className="pillar-chip">✦ INTEGRITY</span>
+              <span className="pillar-chip">✦ RIGOR</span>
+              <span className="pillar-chip">✦ EVIDENCE</span>
+              <span className="pillar-chip">✦ TRANSPARENCY</span>
+              <span className="pillar-chip">✦ SCHOLARLY IMPACT</span>
+            </div>
+
+            <div className="hero-badge">
+              AT-RQS™ Adaptive Multi-Taxonomy Evaluation
+            </div>
+
+            <p className="hero-disclaimer">
+              Submission does not guarantee automatic acceptance. Every manuscript is subject to rigorous editorial assessment and peer review.
             </p>
           </div>
 
