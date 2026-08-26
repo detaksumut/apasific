@@ -173,11 +173,24 @@ function LoginFormContent() {
 
         .hero-disclaimer {
           font-size: 11px;
-          color: rgba(255,255,255,0.4);
+          color: rgba(255,255,255,0.45);
           line-height: 1.5;
-          margin-bottom: 20px;
+          margin-bottom: 16px;
           border-left: 2px solid rgba(201,168,76,0.4);
           padding-left: 10px;
+        }
+
+        .hero-philosophy {
+          font-size: 11px;
+          font-weight: 700;
+          color: rgba(201,168,76,0.9);
+          background: rgba(201,168,76,0.06);
+          border: 1px dashed rgba(201,168,76,0.25);
+          border-radius: 8px;
+          padding: 8px 12px;
+          margin-bottom: 20px;
+          line-height: 1.5;
+          letter-spacing: 0.3px;
         }
 
         .login-quote {
@@ -429,7 +442,7 @@ function LoginFormContent() {
             </div>
 
             <p className="hero-manifesto">
-              Kami tidak hanya menerbitkan naskah. Kami menjaga kualitas ilmu yang diterbitkan.
+              APASIFIC tidak hanya menerbitkan naskah. Kami membangun proses ilmiah yang menjaga kualitas, integritas, dan kontribusi penelitian.
             </p>
 
             <div className="hero-pillars">
@@ -445,8 +458,12 @@ function LoginFormContent() {
             </div>
 
             <p className="hero-disclaimer">
-              Submission does not guarantee automatic acceptance. Every manuscript is subject to rigorous editorial assessment and peer review.
+              Every manuscript is evaluated through a structured editorial and independent peer-review process.
             </p>
+
+            <div className="hero-philosophy">
+              Author submits. Reviewer evaluates. Editor decides. APASIFIC preserves the record.
+            </div>
           </div>
 
           <div className="login-quote">
