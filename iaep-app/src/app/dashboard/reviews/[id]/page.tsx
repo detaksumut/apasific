@@ -528,6 +528,8 @@ useEffect(() => {
                   }}
                 >
                   <PlagiarismChecker
+                    initialText={submission?.abstract ? `${submission?.title || ''}\n\n${submission.abstract}` : (submission?.title || '')}
+                    autoCheck={true}
                     summaryOnly={true}
                     onAnalysisComplete={(result) => {
                       console.log('[Reviewer Plagiarism] Analysis Result:', result);

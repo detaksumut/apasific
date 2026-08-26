@@ -29,23 +29,41 @@ export const PlagiarismChecker: React.FC<PlagiarismCheckerProps> = ({
   const [progress, setProgress] = useState(0);
   const [report, setReport] = useState<PlagiarismReport | null>(null);
   const [aiAnalysis, setAiAnalysis] = useState<string>("");
+  const [isAiLoading, setIsAiLoading] = useState(false);
 
   useEffect(() => {
-    if (!text.trim() || text.length < 100) return;
+    if (initialText && initialText !== text) {
+      setText(initialText);
+    }
+  }, [initialText]);
 
+  useEffect(() => {
+    if (!text.trim() || text.length < 50) return;
+
+    let isMounted = true;
+    setIsAiLoading(true);
     const timer = setTimeout(async () => {
       try {
         const result = await ultimateAIAnalysis(text);
-        setAiAnalysis(result.rawContent || "");
-        if (onAnalysisComplete) {
-          onAnalysisComplete(result);
+        if (isMounted) {
+          setAiAnalysis(result.rawContent || "");
+          if (onAnalysisComplete) {
+            onAnalysisComplete(result);
+          }
         }
       } catch (error) {
         console.error("[UltimateAI Trigger] Analysis failed", error);
+      } finally {
+        if (isMounted) {
+          setIsAiLoading(false);
+        }
       }
-    }, 12000);
+    }, 1500);
 
-    return () => clearTimeout(timer);
+    return () => {
+      isMounted = false;
+      clearTimeout(timer);
+    };
   }, [text]);
 
   useEffect(() => {
@@ -243,6 +261,34 @@ export const PlagiarismChecker: React.FC<PlagiarismCheckerProps> = ({
               Hasil di atas adalah sinyal kontekstual atribusi (bukan vonis plagiarisme otomatis). Keputusan integritas naskah sepenuhnya berada di tangan Dewan Redaksi melalui evaluasi konteks ilmiah.
             </div>
           </div>
+
+          {/* AI Analysis Clue & Reviewer/Editor Companion */}
+          {(aiAnalysis || isAiLoading) && (
+            <div className="p-4 rounded-xl border border-emerald-500/30 bg-[#0a0a14]/90 space-y-3">
+              <div className="flex items-center justify-between border-b border-emerald-500/20 pb-2">
+                <div className="flex items-center gap-2">
+                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
+                  <span className="text-xs font-bold text-emerald-400 uppercase tracking-wider">
+                    Clue &amp; Analisis Komparatif Naskah (AI Assistant)
+                  </span>
+                </div>
+                <span className="text-[10px] font-mono text-emerald-400/80 bg-emerald-950/40 px-2 py-0.5 rounded border border-emerald-500/20">
+                  Editorial &amp; Reviewer Clue
+                </span>
+              </div>
+
+              {isAiLoading && !aiAnalysis ? (
+                <div className="text-xs text-zinc-400 italic py-3 flex items-center gap-2">
+                  <svg className="animate-spin w-4 h-4 text-emerald-400" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" opacity="0.25"/><path fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" opacity="0.75"/></svg>
+                  Sedang menyusun analisis komprehensif naskah sebagai clue telaah...
+                </div>
+              ) : (
+                <div className="text-xs text-zinc-200 leading-relaxed whitespace-pre-wrap font-sans max-h-[420px] overflow-y-auto pr-1">
+                  {aiAnalysis}
+                </div>
+              )}
+            </div>
+          )}
 
           {/* Detailed Paragraph Breakdown */}
           {!summaryOnly && (
