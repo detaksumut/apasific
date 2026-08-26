@@ -114,17 +114,28 @@ function LoginFormContent() {
         .login-brand-name { font-size: 22px; font-weight: 800; color: #c9a84c; letter-spacing: 2px; }
         .login-brand-sub  { font-size: 11px; color: rgba(201,168,76,0.6); letter-spacing: 1px; margin-top: 2px; }
         
+        @keyframes cardGlowBlink {
+          0%, 100% {
+            border-color: rgba(201,168,76,0.3);
+            box-shadow: 0 4px 18px rgba(0,0,0,0.4), 0 0 8px rgba(201,168,76,0.1);
+          }
+          50% {
+            border-color: rgba(201,168,76,0.95);
+            box-shadow: 0 6px 26px rgba(0,0,0,0.5), 0 0 20px rgba(201,168,76,0.4);
+          }
+        }
+
         /* Top Author Formatting Rules Card */
         .author-rules-card {
-          background: linear-gradient(135deg, rgba(201,168,76,0.12) 0%, rgba(13,14,27,0.9) 100%);
-          border: 1px solid rgba(201,168,76,0.4);
+          background: linear-gradient(135deg, rgba(201,168,76,0.12) 0%, rgba(13,14,27,0.92) 100%);
+          border: 1.5px solid rgba(201,168,76,0.4);
           border-radius: 14px;
           padding: 14px 16px;
           margin-bottom: 22px;
           position: relative;
           z-index: 1;
-          box-shadow: 0 4px 20px rgba(0,0,0,0.3);
           max-width: 440px;
+          animation: cardGlowBlink 2.4s infinite ease-in-out;
         }
         .author-rules-badge {
           display: inline-flex;
@@ -543,7 +554,7 @@ function LoginFormContent() {
           {/* TOP POSITION: AUTHOR CITATION & FORMATTING RULES DOWNLOAD CARD */}
           <div className="author-rules-card">
             <div className="author-rules-badge">
-              <span className="w-2 h-2 rounded-full bg-[#c9a84c] animate-pulse" />
+              <span className="w-2 h-2 rounded-full bg-[#c9a84c]" />
               <span>Pedoman Resmi Penulisan &amp; Sitasi</span>
             </div>
             <div className="author-rules-title">
