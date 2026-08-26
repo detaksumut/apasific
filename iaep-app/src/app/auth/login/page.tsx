@@ -7,7 +7,7 @@ import { getDashboardPath } from "@/lib/roles";
 
 function LoginFormContent() {
   const searchParams = useSearchParams();
-  const [activeTab, setActiveTab] = useState<'author' | 'staff'>('author');
+  const [activeTab, setActiveTab] = useState<'author' | 'reviewer' | 'staff'>('author');
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -284,6 +284,32 @@ function LoginFormContent() {
           color: #0d0d0d;
           box-shadow: 0 2px 10px rgba(163,201,76,0.3);
         }
+        .portal-tab-btn.active-reviewer {
+          background: #3b82f6;
+          color: #ffffff;
+          box-shadow: 0 2px 10px rgba(59,130,246,0.35);
+        }
+
+        .btn-reviewer {
+          width: 100%;
+          background: linear-gradient(135deg, #2563eb 0%, #3b82f6 50%, #1d4ed8 100%);
+          background-size: 200% auto;
+          color: #ffffff;
+          font-weight: 800; font-size: 15px;
+          padding: 14px 20px;
+          border-radius: 10px;
+          border: none;
+          cursor: pointer;
+          transition: background-position 0.4s, transform 0.2s, box-shadow 0.2s;
+          letter-spacing: 0.5px;
+          box-shadow: 0 4px 20px rgba(37,99,235,0.3);
+        }
+        .btn-reviewer:hover:not(:disabled) {
+          background-position: right center;
+          box-shadow: 0 6px 28px rgba(37,99,235,0.45);
+          transform: translateY(-1px);
+        }
+        .btn-reviewer:disabled { opacity: 0.7; cursor: not-allowed; }
 
         /* Policy Banner */
         .policy-card {
@@ -491,7 +517,14 @@ function LoginFormContent() {
                 className={`portal-tab-btn ${activeTab === 'author' ? 'active-orcid' : ''}`}
                 onClick={() => setActiveTab('author')}
               >
-                Peneliti &amp; Author (ORCID)
+                Peneliti (ORCID)
+              </button>
+              <button 
+                type="button" 
+                className={`portal-tab-btn ${activeTab === 'reviewer' ? 'active-reviewer' : ''}`}
+                onClick={() => setActiveTab('reviewer')}
+              >
+                Reviewer
               </button>
               <button 
                 type="button" 
@@ -508,7 +541,7 @@ function LoginFormContent() {
               </div>
             )}
 
-            {activeTab === 'author' ? (
+            {activeTab === 'author' && (
               <div>
                 {/* Policy Notice */}
                 <div className="policy-card">
@@ -548,7 +581,65 @@ function LoginFormContent() {
                   </a>
                 </div>
               </div>
-            ) : (
+            )}
+
+            {activeTab === 'reviewer' && (
+              <div>
+                {/* Reviewer Notice */}
+                <div className="policy-card" style={{ background: 'rgba(59, 130, 246, 0.08)', borderColor: 'rgba(59, 130, 246, 0.3)' }}>
+                  <h4 style={{ color: '#60a5fa' }}>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                    </svg>
+                    APASIFIC Reviewer Standard &amp; Independence
+                  </h4>
+                  <p style={{ color: 'rgba(255,255,255,0.7)' }}>
+                    Sebagai Reviewer APASIFIC, Anda berperan menjaga <strong>integritas ilmiah</strong> dan telaah substantif secara independen, objektif, dan <em>bebas dari anchoring bias</em> skor akhir AT-RQS™.
+                  </p>
+                </div>
+
+                {/* Reviewer Login Form */}
+                <form onSubmit={handleLogin}>
+                  <div className="form-group">
+                    <label className="form-label">EMAIL REVIEWER / MITRA BESTARI</label>
+                    <input
+                      type="email"
+                      className="form-input"
+                      placeholder="reviewer@instansi.ac.id"
+                      value={email}
+                      onChange={e => setEmail(e.target.value)}
+                      required
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label className="form-label">PASSWORD</label>
+                    <input
+                      type="password"
+                      className="form-input"
+                      placeholder="Masukkan password reviewer"
+                      value={password}
+                      onChange={e => setPassword(e.target.value)}
+                      required
+                    />
+                  </div>
+
+                  <button 
+                    type="submit" 
+                    className="btn-reviewer"
+                    disabled={loading}
+                  >
+                    {loading ? "Memverifikasi Kredensial..." : "Masuk ke Panel Reviewer"}
+                  </button>
+                </form>
+
+                <div className="login-register" style={{ marginTop: '16px' }}>
+                  Akses khusus Mitra Bestari (Peer Reviewers) terverifikasi APASIFIC.
+                </div>
+              </div>
+            )}
+
+            {activeTab === 'staff' && (
               <div>
                 {/* Staff / Editorial Login Form */}
                 <form onSubmit={handleLogin}>
@@ -586,7 +677,7 @@ function LoginFormContent() {
                 </form>
 
                 <div className="login-register" style={{ marginTop: '16px' }}>
-                  Akses khusus Dewan Redaksi, Reviewer, dan Administrator APASIFIC.
+                  Akses khusus Dewan Redaksi, Managing Editor, dan Administrator APASIFIC.
                 </div>
               </div>
             )}
