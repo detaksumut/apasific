@@ -554,8 +554,8 @@ function LoginFormContent() {
             </p>
             <div className="author-rules-actions">
               <a 
-                href="/template-naskah.docx" 
-                download="Template_Naskah_APASIFIC_v1.0.docx"
+                href="/APASIFIC_Template_Naskah_v1.0.docx" 
+                download="APASIFIC_Template_Naskah_v1.0.docx"
                 className="btn-download-rules"
               >
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
