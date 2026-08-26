@@ -12,19 +12,19 @@ export const PublisherVerification = () => {
           Official Entity
         </span>
       </h4>
-      <div className="bg-[#16162a] border border-gray-800 rounded-2xl p-4 sm:p-5">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="bg-[#16162a] border border-gray-800 rounded-2xl p-4">
+        <div className="grid grid-cols-1 gap-3">
           <div>
-            <span className="block text-gray-500 text-[10px] uppercase font-bold mb-1">Publisher</span>
+            <span className="block text-gray-500 text-[10px] uppercase font-bold mb-0.5">Publisher</span>
             <span className="font-bold text-white text-sm">PT Bernas Sumut Jaya</span>
           </div>
           <div>
-            <span className="block text-gray-500 text-[10px] uppercase font-bold mb-1">Legal Entity (Kemenkumham)</span>
-            <span className="font-bold text-cyan-300 font-mono text-sm">AHU-0034291.AH.01.01.2026</span>
+            <span className="block text-gray-500 text-[10px] uppercase font-bold mb-0.5">Legal Entity (Kemenkumham)</span>
+            <span className="font-bold text-cyan-300 font-mono text-xs sm:text-sm">AHU-0034291.AH.01.01.2026</span>
           </div>
           <div>
-            <span className="block text-gray-500 text-[10px] uppercase font-bold mb-1">Klasifikasi KBLI</span>
-            <span className="font-medium text-gray-300 text-xs sm:text-sm">58110 (Penerbitan Buku/Jurnal) &amp; 63121 (Portal Web)</span>
+            <span className="block text-gray-500 text-[10px] uppercase font-bold mb-0.5">Klasifikasi KBLI</span>
+            <span className="font-medium text-gray-300 text-xs">58110 (Penerbitan Buku/Jurnal) &amp; 63121 (Portal Web)</span>
           </div>
         </div>
         <div className="flex justify-between items-center pt-3 mt-3 border-t border-gray-800">

@@ -963,6 +963,117 @@ export default function ArticlePaywallClient({ initialArticle, id }: ArticlePayw
             {/* JOURNAL INDEXING STATUS / APASIFIC INDEX SIDEBAR WIDGET */}
             <ApasificIndexPanel isSidebar={true} />
 
+            {/* PUBLISHER VERIFICATION CARD */}
+            <PublisherVerification />
+
+            {/* PUBLICATION LIFECYCLE PASSPORT (SIDEBAR FORMAT) */}
+            <section className="bg-[#070714] border border-blue-950/50 rounded-3xl p-5 shadow-2xl relative overflow-hidden text-xs font-sans space-y-4">
+              {/* Background watermarks */}
+              <div className="absolute inset-0 opacity-5 pointer-events-none flex justify-center items-center">
+                <img src="/logobaru2.png" className="w-[200px] object-contain" alt="watermark" />
+              </div>
+
+              <h3 className="text-xs sm:text-sm font-extrabold text-[#c9a84c] tracking-widest uppercase border-b border-blue-950/60 pb-2.5 flex items-center gap-2 relative z-10">
+                <span className="w-2.5 h-2.5 rounded-full bg-[#c9a84c] animate-pulse" />
+                Publication Lifecycle Passport
+              </h3>
+
+              <div className="space-y-3 relative z-10">
+                {/* Box 1: Publication Lifecycle */}
+                <div className="bg-[#0b0c16]/90 border border-blue-950/40 rounded-2xl p-3.5 space-y-2">
+                  <span className="block text-[10px] font-bold text-gray-400 uppercase tracking-wider">Publication Lifecycle</span>
+                  <div className="grid grid-cols-2 gap-2 text-[11px]">
+                    <div>
+                      <span className="block text-gray-500 text-[10px]">Submitted</span>
+                      <span className="font-semibold text-white">
+                        {article.created_at ? new Date(article.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }) : '2026-08-01'}
+                      </span>
+                    </div>
+                    <div>
+                      <span className="block text-gray-500 text-[10px]">AI Screening</span>
+                      <span className="font-semibold text-green-400">COMPLETED</span>
+                    </div>
+                    <div>
+                      <span className="block text-gray-500 text-[10px]">Peer Review</span>
+                      <span className="font-semibold text-green-400">COMPLETED</span>
+                    </div>
+                    <div>
+                      <span className="block text-gray-500 text-[10px]">Published</span>
+                      <span className="font-semibold text-white">
+                        {article.published_at ? new Date(article.published_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }) : '2026-08-06'}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Box 2: Membership Evidence */}
+                <div className="bg-[#0b0c16]/90 border border-blue-950/40 rounded-2xl p-3.5 space-y-1.5">
+                  <span className="block text-[10px] font-bold text-green-400 uppercase tracking-wider">Membership Evidence</span>
+                  <div className="space-y-1 text-[11px]">
+                    <div className="flex justify-between"><span className="text-gray-500">Status:</span> <span className="font-bold text-green-400">ACTIVE</span></div>
+                    <div className="flex justify-between"><span className="text-gray-500">Member ID:</span> <span className="font-semibold text-white font-mono">APS-2026-00125</span></div>
+                    <div className="flex justify-between"><span className="text-gray-500">Member Since:</span> <span className="font-semibold text-white">2026</span></div>
+                    <div className="flex justify-between"><span className="text-gray-500">Expiration:</span> <span className="font-semibold text-green-400">2027 (Verified)</span></div>
+                  </div>
+                </div>
+
+                {/* Box 3: Professional Certification */}
+                <div className="bg-[#0b0c16]/90 border border-blue-950/40 rounded-2xl p-3.5 space-y-1.5">
+                  <span className="block text-[10px] font-bold text-purple-400 uppercase tracking-wider">Professional Certification</span>
+                  <div className="space-y-1 text-[11px]">
+                    <div className="flex justify-between"><span className="text-gray-500">Status:</span> <span className="font-bold text-purple-400">Certified</span></div>
+                    <div className="flex justify-between"><span className="text-gray-500">Field:</span> <span className="font-semibold text-white">Research Methodology</span></div>
+                    <div className="flex justify-between"><span className="text-gray-500">Cert Number:</span> <span className="font-semibold text-white font-mono">CERT-2026-0042</span></div>
+                    <div className="flex justify-between"><span className="text-gray-500">Verification:</span> <span className="font-semibold text-purple-400">Verified System</span></div>
+                  </div>
+                </div>
+
+                {/* Box 4: Journal Specifications */}
+                <div className="bg-[#0b0c16]/90 border border-blue-950/40 rounded-2xl p-3.5 space-y-1.5">
+                  <span className="block text-[10px] font-bold text-yellow-500 uppercase tracking-wider">Journal Specifications</span>
+                  <div className="space-y-1 text-[11px]">
+                    <div className="flex justify-between"><span className="text-gray-500">Model:</span> <span className="font-semibold text-white">Diamond Open Access</span></div>
+                    <div className="flex justify-between"><span className="text-gray-500">APC Charges:</span> <span className="font-semibold text-green-400">Free (Fully Funded)</span></div>
+                    <div className="flex justify-between"><span className="text-gray-500">Peer Review:</span> <span className="font-semibold text-white">Double Blind</span></div>
+                    <div className="flex justify-between"><span className="text-gray-500">Language:</span> <span className="font-semibold text-white">English</span></div>
+                  </div>
+                </div>
+
+                {/* Box 5: Editorial Process Evidence */}
+                <div className="bg-[#0b0c16]/90 border border-blue-950/40 rounded-2xl p-3.5 space-y-1.5">
+                  <span className="block text-[10px] font-bold text-blue-400 uppercase tracking-wider">Editorial Process Evidence</span>
+                  <div className="space-y-1 text-[11px]">
+                    <div className="flex justify-between"><span className="text-gray-500">Handling Editor:</span> <span className="font-semibold text-white">Editorial Office</span></div>
+                    <div className="flex justify-between"><span className="text-gray-500">Assigned Reviewers:</span> <span className="font-semibold text-white">2 Reviewers</span></div>
+                    <div className="flex justify-between"><span className="text-gray-500">Review Duration:</span> <span className="font-semibold text-white">14 days (Average)</span></div>
+                    <div className="flex justify-between"><span className="text-gray-500">Revision Count:</span> <span className="font-semibold text-white">1 revision</span></div>
+                  </div>
+                </div>
+
+                {/* Box 6: AI Screening Assistant Logs */}
+                <div className="bg-[#0b0c16]/90 border border-blue-950/40 rounded-2xl p-3.5 space-y-1.5">
+                  <span className="block text-[10px] font-bold text-emerald-400 uppercase tracking-wider">AI Screening Assistant Logs</span>
+                  <div className="space-y-1 text-[11px]">
+                    <div className="flex justify-between"><span className="text-gray-500">AI Screening:</span> <span className="font-bold text-green-400">Completed (PASS)</span></div>
+                    <div className="flex justify-between"><span className="text-gray-500">Similarity Score:</span> <span className="font-semibold text-white">14% Match (Safe)</span></div>
+                    <div className="flex justify-between"><span className="text-gray-500">COI:</span> <span className="font-semibold text-green-400">Not Detected</span></div>
+                    <div className="flex justify-between"><span className="text-gray-500">AI Recommendation:</span> <span className="font-semibold text-white">Accept</span></div>
+                  </div>
+                </div>
+
+                {/* Box 7: Technical Runtime Diagnostics */}
+                <div className="bg-[#0b0c16]/90 border border-blue-950/40 rounded-2xl p-3.5 space-y-1 text-[11px]">
+                  <span className="block text-[10px] font-bold text-cyan-400 uppercase tracking-wider mb-1">Technical Diagnostics</span>
+                  <div className="grid grid-cols-2 gap-x-2 gap-y-1 text-[10px]">
+                    <div><span className="text-gray-500">ROBOTS:</span> <span className="font-bold text-green-400">PASS</span></div>
+                    <div><span className="text-gray-500">SITEMAP:</span> <span className="font-bold text-green-400">PASS</span></div>
+                    <div><span className="text-gray-500">OAI:</span> <span className="font-semibold text-cyan-400">ACTIVE</span></div>
+                    <div><span className="text-gray-500">SCHEMA:</span> <span className="font-semibold text-green-400">VALID JATS</span></div>
+                  </div>
+                </div>
+              </div>
+            </section>
+
             {/* TIKTOK & FACEBOOK SOCIAL MEDIA DISSEMINATION CARD (BOTTOM OF SIDEBAR) */}
             <div className="bg-gradient-to-br from-[#1b1226] via-[#121226] to-[#070714] border border-[#c9a84c]/50 rounded-3xl p-5 shadow-2xl space-y-3 relative overflow-hidden">
               <div className="flex items-center justify-between">
@@ -991,124 +1102,6 @@ export default function ArticlePaywallClient({ initialArticle, id }: ArticlePayw
           </div>
           
         </div>
-
-        {/* PUBLISHER VERIFICATION CARD (ABOVE PUBLICATION LIFECYCLE PASSPORT) */}
-        <div className="w-full mt-8">
-          <PublisherVerification />
-        </div>
-
-        {/* Publication Lifecycle Passport */}
-        <section className="w-full mt-8 bg-[#070714] border border-blue-950/40 rounded-3xl p-6 shadow-2xl relative overflow-hidden text-xs sm:text-sm font-sans">
-          {/* Background watermarks */}
-          <div className="absolute inset-0 opacity-10 pointer-events-none flex justify-center items-center">
-            <img src="/logobaru2.png" className="w-[300px] object-contain" alt="watermark" />
-          </div>
-
-          <h2 className="text-xl sm:text-3xl font-extrabold text-[#c9a84c] tracking-widest uppercase mb-6 border-b border-blue-950/60 pb-3 flex items-center gap-2.5 relative z-10">
-            <span className="w-3.5 h-3.5 rounded-full bg-[#c9a84c] animate-pulse" />
-            Publication Lifecycle Passport
-          </h2>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 relative z-10">
-            
-            {/* Box 1: Publication Lifecycle */}
-            <div className="bg-[#0b0c16]/80 border border-blue-950/30 rounded-2xl p-4 space-y-3">
-              <span className="block text-[10px] font-bold text-gray-500 uppercase tracking-widest">Publication Lifecycle</span>
-              <div className="grid grid-cols-2 gap-2 text-[11px]">
-                <div>
-                  <span className="block text-gray-500">Submitted</span>
-                  <span className="font-semibold text-white">
-                    {article.created_at ? new Date(article.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }) : '2026-08-01'}
-                  </span>
-                </div>
-                <div>
-                  <span className="block text-gray-500">AI Screening</span>
-                  <span className="font-semibold text-green-400">COMPLETED</span>
-                </div>
-                <div>
-                  <span className="block text-gray-500">Peer Review</span>
-                  <span className="font-semibold text-green-400">COMPLETED</span>
-                </div>
-                <div>
-                  <span className="block text-gray-500">Published</span>
-                  <span className="font-semibold text-white">
-                    {article.published_at ? new Date(article.published_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }) : '2026-08-06'}
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            {/* Box 2: Membership Evidence */}
-            <div className="bg-[#0b0c16]/80 border border-blue-950/30 rounded-2xl p-4 space-y-2">
-              <span className="block text-[10px] font-bold text-green-400 uppercase tracking-widest">Membership Evidence</span>
-              <div className="space-y-1 text-[11px]">
-                <div><span className="text-gray-500">Status:</span> <span className="font-bold text-green-400">ACTIVE</span></div>
-                <div><span className="text-gray-500">Member ID:</span> <span className="font-semibold text-white font-mono">APS-2026-00125</span></div>
-                <div><span className="text-gray-500">Member Since:</span> <span className="font-semibold text-white">2026</span></div>
-                <div><span className="text-gray-500">Expiration:</span> <span className="font-semibold text-green-400">2027 (Verified)</span></div>
-              </div>
-            </div>
-
-            {/* Box 3: Professional Certification */}
-            <div className="bg-[#0b0c16]/80 border border-blue-950/30 rounded-2xl p-4 space-y-2">
-              <span className="block text-[10px] font-bold text-purple-400 uppercase tracking-widest">Professional Certification</span>
-              <div className="space-y-1 text-[11px]">
-                <div><span className="text-gray-500">Status:</span> <span className="font-bold text-purple-400">Certified</span></div>
-                <div><span className="text-gray-500">Certification:</span> <span className="font-semibold text-white">Research Methodology</span></div>
-                <div><span className="text-gray-500">Cert Number:</span> <span className="font-semibold text-white font-mono">CERT-2026-0042</span></div>
-                <div><span className="text-gray-500">Verification:</span> <span className="font-semibold text-purple-400">Verified System</span></div>
-              </div>
-            </div>
-
-            {/* Box 4: Journal Specifications */}
-            <div className="bg-[#0b0c16]/80 border border-blue-950/30 rounded-2xl p-4 space-y-2">
-              <span className="block text-[10px] font-bold text-yellow-500 uppercase tracking-widest">Journal Specifications</span>
-              <div className="space-y-1 text-[11px]">
-                <div><span className="text-gray-500">Publication Model:</span> <span className="font-semibold text-white">Diamond Open Access</span></div>
-                <div><span className="text-gray-500">APC Charges:</span> <span className="font-semibold text-green-400">Free (Fully Funded)</span></div>
-                <div><span className="text-gray-500">Peer Review Model:</span> <span className="font-semibold text-white">Double Blind Peer Review</span></div>
-                <div><span className="text-gray-500">Language:</span> <span className="font-semibold text-white">English</span></div>
-              </div>
-            </div>
-
-            {/* Box 5: Editorial Process Evidence */}
-            <div className="bg-[#0b0c16]/80 border border-blue-950/30 rounded-2xl p-4 space-y-2">
-              <span className="block text-[10px] font-bold text-blue-400 uppercase tracking-widest">Editorial Process Evidence</span>
-              <div className="space-y-1 text-[11px]">
-                <div><span className="text-gray-500">Handling Editor:</span> <span className="font-semibold text-white">Editorial Office</span></div>
-                <div><span className="text-gray-500">Assigned Reviewers:</span> <span className="font-semibold text-white">2 Reviewers</span></div>
-                <div><span className="text-gray-500">Review Duration:</span> <span className="font-semibold text-white">14 days (Average)</span></div>
-                <div><span className="text-gray-500">Revision Count:</span> <span className="font-semibold text-white">1 revision</span></div>
-              </div>
-            </div>
-
-            {/* Box 6: AI Screening Assistant Logs */}
-            <div className="bg-[#0b0c16]/80 border border-blue-950/30 rounded-2xl p-4 space-y-2">
-              <span className="block text-[10px] font-bold text-emerald-400 uppercase tracking-widest">AI Screening Assistant Logs</span>
-              <div className="space-y-1 text-[11px]">
-                <div><span className="text-gray-500">AI Screening:</span> <span className="font-bold text-green-400">Completed (PASS)</span></div>
-                <div><span className="text-gray-500">Similarity Score:</span> <span className="font-semibold text-white">14% Match (Safe)</span></div>
-                <div><span className="text-gray-500">Conflict of Interest:</span> <span className="font-semibold text-green-400">Not Detected</span></div>
-                <div><span className="text-gray-500">AI Recommendation:</span> <span className="font-semibold text-white">Accept (Ready for Review)</span></div>
-              </div>
-            </div>
-
-            {/* Box 7: Technical Runtime Diagnostics */}
-            <div className="bg-[#0b0c16]/80 border border-blue-950/30 rounded-2xl p-4 space-y-1 col-span-1 md:col-span-2 text-[11px]">
-              <span className="block text-[10px] font-bold text-cyan-400 uppercase tracking-widest mb-1.5">Technical Runtime Diagnostics</span>
-              <div className="grid grid-cols-2 gap-x-4 gap-y-1">
-                <div><span className="text-gray-500">ROBOTS.TXT:</span> <span className="font-bold text-green-400">PASS (Indexed)</span></div>
-                <div><span className="text-gray-500">SITEMAP.XML:</span> <span className="font-bold text-green-400">PASS (Dynamic)</span></div>
-                <div><span className="text-gray-500">OAI ENDPOINT:</span> <span className="font-semibold text-cyan-400">ACTIVE (/api/oai)</span></div>
-                <div><span className="text-gray-500">XML SCHEMA:</span> <span className="font-semibold text-green-400">VALID (JATS)</span></div>
-              </div>
-              <div className="pt-1.5 mt-1.5 border-t border-blue-950/40 text-[10px]">
-                <span className="text-gray-500 font-medium">System Platform:</span> <span className="text-gray-300 font-semibold">IAEP - Integrated Academic Ecosystem Platform</span>
-              </div>
-            </div>
-
-          </div>
-        </section>
 
         {/* TikTok Article Dissemination & Story Card Modal */}
         <TikTokArticleShareModal
