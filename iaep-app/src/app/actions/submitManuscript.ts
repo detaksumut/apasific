@@ -68,10 +68,12 @@ export async function submitManuscript(formData: FormData) {
     let parsedAbstract = "";
     let parsedKeywords = "";
     let submissionAuthors: any[] = [];
+    let richPayload: any = {};
     
     try {
       if (abstract && abstract.trim().startsWith('{')) {
         const parsed = JSON.parse(abstract);
+        richPayload = parsed;
         parsedAbstract = parsed.abstract_en || parsed.abstract || "";
         parsedKeywords = parsed.keywords || "";
         submissionAuthors = parsed.authors || [];

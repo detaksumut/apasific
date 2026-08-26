@@ -24,7 +24,7 @@ export type ResearchApproachKey =
 export interface RubricCriterion {
   id: string;
   name: string;
-  description: string;
+  description?: string;
   layer: 'Layer 1: Identity' | 'Layer 2: Integrity' | 'Layer 3: Methodological Rigor' | 'Layer 4: Evidence & Data' | 'Layer 5: Scholarly Impact';
   maxWeight: number; // Percentage contribution
 }

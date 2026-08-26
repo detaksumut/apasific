@@ -1,11 +1,11 @@
 "use client";
 import Link from "next/link";
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { loginUser } from "@/app/actions/auth";
 import { getDashboardPath } from "@/lib/roles";
 
-export default function Login() {
+function LoginFormContent() {
   const searchParams = useSearchParams();
   const [activeTab, setActiveTab] = useState<'author' | 'staff'>('author');
   const [email, setEmail] = useState("");
@@ -476,5 +476,13 @@ export default function Login() {
 
       </div>
     </>
+  );
+}
+
+export default function Login() {
+  return (
+    <Suspense fallback={<div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', background: '#0a0a0f', color: '#c9a84c' }}>Memuat...</div>}>
+      <LoginFormContent />
+    </Suspense>
   );
 }
