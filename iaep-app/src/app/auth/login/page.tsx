@@ -113,6 +113,87 @@ function LoginFormContent() {
         }
         .login-brand-name { font-size: 22px; font-weight: 800; color: #c9a84c; letter-spacing: 2px; }
         .login-brand-sub  { font-size: 11px; color: rgba(201,168,76,0.6); letter-spacing: 1px; margin-top: 2px; }
+        
+        /* Top Author Formatting Rules Card */
+        .author-rules-card {
+          background: linear-gradient(135deg, rgba(201,168,76,0.12) 0%, rgba(13,14,27,0.9) 100%);
+          border: 1px solid rgba(201,168,76,0.4);
+          border-radius: 14px;
+          padding: 14px 16px;
+          margin-bottom: 22px;
+          position: relative;
+          z-index: 1;
+          box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+          max-width: 440px;
+        }
+        .author-rules-badge {
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          font-size: 10px;
+          font-weight: 800;
+          color: #c9a84c;
+          letter-spacing: 0.8px;
+          text-transform: uppercase;
+          margin-bottom: 4px;
+        }
+        .author-rules-title {
+          font-size: 13px;
+          font-weight: 800;
+          color: #ffffff;
+          line-height: 1.35;
+          margin-bottom: 4px;
+        }
+        .author-rules-desc {
+          font-size: 11px;
+          color: rgba(255,255,255,0.65);
+          line-height: 1.5;
+          margin-bottom: 10px;
+        }
+        .author-rules-actions {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          flex-wrap: wrap;
+        }
+        .btn-download-rules {
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          background: #c9a84c;
+          color: #0d0d0d;
+          font-size: 11.5px;
+          font-weight: 800;
+          padding: 7px 14px;
+          border-radius: 8px;
+          text-decoration: none;
+          transition: all 0.2s;
+          box-shadow: 0 2px 10px rgba(201,168,76,0.25);
+        }
+        .btn-download-rules:hover {
+          background: #e8c96a;
+          transform: translateY(-1px);
+          box-shadow: 0 4px 14px rgba(201,168,76,0.4);
+        }
+        .btn-download-template {
+          display: inline-flex;
+          align-items: center;
+          gap: 5px;
+          background: rgba(255,255,255,0.06);
+          border: 1px solid rgba(201,168,76,0.3);
+          color: #e8c96a;
+          font-size: 11px;
+          font-weight: 700;
+          padding: 6.5px 12px;
+          border-radius: 8px;
+          text-decoration: none;
+          transition: all 0.2s;
+        }
+        .btn-download-template:hover {
+          background: rgba(201,168,76,0.15);
+          color: #ffffff;
+        }
+
         .login-hero-text  { position: relative; z-index: 1; max-width: 440px; }
         .login-hero-text h1 {
           font-size: 32px; font-weight: 900;
@@ -456,6 +537,48 @@ function LoginFormContent() {
             <div>
               <div className="login-brand-name">ASIA</div>
               <div className="login-brand-sub">ASSOCIATION OF ASIA PACIFIC ACADEMICIAN</div>
+            </div>
+          </div>
+
+          {/* TOP POSITION: AUTHOR CITATION & FORMATTING RULES DOWNLOAD CARD */}
+          <div className="author-rules-card">
+            <div className="author-rules-badge">
+              <span className="w-2 h-2 rounded-full bg-[#c9a84c] animate-pulse" />
+              <span>Pedoman Resmi Penulisan &amp; Sitasi</span>
+            </div>
+            <div className="author-rules-title">
+              APASIFIC Author Formatting &amp; Citation Rules v1.0
+            </div>
+            <p className="author-rules-desc">
+              Format baku 2-Kolom halaman pertama, Arial 11pt, &amp; kewajiban sitasi langsung (Direct In-Text Citation) per paragraf.
+            </p>
+            <div className="author-rules-actions">
+              <a 
+                href="/template-naskah.docx" 
+                download="Template_Naskah_APASIFIC_v1.0.docx"
+                className="btn-download-rules"
+              >
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                  <polyline points="7 10 12 15 17 10"/>
+                  <line x1="12" y1="15" x2="12" y2="3"/>
+                </svg>
+                <span>Unduh Template Naskah (Word)</span>
+              </a>
+              <a 
+                href="/AT-RQS-Methodology-Specification-v1.0.pdf" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="btn-download-template"
+              >
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                  <polyline points="14 2 14 8 20 8"/>
+                  <line x1="16" y1="13" x2="8" y2="13"/>
+                  <line x1="16" y1="17" x2="8" y2="17"/>
+                </svg>
+                <span>Panduan Penulisan (PDF)</span>
+              </a>
             </div>
           </div>
 
