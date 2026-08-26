@@ -1,25 +1,23 @@
-import { NextResponse } from "next/server";
+// src/app/api/auth/orcid/route.ts
+import { NextResponse } from 'next/server';
 
 export async function GET(request: Request) {
-  const orcidBaseUrl = process.env.ORCID_BASE_URL || "https://orcid.org";
-  const clientId = process.env.ORCID_CLIENT_ID || "";
+  const { searchParams } = new URL(request.url);
+  const redirectTarget = searchParams.get('redirect') || '/dashboard/profile';
   
-  const { origin } = new URL(request.url);
-  const redirectUri = process.env.ORCID_REDIRECT_URI || `${origin}/api/auth/orcid/callback`;
+  // Environment variables for ORCID OAuth (Supports Production, Sandbox, or Configurable)
+  const isSandbox = process.env.ORCID_ENVIRONMENT === 'sandbox';
+  const orcidDomain = isSandbox ? 'https://sandbox.orcid.org' : 'https://orcid.org';
+  const clientId = process.env.ORCID_CLIENT_ID || 'APP-DEMO-APASIFIC-ORCID';
   
-  const state = Math.random().toString(36).substring(2, 15);
-  const authorizeUrl = `${orcidBaseUrl}/oauth/authorize?client_id=${clientId}&response_type=code&scope=/authenticate&redirect_uri=${encodeURIComponent(redirectUri)}&state=${state}`;
+  const host = request.headers.get('host') || 'localhost:3000';
+  const protocol = host.includes('localhost') ? 'http' : 'https';
+  const callbackUrl = process.env.ORCID_REDIRECT_URI || `${protocol}://${host}/api/auth/orcid/callback`;
 
-  const response = NextResponse.redirect(authorizeUrl);
+  // Store target in state or query
+  const state = Buffer.from(JSON.stringify({ redirectTarget, ts: Date.now() })).toString('base64');
 
-  // Set secure cookie for CSRF state
-  response.cookies.set("orcid_oauth_state", state, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-    path: "/",
-    maxAge: 600, // 10 menit
-  });
+  const authUrl = `${orcidDomain}/oauth/authorize?client_id=${encodeURIComponent(clientId)}&response_type=code&scope=/authenticate&redirect_uri=${encodeURIComponent(callbackUrl)}&state=${encodeURIComponent(state)}`;
 
-  return response;
+  return NextResponse.redirect(authUrl);
 }

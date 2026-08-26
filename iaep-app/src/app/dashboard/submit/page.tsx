@@ -1,22 +1,30 @@
-﻿"use client";
+"use client";
 import React, { useState, useEffect } from 'react';
 import { submitManuscript } from '@/app/actions/submitManuscript';
 import { createClient } from '@/utils/supabase/client';
 import { PlagiarismChecker } from '@/components/PlagiarismChecker';
-import { FileText, Upload, Send, Languages, Plus, Trash2, ChevronUp, ChevronDown } from 'lucide-react';
+import { 
+  FileText, Upload, Send, Languages, Plus, Trash2, ChevronUp, ChevronDown, 
+  ShieldCheck, Cpu, Database, CheckSquare, Sparkles, BookOpen, AlertCircle
+} from 'lucide-react';
+import { CREDIT_ROLES, CRediTRole } from '@/domain/submission/SubmissionIntegrityPayload';
 
 interface AuthorData {
   id: string;
+  isCorresponding: boolean;
+  apasificAuthId?: string;
   full_name: string;
   email: string;
   affiliation: string;
   country: string;
   orcid: string;
+  orcidProvenance: 'AUTHENTICATED' | 'AUTHOR_CLAIMED';
   academic_id: string;
   google_scholar: string;
   sinta: string;
   scopus: string;
   wos: string;
+  creditRoles: CRediTRole[];
 }
 
 const JOURNALS = [
@@ -108,7 +116,9 @@ export default function AuthorSubmit() {
   const [error, setError] = useState('');
   const [isTranslating, setIsTranslating] = useState(false);
   const [pendingAiAnalysis, setPendingAiAnalysis] = useState<any>(null);
+  const [orcidSession, setOrcidSession] = useState<{ orcid?: string; authId?: string; name?: string } | null>(null);
 
+  // Form State
   const [formData, setFormData] = useState({
     journal_id: '5f6bca5a-39e2-442b-a2e0-5b3f35614b4e',
     publicationType: 'international',
@@ -120,25 +130,107 @@ export default function AuthorSubmit() {
     keywords: '',
     cover_letter: '',
     bibliography: '',
-    funding_source: '',
-    conflict_of_interest: false,
-    ai_disclosure_type: 'none',
-    ai_disclosure_statement: '',
-    phone: ''
+    phone: '',
+    
+    // Extensible Research Taxonomy
+    article_type: 'Original Research',
+    research_approach: 'Quantitative',
+    research_design: 'Cross-Sectional Empirical',
+    
+    // AI Transparency Record
+    ai_used: false,
+    ai_tools: [] as string[],
+    ai_purposes: [] as string[],
+    ai_affected_sections: [] as string[],
+    ai_responsibility_accepted: false,
+    ai_custom_notes: '',
+
+    // Data Availability
+    data_availability_status: 'UPON_REASONABLE_REQUEST',
+    data_availability_statement: 'Data supporting the findings of this study are available from the corresponding author upon reasonable request.',
+    data_repository_url: '',
+
+    // Ethics Declaration
+    ethics_status: 'NOT_REQUIRED',
+    ethics_committee: '',
+    ethics_protocol_number: '',
+    ethics_informed_consent: false,
+
+    // Funding & COI
+    funding_status: 'NO_EXTERNAL_FUNDING',
+    funding_agency: '',
+    funding_grant_number: '',
+    coi_status: 'NO_CONFLICT',
+    coi_details: '',
+
+    // Submission Integrity Pledge
+    pledge_originality: false,
+    pledge_no_dual_submission: false,
+    pledge_coauthors_approved: false,
+    pledge_accuracy_accepted: false
+  });
+
+  const [authors, setAuthors] = useState<AuthorData[]>([
+    {
+      id: '1',
+      isCorresponding: true,
+      apasificAuthId: '',
+      full_name: '',
+      email: '',
+      affiliation: '',
+      country: 'Indonesia',
+      orcid: '',
+      orcidProvenance: 'AUTHENTICATED',
+      academic_id: '',
+      google_scholar: '',
+      sinta: '',
+      scopus: '',
+      wos: '',
+      creditRoles: ['Conceptualization', 'Writing - Original Draft']
+    }
+  ]);
+
+  const [files, setFiles] = useState({
+    titlePage: null as File | null,
+    anonymous: null as File | null,
+    supporting: null as File | null
   });
 
   useEffect(() => {
+    // 1. Fetch cookie for authenticated ORCID
+    const getCookie = (name: string) => {
+      const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
+      return match ? decodeURIComponent(match[2]) : null;
+    };
+
+    const authOrcid = getCookie('authenticated_orcid');
+    const authId = getCookie('apasific_auth_id');
+    const userName = getCookie('user_name');
+
+    if (authOrcid) {
+      setOrcidSession({ orcid: authOrcid, authId: authId || undefined, name: userName || undefined });
+      setAuthors(prev => {
+        const copy = [...prev];
+        copy[0] = {
+          ...copy[0],
+          apasificAuthId: authId || copy[0].apasificAuthId,
+          full_name: copy[0].full_name || userName || '',
+          orcid: authOrcid,
+          orcidProvenance: 'AUTHENTICATED'
+        };
+        return copy;
+      });
+    }
+
     const fetchUserPhone = async () => {
       try {
         const supabase = createClient();
         const { data: { user } } = await supabase.auth.getUser();
         if (user) {
-          // Try from user metadata first
           if (user.user_metadata?.phone) {
             setFormData(prev => ({ ...prev, phone: user.user_metadata.phone }));
             return;
           }
-          // Try from profiles table
           const { data: profile } = await supabase.from('profiles').select('phone').eq('id', user.id).single();
           if (profile?.phone) {
             setFormData(prev => ({ ...prev, phone: profile.phone }));
@@ -151,44 +243,57 @@ export default function AuthorSubmit() {
     fetchUserPhone();
   }, []);
 
-  const [authors, setAuthors] = useState<AuthorData[]>([
-    { id: '1', full_name: '', email: '', affiliation: '', country: '', orcid: '', academic_id: '', google_scholar: '', sinta: '', scopus: '', wos: '' }
-  ]);
-
-  const [files, setFiles] = useState({
-    titlePage: null as File | null,
-    anonymous: null as File | null,
-    supporting: null as File | null
-  });
-
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target as HTMLInputElement;
     const checked = (e.target as HTMLInputElement).checked;
     setFormData(prev => ({ ...prev, [name]: type === 'checkbox' ? checked : value }));
   };
 
-  const handleAbstractBlur = (e: React.FocusEvent<HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-    if (!value) return;
-    
-    // Rapihkan teks hasil copy-paste dari PDF (hapus line-break tunggal tapi pertahankan paragraf)
-    const cleaned = value
-      .replace(/\r\n/g, '\n')
-      .split(/\n{2,}/)
-      .map(p => p.replace(/\n/g, ' ').replace(/\s+/g, ' ').trim())
-      .join('\n\n');
-      
-    setFormData(prev => ({ ...prev, [name]: cleaned }));
+  const handleArrayToggle = (key: 'ai_tools' | 'ai_purposes' | 'ai_affected_sections', value: string) => {
+    setFormData(prev => {
+      const current = prev[key];
+      const exists = current.includes(value);
+      const updated = exists ? current.filter(item => item !== value) : [...current, value];
+      return { ...prev, [key]: updated };
+    });
   };
 
-  const handleAuthorChange = (index: number, field: keyof AuthorData, value: string) => {
+  const handleAuthorChange = (index: number, field: keyof AuthorData, value: any) => {
     const newAuthors = [...authors];
     newAuthors[index] = { ...newAuthors[index], [field]: value };
     setAuthors(newAuthors);
   };
 
+  const handleCreditToggle = (authorIndex: number, role: CRediTRole) => {
+    const newAuthors = [...authors];
+    const currentRoles = newAuthors[authorIndex].creditRoles || [];
+    const exists = currentRoles.includes(role);
+    newAuthors[authorIndex].creditRoles = exists
+      ? currentRoles.filter(r => r !== role)
+      : [...currentRoles, role];
+    setAuthors(newAuthors);
+  };
+
   const addAuthor = () => {
-    setAuthors([...authors, { id: Math.random().toString(), full_name: '', email: '', affiliation: '', country: '', orcid: '', academic_id: '', google_scholar: '', sinta: '', scopus: '', wos: '' }]);
+    setAuthors([
+      ...authors,
+      {
+        id: Math.random().toString(),
+        isCorresponding: false,
+        full_name: '',
+        email: '',
+        affiliation: '',
+        country: 'Indonesia',
+        orcid: '',
+        orcidProvenance: 'AUTHOR_CLAIMED',
+        academic_id: '',
+        google_scholar: '',
+        sinta: '',
+        scopus: '',
+        wos: '',
+        creditRoles: ['Investigation']
+      }
+    ]);
   };
 
   const removeAuthor = (index: number) => {
@@ -244,6 +349,12 @@ export default function AuthorSubmit() {
     }
   };
 
+  const isPledgeComplete = 
+    formData.pledge_originality && 
+    formData.pledge_no_dual_submission && 
+    formData.pledge_coauthors_approved && 
+    formData.pledge_accuracy_accepted;
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
@@ -266,6 +377,18 @@ export default function AuthorSubmit() {
       return;
     }
 
+    if (formData.ai_used && !formData.ai_responsibility_accepted) {
+      setError("Anda wajib mencentang konfirmasi tanggung jawab penulis atas penggunaan AI.");
+      window.scrollTo(0, 0);
+      return;
+    }
+
+    if (!isPledgeComplete) {
+      setError("Seluruh butir Pernyataan Integritas & Deklarasi Penyerahan Naskah wajib dicentang.");
+      window.scrollTo(0, 0);
+      return;
+    }
+
     setLoading(true);
 
     const form = new FormData();
@@ -274,29 +397,82 @@ export default function AuthorSubmit() {
     
     form.append('journalId', formData.journal_id);
     form.append('title', finalTitle);
+    form.append('phone', formData.phone);
 
     if (pendingAiAnalysis) {
       form.append('aiResult', JSON.stringify(pendingAiAnalysis));
-      console.log('[UltimateAI] Hasil dikirim bersama submission:', pendingAiAnalysis);
     }
-    form.append('phone', formData.phone);
-    
-    const metadataObj = {
+
+    // Comprehensive Structured Submission Payload
+    const comprehensivePayload = {
       abstract: formData.abstract,
       abstract_en: formData.abstract_en,
       keywords: `Scope: ${finalScope}, ${formData.keywords}`,
       cover_letter: formData.cover_letter,
       bibliography: formData.bibliography,
-      funding_source: formData.funding_source,
-      conflict_of_interest: formData.conflict_of_interest,
-      ai_disclosure_type: formData.ai_disclosure_type,
-      ai_disclosure_statement: formData.ai_disclosure_type !== 'none' ? formData.ai_disclosure_statement : null,
       publication_type: formData.publicationType,
-      authors: authors
+      
+      // Layer 1: Research Taxonomy
+      research_taxonomy: {
+        article_type: formData.article_type,
+        research_approach: formData.research_approach,
+        research_design: formData.research_design
+      },
+
+      // Layer 1 & CRediT: Authors
+      authors: authors.map((a, idx) => ({
+        ...a,
+        isCorresponding: idx === 0,
+        orcidProvenance: idx === 0 && orcidSession?.orcid ? 'AUTHENTICATED' : (a.orcid ? 'AUTHOR_CLAIMED' : undefined)
+      })),
+
+      // Layer 2: AI Transparency Record
+      ai_transparency_record: {
+        used: formData.ai_used,
+        tools: formData.ai_tools,
+        purposes: formData.ai_purposes,
+        affected_sections: formData.ai_affected_sections,
+        author_responsibility_accepted: formData.ai_responsibility_accepted,
+        custom_notes: formData.ai_custom_notes
+      },
+
+      // Layer 4: Data Availability
+      data_availability: {
+        status: formData.data_availability_status,
+        statement: formData.data_availability_statement,
+        repository_url: formData.data_repository_url
+      },
+
+      // Layer 2: Ethics
+      ethics_declaration: {
+        status: formData.ethics_status,
+        committee_name: formData.ethics_committee,
+        protocol_number: formData.ethics_protocol_number,
+        informed_consent_confirmed: formData.ethics_informed_consent
+      },
+
+      // Layer 2: Funding & COI
+      funding_declaration: {
+        status: formData.funding_status,
+        agency: formData.funding_agency,
+        grant_number: formData.funding_grant_number
+      },
+      conflict_of_interest: {
+        status: formData.coi_status,
+        details: formData.coi_details
+      },
+
+      // Submission Pledge
+      submission_pledge: {
+        originality_confirmed: formData.pledge_originality,
+        no_dual_submission: formData.pledge_no_dual_submission,
+        coauthors_approved: formData.pledge_coauthors_approved,
+        accuracy_accepted: formData.pledge_accuracy_accepted,
+        timestamp: new Date().toISOString()
+      }
     };
-    
-    form.append('abstract', JSON.stringify(metadataObj));
-    
+
+    form.append('abstract', JSON.stringify(comprehensivePayload));
     form.append('file', files.titlePage);
     if (files.anonymous) form.append('anonymousFile', files.anonymous);
     if (files.supporting) form.append('supportingFile', files.supporting);
@@ -325,13 +501,15 @@ export default function AuthorSubmit() {
           <div className="w-24 h-24 bg-green-500/10 rounded-full flex items-center justify-center mx-auto mb-8">
             <Send className="w-12 h-12 text-green-500" />
           </div>
-          <h2 className="text-4xl font-serif text-white font-bold mb-6">Pengiriman Berhasil!</h2>
-          <p className="text-zinc-400 text-lg mb-10 leading-relaxed">Naskah Anda beserta data metadata penulis lengkap telah berhasil dikirimkan ke tim editorial APASIFIC.</p>
+          <h2 className="text-4xl font-serif text-white font-bold mb-6">Pengiriman Naskah Berhasil!</h2>
+          <p className="text-zinc-400 text-lg mb-10 leading-relaxed">
+            Naskah Anda beserta <strong>Metadata 5-Layer, CRediT Roles, dan AI Transparency Record</strong> telah resmi dicatat ke dalam buku besar peristiwa (<em>Event Ledger</em>) APASIFIC.
+          </p>
           <button 
             onClick={() => window.location.reload()}
             className="px-8 py-4 bg-gradient-to-r from-emerald-600 to-emerald-400 text-black font-bold text-lg rounded-xl hover:from-emerald-500 hover:to-emerald-300 transition-colors"
           >
-            Submit Artikel Lainnya
+            Submit Naskah Lainnya
           </button>
         </div>
       </div>
@@ -339,25 +517,27 @@ export default function AuthorSubmit() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-700 pb-20" style={{ display: 'flex', flexDirection: 'column', gap: '3rem' }}>
-      <div className="mb-12">
-        <h1 className="text-4xl text-[#c9a84c] font-bold tracking-wide mb-3">Submit Artikel Baru</h1>
-        <p className="text-[#8888aa] text-lg">Lengkapi formulir metadata di bawah ini dengan seksama untuk memastikan kelancaran proses publikasi Anda.</p>
+    <div className="max-w-7xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-700 pb-20 space-y-12">
+      <div>
+        <h1 className="text-4xl text-[#c9a84c] font-bold tracking-wide mb-3">Submit Naskah Ilmiah Baru</h1>
+        <p className="text-[#8888aa] text-lg">
+          Lengkapi formulir metadata riset terpadu di bawah ini sesuai standar mutu dan integritas <strong>APASIFIC Ecosystem v1.0</strong>.
+        </p>
       </div>
 
-      <div className="bg-[#111120] border border-[#c9a84c]/20 rounded-2xl overflow-hidden shadow-xl mb-12">
+      {/* Pre-submission Plagiarism Scanner */}
+      <div className="bg-[#111120] border border-[#c9a84c]/20 rounded-2xl overflow-hidden shadow-xl">
         <div className="bg-[#18182e] px-8 py-5 border-b border-[#c9a84c]/30 flex items-center gap-3">
           <FileText className="w-6 h-6 text-[#c9a84c]" />
           <div>
-            <h3 className="font-bold text-[#c9a84c] text-lg">Alat Cek Plagiarisme (Pra-Submit)</h3>
-            <p className="text-sm text-[#8888aa] mt-1">Gunakan alat ini untuk memastikan artikel Anda bebas plagiarisme sebelum disubmit secara resmi ke tim editorial.</p>
+            <h3 className="font-bold text-[#c9a84c] text-lg">Alat Cek Kemiripan Teks (Pra-Submit)</h3>
+            <p className="text-sm text-[#8888aa] mt-1">Gunakan alat ini untuk memastikan artikel bebas dari tumpang tindih teks tanpa atribusi sebelum diserahkan resmi.</p>
           </div>
         </div>
         <div className="p-4">
           <PlagiarismChecker
             onAnalysisComplete={(result) => {
               setPendingAiAnalysis(result);
-              console.log('[UltimateAI] Hasil diterima oleh Submit:', result);
             }}
           />
         </div>
@@ -365,322 +545,569 @@ export default function AuthorSubmit() {
 
       <form onSubmit={handleSubmit} className="bg-[#111120] border border-[#c9a84c]/30 rounded-2xl shadow-2xl divide-y divide-zinc-800/80">
         
-        {/* SECTION 1: METADATA */}
-        <div className="p-8 lg:p-12">
-          <div className="flex items-center gap-4 mb-10">
+        {/* SECTION 1: RESEARCH IDENTITY & EXTENSIBLE TAXONOMY */}
+        <div className="p-8 lg:p-12 space-y-8">
+          <div className="flex items-center gap-4">
             <div className="w-10 h-10 rounded-full bg-[#c9a84c]/10 text-[#c9a84c] flex items-center justify-center font-bold text-xl border border-[#c9a84c]/40">1</div>
-            <h2 className="text-2xl font-bold text-white tracking-wide">Metadata Artikel</h2>
+            <div>
+              <h2 className="text-2xl font-bold text-white tracking-wide">Layer 1: Identitas &amp; Taksonomi Riset</h2>
+              <p className="text-xs text-zinc-400">Penentuan jurnal target, cakupan scope, dan pendekatan metodologi naskah.</p>
+            </div>
           </div>
 
           {error && (
-            <div className="bg-red-900/30 border border-red-500/50 text-red-300 px-6 py-4 rounded-xl text-base font-medium mb-10 flex items-center gap-3">
-              <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse"></div>
+            <div className="bg-red-900/30 border border-red-500/50 text-red-300 px-6 py-4 rounded-xl text-base font-medium flex items-center gap-3">
+              <AlertCircle className="w-5 h-5 flex-shrink-0 text-red-400" />
               <span>{error}</span>
             </div>
           )}
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '2rem', marginBottom: '2.5rem' }}>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-              <label className="block text-base font-bold text-[#c9a84c]">Pilih Jurnal Tujuan <span className="text-red-500">*</span></label>
+          {/* Jurnal, Scope, Package */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-2">
+              <label className="block text-sm font-bold text-[#c9a84c]">Pilih Jurnal Tujuan <span className="text-red-500">*</span></label>
               <select 
                 name="journal_id" value={formData.journal_id} 
                 onChange={(e) => {
                   handleChange(e);
                   setFormData(prev => ({ ...prev, selectedScope: '', customScope: '' }));
-                }} required style={{ padding: '1rem' }}
-                className="w-full bg-[#0a0a14] border border-zinc-700/80 rounded-xl px-5 py-4 text-white text-base focus:border-[#c9a84c] focus:ring-1 focus:ring-[#c9a84c] transition-colors cursor-pointer"
+                }} required
+                className="w-full bg-[#0a0a14] border border-zinc-700/80 rounded-xl px-4 py-3.5 text-white text-sm focus:border-[#c9a84c] outline-none"
               >
-                <option value="" disabled>-- Pilih Jurnal --</option>
                 {JOURNALS.map(j => <option key={j.id} value={j.id}>{j.name}</option>)}
               </select>
             </div>
             
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-              <label className="block text-base font-bold text-[#c9a84c]">Pilih Scope Jurnal <span className="text-red-500">*</span></label>
+            <div className="space-y-2">
+              <label className="block text-sm font-bold text-[#c9a84c]">Pilih Scope Jurnal <span className="text-red-500">*</span></label>
               <select 
-                name="selectedScope" value={formData.selectedScope} onChange={handleChange} required style={{ padding: '1rem' }}
-                className="w-full bg-[#0a0a14] border border-zinc-700/80 rounded-xl px-5 py-4 text-white text-base focus:border-[#c9a84c] focus:ring-1 focus:ring-[#c9a84c] transition-colors cursor-pointer"
+                name="selectedScope" value={formData.selectedScope} onChange={handleChange} required
+                className="w-full bg-[#0a0a14] border border-zinc-700/80 rounded-xl px-4 py-3.5 text-white text-sm focus:border-[#c9a84c] outline-none"
               >
                 <option value="" disabled>-- Pilih Scope --</option>
                 {JOURNALS.find(j => j.id === formData.journal_id)?.scopes.map(s => <option key={s} value={s}>{s}</option>)}
                 <option value="Lainnya">Lainnya (Tulis Sendiri)</option>
               </select>
               {formData.selectedScope === 'Lainnya' && (
-                <div className="mt-4 animate-in fade-in slide-in-from-top-2">
-                  <input 
-                    type="text" name="customScope" value={formData.customScope} onChange={handleChange} required style={{ padding: '1rem' }}
-                    className="w-full bg-[#0a0a14] border border-[#c9a84c]/50 rounded-xl px-5 py-4 text-white text-base focus:border-[#c9a84c] focus:ring-1 focus:ring-[#c9a84c] shadow-[0_0_15px_rgba(201,168,76,0.1)]"
-                    placeholder="Ketikkan scope/bidang spesifik Anda..."
-                  />
-                </div>
+                <input 
+                  type="text" name="customScope" value={formData.customScope} onChange={handleChange} required
+                  className="w-full mt-2 bg-[#0a0a14] border border-[#c9a84c]/50 rounded-xl px-4 py-3 text-white text-sm"
+                  placeholder="Ketikkan scope/bidang spesifik Anda..."
+                />
               )}
             </div>
           </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginBottom: '2.5rem' }}>
-            <label className="block text-base font-bold text-[#c9a84c]">Pilih Paket Publikasi <span className="text-red-500">*</span></label>
-            <select 
-              name="publicationType" value={formData.publicationType} onChange={handleChange} required style={{ padding: '1rem' }}
-              className="w-full bg-[#0a0a14] border border-zinc-700/80 rounded-xl px-5 py-4 text-white text-base focus:border-[#c9a84c] focus:ring-1 focus:ring-[#c9a84c] transition-colors cursor-pointer"
-            >
-              <option value="international">Publikasi Jurnal Internasional (Non SINTA)</option>
-              <option value="jurnal_kuliah">Jurnal Perkuliahan (Non SINTA)</option>
-              <option value="sinta_6">Publikasi Jurnal SINTA 6</option>
-              <option value="sinta_5">Publikasi Jurnal SINTA 5</option>
-              <option value="sinta_4">Publikasi Jurnal SINTA 4</option>
-              <option value="sinta_3">Publikasi Jurnal SINTA 3</option>
-              <option value="sinta_2">Publikasi Jurnal SINTA 2</option>
-              <option value="sinta_1">Publikasi Jurnal SINTA 1</option>
-            </select>
-            <p className="text-sm text-[#8888aa] mt-2 pl-1">* Biaya dan fasilitas masing-masing paket akan diinformasikan lebih lanjut oleh editor.</p>
+          {/* Extensible Taxonomy 3-Pillar */}
+          <div className="p-5 bg-black/40 border border-[#c9a84c]/20 rounded-xl space-y-4">
+            <h4 className="text-sm font-bold text-[#c9a84c] flex items-center gap-2">
+              <BookOpen className="w-4 h-4" /> Extensible Research Classification (Rubric Anchor for AT-RQS™)
+            </h4>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="space-y-1.5">
+                <label className="block text-xs font-bold text-zinc-300">Article Type</label>
+                <select 
+                  name="article_type" value={formData.article_type} onChange={handleChange}
+                  className="w-full bg-[#111120] border border-zinc-700 rounded-lg px-3 py-2.5 text-white text-xs"
+                >
+                  <option value="Original Research">Original Research Paper</option>
+                  <option value="Review Article">Review / Synthesis Article</option>
+                  <option value="Case Report">Case Study / Field Report</option>
+                  <option value="Short Communication">Short Communication</option>
+                  <option value="Perspective">Essay / Theoretical Perspective</option>
+                </select>
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="block text-xs font-bold text-zinc-300">Research Approach</label>
+                <select 
+                  name="research_approach" value={formData.research_approach} onChange={handleChange}
+                  className="w-full bg-[#111120] border border-zinc-700 rounded-lg px-3 py-2.5 text-white text-xs"
+                >
+                  <option value="Quantitative">Kuantitatif (Statistical / Empirical)</option>
+                  <option value="Qualitative">Kualitatif (Interpretive / Phenomenological)</option>
+                  <option value="Mixed-Methods">Mixed Methods (Kombinasi)</option>
+                  <option value="Meta-Analysis / SLR">Systematic Review / PRISMA Meta-Analysis</option>
+                  <option value="Conceptual / Theoretical">Kajian Konseptual / Teoretis</option>
+                  <option value="Legal-Normative">Hukum Normatif (Doctrinal Legal)</option>
+                  <option value="Experimental">Eksperimental Murni / Laboratorium</option>
+                  <option value="Bibliometric">Bibliometrik / Scientometrics</option>
+                </select>
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="block text-xs font-bold text-zinc-300">Research Design</label>
+                <input 
+                  type="text" name="research_design" value={formData.research_design} onChange={handleChange}
+                  className="w-full bg-[#111120] border border-zinc-700 rounded-lg px-3 py-2 text-white text-xs"
+                  placeholder="Contoh: Cross-Sectional, Case Study, Grounded Theory..."
+                />
+              </div>
+            </div>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '2rem', marginBottom: '2.5rem' }}>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-              <label className="block text-base font-bold text-[#c9a84c]">Judul Artikel <span className="text-red-500">*</span></label>
+          {/* Title & WhatsApp */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="md:col-span-2 space-y-2">
+              <label className="block text-sm font-bold text-[#c9a84c]">Judul Artikel Lengkap <span className="text-red-500">*</span></label>
               <input
-                type="text" name="title" required value={formData.title} onChange={handleChange} style={{ padding: '1rem' }}
-                className="w-full bg-[#0a0a14] border border-zinc-700/80 rounded-xl px-5 py-4 text-white text-lg font-medium focus:border-[#c9a84c] focus:ring-1 focus:ring-[#c9a84c] transition-colors"
+                type="text" name="title" required value={formData.title} onChange={handleChange}
+                className="w-full bg-[#0a0a14] border border-zinc-700/80 rounded-xl px-4 py-3.5 text-white text-base focus:border-[#c9a84c] outline-none"
                 placeholder="Ketik judul lengkap naskah Anda di sini..."
               />
             </div>
             
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-              <label className="block text-base font-bold text-[#c9a84c]">Nomor WhatsApp <span className="text-red-500">*</span></label>
+            <div className="space-y-2">
+              <label className="block text-sm font-bold text-[#c9a84c]">Nomor WhatsApp <span className="text-red-500">*</span></label>
               <input
-                type="tel" name="phone" required value={formData.phone} onChange={handleChange} style={{ padding: '1rem' }}
-                className="w-full bg-[#0a0a14] border border-zinc-700/80 rounded-xl px-5 py-4 text-white text-lg font-medium focus:border-[#c9a84c] focus:ring-1 focus:ring-[#c9a84c] transition-colors"
-                placeholder="+62 812-3456-7890 (Untuk Notifikasi Update)"
+                type="tel" name="phone" required value={formData.phone} onChange={handleChange}
+                className="w-full bg-[#0a0a14] border border-zinc-700/80 rounded-xl px-4 py-3.5 text-white text-base focus:border-[#c9a84c] outline-none"
+                placeholder="+62 812-3456-7890"
               />
             </div>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '2rem', marginBottom: '2.5rem' }}>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-              <label className="block text-base font-bold text-[#c9a84c]">Abstrak (Bahasa Indonesia) <span className="text-red-500">*</span></label>
+          {/* Dual Abstract */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-2">
+              <label className="block text-sm font-bold text-[#c9a84c]">Abstrak (Bahasa Indonesia) <span className="text-red-500">*</span></label>
               <textarea 
-                name="abstract" required value={formData.abstract} onChange={handleChange} onBlur={handleAbstractBlur} rows={8} style={{ padding: '1rem' }}
-                data-gramm="false" data-gramm_editor="false" data-enable-grammarly="false"
-                className="w-full bg-[#0a0a14] border border-zinc-700/80 rounded-xl px-5 py-4 text-white text-base leading-relaxed focus:border-[#c9a84c] focus:ring-1 focus:ring-[#c9a84c] transition-colors resize-none" 
+                name="abstract" required value={formData.abstract} onChange={handleChange} rows={6}
+                className="w-full bg-[#0a0a14] border border-zinc-700/80 rounded-xl p-4 text-white text-sm leading-relaxed focus:border-[#c9a84c] outline-none" 
                 placeholder="Tuliskan isi dari Abstrak naskah Anda berbahasa Indonesia..."
               />
             </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+            <div className="space-y-2">
               <div className="flex justify-between items-center">
-                <label className="block text-base font-bold text-[#c9a84c]">Abstract (English) <span className="text-red-500">*</span></label>
+                <label className="block text-sm font-bold text-[#c9a84c]">Abstract (English) <span className="text-red-500">*</span></label>
                 <button 
                   type="button" onClick={handleAutoTranslate} disabled={isTranslating || !formData.abstract}
-                  className="text-sm bg-[#c9a84c]/10 hover:bg-[#c9a84c]/20 text-[#c9a84c] border border-[#c9a84c]/30 px-4 py-2 rounded-lg flex items-center gap-2 transition-all disabled:opacity-50 font-medium"
+                  className="text-xs bg-[#c9a84c]/10 hover:bg-[#c9a84c]/20 text-[#c9a84c] border border-[#c9a84c]/30 px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-all"
                 >
-                  <Languages className="w-4 h-4" /> <span>{isTranslating ? 'Menerjemahkan...' : 'Auto Translate'}</span>
+                  <Languages className="w-3.5 h-3.5" /> <span>{isTranslating ? 'Menerjemahkan...' : 'Auto Translate'}</span>
                 </button>
               </div>
               <textarea 
-                name="abstract_en" required value={formData.abstract_en} onChange={handleChange} onBlur={handleAbstractBlur} rows={8} style={{ padding: '1rem' }}
-                data-gramm="false" data-gramm_editor="false" data-enable-grammarly="false"
-                className="w-full bg-[#0a0a14] border border-zinc-700/80 rounded-xl px-5 py-4 text-white text-base leading-relaxed focus:border-[#c9a84c] focus:ring-1 focus:ring-[#c9a84c] transition-colors resize-none" 
+                name="abstract_en" required value={formData.abstract_en} onChange={handleChange} rows={6}
+                className="w-full bg-[#0a0a14] border border-zinc-700/80 rounded-xl p-4 text-white text-sm leading-relaxed focus:border-[#c9a84c] outline-none" 
                 placeholder="Write your translated English abstract here..."
               />
             </div>
           </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-            <label className="block text-base font-bold text-[#c9a84c]">Kata Kunci (Keywords) <span className="text-red-500">*</span></label>
+          <div className="space-y-2">
+            <label className="block text-sm font-bold text-[#c9a84c]">Kata Kunci (Keywords) <span className="text-red-500">*</span></label>
             <input 
-              type="text" name="keywords" required value={formData.keywords} onChange={handleChange} style={{ padding: '1rem' }}
-              className="w-full bg-[#0a0a14] border border-zinc-700/80 rounded-xl px-5 py-4 text-white text-base focus:border-[#c9a84c] focus:ring-1 focus:ring-[#c9a84c] transition-colors" 
-              placeholder="Contoh: kecerdasan buatan, ekonomi digital, kebijakan fiskal (pisahkan dengan koma)" 
+              type="text" name="keywords" required value={formData.keywords} onChange={handleChange}
+              className="w-full bg-[#0a0a14] border border-zinc-700/80 rounded-xl px-4 py-3 text-white text-sm" 
+              placeholder="Contoh: kecerdasan buatan, mitigasi risiko, model regresi (pisahkan dengan koma)" 
             />
           </div>
         </div>
 
-        {/* SECTION 2: AUTHORS */}
-        <div className="p-8 lg:p-12">
-          <div className="flex items-center gap-4 mb-10">
+        {/* SECTION 2: AUTHORS & CREDIT TAXONOMY */}
+        <div className="p-8 lg:p-12 space-y-8">
+          <div className="flex items-center gap-4">
             <div className="w-10 h-10 rounded-full bg-[#c9a84c]/10 text-[#c9a84c] flex items-center justify-center font-bold text-xl border border-[#c9a84c]/40">2</div>
-            <h2 className="text-2xl font-bold text-white tracking-wide">Daftar Penulis</h2>
+            <div>
+              <h2 className="text-2xl font-bold text-white tracking-wide">Layer 1: Daftar Penulis &amp; CRediT Roles</h2>
+              <p className="text-xs text-zinc-400">Pengenal identitas peneliti, taksonomi peran kontribusi CRediT, dan keterhubungan ORCID.</p>
+            </div>
           </div>
           
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+          <div className="space-y-6">
             {authors.map((author, index) => (
-              <div key={author.id} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', padding: '1.5rem', backgroundColor: '#0a0a14', border: '1px solid #3f3f46', borderRadius: '1rem', position: 'relative' }}>
-                <div className="absolute right-6 top-6 flex gap-2 opacity-80 group-hover:opacity-100 transition-opacity">
-                  <button type="button" onClick={() => moveAuthor(index, 'up')} disabled={index === 0} className="p-2 text-[#8888aa] bg-black/40 rounded hover:text-[#c9a84c] hover:bg-black/60 disabled:opacity-30 transition-all"><ChevronUp className="w-5 h-5" /></button>
-                  <button type="button" onClick={() => moveAuthor(index, 'down')} disabled={index === authors.length - 1} className="p-2 text-[#8888aa] bg-black/40 rounded hover:text-[#c9a84c] hover:bg-black/60 disabled:opacity-30 transition-all"><ChevronDown className="w-5 h-5" /></button>
-                  <div className="w-px h-8 bg-zinc-700 mx-1"></div>
-                  <button type="button" onClick={() => removeAuthor(index)} disabled={authors.length === 1} className="p-2 text-[#8888aa] bg-black/40 rounded hover:text-red-500 hover:bg-red-500/10 disabled:opacity-30 transition-all"><Trash2 className="w-5 h-5" /></button>
+              <div key={author.id} className="p-6 bg-[#0a0a14] border border-zinc-700 rounded-2xl space-y-5 relative">
+                
+                {/* Author Card Header */}
+                <div className="flex flex-wrap items-center justify-between gap-3 border-b border-zinc-800 pb-4">
+                  <div className="flex items-center gap-3">
+                    <span className="w-7 h-7 rounded-full bg-[#c9a84c]/20 text-[#c9a84c] text-xs font-bold flex items-center justify-center">
+                      {index + 1}
+                    </span>
+                    <h4 className="font-bold text-[#c9a84c] text-base">
+                      {index === 0 ? "Penulis 1 (Corresponding Author)" : `Penulis Pendamping (Co-Author ${index + 1})`}
+                    </h4>
+                    {index === 0 && orcidSession?.orcid ? (
+                      <span className="px-2.5 py-0.5 bg-[#a3c94c]/15 text-[#a3c94c] border border-[#a3c94c]/30 rounded-full text-xs font-bold font-mono">
+                        🟢 ORCID Authenticated: {orcidSession.orcid}
+                      </span>
+                    ) : (
+                      author.orcid && (
+                        <span className="px-2.5 py-0.5 bg-amber-500/15 text-amber-400 border border-amber-500/30 rounded-full text-xs font-mono">
+                          🟡 AUTHOR CLAIMED
+                        </span>
+                      )
+                    )}
+                  </div>
+
+                  <div className="flex items-center gap-1.5">
+                    <button type="button" onClick={() => moveAuthor(index, 'up')} disabled={index === 0} className="p-1.5 text-zinc-400 bg-black/40 rounded hover:text-[#c9a84c] disabled:opacity-20"><ChevronUp className="w-4 h-4" /></button>
+                    <button type="button" onClick={() => moveAuthor(index, 'down')} disabled={index === authors.length - 1} className="p-1.5 text-zinc-400 bg-black/40 rounded hover:text-[#c9a84c] disabled:opacity-20"><ChevronDown className="w-4 h-4" /></button>
+                    {index > 0 && (
+                      <button type="button" onClick={() => removeAuthor(index)} className="p-1.5 text-red-400 bg-black/40 rounded hover:bg-red-500/20"><Trash2 className="w-4 h-4" /></button>
+                    )}
+                  </div>
                 </div>
                 
-                <h4 className="font-bold text-[#c9a84c] text-lg mb-6 flex items-center gap-3">
-                  <div className="w-2 h-2 bg-[#c9a84c] rounded-full"></div>
-                  {index === 0 ? "Penulis Pertama (Koresponden)" : `Penulis Ke-${index + 1}`}
-                </h4>
-                
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1.5rem' }}>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                    <label className="block text-sm font-bold text-zinc-300">Nama Lengkap <span className="text-red-500">*</span></label>
-                    <input type="text" required value={author.full_name} onChange={e => handleAuthorChange(index, 'full_name', e.target.value)} className="w-full bg-[#111120] border border-zinc-700 rounded-xl px-4 py-3 text-white focus:border-[#c9a84c] outline-none transition-colors" placeholder="Gelar dan nama lengkap" style={{ padding: '0.75rem 1rem' }} />
+                {/* Author Basic Fields */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="space-y-1">
+                    <label className="block text-xs font-bold text-zinc-300">Nama Lengkap &amp; Gelar <span className="text-red-500">*</span></label>
+                    <input 
+                      type="text" required value={author.full_name} 
+                      readOnly={index === 0 && !!orcidSession?.name}
+                      onChange={e => handleAuthorChange(index, 'full_name', e.target.value)} 
+                      className={`w-full bg-[#111120] border border-zinc-700 rounded-xl px-3.5 py-2.5 text-white text-sm ${index === 0 && orcidSession?.name ? 'opacity-90 font-semibold' : ''}`} 
+                      placeholder="Nama lengkap penulis" 
+                    />
                   </div>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                    <label className="block text-sm font-bold text-zinc-300">Alamat Email <span className="text-red-500">*</span></label>
-                    <input type="email" required value={author.email} onChange={e => handleAuthorChange(index, 'email', e.target.value)} className="w-full bg-[#111120] border border-zinc-700 rounded-xl px-4 py-3 text-white focus:border-[#c9a84c] outline-none transition-colors" placeholder="email@institusi.edu" style={{ padding: '0.75rem 1rem' }} />
+                  <div className="space-y-1">
+                    <label className="block text-xs font-bold text-zinc-300">Alamat Email <span className="text-red-500">*</span></label>
+                    <input type="email" required value={author.email} onChange={e => handleAuthorChange(index, 'email', e.target.value)} className="w-full bg-[#111120] border border-zinc-700 rounded-xl px-3.5 py-2.5 text-white text-sm" placeholder="email@institusi.edu" />
                   </div>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                    <label className="block text-sm font-bold text-zinc-300">Afiliasi / Institusi <span className="text-red-500">*</span></label>
-                    <input type="text" required value={author.affiliation} onChange={e => handleAuthorChange(index, 'affiliation', e.target.value)} className="w-full bg-[#111120] border border-zinc-700 rounded-xl px-4 py-3 text-white focus:border-[#c9a84c] outline-none transition-colors" placeholder="Nama universitas atau lembaga" style={{ padding: '0.75rem 1rem' }} />
-                  </div>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                    <label className="block text-sm font-bold text-zinc-300">ID Akademik / NIDN <span className="text-zinc-500 font-normal">(Opsional)</span></label>
-                    <input type="text" value={author.academic_id} onChange={e => handleAuthorChange(index, 'academic_id', e.target.value)} placeholder="NIDN / NIDK / ID Universitas" className="w-full bg-[#111120] border border-zinc-700 rounded-xl px-4 py-3 text-white focus:border-[#c9a84c] outline-none transition-colors" style={{ padding: '0.75rem 1rem' }} />
-                  </div>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                    <label className="block text-sm font-bold text-zinc-300">ID ORCID <span className="text-zinc-500 font-normal">(Opsional)</span></label>
-                    <input type="text" value={author.orcid} onChange={e => handleAuthorChange(index, 'orcid', e.target.value)} placeholder="0000-0000-0000-0000" className="w-full bg-[#111120] border border-zinc-700 rounded-xl px-4 py-3 text-white focus:border-[#c9a84c] outline-none transition-colors" style={{ padding: '0.75rem 1rem' }} />
-                  </div>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                    <label className="block text-sm font-bold text-zinc-300">Google Scholar ID <span className="text-zinc-500 font-normal">(Opsional)</span></label>
-                    <input type="text" value={author.google_scholar} onChange={e => handleAuthorChange(index, 'google_scholar', e.target.value)} placeholder="ID Google Scholar" className="w-full bg-[#111120] border border-zinc-700 rounded-xl px-4 py-3 text-white focus:border-[#c9a84c] outline-none transition-colors" style={{ padding: '0.75rem 1rem' }} />
-                  </div>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                    <label className="block text-sm font-bold text-zinc-300">SINTA ID <span className="text-zinc-500 font-normal">(Opsional)</span></label>
-                    <input type="text" value={author.sinta} onChange={e => handleAuthorChange(index, 'sinta', e.target.value)} placeholder="ID SINTA" className="w-full bg-[#111120] border border-zinc-700 rounded-xl px-4 py-3 text-white focus:border-[#c9a84c] outline-none transition-colors" style={{ padding: '0.75rem 1rem' }} />
-                  </div>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                    <label className="block text-sm font-bold text-zinc-300">SCOPUS ID <span className="text-zinc-500 font-normal">(Opsional)</span></label>
-                    <input type="text" value={author.scopus} onChange={e => handleAuthorChange(index, 'scopus', e.target.value)} placeholder="ID SCOPUS" className="w-full bg-[#111120] border border-zinc-700 rounded-xl px-4 py-3 text-white focus:border-[#c9a84c] outline-none transition-colors" style={{ padding: '0.75rem 1rem' }} />
-                  </div>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                    <label className="block text-sm font-bold text-zinc-300">Web of Science (WoS) ID <span className="text-zinc-500 font-normal">(Opsional)</span></label>
-                    <input type="text" value={author.wos} onChange={e => handleAuthorChange(index, 'wos', e.target.value)} placeholder="ID ResearcherID / WoS" className="w-full bg-[#111120] border border-zinc-700 rounded-xl px-4 py-3 text-white focus:border-[#c9a84c] outline-none transition-colors" style={{ padding: '0.75rem 1rem' }} />
+                  <div className="space-y-1">
+                    <label className="block text-xs font-bold text-zinc-300">Afiliasi / Universitas <span className="text-red-500">*</span></label>
+                    <input type="text" required value={author.affiliation} onChange={e => handleAuthorChange(index, 'affiliation', e.target.value)} className="w-full bg-[#111120] border border-zinc-700 rounded-xl px-3.5 py-2.5 text-white text-sm" placeholder="Universitas / Lembaga Riset" />
                   </div>
                 </div>
+
+                {/* Optional Identifiers Enrichment */}
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2">
+                  <div className="space-y-1">
+                    <label className="block text-[11px] text-zinc-400">ORCID iD</label>
+                    <input 
+                      type="text" value={author.orcid} 
+                      readOnly={index === 0 && !!orcidSession?.orcid}
+                      onChange={e => handleAuthorChange(index, 'orcid', e.target.value)} 
+                      placeholder="0000-0000-0000-0000" 
+                      className="w-full bg-[#111120] border border-zinc-800 rounded-lg px-2.5 py-1.5 text-xs text-zinc-300 font-mono" 
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="block text-[11px] text-zinc-400">Scopus Author ID (Opt)</label>
+                    <input type="text" value={author.scopus} onChange={e => handleAuthorChange(index, 'scopus', e.target.value)} placeholder="Scopus ID" className="w-full bg-[#111120] border border-zinc-800 rounded-lg px-2.5 py-1.5 text-xs text-zinc-300 font-mono" />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="block text-[11px] text-zinc-400">WoS ResearcherID (Opt)</label>
+                    <input type="text" value={author.wos} onChange={e => handleAuthorChange(index, 'wos', e.target.value)} placeholder="WoS ID" className="w-full bg-[#111120] border border-zinc-800 rounded-lg px-2.5 py-1.5 text-xs text-zinc-300 font-mono" />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="block text-[11px] text-zinc-400">SINTA ID (Opt)</label>
+                    <input type="text" value={author.sinta} onChange={e => handleAuthorChange(index, 'sinta', e.target.value)} placeholder="SINTA ID" className="w-full bg-[#111120] border border-zinc-800 rounded-lg px-2.5 py-1.5 text-xs text-zinc-300 font-mono" />
+                  </div>
+                </div>
+
+                {/* CRediT Contribution Roles Selector */}
+                <div className="pt-3 border-t border-zinc-800/80 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold text-[#c9a84c]">CRediT Contribution Roles (Pilih peran kontribusi penulis):</span>
+                    <span className="text-[11px] text-zinc-400 font-mono">{author.creditRoles?.length || 0} Peran Dipilih</span>
+                  </div>
+                  <div className="flex flex-wrap gap-1.5">
+                    {CREDIT_ROLES.map(role => {
+                      const isSelected = author.creditRoles?.includes(role);
+                      return (
+                        <button
+                          key={role} type="button"
+                          onClick={() => handleCreditToggle(index, role)}
+                          className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-all ${
+                            isSelected 
+                              ? 'bg-[#c9a84c] text-black font-bold shadow-[0_0_10px_rgba(201,168,76,0.3)]' 
+                              : 'bg-zinc-900/90 text-zinc-400 border border-zinc-800 hover:border-zinc-600'
+                          }`}
+                        >
+                          {role}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
               </div>
             ))}
             
-            <button type="button" onClick={addAuthor} className="w-full py-5 mt-2 border-2 border-dashed border-[#c9a84c]/40 rounded-2xl text-[#c9a84c] text-lg font-bold hover:bg-[#c9a84c]/10 flex items-center justify-center gap-3 transition-all hover:border-[#c9a84c] group">
-              <Plus className="w-6 h-6 group-hover:scale-110 transition-transform" /> <span>Tambah Penulis Lainnya</span> <span className="text-sm font-normal text-[#c9a84c]/70 ml-1">(Jika penulis lebih dari satu orang)</span>
+            <button type="button" onClick={addAuthor} className="w-full py-4 border-2 border-dashed border-[#c9a84c]/40 rounded-2xl text-[#c9a84c] text-sm font-bold hover:bg-[#c9a84c]/10 flex items-center justify-center gap-2 transition-all">
+              <Plus className="w-5 h-5" /> <span>Tambah Penulis Pendamping (Co-Author)</span>
             </button>
           </div>
         </div>
 
-        {/* SECTION 3: OTHER DETAILS */}
-        <div className="p-8 lg:p-12">
-          <div className="flex items-center gap-4 mb-10">
+        {/* SECTION 3: INTEGRITY, AI TRANSPARENCY & DATA AVAILABILITY */}
+        <div className="p-8 lg:p-12 space-y-8">
+          <div className="flex items-center gap-4">
             <div className="w-10 h-10 rounded-full bg-[#c9a84c]/10 text-[#c9a84c] flex items-center justify-center font-bold text-xl border border-[#c9a84c]/40">3</div>
-            <h2 className="text-2xl font-bold text-white tracking-wide">Detail Tambahan</h2>
+            <div>
+              <h2 className="text-2xl font-bold text-white tracking-wide">Layer 2 &amp; 4: Research Integrity &amp; Transparency</h2>
+              <p className="text-xs text-zinc-400">Deklarasi transparansi AI, ketersediaan data empiris, etika riset, dan pendanaan.</p>
+            </div>
           </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginBottom: '2.5rem' }}>
-            <label className="block text-base font-bold text-[#c9a84c]">Daftar Pustaka (Bibliography) <span className="text-red-500">*</span></label>
-            <textarea 
-              name="bibliography" required value={formData.bibliography} onChange={handleChange} rows={6} style={{ padding: '1rem' }}
-              data-gramm="false" data-gramm_editor="false" data-enable-grammarly="false"
-              className="w-full bg-[#0a0a14] border border-zinc-700/80 rounded-xl px-5 py-4 text-white text-base leading-relaxed focus:border-[#c9a84c] focus:ring-1 focus:ring-[#c9a84c] outline-none transition-colors"
-              placeholder="Paste seluruh daftar referensi, sitasi, dan pustaka dari naskah Anda di sini (Format APA/IEEE disarankan)..."
-            />
+          {/* AI Transparency Record Sub-Panel */}
+          <div className="p-6 bg-black/40 border border-[#c9a84c]/30 rounded-2xl space-y-5">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <Cpu className="w-6 h-6 text-[#c9a84c]" />
+                <div>
+                  <h4 className="text-base font-bold text-white">AI Use &amp; Transparency Record™</h4>
+                  <p className="text-xs text-zinc-400">Deklarasi resmi penggunaan kecerdasan buatan generatif dalam proses riset/penyusunan naskah.</p>
+                </div>
+              </div>
+              <label className="flex items-center gap-2 cursor-pointer">
+                <span className="text-xs text-zinc-300 font-semibold">{formData.ai_used ? 'Menggunakan AI' : 'Tidak Menggunakan AI'}</span>
+                <input 
+                  type="checkbox" name="ai_used" checked={formData.ai_used} onChange={handleChange}
+                  className="w-5 h-5 accent-[#c9a84c] rounded"
+                />
+              </label>
+            </div>
+
+            {formData.ai_used && (
+              <div className="space-y-5 pt-4 border-t border-zinc-800 animate-in fade-in">
+                {/* Tools */}
+                <div className="space-y-2">
+                  <label className="block text-xs font-bold text-[#c9a84c]">1. Tool AI yang Digunakan:</label>
+                  <div className="flex flex-wrap gap-2">
+                    {['ChatGPT (OpenAI)', 'Claude (Anthropic)', 'Gemini (Google)', 'Microsoft Copilot', 'Perplexity AI', 'Grammarly / QuillBot', 'Lainnya'].map(tool => (
+                      <button
+                        key={tool} type="button" onClick={() => handleArrayToggle('ai_tools', tool)}
+                        className={`px-3 py-1.5 rounded-lg text-xs font-semibold ${
+                          formData.ai_tools.includes(tool) 
+                            ? 'bg-[#c9a84c] text-black' 
+                            : 'bg-zinc-900 border border-zinc-700 text-zinc-300'
+                        }`}
+                      >
+                        {tool}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Purposes */}
+                <div className="space-y-2">
+                  <label className="block text-xs font-bold text-[#c9a84c]">2. Tujuan Penggunaan:</label>
+                  <div className="flex flex-wrap gap-2">
+                    {['Language Editing / Grammar', 'Penerjemahan Bahasa', 'Literature Discovery', 'Bantuan Drafting Awal', 'Analisis Data / Statistik', 'Coding / Scripting', 'Visualisasi Grafik'].map(p => (
+                      <button
+                        key={p} type="button" onClick={() => handleArrayToggle('ai_purposes', p)}
+                        className={`px-3 py-1.5 rounded-lg text-xs font-semibold ${
+                          formData.ai_purposes.includes(p) 
+                            ? 'bg-[#c9a84c] text-black' 
+                            : 'bg-zinc-900 border border-zinc-700 text-zinc-300'
+                        }`}
+                      >
+                        {p}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Affected Sections */}
+                <div className="space-y-2">
+                  <label className="block text-xs font-bold text-[#c9a84c]">3. Bagian Naskah yang Terbantu AI:</label>
+                  <div className="flex flex-wrap gap-2">
+                    {['Abstract', 'Introduction', 'Literature Review', 'Methodology', 'Results', 'Discussion', 'Conclusion', 'Supplementary Materials'].map(sec => (
+                      <button
+                        key={sec} type="button" onClick={() => handleArrayToggle('ai_affected_sections', sec)}
+                        className={`px-3 py-1.5 rounded-lg text-xs font-semibold ${
+                          formData.ai_affected_sections.includes(sec) 
+                            ? 'bg-[#c9a84c] text-black' 
+                            : 'bg-zinc-900 border border-zinc-700 text-zinc-300'
+                        }`}
+                      >
+                        {sec}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Responsibility Statement */}
+                <label className="flex items-start gap-3 p-4 bg-[#c9a84c]/10 border border-[#c9a84c]/30 rounded-xl cursor-pointer">
+                  <input 
+                    type="checkbox" name="ai_responsibility_accepted" 
+                    checked={formData.ai_responsibility_accepted} onChange={handleChange} 
+                    className="w-5 h-5 mt-0.5 accent-[#c9a84c] rounded flex-shrink-0" 
+                  />
+                  <div className="text-xs text-zinc-200 leading-relaxed">
+                    <strong className="text-[#c9a84c] block mb-0.5">Author Responsibility &amp; Verification Confirmation</strong>
+                    Selaku penulis, saya menyatakan telah menelaah, memverifikasi, dan menyetujui seluruh konten yang dihasilkan atau dimodifikasi oleh alat AI, serta memegang tanggung jawab penuh secara hukum dan akademik atas keaslian dan integritas naskah.
+                  </div>
+                </label>
+              </div>
+            )}
           </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginBottom: '2.5rem' }}>
-            <label className="block text-base font-bold text-[#c9a84c]">Surat Pengantar untuk Editor (Cover Letter) <span className="text-[#8888aa] font-normal">(Opsional)</span></label>
-            <textarea 
-              name="cover_letter" value={formData.cover_letter} onChange={handleChange} rows={4} style={{ padding: '1rem' }}
-              data-gramm="false" data-gramm_editor="false" data-enable-grammarly="false"
-              className="w-full bg-[#0a0a14] border border-zinc-700/80 rounded-xl px-5 py-4 text-white text-base leading-relaxed focus:border-[#c9a84c] focus:ring-1 focus:ring-[#c9a84c] outline-none transition-colors"
-              placeholder="Jelaskan secara singkat apa temuan utama dari riset Anda dan mengapa cocok untuk jurnal ini..."
-            />
+          {/* Data Availability Statement */}
+          <div className="p-6 bg-black/40 border border-zinc-800 rounded-2xl space-y-4">
+            <div className="flex items-center gap-3">
+              <Database className="w-5 h-5 text-[#c9a84c]" />
+              <h4 className="text-base font-bold text-white">Data Availability Statement (Transparansi Data)</h4>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-1.5">
+                <label className="block text-xs font-bold text-zinc-300">Status Akses Data</label>
+                <select 
+                  name="data_availability_status" value={formData.data_availability_status} onChange={handleChange}
+                  className="w-full bg-[#111120] border border-zinc-700 rounded-xl px-3.5 py-2.5 text-white text-xs"
+                >
+                  <option value="OPEN_REPOSITORY">Data Tersedia Terbuka di Repositori / Lampiran</option>
+                  <option value="UPON_REASONABLE_REQUEST">Data Tersedia atas Permintaan Wajar ke Penulis Koresponden</option>
+                  <option value="RESTRICTED_ETHICAL">Data Terbatas karena Alasan Etika, Privasi, atau Perjanjian Kerahasiaan</option>
+                  <option value="NOT_APPLICABLE">Tidak Menggunakan Data Empiris (Studi Konseptual/Pustaka)</option>
+                </select>
+              </div>
+              <div className="space-y-1.5">
+                <label className="block text-xs font-bold text-zinc-300">URL Repositori Data / DOI (Jika Terbuka)</label>
+                <input 
+                  type="url" name="data_repository_url" value={formData.data_repository_url} onChange={handleChange}
+                  className="w-full bg-[#111120] border border-zinc-700 rounded-xl px-3.5 py-2.5 text-white text-xs"
+                  placeholder="https://zenodo.org/record/... atau https://osf.io/..."
+                />
+              </div>
+            </div>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '2rem', marginBottom: '2.5rem' }}>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-              <label className="block text-base font-bold text-[#c9a84c]">Deklarasi Penggunaan AI</label>
+          {/* Ethics, Funding, and COI */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="p-5 bg-black/40 border border-zinc-800 rounded-xl space-y-3">
+              <h5 className="text-xs font-bold text-[#c9a84c]">Persetujuan Etik (Ethics Clearance)</h5>
               <select 
-                name="ai_disclosure_type" value={formData.ai_disclosure_type} onChange={handleChange} style={{ padding: '1rem' }}
-                className="w-full bg-[#0a0a14] border border-zinc-700/80 rounded-xl px-5 py-4 text-white text-base focus:border-[#c9a84c] outline-none transition-colors"
+                name="ethics_status" value={formData.ethics_status} onChange={handleChange}
+                className="w-full bg-[#111120] border border-zinc-700 rounded-lg px-2.5 py-2 text-white text-xs"
               >
-                <option value="none">Tidak menggunakan AI</option>
-                <option value="grammar">Hanya untuk perbaikan tata bahasa & ejaan</option>
-                <option value="drafting">Sebagai asisten dalam menyusun draf awal</option>
-                <option value="data">Digunakan dalam proses analisis data/coding</option>
+                <option value="NOT_REQUIRED">Tidak Memerlukan Izin Khusus (Non-Human/Non-Sensitive)</option>
+                <option value="APPROVAL_OBTAINED">Telah Memperoleh Persetujuan Etik (Clearance)</option>
+                <option value="EXEMPTION_GRANTED">Memperoleh Pengecualian Resmi (Exemption)</option>
+                <option value="NOT_APPLICABLE">Not Applicable</option>
+              </select>
+              {formData.ethics_status === 'APPROVAL_OBTAINED' && (
+                <input 
+                  type="text" name="ethics_protocol_number" value={formData.ethics_protocol_number} onChange={handleChange}
+                  placeholder="Nomor Protokol / Komite Etik..." className="w-full bg-[#111120] border border-zinc-700 rounded-lg px-2.5 py-1.5 text-white text-xs"
+                />
+              )}
+            </div>
+
+            <div className="p-5 bg-black/40 border border-zinc-800 rounded-xl space-y-3">
+              <h5 className="text-xs font-bold text-[#c9a84c]">Sumber Pendanaan (Funding)</h5>
+              <select 
+                name="funding_status" value={formData.funding_status} onChange={handleChange}
+                className="w-full bg-[#111120] border border-zinc-700 rounded-lg px-2.5 py-2 text-white text-xs"
+              >
+                <option value="NO_EXTERNAL_FUNDING">Riset Mandiri (Tanpa Dana Eksternal)</option>
+                <option value="FUNDED">Didanai oleh Lembaga / Hibah Riset</option>
+              </select>
+              {formData.funding_status === 'FUNDED' && (
+                <input 
+                  type="text" name="funding_agency" value={formData.funding_agency} onChange={handleChange}
+                  placeholder="Nama Lembaga / No. Hibah..." className="w-full bg-[#111120] border border-zinc-700 rounded-lg px-2.5 py-1.5 text-white text-xs"
+                />
+              )}
+            </div>
+
+            <div className="p-5 bg-black/40 border border-zinc-800 rounded-xl space-y-3">
+              <h5 className="text-xs font-bold text-[#c9a84c]">Konflik Kepentingan (COI)</h5>
+              <select 
+                name="coi_status" value={formData.coi_status} onChange={handleChange}
+                className="w-full bg-[#111120] border border-zinc-700 rounded-lg px-2.5 py-2 text-white text-xs"
+              >
+                <option value="NO_CONFLICT">Bebas Konflik Kepentingan</option>
+                <option value="COMPETING_INTERESTS_DECLARED">Terdapat Benturan Kepentingan</option>
               </select>
             </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-              <label className="block text-base font-bold text-[#c9a84c]">Sumber Pendanaan <span className="text-[#8888aa] font-normal">(Opsional)</span></label>
-              <input 
-                type="text" name="funding_source" value={formData.funding_source} onChange={handleChange} style={{ padding: '1rem' }}
-                className="w-full bg-[#0a0a14] border border-zinc-700/80 rounded-xl px-5 py-4 text-white text-base focus:border-[#c9a84c] outline-none transition-colors"
-                placeholder="Contoh: Hibah Penelitian Kemdikbudristek 2024..."
+          </div>
+
+          {/* Bibliography & Cover Letter */}
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <label className="block text-sm font-bold text-[#c9a84c]">Daftar Pustaka (Bibliography) <span className="text-red-500">*</span></label>
+              <textarea 
+                name="bibliography" required value={formData.bibliography} onChange={handleChange} rows={5}
+                className="w-full bg-[#0a0a14] border border-zinc-700/80 rounded-xl p-4 text-white text-xs font-mono leading-relaxed"
+                placeholder="Paste seluruh daftar referensi dari naskah Anda di sini..."
+              />
+            </div>
+
+            <div className="space-y-2">
+              <label className="block text-sm font-bold text-[#c9a84c]">Surat Pengantar untuk Editor (Cover Letter) <span className="text-zinc-500 font-normal">(Opsional)</span></label>
+              <textarea 
+                name="cover_letter" value={formData.cover_letter} onChange={handleChange} rows={3}
+                className="w-full bg-[#0a0a14] border border-zinc-700/80 rounded-xl p-4 text-white text-sm"
+                placeholder="Jelaskan signifikansi utama temuan Anda untuk redaksi..."
               />
             </div>
           </div>
-          
-          <div>
-            <label className="flex items-start gap-5 p-6 bg-[#c9a84c]/5 border border-[#c9a84c]/30 rounded-xl cursor-pointer hover:bg-[#c9a84c]/10 transition-colors group">
-              <div className="mt-1 flex-shrink-0">
-                <input type="checkbox" name="conflict_of_interest" checked={formData.conflict_of_interest} onChange={handleChange} className="w-5 h-5 accent-[#c9a84c] rounded focus:ring-[#c9a84c]" />
-              </div>
-              <div>
-                <strong className="text-[#c9a84c] block text-lg mb-1 group-hover:text-[#c9a84c]/80 transition-colors">Deklarasi Bebas Konflik Kepentingan</strong>
-                <p className="text-base text-[#8888aa] leading-relaxed">
-                  Dengan mencentang kotak ini, saya selaku penulis menjamin dan menyatakan bahwa tidak ada benturan atau konflik kepentingan finansial, personal, maupun profesional yang dapat mempengaruhi objektivitas penelitian dari naskah yang disubmit ini.
-                </p>
-              </div>
-            </label>
-          </div>
+
         </div>
 
         {/* SECTION 4: FILE UPLOAD */}
-        <div className="p-8 lg:p-12">
-          <div className="flex items-center gap-4 mb-10">
+        <div className="p-8 lg:p-12 space-y-8">
+          <div className="flex items-center gap-4">
             <div className="w-10 h-10 rounded-full bg-[#c9a84c]/10 text-[#c9a84c] flex items-center justify-center font-bold text-xl border border-[#c9a84c]/40">4</div>
             <h2 className="text-2xl font-bold text-white tracking-wide">Unggah Berkas Naskah</h2>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '2rem' }}>
-            <div className="relative overflow-hidden group border-2 border-dashed border-zinc-600 bg-[#0a0a14] rounded-2xl p-8 text-center hover:border-[#c9a84c]/80 hover:bg-[#c9a84c]/5 transition-all">
-              <Upload className="w-10 h-10 text-[#c9a84c] mx-auto mb-4 group-hover:-translate-y-1 transition-transform" />
-              <label className="block text-lg font-bold text-white mb-2">Title Page <span className="text-red-500">*</span></label>
-              <p className="text-sm text-[#8888aa] mb-6">Berkas naskah utuh yang <strong className="text-[#c9a84c]">mencantumkan</strong> nama dan afiliasi seluruh penulis.</p>
-              <input type="file" required onChange={e => setFiles({...files, titlePage: e.target.files?.[0] || null})} className="w-full text-sm text-zinc-300 file:mr-4 file:py-2.5 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-[#c9a84c] file:text-black hover:file:bg-[#b0923d] file:cursor-pointer cursor-pointer" />
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="border-2 border-dashed border-zinc-600 bg-[#0a0a14] rounded-2xl p-6 text-center hover:border-[#c9a84c]">
+              <Upload className="w-8 h-8 text-[#c9a84c] mx-auto mb-3" />
+              <label className="block text-sm font-bold text-white mb-1">Title Page <span className="text-red-500">*</span></label>
+              <p className="text-xs text-zinc-400 mb-4">Berkas lengkap mencantumkan identitas penulis.</p>
+              <input type="file" required onChange={e => setFiles({...files, titlePage: e.target.files?.[0] || null})} className="w-full text-xs text-zinc-300 file:py-2 file:px-3 file:rounded-lg file:border-0 file:bg-[#c9a84c] file:text-black cursor-pointer" />
             </div>
 
-            <div className="relative overflow-hidden group border-2 border-dashed border-zinc-600 bg-[#0a0a14] rounded-2xl p-8 text-center hover:border-[#c9a84c]/80 hover:bg-[#c9a84c]/5 transition-all">
-              <Upload className="w-10 h-10 text-[#c9a84c] mx-auto mb-4 group-hover:-translate-y-1 transition-transform" />
-              <label className="block text-lg font-bold text-white mb-2">Naskah Anonim <span className="text-red-500">*</span></label>
-              <p className="text-sm text-[#8888aa] mb-6">Berkas naskah yang <strong className="text-[#c9a84c]">telah dihapus</strong> nama dan afiliasinya (untuk Blind Review).</p>
-              <input type="file" required onChange={e => setFiles({...files, anonymous: e.target.files?.[0] || null})} className="w-full text-sm text-zinc-300 file:mr-4 file:py-2.5 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-[#c9a84c] file:text-black hover:file:bg-[#b0923d] file:cursor-pointer cursor-pointer" />
+            <div className="border-2 border-dashed border-zinc-600 bg-[#0a0a14] rounded-2xl p-6 text-center hover:border-[#c9a84c]">
+              <Upload className="w-8 h-8 text-[#c9a84c] mx-auto mb-3" />
+              <label className="block text-sm font-bold text-white mb-1">Naskah Anonim <span className="text-red-500">*</span></label>
+              <p className="text-xs text-zinc-400 mb-4">Berkas tanpa nama penulis (Blind Review).</p>
+              <input type="file" required onChange={e => setFiles({...files, anonymous: e.target.files?.[0] || null})} className="w-full text-xs text-zinc-300 file:py-2 file:px-3 file:rounded-lg file:border-0 file:bg-[#c9a84c] file:text-black cursor-pointer" />
             </div>
 
-            <div className="relative overflow-hidden group border-2 border-dashed border-zinc-700 bg-[#0a0a14] rounded-2xl p-8 text-center hover:border-zinc-500 hover:bg-zinc-800/50 transition-all">
-              <Upload className="w-10 h-10 text-zinc-500 mx-auto mb-4 group-hover:-translate-y-1 transition-transform" />
-              <label className="block text-lg font-bold text-white mb-2">Data Pendukung <span className="text-[#8888aa] font-normal">(Opsional)</span></label>
-              <p className="text-sm text-[#8888aa] mb-6">Grafik resolusi tinggi, Dataset, Lampiran Excel, atau Tabel Ekstra.</p>
-              <input type="file" onChange={e => setFiles({...files, supporting: e.target.files?.[0] || null})} className="w-full text-sm text-[#8888aa] file:mr-4 file:py-2.5 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-zinc-700 file:text-white hover:file:bg-zinc-600 file:cursor-pointer cursor-pointer" />
+            <div className="border-2 border-dashed border-zinc-700 bg-[#0a0a14] rounded-2xl p-6 text-center hover:border-zinc-500">
+              <Upload className="w-8 h-8 text-zinc-500 mx-auto mb-3" />
+              <label className="block text-sm font-bold text-white mb-1">Data Pendukung <span className="text-zinc-500 font-normal">(Opsional)</span></label>
+              <p className="text-xs text-zinc-400 mb-4">Dataset, instrumen, atau lampiran ekstra.</p>
+              <input type="file" onChange={e => setFiles({...files, supporting: e.target.files?.[0] || null})} className="w-full text-xs text-zinc-400 file:py-2 file:px-3 file:rounded-lg file:border-0 file:bg-zinc-700 file:text-white cursor-pointer" />
             </div>
           </div>
         </div>
 
-        {/* SUBMIT BUTTON */}
-        <div className="p-8 lg:p-12 bg-black/80">
-          <button 
-            type="submit" disabled={loading}
-            className="w-full flex justify-center items-center gap-3 bg-gradient-to-r from-[#c9a84c] via-[#c9a84c] to-[#b0923d] text-black font-extrabold py-5 px-8 rounded-xl hover:from-[#c9a84c] hover:to-[#a08230] transition-all disabled:opacity-50 shadow-[0_0_30px_rgba(201,168,76,0.25)] hover:shadow-[0_0_40px_rgba(201,168,76,0.4)] text-xl"
+        {/* SECTION 5: SUBMISSION INTEGRITY PLEDGE */}
+        <div className="p-8 lg:p-12 space-y-6 bg-gradient-to-b from-[#111120] to-[#0a0a16]">
+          <div className="flex items-center gap-3">
+            <CheckSquare className="w-6 h-6 text-[#c9a84c]" />
+            <h3 className="text-xl font-bold text-white">Pernyataan Integritas Penyerahan Naskah Ilmiah</h3>
+          </div>
+
+          <div className="space-y-3 bg-black/40 border border-[#c9a84c]/20 p-5 rounded-xl text-xs text-zinc-300">
+            <label className="flex items-start gap-3 cursor-pointer">
+              <input type="checkbox" name="pledge_originality" checked={formData.pledge_originality} onChange={handleChange} className="w-4 h-4 mt-0.5 accent-[#c9a84c] rounded" />
+              <span><strong>Orisinalitas</strong>: Naskah ini adalah karya orisinal para penulis dan tidak mengandung plagiarisme atau fabrikasi data.</span>
+            </label>
+            <label className="flex items-start gap-3 cursor-pointer">
+              <input type="checkbox" name="pledge_no_dual_submission" checked={formData.pledge_no_dual_submission} onChange={handleChange} className="w-4 h-4 mt-0.5 accent-[#c9a84c] rounded" />
+              <span><strong>Bebas Submisi Ganda</strong>: Naskah ini belum pernah dipublikasikan dan tidak sedang dalam proses telaah di jurnal lain.</span>
+            </label>
+            <label className="flex items-start gap-3 cursor-pointer">
+              <input type="checkbox" name="pledge_coauthors_approved" checked={formData.pledge_coauthors_approved} onChange={handleChange} className="w-4 h-4 mt-0.5 accent-[#c9a84c] rounded" />
+              <span><strong>Persetujuan Seluruh Penulis</strong>: Seluruh penulis yang tercantum telah menelaah dan menyetujui versi akhir naskah ini.</span>
+            </label>
+            <label className="flex items-start gap-3 cursor-pointer">
+              <input type="checkbox" name="pledge_accuracy_accepted" checked={formData.pledge_accuracy_accepted} onChange={handleChange} className="w-4 h-4 mt-0.5 accent-[#c9a84c] rounded" />
+              <span><strong>Tanggung Jawab Data</strong>: Penulis memegang tanggung jawab mutlak atas akurasi data, etika, dan konten yang diserahkan.</span>
+            </label>
+          </div>
+
+          <button
+            type="submit"
+            disabled={loading || !isPledgeComplete}
+            className="w-full py-5 bg-gradient-to-r from-[#c9a84c] via-[#e8c96a] to-[#c9a84c] text-black font-extrabold text-lg rounded-2xl hover:scale-[1.01] transition-all shadow-[0_4px_25px_rgba(201,168,76,0.3)] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 flex items-center justify-center gap-3"
           >
-            {loading ? (
-              <span className="flex items-center gap-3">
-                <div className="w-6 h-6 border-4 border-black border-t-transparent rounded-full animate-spin"></div>
-                <span>Memproses Pengiriman...</span>
-              </span>
-            ) : (
-              <span className="flex items-center gap-3">
-                <Send className="w-7 h-7" /> 
-                <span>Kirim Naskah Sekarang</span>
-              </span>
-            )}
+            <Send className="w-6 h-6" />
+            <span>{loading ? "Memproses & Mencatat ke Event Ledger..." : "Kirimkan Naskah Resmi ke APASIFIC"}</span>
           </button>
-          <p className="text-center text-zinc-500 mt-6 text-sm">Dengan menekan tombol kirim, Anda menyetujui seluruh Syarat & Ketentuan publikasi yang berlaku di ASIA.</p>
         </div>
+
       </form>
     </div>
   );
 }
-

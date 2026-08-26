@@ -525,8 +525,10 @@ export async function getCurrentUser() {
     const cookieStore = await cookies();
     const fbToken = cookieStore.get('firebase_session')?.value;
     const fallbackUserId = cookieStore.get('supabase_fallback_session')?.value;
+    const authOrcid = cookieStore.get('authenticated_orcid')?.value;
+    const apasificAuthId = cookieStore.get('apasific_auth_id')?.value;
     
-    if (fbToken || fallbackUserId) {
+    if (fbToken || fallbackUserId || authOrcid || apasificAuthId) {
         try {
             if (fbToken) {
                const payloadBase64 = fbToken.split('.')[1];
@@ -537,6 +539,20 @@ export async function getCurrentUser() {
         
         if (!user && fallbackUserId) {
            user = { id: fallbackUserId, email: "fallback@fallback.local" } as any;
+        }
+
+        if (!user && (authOrcid || apasificAuthId)) {
+           const userName = cookieStore.get('user_name')?.value || "Author";
+           user = {
+             id: apasificAuthId || `orcid-${authOrcid}`,
+             email: `${(authOrcid || 'author').replace(/[^a-zA-Z0-9]/g, '')}@orcid.apasific.org`,
+             user_metadata: {
+               full_name: decodeURIComponent(userName),
+               role: 'author',
+               orcid: authOrcid,
+               apasific_auth_id: apasificAuthId
+             }
+           } as any;
         }
     }
   }

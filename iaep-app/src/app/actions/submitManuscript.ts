@@ -1,4 +1,4 @@
-﻿"use server";
+"use server";
 
 export async function submitManuscript(formData: FormData) {
   const { createClient } = await import("@/utils/supabase/server");
@@ -266,12 +266,32 @@ export async function submitManuscript(formData: FormData) {
       throw uploadError;
     }
 
-    // 3. Trigger WhatsApp Notification
-    let richPayload: any = {};
+    // 3. Record SUBMISSION_CREATED event to Append-Only Event Ledger
     try {
-      richPayload = JSON.parse(abstract);
-    } catch(e) {}
+      const { SubmissionEventLedgerService } = await import('@/services/submission/SubmissionEventLedgerService');
+      await SubmissionEventLedgerService.recordEvent({
+        submissionId: finalSubmissionId,
+        eventType: 'SUBMISSION_CREATED',
+        eventPayload: {
+          title,
+          journalId,
+          researchTaxonomy: richPayload.research_taxonomy || {},
+          aiTransparency: richPayload.ai_transparency_record || {},
+          dataAvailability: richPayload.data_availability || {},
+          ethicsDeclaration: richPayload.ethics_declaration || {},
+          fundingDeclaration: richPayload.funding_declaration || {},
+          conflictOfInterest: richPayload.conflict_of_interest || {},
+          submissionPledge: richPayload.submission_pledge || {},
+          authorsCount: submissionAuthors.length
+        },
+        actorId: userId,
+        actorRole: 'author'
+      });
+    } catch (eventErr) {
+      console.warn("Event ledger logging notice (non-fatal):", eventErr);
+    }
 
+    // 4. Trigger WhatsApp Notification
     const userPhone = formPhone || user?.user_metadata?.phone;
     if (userPhone) {
       try {

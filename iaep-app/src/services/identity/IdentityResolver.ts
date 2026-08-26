@@ -17,9 +17,23 @@ export class IdentityResolver {
         const isTrueUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(rawId);
         
         let identityId = rawId;
-        let resolvedFullName = sessionUser.full_name || undefined;
+        let resolvedFullName = sessionUser.user_metadata?.full_name || sessionUser.full_name || undefined;
         let resolvedEmail = email;
-        let resolvedRole: string | undefined = undefined;
+        let resolvedRole: string | undefined = sessionUser.user_metadata?.role || undefined;
+
+        // Special handling for Author Master Identity & ORCID Authenticated sessions
+        if (rawId.startsWith('APASIFIC-AUTH-') || rawId.startsWith('orcid-') || resolvedRole === 'author') {
+            const context: IdentityContext = {
+                id: identityId,
+                identityId: identityId,
+                email: resolvedEmail,
+                full_name: resolvedFullName || 'Author',
+                provider: 'orcid',
+                roles: ['author'],
+                permissions: ['submit_manuscript', 'view_profile']
+            };
+            return context;
+        }
 
         // 1. Resolve Legacy / Fake UUIDs
         if (!isTrueUUID) {

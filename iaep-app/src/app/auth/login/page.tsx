@@ -1,17 +1,29 @@
 "use client";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import { loginUser } from "@/app/actions/auth";
 import { getDashboardPath } from "@/lib/roles";
 
 export default function Login() {
+  const searchParams = useSearchParams();
+  const [activeTab, setActiveTab] = useState<'author' | 'staff'>('author');
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  useEffect(() => {
+    const errorParam = searchParams.get('error');
+    if (errorParam) {
+      setErrorMessage(decodeURIComponent(errorParam));
+    }
+  }, [searchParams]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    setErrorMessage(null);
     const emailLower = email.toLowerCase().trim();
 
     try {
@@ -31,7 +43,6 @@ export default function Login() {
         document.cookie = `active_portal_role=${encodeURIComponent(role)}; path=/; max-age=2592000`;
         document.cookie = `user_role=${encodeURIComponent(role)}; path=/; max-age=2592000`;
         document.cookie = `user_name=${encodeURIComponent(isSuperAdminEmail ? "Super Administrator" : (isDanilSupervisor ? "Muhammad Danil" : (isKadinEditor ? "Muhibbuddin" : (res.user.full_name || "User"))))}; path=/; max-age=2592000`;
-        // Set fallback session cookie client-side so proxy.ts receives it on the very next request
         if (res.user.id) {
           document.cookie = `supabase_fallback_session=${res.user.id}; path=/; max-age=604800`;
         }
@@ -42,11 +53,11 @@ export default function Login() {
         window.location.href = redirectUrl;
         return;
       } else {
-        alert(res.error || "Email atau password salah.");
+        setErrorMessage(res.error || "Email atau password salah.");
       }
     } catch (err) {
       console.error(err);
-      alert("Terjadi kesalahan sistem.");
+      setErrorMessage("Terjadi kesalahan sistem.");
     }
     
     setLoading(false);
@@ -60,7 +71,7 @@ export default function Login() {
           display: flex;
           background: #05050a;
         }
-        /* â”€â”€ Left Panel â”€â”€ */
+        /* Left Panel */
         .login-left {
           display: none;
           width: 45%;
@@ -117,7 +128,7 @@ export default function Login() {
         }
         .login-quote p { color: rgba(201,168,76,0.7); font-style: italic; font-size: 13px; line-height: 1.7; }
 
-        /* â”€â”€ Right Panel â”€â”€ */
+        /* Right Panel */
         .login-right {
           flex: 1;
           display: flex;
@@ -129,14 +140,14 @@ export default function Login() {
         }
         .login-card {
           width: 100%;
-          max-width: 460px;
+          max-width: 480px;
         }
         .login-back {
           display: inline-flex; align-items: center; gap: 6px;
           color: rgba(201,168,76,0.7);
           font-size: 13px;
           text-decoration: none;
-          margin-bottom: 36px;
+          margin-bottom: 24px;
           transition: color 0.2s;
         }
         .login-back:hover { color: #c9a84c; }
@@ -145,44 +156,129 @@ export default function Login() {
           color: #fff; margin-bottom: 6px;
         }
         .login-title span { color: #c9a84c; }
-        .login-subtitle { color: rgba(255,255,255,0.4); font-size: 13px; margin-bottom: 36px; }
+        .login-subtitle { color: rgba(255,255,255,0.4); font-size: 13px; margin-bottom: 24px; }
+
+        /* Role Selector Tabs */
+        .portal-tabs {
+          display: flex;
+          background: rgba(255,255,255,0.04);
+          border: 1px solid rgba(255,255,255,0.08);
+          border-radius: 12px;
+          padding: 4px;
+          margin-bottom: 24px;
+          gap: 4px;
+        }
+        .portal-tab-btn {
+          flex: 1;
+          padding: 10px 14px;
+          border-radius: 8px;
+          font-size: 13px;
+          font-weight: 700;
+          border: none;
+          cursor: pointer;
+          transition: all 0.2s;
+          color: rgba(255,255,255,0.6);
+          background: transparent;
+        }
+        .portal-tab-btn.active {
+          background: #c9a84c;
+          color: #0d0d0d;
+          box-shadow: 0 2px 10px rgba(201,168,76,0.3);
+        }
+        .portal-tab-btn.active-orcid {
+          background: #a3c94c;
+          color: #0d0d0d;
+          box-shadow: 0 2px 10px rgba(163,201,76,0.3);
+        }
+
+        /* Policy Banner */
+        .policy-card {
+          background: rgba(163,201,76,0.06);
+          border: 1px solid rgba(163,201,76,0.25);
+          border-radius: 12px;
+          padding: 16px 20px;
+          margin-bottom: 24px;
+        }
+        .policy-card h4 {
+          color: #a3c94c;
+          font-size: 13px;
+          font-weight: 800;
+          letter-spacing: 0.5px;
+          margin-bottom: 6px;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+        }
+        .policy-card p {
+          color: rgba(255,255,255,0.7);
+          font-size: 12px;
+          line-height: 1.6;
+          margin: 0;
+        }
 
         /* ORCID Button */
-        .btn-orcid {
+        .btn-orcid-main {
           width: 100%;
-          background: rgba(163,201,76,0.12);
-          border: 1.5px solid rgba(163,201,76,0.4);
-          color: #a3c94c;
-          font-weight: 700; font-size: 14px;
-          padding: 13px 20px;
-          border-radius: 10px;
+          background: #a3c94c;
+          border: none;
+          color: #0a1f05;
+          font-weight: 800; font-size: 15px;
+          padding: 16px 20px;
+          border-radius: 12px;
           cursor: pointer;
-          display: flex; align-items: center; justify-content: center; gap: 10px;
+          display: flex; align-items: center; justify-content: center; gap: 12px;
           transition: all 0.2s;
-          margin-bottom: 28px;
+          margin-bottom: 20px;
           letter-spacing: 0.3px;
+          box-shadow: 0 4px 20px rgba(163,201,76,0.25);
+          text-decoration: none;
         }
-        .btn-orcid:hover {
-          background: rgba(163,201,76,0.2);
-          border-color: #a3c94c;
+        .btn-orcid-main:hover {
+          background: #b5dc57;
+          transform: translateY(-2px);
+          box-shadow: 0 6px 26px rgba(163,201,76,0.4);
         }
 
-        /* Divider */
-        .login-divider {
-          display: flex; align-items: center; gap: 16px;
-          margin-bottom: 28px;
+        /* Educational List */
+        .orcid-benefits {
+          background: rgba(255,255,255,0.02);
+          border: 1px solid rgba(255,255,255,0.06);
+          border-radius: 12px;
+          padding: 16px 20px;
+          margin-bottom: 24px;
         }
-        .login-divider-line { flex: 1; height: 1px; background: rgba(255,255,255,0.08); }
-        .login-divider-text { color: rgba(255,255,255,0.3); font-size: 11px; font-weight: 700; letter-spacing: 2px; white-space: nowrap; }
+        .orcid-benefits h5 {
+          color: rgba(255,255,255,0.8);
+          font-size: 12px;
+          font-weight: 700;
+          margin-bottom: 10px;
+          letter-spacing: 0.5px;
+        }
+        .orcid-benefits ul {
+          list-style: none;
+          padding: 0;
+          margin: 0;
+        }
+        .orcid-benefits li {
+          color: rgba(255,255,255,0.55);
+          font-size: 12px;
+          margin-bottom: 8px;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+        }
+        .orcid-benefits li strong {
+          color: #a3c94c;
+        }
 
         /* Form Fields */
-        .form-group { margin-bottom: 22px; }
+        .form-group { margin-bottom: 20px; }
         .form-label {
           display: block;
           color: rgba(255,255,255,0.5);
           font-size: 11px; font-weight: 700;
           letter-spacing: 1.5px;
-          margin-bottom: 10px;
+          margin-bottom: 8px;
         }
         .form-input {
           width: 100%;
@@ -202,24 +298,6 @@ export default function Login() {
           background: rgba(201,168,76,0.05);
         }
 
-        /* Remember / Forgot row */
-        .form-row {
-          display: flex; align-items: center; justify-content: space-between;
-          margin-bottom: 28px;
-        }
-        .form-remember {
-          display: flex; align-items: center; gap: 8px;
-          color: rgba(255,255,255,0.4); font-size: 13px;
-          cursor: pointer;
-        }
-        .form-remember input { accent-color: #c9a84c; }
-        .form-forgot {
-          color: #c9a84c; font-size: 13px; font-weight: 600;
-          text-decoration: none; transition: color 0.2s;
-        }
-        .form-forgot:hover { color: #fff; }
-
-        /* Login Button */
         .btn-login {
           width: 100%;
           background: linear-gradient(135deg, #c9a84c 0%, #e8c96a 50%, #c9a84c 100%);
@@ -241,18 +319,17 @@ export default function Login() {
         }
         .btn-login:disabled { opacity: 0.7; cursor: not-allowed; }
 
-        /* Register link */
         .login-register {
-          text-align: center; margin-top: 28px;
+          text-align: center; margin-top: 24px;
           color: rgba(255,255,255,0.35); font-size: 13px;
         }
-        .login-register a { color: #c9a84c; font-weight: 700; text-decoration: none; transition: color 0.2s; }
+        .login-register a { color: #a3c94c; font-weight: 700; text-decoration: none; transition: color 0.2s; }
         .login-register a:hover { color: #fff; }
       `}</style>
 
       <div className="login-page">
 
-        {/* â”€â”€ Left decorative panel â”€â”€ */}
+        {/* Left decorative panel */}
         <div className="login-left">
           <div className="login-brand-logo">
             <img src="/logobaru.png" alt="ASIA Logo" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />
@@ -265,7 +342,7 @@ export default function Login() {
           <div className="login-hero-text">
             <h1>Portal Akademik <span>Terpadu</span> Asia Pasifik</h1>
             <p>
-              Platform ekosistem akademik terintegrasi untuk peneliti, dosen, dan profesional di seluruh kawasan Asia Pasifik.
+              Ekosistem publikasi ilmiah, identitas peneliti, dan asesmen mutu penelitian AT-RQS™ berstandar internasional.
             </p>
           </div>
 
@@ -276,78 +353,123 @@ export default function Login() {
           </div>
         </div>
 
-        {/* â”€â”€ Right form panel â”€â”€ */}
+        {/* Right form panel */}
         <div className="login-right">
           <div className="login-card">
 
             <Link href="/" className="login-back">
-              â† Kembali ke Beranda
+              ← Kembali ke Beranda
             </Link>
 
-            <h1 className="login-title">Masuk ke <span>IAEP</span></h1>
-            <p className="login-subtitle">Integrated Academic Ecosystem Platform</p>
+            <h1 className="login-title">Masuk ke <span>APASIFIC</span></h1>
+            <p className="login-subtitle">Research Quality &amp; Intelligence Ecosystem</p>
 
-            {/* ORCID */}
-            <button type="button" className="btn-orcid">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M12 0C5.37 0 0 5.37 0 12s5.37 12 12 12 12-5.37 12-12S18.63 0 12 0zm-1.5 6.5a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm-.5 3h2v8h-2V9.5zm4 0h2v1.1c.6-.8 1.5-1.3 2.5-1.3 2 0 3 1.4 3 3.4V17.5h-2v-4c0-1.2-.5-2-1.6-2-1.2 0-1.9.9-1.9 2.2V17.5h-2V9.5z"/>
-              </svg>
-              Login dengan ORCID
-            </button>
-
-            {/* Divider */}
-            <div className="login-divider">
-              <div className="login-divider-line" />
-              <span className="login-divider-text">ATAU EMAIL</span>
-              <div className="login-divider-line" />
-            </div>
-
-            {/* Form */}
-            <form onSubmit={handleLogin}>
-              <div className="form-group">
-                <label className="form-label">EMAIL</label>
-                <input
-                  type="email"
-                  className="form-input"
-                  placeholder="nama@institusi.ac.id"
-                  value={email}
-                  onChange={e => setEmail(e.target.value)}
-                  required
-                />
-              </div>
-
-              <div className="form-group">
-                <label className="form-label">PASSWORD</label>
-                <input
-                  type="password"
-                  className="form-input"
-                  placeholder="Masukkan password"
-                  value={password}
-                  onChange={e => setPassword(e.target.value)}
-                  required
-                />
-              </div>
-
-              <div className="form-row">
-                <label className="form-remember">
-                  <input type="checkbox" /> Ingat saya
-                </label>
-                <a href="#" className="form-forgot">Lupa Password?</a>
-              </div>
-
+            {/* Portal Tab Switcher */}
+            <div className="portal-tabs">
               <button 
-                type="submit" 
-                className="btn-login"
-                disabled={loading}
+                type="button" 
+                className={`portal-tab-btn ${activeTab === 'author' ? 'active-orcid' : ''}`}
+                onClick={() => setActiveTab('author')}
               >
-                {loading ? "Memproses..." : "Masuk ke Sistem"}
+                Peneliti &amp; Author (ORCID)
               </button>
-            </form>
-
-            <div className="login-register">
-              Belum memiliki akun?{" "}
-              <Link href="/auth/register">Daftar sekarang</Link>
+              <button 
+                type="button" 
+                className={`portal-tab-btn ${activeTab === 'staff' ? 'active' : ''}`}
+                onClick={() => setActiveTab('staff')}
+              >
+                Editorial &amp; Staf
+              </button>
             </div>
+
+            {errorMessage && (
+              <div style={{ background: 'rgba(239, 68, 68, 0.15)', border: '1px solid rgba(239, 68, 68, 0.4)', color: '#fca5a5', padding: '12px 16px', borderRadius: '10px', fontSize: '13px', marginBottom: '20px' }}>
+                ⚠️ {errorMessage}
+              </div>
+            )}
+
+            {activeTab === 'author' ? (
+              <div>
+                {/* Policy Notice */}
+                <div className="policy-card">
+                  <h4>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M12 0C5.37 0 0 5.37 0 12s5.37 12 12 12 12-5.37 12-12S18.63 0 12 0zm-1.5 6.5a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm-.5 3h2v8h-2V9.5zm4 0h2v1.1c.6-.8 1.5-1.3 2.5-1.3 2 0 3 1.4 3 3.4V17.5h-2v-4c0-1.2-.5-2-1.6-2-1.2 0-1.9.9-1.9 2.2V17.5h-2V9.5z"/>
+                    </svg>
+                    Kebijakan Autentikasi Peneliti APASIFIC
+                  </h4>
+                  <p>
+                    Sesuai standar integritas publikasi APASIFIC, Penulis Korespondensi (<em>Corresponding Author</em>) wajib menghubungkan akun <strong>ORCID iD yang terautentikasi</strong> untuk mengakses portal submisi naskah.
+                  </p>
+                </div>
+
+                {/* Main ORCID Action Button */}
+                <a href="/api/auth/orcid" className="btn-orcid-main">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 0C5.37 0 0 5.37 0 12s5.37 12 12 12 12-5.37 12-12S18.63 0 12 0zm-1.5 6.5a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm-.5 3h2v8h-2V9.5zm4 0h2v1.1c.6-.8 1.5-1.3 2.5-1.3 2 0 3 1.4 3 3.4V17.5h-2v-4c0-1.2-.5-2-1.6-2-1.2 0-1.9.9-1.9 2.2V17.5h-2V9.5z"/>
+                  </svg>
+                  <span>Connect with ORCID iD</span>
+                </a>
+
+                {/* Benefits */}
+                <div className="orcid-benefits">
+                  <h5>MENGAPA APASIFIC MENGGUNAKAN ORCID?</h5>
+                  <ul>
+                    <li>✦ <strong>Reduced Author Name Ambiguity</strong>: Membedakan identitas peneliti dengan nama yang sama.</li>
+                    <li>✦ <strong>Persistent Researcher Identification</strong>: Keterhubungan persisten ke rekaman ilmiah global.</li>
+                    <li>✦ <strong>Interoperabilitas Metadata Global</strong>: Standar Crossref, DOI, dan repositori internasional.</li>
+                  </ul>
+                </div>
+
+                <div className="login-register">
+                  Belum memiliki ORCID iD?{" "}
+                  <a href="https://orcid.org/register" target="_blank" rel="noopener noreferrer">
+                    Daftar Gratis di orcid.org ↗
+                  </a>
+                </div>
+              </div>
+            ) : (
+              <div>
+                {/* Staff / Editorial Login Form */}
+                <form onSubmit={handleLogin}>
+                  <div className="form-group">
+                    <label className="form-label">EMAIL STAF / DEWAN REDAKSI</label>
+                    <input
+                      type="email"
+                      className="form-input"
+                      placeholder="editor@apasific.org"
+                      value={email}
+                      onChange={e => setEmail(e.target.value)}
+                      required
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label className="form-label">PASSWORD</label>
+                    <input
+                      type="password"
+                      className="form-input"
+                      placeholder="Masukkan password staf"
+                      value={password}
+                      onChange={e => setPassword(e.target.value)}
+                      required
+                    />
+                  </div>
+
+                  <button 
+                    type="submit" 
+                    className="btn-login"
+                    disabled={loading}
+                  >
+                    {loading ? "Memproses..." : "Masuk ke Panel Editorial"}
+                  </button>
+                </form>
+
+                <div className="login-register" style={{ marginTop: '16px' }}>
+                  Akses khusus Dewan Redaksi, Reviewer, dan Administrator APASIFIC.
+                </div>
+              </div>
+            )}
 
           </div>
         </div>

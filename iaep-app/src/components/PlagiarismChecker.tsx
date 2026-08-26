@@ -9,6 +9,7 @@ import {
   PlagiarismResult,
   PlagiarismReport
 } from '@/lib/plagiarism';
+import { ShieldCheck, AlertTriangle, AlertOctagon, Info, BookOpen, Quote } from 'lucide-react';
 
 interface PlagiarismCheckerProps {
   initialText?: string;
@@ -17,31 +18,30 @@ interface PlagiarismCheckerProps {
   onAnalysisComplete?: (result: any) => void;
 }
 
-export const PlagiarismChecker: React.FC<PlagiarismCheckerProps> = ({ initialText = '', autoCheck = false, summaryOnly = false, onAnalysisComplete }) => {
+export const PlagiarismChecker: React.FC<PlagiarismCheckerProps> = ({ 
+  initialText = '', 
+  autoCheck = false, 
+  summaryOnly = false, 
+  onAnalysisComplete 
+}) => {
   const [text, setText] = useState(initialText);
   const [isChecking, setIsChecking] = useState(false);
   const [progress, setProgress] = useState(0);
   const [report, setReport] = useState<PlagiarismReport | null>(null);
   const [aiAnalysis, setAiAnalysis] = useState<string>("");
-  // UltimateAI: membaca teks naskah setelah teks berhenti berubah selama 12 detik
+
   useEffect(() => {
     if (!text.trim() || text.length < 100) return;
 
     const timer = setTimeout(async () => {
-      console.log("[UltimateAI Trigger] 12s elapsed - calling UltimateAI");
-
       try {
         const result = await ultimateAIAnalysis(text);
-
-        console.log("[UltimateAI FULL OUTPUT]");
-        console.log(result.rawContent);
         setAiAnalysis(result.rawContent || "");
-
         if (onAnalysisComplete) {
           onAnalysisComplete(result);
         }
       } catch (error) {
-        console.error("[UltimateAI Trigger] UltimateAI failed", error);
+        console.error("[UltimateAI Trigger] Analysis failed", error);
       }
     }, 12000);
 
@@ -65,18 +65,20 @@ export const PlagiarismChecker: React.FC<PlagiarismCheckerProps> = ({ initialTex
     const paragraphs = extractParagraphs(cleanText);
     
     const results: PlagiarismResult[] = [];
-    let checkedCount = 0;
-    let plagiarizedCount = 0;
+    let highRiskCount = 0;
+    let reviewCount = 0;
+    let totalScoreSum = 0;
 
     const totalTarget = paragraphs.length;
 
     if (totalTarget === 0) {
       setIsChecking(false);
       setReport({
-        totalParagraphs: paragraphs.length,
+        totalParagraphs: 0,
         checkedParagraphs: 0,
         plagiarizedParagraphs: 0,
         plagiarismPercentage: 0,
+        riskSignalSummary: 'NO_HIGH_RISK_SIGNAL',
         results: []
       });
       return;
@@ -86,454 +88,226 @@ export const PlagiarismChecker: React.FC<PlagiarismCheckerProps> = ({ initialTex
       const paragraph = paragraphs[i];
       const wordCount = countWords(paragraph);
       
-      let sources: string[] = [];
-      let isPlagiarized = false;
-      let similarityScore = 0;
-      let classification = "Low Similarity";
-      let phrasesChecked: string[] = [];
+      const checkResult = await checkParagraphPlagiarism(paragraph);
+      const isHighRisk = checkResult.classification === 'HIGH_RISK_SIGNAL';
+      const isReview = checkResult.classification === 'CONTEXT_REVIEW';
 
-      // Proses blok yang memiliki cukup kata
-      if (wordCount >= 10) {
-        const checkResult = await checkParagraphPlagiarism(paragraph);
-        sources = checkResult.sources;
-        similarityScore = checkResult.similarityScore;
-        classification = checkResult.classification;
-        phrasesChecked = checkResult.phrasesChecked;
-        
-        // Klasifikasikan sebagai plagiat jika skor similarity >= 25% (1 dari 4 potongan terdeteksi)
-        isPlagiarized = similarityScore >= 25;
-      }
-      
-      if (isPlagiarized) {
-        plagiarizedCount++;
-      }
-      
-      checkedCount++;
-      
+      if (isHighRisk) highRiskCount++;
+      if (isReview) reviewCount++;
+      totalScoreSum += (checkResult.similarityScore || 0);
+
       results.push({
         sentence: paragraph,
-        isPlagiarized,
+        isPlagiarized: isHighRisk,
         wordCount,
-        sources,
-        similarityScore,
-        classification,
-        phrasesChecked
+        continuousMatchLength: checkResult.continuousMatchLength,
+        sources: checkResult.sources,
+        similarityScore: checkResult.similarityScore,
+        classification: checkResult.classification,
+        citationContext: checkResult.citationContext,
+        editorialNote: checkResult.editorialNote,
+        phrasesChecked: checkResult.phrasesChecked
       });
 
       setProgress(Math.round(((i + 1) / totalTarget) * 100));
     }
 
-    const percentage = Math.round((plagiarizedCount / checkedCount) * 100);
-
-    setReport({
-      totalParagraphs: paragraphs.length,
-      checkedParagraphs: checkedCount,
-      plagiarizedParagraphs: plagiarizedCount,
-      plagiarismPercentage: percentage,
-      results
-    });
+    const avgScore = Math.round(totalScoreSum / totalTarget);
+    const riskSignalSummary = highRiskCount > 0 
+      ? 'HIGH_RISK_SIGNAL_DETECTED' 
+      : (reviewCount > 0 ? 'REVIEW_RECOMMENDED' : 'NO_HIGH_RISK_SIGNAL');
 
     setIsChecking(false);
+    setReport({
+      totalParagraphs: paragraphs.length,
+      checkedParagraphs: results.length,
+      plagiarizedParagraphs: highRiskCount,
+      plagiarismPercentage: avgScore,
+      riskSignalSummary,
+      results
+    });
   };
 
   const downloadReport = () => {
     if (!report) return;
-    
-    let content = `HASIL PENGECEKAN PLAGIARISME (Sistem Internal ASIA)\n`;
-    content += `====================================================\n\n`;
-    content += `Total Potongan Teks: ${report.totalParagraphs}\n`;
-    content += `Potongan Diperiksa : ${report.checkedParagraphs} (Minimal 20 Kata)\n`;
-    content += `Terdeteksi Plagiat : ${report.plagiarizedParagraphs}\n`;
-    content += `Persentase Plagiat : ${report.plagiarismPercentage}%\n\n`;
-    content += `DETAIL TEKS YANG TERINDIKASI PLAGIAT:\n`;
-    content += `-------------------------------------\n\n`;
-    
-    const plagiarizedItems = report.results.filter(r => r.isPlagiarized);
-    if (plagiarizedItems.length === 0) {
-      content += `Tidak ada teks yang terindikasi plagiat! Artikel Anda aman.\n`;
-    } else {
-      plagiarizedItems.forEach((result, idx) => {
-        content += `[Blok #${idx + 1}] (${result.wordCount} kata) - ${result.classification} (${result.similarityScore}%)\n`;
-        content += `Teks: "${result.sentence}"\n`;
-        if (result.phrasesChecked && result.phrasesChecked.length > 0) {
-          content += `Frasa yang diuji:\n`;
-          result.phrasesChecked.forEach(phrase => content += `> "${phrase}"\n`);
-        }
-        if (result.sources && result.sources.length > 0) {
-          content += `Sumber Terindikasi:\n`;
-          result.sources.forEach(src => content += `- ${src}\n`);
-        }
-        content += `\n`;
-      });
-    }
-    
+
+    let content = `APASIFIC SIMILARITY CONTEXT ANALYSIS™ REPORT\n`;
+    content += `=======================================================\n`;
+    content += `Generated Date       : ${new Date().toLocaleString()}\n`;
+    content += `Total Paragraphs     : ${report.totalParagraphs}\n`;
+    content += `Raw Similarity Index : ${report.plagiarismPercentage}%\n`;
+    content += `Risk Signal Summary  : ${report.riskSignalSummary}\n`;
+    content += `=======================================================\n\n`;
+    content += `DISCLAIMER: APASIFIC Similarity Context Analysis™ provides automated contextual signals for editorial discretion and does NOT constitute an automated verdict of plagiarism.\n\n`;
+    content += `PARAGRAPH-BY-PARAGRAPH ATTRIBUTION BREAKDOWN:\n`;
+    content += `-------------------------------------------------------\n\n`;
+
+    report.results.forEach((r, idx) => {
+      content += `[Paragraph #${idx + 1}] (${r.wordCount} words) - Class: ${r.classification}\n`;
+      content += `Text: ${r.sentence}\n`;
+      if (r.editorialNote) content += `Note: ${r.editorialNote}\n`;
+      if (r.sources && r.sources.length > 0) content += `Sources: ${r.sources.join(', ')}\n`;
+      content += `\n-------------------------------------------------------\n\n`;
+    });
+
     const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `Laporan_Plagiarisme_${new Date().getTime()}.txt`;
-    document.body.appendChild(a);
+    a.download = `APASIFIC_Similarity_Report_${Date.now()}.txt`;
     a.click();
-    document.body.removeChild(a);
     URL.revokeObjectURL(url);
   };
 
   return (
-    <div className="bg-black/40 border border-emerald-500/20 p-6 rounded-xl shadow-lg backdrop-blur-sm max-w-4xl mx-auto my-8">
-      <h2 className="text-2xl font-serif font-bold mb-4 text-emerald-500">Cek Plagiarisme Artikel</h2>
-      <p className="text-zinc-400 mb-4 text-sm">
-        Sistem akan memotong bagian Daftar Pustaka dan mengecek artikel secara per paragraf secara cerdas.
-      </p>
+    <div className="space-y-6">
+      <div className="space-y-2">
+        <label className="block text-xs font-bold text-zinc-400">
+          Tempel Teks Naskah Ilmiah (Natural Paragraph Parsing Engine):
+        </label>
+        <textarea
+          rows={6}
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+          placeholder="Tempelkan abstrak atau draf naskah lengkap Anda di sini untuk analisis konteks kemiripan..."
+          className="w-full bg-[#0a0a14] border border-zinc-700/80 rounded-xl p-4 text-white text-xs leading-relaxed focus:border-[#c9a84c] outline-none"
+        />
+      </div>
 
-      <textarea
-        data-gramm="false" data-gramm_editor="false" data-enable-grammarly="false"
-        className="w-full p-4 bg-zinc-900 border border-emerald-500/30 text-white rounded-md focus:ring-2 focus:ring-emerald-500 focus:outline-none mb-4 min-h-[200px]"
-        placeholder="Tempelkan teks artikel Anda di sini..."
-        value={text}
-        onChange={(e) => setText(e.target.value)}
-        disabled={isChecking}
-      />
+      <div className="flex items-center justify-between">
+        <button
+          type="button"
+          onClick={handleCheck}
+          disabled={isChecking || !text.trim()}
+          className="px-6 py-2.5 bg-gradient-to-r from-[#c9a84c] to-[#e8c96a] text-black font-bold text-xs rounded-lg hover:scale-105 transition-all disabled:opacity-40"
+        >
+          {isChecking ? "Menganalisis Paragraf & Sitasi..." : "Jalankan Analisis Konteks Similaritas"}
+        </button>
 
-      <button
-        onClick={handleCheck}
-        disabled={isChecking || !text.trim()}
-        className="bg-gradient-to-r from-emerald-600 to-emerald-400 text-black font-bold py-2 px-6 rounded-md transition-all disabled:opacity-50 hover:from-emerald-500 hover:to-emerald-300"
-      >
-        {isChecking ? <span>Sedang Mengecek...</span> : <span>Mulai Pengecekan</span>}
-      </button>
+        <span className="text-[11px] text-zinc-500 font-mono">
+          {countWords(text)} kata terdeteksi
+        </span>
+      </div>
 
       {isChecking && (
-        <div className="mt-6">
-          <div className="w-full bg-zinc-800 rounded-full h-2.5 overflow-hidden">
+        <div className="space-y-2">
+          <div className="w-full bg-zinc-800 rounded-full h-2 overflow-hidden">
             <div 
-              className="bg-emerald-500 h-2.5 rounded-full transition-all duration-300 shadow-[0_0_10px_rgba(16,185,129,0.5)]" 
+              className="bg-[#c9a84c] h-2 rounded-full transition-all duration-300 shadow-[0_0_10px_rgba(201,168,76,0.5)]" 
               style={{ width: `${progress}%` }}
-            ></div>
+            />
           </div>
-          <p className="text-sm text-emerald-500 mt-2 text-center">Progres: {progress}%</p>
+          <p className="text-xs text-[#c9a84c] text-center font-mono">Memproses Paragraf: {progress}%</p>
         </div>
       )}
 
       {report && (
-        <div className="mt-8 border-t border-emerald-500/20 pt-6">
-
-          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-6">
-            <h3 className="text-xl font-semibold text-emerald-400 mb-4 sm:mb-0">
-              Hasil Pengecekan
-            </h3>
-
-            {!summaryOnly && (
-              <button
-                onClick={downloadReport}
-                className="bg-zinc-800 hover:bg-zinc-700 text-white border border-zinc-700 text-sm py-2 px-4 rounded-md transition-colors flex items-center gap-2"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                  <polyline points="7 10 12 15 17 10" />
-                  <line x1="12" y1="15" x2="12" y2="3" />
-                </svg>
-                Download Laporan (TXT)
-              </button>
-            )}
-          </div>
-
-          {summaryOnly ? (
-            <>
-            <div
-              className={`p-6 rounded-xl border text-center ${
-                report.plagiarismPercentage > 20
-                  ? "bg-red-900/30 border-red-500/30 text-red-400"
-                  : "bg-green-900/30 border-green-500/30 text-green-400"
-              }`}
-            >
-              <p className="text-xs uppercase tracking-wider opacity-70">
-                Persentase Plagiarisme
-              </p>
-
-              <p className="text-5xl font-bold mt-2">
-                {report.plagiarismPercentage}%
-              </p>
+        <div className="border-t border-zinc-800 pt-6 space-y-6 animate-in fade-in">
+          
+          {/* Summary Metric Cards */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            <div className="p-4 bg-black/40 border border-zinc-800 rounded-xl text-center">
+              <div className="text-xs text-zinc-400 font-medium">Total Paragraf</div>
+              <div className="text-xl font-bold text-white mt-1">{report.totalParagraphs}</div>
             </div>
 
-            {aiAnalysis && (
-              <div
-                style={{
-                  marginTop: '12px',
-                  padding: '16px',
-                  border: '1px solid rgba(52,211,153,0.22)',
-                  borderRadius: '12px',
-                  background: 'rgba(10,10,20,0.55)',
-                  textAlign: 'left',
-                  maxHeight: '520px',
-                  overflowY: 'auto'
-                }}
-              >
-                <div
-                  style={{
-                    color: '#34d399',
-                    fontWeight: 700,
-                    fontSize: '13px',
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.08em',
-                    marginBottom: '14px'
-                  }}
-                >
-                  Clue / Analisis UltimateAI
-                </div>
+            <div className="p-4 bg-black/40 border border-zinc-800 rounded-xl text-center">
+              <div className="text-xs text-zinc-400 font-medium">Indeks Similaritas</div>
+              <div className="text-xl font-bold text-[#c9a84c] mt-1">{report.plagiarismPercentage}%</div>
+            </div>
 
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                  {aiAnalysis
-                    .split(/\n(?=\s*[1-7]\.\s*)/)
-                    .filter(section => section.trim())
-                    .map((section, index) => {
-                      const match = section.trim().match(/^([1-7])\.\s*([^:\n]+):?\s*([\s\S]*)$/);
+            <div className="p-4 bg-black/40 border border-zinc-800 rounded-xl text-center">
+              <div className="text-xs text-zinc-400 font-medium">Overlaps Berisiko Tinggi</div>
+              <div className="text-xl font-bold text-red-400 mt-1">{report.plagiarizedParagraphs}</div>
+            </div>
 
-                      if (!match) {
-                        return (
-                          <div
-                            key={index}
-                            style={{
-                              color: 'rgba(255,255,255,0.78)',
-                              fontSize: '12px',
-                              lineHeight: 1.7,
-                              whiteSpace: 'pre-wrap'
-                            }}
-                          >
-                            {section.trim()}
-                          </div>
-                        );
-                      }
-
-                      const [, number, title, body] = match;
-
-                      return (
-                        <div
-                          key={`clue-${number}-${index}`}
-                          style={{
-                            padding: '12px 14px',
-                            border: '1px solid rgba(255,255,255,0.08)',
-                            borderRadius: '9px',
-                            background: 'rgba(255,255,255,0.025)'
-                          }}
-                        >
-                          <div
-                            style={{
-                              color: '#34d399',
-                              fontWeight: 700,
-                              fontSize: '12px',
-                              marginBottom: '6px'
-                            }}
-                          >
-                            {number}. {title}
-                          </div>
-
-                          <div
-                            style={{
-                              color: 'rgba(255,255,255,0.78)',
-                              fontSize: '12px',
-                              lineHeight: 1.7,
-                              whiteSpace: 'pre-wrap'
-                            }}
-                          >
-                            {body.trim() || 'Belum ada analisis.'}
-                          </div>
-                        </div>
-                      );
-                    })}
-                </div>
+            <div className="p-4 bg-black/40 border border-zinc-800 rounded-xl text-center">
+              <div className="text-xs text-zinc-400 font-medium">Status Sinyal</div>
+              <div className={`text-xs font-bold mt-2 ${
+                report.riskSignalSummary === 'HIGH_RISK_SIGNAL_DETECTED' 
+                  ? 'text-red-400' 
+                  : (report.riskSignalSummary === 'REVIEW_RECOMMENDED' ? 'text-amber-400' : 'text-emerald-400')
+              }`}>
+                {report.riskSignalSummary === 'HIGH_RISK_SIGNAL_DETECTED' 
+                  ? '🔴 HIGH RISK SIGNAL' 
+                  : (report.riskSignalSummary === 'REVIEW_RECOMMENDED' ? '🟡 REVIEW REQUIRED' : '🟢 NO HIGH RISK')}
               </div>
-            )}
-            </>
-          ) : (
-            <>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+            </div>
+          </div>
 
-                <div className="bg-black/60 p-4 rounded-md border border-zinc-800 text-center">
-                  <p className="text-zinc-400 text-sm">Total Paragraf</p>
-                  <p className="text-2xl font-bold text-white">
-                    {report.totalParagraphs}
-                  </p>
-                </div>
+          {/* Legal / Editorial Disclaimer */}
+          <div className="p-4 bg-[#c9a84c]/10 border border-[#c9a84c]/30 rounded-xl flex items-start gap-3 text-xs text-zinc-300 leading-relaxed">
+            <Info className="w-5 h-5 text-[#c9a84c] flex-shrink-0 mt-0.5" />
+            <div>
+              <strong className="text-[#c9a84c] block mb-0.5">Prinsip Analisis Konteks &amp; Kedaulatan Dewan Redaksi APASIFIC:</strong>
+              Hasil di atas adalah sinyal kontekstual atribusi (bukan vonis plagiarisme otomatis). Keputusan integritas naskah sepenuhnya berada di tangan Dewan Redaksi melalui evaluasi konteks ilmiah.
+            </div>
+          </div>
 
-                <div className="bg-emerald-900/20 p-4 rounded-md border border-emerald-500/20 text-center">
-                  <p className="text-emerald-500 text-sm">Paragraf Diperiksa</p>
-                  <p className="text-2xl font-bold text-white">
-                    {report.checkedParagraphs}
-                  </p>
-                </div>
-
-                <div className="bg-red-900/20 p-4 rounded-md border border-red-500/20 text-center">
-                  <p className="text-red-500 text-sm">Terdeteksi Plagiat</p>
-                  <p className="text-2xl font-bold text-white">
-                    {report.plagiarizedParagraphs}
-                  </p>
-                </div>
-
-                <div
-                  className={`p-4 rounded-md border text-center ${
-                    report.plagiarismPercentage > 20
-                      ? "bg-red-900/30 border-red-500/30 text-red-500"
-                      : "bg-green-900/30 border-green-500/30 text-green-500"
-                  }`}
-                >
-                  <p className="text-sm">Persentase</p>
-                  <p className="text-2xl font-bold">
-                    {report.plagiarismPercentage}%
-                  </p>
-                </div>
-
-              </div>
-
-              <div className="space-y-4">
-                <h4 className="font-medium text-zinc-300">
-                  Detail Blok yang Diperiksa:
+          {/* Detailed Paragraph Breakdown */}
+          {!summaryOnly && (
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <h4 className="text-sm font-bold text-white flex items-center gap-2">
+                  <BookOpen className="w-4 h-4 text-[#c9a84c]" /> Rincian Paragraf &amp; Konteks Sitasi
                 </h4>
-
-                {report.results.length === 0 ? (
-                  <p className="text-zinc-500 text-sm italic">
-                    Tidak ada blok yang ditemukan.
-                  </p>
-                ) : (
-                  <ul className="space-y-3">
-
-                    {report.results.map((result, idx) => (
-                      <li
-                        key={idx}
-                        className={`p-4 rounded-md border text-sm ${
-                          result.isPlagiarized
-                            ? "border-red-500/30 bg-red-900/10 text-zinc-300"
-                            : "border-green-500/30 bg-green-900/10 text-zinc-300"
-                        }`}
-                      >
-
-                        <div className="flex justify-between items-center mb-2">
-                          <span className="text-xs font-bold text-zinc-500">
-                            Blok #{idx + 1}
-                          </span>
-
-                          {result.classification && (
-                            <span
-                              className={`text-xs font-bold px-2 py-1 rounded ${
-                                result.similarityScore &&
-                                result.similarityScore >= 90
-                                  ? "bg-red-500 text-white"
-                                  : result.similarityScore &&
-                                    result.similarityScore >= 70
-                                  ? "bg-orange-500 text-white"
-                                  : result.similarityScore &&
-                                    result.similarityScore >= 40
-                                  ? "bg-yellow-500 text-black"
-                                  : "bg-zinc-800 text-zinc-400"
-                              }`}
-                            >
-                              {result.classification} ({result.similarityScore}%)
-                            </span>
-                          )}
-                        </div>
-
-                        <p className="mb-2 text-zinc-400">
-                          {result.sentence}
-                        </p>
-
-                        {result.phrasesChecked &&
-                          result.phrasesChecked.length > 0 && (
-                            <div className="mb-3 mt-2 border-t border-zinc-700/50 pt-2">
-                              <p className="text-zinc-500 font-semibold mb-1 text-xs">
-                                Frasa yang diuji ke Mesin Pencari:
-                              </p>
-
-                              <ul className="list-disc pl-4 space-y-1">
-                                {result.phrasesChecked.map(
-                                  (phrase, pIdx) => (
-                                    <li
-                                      key={pIdx}
-                                      className="text-zinc-400 text-xs italic"
-                                    >
-                                      "{phrase}"
-                                    </li>
-                                  )
-                                )}
-                              </ul>
-                            </div>
-                          )}
-
-                        {result.sources &&
-                          result.sources.length > 0 && (
-                            <div className="mb-3 border-t border-red-500/20 pt-2">
-                              <p className="text-red-400 font-semibold mb-1 text-xs">
-                                URL Sumber Terindikasi (Evidence):
-                              </p>
-
-                              <ul className="list-disc pl-4 space-y-1">
-                                {result.sources.map((src, srcIdx) => (
-                                  <li key={srcIdx}>
-                                    <a
-                                      href={src}
-                                      target="_blank"
-                                      rel="noopener noreferrer"
-                                      className="text-blue-400 hover:underline break-all text-xs"
-                                    >
-                                      {src}
-                                    </a>
-                                  </li>
-                                ))}
-                              </ul>
-                            </div>
-                          )}
-
-                        <div className="flex justify-between items-center text-xs mt-3">
-
-                          <span className="font-medium text-emerald-500/70">
-                            {result.wordCount} kata
-                          </span>
-
-                          {result.isPlagiarized ? (
-                            <span className="text-red-500 font-bold bg-red-500/10 px-2 py-1 rounded">
-                              Terindikasi Plagiat!
-                            </span>
-                          ) : (
-                            <span className="text-green-500 font-bold bg-green-500/10 px-2 py-1 rounded">
-                              Aman
-                            </span>
-                          )}
-
-                        </div>
-
-                      </li>
-                    ))}
-
-                  </ul>
-                )}
+                <button
+                  type="button"
+                  onClick={downloadReport}
+                  className="text-xs text-[#c9a84c] hover:underline flex items-center gap-1 font-semibold"
+                >
+                  Download Laporan Lengkap (TXT) ↗
+                </button>
               </div>
-            </>
+
+              <div className="space-y-3">
+                {report.results.map((r, idx) => (
+                  <div 
+                    key={idx} 
+                    className={`p-4 rounded-xl border text-xs space-y-2.5 ${
+                      r.classification === 'HIGH_RISK_SIGNAL'
+                        ? 'bg-red-950/20 border-red-500/40'
+                        : (r.classification === 'CONTEXT_REVIEW'
+                          ? 'bg-amber-950/20 border-amber-500/40'
+                          : 'bg-black/30 border-zinc-800')
+                    }`}
+                  >
+                    <div className="flex flex-wrap items-center justify-between gap-2 border-b border-zinc-800/60 pb-2">
+                      <span className="font-bold text-zinc-400 font-mono">Paragraf #{idx + 1} ({r.wordCount} kata)</span>
+                      
+                      <div className="flex items-center gap-2">
+                        {r.citationContext?.hasInlineCitation && (
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-blue-500/15 text-blue-400 border border-blue-500/30 rounded text-[10px] font-semibold">
+                            <Quote className="w-3 h-3" /> Sitasi Terdeteksi
+                          </span>
+                        )}
+                        <span className={`px-2.5 py-0.5 rounded text-[10px] font-bold ${
+                          r.classification === 'HIGH_RISK_SIGNAL'
+                            ? 'bg-red-500/20 text-red-400 border border-red-500/40'
+                            : (r.classification === 'CONTEXT_REVIEW'
+                              ? 'bg-amber-500/20 text-amber-400 border border-amber-500/40'
+                              : 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/40')
+                        }`}>
+                          {r.classification}
+                        </span>
+                      </div>
+                    </div>
+
+                    <p className="text-zinc-300 leading-relaxed font-serif text-[13px]">{r.sentence}</p>
+
+                    {r.editorialNote && (
+                      <div className="text-[11px] text-zinc-400 italic bg-black/40 p-2 rounded border border-zinc-800">
+                        <strong>Catatan Konteks:</strong> {r.editorialNote}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
           )}
 
         </div>
-      )}    </div>
+      )}
+    </div>
   );
 };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
