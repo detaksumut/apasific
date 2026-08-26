@@ -9,6 +9,7 @@ import ASIAIndexRecord from "@/components/article/ASIAIndexRecord";
 import { AcademicEvidenceCard } from "@/components/researcher/AcademicEvidenceCard";
 import { ApasificIndexPanel } from "@/components/publisher/ApasificIndexPanel";
 import { PublisherVerification } from '@/components/publisher/PublisherVerification';
+import { SystemManagementMetadataCard } from '@/components/metadata/SystemManagementMetadataCard';
 import AsiaMetricsSidebarCard from "@/components/article/AsiaMetricsSidebarCard";
 import UltimateAIPublicScoreCard from "@/components/article/UltimateAIPublicScoreCard";
 import ArticleScreeningReportCard from "@/components/article/ArticleScreeningReportCard";
@@ -1073,6 +1074,9 @@ export default function ArticlePaywallClient({ initialArticle, id }: ArticlePayw
                 </div>
               </div>
             </section>
+
+            {/* APASIFIC SYSTEM MANAGEMENT METADATA™ (PERMANENT RESEARCH IDENTITY REGISTRY) */}
+            <SystemManagementMetadataCard />
 
             {/* TIKTOK & FACEBOOK SOCIAL MEDIA DISSEMINATION CARD (BOTTOM OF SIDEBAR) */}
             <div className="bg-gradient-to-br from-[#1b1226] via-[#121226] to-[#070714] border border-[#c9a84c]/50 rounded-3xl p-5 shadow-2xl space-y-3 relative overflow-hidden">

@@ -5,6 +5,7 @@ export const dynamic = 'force-dynamic';
 import { createClient } from '@supabase/supabase-js';
 import ArticlePaywallClient from '@/components/article/ArticlePaywallClient';
 import { AsiaIndexService } from '@/services/asia-index/AsiaIndexService';
+import { getSystemManagementJsonLdProperties } from '@/config/systemManagementMetadata';
 
 async function getArticleData(id: string) {
   try {
@@ -271,7 +272,6 @@ export async function generateMetadata(
     }
   };
 }
-
 export default async function ArticlePaywallPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const article = await getArticleData(id);
@@ -295,5 +295,28 @@ export default async function ArticlePaywallPage({ params }: { params: Promise<{
     );
   }
 
-  return <ArticlePaywallClient initialArticle={article} id={id} />;
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "ScholarlyArticle",
+    "headline": article.title,
+    "name": article.title,
+    "description": article.abstract ? article.abstract.replace(/<[^>]*>?/gm, '').slice(0, 300) : '',
+    "datePublished": article.published_at || article.created_at,
+    "publisher": {
+      "@type": "Organization",
+      "name": "APASIFIC",
+      "url": "https://www.apasific.org"
+    },
+    "additionalProperty": getSystemManagementJsonLdProperties()
+  };
+
+  return (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <ArticlePaywallClient initialArticle={article} id={id} />
+    </>
+  );
 }
