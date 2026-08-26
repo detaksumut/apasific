@@ -156,7 +156,29 @@ function LoginFormContent() {
           color: #fff; margin-bottom: 6px;
         }
         .login-title span { color: #c9a84c; }
-        .login-subtitle { color: rgba(255,255,255,0.4); font-size: 13px; margin-bottom: 24px; }
+        
+        @keyframes goldBlink {
+          0%, 100% {
+            opacity: 1;
+            color: #fce38a;
+            text-shadow: 0 0 10px rgba(201, 168, 76, 0.8), 0 0 20px rgba(201, 168, 76, 0.4);
+          }
+          50% {
+            opacity: 0.35;
+            color: #c9a84c;
+            text-shadow: none;
+          }
+        }
+
+        .login-subtitle { 
+          color: #c9a84c; 
+          font-size: 13px; 
+          font-weight: 700;
+          letter-spacing: 0.8px;
+          margin-bottom: 24px; 
+          animation: goldBlink 1.8s ease-in-out infinite;
+          display: inline-block;
+        }
 
         /* Role Selector Tabs */
         .portal-tabs {
