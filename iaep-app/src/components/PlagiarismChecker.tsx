@@ -76,8 +76,20 @@ export const PlagiarismChecker: React.FC<PlagiarismCheckerProps> = ({
     if (!text.trim()) return;
 
     setIsChecking(true);
-    setReport(null);
+    setIsAiLoading(true);
     setProgress(0);
+
+    // Trigger AI Clue analysis in parallel
+    ultimateAIAnalysis(text).then(res => {
+      if (res && res.rawContent) {
+        setAiAnalysis(res.rawContent);
+        if (onAnalysisComplete) onAnalysisComplete(res);
+      }
+    }).catch(err => {
+      console.error("AI Clue generation error:", err);
+    }).finally(() => {
+      setIsAiLoading(false);
+    });
 
     const cleanText = removeBibliography(text);
     const paragraphs = extractParagraphs(cleanText);
