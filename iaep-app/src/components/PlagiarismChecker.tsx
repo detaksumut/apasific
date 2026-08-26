@@ -187,7 +187,7 @@ export const PlagiarismChecker: React.FC<PlagiarismCheckerProps> = ({
           rows={6}
           value={text}
           onChange={(e) => setText(e.target.value)}
-          placeholder="Tempelkan draf naskah ilmiah lengkap di sini untuk analisis konteks kemiripan dan AI clue..."
+          placeholder="Tempelkan draf naskah ilmiah lengkap di sini untuk analisis konteks kemiripan..."
           className="w-full bg-[#0a0a14] border border-zinc-700/80 rounded-xl p-4 text-white text-xs leading-relaxed focus:border-[#c9a84c] outline-none"
         />
       </div>
@@ -269,7 +269,7 @@ export const PlagiarismChecker: React.FC<PlagiarismCheckerProps> = ({
                 <div className="flex items-center gap-2">
                   <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
                   <span className="text-xs font-bold text-emerald-400 uppercase tracking-wider">
-                    Clue &amp; Analisis Komparatif Naskah (AI Assistant)
+                    Clue &amp; Analisis Komparatif Naskah
                   </span>
                 </div>
                 <span className="text-[10px] font-mono text-emerald-400/80 bg-emerald-950/40 px-2 py-0.5 rounded border border-emerald-500/20">
