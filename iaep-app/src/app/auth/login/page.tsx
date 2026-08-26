@@ -561,7 +561,7 @@ function LoginFormContent() {
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M12 0C5.37 0 0 5.37 0 12s5.37 12 12 12 12-5.37 12-12S18.63 0 12 0zm-1.5 6.5a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm-.5 3h2v8h-2V9.5zm4 0h2v1.1c.6-.8 1.5-1.3 2.5-1.3 2 0 3 1.4 3 3.4V17.5h-2v-4c0-1.2-.5-2-1.6-2-1.2 0-1.9.9-1.9 2.2V17.5h-2V9.5z"/>
                   </svg>
-                  <span>Connect with ORCID iD</span>
+                  <span>Penulis Login dengan ID ORCID</span>
                 </a>
 
                 {/* Benefits */}
