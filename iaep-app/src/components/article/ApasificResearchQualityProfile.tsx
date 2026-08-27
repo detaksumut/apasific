@@ -233,25 +233,25 @@ export default function ApasificResearchQualityProfile({ article }: Props) {
       </div>
 
       {/* SOURCE PROVENANCE CONTRIBUTION BARS */}
-      <div className="bg-[#121324] border border-gray-800 rounded-2xl p-5 shadow-inner relative z-10">
-        <div className="flex items-center justify-between mb-3 border-b border-gray-800 pb-2">
-          <div className="flex items-center gap-2">
-            <Layers className="w-4 h-4 text-[#c9a84c]" />
-            <h4 className="text-xs font-extrabold uppercase tracking-widest text-gray-300">
+      <div className="bg-[#121324] border-2 border-gray-800 rounded-2xl p-5 sm:p-6 shadow-inner relative z-10 space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-gray-800 pb-3">
+          <div className="flex items-center gap-2.5">
+            <Layers className="w-5 h-5 text-[#c9a84c]" />
+            <h4 className="text-sm sm:text-base lg:text-lg font-black uppercase tracking-widest text-white">
               Tri-Source Layer Contribution
             </h4>
           </div>
-          <span className="text-[11px] text-gray-400">
-            ARTI™ Triangulation: <strong className="text-[#c9a84c]">{snapshot.arti}</strong>
+          <span className="text-xs sm:text-sm font-bold text-gray-300">
+            ARTI™ Triangulation: <strong className="text-base sm:text-lg text-[#c9a84c] font-black">{snapshot.arti}</strong>
           </span>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 text-sm">
           <div>
-            <div className="flex justify-between mb-1 text-gray-400 font-medium">
+            <div className="flex justify-between mb-1.5 text-gray-200 font-bold">
               <span>Layer 1: CLUE (Evidence &amp; Limits)</span>
-              <span className="text-white font-bold">{snapshot.provenance.clue_layer_norm}</span>
+              <span className="text-white font-black text-base">{snapshot.provenance.clue_layer_norm}</span>
             </div>
-            <div className="h-2 w-full bg-gray-800 rounded-full overflow-hidden">
+            <div className="h-3 w-full bg-gray-800 rounded-full overflow-hidden">
               <div 
                 className="h-full bg-gradient-to-r from-emerald-500 to-emerald-300 rounded-full" 
                 style={{ width: `${snapshot.provenance.clue_layer_norm}%` }} 
@@ -259,11 +259,11 @@ export default function ApasificResearchQualityProfile({ article }: Props) {
             </div>
           </div>
           <div>
-            <div className="flex justify-between mb-1 text-gray-400 font-medium">
+            <div className="flex justify-between mb-1.5 text-gray-200 font-bold">
               <span>Layer 2: SCREEN (Risk &amp; Novelty)</span>
-              <span className="text-white font-bold">{snapshot.provenance.screen_layer_norm}</span>
+              <span className="text-white font-black text-base">{snapshot.provenance.screen_layer_norm}</span>
             </div>
-            <div className="h-2 w-full bg-gray-800 rounded-full overflow-hidden">
+            <div className="h-3 w-full bg-gray-800 rounded-full overflow-hidden">
               <div 
                 className="h-full bg-gradient-to-r from-cyan-500 to-cyan-300 rounded-full" 
                 style={{ width: `${snapshot.provenance.screen_layer_norm}%` }} 
@@ -271,11 +271,11 @@ export default function ApasificResearchQualityProfile({ article }: Props) {
             </div>
           </div>
           <div>
-            <div className="flex justify-between mb-1 text-gray-400 font-medium">
+            <div className="flex justify-between mb-1.5 text-gray-200 font-bold">
               <span>Layer 3: SCORE (Quality Rubric)</span>
-              <span className="text-white font-bold">{snapshot.provenance.score_layer_norm}</span>
+              <span className="text-white font-black text-base">{snapshot.provenance.score_layer_norm}</span>
             </div>
-            <div className="h-2 w-full bg-gray-800 rounded-full overflow-hidden">
+            <div className="h-3 w-full bg-gray-800 rounded-full overflow-hidden">
               <div 
                 className="h-full bg-gradient-to-r from-[#c9a84c] to-[#e5c76b] rounded-full" 
                 style={{ width: `${snapshot.provenance.score_layer_norm}%` }} 
@@ -287,40 +287,40 @@ export default function ApasificResearchQualityProfile({ article }: Props) {
 
       {/* 8 APASIFIC QUALITY DIMENSIONS MATRIX */}
       <div className="space-y-4 relative z-10">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-gray-800 pb-2">
-          <div className="flex items-center gap-2">
-            <BarChart3 className="w-5 h-5 text-[#c9a84c]" />
-            <h4 className="text-sm font-extrabold uppercase tracking-widest text-white">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b-2 border-gray-800 pb-3">
+          <div className="flex items-center gap-2.5">
+            <BarChart3 className="w-6 h-6 text-[#c9a84c]" />
+            <h4 className="text-base sm:text-lg lg:text-xl font-black uppercase tracking-widest text-white">
               8 APASIFIC Research Quality Dimensions
             </h4>
           </div>
-          <span className="text-xs text-gray-400">Methodology-Weighted Model + Confidence Meta-Dimension</span>
+          <span className="text-xs sm:text-sm text-gray-300 font-medium">Methodology-Weighted Model + Confidence Meta-Dimension</span>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
           {dims.map((d, idx) => (
             <div 
               key={idx} 
-              className={`rounded-xl p-3.5 transition-colors border ${
+              className={`rounded-2xl p-4 sm:p-5 transition-colors border-2 ${
                 d.isMeta 
-                  ? "bg-[#101924] border-cyan-500/40 shadow-sm shadow-cyan-500/5" 
-                  : "bg-[#121324] border-gray-800/80 hover:border-gray-700"
+                  ? "bg-[#101924] border-cyan-500/50 shadow-md shadow-cyan-500/10" 
+                  : "bg-[#121324] border-gray-800 hover:border-gray-700"
               }`}
             >
-              <div className="flex justify-between items-center text-xs mb-1.5 flex-wrap gap-1">
+              <div className="flex justify-between items-center text-sm sm:text-base mb-2 flex-wrap gap-1.5">
                 <div className="flex items-center gap-2">
-                  <span className={`font-bold ${d.isMeta ? "text-cyan-300" : "text-gray-200"}`}>{d.label}</span>
+                  <span className={`font-black ${d.isMeta ? "text-cyan-300" : "text-gray-100"}`}>{d.label}</span>
                   {d.isMeta && (
-                    <span className="text-[9px] font-extrabold tracking-wider px-2 py-0.5 rounded bg-cyan-500/15 text-cyan-300 border border-cyan-500/30 uppercase">
+                    <span className="text-xs font-black tracking-wider px-2.5 py-0.5 rounded-md bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 uppercase">
                       Meta • Non-Weighted
                     </span>
                   )}
                 </div>
-                <span className={`font-extrabold text-sm ${d.isMeta ? "text-cyan-400" : "text-[#c9a84c]"}`}>
-                  {d.score} <span className="text-[10px] text-gray-500 font-normal">/ 100</span>
+                <span className={`font-black text-base sm:text-lg lg:text-xl ${d.isMeta ? "text-cyan-400" : "text-[#c9a84c]"}`}>
+                  {d.score} <span className="text-xs text-gray-400 font-normal">/ 100</span>
                 </span>
               </div>
-              <div className="h-2 w-full bg-gray-800/90 rounded-full overflow-hidden mb-1.5">
+              <div className="h-3 w-full bg-gray-800/90 rounded-full overflow-hidden mb-2">
                 <div 
                   className={`h-full rounded-full transition-all duration-500 ${
                     d.isMeta 
@@ -330,36 +330,36 @@ export default function ApasificResearchQualityProfile({ article }: Props) {
                   style={{ width: `${d.score}%` }} 
                 />
               </div>
-              <span className="text-[10px] text-gray-400 block">{d.desc}</span>
+              <span className="text-xs sm:text-sm text-gray-300 font-medium block leading-snug">{d.desc}</span>
             </div>
           ))}
         </div>
       </div>
 
       {/* QUALITATIVE STRENGTHS & DOCUMENTED LIMITATIONS */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 relative z-10 text-xs">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5 relative z-10 text-sm sm:text-base">
         {/* Research Strengths */}
-        <div className="bg-[#0f1917] border border-emerald-500/30 rounded-2xl p-4.5 space-y-2">
-          <div className="flex items-center gap-2 text-emerald-400 font-bold uppercase tracking-wider">
-            <CheckCircle2 className="w-4 h-4" />
+        <div className="bg-[#0f1917] border-2 border-emerald-500/40 rounded-2xl p-5 sm:p-6 space-y-3 shadow-lg">
+          <div className="flex items-center gap-2.5 text-emerald-400 font-black uppercase tracking-wider text-base sm:text-lg border-b border-emerald-500/20 pb-2">
+            <CheckCircle2 className="w-5 h-5" />
             <span>Research Strengths</span>
           </div>
-          <p className="text-gray-300 leading-relaxed">
-            🟢 <strong>Primary:</strong> {snapshot.primary_strength}
+          <p className="text-gray-100 leading-relaxed font-medium">
+            🟢 <strong className="text-white font-black">Primary:</strong> {snapshot.primary_strength}
           </p>
-          <p className="text-gray-400 leading-relaxed">
-            🟢 <strong>Secondary:</strong> {snapshot.secondary_strength}
+          <p className="text-gray-200 leading-relaxed font-medium">
+            🟢 <strong className="text-white font-black">Secondary:</strong> {snapshot.secondary_strength}
           </p>
         </div>
 
         {/* Documented Academic Limitations */}
-        <div className="bg-[#19150f] border border-amber-500/30 rounded-2xl p-4.5 space-y-2">
-          <div className="flex items-center gap-2 text-amber-400 font-bold uppercase tracking-wider">
-            <AlertCircle className="w-4 h-4" />
+        <div className="bg-[#19150f] border-2 border-amber-500/40 rounded-2xl p-5 sm:p-6 space-y-3 shadow-lg">
+          <div className="flex items-center gap-2.5 text-amber-400 font-black uppercase tracking-wider text-base sm:text-lg border-b border-amber-500/20 pb-2">
+            <AlertCircle className="w-5 h-5" />
             <span>Documented Limitations</span>
           </div>
           {snapshot.documented_limitations.map((lim, i) => (
-            <p key={i} className="text-gray-300 leading-relaxed">
+            <p key={i} className="text-gray-100 leading-relaxed font-medium">
               🟡 {lim}
             </p>
           ))}
@@ -367,12 +367,12 @@ export default function ApasificResearchQualityProfile({ article }: Props) {
       </div>
 
       {/* GOVERNANCE DISCLAIMER FOOTER */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-[11px] text-gray-500 border-t border-gray-850 pt-4 relative z-10">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs sm:text-sm text-gray-400 border-t-2 border-gray-800 pt-4 relative z-10">
         <div className="flex items-center gap-2">
           <Info className="w-4 h-4 text-gray-400 flex-shrink-0" />
           <span className="italic">{snapshot.governance_disclaimer}</span>
         </div>
-        <span className="text-gray-400 font-medium">
+        <span className="text-gray-300 font-bold">
           APASIFIC Academic Registry • Immutable Record
         </span>
       </div>
