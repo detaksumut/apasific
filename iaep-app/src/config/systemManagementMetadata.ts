@@ -70,10 +70,10 @@ export const APASIFIC_SYSTEM_MANAGEMENT_METADATA: SystemManagementMetadataConfig
     },
     googleScholar: {
       name: 'Google Scholar Profile ID',
-      id: '89cADYAAAAJ',
+      id: 'e89cADYAAAAJ',
       type: 'Scholar Profile Identifier',
       status: 'REGISTERED',
-      url: 'https://scholar.google.com/citations?user=89cADYAAAAJ',
+      url: 'https://scholar.google.com/citations?user=e89cADYAAAAJ',
       badgeColor: '#4285f4'
     },
     sinta: {
@@ -81,7 +81,7 @@ export const APASIFIC_SYSTEM_MANAGEMENT_METADATA: SystemManagementMetadataConfig
       id: '6019786',
       type: 'National Research Profile Identifier',
       status: 'REGISTERED',
-      url: 'https://sinta.kemdikbud.go.id/authors/profile/6019786',
+      url: 'https://sinta.kemdiktisaintek.go.id/authors/profile/6019786',
       badgeColor: '#10b981'
     }
   },
