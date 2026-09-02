@@ -17,7 +17,16 @@ export async function GET(req: Request) {
     .eq('id', id)
     .single();
 
-  if (sbSub) return NextResponse.json({ submission: sbSub });
+  if (sbSub) {
+    // Fetch LoA record if it exists
+    const { data: loaRecord } = await supabase
+      .from('loa_records')
+      .select('*')
+      .eq('submission_id', id)
+      .maybeSingle();
+
+    return NextResponse.json({ submission: sbSub, loaRecord: loaRecord || null });
+  }
 
   // 2. Firestore fallback
   try {

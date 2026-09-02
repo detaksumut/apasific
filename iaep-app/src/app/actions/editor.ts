@@ -1550,6 +1550,24 @@ export async function recordEditorialDecision(submissionId: string, decision: 'A
             return { success: false, error: transisi.error || 'Keputusan editorial ditolak oleh lifecycle service.' };
         }
 
+        // ── LoA Record Creation (ACCEPTED only) ──
+        let loaRecordCreated = false;
+        if (decision === 'Accepted') {
+            try {
+                const { LoAService } = await import('@/services/LoAService');
+                const loaResult = await LoAService.ensureLoARecord(supabaseAdmin, submissionId);
+                if (loaResult.success) {
+                    loaRecordCreated = true;
+                    if (!loaResult.alreadyExists) {
+                        console.log(`[LoA] Record created for submission ${submissionId}: ${loaResult.record?.loa_number}`);
+                    }
+                } else {
+                    console.warn(`[LoA] Failed to create LoA record for ${submissionId}: ${loaResult.error}`);
+                }
+            } catch (loaErr) {
+                console.error(`[LoA] Error creating LoA record for ${submissionId}:`, loaErr);
+            }
+        }
 
         // Commit successful, trigger Notification Service asynchronously
         let notificationSent = false;

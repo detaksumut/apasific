@@ -6,6 +6,7 @@ import QRCode from 'react-qr-code';
 export default function PrintLoa() {
   const { id } = useParams() as { id: string };
   const [submission, setSubmission] = useState<any>(null);
+  const [loaRecord, setLoaRecord] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -15,6 +16,7 @@ export default function PrintLoa() {
         if (res.ok) {
           const json = await res.json();
           if (json.submission) setSubmission(json.submission);
+          if (json.loaRecord) setLoaRecord(json.loaRecord);
         }
       } catch (e) {
         console.error(e);
@@ -33,10 +35,17 @@ export default function PrintLoa() {
 
   if (loading) return <div className="p-8 text-center text-zinc-500">Memuat data LoA...</div>;
   if (!submission) return <div className="p-8 text-center text-red-500">Naskah tidak ditemukan.</div>;
+  if (!loaRecord) return <div className="p-8 text-center text-red-500">LoA record belum tersedia. Silakan hubungi admin.</div>;
 
-  const dateIssued = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+  // Official LoA Date — PERMANENT, from loa_records.accepted_at (sourced from submission_history)
+  const officialDate = new Date(loaRecord.accepted_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+  // LoA Number — PERMANENT, from loa_records.loa_number
+  const loaNumber = loaRecord.loa_number;
+  // Print Date — DYNAMIC, when the author opens/prints this page
+  const printDate = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
   const authorName = submission.profiles?.full_name || 'Author';
-  const qrData = `Verified by APASIFIC. LOA ID: ${submission.id}. Date: ${dateIssued}. Author: ${authorName}. Journal: ${submission.journals?.name || 'APASIFIC Journal'}`;
+  // QR Code uses Official LoA Date (not Print Date)
+  const qrData = `Verified by APASIFIC. LOA ID: ${submission.id}. Date: ${officialDate}. Author: ${authorName}. Journal: ${submission.journals?.name || 'APASIFIC Journal'}`;
 
   return (
     <div className="bg-white text-black min-h-screen font-serif" style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
@@ -61,11 +70,12 @@ export default function PrintLoa() {
         {/* Letter Info */}
         <div className="flex justify-between items-start mb-10 text-sm">
           <div>
-            <p>Nomor: {submission.id.split('-')[0].toUpperCase()}/LoA/APASIFIC/{new Date().getFullYear()}</p>
+            <p>Nomor: {loaNumber}</p>
             <p>Hal: <strong>Letter of Acceptance (LoA)</strong></p>
           </div>
           <div className="text-right">
-            <p>Tanggal: {dateIssued}</p>
+            <p>Tanggal: {officialDate}</p>
+            <p className="text-[10px] text-gray-400 mt-1">Dicetak pada: {printDate}</p>
           </div>
         </div>
 
