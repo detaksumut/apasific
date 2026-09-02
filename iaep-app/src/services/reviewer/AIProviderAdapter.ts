@@ -9,6 +9,7 @@ export interface AIResponse {
 
 export interface IAIProvider {
   generateAssessment(prompt: string): Promise<AIResponse>;
+  generateText(systemPrompt: string, userMessage: string, history?: Array<{ role: string; content: string }>): Promise<string>;
 }
 
 /**
@@ -121,6 +122,95 @@ export class GeminiProviderAdapter implements IAIProvider {
       return this.validateSchema(parsed);
     } catch (e: any) {
       console.error('[AIProviderAdapter] API call or parsing failed:', e);
+      throw e;
+    }
+  }
+
+  /**
+   * Generate plain text response for conversational AI chat.
+   * Used by AIChatService for the APASIFIC AI chatbot.
+   */
+  public async generateText(
+    systemPrompt: string,
+    userMessage: string,
+    history: Array<{ role: string; content: string }> = []
+  ): Promise<string> {
+    if (!this.apiKey) {
+      throw new Error('NINE_ROUTER_API_KEY or GEMINI_API_KEY is not configured.');
+    }
+
+    const messages = [
+      { role: 'system', content: systemPrompt },
+      ...history.map(h => ({ role: h.role, content: h.content })),
+      { role: 'user', content: userMessage }
+    ];
+
+    try {
+      let response;
+      let rawText = '';
+
+      if (this.apiKey.startsWith('sk-254')) {
+        const baseUrl = process.env.NINE_ROUTER_BASE_URL || 'http://localhost:20128/v1';
+        const apiUrl = `${baseUrl.replace(/\/$/, '')}/chat/completions`;
+        response = await fetch(apiUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${this.apiKey}`
+          },
+          body: JSON.stringify({
+            model: 'UltimateAI',
+            messages,
+            temperature: 0.7,
+            stream: false
+          })
+        });
+        if (!response.ok) throw new Error(`9Router HTTP ${response.status}`);
+        const data = await response.json();
+        rawText = data?.choices?.[0]?.message?.content || '';
+      } else if (this.apiKey.startsWith('sk-or-')) {
+        response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${this.apiKey}`,
+            'HTTP-Referer': 'https://apasific.org',
+            'X-Title': 'APASIFIC IAEP Platform'
+          },
+          body: JSON.stringify({
+            model: 'google/gemini-flash-1.5',
+            messages,
+            temperature: 0.7
+          })
+        });
+        if (!response.ok) throw new Error(`OpenRouter HTTP ${response.status}`);
+        const data = await response.json();
+        rawText = data?.choices?.[0]?.message?.content || '';
+      } else {
+        const contents = messages
+          .filter(m => m.role !== 'system')
+          .map(m => ({ parts: [{ text: m.content }] }));
+        const systemInstruction = messages.find(m => m.role === 'system');
+        const body: Record<string, unknown> = {
+          contents,
+          generationConfig: { temperature: 0.7 }
+        };
+        if (systemInstruction) {
+          body.systemInstruction = { parts: [{ text: systemInstruction.content }] };
+        }
+        response = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${this.apiKey}`,
+          { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }
+        );
+        if (!response.ok) throw new Error(`Gemini HTTP ${response.status}`);
+        const data = await response.json();
+        rawText = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+      }
+
+      return rawText.trim();
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : String(e);
+      console.error('[AIProviderAdapter] generateText failed:', msg);
       throw e;
     }
   }

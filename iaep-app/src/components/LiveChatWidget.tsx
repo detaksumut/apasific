@@ -2,8 +2,9 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { usePathname } from 'next/navigation';
-import { X, Send, MessageCircle } from 'lucide-react';
+import { X, Send, MessageCircle, Bot } from 'lucide-react';
 import { createClient } from '@/utils/supabase/client';
+import AIChatPanel from '@/components/ai/AIChatPanel';
 
 interface ChatMessage {
   id: string;
@@ -17,6 +18,7 @@ interface ChatMessage {
 export default function LiveChatWidget() {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState<'global' | 'ai'>('global');
   const [message, setMessage] = useState('');
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [guestName, setGuestName] = useState('');
@@ -153,14 +155,20 @@ export default function LiveChatWidget() {
             <div className="flex items-center gap-3">
               <div className="relative">
                 <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(201,168,76,0.5)' }}>
-                  <MessageCircle className="w-5 h-5" style={{ color: '#c9a84c' }} />
+                  {activeTab === 'global' ? (
+                    <MessageCircle className="w-5 h-5" style={{ color: '#c9a84c' }} />
+                  ) : (
+                    <Bot className="w-5 h-5" style={{ color: '#c9a84c' }} />
+                  )}
                 </div>
                 <span className="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 rounded-full" style={{ border: '2px solid #111120' }} />
               </div>
               <div className="text-left">
-                <h4 className="font-bold text-sm tracking-wide" style={{ color: '#c9a84c' }}>Global Discussion</h4>
+                <h4 className="font-bold text-sm tracking-wide" style={{ color: '#c9a84c' }}>
+                  {activeTab === 'global' ? 'Global Discussion' : 'APASIFIC AI'}
+                </h4>
                 <p className="text-[10px] text-slate-400 font-medium flex items-center gap-1">
-                  Forum Terbuka APASIFIC
+                  {activeTab === 'global' ? 'Forum Terbuka APASIFIC' : 'Research & Publishing Assistant'}
                 </p>
               </div>
             </div>
@@ -172,77 +180,125 @@ export default function LiveChatWidget() {
             </button>
           </div>
 
-          {/* Chat Body */}
-          <div className="flex-1 overflow-y-auto flex flex-col gap-3" style={{ backgroundColor: '#f8fafc', padding: '16px 14px' }}>
-            <div className="shadow-sm text-[13px] leading-relaxed font-medium self-start" style={{ backgroundColor: '#ffffff', padding: '8px 14px', borderRadius: '16px', borderTopLeftRadius: '4px', border: '1px solid #e2e8f0', color: '#334155', maxWidth: '90%' }}>
-              Selamat datang di Forum Global APASIFIC! Silakan berdiskusi atau bertanya bebas di sini.
-            </div>
-            
-            {messages.map((msg) => {
-              const isMine = user ? msg.user_id === user.id : msg.guest_name === guestName && !msg.user_id;
-              const senderName = msg.user_id ? 'Registered User' : msg.guest_name || 'Guest';
-              
-              return (
-                <div key={msg.id} className={`flex flex-col ${isMine ? 'self-end items-end' : 'self-start items-start'}`} style={{ maxWidth: '85%' }}>
-                  <span className="font-bold mb-1 mx-1" style={{ fontSize: '9px', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{senderName}</span>
-                  <div className="shadow-sm text-[13px] leading-relaxed break-words" 
-                    style={{ 
-                      padding: '8px 14px', 
-                      borderRadius: '16px',
-                      borderTopRightRadius: isMine ? '4px' : '16px',
-                      borderTopLeftRadius: isMine ? '16px' : '4px',
-                      backgroundColor: isMine ? '#c9a84c' : '#ffffff',
-                      color: isMine ? '#ffffff' : '#334155',
-                      border: isMine ? 'none' : '1px solid #e2e8f0',
-                      fontWeight: isMine ? '500' : '400'
-                    }}>
-                    {msg.message}
-                  </div>
-                </div>
-              );
-            })}
-            <div ref={messagesEndRef} />
+          {/* Tab Switcher */}
+          <div className="flex" style={{ borderBottom: '1px solid rgba(201,168,76,0.15)' }}>
+            <button
+              onClick={() => setActiveTab('global')}
+              className="flex-1 flex items-center justify-center gap-2 py-2.5 text-[11px] font-bold transition-all cursor-pointer border-none outline-none"
+              style={{
+                backgroundColor: activeTab === 'global' ? 'rgba(201,168,76,0.1)' : 'transparent',
+                color: activeTab === 'global' ? '#c9a84c' : '#64748b',
+                borderBottom: activeTab === 'global' ? '2px solid #c9a84c' : '2px solid transparent'
+              }}
+            >
+              <MessageCircle className="w-3.5 h-3.5" />
+              Global Discussion
+            </button>
+            <button
+              onClick={() => setActiveTab('ai')}
+              className="flex-1 flex items-center justify-center gap-2 py-2.5 text-[11px] font-bold transition-all cursor-pointer border-none outline-none"
+              style={{
+                backgroundColor: activeTab === 'ai' ? 'rgba(201,168,76,0.1)' : 'transparent',
+                color: activeTab === 'ai' ? '#c9a84c' : '#64748b',
+                borderBottom: activeTab === 'ai' ? '2px solid #c9a84c' : '2px solid transparent'
+              }}
+            >
+              <Bot className="w-3.5 h-3.5" />
+              APASIFIC AI
+            </button>
           </div>
 
-          {/* Chat Footer / Form */}
-          {isAskingName ? (
-             <form onSubmit={handleSetGuestName} className="bg-white flex flex-col gap-2" style={{ padding: '12px', borderTop: '1px solid rgba(201,168,76,0.2)' }}>
-                <p className="text-[11px] font-medium" style={{ color: '#64748b' }}>Silakan masukkan nama Anda</p>
-                <div className="flex gap-2">
+          {/* Content Area — Tab: Global Discussion */}
+          {activeTab === 'global' && (
+            <>
+              {/* Chat Body */}
+              <div className="flex-1 overflow-y-auto flex flex-col gap-3" style={{ backgroundColor: '#f8fafc', padding: '16px 14px' }}>
+                <div className="shadow-sm self-start" style={{ backgroundColor: '#ffffff', padding: '10px 14px', borderRadius: '16px', borderTopLeftRadius: '4px', border: '1px solid #e2e8f0', color: '#1e293b', maxWidth: '90%', fontSize: '14px', lineHeight: '1.6', fontWeight: '500', whiteSpace: 'pre-wrap' }}>
+                  Selamat datang di Forum Global APASIFIC! Silakan berdiskusi atau bertanya bebas di sini.
+                </div>
+                
+                {messages.map((msg) => {
+                  const isMine = user ? msg.user_id === user.id : msg.guest_name === guestName && !msg.user_id;
+                  const senderName = msg.user_id ? 'Registered User' : msg.guest_name || 'Guest';
+                  
+                  return (
+                    <div key={msg.id} className={`flex flex-col ${isMine ? 'self-end items-end' : 'self-start items-start'}`} style={{ maxWidth: '85%' }}>
+                      <span className="font-semibold mb-1 mx-1" style={{ fontSize: '10px', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{senderName}</span>
+                      <div className="shadow-sm break-words" 
+                        style={{ 
+                          padding: '10px 14px', 
+                          borderRadius: '16px',
+                          borderTopRightRadius: isMine ? '4px' : '16px',
+                          borderTopLeftRadius: isMine ? '16px' : '4px',
+                          backgroundColor: isMine ? '#c9a84c' : '#ffffff',
+                          color: isMine ? '#ffffff' : '#1e293b',
+                          border: isMine ? 'none' : '1px solid #e2e8f0',
+                          fontWeight: isMine ? '500' : '400',
+                          fontSize: '14px',
+                          lineHeight: '1.6',
+                          whiteSpace: 'pre-wrap'
+                        }}>
+                        {msg.message}
+                      </div>
+                    </div>
+                  );
+                })}
+                <div ref={messagesEndRef} />
+              </div>
+
+              {/* Chat Footer / Form */}
+              {isAskingName ? (
+                <form onSubmit={handleSetGuestName} className="bg-white flex flex-col gap-2" style={{ padding: '12px', borderTop: '1px solid rgba(201,168,76,0.2)' }}>
+                  <p className="font-medium" style={{ fontSize: '13px', color: '#475569' }}>Silakan masukkan nama Anda</p>
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      placeholder="Nama Anda..."
+                      value={guestName}
+                      onChange={(e) => setGuestName(e.target.value)}
+                      className="flex-grow font-medium bg-white shadow-sm focus:outline-none"
+                      style={{ borderRadius: '9999px', padding: '10px 16px', border: '1px solid #cbd5e1', color: '#0f172a', fontSize: '14px' }}
+                      autoFocus
+                    />
+                    <button type="submit" className="rounded-full text-[13px] font-bold transition-colors shadow-md" style={{ padding: '10px 20px', backgroundColor: '#111120', color: '#c9a84c', border: 'none', cursor: 'pointer' }}>
+                      OK
+                    </button>
+                  </div>
+                </form>
+              ) : (
+                <form onSubmit={handleStartChat} className="bg-white flex items-center gap-2" style={{ padding: '12px', borderTop: '1px solid rgba(201,168,76,0.2)' }}>
                   <input
                     type="text"
-                    placeholder="Nama Anda..."
-                    value={guestName}
-                    onChange={(e) => setGuestName(e.target.value)}
-                    className="flex-grow text-[13px] font-medium bg-white shadow-sm focus:outline-none"
-                    style={{ borderRadius: '9999px', padding: '10px 16px', border: '1px solid #cbd5e1', color: '#0f172a' }}
-                    autoFocus
+                    placeholder="Tulis pesan..."
+                    value={message}
+                    onChange={(e) => setMessage(e.target.value)}
+                    className="flex-grow font-medium bg-white focus:outline-none transition-colors"
+                    style={{ borderRadius: '9999px', padding: '10px 16px', border: '1px solid #e2e8f0', color: '#0f172a', backgroundColor: '#f8fafc', fontSize: '14px' }}
                   />
-                  <button type="submit" className="rounded-full text-[13px] font-bold transition-colors shadow-md" style={{ padding: '10px 20px', backgroundColor: '#111120', color: '#c9a84c', border: 'none', cursor: 'pointer' }}>
-                    OK
+                  <button
+                    type="submit"
+                    disabled={!message.trim()}
+                    className="rounded-full flex items-center justify-center shadow-md transition-transform hover:scale-105 cursor-pointer shrink-0 outline-none disabled:opacity-50 disabled:hover:scale-100"
+                    style={{ width: '40px', height: '40px', backgroundColor: '#c9a84c', border: 'none' }}
+                    title="Kirim Pesan"
+                  >
+                    <Send className="w-[18px] h-[18px]" style={{ color: '#ffffff', marginLeft: '2px' }} />
                   </button>
-                </div>
-             </form>
-          ) : (
-            <form onSubmit={handleStartChat} className="bg-white flex items-center gap-2" style={{ padding: '12px', borderTop: '1px solid rgba(201,168,76,0.2)' }}>
-              <input
-                type="text"
-                placeholder="Tulis pesan..."
-                value={message}
-                onChange={(e) => setMessage(e.target.value)}
-                className="flex-grow text-[13px] font-medium bg-white focus:outline-none transition-colors"
-                style={{ borderRadius: '9999px', padding: '10px 16px', border: '1px solid #e2e8f0', color: '#0f172a', backgroundColor: '#f8fafc' }}
+                </form>
+              )}
+            </>
+          )}
+
+          {/* Content Area — Tab: APASIFIC AI */}
+          {activeTab === 'ai' && (
+            <div className="flex-1 overflow-hidden">
+              <AIChatPanel
+                isLoggedIn={!!user}
+                onLoginRequest={() => {
+                  window.location.href = '/auth/login';
+                }}
               />
-              <button
-                type="submit"
-                disabled={!message.trim()}
-                className="rounded-full flex items-center justify-center shadow-md transition-transform hover:scale-105 cursor-pointer shrink-0 outline-none disabled:opacity-50 disabled:hover:scale-100"
-                style={{ width: '40px', height: '40px', backgroundColor: '#c9a84c', border: 'none' }}
-                title="Kirim Pesan"
-              >
-                <Send className="w-[18px] h-[18px]" style={{ color: '#ffffff', marginLeft: '2px' }} />
-              </button>
-            </form>
+            </div>
           )}
         </div>
       )}
