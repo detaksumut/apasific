@@ -2,9 +2,6 @@
 
 import { IdentityRepository } from "@/repositories/IdentityRepository";
 
-import fs from 'fs';
-import path from 'path';
-
 export async function signUpUser(formData: any): Promise<{ success: boolean; error?: string }> {
   const { createClient } = await import("@/utils/supabase/server");
   const supabase = await createClient();
@@ -63,15 +60,6 @@ export async function signUpUser(formData: any): Promise<{ success: boolean; err
     
     if (!settingsError && settingsData && settingsData.value) {
       existingUsers = Array.isArray(settingsData.value) ? settingsData.value : JSON.parse(settingsData.value as string);
-    } else {
-      try {
-        const DATA_FILE = path.join(process.cwd(), 'apasific_registered_users.json');
-        if (fs.existsSync(DATA_FILE)) {
-          existingUsers = JSON.parse(fs.readFileSync(DATA_FILE, 'utf8'));
-        }
-      } catch (e) {
-        console.error("Error reading local users during registration", e);
-      }
     }
     
     // Prevent duplicates by email
@@ -84,13 +72,6 @@ export async function signUpUser(formData: any): Promise<{ success: boolean; err
       
     if (upsertError) {
       console.error("Failed to save to Supabase:", upsertError);
-      // Fallback to local file for demo purposes so it always works
-      try {
-        const DATA_FILE = path.join(process.cwd(), 'apasific_registered_users.json');
-        fs.writeFileSync(DATA_FILE, JSON.stringify(existingUsers, null, 2));
-      } catch (e) {
-        console.error(e);
-      }
     }
 
     // Simpan juga ke tabel profiles dengan email (database proper)
@@ -135,26 +116,12 @@ export async function loginUser(email: string, password?: string): Promise<{ suc
       process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
     );
     
-    // We will look up the user first to get their full name for migration
-    const DATA_FILE = require('path').join(process.cwd(), 'apasific_registered_users.json');
-    const fs = require('fs');
-    let localUsers = [];
-    if (fs.existsSync(DATA_FILE)) {
-       localUsers = JSON.parse(fs.readFileSync(DATA_FILE, 'utf8'));
-    }
+    // Load users from Supabase system_settings (single source of truth)
+    let localUsers: any[] = [];
     try {
        const { data: settingsData } = await supabaseAdmin.from('system_settings').select('value').eq('key', 'apasific_registered_users').single();
        if (settingsData && settingsData.value) {
-           const sbUsers = Array.isArray(settingsData.value) ? settingsData.value : JSON.parse(settingsData.value as string);
-           for (let su of sbUsers) {
-               if (!localUsers.find((lu: any) => lu.email.toLowerCase() === su.email.toLowerCase())) {
-                   localUsers.push(su);
-               } else {
-                   // overwrite local user with supabase user data (e.g. password updates)
-                   const idx = localUsers.findIndex((lu: any) => lu.email.toLowerCase() === su.email.toLowerCase());
-                   localUsers[idx] = { ...localUsers[idx], ...su };
-               }
-           }
+           localUsers = Array.isArray(settingsData.value) ? settingsData.value : JSON.parse(settingsData.value as string);
        }
     } catch(e) {
        console.error("Error fetching users from Supabase for login:", e);
