@@ -136,8 +136,8 @@ export default async function Home() {
       }
     </style>
     <div class="hero-logo-overlay">
-      <img src="/logobaru.png"
-           alt="ASIA Logo"
+      <img src="/logoapasificbaru.png"
+           alt="APASIFIC Logo"
            class="hero-logo-img"
            width="500"
            height="500"
