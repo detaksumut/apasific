@@ -1,300 +1,180 @@
-# APASIFIC / IAEP – Commit Rules
+# APASIFIC / IAEP – Commit Rules & Repository Safety Guide
 
-> **MANDATORY RULE:** Before modifying, staging, committing, or pushing changes,
-> read this document completely.
+> **MANDATORY RULE:** Sebelum melakukan perubahan, staging, committing, atau pushing kode pada repository ini,
+> baca dan patuhi dokumen ini sepenuhnya.
 
-## AI / OpenCode Working Rule
+---
 
-Any AI coding agent working in this repository MUST:
+## AI / Developer Working Rules
 
-1. Read `COMMIT_RULES.md` before proposing Git operations.
-2. Never run `git add .`, `git add -A`, or commit automatically.
-3. Show `git status` before staging files.
-4. Show the exact files proposed for staging.
-5. Wait for explicit approval before `git commit` or `git push`.
+Setiap agen AI atau pengembang yang bekerja di repository ini WAJIB:
 
-## 1. Purpose
-Dokumen ini adalah SOP wajib sebelum melakukan perubahan, staging, commit, dan push pada repository.
+1. Membaca `COMMIT_RULES.md` sebelum mengusulkan atau menjalankan operasi Git.
+2. **DILARANG** menjalankan `git add .`, `git add -A`, atau `git commit -a` secara otomatis/membabi buta.
+3. Selalu tampilkan `git status` sebelum men-stage file.
+4. Tampilkan daftar file spesifik yang akan di-stage beserta alasan perubahannya (`git diff --stat`).
+5. Tunggu konfirmasi eksplisit dari pengguna sebelum menjalankan `git commit` atau `git push`.
 
-Tujuan utama:
-- mencegah file yang salah ikut ter-commit;
-- menjaga aplikasi iaep-app tetap stabil;
-- mencegah backup, build artifacts, dependency, dan file sementara masuk Git;
-- memastikan perubahan sensitif diverifikasi sebelum commit.
+---
 
-## 2. Repository Structure
+## 1. Purpose (Tujuan)
 
-Current repository structure:
+Dokumen ini adalah Standard Operating Procedure (SOP) resmi untuk menjaga stabilitas repository:
+- Mencegah file cache, temporary files, worktree, atau file yang salah ikut ter-commit ke GitHub.
+- Menjaga aplikasi `iaep-app` tetap stabil dan selalu sinkron dengan standar production.
+- Mencegah kebocoran secret / credentials (`.env`, private keys, token).
+- Memastikan setiap perubahan terverifikasi dan terdokumentasi dengan baik.
+
+---
+
+## 2. Repository Structure (Struktur Terkini)
+
+Repository ini memiliki struktur kerja sebagai berikut:
 
 ```
-iaep-baseline-73c1fe4/
-├── iaep-app/                  ← aplikasi Next.js utama / production application
-├── iaep-app-backup-before-july31-restore/ ← backup/legacy, jangan diubah sembarangan
-├── docs/                      ← dokumentasi (jika ada)
-├── public/                    ← legacy/root assets, jangan dipindahkan tanpa audit
-├── berbagai file HTML root    ← legacy files, jangan dihapus/migrasikan tanpa verifikasi
-└── COMMIT_RULES.md
+D:\Users\apasific/                         ← ROOT REPOSITORY (Branch: main)
+├── iaep-app/                              ← APLIKASI UTAMA (Next.js App Router, Port 3000 & Production)
+│   ├── src/                               ← Source code aktif (App Router, components, lib, services)
+│   ├── public/                            ← Assets aktif aplikasi web (images, logos, official PDFs)
+│   └── package.json                       ← Script & dependencies aplikasi
+│
+├── public/                                ← Shared / Legacy assets di level root
+├── *.html (misal academy.html, boc.html)  ← Halaman HTML statis ASIA (jangan dihapus sembarangan)
+│
+├── [PROTECTED WORKTREES - JANGAN DIGANGGU]:
+│   ├── iaep-baseline-6811484/             ← Git worktree referensi baseline lama
+│   └── iaep-baseline-73c1fe4/             ← Git worktree referensi baseline
+│
+├── .gitignore
+└── COMMIT_RULES.md                        ← Dokumen panduan ini
 ```
 
-### Application Policy
+### Kebijakan Aplikasi:
+- `iaep-app/` adalah satu-satunya aplikasi web aktif yang dideploy ke production (https://www.apasific.org) dan dijalankan di localhost (`npm run dev`).
+- Folder `iaep-baseline-*` adalah **Git worktree terproteksi**. Jangan pernah memodifikasi, menghapus, atau men-stage folder baseline ini ke branch `main`.
 
-`iaep-app/` adalah aplikasi Next.js utama dan production application.
+---
 
-Jangan melakukan restrukturisasi besar hanya untuk tujuan kerapian tanpa kebutuhan teknis yang jelas.
+## 3. Golden Rule (Alur Kerja Staging & Commit)
 
-## 3. Golden Rule
+Sebelum membuat commit, ikuti 5 langkah wajib:
 
-Sebelum commit WAJIB:
-
-1. Jalankan:
-   ```
+1. **Periksa status kerja saat ini:**
+   ```bash
    git status
    ```
-
-2. Periksa perubahan:
-   ```
+2. **Periksa ringkasan dan detail diff:**
+   ```bash
    git diff --stat
-   git diff
+   git diff <file-path>
    ```
-
-3. Stage file secara spesifik:
+3. **Stage HANYA file yang benar-benar diubah:**
+   ```bash
+   git add <file-path-spesifik>
    ```
-   git add <file-path>
+4. **Verifikasi file yang telah di-stage:**
+   ```bash
+   git diff --cached --stat
    ```
+5. **Buat commit terstruktur setelah verifikasi aman.**
 
-4. Periksa staged changes:
-   ```
-   git diff --cached
-   ```
+---
 
-5. Baru commit jika seluruh perubahan benar.
+## 4. STRICTLY PROHIBITED (Larangan Mutlak)
 
-## 4. STRICTLY PROHIBITED
-
-Jangan melakukan hal berikut tanpa audit eksplisit:
+Dilarang keras melakukan hal-hal berikut:
 
 - `git add .`
 - `git add -A`
 - `git commit -a`
+- Men-stage folder worktree (`iaep-baseline-*`).
 
-Jangan commit:
-
+**Dilarang men-commit:**
 - `node_modules/`
-- `.next/`
+- `.next/` (build cache)
 - `.vercel/`
-- build artifacts
-- temporary files
-- cache
-- backup snapshots
-- deployment snapshots
-- credential
-- `.env` files
-- private keys
-- generated files yang tidak diperlukan
+- Build artifacts & temporary files (*.log, *.tmp)
+- Credentials, private keys, dan file environment (`.env`, `.env.local`, `.env.production`)
+- File backup snapshot darurat (`*.bak`, `*.before-*`)
 
-## 5. Sensitive Files
+---
 
-File berikut harus diperlakukan sebagai SENSITIVE:
+## 5. Status File Sensitif & Auth Registry
 
 ```
 iaep-app/apasific_registered_users.json
 ```
 
-Sebelum file ini di-stage:
+**Konteks & Aturan Terkini:**
+- Pada commit `3d87d1e2`, ketergantungan runtime autentikasi terhadap file JSON lokal ini **telah diputus** demi keamanan, beralih ke database Supabase terpusat dan OAuth ORCID resmi.
+- Walaupun tidak lagi menjadi penentu utama runtime login, file ini **tetap berstatus sensitif** sebagai cadangan data / seed awal.
+- Jangan mengubah, menimpa, atau menghapus file ini tanpa verifikasi eksplisit struktur datanya.
 
-- bandingkan dengan HEAD;
-- pastikan jumlah user tidak berubah tanpa alasan;
-- periksa apakah field credential berubah;
-- jangan menghapus `password`/`password_hash` hanya karena ingin "cleanup";
-- pastikan perubahan tidak menyebabkan user kehilangan kemampuan login;
-- lakukan pengujian login yang relevan.
+---
 
-Gunakan pemeriksaan:
+## 6. Authentication & Ecosystem Safety Rule
 
-```
-git diff -- iaep-app/apasific_registered_users.json
-```
+Aplikasi APASIFIC mengoperasikan ekosistem autentikasi multi-peran:
+- **Peneliti / Author:** Wajib menggunakan autentikasi ORCID iD resmi (`/api/auth/orcid`).
+- **Reviewer (Mitra Bestari):** Menggunakan portal telaah independen terverifikasi.
+- **Editorial & Staf:** Menggunakan panel redaksi internal.
 
-dan verifikasi struktur JSON.
+Jika ada perubahan yang menyentuh logika autentikasi, middleware, context identitas (`IdentityContext`), atau halaman `/auth/login`:
+1. **Wajib diuji di browser secara menyeluruh** sebelum di-commit.
+2. Jangan menganggap perubahan aman hanya karena perintah `build` sukses.
 
-## 6. Authentication Safety Rule
+---
 
-Jangan mengubah sistem login tanpa alasan yang jelas dan pengujian.
+## 7. Asset & Legacy HTML Rules
 
-Peran login yang harus tetap diperhatikan:
+1. **Asset Gambar & Dokumen Resmi:**
+   - Semua logo resmi (`logoapasificbaru.png`, `APASIFIC.png`, dll.) dan dokumen panduan resmi (`APASIFIC_Author_...pdf`) di `iaep-app/public/` adalah bagian dari identitas publikasi.
+   - Jangan menghapus atau memindahkan asset tanpa memastikan tidak ada tautan atau komponen yang merujuknya.
+2. **File HTML Statis di Root:**
+   - Puluhan file `*.html` di root repository masih melayani halaman profil divisi akademik ASIA. Jangan menghapus atau mengubah namanya tanpa audit referensi.
 
-- Author → login melalui ORCID sesuai implementasi aktif;
-- Editor;
-- Reviewer;
-- Staff Editor;
-- role administratif lain yang terkait.
+---
 
-Jika perubahan menyentuh authentication, authorization, user data, role, middleware, API auth, atau login page:
+## 8. Commit Message Standard
 
-WAJIB melakukan pengujian sebelum commit.
-
-Jangan menganggap perubahan auth aman hanya karena aplikasi berhasil build.
-
-## 7. Application Boundary
-
-Perubahan aplikasi utama harus sebisa mungkin berada di:
+Gunakan standar **Conventional Commits**:
 
 ```
-iaep-app/
+<type>(<scope>): <deskripsi singkat perubahan>
 ```
 
-Jika ada file di root repository yang ingin dipindahkan:
+Tipe yang diizinkan:
+- `feat`: Menambah fitur baru
+- `fix`: Memperbaiki bug atau kesalahan fungsi
+- `style`: Perubahan tampilan visual, styling, logo, atau CSS tanpa mengubah logika
+- `refactor`: Restrukturisasi kode tanpa mengubah fungsionalitas
+- `chore`: Pemeliharaan file konfigurasi, asset, gitignore, atau rules
+- `docs`: Pembaruan dokumentasi
 
-STOP.
+Contoh yang benar:
+- `style(home): update hero section logo to logoapasificbaru.png`
+- `fix(auth): resolve session handling on reviewer portal`
+- `chore(repo): update commit rules to match current architecture`
 
-Jangan langsung Move-Item atau melakukan migrasi massal.
+*Hindari pesan tidak bermakna seperti: "update", "fix", "test", atau "perubahan".*
 
-Harus terlebih dahulu:
+---
 
-1. cari seluruh referensi file;
-2. pastikan apakah file masih digunakan;
-3. buat rencana migrasi;
-4. lakukan perubahan kecil;
-5. test aplikasi;
-6. baru commit.
+## 9. Checklist Sebelum Push ke Remote (GitHub)
 
-## 8. Legacy HTML Rule
+Sebelum menjalankan `git push`:
 
-Repository memiliki sejumlah file HTML di root.
+- [ ] Berada di branch yang benar (`main`).
+- [ ] Menjalankan `git status` dan memastikan working tree bersih dari perubahan tak disengaja.
+- [ ] Menjalankan `git log -n 5 --oneline` untuk memverifikasi commit yang akan terkirim.
+- [ ] Tidak ada file `.env` atau credential rahasia yang terbawa.
+- [ ] Localhost sudah diuji dan berjalan normal tanpa error.
+- [ ] Mendapatkan konfirmasi eksplisit dari pengguna.
 
-Jangan:
+---
 
-- menghapus;
-- memindahkan;
-- mengganti nama;
-- mengabaikan;
+## 10. Prinsip Utama: STABILITY FIRST
 
-file HTML root hanya karena tidak terlihat sebagai route Next.js.
-
-Sebelum perubahan harus dilakukan pencarian referensi terlebih dahulu.
-
-## 9. Asset Rule
-
-Sebelum memindahkan asset dari root/public atau lokasi lain:
-
-- cari referensi asset di source;
-- pastikan lokasi runtime yang digunakan aplikasi;
-- pastikan URL asset tetap bekerja;
-- lakukan test halaman terkait.
-
-Jangan melakukan mass move asset.
-
-## 10. Backup Rule
-
-Folder backup dan deployment snapshot bukan bagian dari perubahan aplikasi normal.
-
-Jangan:
-
-- mengedit backup;
-- melakukan commit snapshot baru tanpa alasan;
-- mencampurkan source aktif dengan backup.
-
-Jika backup perlu dipindahkan atau dihapus, lakukan sebagai pekerjaan terpisah dengan verifikasi khusus.
-
-## 11. Before Every Commit Checklist
-
-Gunakan checklist:
-
-- [ ] Saya berada di branch yang benar
-- [ ] Saya sudah menjalankan git status
-- [ ] Saya tahu alasan setiap file berubah
-- [ ] Saya sudah memeriksa git diff
-- [ ] Saya tidak menggunakan git add . atau git add -A
-- [ ] Saya hanya melakukan git add pada file yang diperlukan
-- [ ] Saya sudah menjalankan git diff --cached
-- [ ] Tidak ada node_modules atau .next
-- [ ] Tidak ada .env atau credential
-- [ ] Tidak ada backup/snapshot yang tidak disengaja
-- [ ] Perubahan aplikasi telah diuji sesuai dampaknya
-- [ ] Jika auth berubah, login telah diuji
-- [ ] Jika user JSON berubah, data dan login telah diverifikasi
-
-## 12. Commit Message Standard
-
-Gunakan Conventional Commit sederhana:
-
-```
-feat(scope): ...
-fix(scope): ...
-style(scope): ...
-docs(scope): ...
-refactor(scope): ...
-chore(scope): ...
-```
-
-Contoh:
-
-```
-fix(login): resolve local authentication route
-feat(metadata): add persistent research identifier
-docs(repo): add commit safety rules
-```
-
-Jangan gunakan pesan seperti:
-
-```
-update
-fix
-changes
-test
-```
-
-tanpa penjelasan.
-
-## 13. Before Push
-
-Sebelum push:
-
-```
-git status
-git log --oneline -5
-```
-
-Pastikan:
-
-- branch benar;
-- commit yang akan dikirim benar;
-- tidak ada perubahan penting yang belum ter-commit;
-- tidak ada file sensitif ikut commit.
-
-## 14. Emergency Rule
-
-Jika ragu apakah suatu file boleh:
-
-- diubah;
-- dipindahkan;
-- dihapus;
-- di-stage;
-
-maka JANGAN lakukan perubahan.
-
-Lakukan pemeriksaan terlebih dahulu.
-
-Prinsip:
-
-```
-WHEN IN DOUBT, DO NOT STAGE.
-```
-
-## 15. Current Repository Policy
-
-Saat ini prioritas adalah:
-
-```
-STABILITY FIRST.
-```
-
-Jangan melakukan refactor atau restrukturisasi besar hanya demi kerapian.
-
-Aplikasi yang sudah stabil lebih penting daripada struktur yang terlihat lebih rapi tetapi berisiko merusak:
-
-- login;
-- routing;
-- asset loading;
-- deployment;
-- user data.
+Kaidah utama dalam pemeliharaan repository APASIFIC:
+> **Aplikasi yang stabil dan terverifikasi jauh lebih berharga daripada restrukturisasi yang terburu-buru.**
+> Jika ragu (*When in doubt*): **JANGAN STAGE, JANGAN COMMIT, PERIKSA DAHULU.**
