@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   removeBibliography, 
   extractParagraphs, 
@@ -21,7 +21,9 @@ import {
   CheckCircle2, 
   BookOpen, 
   Quote, 
-  Sparkles 
+  Sparkles,
+  X,
+  ExternalLink
 } from 'lucide-react';
 
 const SAMPLE_ACADEMIC_TEXT = `Pendidikan tinggi di era transformasi digital menuntut integrasi teknologi yang komprehensif dalam kurikulum pembelajaran. Berbagai institusi pendidikan mulai mengadopsi model pembelajaran hibrida untuk meningkatkan fleksibilitas dan daya serap mahasiswa.
@@ -40,18 +42,32 @@ export default function PublicAuthorSimilaritySection() {
   const [progress, setProgress] = useState(0);
   const [report, setReport] = useState<PlagiarismReport | null>(null);
   const [showExplanation, setShowExplanation] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  // Close modal on Escape key press
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isModalOpen) {
+        setIsModalOpen(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isModalOpen]);
 
   const wordCount = inputText.trim() ? inputText.trim().split(/\s+/).filter(Boolean).length : 0;
 
   const handleLoadSample = () => {
     setInputText(SAMPLE_ACADEMIC_TEXT);
     setReport(null);
+    setIsModalOpen(false);
   };
 
   const handleClear = () => {
     setInputText('');
     setReport(null);
     setProgress(0);
+    setIsModalOpen(false);
   };
 
   const handleAnalyze = async () => {
@@ -70,14 +86,16 @@ export default function PublicAuthorSimilaritySection() {
 
     if (total === 0) {
       setIsChecking(false);
-      setReport({
+      const emptyReport: PlagiarismReport = {
         totalParagraphs: 0,
         checkedParagraphs: 0,
         plagiarizedParagraphs: 0,
         plagiarismPercentage: 0,
         riskSignalSummary: 'NO_HIGH_RISK_SIGNAL',
         results: []
-      });
+      };
+      setReport(emptyReport);
+      setIsModalOpen(true);
       return;
     }
 
@@ -123,16 +141,18 @@ export default function PublicAuthorSimilaritySection() {
         ? 'HIGH_RISK_SIGNAL_DETECTED' 
         : (reviewCount > 0 ? 'REVIEW_RECOMMENDED' : 'NO_HIGH_RISK_SIGNAL');
 
-    setReport({
+    const generatedReport: PlagiarismReport = {
       totalParagraphs: paragraphs.length,
       checkedParagraphs: results.length,
       plagiarizedParagraphs: highRiskCount,
       plagiarismPercentage: avgScore,
       riskSignalSummary,
       results
-    });
+    };
 
+    setReport(generatedReport);
     setIsChecking(false);
+    setIsModalOpen(true); // Otomatis membuka modal pop-up hasil
   };
 
   const handleDownloadReport = () => {
@@ -206,7 +226,7 @@ export default function PublicAuthorSimilaritySection() {
               </h3>
               <p className="text-sm text-gray-400 mt-2 max-w-3xl leading-relaxed">
                 Fasilitas uji mandiri pra-penyerahan naskah. Mesin secara otomatis <strong>mengabaikan Daftar Pustaka</strong>, 
-                mengenali <strong>sitasi ilmiah bersumber resmi</strong>, dan mengevaluasi kontinuitas kata identik (CML $\ge$ 20 kata).
+                mengenali <strong>sitasi ilmiah bersumber resmi</strong>, dan mengevaluasi kontinuitas kata identik (CML &ge; 20 kata).
               </p>
             </div>
 
@@ -292,21 +312,32 @@ export default function PublicAuthorSimilaritySection() {
 
             <textarea
               id="manuscript-input"
-              rows={7}
+              rows={6}
               value={inputText}
               onChange={(e) => setInputText(e.target.value)}
               placeholder="Tempel draf artikel ilmiah Anda di sini (minimal 30 kata)... Termasuk kutipan atau daftar pustaka (sistem akan otomatis memilah dan membersihkannya)."
               className="w-full bg-[#05050d] border border-gray-800 focus:border-[#c9a84c] rounded-2xl p-4 sm:p-5 text-gray-200 text-sm leading-relaxed placeholder:text-gray-600 focus:outline-none focus:ring-1 focus:ring-[#c9a84c]/50 transition font-sans"
             />
 
-            {/* Action Buttons & Progress Bar */}
+            {/* Action Bar */}
             <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-2">
               <div className="flex items-center gap-2 text-xs text-gray-400">
                 <Info className="w-4 h-4 text-[#c9a84c] flex-shrink-0" />
-                <span>Pemeriksaan instan berbasis per-paragraf alami &amp; kontinuitas leksikal.</span>
+                <span>Hasil pengecekan akan ditampilkan secara mendalam dalam jendela Pop-up interaktif.</span>
               </div>
 
               <div className="flex items-center gap-3 w-full sm:w-auto">
+                {report && (
+                  <button
+                    type="button"
+                    onClick={() => setIsModalOpen(true)}
+                    className="px-4 py-2.5 rounded-xl text-xs font-semibold bg-[#181932] hover:bg-[#222446] text-[#e8c97a] border border-[#c9a84c]/40 transition flex items-center justify-center gap-2 flex-1 sm:flex-initial"
+                  >
+                    <ExternalLink className="w-3.5 h-3.5" />
+                    Buka Hasil Pop-up
+                  </button>
+                )}
+
                 <button
                   type="button"
                   onClick={handleAnalyze}
@@ -337,17 +368,92 @@ export default function PublicAuthorSimilaritySection() {
                 />
               </div>
             )}
+
+            {/* Quick Result Banner (if report is ready and modal closed) */}
+            {report && !isModalOpen && !isChecking && (
+              <div className="mt-4 p-4 bg-[#101224] border border-[#c9a84c]/30 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-3 animate-in fade-in duration-300">
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center flex-shrink-0">
+                    <CheckCircle2 className="w-5 h-5 text-emerald-400" />
+                  </div>
+                  <div>
+                    <div className="text-xs font-bold text-white flex items-center gap-2">
+                      Analisis Selesai &bull; Indeks Kemiripan: 
+                      <span className={`font-mono text-sm ${
+                        report.plagiarismPercentage > 20 ? 'text-red-400' : 'text-emerald-400'
+                      }`}>
+                        {report.plagiarismPercentage}%
+                      </span>
+                    </div>
+                    <div className="text-[11px] text-gray-400">
+                      {report.totalParagraphs} paragraf dinilai &bull; {report.plagiarizedParagraphs} paragraf berisiko tinggi (CML &ge; 20 kata).
+                    </div>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setIsModalOpen(true)}
+                  className="px-4 py-2 rounded-xl text-xs font-bold bg-[#c9a84c] hover:bg-[#b8953c] text-black transition flex items-center gap-1.5 shadow-md shadow-[#c9a84c]/20"
+                >
+                  <ExternalLink className="w-3.5 h-3.5" />
+                  Buka Modal Hasil Lengkap
+                </button>
+              </div>
+            )}
           </div>
 
-          {/* Analysis Results Section */}
-          {report && (
-            <div className="mt-10 border-t border-gray-800/80 pt-8 space-y-6 animate-in fade-in slide-in-from-bottom-3 duration-500 relative z-10">
+        </div>
+
+      </div>
+
+      {/* ═══════════════════════════════════════════════════════════════════
+           MODAL POP-UP HASIL CEK PLAGIARISME MANDIRI PENULIS
+      ═══════════════════════════════════════════════════════════════════ */}
+      {isModalOpen && report && (
+        <div className="fixed inset-0 z-[9999] bg-black/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 overflow-hidden animate-in fade-in duration-200">
+          
+          <div className="bg-[#0b0c18] border border-[#c9a84c]/40 rounded-3xl max-w-5xl w-full max-h-[92vh] flex flex-col shadow-[0_25px_80px_rgba(0,0,0,0.9)] relative overflow-hidden text-gray-200 animate-in zoom-in-95 duration-200">
+            
+            {/* Modal Header */}
+            <div className="px-6 sm:px-8 py-5 border-b border-gray-800 bg-[#0e0f20] flex items-center justify-between gap-4 flex-shrink-0">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-2xl bg-[#c9a84c]/15 border border-[#c9a84c]/30 flex items-center justify-center text-[#c9a84c] flex-shrink-0">
+                  <ShieldCheck className="w-5 h-5" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-lg sm:text-xl font-black text-white font-serif tracking-wide">
+                      Hasil Uji Integritas &amp; Similaritas Naskah
+                    </h3>
+                    <span className="hidden sm:inline-block px-2.5 py-0.5 rounded-full text-[10px] font-mono uppercase tracking-wider bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
+                      Author Self-Check
+                    </span>
+                  </div>
+                  <p className="text-xs text-gray-400 mt-0.5">
+                    Laporan evaluasi per-paragraf alami &bull; Bebas Clue Reviewer &bull; Evaluasi diskresi editorial
+                  </p>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setIsModalOpen(false)}
+                className="w-9 h-9 rounded-xl bg-gray-800/60 hover:bg-gray-700 text-gray-400 hover:text-white flex items-center justify-center transition border border-gray-700/60 flex-shrink-0"
+                title="Tutup Modal"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Modal Scrollable Body */}
+            <div className="p-6 sm:p-8 overflow-y-auto space-y-6 flex-grow custom-scrollbar">
               
-              {/* Summary Cards */}
+              {/* 4 Summary Cards */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 
                 {/* Metric 1: Clean Similarity Index */}
-                <div className="bg-[#101222] border border-gray-800/80 rounded-2xl p-5 flex flex-col justify-between">
+                <div className="bg-[#121426] border border-gray-800 rounded-2xl p-4 sm:p-5 flex flex-col justify-between">
                   <div className="text-xs text-gray-400 font-medium">Indeks Kemiripan Bersih</div>
                   <div className="flex items-baseline gap-2 mt-2">
                     <span className={`text-3xl font-black font-mono ${
@@ -363,32 +469,32 @@ export default function PublicAuthorSimilaritySection() {
                 </div>
 
                 {/* Metric 2: Total Paragraphs Checked */}
-                <div className="bg-[#101222] border border-gray-800/80 rounded-2xl p-5 flex flex-col justify-between">
+                <div className="bg-[#121426] border border-gray-800 rounded-2xl p-4 sm:p-5 flex flex-col justify-between">
                   <div className="text-xs text-gray-400 font-medium">Total Paragraf Dinilai</div>
                   <div className="text-3xl font-black font-mono text-white mt-2">
                     {report.totalParagraphs}
                   </div>
                   <div className="text-[11px] text-gray-400 mt-2">
-                    Daftar pustaka otomatis dilewati
+                    Daftar pustaka dilewati otomatis
                   </div>
                 </div>
 
                 {/* Metric 3: Flagged High Risk */}
-                <div className="bg-[#101222] border border-gray-800/80 rounded-2xl p-5 flex flex-col justify-between">
-                  <div className="text-xs text-gray-400 font-medium">Paragraf Berisiko Tinggi</div>
+                <div className="bg-[#121426] border border-gray-800 rounded-2xl p-4 sm:p-5 flex flex-col justify-between">
+                  <div className="text-xs text-gray-400 font-medium">Paragraf Risiko Tinggi</div>
                   <div className={`text-3xl font-black font-mono mt-2 ${
                     report.plagiarizedParagraphs > 0 ? 'text-red-400' : 'text-emerald-400'
                   }`}>
                     {report.plagiarizedParagraphs}
                   </div>
                   <div className="text-[11px] text-gray-400 mt-2">
-                    {report.plagiarizedParagraphs > 0 ? 'CML ≥ 20 kata tanpa sitasi' : '✓ Nol paragraf berisiko'}
+                    {report.plagiarizedParagraphs > 0 ? 'CML ≥ 20 kata tanpa sitasi' : '✓ Nol tumpang tindih'}
                   </div>
                 </div>
 
                 {/* Metric 4: Risk Signal Summary */}
-                <div className="bg-[#101222] border border-gray-800/80 rounded-2xl p-5 flex flex-col justify-between">
-                  <div className="text-xs text-gray-400 font-medium">Status Sinyal Integritas</div>
+                <div className="bg-[#121426] border border-gray-800 rounded-2xl p-4 sm:p-5 flex flex-col justify-between">
+                  <div className="text-xs text-gray-400 font-medium">Status Sinyal Kepatuhan</div>
                   <div className="mt-2">
                     {report.riskSignalSummary === 'NO_HIGH_RISK_SIGNAL' && (
                       <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
@@ -410,22 +516,22 @@ export default function PublicAuthorSimilaritySection() {
                     )}
                   </div>
                   <div className="text-[11px] text-gray-400 mt-2">
-                    Diskresi final: Dewan Redaksi
+                    Bukan vonis otomatis
                   </div>
                 </div>
 
               </div>
 
-              {/* Action Bar: Download & Submit CTA */}
-              <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 bg-[#121426] border border-[#c9a84c]/20 rounded-2xl">
+              {/* Action Banner inside Modal */}
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 bg-[#14162a] border border-[#c9a84c]/20 rounded-2xl">
                 <div className="text-xs text-gray-300">
-                  <span className="font-bold text-white">Laporan Kepatuhan Mandiri Siap:</span> Unduh catatan evaluasi per-paragraf atau langsung serahkan naskah Anda.
+                  <span className="font-bold text-white">Arsip Mandiri Penulis:</span> Unduh lembar laporan kepatuhan resmi atau lanjutkan proses submit artikel.
                 </div>
                 <div className="flex items-center gap-3 w-full sm:w-auto">
                   <button
                     type="button"
                     onClick={handleDownloadReport}
-                    className="px-4 py-2.5 rounded-xl text-xs font-semibold bg-[#1a1c36] hover:bg-[#25284c] text-white border border-gray-700/80 transition flex items-center justify-center gap-2 flex-1 sm:flex-initial"
+                    className="px-4 py-2.5 rounded-xl text-xs font-semibold bg-[#1d1f3d] hover:bg-[#272a52] text-white border border-gray-700/80 transition flex items-center justify-center gap-2 flex-1 sm:flex-initial"
                   >
                     <Download className="w-3.5 h-3.5 text-[#c9a84c]" />
                     Unduh Laporan (.TXT)
@@ -434,7 +540,7 @@ export default function PublicAuthorSimilaritySection() {
                     href="/dashboard/submit"
                     className="px-5 py-2.5 rounded-xl text-xs font-bold bg-[#c9a84c] hover:bg-[#b8953c] text-black transition flex items-center justify-center gap-2 shadow-md shadow-[#c9a84c]/20 flex-1 sm:flex-initial"
                   >
-                    Lanjutkan Submit Naskah
+                    Lanjutkan ke Submit
                     <ArrowRight className="w-3.5 h-3.5" />
                   </a>
                 </div>
@@ -448,15 +554,14 @@ export default function PublicAuthorSimilaritySection() {
                     Rincian Evaluasi Paragraf ({report.results.length} Paragraf):
                   </h4>
                   <span className="text-xs text-gray-500">
-                    Klik atau gulir untuk meninjau status atribusi
+                    Berdasarkan aturan CML &ge; 20 kata dan atribusi sitasi
                   </span>
                 </div>
 
-                <div className="space-y-3 max-h-[420px] overflow-y-auto pr-2 custom-scrollbar">
+                <div className="space-y-3">
                   {report.results.map((res, index) => {
                     const isHigh = res.classification === 'HIGH_RISK_SIGNAL';
                     const isReview = res.classification === 'CONTEXT_REVIEW';
-                    const isBenign = res.classification === 'BENIGN_SIMILARITY';
 
                     return (
                       <div 
@@ -488,7 +593,7 @@ export default function PublicAuthorSimilaritySection() {
                           </span>
                         </div>
 
-                        <p className="text-gray-300 line-clamp-3 hover:line-clamp-none transition-all cursor-text font-serif text-sm">
+                        <p className="text-gray-300 font-serif text-sm">
                           &quot;{res.sentence}&quot;
                         </p>
 
@@ -511,11 +616,35 @@ export default function PublicAuthorSimilaritySection() {
               </div>
 
             </div>
-          )}
+
+            {/* Modal Footer */}
+            <div className="px-6 sm:px-8 py-4 border-t border-gray-800 bg-[#0e0f20] flex items-center justify-between gap-4 flex-shrink-0">
+              <div className="text-[11px] text-gray-500 hidden sm:block">
+                APASIFIC Master Architecture v1.0 &bull; Editorial Sovereignty Guaranteed
+              </div>
+              <div className="flex items-center gap-3 w-full sm:w-auto justify-end">
+                <button
+                  type="button"
+                  onClick={() => setIsModalOpen(false)}
+                  className="px-5 py-2.5 rounded-xl text-xs font-semibold bg-gray-800 hover:bg-gray-700 text-gray-300 hover:text-white transition"
+                >
+                  Tutup Pop-up
+                </button>
+                <a
+                  href="/dashboard/submit"
+                  className="px-5 py-2.5 rounded-xl text-xs font-bold bg-[#c9a84c] hover:bg-[#b8953c] text-black transition flex items-center gap-2"
+                >
+                  Lanjutkan Submit Naskah
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </a>
+              </div>
+            </div>
+
+          </div>
 
         </div>
+      )}
 
-      </div>
     </section>
   );
 }
