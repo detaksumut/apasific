@@ -65,33 +65,92 @@ export interface CheckResult {
 }
 
 /**
+ * Menghitung kecocokan kata identik berturut-turut terpanjang (Continuous Match Length / CML)
+ * antara dua daftar kata (case-insensitive & pembersihan tanda baca).
+ */
+export function findLongestCommonWordRun(wordsA: string[], wordsB: string[]): number {
+  if (wordsA.length === 0 || wordsB.length === 0) return 0;
+  
+  let maxLength = 0;
+  // Dynamic table (optimized with single row)
+  const current = new Array(wordsB.length + 1).fill(0);
+
+  for (let i = 0; i < wordsA.length; i++) {
+    const wordA = wordsA[i];
+    let prev = 0;
+    for (let j = 0; j < wordsB.length; j++) {
+      const temp = current[j + 1];
+      if (wordA === wordsB[j] && wordA.length > 0) {
+        current[j + 1] = prev + 1;
+        if (current[j + 1] > maxLength) {
+          maxLength = current[j + 1];
+        }
+      } else {
+        current[j + 1] = 0;
+      }
+      prev = temp;
+    }
+  }
+
+  return maxLength;
+}
+
+export function cleanWordToken(w: string): string {
+  return w.toLowerCase().replace(/[^a-z0-9]/g, '');
+}
+
+/**
  * Pengecekan similaritas paragraf dengan analisis konteks atribusi dan CML
  */
-export async function checkParagraphPlagiarism(block: string): Promise<CheckResult> {
+export async function checkParagraphPlagiarism(
+  block: string, 
+  otherParagraphs: string[] = []
+): Promise<CheckResult> {
   const citationContext = ParagraphSimilarityContextService.detectCitationAndQuotation(block);
   
-  // Heuristic phrase checking: check if substantial continuous match exists
-  const words = block.trim().split(/\s+/);
-  const wordCount = words.length;
+  const rawWords = block.trim().split(/\s+/).filter(w => w.length > 0);
+  const cleanTokens = rawWords.map(cleanWordToken).filter(w => w.length > 0);
+  const wordCount = rawWords.length;
   
-  // Estimate Continuous Match Length (CML) and raw similarity
-  let estimatedCml = 0;
-  let estimatedScore = 0;
+  let detectedCml = 0;
   let detectedSources: string[] = [];
 
-  // If quotation is properly attributed
+  // 1. Cek tumpang tindih kata berturut-turut terhadap paragraf lain di naskah
+  if (otherParagraphs.length > 0) {
+    for (let idx = 0; idx < otherParagraphs.length; idx++) {
+      const otherPara = otherParagraphs[idx];
+      const otherTokens = otherPara.split(/\s+/).map(cleanWordToken).filter(w => w.length > 0);
+      const matchRun = findLongestCommonWordRun(cleanTokens, otherTokens);
+      if (matchRun > detectedCml) {
+        detectedCml = matchRun;
+        detectedSources = [`Duplikasi Paragraf Naskah (Paragraf #${idx + 1})`];
+      }
+    }
+  }
+
+  // 2. Terapkan aturan baku: abaikan sitasi & referensi
+  let estimatedScore = 0;
+
   if (citationContext.isDirectQuotation && citationContext.hasInlineCitation) {
-    estimatedCml = 12;
-    estimatedScore = 20;
-    detectedSources = ['Scholarly Reference (Properly Quoted)'];
-  } else if (wordCount >= 25 && !citationContext.hasInlineCitation) {
-    // Normal heuristic baseline
-    estimatedCml = Math.min(wordCount, 8);
-    estimatedScore = 15;
+    // Kutipan langsung dengan sitasi resmi: diabaikan dari indikasi plagiasi
+    estimatedScore = Math.min(20, Math.round((detectedCml / Math.max(wordCount, 1)) * 100));
+    detectedSources = ['Kutipan Langsung Resmi (Bersitasi)'];
+  } else if (citationContext.hasInlineCitation) {
+    // Sitasi inline terdeteksi: atribusi sah
+    estimatedScore = Math.min(25, Math.round((detectedCml / Math.max(wordCount, 1)) * 100));
+    detectedSources = ['Sitasi Akademis Inline Terdeteksi'];
+  } else if (detectedCml >= 20) {
+    // Aturan baku: minimal 20 kata identik berturut-turut tanpa sitasi = Overlap Berisiko Tinggi
+    estimatedScore = Math.min(100, Math.max(40, Math.round((detectedCml / Math.max(wordCount, 1)) * 100)));
+  } else if (detectedCml >= 15) {
+    estimatedScore = Math.min(30, Math.round((detectedCml / Math.max(wordCount, 1)) * 100));
+  } else {
+    // Kesamaan normatif di bawah 15 kata
+    estimatedScore = Math.min(10, Math.round((detectedCml / Math.max(wordCount, 1)) * 100));
   }
 
   const { classification, editorialNote } = ParagraphSimilarityContextService.classifySimilarity({
-    continuousMatchLength: estimatedCml,
+    continuousMatchLength: detectedCml,
     rawSimilarityScore: estimatedScore,
     citationContext,
     matchedSources: detectedSources
@@ -100,10 +159,10 @@ export async function checkParagraphPlagiarism(block: string): Promise<CheckResu
   return {
     sources: detectedSources,
     similarityScore: estimatedScore,
-    continuousMatchLength: estimatedCml,
+    continuousMatchLength: detectedCml,
     classification,
     citationContext,
     editorialNote,
-    phrasesChecked: [words.slice(0, Math.min(20, words.length)).join(' ')]
+    phrasesChecked: [rawWords.slice(0, Math.min(20, rawWords.length)).join(' ')]
   };
 }

@@ -54,23 +54,54 @@ export class ParagraphSimilarityContextService {
     // Remove standalone bibliography section to focus on substantive manuscript text
     const cleanText = this.stripBibliography(text);
 
-    // Split on double newlines or paragraph breaks
-    const rawBlocks = cleanText
-      .replace(/\r\n/g, '\n')
-      .split(/\n{2,}/)
+    // Normalize all line endings
+    const normalizedText = cleanText.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+
+    // Split primarily on double newlines
+    const primaryBlocks = normalizedText
+      .split(/\n\s*\n+/)
       .map(p => p.trim())
       .filter(p => p.length > 0);
 
     const validParagraphs: string[] = [];
 
-    for (const block of rawBlocks) {
-      // Normalize internal whitespace
-      const normalized = block.replace(/\s+/g, ' ').trim();
-      const words = normalized.split(' ').filter(w => w.length > 0);
-      
-      // Keep paragraphs with substantial content (at least 8 words)
-      if (words.length >= 8) {
-        validParagraphs.push(normalized);
+    for (const block of primaryBlocks) {
+      // Check if block contains single line breaks that delineate separate paragraphs
+      // (e.g. pasted from Word/PDF/Docs where a line ends with [.!?] and next starts with uppercase)
+      const lines = block.split(/\n+/).map(l => l.trim()).filter(l => l.length > 0);
+      const subBlocks: string[] = [];
+
+      if (lines.length <= 1) {
+        subBlocks.push(block);
+      } else {
+        let currentPara = lines[0];
+
+        for (let i = 1; i < lines.length; i++) {
+          const prevLine = lines[i - 1];
+          const currLine = lines[i];
+
+          const prevEndsSentence = /[.!?]["'”»)]?$/.test(prevLine);
+          const currStartsNewPara = /^[A-Z0-9\("“«\t\-]/.test(currLine);
+
+          if (prevEndsSentence && currStartsNewPara) {
+            subBlocks.push(currentPara);
+            currentPara = currLine;
+          } else {
+            currentPara += ' ' + currLine;
+          }
+        }
+        if (currentPara.trim().length > 0) {
+          subBlocks.push(currentPara);
+        }
+      }
+
+      for (const sb of subBlocks) {
+        const normalized = sb.replace(/\s+/g, ' ').trim();
+        const words = normalized.split(' ').filter(w => w.length > 0);
+        // Keep paragraphs with substantial content (at least 8 words)
+        if (words.length >= 8) {
+          validParagraphs.push(normalized);
+        }
       }
     }
 
@@ -256,8 +287,8 @@ export class ParagraphSimilarityContextService {
     };
   }
 
-  private static stripBibliography(text: string): string {
-    const regex = /(?:\n|^)\s*(?:DAFTAR PUSTAKA|REFERENSI|REFERENCES|BIBLIOGRAPHY)\s*(?:\n|$)/i;
+  public static stripBibliography(text: string): string {
+    const regex = /(?:\n|^)\s*(?:#+\s*)?(?:DAFTAR PUSTAKA|REFERENSI|REFERENCES|BIBLIOGRAPHY)(?:\s*:)?\s*(?:\n|$)/i;
     const match = text.match(regex);
     if (match && match.index !== undefined) {
       const cut = text.substring(0, match.index).trim();

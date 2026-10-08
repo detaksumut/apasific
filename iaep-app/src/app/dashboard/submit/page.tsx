@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { submitManuscript } from '@/app/actions/submitManuscript';
 import { createClient } from '@/utils/supabase/client';
-import { PlagiarismChecker } from '@/components/PlagiarismChecker';
+import { AuthorPlagiarismChecker } from '@/components/AuthorPlagiarismChecker';
 import { 
   FileText, Upload, Send, Languages, Plus, Trash2, ChevronUp, ChevronDown, 
   ShieldCheck, Cpu, Database, CheckSquare, Sparkles, BookOpen, AlertCircle
@@ -535,9 +535,10 @@ export default function AuthorSubmit() {
           </div>
         </div>
         <div className="p-4">
-          <PlagiarismChecker
-            onAnalysisComplete={(result) => {
-              setPendingAiAnalysis(result);
+          <AuthorPlagiarismChecker
+            onAnalysisComplete={(report) => {
+              // Menyimpan riwayat pemeriksaan pra-submit penulis
+              setPendingAiAnalysis({ similarityReport: report });
             }}
           />
         </div>
