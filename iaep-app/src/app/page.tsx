@@ -1,5 +1,6 @@
 import OrgStructure from "@/components/OrgStructure";
 import AsiaMatrixMethodologySection from "@/components/home/AsiaMatrixMethodologySection";
+import PublicAuthorSimilaritySection from "@/components/home/PublicAuthorSimilaritySection";
 import { createClient } from '@supabase/supabase-js';
 
 // SEC-03: Service role key must be provided via environment variables only.
@@ -274,6 +275,12 @@ export default async function Home() {
   </section>
 
   `}} />
+
+  {/* ═══════════════════════════════════════════
+       PUBLIC AUTHOR SIMILARITY CHECKER SECTION
+       (Khusus Penulis, Mandiri, Bebas Clue Reviewer)
+  ═══════════════════════════════════════════ */}
+  <PublicAuthorSimilaritySection />
 
   {/* ═══════════════════════════════════════════
        JOURNAL INDEXING STATUS & ASIA MATRIX

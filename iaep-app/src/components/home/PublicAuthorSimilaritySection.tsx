@@ -1,0 +1,521 @@
+'use client';
+
+import React, { useState } from 'react';
+import { 
+  removeBibliography, 
+  extractParagraphs, 
+  countWords, 
+  checkParagraphPlagiarism,
+  PlagiarismResult,
+  PlagiarismReport 
+} from '@/lib/plagiarism';
+import { 
+  ShieldCheck, 
+  AlertTriangle, 
+  AlertOctagon, 
+  Info, 
+  Download, 
+  ArrowRight, 
+  RotateCcw, 
+  FileText, 
+  CheckCircle2, 
+  BookOpen, 
+  Quote, 
+  Sparkles 
+} from 'lucide-react';
+
+const SAMPLE_ACADEMIC_TEXT = `Pendidikan tinggi di era transformasi digital menuntut integrasi teknologi yang komprehensif dalam kurikulum pembelajaran. Berbagai institusi pendidikan mulai mengadopsi model pembelajaran hibrida untuk meningkatkan fleksibilitas dan daya serap mahasiswa.
+
+Menurut Smith et al. (2020), "adopsi platform digital terbukti meningkatkan partisipasi aktif mahasiswa hingga sebesar 45 persen dalam kegiatan diskusi ilmiah daring". Temuan ini sejalan dengan penelitian terdahulu yang menggarisbawahi efektivitas blended learning dalam meningkatkan retensi konsep.
+
+Metode penelitian yang digunakan adalah pendekatan kuantitatif dengan desain cross-sectional empirical. Populasi penelitian mencakup seluruh mahasiswa aktif semester genap dengan teknik stratified random sampling pada tiga fakultas utama.
+
+DAFTAR PUSTAKA
+Smith, J., Rahman, A., & Widodo, B. (2020). Digital Learning in Higher Education. Journal of Education and Technology, 12(3), 45-60.
+Danil, M., & Rahman, F. (2023). Empirical Research Methods in Social Sciences. Academic Press.`;
+
+export default function PublicAuthorSimilaritySection() {
+  const [inputText, setInputText] = useState('');
+  const [isChecking, setIsChecking] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [report, setReport] = useState<PlagiarismReport | null>(null);
+  const [showExplanation, setShowExplanation] = useState(false);
+
+  const wordCount = inputText.trim() ? inputText.trim().split(/\s+/).filter(Boolean).length : 0;
+
+  const handleLoadSample = () => {
+    setInputText(SAMPLE_ACADEMIC_TEXT);
+    setReport(null);
+  };
+
+  const handleClear = () => {
+    setInputText('');
+    setReport(null);
+    setProgress(0);
+  };
+
+  const handleAnalyze = async () => {
+    if (!inputText.trim()) return;
+
+    setIsChecking(true);
+    setProgress(0);
+    setReport(null);
+
+    // 1. Abaikan bagian Daftar Pustaka / Referensi secara otomatis
+    const cleanText = removeBibliography(inputText);
+
+    // 2. Ekstraksi batas paragraf alami semantik
+    const paragraphs = extractParagraphs(cleanText);
+    const total = paragraphs.length;
+
+    if (total === 0) {
+      setIsChecking(false);
+      setReport({
+        totalParagraphs: 0,
+        checkedParagraphs: 0,
+        plagiarizedParagraphs: 0,
+        plagiarismPercentage: 0,
+        riskSignalSummary: 'NO_HIGH_RISK_SIGNAL',
+        results: []
+      });
+      return;
+    }
+
+    const results: PlagiarismResult[] = [];
+    let highRiskCount = 0;
+    let reviewCount = 0;
+    let totalScoreSum = 0;
+
+    for (let i = 0; i < total; i++) {
+      const paragraph = paragraphs[i];
+      const pWordCount = countWords(paragraph);
+      const otherParagraphs = paragraphs.filter((_, idx) => idx !== i);
+
+      // Evaluasi per-paragraf dengan CML & deteksi sitasi (Khusus Penulis, tanpa Clue Review)
+      const checkResult = await checkParagraphPlagiarism(paragraph, otherParagraphs);
+      
+      const isHighRisk = checkResult.classification === 'HIGH_RISK_SIGNAL';
+      const isReview = checkResult.classification === 'CONTEXT_REVIEW';
+
+      if (isHighRisk) highRiskCount++;
+      if (isReview) reviewCount++;
+      totalScoreSum += (checkResult.similarityScore || 0);
+
+      results.push({
+        sentence: paragraph,
+        isPlagiarized: isHighRisk,
+        wordCount: pWordCount,
+        continuousMatchLength: checkResult.continuousMatchLength,
+        sources: checkResult.sources,
+        similarityScore: checkResult.similarityScore,
+        classification: checkResult.classification,
+        citationContext: checkResult.citationContext,
+        editorialNote: checkResult.editorialNote,
+        phrasesChecked: checkResult.phrasesChecked
+      });
+
+      setProgress(Math.round(((i + 1) / total) * 100));
+    }
+
+    const avgScore = Math.round(totalScoreSum / total);
+    const riskSignalSummary: 'NO_HIGH_RISK_SIGNAL' | 'REVIEW_RECOMMENDED' | 'HIGH_RISK_SIGNAL_DETECTED' = 
+      highRiskCount > 0 || avgScore > 20
+        ? 'HIGH_RISK_SIGNAL_DETECTED' 
+        : (reviewCount > 0 ? 'REVIEW_RECOMMENDED' : 'NO_HIGH_RISK_SIGNAL');
+
+    setReport({
+      totalParagraphs: paragraphs.length,
+      checkedParagraphs: results.length,
+      plagiarizedParagraphs: highRiskCount,
+      plagiarismPercentage: avgScore,
+      riskSignalSummary,
+      results
+    });
+
+    setIsChecking(false);
+  };
+
+  const handleDownloadReport = () => {
+    if (!report) return;
+
+    let content = `APASIFIC SIMILARITY CONTEXT ANALYSIS™ - LAPORAN PEMERIKSAAN MANDIRI PENULIS\n`;
+    content += `========================================================================================\n`;
+    content += `Waktu Pemeriksaan     : ${new Date().toLocaleString()}\n`;
+    content += `Total Paragraf Dinilai: ${report.totalParagraphs}\n`;
+    content += `Indeks Similaritas    : ${report.plagiarismPercentage}%\n`;
+    content += `Paragraf Risiko Tinggi: ${report.plagiarizedParagraphs} paragraf\n`;
+    content += `Status Sinyal Global  : ${report.riskSignalSummary}\n`;
+    content += `Ambang Baku Evaluasi  : Minimal 20 kata identik berturut-turut tanpa sitasi inline\n`;
+    content += `Aturan Otomatis       : Bagian Daftar Pustaka & Kutipan Bersitasi Resmi Diabaikan\n`;
+    content += `========================================================================================\n\n`;
+    content += `DISCLAIMER INTEGRITAS AKADEMIK (APASIFIC MASTER ARCHITECTURE v1.0):\n`;
+    content += `Laporan ini adalah alat bantu kepatuhan mandiri bagi penulis sebelum menyerahkan naskah.\n`;
+    content += `Platform menganut filosofi: "Similarity -> Context -> Attribution -> Editorial Review".\n`;
+    content += `Sistem ini tidak memuat putusan plagiarisme otomatis; pertimbangan akhir berada pada Dewan Redaksi.\n\n`;
+    content += `RINCIAN PER PARAGRAF:\n`;
+    content += `----------------------------------------------------------------------------------------\n\n`;
+
+    report.results.forEach((r, idx) => {
+      content += `[Paragraf #${idx + 1}] (${r.wordCount} kata) | Klasifikasi: ${r.classification} | CML: ${r.continuousMatchLength || 0} kata\n`;
+      content += `Teks: ${r.sentence}\n`;
+      if (r.editorialNote) content += `Catatan Kepatuhan: ${r.editorialNote}\n`;
+      if (r.citationContext?.hasInlineCitation) {
+        content += `Sitasi Terdeteksi : ${r.citationContext.citationSnippets.join(', ')}\n`;
+      }
+      if (r.sources && r.sources.length > 0) {
+        content += `Sinyal Asal       : ${r.sources.join(', ')}\n`;
+      }
+      content += `\n----------------------------------------------------------------------------------------\n\n`;
+    });
+
+    const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `APASIFIC_Laporan_Kepatuhan_Penulis_${Date.now()}.txt`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  return (
+    <section className="section author-similarity-section py-12 relative overflow-hidden" id="author-plagiarism-checker">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-6xl">
+        
+        {/* Main Card */}
+        <div className="w-full bg-[#0a0a16] border border-[#c9a84c]/30 rounded-3xl p-6 sm:p-10 shadow-[0_20px_60px_rgba(0,0,0,0.7)] relative overflow-hidden text-gray-200">
+          
+          {/* Subtle Ambient Glow */}
+          <div className="absolute top-0 right-0 w-80 h-80 bg-[#c9a84c]/5 rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute bottom-0 left-0 w-80 h-80 bg-emerald-500/5 rounded-full blur-3xl pointer-events-none" />
+
+          {/* Section Header */}
+          <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 border-b border-gray-800/80 pb-6 relative z-10">
+            <div>
+              <div className="flex items-center gap-2.5 flex-wrap">
+                <span className="px-3 py-1 rounded-full text-[11px] font-black uppercase tracking-widest bg-[#c9a84c]/15 text-[#e8c97a] border border-[#c9a84c]/30 flex items-center gap-1.5">
+                  <ShieldCheck className="w-3.5 h-3.5 text-[#c9a84c]" />
+                  Layanan Mandiri Penulis
+                </span>
+                <span className="text-xs font-mono text-emerald-400 flex items-center gap-1.5 bg-emerald-500/10 px-2.5 py-0.5 rounded-full border border-emerald-500/20">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                  Khusus Penulis &bull; Bebas Clue Reviewer
+                </span>
+              </div>
+              <h3 className="text-2xl sm:text-3xl font-black text-white tracking-wide mt-3 font-serif">
+                Uji Integritas &amp; <span className="text-[#c9a84c]">Similaritas Naskah</span> Mandiri
+              </h3>
+              <p className="text-sm text-gray-400 mt-2 max-w-3xl leading-relaxed">
+                Fasilitas uji mandiri pra-penyerahan naskah. Mesin secara otomatis <strong>mengabaikan Daftar Pustaka</strong>, 
+                mengenali <strong>sitasi ilmiah bersumber resmi</strong>, dan mengevaluasi kontinuitas kata identik (CML $\ge$ 20 kata).
+              </p>
+            </div>
+
+            <div className="flex items-center gap-2 flex-shrink-0">
+              <button
+                type="button"
+                onClick={() => setShowExplanation(!showExplanation)}
+                className="px-4 py-2 rounded-xl text-xs font-semibold bg-[#121324] hover:bg-[#1a1b32] text-gray-300 hover:text-white border border-gray-700/60 transition-all flex items-center gap-2"
+              >
+                <Info className="w-4 h-4 text-[#c9a84c]" />
+                {showExplanation ? 'Tutup Penjelasan Sistem' : 'Keterangan Sistem Lengkap'}
+              </button>
+            </div>
+          </div>
+
+          {/* System Explanation Panel (Collapsible) */}
+          {showExplanation && (
+            <div className="mt-6 p-6 bg-[#0e0f1f] border border-[#c9a84c]/20 rounded-2xl space-y-4 animate-in fade-in duration-300 relative z-10 text-xs text-gray-300 leading-relaxed">
+              <div className="flex items-center gap-2 font-bold text-sm text-[#e8c97a]">
+                <BookOpen className="w-4 h-4" />
+                Spesifikasi &amp; Filosofi Sistem Plagiarisme APASIFIC (Master Architecture v1.0)
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+                <div className="p-4 bg-black/40 rounded-xl border border-gray-800 space-y-2">
+                  <h4 className="font-bold text-white text-xs uppercase tracking-wider text-[#c9a84c]">1. Filosofi &amp; Kedaulatan Editorial</h4>
+                  <p>
+                    <strong>Similarity &rarr; Context &rarr; Attribution &rarr; Editorial Review:</strong> Platform tidak menggunakan vonis otomatis biner (&quot;plagiat/tidak&quot;). Sistem menyediakan sinyal kontekstual bagi penulis agar menyempurnakan naskah secara mandiri.
+                  </p>
+                </div>
+                <div className="p-4 bg-black/40 rounded-xl border border-gray-800 space-y-2">
+                  <h4 className="font-bold text-white text-xs uppercase tracking-wider text-[#c9a84c]">2. Aturan Baku CML &amp; Sitasi</h4>
+                  <p>
+                    <strong>CML (Continuous Match Length) &ge; 20 kata:</strong> Rangkaian kata identik berturut-turut tanpa sitasi inline ditandai sebagai risiko tinggi. Sitasi ilmiah (Author-Date, Naratif, Numerik) dan kutipan langsung resmi otomatis diakui sebagai atribusi sah.
+                  </p>
+                </div>
+                <div className="p-4 bg-black/40 rounded-xl border border-gray-800 space-y-2">
+                  <h4 className="font-bold text-white text-xs uppercase tracking-wider text-[#c9a84c]">3. Pembersihan Referensi Otomatis</h4>
+                  <p>
+                    Bagian <code>DAFTAR PUSTAKA / REFERENSI / BIBLIOGRAPHY</code> diabaikan secara cerdas agar judul buku, nama jurnal, dan daftar pengarang tidak menaikkan indeks kemiripan naskah secara keliru.
+                  </p>
+                </div>
+                <div className="p-4 bg-black/40 rounded-xl border border-gray-800 space-y-2">
+                  <h4 className="font-bold text-white text-xs uppercase tracking-wider text-[#c9a84c]">4. Independen &amp; Khusus Penulis</h4>
+                  <p>
+                    Sistem ini terisolasi dari modul petunjuk reviewer (AI Clue Review). Naskah Anda tidak disimpan permanen atau dibagikan ke pihak ketiga, menjamin kerahasiaan draf penelitian Anda.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Interactive Input Form */}
+          <div className="mt-8 space-y-4 relative z-10">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 text-xs">
+              <label htmlFor="manuscript-input" className="font-bold text-gray-300 flex items-center gap-2">
+                <FileText className="w-4 h-4 text-[#c9a84c]" />
+                Tempel Teks Draf Naskah (Abstrak, Pendahuluan, atau Pembahasan):
+              </label>
+              <div className="flex items-center gap-3">
+                <button
+                  type="button"
+                  onClick={handleLoadSample}
+                  className="text-[#c9a84c] hover:text-[#e8c97a] hover:underline flex items-center gap-1 font-medium"
+                >
+                  <Sparkles className="w-3.5 h-3.5" />
+                  Muat Contoh Teks
+                </button>
+                {inputText && (
+                  <button
+                    type="button"
+                    onClick={handleClear}
+                    className="text-gray-400 hover:text-red-400 flex items-center gap-1 font-medium"
+                  >
+                    <RotateCcw className="w-3.5 h-3.5" />
+                    Bersihkan
+                  </button>
+                )}
+                <span className="text-gray-500 font-mono">
+                  {wordCount} kata
+                </span>
+              </div>
+            </div>
+
+            <textarea
+              id="manuscript-input"
+              rows={7}
+              value={inputText}
+              onChange={(e) => setInputText(e.target.value)}
+              placeholder="Tempel draf artikel ilmiah Anda di sini (minimal 30 kata)... Termasuk kutipan atau daftar pustaka (sistem akan otomatis memilah dan membersihkannya)."
+              className="w-full bg-[#05050d] border border-gray-800 focus:border-[#c9a84c] rounded-2xl p-4 sm:p-5 text-gray-200 text-sm leading-relaxed placeholder:text-gray-600 focus:outline-none focus:ring-1 focus:ring-[#c9a84c]/50 transition font-sans"
+            />
+
+            {/* Action Buttons & Progress Bar */}
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-2">
+              <div className="flex items-center gap-2 text-xs text-gray-400">
+                <Info className="w-4 h-4 text-[#c9a84c] flex-shrink-0" />
+                <span>Pemeriksaan instan berbasis per-paragraf alami &amp; kontinuitas leksikal.</span>
+              </div>
+
+              <div className="flex items-center gap-3 w-full sm:w-auto">
+                <button
+                  type="button"
+                  onClick={handleAnalyze}
+                  disabled={isChecking || wordCount < 10}
+                  className="w-full sm:w-auto px-6 py-3 rounded-xl font-bold text-sm bg-gradient-to-r from-[#c9a84c] to-[#e8c97a] hover:from-[#b8953c] hover:to-[#d8b868] text-black shadow-lg shadow-[#c9a84c]/20 hover:shadow-[#c9a84c]/40 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2"
+                >
+                  {isChecking ? (
+                    <>
+                      <span className="w-4 h-4 border-2 border-black border-t-transparent rounded-full animate-spin" />
+                      Menganalisis ({progress}%)...
+                    </>
+                  ) : (
+                    <>
+                      <ShieldCheck className="w-4 h-4" />
+                      Mulai Analisis Mandiri
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+
+            {/* Progress Bar Animation */}
+            {isChecking && (
+              <div className="w-full bg-gray-800 rounded-full h-2 overflow-hidden mt-3">
+                <div 
+                  className="bg-gradient-to-r from-[#c9a84c] to-emerald-400 h-2 rounded-full transition-all duration-300"
+                  style={{ width: `${progress}%` }}
+                />
+              </div>
+            )}
+          </div>
+
+          {/* Analysis Results Section */}
+          {report && (
+            <div className="mt-10 border-t border-gray-800/80 pt-8 space-y-6 animate-in fade-in slide-in-from-bottom-3 duration-500 relative z-10">
+              
+              {/* Summary Cards */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                
+                {/* Metric 1: Clean Similarity Index */}
+                <div className="bg-[#101222] border border-gray-800/80 rounded-2xl p-5 flex flex-col justify-between">
+                  <div className="text-xs text-gray-400 font-medium">Indeks Kemiripan Bersih</div>
+                  <div className="flex items-baseline gap-2 mt-2">
+                    <span className={`text-3xl font-black font-mono ${
+                      report.plagiarismPercentage > 20 ? 'text-red-400' : report.plagiarismPercentage > 10 ? 'text-amber-400' : 'text-emerald-400'
+                    }`}>
+                      {report.plagiarismPercentage}%
+                    </span>
+                    <span className="text-xs text-gray-400">rata-rata</span>
+                  </div>
+                  <div className="text-[11px] text-gray-400 mt-2">
+                    {report.plagiarismPercentage <= 20 ? '✓ Dalam ambang wajar' : '⚠ Melebihi ambang 20%'}
+                  </div>
+                </div>
+
+                {/* Metric 2: Total Paragraphs Checked */}
+                <div className="bg-[#101222] border border-gray-800/80 rounded-2xl p-5 flex flex-col justify-between">
+                  <div className="text-xs text-gray-400 font-medium">Total Paragraf Dinilai</div>
+                  <div className="text-3xl font-black font-mono text-white mt-2">
+                    {report.totalParagraphs}
+                  </div>
+                  <div className="text-[11px] text-gray-400 mt-2">
+                    Daftar pustaka otomatis dilewati
+                  </div>
+                </div>
+
+                {/* Metric 3: Flagged High Risk */}
+                <div className="bg-[#101222] border border-gray-800/80 rounded-2xl p-5 flex flex-col justify-between">
+                  <div className="text-xs text-gray-400 font-medium">Paragraf Berisiko Tinggi</div>
+                  <div className={`text-3xl font-black font-mono mt-2 ${
+                    report.plagiarizedParagraphs > 0 ? 'text-red-400' : 'text-emerald-400'
+                  }`}>
+                    {report.plagiarizedParagraphs}
+                  </div>
+                  <div className="text-[11px] text-gray-400 mt-2">
+                    {report.plagiarizedParagraphs > 0 ? 'CML ≥ 20 kata tanpa sitasi' : '✓ Nol paragraf berisiko'}
+                  </div>
+                </div>
+
+                {/* Metric 4: Risk Signal Summary */}
+                <div className="bg-[#101222] border border-gray-800/80 rounded-2xl p-5 flex flex-col justify-between">
+                  <div className="text-xs text-gray-400 font-medium">Status Sinyal Integritas</div>
+                  <div className="mt-2">
+                    {report.riskSignalSummary === 'NO_HIGH_RISK_SIGNAL' && (
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
+                        <CheckCircle2 className="w-3.5 h-3.5" />
+                        Siap Submit Resmi
+                      </span>
+                    )}
+                    {report.riskSignalSummary === 'REVIEW_RECOMMENDED' && (
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-500/15 text-amber-400 border border-amber-500/30">
+                        <AlertTriangle className="w-3.5 h-3.5" />
+                        Disarankan Parafrase
+                      </span>
+                    )}
+                    {report.riskSignalSummary === 'HIGH_RISK_SIGNAL_DETECTED' && (
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-red-500/15 text-red-400 border border-red-500/30">
+                        <AlertOctagon className="w-3.5 h-3.5" />
+                        Perlu Revisi Sitasi
+                      </span>
+                    )}
+                  </div>
+                  <div className="text-[11px] text-gray-400 mt-2">
+                    Diskresi final: Dewan Redaksi
+                  </div>
+                </div>
+
+              </div>
+
+              {/* Action Bar: Download & Submit CTA */}
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 bg-[#121426] border border-[#c9a84c]/20 rounded-2xl">
+                <div className="text-xs text-gray-300">
+                  <span className="font-bold text-white">Laporan Kepatuhan Mandiri Siap:</span> Unduh catatan evaluasi per-paragraf atau langsung serahkan naskah Anda.
+                </div>
+                <div className="flex items-center gap-3 w-full sm:w-auto">
+                  <button
+                    type="button"
+                    onClick={handleDownloadReport}
+                    className="px-4 py-2.5 rounded-xl text-xs font-semibold bg-[#1a1c36] hover:bg-[#25284c] text-white border border-gray-700/80 transition flex items-center justify-center gap-2 flex-1 sm:flex-initial"
+                  >
+                    <Download className="w-3.5 h-3.5 text-[#c9a84c]" />
+                    Unduh Laporan (.TXT)
+                  </button>
+                  <a
+                    href="/dashboard/submit"
+                    className="px-5 py-2.5 rounded-xl text-xs font-bold bg-[#c9a84c] hover:bg-[#b8953c] text-black transition flex items-center justify-center gap-2 shadow-md shadow-[#c9a84c]/20 flex-1 sm:flex-initial"
+                  >
+                    Lanjutkan Submit Naskah
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </a>
+                </div>
+              </div>
+
+              {/* Detailed Paragraph Breakdown */}
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <h4 className="text-sm font-bold text-gray-200 flex items-center gap-2">
+                    <Quote className="w-4 h-4 text-[#c9a84c]" />
+                    Rincian Evaluasi Paragraf ({report.results.length} Paragraf):
+                  </h4>
+                  <span className="text-xs text-gray-500">
+                    Klik atau gulir untuk meninjau status atribusi
+                  </span>
+                </div>
+
+                <div className="space-y-3 max-h-[420px] overflow-y-auto pr-2 custom-scrollbar">
+                  {report.results.map((res, index) => {
+                    const isHigh = res.classification === 'HIGH_RISK_SIGNAL';
+                    const isReview = res.classification === 'CONTEXT_REVIEW';
+                    const isBenign = res.classification === 'BENIGN_SIMILARITY';
+
+                    return (
+                      <div 
+                        key={index}
+                        className={`p-4 rounded-xl border text-xs transition leading-relaxed ${
+                          isHigh 
+                            ? 'bg-red-950/20 border-red-500/40 text-red-100' 
+                            : isReview
+                            ? 'bg-amber-950/20 border-amber-500/40 text-amber-100'
+                            : 'bg-emerald-950/15 border-emerald-500/30 text-emerald-100'
+                        }`}
+                      >
+                        <div className="flex flex-wrap items-center justify-between gap-2 pb-2 border-b border-gray-800/60 mb-2">
+                          <span className="font-bold text-white flex items-center gap-1.5">
+                            Paragraf #{index + 1}
+                            <span className="text-[11px] font-normal text-gray-400">
+                              ({res.wordCount} kata &bull; CML: {res.continuousMatchLength || 0} kata)
+                            </span>
+                          </span>
+
+                          <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+                            isHigh 
+                              ? 'bg-red-500/20 text-red-300 border border-red-500/30' 
+                              : isReview
+                              ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
+                              : 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
+                          }`}>
+                            {isHigh ? 'Risiko Tinggi' : isReview ? 'Perlu Parafrase' : 'Atribusi Bersih'}
+                          </span>
+                        </div>
+
+                        <p className="text-gray-300 line-clamp-3 hover:line-clamp-none transition-all cursor-text font-serif text-sm">
+                          &quot;{res.sentence}&quot;
+                        </p>
+
+                        <div className="mt-3 pt-2 border-t border-gray-800/40 flex flex-wrap items-center justify-between gap-2 text-[11px] text-gray-400">
+                          <div>
+                            <span className="font-semibold text-gray-300">Catatan Sistem: </span>
+                            {res.editorialNote || 'Frasa akademik standar dalam batas wajar.'}
+                          </div>
+
+                          {res.citationContext?.hasInlineCitation && (
+                            <span className="text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
+                              ✓ Sitasi inline terverifikasi
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+            </div>
+          )}
+
+        </div>
+
+      </div>
+    </section>
+  );
+}
