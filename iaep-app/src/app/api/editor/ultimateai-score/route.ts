@@ -99,8 +99,25 @@ Berikan output HANYA dalam format JSON berikut, tanpa teks tambahan apapun:
   "recommendation": "<Accept | Minor Revision | Major Revision | Reject>"
 }`;
 
-    const baseUrl = (process.env.NINE_ROUTER_BASE_URL || 'http://localhost:20128/v1').replace(/\/$/, '');
-    const apiKey = process.env.NINE_ROUTER_API_KEY || 'sk-254-local';
+    const configuredBaseUrl = process.env.NINE_ROUTER_BASE_URL;
+    if (!configuredBaseUrl) {
+      console.error('[ultimateai-score] NINE_ROUTER_BASE_URL is not configured.');
+      return NextResponse.json({
+        success: false,
+        code: 'NINE_ROUTER_BASE_URL_MISSING',
+        error: 'Endpoint 9Router belum dikonfigurasi untuk server produksi. Tidak ada skor baru yang dibuat.'
+      }, { status: 503 });
+    }
+    const baseUrl = configuredBaseUrl.replace(/\/$/, '');
+    const apiKey = process.env.NINE_ROUTER_API_KEY;
+    if (!apiKey) {
+      console.error('[ultimateai-score] NINE_ROUTER_API_KEY is not configured.');
+      return NextResponse.json({
+        success: false,
+        code: 'NINE_ROUTER_API_KEY_MISSING',
+        error: 'Kredensial 9Router belum dikonfigurasi. Tidak ada skor baru yang dibuat.'
+      }, { status: 503 });
+    }
 
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 45000);
