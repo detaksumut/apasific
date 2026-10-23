@@ -74,38 +74,22 @@ export default function ApasificResearchQualityProfile({ article }: Props) {
       doi: article.doi,
       scoreLayer: savedScore
         ? {
-            topic_relevance: Number(savedScore.topic_relevance ?? 9),
-            article_structure: Number(savedScore.article_structure ?? 8),
-            abstract: Number(savedScore.abstract ?? 8),
-            research_gap: Number(savedScore.research_gap ?? 9),
-            methodology: Number(savedScore.methodology ?? 8),
-            data_statistics: Number(savedScore.data_statistics ?? 9),
-            discussion: Number(savedScore.discussion ?? 8),
-            conclusion: Number(savedScore.conclusion ?? 8),
-            references: Number(savedScore.references ?? 9),
-            overall_score: Number(savedScore.overall_score ?? 8.3)
+            topic_relevance: Number(savedScore.topic_relevance ?? 0),
+            article_structure: Number(savedScore.article_structure ?? 0),
+            abstract: Number(savedScore.abstract ?? 0),
+            research_gap: Number(savedScore.research_gap ?? 0),
+            methodology: Number(savedScore.methodology ?? 0),
+            data_statistics: Number(savedScore.data_statistics ?? 0),
+            discussion: Number(savedScore.discussion ?? 0),
+            conclusion: Number(savedScore.conclusion ?? 0),
+            references: Number(savedScore.references ?? 0),
+            overall_score: Number(savedScore.overall_score ?? 0)
           }
         : null,
-      screenLayer: {
-        novelty_rating: 3,
-        methodology_rating: 4,
-        clarity_rating: 4,
-        confidence_score: 85,
-        summary_evaluation: "Empirical study with structured methodology and clear statistical regression analysis.",
-        suggested_improvements: "Expand sample size and explore longitudinal multi-period dynamics for broader cross-institutional generalization."
-      },
-      clueLayer: {
-        objective: `Analyze key empirical determinants and structural relationships for ${article.title}`,
-        methodology: "Quantitative survey-based associative causal design with statistical regression models.",
-        sample_size: 38,
-        sampling_strategy: "Defined population sample with instrument validity and classical assumption compliance.",
-        findings: "Empirical indicators demonstrate statistically significant positive relationships with robust model fit.",
-        conclusion: "Simultaneous combination of target determinants significantly optimizes operational performance.",
-        limitations: "Single-institution population context with cross-sectional observation scope.",
-        practical_implications: "Provides structured framework for organizational optimization and resource allocation.",
-        policy_relevance: "Actionable empirical benchmark for institutional governance and performance planning.",
-        explained_variance: "53.7%"
-      }
+      // Do not synthesize screening or reviewer-clue evidence from article metadata.
+      // Until the source assessments are available, the engine must mark this snapshot as fallback.
+      screenLayer: null,
+      clueLayer: null
     };
 
     return ATRQSEngine.compute(input);
@@ -203,10 +187,10 @@ export default function ApasificResearchQualityProfile({ article }: Props) {
             <span className="text-sm font-bold text-cyan-400/70">/ 100</span>
           </div>
           <div className="inline-block px-3 py-1 rounded-lg bg-cyan-500/15 border border-cyan-500/30 text-[11px] font-extrabold text-cyan-300 tracking-wider uppercase">
-            High Structural Alignment
+            Evidence alignment not yet verified
           </div>
           <span className="block text-[10px] text-gray-500 mt-2">
-            Evidence Coverage: <strong className="text-gray-300">{snapshot.provenance.evidence_elements_detected} / 5 Elements (100%)</strong>
+            Evidence Coverage: <strong className="text-gray-300">{snapshot.provenance.evidence_elements_detected} / 5 Elements ({Math.round(snapshot.provenance.evidence_coverage_ratio * 100)}%)</strong>
           </span>
         </div>
 
@@ -224,7 +208,7 @@ export default function ApasificResearchQualityProfile({ article }: Props) {
             </span>
           </div>
           <div className="inline-block px-3 py-1 rounded-lg bg-emerald-500/15 border border-emerald-500/30 text-[11px] font-extrabold text-emerald-300 tracking-wider uppercase">
-            Tri-Source Consensus
+            Source completeness: {snapshot.is_fallback ? "Incomplete — verify sources" : "Tri-source assessment"}
           </div>
           <span className="block text-[10px] text-gray-500 mt-2">
             ARTI™ Agreement Index: <strong className="text-gray-300">{snapshot.arti} / 100</strong>
