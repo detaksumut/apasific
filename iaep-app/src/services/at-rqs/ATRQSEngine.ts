@@ -137,15 +137,6 @@ export class ATRQSEngine {
 
   // --- PRIVATE CALCULATORS ---
 
-  private static getHashMod(id?: string): number {
-    if (!id) return 0;
-    let hash = 0;
-    for (let i = 0; i < id.length; i++) {
-      hash = (hash << 5) - hash + id.charCodeAt(i);
-      hash |= 0;
-    }
-    return (Math.abs(hash) % 7) - 3; // range: -3 to +3
-  }
 
   private static normalizeScoreLayer(score?: TriSourceInput['scoreLayer'], _input?: TriSourceInput) {
     const valid = (value: unknown): value is number =>
