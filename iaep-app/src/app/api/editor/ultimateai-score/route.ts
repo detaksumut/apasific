@@ -73,7 +73,11 @@ Berikan output HANYA dalam format JSON berikut, tanpa teks tambahan apapun:
     const baseUrl = (process.env.NINE_ROUTER_BASE_URL || 'http://localhost:20128/v1').replace(/\/$/, '');
     const apiKey = process.env.NINE_ROUTER_API_KEY || 'sk-254-local';
 
-    const response = await fetch(`${baseUrl}/chat/completions`, {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 45000);
+    let response: Response;
+    try {
+      response = await fetch(`${baseUrl}/chat/completions`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -84,8 +88,12 @@ Berikan output HANYA dalam format JSON berikut, tanpa teks tambahan apapun:
         messages: [{ role: 'user', content: prompt }],
         stream: false,
         temperature: 0
-      })
-    });
+      }),
+      signal: controller.signal
+      });
+    } finally {
+      clearTimeout(timeoutId);
+    }
 
     if (!response.ok) {
       const errText = await response.text();
@@ -110,6 +118,38 @@ Berikan output HANYA dalam format JSON berikut, tanpa teks tambahan apapun:
         console.error('[ultimateai-score] Failed to parse JSON:', rawContent);
         return NextResponse.json({ error: 'Gagal memparse respons UltimateAI.' }, { status: 500 });
       }
+    }
+
+    // Reject malformed model output before it can be persisted or shown as an assessment.
+    const scoreFields = [
+      'topic_relevance', 'article_structure', 'abstract', 'research_gap',
+      'methodology', 'data_statistics', 'discussion', 'conclusion', 'references'
+    ] as const;
+    const invalidFields = scoreFields.filter((key) =>
+      typeof assessment?.[key] !== 'number' ||
+      !Number.isFinite(assessment[key]) ||
+      assessment[key] < 0 ||
+      assessment[key] > 10
+    );
+
+    if (invalidFields.length > 0) {
+      console.error('[ultimateai-score] Invalid score fields:', invalidFields);
+      return NextResponse.json({
+        error: 'Respons AI tidak memenuhi format penilaian yang valid. Analisis tidak disimpan.',
+        invalidFields
+      }, { status: 502 });
+    }
+
+    const calculatedOverall = Math.round(
+      (scoreFields.reduce((sum, key) => sum + assessment[key], 0) / scoreFields.length) * 10
+    ) / 10;
+    assessment.overall_score = calculatedOverall;
+    assessment.direct_acceptance = calculatedOverall >= 7.5;
+
+    if (!['Accept', 'Minor Revision', 'Major Revision', 'Reject'].includes(assessment.recommendation)) {
+      return NextResponse.json({
+        error: 'Respons AI tidak memuat recommendation yang valid. Analisis tidak disimpan.'
+      }, { status: 502 });
     }
 
     // Persist assessment to Supabase system_settings if submissionId is provided
