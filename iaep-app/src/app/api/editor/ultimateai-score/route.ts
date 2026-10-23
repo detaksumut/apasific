@@ -15,14 +15,43 @@ export async function GET(req: Request) {
       process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
     );
 
-    const { data: setting } = await supabaseAdmin
+    const { data: setting, error: queryError } = await supabaseAdmin
       .from('system_settings')
       .select('value')
       .eq('key', `ultimateai_score_${submissionId}`)
       .maybeSingle();
 
-    if (setting && setting.value) {
+    if (queryError) {
+      console.error('[ultimateai-score] Failed to load saved assessment:', queryError.message);
+      return NextResponse.json({ success: false, error: 'Gagal membaca penilaian tersimpan.' }, { status: 502 });
+    }
+
+    if (setting?.value) {
       const assessment = typeof setting.value === 'string' ? JSON.parse(setting.value) : setting.value;
+      const scoreFields = [
+        'topic_relevance', 'article_structure', 'abstract', 'research_gap',
+        'methodology', 'data_statistics', 'discussion', 'conclusion', 'references'
+      ] as const;
+      const invalidFields = scoreFields.filter((key) =>
+        typeof assessment?.[key] !== 'number' || !Number.isFinite(assessment[key]) ||
+        assessment[key] < 0 || assessment[key] > 10
+      );
+      const validRecommendations = ['Accept', 'Minor Revision', 'Major Revision', 'Reject'];
+
+      if (invalidFields.length > 0 || !validRecommendations.includes(assessment?.recommendation)) {
+        console.error('[ultimateai-score] Saved assessment failed validation:', invalidFields);
+        return NextResponse.json({
+          success: false,
+          error: 'Penilaian tersimpan tidak valid dan tidak dapat ditampilkan sebagai hasil resmi.',
+          invalidFields
+        }, { status: 502 });
+      }
+
+      // Recompute derived fields instead of trusting stale stored values.
+      assessment.overall_score = Math.round(
+        (scoreFields.reduce((sum, key) => sum + assessment[key], 0) / scoreFields.length) * 10
+      ) / 10;
+      assessment.direct_acceptance = assessment.overall_score >= 7.5;
       return NextResponse.json({ success: true, assessment });
     }
 
