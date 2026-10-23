@@ -126,8 +126,33 @@ Berikan output HANYA dalam format JSON berikut, tanpa teks tambahan apapun:
 
     if (!response.ok) {
       const errText = await response.text();
-      console.error('[ultimateai-score] UltimateAI error:', errText);
-      return NextResponse.json({ error: `UltimateAI error: ${response.status}` }, { status: 502 });
+      // Log a bounded excerpt for diagnostics; never return raw upstream HTML or secrets to the browser.
+      console.error('[ultimateai-score] Upstream provider response:', {
+        status: response.status,
+        bodyExcerpt: errText.slice(0, 500)
+      });
+
+      if (response.status === 429) {
+        return NextResponse.json({
+          success: false,
+          code: 'AI_PROVIDER_RATE_LIMIT_OR_QUOTA',
+          error: 'Layanan AI menolak permintaan karena batas pemakaian atau kuota. Periksa kuota provider dan coba lagi setelah tersedia.'
+        }, { status: 503 });
+      }
+
+      if (response.status === 530) {
+        return NextResponse.json({
+          success: false,
+          code: 'AI_PROVIDER_GATEWAY_530',
+          error: 'Gateway layanan AI mengembalikan HTTP 530. Ini belum membuktikan kuota habis; periksa koneksi gateway, endpoint provider, dan log provider. Tidak ada skor baru yang disimpan.'
+        }, { status: 503 });
+      }
+
+      return NextResponse.json({
+        success: false,
+        code: 'AI_PROVIDER_HTTP_ERROR',
+        error: `Layanan AI mengembalikan HTTP ${response.status}. Tidak ada skor baru yang disimpan.`
+      }, { status: 503 });
     }
 
     const json = await response.json();
