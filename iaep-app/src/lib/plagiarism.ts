@@ -120,7 +120,7 @@ export async function checkParagraphPlagiarism(
   if (otherParagraphs.length > 0) {
     for (let idx = 0; idx < otherParagraphs.length; idx++) {
       const otherPara = otherParagraphs[idx];
-      const otherTokens = otherPara.split(/\\s+/).map(cleanWordToken).filter(w => w.length > 0);
+      const otherTokens = otherPara.split(/\s+/).map(cleanWordToken).filter(w => w.length > 0);
       const matchRun = findLongestCommonWordRun(cleanTokens, otherTokens);
       if (matchRun > detectedCml) {
         detectedCml = matchRun;
