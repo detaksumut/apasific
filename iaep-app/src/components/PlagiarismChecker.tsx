@@ -118,7 +118,7 @@ export const PlagiarismChecker: React.FC<PlagiarismCheckerProps> = ({
       const paragraph = paragraphs[i];
       const wordCount = countWords(paragraph);
       
-      const checkResult = await checkParagraphPlagiarism(paragraph);
+      const checkResult = await checkParagraphPlagiarism(paragraph, paragraphs.filter((_, index) => index !== i));
       const isHighRisk = checkResult.classification === 'HIGH_RISK_SIGNAL';
       const isReview = checkResult.classification === 'CONTEXT_REVIEW';
 
@@ -270,7 +270,7 @@ export const PlagiarismChecker: React.FC<PlagiarismCheckerProps> = ({
             <Info className="w-5 h-5 text-[#c9a84c] flex-shrink-0 mt-0.5" />
             <div>
               <strong className="text-[#c9a84c] block mb-0.5">Prinsip Analisis Konteks &amp; Kedaulatan Dewan Redaksi APASIFIC:</strong>
-              Hasil di atas adalah sinyal kontekstual atribusi (bukan vonis plagiarisme otomatis). Keputusan integritas naskah sepenuhnya berada di tangan Dewan Redaksi melalui evaluasi konteks ilmiah.
+              Hasil di atas hanya mendeteksi kemiripan internal antarparagraf dalam naskah ini; sistem ini tidak melakukan pencarian terhadap jurnal, web, atau basis data eksternal. Skor rendah atau status NO HIGH RISK bukan bukti bahwa naskah bebas plagiarisme. Hasil merupakan sinyal kontekstual, bukan vonis otomatis; Dewan Redaksi tetap harus memeriksa sumber eksternal dan konteks ilmiah.
             </div>
           </div>
 
