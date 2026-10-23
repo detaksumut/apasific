@@ -1,65 +1,45 @@
 import { NextResponse } from 'next/server';
 
 function generateIntelligentManuscriptClue(text: string): string {
-  const paragraphs = text.split(/\n\s*\n/).map(p => p.trim()).filter(p => p.length > 20);
-  const cleanFull = text.replace(/\s+/g, ' ').trim();
-  
-  // 1. Ringkasan
-  const firstParagraph = paragraphs[0] || cleanFull.slice(0, 350);
-  
-  // 2. Tujuan Penelitian
-  const tujuanMatch = cleanFull.match(/(tujuan|bertujuan|meneliti|menganalisis|tujuan penelitian ini|the objective|the purpose|aims to|this study aims)/i);
-  let tujuanStr = "Menganalisis dan menguji hubungan antar variabel atau fenomena empiris utama yang diangkat dalam naskah.";
-  if (tujuanMatch && tujuanMatch.index !== undefined) {
-    const snippet = cleanFull.slice(tujuanMatch.index, tujuanMatch.index + 280);
-    const endPeriod = snippet.indexOf('.');
-    tujuanStr = endPeriod > 10 ? snippet.slice(0, endPeriod + 1) : snippet;
-  }
+  const clean = text.replace(/\\s+/g, ' ').trim();
+  const extract = (pattern: RegExp, limit = 320): string => {
+    const match = pattern.exec(clean);
+    if (!match || match.index === undefined) return 'Tidak teridentifikasi secara eksplisit dari teks yang diekstrak; perlu verifikasi reviewer.';
+    return clean.slice(match.index, match.index + limit).trim();
+  };
 
-  // 3. Metodologi
-  let metodologiStr = "Pendekatan metodologi ilmiah terstruktur berbasis data empiris.";
-  if (/kuantitatif|regresi|spss|pls|sem|kuesioner|sampel|purposive/i.test(cleanFull)) {
-    metodologiStr = "Pendekatan Kuantitatif dengan analisis statistik (regresi/SEM/SPSS) dan teknik sampling empiris.";
-  } else if (/kualitatif|wawancara|studi kasus|etnografi|fenomenologi/i.test(cleanFull)) {
-    metodologiStr = "Pendekatan Kualitatif Deskriptif berbasis observasi mendalam, wawancara, dan studi kasus.";
-  } else if (/literature review|slr|prisma|tinjauan pustaka|bibliometrik/i.test(cleanFull)) {
-    metodologiStr = "Systematic Literature Review (SLR) / Meta-Analisis berbasis protokol telaah pustaka terstruktur.";
-  }
+  const firstParagraph = text.split(/\\n\\s*\\n/).map(p => p.trim()).find(p => p.length > 20);
+  const objective = extract(/.{0,60}(?:tujuan penelitian|bertujuan|this study aims|the objective|the purpose).{0,260}/i);
+  const methodology = extract(/.{0,60}(?:metodologi|metode penelitian|methodology|research design|kuantitatif|kualitatif|systematic literature review|slr).{0,260}/i);
+  const findings = extract(/.{0,60}(?:hasil penelitian|temuan|results indicate|findings reveal|hasil menunjukkan).{0,260}/i);
+  const conclusion = extract(/.{0,60}(?:kesimpulan|dapat disimpulkan|in conclusion|conclusion).{0,260}/i);
 
-  // 4. Temuan Utama
-  let temuanStr = "Hasil penelitian menunjukkan bukti empiris yang relevan terhadap hipotesis dan rumusan masalah yang diajukan.";
-  const hasilMatch = cleanFull.match(/(hasil penelitian|hasil menunjukkan|temuan menunjukkan|findings reveal|results indicate|menunjukkan bahwa)/i);
-  if (hasilMatch && hasilMatch.index !== undefined) {
-    const snippet = cleanFull.slice(hasilMatch.index, hasilMatch.index + 300);
-    const endPeriod = snippet.indexOf('.');
-    temuanStr = endPeriod > 15 ? snippet.slice(0, endPeriod + 1) : snippet;
-  }
-
-  // 5. Kesimpulan
-  let kesimpulanStr = "Naskah memberikan sintesis konseptual dan kontribusi nyata terhadap pengembangan literatur di bidang kajian terkait.";
-  const kesimpulanMatch = cleanFull.match(/(kesimpulan|dapat disimpulkan|in conclusion|concludes that|berdasarkan hasil)/i);
-  if (kesimpulanMatch && kesimpulanMatch.index !== undefined) {
-    const snippet = cleanFull.slice(kesimpulanMatch.index, kesimpulanMatch.index + 280);
-    const endPeriod = snippet.indexOf('.');
-    kesimpulanStr = endPeriod > 15 ? snippet.slice(0, endPeriod + 1) : snippet;
-  }
-
-  // 6. Catatan Analisis
-  const wordCount = cleanFull.split(/\s+/).length;
-  const catatanStr = `Naskah terdiri dari ±${paragraphs.length} segmen paragraf dengan total volume ±${wordCount} kata. Narasi logis, koherensi argumen, dan kesesuaian struktur ilmiah berada dalam parameter evaluasi standar APASIFIC.`;
-
-  // 7. Kelemahan / Keterbatasan
-  const kelemahanStr = "Perlu peninjauan lebih lanjut terhadap keterbaruan sitasi (5 tahun terakhir), ketajaman pembahasan hasil temuan (discussion), dan implikasi manajerial/kebijakan yang lebih mendalam.";
-
-  return `1. Ringkasan:\n${firstParagraph.slice(0, 350)}...\n\n` +
-         `2. Tujuan Penelitian:\n${tujuanStr}\n\n` +
-         `3. Metodologi:\n${metodologiStr}\n\n` +
-         `4. Temuan Utama:\n${temuanStr}\n\n` +
-         `5. Kesimpulan:\n${kesimpulanStr}\n\n` +
-         `6. Catatan Analisis:\n${catatanStr}\n\n` +
-         `7. Kelemahan/Keterbatasan:\n${kelemahanStr}`;
+  return [
+    'STATUS: FALLBACK EKSTRAKTIF — layanan AI tidak memberikan hasil yang dapat digunakan.',
+    'Catatan: bagian di bawah hanya petikan teks yang terdeteksi, bukan penilaian AI. Verifikasi semua temuan terhadap naskah asli.',
+    '',
+    '1. Ringkasan:',
+    firstParagraph ? firstParagraph.slice(0, 350) : clean.slice(0, 350),
+    '',
+    '2. Tujuan Penelitian (petikan):',
+    objective,
+    '',
+    '3. Metodologi (petikan):',
+    methodology,
+    '',
+    '4. Temuan Utama (petikan):',
+    findings,
+    '',
+    '5. Kesimpulan (petikan):',
+    conclusion,
+    '',
+    '6. Catatan Analisis:',
+    'Lakukan pemeriksaan manual atas tujuan, metode, hasil, kesimpulan, dan konsistensi antarbagian. Jangan gunakan fallback ini sebagai bukti bahwa klaim atau metode telah tervalidasi.',
+    '',
+    '7. Kelemahan/Keterbatasan:',
+    'Analisis AI tidak tersedia. Reviewer perlu mengidentifikasi keterbatasan berdasarkan bukti eksplisit pada naskah.'
+  ].join('\\n');
 }
-
 export async function POST(req: Request) {
   try {
     const body = await req.json();
@@ -90,7 +70,7 @@ Berikan output dengan format berikut:
 
     try {
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 6000); // 6s timeout for external model
+      const timeoutId = setTimeout(() => controller.abort(), 20000); // bounded timeout for model response
 
       const response = await fetch(`${baseUrl}/chat/completions`, {
         method: 'POST',
@@ -130,14 +110,15 @@ Berikan output dengan format berikut:
       console.warn('[ultimateai-clue] Remote 9Router unreachable, switching to APASIFIC Cognitive Engine fallback:', aiFetchErr);
     }
 
-    // Fallback: Intelligent Canonical Analysis (Guaranteed 100% Success)
+    // Fallback is explicitly marked and extractive; it must not impersonate a completed AI analysis.
     const canonicalContent = generateIntelligentManuscriptClue(text);
     return NextResponse.json({
       success: true,
       rawContent: canonicalContent,
-      provider: 'APASIFIC-Cognitive-Engine',
-      model: 'UltimateAI-Adaptive-v1',
-      status: 'COMPLETED',
+      provider: 'APASIFIC-Extractive-Fallback',
+      model: 'extractive-fallback-v1',
+      status: 'FALLBACK',
+      warning: 'AI analysis unavailable; output contains text excerpts and requires manual reviewer verification.',
       inputLength: text.length
     });
 
