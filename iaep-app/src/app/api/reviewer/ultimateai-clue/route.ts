@@ -71,8 +71,9 @@ Berikan output dengan format berikut:
     try {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 20000); // bounded timeout for model response
-
-      const response = await fetch(`${baseUrl}/chat/completions`, {
+      let response: Response;
+      try {
+        response = await fetch(`${baseUrl}/chat/completions`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -88,9 +89,10 @@ Berikan output dengan format berikut:
           temperature: 0
         }),
         signal: controller.signal
-      });
-
-      clearTimeout(timeoutId);
+        });
+      } finally {
+        clearTimeout(timeoutId);
+      }
 
       if (response.ok) {
         const json = await response.json();
