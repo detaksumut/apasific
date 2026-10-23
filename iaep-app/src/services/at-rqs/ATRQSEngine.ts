@@ -208,7 +208,9 @@ export class ATRQSEngine {
     r: ReturnType<typeof ATRQSEngine.normalizeScreenLayer>,
     c: ReturnType<typeof ATRQSEngine.normalizeClueLayer>
   ): ATRQSDimensionBreakdown {
-    const samplingRigor = this.evaluateSamplingRigor(input.clueLayer, input.abstract);
+    const samplingRigor = input.clueLayer
+      ? this.evaluateSamplingRigor(input.clueLayer, input.abstract)
+      : 50;
 
     // 1. Academic Contribution (18%)
     const academic_contribution = Math.round(0.40 * s.gap + 0.35 * r.novelty + 0.25 * s.topic);
@@ -217,23 +219,23 @@ export class ATRQSEngine {
     const procedural_rigor = Math.round(0.50 * s.method + 0.30 * r.methodology + 0.20 * samplingRigor);
 
     // 3. Analytical Strength (16%)
-    const modelRobustness = input.clueLayer?.explained_variance ? 90 : 82;
+    const modelRobustness = input.clueLayer?.explained_variance ? 90 : 50;
     const analytical_strength = Math.round(0.60 * s.data + 0.40 * modelRobustness);
 
     // 4. Scholarly Communication (12%)
     const scholarly_communication = Math.round(0.35 * s.structure + 0.25 * s.abstract + 0.20 * s.discussion + 0.20 * s.references);
 
     // 5. Integrity & Transparency (12%)
-    const limitationOpenness = input.clueLayer?.limitations ? 90 : 75;
+    const limitationOpenness = input.clueLayer?.limitations ? 90 : 50;
     const integrity_transparency = Math.round(0.50 * s.conclusion + 0.50 * limitationOpenness);
 
     // 6. Future Research Value (10%)
-    const futureGap = input.screenLayer?.suggested_improvements || input.clueLayer?.limitations ? 82 : 72;
+    const futureGap = input.screenLayer?.suggested_improvements || input.clueLayer?.limitations ? 82 : 50;
     const future_research_value = Math.round(futureGap);
 
     // 7. Impact & Applicability (14%)
-    const practicalUtility = input.clueLayer?.practical_implications ? 88 : 82;
-    const policyTransferability = input.clueLayer?.policy_relevance ? 86 : 80;
+    const practicalUtility = input.clueLayer?.practical_implications ? 88 : 50;
+    const policyTransferability = input.clueLayer?.policy_relevance ? 86 : 50;
     const impact_applicability = Math.round(0.50 * practicalUtility + 0.50 * policyTransferability);
 
     return {
