@@ -18,14 +18,14 @@ export async function GET(req: Request) {
     );
 
     // 1. Fetch Screening Data (SCREEN Layer)
-    const { data: screening } = await supabaseAdmin
+    const { data: screening, error: screeningError } = await supabaseAdmin
       .from('ai_reviewer_assessments')
       .select('novelty_rating, methodology_rating, clarity_rating, confidence_score, summary_evaluation, suggested_improvements, model_name, prompt_version, created_at')
       .eq('submission_id', submissionId)
       .maybeSingle();
 
     // 2. Fetch UltimateAI Score Data (SCORE Layer)
-    const { data: scoreSetting } = await supabaseAdmin
+    const { data: scoreSetting, error: scoreError } = await supabaseAdmin
       .from('system_settings')
       .select('value')
       .eq('key', `ultimateai_score_${submissionId}`)
@@ -38,7 +38,7 @@ export async function GET(req: Request) {
 
     // 3. Fetch Completed Peer Reviews / Evidence (CLUE Layer)
     // NOTE: comments_for_editor and correction_notes are STRICTLY EXCLUDED for public privacy governance
-    const { data: reviews } = await supabaseAdmin
+    const { data: reviews, error: reviewsError } = await supabaseAdmin
       .from('review_assignments')
       .select('id, reviewer_name, status, recommendation, comments_for_author, completed_at')
       .eq('submission_id', submissionId)
@@ -46,11 +46,26 @@ export async function GET(req: Request) {
       .order('completed_at', { ascending: false });
 
     // 4. Fetch Submission Metadata for deterministic fallback
-    const { data: sub } = await supabaseAdmin
+    const { data: sub, error: submissionError } = await supabaseAdmin
       .from('submissions')
       .select('id, title, abstract, doi, created_at')
       .eq('id', submissionId)
       .maybeSingle();
+
+    // Do not silently present failed database reads as absent AI evidence.
+    const readFailure = screeningError || scoreError || reviewsError || submissionError;
+    if (readFailure) {
+      console.error('[tri-source-assessment] Data source query failed:', {
+        screening: screeningError?.message,
+        score: scoreError?.message,
+        reviews: reviewsError?.message,
+        submission: submissionError?.message
+      });
+      return NextResponse.json(
+        { error: 'Gagal membaca satu atau lebih sumber penilaian. Silakan coba kembali.' },
+        { status: 502 }
+      );
+    }
 
     return NextResponse.json({
       success: true,
