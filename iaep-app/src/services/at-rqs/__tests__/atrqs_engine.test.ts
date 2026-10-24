@@ -140,6 +140,36 @@ describe('ATRQSEngine v1.0 Mathematical & Consistency Tests', () => {
     expect(snapshot.is_fallback).toBe(false);
   });
 
+  test('CLUE normalization applies the official weighted CESS factors', () => {
+    const input: TriSourceInput = {
+      articleId: 'clue-cess-weight-test',
+      abstract: 'Populasi pegawai, metode kuantitatif survei, sampel 38 responden, hasil analisis regresi.',
+      scoreLayer: { overall_score: 8 },
+      screenLayer: {
+        novelty_rating: 3,
+        methodology_rating: 3,
+        clarity_rating: 3,
+        suggested_improvements: 'Perluas validasi eksternal.'
+      },
+      clueLayer: {
+        methodology: 'Kuantitatif survei dengan total sampling.',
+        sampling_strategy: 'Total sampling',
+        sample_size: 38,
+        raw_clue_text: 'Uji validitas, reliabilitas, regresi dan uji asumsi.',
+        findings: 'Hasil regresi terukur.',
+        limitations: 'Satu instansi dan desain cross-sectional.',
+        explained_variance: '53.7%',
+        model_statistics: 'F=15.294, p=0.000, R2=0.574',
+        practical_implications: 'Perbaiki pembagian beban kerja.',
+        policy_relevance: 'Panduan manajemen SDM.'
+      }
+    };
+
+    const snapshot = ATRQSEngine.compute(input);
+    // c1=90, c2=90, c3=90, c4=88, c5=90 => CESS=89.7
+    expect(snapshot.provenance.clue_layer_norm).toBe(89.7);
+  });
+
   test('AECI requires limitations as the fifth element; conclusion alone is insufficient', () => {
     const input: TriSourceInput = {
       articleId: 'aeci-limitations-required',
