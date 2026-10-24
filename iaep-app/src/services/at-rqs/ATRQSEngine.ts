@@ -52,7 +52,13 @@ export class ATRQSEngine {
 
     // --- STAGE 5: Assessment Confidence (AAC) ---
     const dataCompleteness = this.computeDataCompleteness(input);
-    const extractionConsistency = clueNorm.consistencyScore;
+    // Official E_consistency is the mean pairwise deviation across all three normalized channels.
+    const meanPairwiseDeviation = (
+      Math.abs(scoreNorm.overall - screenNorm.overall) +
+      Math.abs(scoreNorm.overall - clueNorm.overall) +
+      Math.abs(screenNorm.overall - clueNorm.overall)
+    ) / 3;
+    const extractionConsistency = Math.min(100, Math.max(0, 100 - meanPairwiseDeviation));
     const rawAac = 0.50 * arti + 0.30 * dataCompleteness + 0.20 * extractionConsistency;
     const finalAac = Math.min(100, Math.max(0, Math.round(rawAac)));
 
