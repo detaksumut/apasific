@@ -74,7 +74,7 @@ export async function POST(req: Request) {
       ? `Jumlah halaman naskah: ${pageCount} halaman.`
       : `Jumlah halaman tidak diketahui.`;
 
-    const prompt = `Kamu adalah reviewer akademik ahli. Baca naskah berikut dan berikan penilaian skor untuk setiap kriteria dengan skala 0-10.
+    const prompt = `Kamu adalah reviewer akademik untuk penilaian awal APASIFIC. Nilai hanya berdasarkan bukti yang benar-benar tercantum pada naskah yang diberikan. Jangan mengarang data, metode, temuan, sitasi, atau detail yang tidak tersedia. Jika informasi suatu kriteria tidak cukup, berikan skor konservatif yang sesuai dengan bukti yang tersedia; jangan menganggap informasi yang tidak terlihat sebagai bukti bahwa kualitasnya baik. Terapkan rubrik secara konsisten dan gunakan skala 0-10 untuk setiap kriteria. Rekomendasi harus selaras dengan sembilan skor.
 
 ${pageInfo}
 
