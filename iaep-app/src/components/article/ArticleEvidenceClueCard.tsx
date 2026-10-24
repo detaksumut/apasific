@@ -138,19 +138,17 @@ export default function ArticleEvidenceClueCard({
     return text || "Studi ini menyajikan investigasi mendalam terhadap fenomena akademik terkait melalui kerangka analisis baku.";
   };
 
-  // Deterministic fallback derived from abstract
-  const fallbackClue = useMemo(() => {
-    return {
-      hasStructured: true,
-      summary: cleanAbstractSummary(abstract),
-      objective: "Menganalisis dan mengidentifikasi determinan utama pada objek kajian serta mengeksplorasi implikasi substantifnya.",
-      methodology: "Pendekatan telaah ilmiah terpadu melalui verifikasi data, perumusan kerangka teoritis, dan pengujian konsistensi.",
-      findings: "Pemeriksaan menghasilkan bukti ilmiah yang selaras dengan hipotesis/premis dasar serta menegaskan signifikansi temuan.",
-      conclusion: "Penelitian berhasil membuktikan relevansi konsep yang diuji dan menyajikan landasan kokoh bagi pengembangan keilmuan.",
-      reviewerName: "Board Peer Reviewer (Verified)",
-      completedAt: null
-    };
-  }, [abstract]);
+  // Missing reviewer evidence must not be replaced with invented research claims.
+  const fallbackClue = useMemo(() => ({
+    hasStructured: false,
+    summary: "Belum ada catatan CLUE/reviewer tersimpan untuk naskah ini.",
+    objective: "Belum tersedia — perlu ditarik dari naskah atau catatan reviewer yang tersimpan.",
+    methodology: "Belum tersedia — tidak disimpulkan otomatis dari abstrak.",
+    findings: "Belum tersedia — temuan tidak boleh direka.",
+    conclusion: "Belum tersedia — kesimpulan tidak boleh direka.",
+    reviewerName: "Belum ada data reviewer",
+    completedAt: null
+  }), []);
 
   const active = parsedReview || fallbackClue;
 
@@ -176,7 +174,7 @@ export default function ArticleEvidenceClueCard({
 
         <div className="text-[11px] font-mono text-zinc-400 bg-[#16162a] border border-gray-800 px-3 py-1.5 rounded-lg flex items-center gap-1.5 self-start sm:self-auto">
           <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-          <span>STATUS: TELAAH SEJAWAT TERVERIFIKASI</span>
+          <span>{parsedReview ? "STATUS: DATA REVIEW TERSEDIA" : "STATUS: BUKTI CLUE BELUM TERSEDIA"}</span>
         </div>
       </div>
 
