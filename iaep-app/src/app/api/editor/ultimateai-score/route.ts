@@ -149,6 +149,22 @@ Berikan output HANYA dalam format JSON berikut, tanpa teks tambahan apapun:
         bodyExcerpt: errText.slice(0, 500)
       });
 
+      if (response.status === 400) {
+        return NextResponse.json({
+          success: false,
+          code: 'AI_PROVIDER_BAD_REQUEST',
+          error: '9Router menolak format permintaan atau nama model (HTTP 400). Periksa NINE_ROUTER_MODEL dan kompatibilitas endpoint OpenAI /chat/completions. Tidak ada skor baru yang disimpan.'
+        }, { status: 502 });
+      }
+
+      if (response.status === 401 || response.status === 403) {
+        return NextResponse.json({
+          success: false,
+          code: 'AI_PROVIDER_AUTH_ERROR',
+          error: '9Router menolak autentikasi (HTTP ' + response.status + '). Periksa NINE_ROUTER_API_KEY dan izin gateway. Tidak ada skor baru yang disimpan.'
+        }, { status: 502 });
+      }
+
       if (response.status === 429) {
         return NextResponse.json({
           success: false,
