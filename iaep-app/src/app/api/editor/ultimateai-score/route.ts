@@ -130,7 +130,7 @@ Berikan output HANYA dalam format JSON berikut, tanpa teks tambahan apapun:
         'Authorization': `Bearer ${apiKey}`
       },
       body: JSON.stringify({
-        model: 'UltimateAI',
+        model: process.env.NINE_ROUTER_MODEL || 'UltimateAI',
         messages: [{ role: 'user', content: prompt }],
         stream: false,
         temperature: 0
