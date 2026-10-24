@@ -168,7 +168,7 @@ export class GeminiProviderAdapter implements IAIProvider {
             'Authorization': `Bearer ${this.apiKey}`
           },
           body: JSON.stringify({
-            model: 'UltimateAI',
+            model: process.env.NINE_ROUTER_MODEL || 'UltimateAI',
             messages,
             temperature: 0.7,
             stream: false
