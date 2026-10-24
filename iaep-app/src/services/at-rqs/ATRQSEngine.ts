@@ -236,33 +236,42 @@ export class ATRQSEngine {
     r: ReturnType<typeof ATRQSEngine.normalizeScreenLayer>,
     c: ReturnType<typeof ATRQSEngine.normalizeClueLayer>
   ): ATRQSDimensionBreakdown {
-    const samplingRigor = this.evaluateSamplingRigor(input.clueLayer, input.abstract);
+    const clue = input.clueLayer;
+    const samplingRigor = this.evaluateSamplingRigor(clue, input.abstract);
+    const hasModelStats = Boolean(clue?.model_statistics?.trim());
+    const hasExplainedVariance = Boolean(clue?.explained_variance?.trim());
+    const hasFindings = Boolean(clue?.findings?.trim());
+    const hasLimitations = Boolean(clue?.limitations?.trim());
+    const hasFutureResearch = Boolean(input.screenLayer?.suggested_improvements?.trim());
+    const hasPracticalUtility = Boolean(clue?.practical_implications?.trim());
+    const hasPolicyRelevance = Boolean(clue?.policy_relevance?.trim());
 
+    // Sub-indicators use stored evidence only; absence is not rewarded with a positive default.
     // 1. Academic Contribution (18%)
     const academic_contribution = Math.round(0.40 * s.gap + 0.35 * r.novelty + 0.25 * s.topic);
 
     // 2. Procedural Rigor (18%)
     const procedural_rigor = Math.round(0.50 * s.method + 0.30 * r.methodology + 0.20 * samplingRigor);
 
-    // 3. Analytical Strength (16%)
-    const modelRobustness = input.clueLayer?.explained_variance ? 90 : 82;
+    // 3. Analytical Strength (16%): data/statistics plus evidence of model fit/statistics.
+    const modelRobustness = hasExplainedVariance ? 90 : hasModelStats ? 82 : hasFindings ? 70 : 50;
     const analytical_strength = Math.round(0.60 * s.data + 0.40 * modelRobustness);
 
     // 4. Scholarly Communication (12%)
     const scholarly_communication = Math.round(0.35 * s.structure + 0.25 * s.abstract + 0.20 * s.discussion + 0.20 * s.references);
 
-    // 5. Integrity & Transparency (12%)
-    const limitationOpenness = input.clueLayer?.limitations ? 90 : 75;
+    // 5. Integrity & Transparency (12%): documented limitations only.
+    const limitationOpenness = hasLimitations ? 90 : 50;
     const integrity_transparency = Math.round(0.50 * s.conclusion + 0.50 * limitationOpenness);
 
-    // 6. Future Research Value (10%)
-    const futureGap = input.screenLayer?.suggested_improvements || input.clueLayer?.limitations ? 82 : 72;
-    const future_research_value = Math.round(futureGap);
+    // 6. Future Research Value (10%): reviewer improvement suggestions or documented limitations.
+    const futureResearchIndicator = hasFutureResearch ? 88 : hasLimitations ? 75 : 50;
+    const future_research_value = Math.round(0.60 * futureResearchIndicator + 0.40 * (hasLimitations ? 75 : 50));
 
-    // 7. Impact & Applicability (14%)
-    const practicalUtility = input.clueLayer?.practical_implications ? 88 : 82;
-    const policyTransferability = input.clueLayer?.policy_relevance ? 86 : 80;
-    const impact_applicability = Math.round(0.50 * practicalUtility + 0.50 * policyTransferability);
+    // 7. Impact & Applicability (14%): documented practical and policy relevance.
+    const practicalUtility = hasPracticalUtility && hasPolicyRelevance ? 90
+      : hasPracticalUtility || hasPolicyRelevance ? 80 : 50;
+    const impact_applicability = Math.round(0.50 * practicalUtility + 0.50 * (hasPolicyRelevance ? 90 : 50));
 
     return {
       academic_contribution,
