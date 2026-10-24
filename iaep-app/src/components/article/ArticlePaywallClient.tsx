@@ -391,7 +391,7 @@ export default function ArticlePaywallClient({ initialArticle, id }: ArticlePayw
         abstract: article.abstract,
         doi: article.doi
       });
-      return snap.at_rqs_ten_scale.toFixed(1);
+      return snap.is_fallback ? "Belum tersedia" : snap.at_rqs_ten_scale.toFixed(1);
     } catch {
       return "—";
     }
