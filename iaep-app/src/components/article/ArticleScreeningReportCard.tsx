@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect } from "react";
 import { Star, ShieldAlert, CheckCircle2, Sparkles, AlertCircle } from "lucide-react";
 
 interface Props {
@@ -10,12 +10,7 @@ interface Props {
   doi?: string;
 }
 
-export default function ArticleScreeningReportCard({
-  articleId,
-  title = "",
-  abstract = "",
-  doi = ""
-}: Props) {
+export default function ArticleScreeningReportCard({ articleId }: Props) {
   const [screeningData, setScreeningData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
