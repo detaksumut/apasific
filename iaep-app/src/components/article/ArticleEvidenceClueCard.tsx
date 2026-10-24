@@ -78,10 +78,10 @@ export default function ArticleEvidenceClueCard({
       return {
         hasStructured: Boolean(s1 || s2 || s3 || s4 || s5),
         summary: s1 || raw,
-        objective: s2 || "Mengevaluasi dan menganalisis fenomena riset secara komprehensif untuk memberikan kontribusi empiris/konseptual.",
-        methodology: s3 || "Menggunakan pendekatan analisis ilmiah terstruktur dengan parameter operasional yang baku.",
-        findings: s4 || "Menemukan signifikansi hubungan antar variabel dan pola hubungan terukur dalam objek penelitian.",
-        conclusion: s5 || "Sintesis hasil penelitian menegaskan tercapainya sasaran riset serta membuka ruang bagi telaah lanjutan.",
+        objective: s2 || "Belum tersedia — bagian tujuan tidak ditemukan dalam catatan reviewer.",
+        methodology: s3 || "Belum tersedia — bagian metodologi tidak ditemukan dalam catatan reviewer.",
+        findings: s4 || "Belum tersedia — bagian temuan tidak ditemukan dalam catatan reviewer.",
+        conclusion: s5 || "Belum tersedia — bagian kesimpulan tidak ditemukan dalam catatan reviewer.",
         reviewerName,
         completedAt: reviewsData[0].completed_at
       };
@@ -91,7 +91,7 @@ export default function ArticleEvidenceClueCard({
 
   // Clean and sanitize abstract text into a proper executive summary
   const cleanAbstractSummary = (raw: string): string => {
-    if (!raw) return "Studi ini menyajikan investigasi mendalam terhadap fenomena akademik terkait melalui kerangka analisis baku.";
+    if (!raw) return "Abstrak belum tersedia.";
     
     let text = raw;
     try {
@@ -135,7 +135,7 @@ export default function ArticleEvidenceClueCard({
       }
     }
 
-    return text || "Studi ini menyajikan investigasi mendalam terhadap fenomena akademik terkait melalui kerangka analisis baku.";
+    return text || "Abstrak belum tersedia.";
   };
 
   // Missing reviewer evidence must not be replaced with invented research claims.
