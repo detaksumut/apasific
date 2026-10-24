@@ -41,7 +41,7 @@ export class GeminiProviderAdapter implements IAIProvider {
         const baseUrl = configuredBaseUrl.replace(/\/$/, '');
         const apiUrl = `${baseUrl}/chat/completions`;
         const requestBody = {
-          model: 'UltimateAI',
+          model: process.env.NINE_ROUTER_MODEL || 'UltimateAI',
           messages: [{ role: 'user', content: prompt }],
           response_format: { type: 'json_object' },
           temperature: 0.2,
