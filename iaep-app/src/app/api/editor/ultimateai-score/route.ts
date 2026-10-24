@@ -124,19 +124,34 @@ Berikan output HANYA dalam format JSON berikut, tanpa teks tambahan apapun:
     let response: Response;
     try {
       response = await fetch(`${baseUrl}/chat/completions`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${apiKey}`
-      },
-      body: JSON.stringify({
-        model: process.env.NINE_ROUTER_MODEL || 'UltimateAI',
-        messages: [{ role: 'user', content: prompt }],
-        stream: false,
-        temperature: 0
-      }),
-      signal: controller.signal
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${apiKey}`
+        },
+        body: JSON.stringify({
+          model: process.env.NINE_ROUTER_MODEL || 'cx/gpt-5.6-terra',
+          messages: [{ role: 'user', content: prompt }],
+          stream: false,
+          temperature: 0
+        }),
+        signal: controller.signal
       });
+    } catch (providerError: any) {
+      const timedOut = providerError?.name === 'AbortError';
+      console.error('[ultimateai-score] Provider fetch failed:', {
+        name: providerError?.name,
+        message: providerError?.message,
+        timedOut,
+        baseUrl
+      });
+      return NextResponse.json({
+        success: false,
+        code: timedOut ? 'AI_PROVIDER_TIMEOUT' : 'AI_PROVIDER_FETCH_FAILED',
+        error: timedOut
+          ? 'Koneksi ke 9Router melewati batas waktu 45 detik. Pastikan tunnel HTTPS aktif dan dapat diakses dari server produksi.'
+          : 'Server APASIFIC tidak dapat menjangkau 9Router. Periksa NINE_ROUTER_BASE_URL di Vercel dan pastikan URL Tunnel HTTPS aktif serta dapat diakses dari internet.'
+      }, { status: 503 });
     } finally {
       clearTimeout(timeoutId);
     }
