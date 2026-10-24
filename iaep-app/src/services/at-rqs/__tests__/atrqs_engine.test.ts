@@ -95,9 +95,9 @@ describe('ATRQSEngine v1.0 Mathematical & Consistency Tests', () => {
     const snapshot = ATRQSEngine.compute(input);
 
     expect(snapshot.is_fallback).toBe(true);
-    expect(snapshot.at_rqs).toBeGreaterThanOrEqual(60);
-    expect(snapshot.at_rqs).toBeLessThanOrEqual(100);
-    expect(snapshot.aeci).toBeGreaterThan(0);
+    expect(snapshot.at_rqs).toBeGreaterThanOrEqual(0);
+    expect(snapshot.at_rqs).toBeLessThan(60);
+    expect(snapshot.aeci).toBe(0);
     expect(snapshot.aac).toBeGreaterThan(0);
     expect(Number.isNaN(snapshot.at_rqs)).toBe(false);
     expect(Number.isNaN(snapshot.aeci)).toBe(false);
@@ -114,6 +114,30 @@ describe('ATRQSEngine v1.0 Mathematical & Consistency Tests', () => {
     const snapshot = ATRQSEngine.compute(input);
     expect(snapshot.provenance.consistency_factor).toBeGreaterThanOrEqual(0.85);
     expect(snapshot.provenance.consistency_factor).toBeLessThanOrEqual(1.00);
+  });
+
+  test('SCREEN ratings use official 1-to-5 normalization before aggregation', () => {
+    const input: TriSourceInput = {
+      articleId: 'screen-normalization-test',
+      scoreLayer: { overall_score: 5 },
+      screenLayer: {
+        novelty_rating: 1,
+        methodology_rating: 3,
+        clarity_rating: 5
+      },
+      clueLayer: {
+        objective: 'Objective',
+        methodology: 'Method',
+        findings: 'Findings',
+        conclusion: 'Conclusion',
+        limitations: 'Limitations'
+      }
+    };
+
+    const snapshot = ATRQSEngine.compute(input);
+    // 1 -> 0, 3 -> 50, 5 -> 100; weighted SCREEN total = 40.
+    expect(snapshot.provenance.screen_layer_norm).toBe(40);
+    expect(snapshot.is_fallback).toBe(false);
   });
 
   test('Case 4: Sampling Rigor evaluates total population sampling appropriately', () => {
