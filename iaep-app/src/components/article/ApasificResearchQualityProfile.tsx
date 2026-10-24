@@ -129,12 +129,17 @@ export default function ApasificResearchQualityProfile({ article }: Props) {
                 APASIFIC RESEARCH QUALITY PROFILE™
               </h3>
               <span className="text-xs sm:text-sm uppercase font-extrabold tracking-wider px-3.5 py-1 rounded-full bg-gradient-to-r from-[#c9a84c]/25 to-[#997a2b]/25 text-[#ffd977] border-2 border-[#c9a84c]/60 shadow-lg shadow-[#c9a84c]/15">
-                OFFICIAL AT-RQS™ v1.0
+                {snapshot.is_fallback ? "ASSESSMENT INCOMPLETE" : "OFFICIAL AT-RQS™ v1.0"}
               </span>
             </div>
             <p className="text-xs sm:text-sm text-gray-400 mt-1">
               Tri-Source Research Quality Assessment • <span className="text-gray-300 font-medium">{snapshot.assessment_id}</span>
             </p>
+            {snapshot.is_fallback && (
+              <p role="status" className="text-xs sm:text-sm text-amber-300 mt-2 max-w-2xl">
+                Penilaian belum lengkap: satu atau lebih sumber SCORE, SCREEN, dan CLUE belum tersedia. Nilai yang ditampilkan bersifat sementara dan bukan hasil AT-RQS terverifikasi.
+              </p>
+            )}
           </div>
         </div>
 
@@ -187,10 +192,10 @@ export default function ApasificResearchQualityProfile({ article }: Props) {
             <span className="text-sm font-bold text-cyan-400/70">/ 100</span>
           </div>
           <div className="inline-block px-3 py-1 rounded-lg bg-cyan-500/15 border border-cyan-500/30 text-[11px] font-extrabold text-cyan-300 tracking-wider uppercase">
-            High Structural Alignment
+            {snapshot.aeci >= 80 ? "Evidence Coverage Detected" : "Evidence Incomplete"}
           </div>
           <span className="block text-[10px] text-gray-500 mt-2">
-            Evidence Coverage: <strong className="text-gray-300">{snapshot.provenance.evidence_elements_detected} / 5 Elements (100%)</strong>
+            Evidence Coverage: <strong className="text-gray-300">{snapshot.provenance.evidence_elements_detected} / 5 Elements ({Math.round(snapshot.provenance.evidence_coverage_ratio * 100)}%)</strong>
           </span>
         </div>
 
@@ -208,7 +213,7 @@ export default function ApasificResearchQualityProfile({ article }: Props) {
             </span>
           </div>
           <div className="inline-block px-3 py-1 rounded-lg bg-emerald-500/15 border border-emerald-500/30 text-[11px] font-extrabold text-emerald-300 tracking-wider uppercase">
-            Tri-Source Consensus
+            {snapshot.is_fallback ? "Incomplete Sources" : "Tri-Source Consensus"}
           </div>
           <span className="block text-[10px] text-gray-500 mt-2">
             ARTI™ Agreement Index: <strong className="text-gray-300">{snapshot.arti} / 100</strong>
