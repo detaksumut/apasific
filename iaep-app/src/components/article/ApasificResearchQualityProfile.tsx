@@ -72,40 +72,24 @@ export default function ApasificResearchQualityProfile({ article }: Props) {
       title: article.title,
       abstract: article.abstract,
       doi: article.doi,
-      scoreLayer: savedScore
+      scoreLayer: savedScore && Number.isFinite(Number(savedScore.overall_score))
         ? {
-            topic_relevance: Number(savedScore.topic_relevance ?? 9),
-            article_structure: Number(savedScore.article_structure ?? 8),
-            abstract: Number(savedScore.abstract ?? 8),
-            research_gap: Number(savedScore.research_gap ?? 9),
-            methodology: Number(savedScore.methodology ?? 8),
-            data_statistics: Number(savedScore.data_statistics ?? 9),
-            discussion: Number(savedScore.discussion ?? 8),
-            conclusion: Number(savedScore.conclusion ?? 8),
-            references: Number(savedScore.references ?? 9),
-            overall_score: Number(savedScore.overall_score ?? 8.3)
+            topic_relevance: savedScore.topic_relevance == null ? undefined : Number(savedScore.topic_relevance),
+            article_structure: savedScore.article_structure == null ? undefined : Number(savedScore.article_structure),
+            abstract: savedScore.abstract == null ? undefined : Number(savedScore.abstract),
+            research_gap: savedScore.research_gap == null ? undefined : Number(savedScore.research_gap),
+            methodology: savedScore.methodology == null ? undefined : Number(savedScore.methodology),
+            data_statistics: savedScore.data_statistics == null ? undefined : Number(savedScore.data_statistics),
+            discussion: savedScore.discussion == null ? undefined : Number(savedScore.discussion),
+            conclusion: savedScore.conclusion == null ? undefined : Number(savedScore.conclusion),
+            references: savedScore.references == null ? undefined : Number(savedScore.references),
+            overall_score: Number(savedScore.overall_score)
           }
         : null,
-      screenLayer: {
-        novelty_rating: 3,
-        methodology_rating: 4,
-        clarity_rating: 4,
-        confidence_score: 85,
-        summary_evaluation: "Empirical study with structured methodology and clear statistical regression analysis.",
-        suggested_improvements: "Expand sample size and explore longitudinal multi-period dynamics for broader cross-institutional generalization."
-      },
-      clueLayer: {
-        objective: `Analyze key empirical determinants and structural relationships for ${article.title}`,
-        methodology: "Quantitative survey-based associative causal design with statistical regression models.",
-        sample_size: 38,
-        sampling_strategy: "Defined population sample with instrument validity and classical assumption compliance.",
-        findings: "Empirical indicators demonstrate statistically significant positive relationships with robust model fit.",
-        conclusion: "Simultaneous combination of target determinants significantly optimizes operational performance.",
-        limitations: "Single-institution population context with cross-sectional observation scope.",
-        practical_implications: "Provides structured framework for organizational optimization and resource allocation.",
-        policy_relevance: "Actionable empirical benchmark for institutional governance and performance planning.",
-        explained_variance: "53.7%"
-      }
+      // Do not manufacture SCREEN or CLUE evidence. Until the persisted source records
+      // are mapped and verified, the snapshot must remain explicitly marked as fallback.
+      screenLayer: null,
+      clueLayer: null
     };
 
     return ATRQSEngine.compute(input);
