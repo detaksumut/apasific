@@ -199,27 +199,34 @@ export class ATRQSEngine {
     return { novelty: 50, methodology: 50, clarity: 50, overall: 50 };
   }
 
-  private static normalizeClueLayer(clue?: TriSourceInput['clueLayer'], _input?: TriSourceInput) {
+  private static normalizeClueLayer(clue?: TriSourceInput['clueLayer'], input?: TriSourceInput) {
     if (!clue) {
       return { overall: 50, consistencyScore: 50 };
     }
 
-    // Conservative evidence proxy; presence alone is not treated as verification.
-    const detectedCount = [
-      clue.objective,
-      clue.methodology,
-      clue.findings,
-      clue.conclusion,
-      clue.limitations
-    ].filter(value => typeof value === 'string' && value.trim().length > 0).length;
+    // CLUE Evidence Strength Score (CESS), following the official five-factor weights.
+    const c1 = clue.explained_variance
+      ? 90
+      : clue.model_statistics
+        ? 82
+        : (clue.findings?.trim() ? 70 : 50);
+    const c2 = this.evaluateSamplingRigor(clue, input?.abstract);
+    const c3 = clue.limitations?.trim() ? 90 : 50;
+    const c4 = input?.screenLayer?.suggested_improvements?.trim()
+      ? 88
+      : clue.limitations?.trim()
+        ? 75
+        : 50;
+    const hasPracticalUtility = Boolean(clue.practical_implications?.trim());
+    const hasPolicyRelevance = Boolean(clue.policy_relevance?.trim());
+    const c5 = hasPracticalUtility && hasPolicyRelevance
+      ? 90
+      : hasPracticalUtility || hasPolicyRelevance
+        ? 80
+        : 50;
 
-    const clueNorm = detectedCount >= 5 ? 90
-      : detectedCount === 4 ? 75
-      : detectedCount === 3 ? 50
-      : detectedCount === 2 ? 25
-      : 0;
-
-    return { overall: clueNorm, consistencyScore: clueNorm };
+    const cess = 0.30 * c1 + 0.25 * c2 + 0.15 * c3 + 0.15 * c4 + 0.15 * c5;
+    return { overall: Math.round(cess * 10) / 10, consistencyScore: 50 };
   }
 
   private static computeDimensions(
