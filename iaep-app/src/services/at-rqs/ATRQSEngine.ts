@@ -157,7 +157,8 @@ export class ATRQSEngine {
     const valid = (value: unknown): value is number =>
       typeof value === 'number' && Number.isFinite(value) && value >= 0 && value <= 10;
     if (score && valid(score.overall_score)) {
-      const toScale = (value: unknown) => (valid(value) ? value : score.overall_score as number) * 10;
+      // Missing rubric items are neutral placeholders, never copied from overall_score.
+      const toScale = (value: unknown) => (valid(value) ? value * 10 : 50);
       return {
         topic: toScale(score.topic_relevance),
         structure: toScale(score.article_structure),
@@ -301,16 +302,24 @@ export class ATRQSEngine {
   }
 
   private static computeDataCompleteness(input: TriSourceInput): number {
-    let totalFields = 8;
-    let available = 0;
-    if (input.title) available++;
-    if (input.abstract) available++;
-    if (input.doi) available++;
-    if (input.scoreLayer) available += 2;
-    if (input.screenLayer) available++;
-    if (input.clueLayer) available += 2;
+    // Official D_completeness checks the eight SCORE rubric fields specified in Chapter II.
+    const requiredScoreFields: Array<keyof NonNullable<TriSourceInput['scoreLayer']>> = [
+      'research_gap',
+      'topic_relevance',
+      'methodology',
+      'data_statistics',
+      'article_structure',
+      'abstract',
+      'discussion',
+      'references'
+    ];
+    const score = input.scoreLayer;
+    const available = requiredScoreFields.filter((field) => {
+      const value = score?.[field];
+      return typeof value === 'number' && Number.isFinite(value) && value >= 0 && value <= 10;
+    }).length;
 
-    return Math.round((available / totalFields) * 100);
+    return Math.round((available / requiredScoreFields.length) * 100);
   }
 
   private static determineQualityLevel(score: number): QualityLevel {
