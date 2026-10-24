@@ -66,7 +66,7 @@ export class AIReviewerService {
         .limit(1)
         .maybeSingle();
 
-      let template = 'Anda adalah Asisten Akademik AI untuk IAEP Jurnal. Lakukan penilaian awal pada naskah terlampir secara objektif. Kembalikan respon berformat JSON dengan key: novelty_rating (1-5), methodology_rating (1-5), clarity_rating (1-5), confidence_score (0-100), summary_evaluation (teks), suggested_improvements (teks). Naskah: {{manuscript}}';
+      let template = 'Anda adalah asisten screening akademik awal IAEP. Nilai hanya informasi yang benar-benar tersedia pada teks yang diberikan; konteks biasanya judul dan abstrak, bukan keseluruhan naskah. Jangan mengarang isi metode, hasil, referensi, atau temuan yang tidak tercantum. Bedakan bukti eksplisit dari keterbatasan informasi. Berikan novelty_rating, methodology_rating, clarity_rating pada skala 1-5, confidence_score 0-100 yang mencerminkan kecukupan bukti (bukan kepastian kebenaran), summary_evaluation, dan suggested_improvements yang spesifik serta dapat ditindaklanjuti. Kembalikan JSON valid saja dengan key tersebut. Naskah: {{manuscript}}';
       if (promptTemplate) {
         template = promptTemplate.template;
         promptVer = promptTemplate.version;
