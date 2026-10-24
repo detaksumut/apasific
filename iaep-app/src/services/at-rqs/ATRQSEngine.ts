@@ -309,31 +309,23 @@ export class ATRQSEngine {
   }
 
   private static extractInsights(input: TriSourceInput, dims: ATRQSDimensionBreakdown) {
-    let primaryStrength = 'Strong analytical evidence and robust statistical methodology';
-    let secondaryStrength = 'Clear empirical design with high practical and policy relevance';
+    const hasTriSource = Boolean(input.scoreLayer && input.screenLayer && input.clueLayer);
+    let primaryStrength = 'Belum dapat ditentukan dari bukti tersimpan.';
+    let secondaryStrength = 'Belum dapat ditentukan dari bukti tersimpan.';
 
-    if (dims.analytical_strength >= 88) {
-      primaryStrength = 'Analytical evidence and high statistical regression model robustness';
+    if (hasTriSource && dims.analytical_strength >= 88) {
+      primaryStrength = 'Indikator analytical strength relatif tinggi pada hasil perhitungan.';
     }
-    if (dims.impact_applicability >= 85) {
-      secondaryStrength = 'Practical utility and direct organizational/policy applicability';
-    }
-
-    const limitations: string[] = [];
-    if (input.clueLayer?.limitations) {
-      limitations.push(input.clueLayer.limitations);
-    } else {
-      limitations.push('Single-institution empirical context with specific organizational scope.');
-      limitations.push('Cross-sectional survey design captures point-in-time perceptions.');
+    if (hasTriSource && dims.impact_applicability >= 85) {
+      secondaryStrength = 'Indikator impact & applicability relatif tinggi pada hasil perhitungan.';
     }
 
-    const opportunities: string[] = [];
-    if (input.screenLayer?.suggested_improvements) {
-      opportunities.push(input.screenLayer.suggested_improvements);
-    } else {
-      opportunities.push('Expansion of sample size across multi-sector agencies for broader generalizability.');
-      opportunities.push('Longitudinal tracking to observe multi-period organizational dynamics.');
-    }
+    const limitations: string[] = input.clueLayer?.limitations?.trim()
+      ? [input.clueLayer.limitations]
+      : [];
+    const opportunities: string[] = input.screenLayer?.suggested_improvements?.trim()
+      ? [input.screenLayer.suggested_improvements]
+      : [];
 
     return { primaryStrength, secondaryStrength, limitations, opportunities };
   }
