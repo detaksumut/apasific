@@ -32,11 +32,16 @@ export class GeminiProviderAdapter implements IAIProvider {
       let rawText = '';
 
       if (this.apiKey.startsWith('sk-254')) {
-        // Route through 9Router Proxy (read custom base URL or default to localhost)
-        const baseUrl = process.env.NINE_ROUTER_BASE_URL || 'http://localhost:20128/v1';
-        const apiUrl = `${baseUrl.replace(/\/$/, '')}/chat/completions`;
+        // Route through the explicitly configured 9Router endpoint.
+        // Never fall back to localhost in serverless production: it points to the Vercel function itself.
+        const configuredBaseUrl = process.env.NINE_ROUTER_BASE_URL;
+        if (!configuredBaseUrl) {
+          throw new Error('NINE_ROUTER_BASE_URL is not configured. Set it to the reachable 9Router OpenAI-compatible base URL (ending in /v1).');
+        }
+        const baseUrl = configuredBaseUrl.replace(/\/$/, '');
+        const apiUrl = `${baseUrl}/chat/completions`;
         const requestBody = {
-          model: 'UltimateAI',
+          model: process.env.NINE_ROUTER_MODEL || 'UltimateAI',
           messages: [{ role: 'user', content: prompt }],
           response_format: { type: 'json_object' },
           temperature: 0.2,
@@ -150,8 +155,12 @@ export class GeminiProviderAdapter implements IAIProvider {
       let rawText = '';
 
       if (this.apiKey.startsWith('sk-254')) {
-        const baseUrl = process.env.NINE_ROUTER_BASE_URL || 'http://localhost:20128/v1';
-        const apiUrl = `${baseUrl.replace(/\/$/, '')}/chat/completions`;
+        const configuredBaseUrl = process.env.NINE_ROUTER_BASE_URL;
+        if (!configuredBaseUrl) {
+          throw new Error('NINE_ROUTER_BASE_URL is not configured. Set it to the reachable 9Router OpenAI-compatible base URL (ending in /v1).');
+        }
+        const baseUrl = configuredBaseUrl.replace(/\/$/, '');
+        const apiUrl = `${baseUrl}/chat/completions`;
         response = await fetch(apiUrl, {
           method: 'POST',
           headers: {
@@ -159,7 +168,7 @@ export class GeminiProviderAdapter implements IAIProvider {
             'Authorization': `Bearer ${this.apiKey}`
           },
           body: JSON.stringify({
-            model: 'UltimateAI',
+            model: process.env.NINE_ROUTER_MODEL || 'UltimateAI',
             messages,
             temperature: 0.7,
             stream: false

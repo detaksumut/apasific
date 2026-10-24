@@ -19,7 +19,7 @@ export class ATRQSEngine {
    */
   public static compute(input: TriSourceInput): ATRQSSnapshot {
     const articleId = input.articleId || 'canonical-article';
-    const isFallback = !input.scoreLayer && !input.screenLayer && !input.clueLayer;
+    const isFallback = !input.scoreLayer || !input.screenLayer || !input.clueLayer;
 
     // --- STAGE 1: Scoring Evidence Registry Normalization ---
     const scoreNorm = this.normalizeScoreLayer(input.scoreLayer, input);
@@ -137,94 +137,52 @@ export class ATRQSEngine {
 
   // --- PRIVATE CALCULATORS ---
 
-  private static getHashMod(id?: string): number {
-    if (!id) return 0;
-    let hash = 0;
-    for (let i = 0; i < id.length; i++) {
-      hash = (hash << 5) - hash + id.charCodeAt(i);
-      hash |= 0;
-    }
-    return (Math.abs(hash) % 7) - 3; // range: -3 to +3
-  }
 
-  private static normalizeScoreLayer(score?: TriSourceInput['scoreLayer'], input?: TriSourceInput) {
-    if (score && score.overall_score !== undefined) {
+  private static normalizeScoreLayer(score?: TriSourceInput['scoreLayer'], _input?: TriSourceInput) {
+    const valid = (value: unknown): value is number =>
+      typeof value === 'number' && Number.isFinite(value) && value >= 0 && value <= 10;
+    if (score && valid(score.overall_score)) {
       const overall = score.overall_score * 10;
+      const toScale = (value: unknown) => (valid(value) ? value : score.overall_score as number) * 10;
       return {
-        topic: (score.topic_relevance ?? score.overall_score) * 10,
-        structure: (score.article_structure ?? score.overall_score) * 10,
-        abstract: (score.abstract ?? score.overall_score) * 10,
-        gap: (score.research_gap ?? score.overall_score) * 10,
-        method: (score.methodology ?? score.overall_score) * 10,
-        data: (score.data_statistics ?? score.overall_score) * 10,
-        discussion: (score.discussion ?? score.overall_score) * 10,
-        conclusion: (score.conclusion ?? score.overall_score) * 10,
-        references: (score.references ?? score.overall_score) * 10,
+        topic: toScale(score.topic_relevance),
+        structure: toScale(score.article_structure),
+        abstract: toScale(score.abstract),
+        gap: toScale(score.research_gap),
+        method: toScale(score.methodology),
+        data: toScale(score.data_statistics),
+        discussion: toScale(score.discussion),
+        conclusion: toScale(score.conclusion),
+        references: toScale(score.references),
         overall
       };
     }
-    // Contextual evidence-based fallback
-    const combined = `${input?.title || ''} ${input?.abstract || ''}`.toLowerCase();
-    const wordCount = (input?.abstract || '').split(/\s+/).filter(Boolean).length;
-    const mod = this.getHashMod(input?.articleId);
 
-    let structure = 80;
-    if (wordCount >= 150) structure += 5;
-    else if (wordCount >= 80) structure += 2;
-    else structure -= 4;
-
-    let gap = 80;
-    if (/gap|novelty|kebaruan|kontribusi|agenda|future|limited|perbedaan/i.test(combined)) gap += 5;
-
-    let method = 80;
-    if (/kuantitatif|kualitatif|survey|survei|slr|systematic|regresi|sem|pls|case\s*study|purposive|total\s*sampling/i.test(combined)) method += 6;
-
-    let data = 82;
-    if (/r2|r-squared|signifikan|f=|t=|uji|statistik|koefisien|p\s*<|persentase|%/i.test(combined)) data += 6;
-
-    const overall = Math.min(95, Math.max(65, Math.round(((structure + gap + method + data + 80 + 80 + 85 + 85 + 80) / 9) + mod)));
-
+    // Neutral placeholder for computation only; missing AI scores are explicitly marked by is_fallback.
     return {
-      topic: Math.min(95, Math.max(70, 85 + mod)),
-      structure: Math.min(95, Math.max(65, structure + mod)),
-      abstract: Math.min(95, Math.max(65, structure + mod)),
-      gap: Math.min(95, Math.max(65, gap + mod)),
-      method: Math.min(95, Math.max(65, method + mod)),
-      data: Math.min(95, Math.max(65, data + mod)),
-      discussion: Math.min(95, Math.max(65, 80 + mod)),
-      conclusion: Math.min(95, Math.max(65, 80 + mod)),
-      references: Math.min(95, Math.max(70, 85 + mod)),
-      overall
+      topic: 50, structure: 50, abstract: 50, gap: 50, method: 50,
+      data: 50, discussion: 50, conclusion: 50, references: 50, overall: 50
     };
   }
 
-  private static normalizeScreenLayer(screen?: TriSourceInput['screenLayer'], input?: TriSourceInput) {
-    if (screen && screen.novelty_rating) {
-      const nov = screen.novelty_rating * 20;
-      const met = (screen.methodology_rating || 3) * 20;
-      const cla = (screen.clarity_rating || 4) * 20;
-      const overall = 0.40 * nov + 0.40 * met + 0.20 * cla;
-      return { novelty: nov, methodology: met, clarity: cla, overall };
+  private static normalizeScreenLayer(screen?: TriSourceInput['screenLayer'], _input?: TriSourceInput) {
+    const valid = (value: unknown): value is number =>
+      typeof value === 'number' && Number.isFinite(value) && value >= 1 && value <= 5;
+    if (screen && valid(screen.novelty_rating) && valid(screen.methodology_rating) && valid(screen.clarity_rating)) {
+      const novelty = screen.novelty_rating * 20;
+      const methodology = screen.methodology_rating * 20;
+      const clarity = screen.clarity_rating * 20;
+      const overall = 0.40 * novelty + 0.40 * methodology + 0.20 * clarity;
+      return { novelty, methodology, clarity, overall };
     }
-    const combined = `${input?.title || ''} ${input?.abstract || ''}`.toLowerCase();
-    const mod = this.getHashMod(input?.articleId);
-    let nov = 70;
-    if (/novelty|kebaruan|pertama|baru|unique|unik|inovatif/i.test(combined)) nov += 8;
-    let met = 75;
-    if (/metode|metodologi|kualitatif|kuantitatif|slr|regresi/i.test(combined)) met += 5;
-    const cla = 80;
-    const overall = 0.40 * (nov + mod) + 0.40 * (met + mod) + 0.20 * cla;
-    return {
-      novelty: Math.min(95, Math.max(60, nov + mod)),
-      methodology: Math.min(95, Math.max(60, met + mod)),
-      clarity: cla,
-      overall: Math.round(overall * 10) / 10
-    };
+
+    // Do not infer an AI screening score from article title/abstract keywords.
+    return { novelty: 50, methodology: 50, clarity: 50, overall: 50 };
   }
 
   private static normalizeClueLayer(clue?: TriSourceInput['clueLayer'], input?: TriSourceInput) {
     if (!clue) {
-      return { overall: 80.0, consistencyScore: 80 };
+      return { overall: 50, consistencyScore: 50 };
     }
 
     let detectedCount = 0;
@@ -250,7 +208,9 @@ export class ATRQSEngine {
     r: ReturnType<typeof ATRQSEngine.normalizeScreenLayer>,
     c: ReturnType<typeof ATRQSEngine.normalizeClueLayer>
   ): ATRQSDimensionBreakdown {
-    const samplingRigor = this.evaluateSamplingRigor(input.clueLayer, input.abstract);
+    const samplingRigor = input.clueLayer
+      ? this.evaluateSamplingRigor(input.clueLayer, input.abstract)
+      : 50;
 
     // 1. Academic Contribution (18%)
     const academic_contribution = Math.round(0.40 * s.gap + 0.35 * r.novelty + 0.25 * s.topic);
@@ -259,23 +219,23 @@ export class ATRQSEngine {
     const procedural_rigor = Math.round(0.50 * s.method + 0.30 * r.methodology + 0.20 * samplingRigor);
 
     // 3. Analytical Strength (16%)
-    const modelRobustness = input.clueLayer?.explained_variance ? 90 : 82;
+    const modelRobustness = input.clueLayer?.explained_variance ? 90 : 50;
     const analytical_strength = Math.round(0.60 * s.data + 0.40 * modelRobustness);
 
     // 4. Scholarly Communication (12%)
     const scholarly_communication = Math.round(0.35 * s.structure + 0.25 * s.abstract + 0.20 * s.discussion + 0.20 * s.references);
 
     // 5. Integrity & Transparency (12%)
-    const limitationOpenness = input.clueLayer?.limitations ? 90 : 75;
+    const limitationOpenness = input.clueLayer?.limitations ? 90 : 50;
     const integrity_transparency = Math.round(0.50 * s.conclusion + 0.50 * limitationOpenness);
 
     // 6. Future Research Value (10%)
-    const futureGap = input.screenLayer?.suggested_improvements || input.clueLayer?.limitations ? 82 : 72;
+    const futureGap = input.screenLayer?.suggested_improvements || input.clueLayer?.limitations ? 82 : 50;
     const future_research_value = Math.round(futureGap);
 
     // 7. Impact & Applicability (14%)
-    const practicalUtility = input.clueLayer?.practical_implications ? 88 : 82;
-    const policyTransferability = input.clueLayer?.policy_relevance ? 86 : 80;
+    const practicalUtility = input.clueLayer?.practical_implications ? 88 : 50;
+    const policyTransferability = input.clueLayer?.policy_relevance ? 86 : 50;
     const impact_applicability = Math.round(0.50 * practicalUtility + 0.50 * policyTransferability);
 
     return {
@@ -336,8 +296,8 @@ export class ATRQSEngine {
   }
 
   private static extractInsights(input: TriSourceInput, dims: ATRQSDimensionBreakdown) {
-    let primaryStrength = 'Strong analytical evidence and robust statistical methodology';
-    let secondaryStrength = 'Clear empirical design with high practical and policy relevance';
+    let primaryStrength = 'Strength cannot be established until source evidence is available.';
+    let secondaryStrength = 'Practical and policy relevance require verification against the manuscript.';
 
     if (dims.analytical_strength >= 88) {
       primaryStrength = 'Analytical evidence and high statistical regression model robustness';
@@ -350,16 +310,14 @@ export class ATRQSEngine {
     if (input.clueLayer?.limitations) {
       limitations.push(input.clueLayer.limitations);
     } else {
-      limitations.push('Single-institution empirical context with specific organizational scope.');
-      limitations.push('Cross-sectional survey design captures point-in-time perceptions.');
+      limitations.push('Limitations have not been extracted from a verified assessment source.');
     }
 
     const opportunities: string[] = [];
     if (input.screenLayer?.suggested_improvements) {
       opportunities.push(input.screenLayer.suggested_improvements);
     } else {
-      opportunities.push('Expansion of sample size across multi-sector agencies for broader generalizability.');
-      opportunities.push('Longitudinal tracking to observe multi-period organizational dynamics.');
+      opportunities.push('Research opportunities have not been extracted from a verified assessment source.');
     }
 
     return { primaryStrength, secondaryStrength, limitations, opportunities };

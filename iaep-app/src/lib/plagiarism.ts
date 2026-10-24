@@ -114,8 +114,9 @@ export async function checkParagraphPlagiarism(
   
   let detectedCml = 0;
   let detectedSources: string[] = [];
+  let internalOverlap = false;
 
-  // 1. Cek tumpang tindih kata berturut-turut terhadap paragraf lain di naskah
+  // Compare with other paragraphs from this manuscript only; this is not an external-source search.
   if (otherParagraphs.length > 0) {
     for (let idx = 0; idx < otherParagraphs.length; idx++) {
       const otherPara = otherParagraphs[idx];
@@ -123,38 +124,34 @@ export async function checkParagraphPlagiarism(
       const matchRun = findLongestCommonWordRun(cleanTokens, otherTokens);
       if (matchRun > detectedCml) {
         detectedCml = matchRun;
-        detectedSources = [`Duplikasi Paragraf Naskah (Paragraf #${idx + 1})`];
+        internalOverlap = matchRun > 0;
+        detectedSources = matchRun > 0 ? [`Duplikasi internal naskah (paragraf pembanding #${idx + 1})`] : [];
       }
     }
   }
 
-  // 2. Terapkan aturan baku: abaikan sitasi & referensi
-  let estimatedScore = 0;
+  const estimatedScore = detectedCml > 0
+    ? Math.min(100, Math.round((detectedCml / Math.max(wordCount, 1)) * 100))
+    : 0;
 
-  if (citationContext.isDirectQuotation && citationContext.hasInlineCitation) {
-    // Kutipan langsung dengan sitasi resmi: diabaikan dari indikasi plagiasi
-    estimatedScore = Math.min(20, Math.round((detectedCml / Math.max(wordCount, 1)) * 100));
-    detectedSources = ['Kutipan Langsung Resmi (Bersitasi)'];
-  } else if (citationContext.hasInlineCitation) {
-    // Sitasi inline terdeteksi: atribusi sah
-    estimatedScore = Math.min(25, Math.round((detectedCml / Math.max(wordCount, 1)) * 100));
-    detectedSources = ['Sitasi Akademis Inline Terdeteksi'];
-  } else if (detectedCml >= 20) {
-    // Aturan baku: minimal 20 kata identik berturut-turut tanpa sitasi = Overlap Berisiko Tinggi
-    estimatedScore = Math.min(100, Math.max(40, Math.round((detectedCml / Math.max(wordCount, 1)) * 100)));
-  } else if (detectedCml >= 15) {
-    estimatedScore = Math.min(30, Math.round((detectedCml / Math.max(wordCount, 1)) * 100));
-  } else {
-    // Kesamaan normatif di bawah 15 kata
-    estimatedScore = Math.min(10, Math.round((detectedCml / Math.max(wordCount, 1)) * 100));
-  }
+  // A citation in the current paragraph cannot explain away repeated text elsewhere in the same manuscript.
+  // Internal repetition is a review signal, not proof of plagiarism against an external source.
+  const { classification: baseClassification, editorialNote: baseEditorialNote } =
+    ParagraphSimilarityContextService.classifySimilarity({
+      continuousMatchLength: detectedCml,
+      rawSimilarityScore: estimatedScore,
+      citationContext: internalOverlap
+        ? { ...citationContext, hasInlineCitation: false, isDirectQuotation: false }
+        : citationContext,
+      matchedSources: detectedSources
+    });
 
-  const { classification, editorialNote } = ParagraphSimilarityContextService.classifySimilarity({
-    continuousMatchLength: detectedCml,
-    rawSimilarityScore: estimatedScore,
-    citationContext,
-    matchedSources: detectedSources
-  });
+  const classification = internalOverlap && detectedCml >= 15
+    ? 'CONTEXT_REVIEW' as const
+    : baseClassification;
+  const editorialNote = internalOverlap
+    ? 'Kemiripan internal antarparagraf terdeteksi. Ini bukan bukti plagiarisme eksternal; periksa apakah pengulangan disengaja, termasuk metode atau kutipan yang sah.'
+    : baseEditorialNote;
 
   return {
     sources: detectedSources,
