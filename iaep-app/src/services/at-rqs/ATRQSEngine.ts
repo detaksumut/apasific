@@ -19,7 +19,7 @@ export class ATRQSEngine {
    */
   public static compute(input: TriSourceInput): ATRQSSnapshot {
     const articleId = input.articleId || 'canonical-article';
-    const isFallback = !input.scoreLayer && !input.screenLayer && !input.clueLayer;
+    const isFallback = !input.scoreLayer || !input.screenLayer || !input.clueLayer;
 
     // --- STAGE 1: Scoring Evidence Registry Normalization ---
     const scoreNorm = this.normalizeScoreLayer(input.scoreLayer, input);
@@ -147,99 +147,71 @@ export class ATRQSEngine {
     return (Math.abs(hash) % 7) - 3; // range: -3 to +3
   }
 
-  private static normalizeScoreLayer(score?: TriSourceInput['scoreLayer'], input?: TriSourceInput) {
-    if (score && score.overall_score !== undefined) {
-      const overall = score.overall_score * 10;
+  private static normalizeScoreLayer(score?: TriSourceInput['scoreLayer'], _input?: TriSourceInput) {
+    const valid = (value: unknown): value is number =>
+      typeof value === 'number' && Number.isFinite(value) && value >= 0 && value <= 10;
+    if (score && valid(score.overall_score)) {
+      const toScale = (value: unknown) => (valid(value) ? value : score.overall_score as number) * 10;
       return {
-        topic: (score.topic_relevance ?? score.overall_score) * 10,
-        structure: (score.article_structure ?? score.overall_score) * 10,
-        abstract: (score.abstract ?? score.overall_score) * 10,
-        gap: (score.research_gap ?? score.overall_score) * 10,
-        method: (score.methodology ?? score.overall_score) * 10,
-        data: (score.data_statistics ?? score.overall_score) * 10,
-        discussion: (score.discussion ?? score.overall_score) * 10,
-        conclusion: (score.conclusion ?? score.overall_score) * 10,
-        references: (score.references ?? score.overall_score) * 10,
-        overall
+        topic: toScale(score.topic_relevance),
+        structure: toScale(score.article_structure),
+        abstract: toScale(score.abstract),
+        gap: toScale(score.research_gap),
+        method: toScale(score.methodology),
+        data: toScale(score.data_statistics),
+        discussion: toScale(score.discussion),
+        conclusion: toScale(score.conclusion),
+        references: toScale(score.references),
+        overall: score.overall_score * 10
       };
     }
-    // Contextual evidence-based fallback
-    const combined = `${input?.title || ''} ${input?.abstract || ''}`.toLowerCase();
-    const wordCount = (input?.abstract || '').split(/\s+/).filter(Boolean).length;
-    const mod = this.getHashMod(input?.articleId);
-
-    let structure = 80;
-    if (wordCount >= 150) structure += 5;
-    else if (wordCount >= 80) structure += 2;
-    else structure -= 4;
-
-    let gap = 80;
-    if (/gap|novelty|kebaruan|kontribusi|agenda|future|limited|perbedaan/i.test(combined)) gap += 5;
-
-    let method = 80;
-    if (/kuantitatif|kualitatif|survey|survei|slr|systematic|regresi|sem|pls|case\s*study|purposive|total\s*sampling/i.test(combined)) method += 6;
-
-    let data = 82;
-    if (/r2|r-squared|signifikan|f=|t=|uji|statistik|koefisien|p\s*<|persentase|%/i.test(combined)) data += 6;
-
-    const overall = Math.min(95, Math.max(65, Math.round(((structure + gap + method + data + 80 + 80 + 85 + 85 + 80) / 9) + mod)));
-
+    // Neutral computational placeholder only. Missing evidence must remain visibly fallback.
     return {
-      topic: Math.min(95, Math.max(70, 85 + mod)),
-      structure: Math.min(95, Math.max(65, structure + mod)),
-      abstract: Math.min(95, Math.max(65, structure + mod)),
-      gap: Math.min(95, Math.max(65, gap + mod)),
-      method: Math.min(95, Math.max(65, method + mod)),
-      data: Math.min(95, Math.max(65, data + mod)),
-      discussion: Math.min(95, Math.max(65, 80 + mod)),
-      conclusion: Math.min(95, Math.max(65, 80 + mod)),
-      references: Math.min(95, Math.max(70, 85 + mod)),
-      overall
+      topic: 50, structure: 50, abstract: 50, gap: 50, method: 50,
+      data: 50, discussion: 50, conclusion: 50, references: 50, overall: 50
     };
   }
 
-  private static normalizeScreenLayer(screen?: TriSourceInput['screenLayer'], input?: TriSourceInput) {
-    if (screen && screen.novelty_rating) {
-      const nov = screen.novelty_rating * 20;
-      const met = (screen.methodology_rating || 3) * 20;
-      const cla = (screen.clarity_rating || 4) * 20;
-      const overall = 0.40 * nov + 0.40 * met + 0.20 * cla;
-      return { novelty: nov, methodology: met, clarity: cla, overall };
+  private static normalizeScreenLayer(screen?: TriSourceInput['screenLayer'], _input?: TriSourceInput) {
+    const valid = (value: unknown): value is number =>
+      typeof value === 'number' && Number.isFinite(value) && value >= 1 && value <= 5;
+    if (
+      screen &&
+      valid(screen.novelty_rating) &&
+      valid(screen.methodology_rating) &&
+      valid(screen.clarity_rating)
+    ) {
+      // Official SCREEN normalization: 1 -> 0, 2 -> 25, 3 -> 50, 4 -> 75, 5 -> 100.
+      const normalize = (rating: number) => ((rating - 1) / 4) * 100;
+      const novelty = normalize(screen.novelty_rating);
+      const methodology = normalize(screen.methodology_rating);
+      const clarity = normalize(screen.clarity_rating);
+      const overall = 0.40 * novelty + 0.40 * methodology + 0.20 * clarity;
+      return { novelty, methodology, clarity, overall };
     }
-    const combined = `${input?.title || ''} ${input?.abstract || ''}`.toLowerCase();
-    const mod = this.getHashMod(input?.articleId);
-    let nov = 70;
-    if (/novelty|kebaruan|pertama|baru|unique|unik|inovatif/i.test(combined)) nov += 8;
-    let met = 75;
-    if (/metode|metodologi|kualitatif|kuantitatif|slr|regresi/i.test(combined)) met += 5;
-    const cla = 80;
-    const overall = 0.40 * (nov + mod) + 0.40 * (met + mod) + 0.20 * cla;
-    return {
-      novelty: Math.min(95, Math.max(60, nov + mod)),
-      methodology: Math.min(95, Math.max(60, met + mod)),
-      clarity: cla,
-      overall: Math.round(overall * 10) / 10
-    };
+    // Never synthesize a SCREEN result from article metadata.
+    return { novelty: 50, methodology: 50, clarity: 50, overall: 50 };
   }
 
-  private static normalizeClueLayer(clue?: TriSourceInput['clueLayer'], input?: TriSourceInput) {
+  private static normalizeClueLayer(clue?: TriSourceInput['clueLayer'], _input?: TriSourceInput) {
     if (!clue) {
-      return { overall: 80.0, consistencyScore: 80 };
+      return { overall: 50, consistencyScore: 50 };
     }
 
-    let detectedCount = 0;
-    if (clue.objective) detectedCount++;
-    if (clue.methodology) detectedCount++;
-    if (clue.findings) detectedCount++;
-    if (clue.conclusion) detectedCount++;
-    if (clue.limitations) detectedCount++;
+    // Conservative evidence proxy; presence alone is not treated as verification.
+    const detectedCount = [
+      clue.objective,
+      clue.methodology,
+      clue.findings,
+      clue.conclusion,
+      clue.limitations
+    ].filter(value => typeof value === 'string' && value.trim().length > 0).length;
 
-    let clueNorm = 75;
-    if (detectedCount >= 5) clueNorm = 90;
-    else if (detectedCount === 4) clueNorm = 85;
-    else if (detectedCount === 3) clueNorm = 75;
-    else if (detectedCount === 2) clueNorm = 65;
-    else clueNorm = 55;
+    const clueNorm = detectedCount >= 5 ? 90
+      : detectedCount === 4 ? 75
+      : detectedCount === 3 ? 50
+      : detectedCount === 2 ? 25
+      : 0;
 
     return { overall: clueNorm, consistencyScore: clueNorm };
   }
