@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect } from "react";
 import { Star, ShieldAlert, CheckCircle2, Sparkles, AlertCircle } from "lucide-react";
 
 interface Props {
@@ -10,12 +10,7 @@ interface Props {
   doi?: string;
 }
 
-export default function ArticleScreeningReportCard({
-  articleId,
-  title = "",
-  abstract = "",
-  doi = ""
-}: Props) {
+export default function ArticleScreeningReportCard({ articleId }: Props) {
   const [screeningData, setScreeningData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
@@ -49,38 +44,24 @@ export default function ArticleScreeningReportCard({
     };
   }, [articleId]);
 
-  // Deterministic fallback if not yet explicitly stored in DB
-  const fallbackScreening = useMemo(() => {
-    let hash = 0;
-    const sig = (articleId || title || "screening") + (doi || "");
-    for (let i = 0; i < sig.length; i++) {
-      hash = (hash << 5) - hash + sig.charCodeAt(i);
-      hash |= 0;
-    }
-    const absHash = Math.abs(hash);
-
-    const novelty = 4 + (absHash % 2 === 0 ? 0 : 1); // 4 or 5
-    const methodology = 3 + (absHash % 3 === 0 ? 1 : 0); // 3 or 4
-    const clarity = 4 + ((absHash >> 2) % 2 === 0 ? 0 : 1); // 4 or 5
-    const conf = 85 + (absHash % 11); // 85% - 95%
-
-    return {
-      novelty_rating: Math.min(novelty, 5),
-      methodology_rating: Math.min(methodology, 5),
-      clarity_rating: Math.min(clarity, 5),
-      confidence_score: conf,
-      summary_evaluation: `Naskah menyajikan telaah akademik terstruktur dengan artikulasi problem riset yang jelas. Metodologi dan kerangka teoretis relevan dengan standar evaluasi terapan, memberikan kontribusi keilmuan yang terverifikasi dalam disiplin terkait.`,
-      suggested_improvements: `1. Perkuat perbandingan komparatif dengan literatur internasional terbaru. 2. Perjelas batasan operasional dan implikasi kebijakan terapan. 3. Lengkapi metrik validasi data pada studi lanjutan.`,
-      model_name: "Gemini 1.5 Flash",
-      prompt_version: "IAEP_INITIAL_SCREENING v1.0"
-    };
-  }, [articleId, title, doi]);
-
-  const active = screeningData || fallbackScreening;
+  // Missing persisted screening is shown as unavailable, never as a synthetic rating.
+  const active = screeningData || {
+    novelty_rating: null,
+    methodology_rating: null,
+    clarity_rating: null,
+    confidence_score: null,
+    summary_evaluation: "Belum ada hasil SCREEN tersimpan untuk naskah ini. Jangan menafsirkan keadaan ini sebagai penilaian positif atau negatif.",
+    suggested_improvements: "Jalankan proses screening dan simpan hasilnya sebelum menggunakan indikator ini dalam penilaian tri-source.",
+    model_name: null,
+    prompt_version: null
+  };
 
   const renderStars = (rating: number) => {
     const total = 5;
-    const score = Math.max(1, Math.min(5, Math.round(rating || 4)));
+    if (typeof rating !== "number" || !Number.isFinite(rating)) {
+      return <span className="text-xs text-amber-300">Belum tersedia</span>;
+    }
+    const score = Math.max(1, Math.min(5, Math.round(rating)));
     return (
       <div className="flex items-center gap-1 text-amber-400">
         {[...Array(total)].map((_, i) => (
@@ -116,7 +97,7 @@ export default function ArticleScreeningReportCard({
 
         <div className="text-[11px] font-mono text-zinc-400 bg-[#16162a] border border-gray-800 px-3 py-1.5 rounded-lg flex items-center gap-1.5 self-start sm:self-auto">
           <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-          <span>STATUS: TELAAH SEJAWAT TERVERIFIKASI</span>
+          <span>{screeningData ? "STATUS: DATA SCREENING TERSIMPAN" : "STATUS: SCREENING BELUM TERSEDIA"}</span>
         </div>
       </div>
 
@@ -170,12 +151,12 @@ export default function ArticleScreeningReportCard({
             <div className="pt-2 border-t border-gray-800">
               <div className="flex justify-between text-xs font-medium mb-1.5">
                 <span className="text-zinc-400">Tingkat Keselarasan Naskah</span>
-                <span className="font-bold text-emerald-400">{active.confidence_score || 85}%</span>
+                <span className="font-bold text-emerald-400">{typeof active.confidence_score === "number" ? `${active.confidence_score}%` : "Belum tersedia"}</span>
               </div>
               <div className="w-full bg-zinc-800 rounded-full h-2 overflow-hidden">
                 <div
                   className="bg-emerald-500 h-2 rounded-full transition-all duration-500"
-                  style={{ width: `${Math.min(100, Math.max(10, active.confidence_score || 85))}%` }}
+                  style={{ width: `${Math.min(100, Math.max(0, typeof active.confidence_score === "number" ? active.confidence_score : 0))}%` }}
                 ></div>
               </div>
               <span className="text-[10px] text-zinc-500 block mt-1">Script Alignment Index</span>

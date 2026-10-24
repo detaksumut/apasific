@@ -72,40 +72,24 @@ export default function ApasificResearchQualityProfile({ article }: Props) {
       title: article.title,
       abstract: article.abstract,
       doi: article.doi,
-      scoreLayer: savedScore
+      scoreLayer: savedScore && Number.isFinite(Number(savedScore.overall_score))
         ? {
-            topic_relevance: Number(savedScore.topic_relevance ?? 9),
-            article_structure: Number(savedScore.article_structure ?? 8),
-            abstract: Number(savedScore.abstract ?? 8),
-            research_gap: Number(savedScore.research_gap ?? 9),
-            methodology: Number(savedScore.methodology ?? 8),
-            data_statistics: Number(savedScore.data_statistics ?? 9),
-            discussion: Number(savedScore.discussion ?? 8),
-            conclusion: Number(savedScore.conclusion ?? 8),
-            references: Number(savedScore.references ?? 9),
-            overall_score: Number(savedScore.overall_score ?? 8.3)
+            topic_relevance: savedScore.topic_relevance == null ? undefined : Number(savedScore.topic_relevance),
+            article_structure: savedScore.article_structure == null ? undefined : Number(savedScore.article_structure),
+            abstract: savedScore.abstract == null ? undefined : Number(savedScore.abstract),
+            research_gap: savedScore.research_gap == null ? undefined : Number(savedScore.research_gap),
+            methodology: savedScore.methodology == null ? undefined : Number(savedScore.methodology),
+            data_statistics: savedScore.data_statistics == null ? undefined : Number(savedScore.data_statistics),
+            discussion: savedScore.discussion == null ? undefined : Number(savedScore.discussion),
+            conclusion: savedScore.conclusion == null ? undefined : Number(savedScore.conclusion),
+            references: savedScore.references == null ? undefined : Number(savedScore.references),
+            overall_score: Number(savedScore.overall_score)
           }
         : null,
-      screenLayer: {
-        novelty_rating: 3,
-        methodology_rating: 4,
-        clarity_rating: 4,
-        confidence_score: 85,
-        summary_evaluation: "Empirical study with structured methodology and clear statistical regression analysis.",
-        suggested_improvements: "Expand sample size and explore longitudinal multi-period dynamics for broader cross-institutional generalization."
-      },
-      clueLayer: {
-        objective: `Analyze key empirical determinants and structural relationships for ${article.title}`,
-        methodology: "Quantitative survey-based associative causal design with statistical regression models.",
-        sample_size: 38,
-        sampling_strategy: "Defined population sample with instrument validity and classical assumption compliance.",
-        findings: "Empirical indicators demonstrate statistically significant positive relationships with robust model fit.",
-        conclusion: "Simultaneous combination of target determinants significantly optimizes operational performance.",
-        limitations: "Single-institution population context with cross-sectional observation scope.",
-        practical_implications: "Provides structured framework for organizational optimization and resource allocation.",
-        policy_relevance: "Actionable empirical benchmark for institutional governance and performance planning.",
-        explained_variance: "53.7%"
-      }
+      // Do not manufacture SCREEN or CLUE evidence. Until the persisted source records
+      // are mapped and verified, the snapshot must remain explicitly marked as fallback.
+      screenLayer: null,
+      clueLayer: null
     };
 
     return ATRQSEngine.compute(input);
@@ -145,12 +129,17 @@ export default function ApasificResearchQualityProfile({ article }: Props) {
                 APASIFIC RESEARCH QUALITY PROFILE™
               </h3>
               <span className="text-xs sm:text-sm uppercase font-extrabold tracking-wider px-3.5 py-1 rounded-full bg-gradient-to-r from-[#c9a84c]/25 to-[#997a2b]/25 text-[#ffd977] border-2 border-[#c9a84c]/60 shadow-lg shadow-[#c9a84c]/15">
-                OFFICIAL AT-RQS™ v1.0
+                {snapshot.is_fallback ? "ASSESSMENT INCOMPLETE" : "OFFICIAL AT-RQS™ v1.0"}
               </span>
             </div>
             <p className="text-xs sm:text-sm text-gray-400 mt-1">
               Tri-Source Research Quality Assessment • <span className="text-gray-300 font-medium">{snapshot.assessment_id}</span>
             </p>
+            {snapshot.is_fallback && (
+              <p role="status" className="text-xs sm:text-sm text-amber-300 mt-2 max-w-2xl">
+                Penilaian belum lengkap: satu atau lebih sumber SCORE, SCREEN, dan CLUE belum tersedia. Nilai yang ditampilkan bersifat sementara dan bukan hasil AT-RQS terverifikasi.
+              </p>
+            )}
           </div>
         </div>
 
@@ -203,10 +192,10 @@ export default function ApasificResearchQualityProfile({ article }: Props) {
             <span className="text-sm font-bold text-cyan-400/70">/ 100</span>
           </div>
           <div className="inline-block px-3 py-1 rounded-lg bg-cyan-500/15 border border-cyan-500/30 text-[11px] font-extrabold text-cyan-300 tracking-wider uppercase">
-            High Structural Alignment
+            {snapshot.aeci >= 80 ? "Evidence Coverage Detected" : "Evidence Incomplete"}
           </div>
           <span className="block text-[10px] text-gray-500 mt-2">
-            Evidence Coverage: <strong className="text-gray-300">{snapshot.provenance.evidence_elements_detected} / 5 Elements (100%)</strong>
+            Evidence Coverage: <strong className="text-gray-300">{snapshot.provenance.evidence_elements_detected} / 5 Elements ({Math.round(snapshot.provenance.evidence_coverage_ratio * 100)}%)</strong>
           </span>
         </div>
 
@@ -224,7 +213,7 @@ export default function ApasificResearchQualityProfile({ article }: Props) {
             </span>
           </div>
           <div className="inline-block px-3 py-1 rounded-lg bg-emerald-500/15 border border-emerald-500/30 text-[11px] font-extrabold text-emerald-300 tracking-wider uppercase">
-            Tri-Source Consensus
+            {snapshot.is_fallback ? "Incomplete Sources" : "Tri-Source Consensus"}
           </div>
           <span className="block text-[10px] text-gray-500 mt-2">
             ARTI™ Agreement Index: <strong className="text-gray-300">{snapshot.arti} / 100</strong>
