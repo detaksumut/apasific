@@ -140,6 +140,25 @@ describe('ATRQSEngine v1.0 Mathematical & Consistency Tests', () => {
     expect(snapshot.is_fallback).toBe(false);
   });
 
+  test('AECI requires limitations as the fifth element; conclusion alone is insufficient', () => {
+    const input: TriSourceInput = {
+      articleId: 'aeci-limitations-required',
+      abstract: 'Tujuan penelitian, metode survei, sampel 40 responden, dan hasil penelitian.',
+      clueLayer: {
+        objective: 'Tujuan penelitian',
+        methodology: 'Metode survei',
+        sample_size: 40,
+        findings: 'Hasil penelitian',
+        conclusion: 'Kesimpulan penelitian tanpa uraian keterbatasan'
+      }
+    };
+
+    const snapshot = ATRQSEngine.compute(input);
+    expect(snapshot.provenance.evidence_elements_detected).toBe(4);
+    expect(snapshot.provenance.evidence_coverage_ratio).toBe(0.8);
+    expect(snapshot.aeci).toBe(80);
+  });
+
   test('Case 4: Sampling Rigor evaluates total population sampling appropriately', () => {
     const score = ATRQSEngine.evaluateSamplingRigor({
       sampling_strategy: 'Total Sampling (38 pegawai)',
