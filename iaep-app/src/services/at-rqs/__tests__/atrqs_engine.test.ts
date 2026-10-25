@@ -101,7 +101,8 @@ describe('ATRQSEngine v1.0 Mathematical & Consistency Tests', () => {
     expect(snapshot.is_fallback).toBe(true);
     expect(snapshot.at_rqs).toBeGreaterThanOrEqual(60);
     expect(snapshot.at_rqs).toBeLessThanOrEqual(100);
-    expect(snapshot.aeci).toBeGreaterThan(0);
+    // No manuscript structure evidence is present, so AECI must not invent coverage.
+    expect(snapshot.aeci).toBe(0);
     expect(snapshot.aac).toBeGreaterThan(0);
     expect(Number.isNaN(snapshot.at_rqs)).toBe(false);
     expect(Number.isNaN(snapshot.aeci)).toBe(false);
