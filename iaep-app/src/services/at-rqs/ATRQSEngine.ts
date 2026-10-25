@@ -19,7 +19,7 @@ export class ATRQSEngine {
    */
   public static compute(input: TriSourceInput): ATRQSSnapshot {
     const articleId = input.articleId || 'canonical-article';
-    const isFallback = !input.scoreLayer && !input.screenLayer && !input.clueLayer;
+    const isFallback = !input.scoreLayer || !input.screenLayer || !input.clueLayer;
 
     // --- STAGE 1: Scoring Evidence Registry Normalization ---
     const scoreNorm = this.normalizeScoreLayer(input.scoreLayer, input);
@@ -353,31 +353,19 @@ export class ATRQSEngine {
   }
 
   private static extractInsights(input: TriSourceInput, dims: ATRQSDimensionBreakdown) {
-    let primaryStrength = 'Strong analytical evidence and robust statistical methodology';
-    let secondaryStrength = 'Clear empirical design with high practical and policy relevance';
+    const primaryStrength = input.clueLayer?.findings
+      ? 'Temuan yang tercatat pada lapisan CLUE tersedia untuk ditinjau; verifikasi tetap perlu dilakukan terhadap naskah sumber.'
+      : 'Belum ada bukti temuan yang cukup pada lapisan CLUE untuk menyatakan kekuatan utama.';
+    const secondaryStrength = input.clueLayer?.practical_implications || input.clueLayer?.policy_relevance
+      ? 'Implikasi praktis/kebijakan dicatat pada lapisan CLUE; relevansinya perlu diverifikasi terhadap teks sumber.'
+      : 'Implikasi praktis atau kebijakan belum didukung bukti pada lapisan CLUE.';
 
-    if (dims.analytical_strength >= 88) {
-      primaryStrength = 'Analytical evidence and high statistical regression model robustness';
-    }
-    if (dims.impact_applicability >= 85) {
-      secondaryStrength = 'Practical utility and direct organizational/policy applicability';
-    }
-
-    const limitations: string[] = [];
-    if (input.clueLayer?.limitations) {
-      limitations.push(input.clueLayer.limitations);
-    } else {
-      limitations.push('Single-institution empirical context with specific organizational scope.');
-      limitations.push('Cross-sectional survey design captures point-in-time perceptions.');
-    }
-
-    const opportunities: string[] = [];
-    if (input.screenLayer?.suggested_improvements) {
-      opportunities.push(input.screenLayer.suggested_improvements);
-    } else {
-      opportunities.push('Expansion of sample size across multi-sector agencies for broader generalizability.');
-      opportunities.push('Longitudinal tracking to observe multi-period organizational dynamics.');
-    }
+    const limitations: string[] = input.clueLayer?.limitations?.trim()
+      ? [input.clueLayer.limitations]
+      : ['Keterbatasan penelitian tidak tersedia atau belum terdeteksi pada data asesmen yang diberikan; ini bukan pernyataan bahwa naskah tidak memiliki keterbatasan.'];
+    const opportunities: string[] = input.screenLayer?.suggested_improvements?.trim()
+      ? [input.screenLayer.suggested_improvements]
+      : ['Agenda perbaikan/riset lanjutan belum tersedia pada data asesmen yang diberikan.'];
 
     return { primaryStrength, secondaryStrength, limitations, opportunities };
   }
