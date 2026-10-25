@@ -214,7 +214,7 @@ export default function ApasificResearchQualityProfile({ article }: Props) {
             <span className="text-sm font-bold text-[#c9a84c]">/ 100</span>
           </div>
           <div className="inline-block px-3 py-1 rounded-lg bg-[#c9a84c]/15 border border-[#c9a84c]/30 text-[11px] font-extrabold text-[#e5c76b] tracking-wider uppercase">
-            {snapshot.quality_level}
+            {snapshot.is_fallback ? "BELUM LENGKAP" : snapshot.quality_level}
           </div>
           <span className="block text-[10px] text-gray-500 mt-2">
             Scale 0.0–10.0: <strong className="text-gray-300">{snapshot.is_fallback ? "—" : snapshot.at_rqs_ten_scale} / 10</strong>
