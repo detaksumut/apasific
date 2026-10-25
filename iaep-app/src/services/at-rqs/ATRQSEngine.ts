@@ -149,6 +149,10 @@ export class ATRQSEngine {
 
   private static normalizeScoreLayer(score?: TriSourceInput['scoreLayer'], input?: TriSourceInput) {
     if (score && score.overall_score !== undefined) {
+      const values = [score.topic_relevance, score.article_structure, score.abstract, score.research_gap, score.methodology, score.data_statistics, score.discussion, score.conclusion, score.references, score.overall_score].filter((value) => value !== undefined && value !== null);
+      if (!values.every((value) => typeof value === 'number' && Number.isFinite(value) && value >= 0 && value <= 10)) {
+        throw new Error('AT-RQS SCORE values must be finite numbers in the range 0–10.');
+      }
       const overall = score.overall_score * 10;
       return {
         topic: (score.topic_relevance ?? score.overall_score) * 10,
@@ -185,13 +189,13 @@ export class ATRQSEngine {
     return {
       topic: Math.min(95, Math.max(70, 85)),
       structure: Math.min(95, Math.max(65, structure)),
-      abstract: Math.min(95, Math.max(65, structure + mod)),
+      abstract: Math.min(95, Math.max(65, structure)),
       gap: Math.min(95, Math.max(65, gap)),
       method: Math.min(95, Math.max(65, method)),
       data: Math.min(95, Math.max(65, data)),
       discussion: Math.min(95, Math.max(65, 80)),
-      conclusion: Math.min(95, Math.max(65, 80 + mod)),
-      references: Math.min(95, Math.max(70, 85 + mod)),
+      conclusion: Math.min(95, Math.max(65, 80)),
+      references: Math.min(95, Math.max(70, 85)),
       overall
     };
   }
