@@ -97,7 +97,7 @@ export class LoAService {
                     .select('*')
                     .eq('submission_id', submissionId)
                     .maybeSingle();
-                if (raceRecord) {
+                if (raceRecord && raceRecord.submission_id === submissionId && raceRecord.accepted_at && raceRecord.loa_number) {
                     return { success: true, record: raceRecord, alreadyExists: true };
                 }
             }
@@ -116,11 +116,13 @@ export class LoAService {
         supabase: any,
         submissionId: string
     ): Promise<LoARecord | null> {
-        const { data } = await supabase
+        const { data, error } = await supabase
             .from('loa_records')
             .select('*')
             .eq('submission_id', submissionId)
             .maybeSingle();
+        if (error) throw new Error('Failed to read LoA record: ' + error.message);
+        if (data && (!data.accepted_at || !data.loa_number || data.submission_id !== submissionId)) throw new Error('LoA record is incomplete or inconsistent.');
         return data || null;
     }
 
