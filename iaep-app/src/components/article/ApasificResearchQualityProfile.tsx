@@ -113,15 +113,15 @@ export default function ApasificResearchQualityProfile({ article }: Props) {
 
     const clueLayer = reviewText.trim()
       ? {
-          objective: extract(/(?:^|\\n)\\s*(?:2[.)]?\\s*)?Tujuan(?:\\s+Penelitian)?\\s*[:\\-]?\\s*([\\s\\S]*?)(?=\\n\\s*(?:3[.)]?\\s*)?Metodologi|$)/i),
-          methodology: extract(/(?:^|\\n)\\s*(?:3[.)]?\\s*)?Metodologi\\s*[:\\-]?\\s*([\\s\\S]*?)(?=\\n\\s*(?:4[.)]?\\s*)?Temuan|$)/i),
-          findings: extract(/(?:^|\\n)\\s*(?:4[.)]?\\s*)?Temuan(?:\\s+Utama)?\\s*[:\\-]?\\s*([\\s\\S]*?)(?=\\n\\s*(?:5[.)]?\\s*)?Kesimpulan|$)/i),
-          conclusion: extract(/(?:^|\\n)\\s*(?:5[.)]?\\s*)?Kesimpulan\\s*[:\\-]?\\s*([\\s\\S]*?)(?=\\n\\s*(?:Keterbatasan|Limitations)\\s*[:\\-]?|$)/i),
-          limitations: extract(/(?:^|\\n)\\s*(?:Keterbatasan|Limitations)\\s*[:\\-]?\\s*([\\s\\S]*?)(?=\\n\\s*(?:Implikasi|Policy|Saran)\\b|$)/i),
+          objective: extract(/(?:^|\n)\s*(?:2[.)]?\s*)?Tujuan(?:\s+Penelitian)?\s*[:\-]?\s*([\s\S]*?)(?=\n\s*(?:3[.)]?\s*)?Metodologi|$)/i),
+          methodology: extract(/(?:^|\n)\s*(?:3[.)]?\s*)?Metodologi\s*[:\-]?\s*([\s\S]*?)(?=\n\s*(?:4[.)]?\s*)?Temuan|$)/i),
+          findings: extract(/(?:^|\n)\s*(?:4[.)]?\s*)?Temuan(?:\s+Utama)?\s*[:\-]?\s*([\s\S]*?)(?=\n\s*(?:5[.)]?\s*)?Kesimpulan|$)/i),
+          conclusion: extract(/(?:^|\n)\s*(?:5[.)]?\s*)?Kesimpulan\s*[:\-]?\s*([\s\S]*?)(?=\n\s*(?:Keterbatasan|Limitations)\s*[:\-]?|$)/i),
+          limitations: extract(/(?:^|\n)\s*(?:Keterbatasan|Limitations)\s*[:\-]?\s*([\s\S]*?)(?=\n\s*(?:Implikasi|Policy|Saran)\b|$)/i),
           sample_size: undefined,
           sampling_strategy: undefined,
-          practical_implications: extract(/(?:Implikasi Praktis|Practical Implications)\\s*[:\\-]?\\s*([\\s\\S]*?)(?=\\n\\s*(?:Relevansi Kebijakan|Policy Relevance|Saran)\\b|$)/i),
-          policy_relevance: extract(/(?:Relevansi Kebijakan|Policy Relevance)\\s*[:\\-]?\\s*([\\s\\S]*?)(?=\\n\\s*(?:Saran|Catatan)\\b|$)/i),
+          practical_implications: extract(/(?:Implikasi Praktis|Practical Implications)\s*[:\-]?\s*([\s\S]*?)(?=\n\s*(?:Relevansi Kebijakan|Policy Relevance|Saran)\b|$)/i),
+          policy_relevance: extract(/(?:Relevansi Kebijakan|Policy Relevance)\s*[:\-]?\s*([\s\S]*?)(?=\n\s*(?:Saran|Catatan)\b|$)/i),
           raw_clue_text: reviewText
         }
       : null;
