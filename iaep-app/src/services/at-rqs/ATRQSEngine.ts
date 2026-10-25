@@ -52,7 +52,7 @@ export class ATRQSEngine {
 
     // --- STAGE 5: Assessment Confidence (AAC) ---
     const dataCompleteness = this.computeDataCompleteness(input);
-    const extractionConsistency = clueNorm.consistencyScore;
+    const extractionConsistency = Math.max(0, 100 - (Math.abs(scoreNorm.overall - screenNorm.overall) + Math.abs(scoreNorm.overall - clueNorm.overall) + Math.abs(screenNorm.overall - clueNorm.overall)) / 3);
     const rawAac = 0.50 * arti + 0.30 * dataCompleteness + 0.20 * extractionConsistency;
     const finalAac = Math.min(100, Math.max(0, Math.round(rawAac)));
 
@@ -166,8 +166,6 @@ export class ATRQSEngine {
     // Contextual evidence-based fallback
     const combined = `${input?.title || ''} ${input?.abstract || ''}`.toLowerCase();
     const wordCount = (input?.abstract || '').split(/\s+/).filter(Boolean).length;
-    const mod = this.getHashMod(input?.articleId);
-
     let structure = 80;
     if (wordCount >= 150) structure += 5;
     else if (wordCount >= 80) structure += 2;
@@ -182,16 +180,16 @@ export class ATRQSEngine {
     let data = 82;
     if (/r2|r-squared|signifikan|f=|t=|uji|statistik|koefisien|p\s*<|persentase|%/i.test(combined)) data += 6;
 
-    const overall = Math.min(95, Math.max(65, Math.round(((structure + gap + method + data + 80 + 80 + 85 + 85 + 80) / 9) + mod)));
+    const overall = Math.min(95, Math.max(65, Math.round((structure + gap + method + data + 80 + 80 + 85 + 85 + 80) / 9)));
 
     return {
-      topic: Math.min(95, Math.max(70, 85 + mod)),
-      structure: Math.min(95, Math.max(65, structure + mod)),
+      topic: Math.min(95, Math.max(70, 85)),
+      structure: Math.min(95, Math.max(65, structure)),
       abstract: Math.min(95, Math.max(65, structure + mod)),
-      gap: Math.min(95, Math.max(65, gap + mod)),
-      method: Math.min(95, Math.max(65, method + mod)),
-      data: Math.min(95, Math.max(65, data + mod)),
-      discussion: Math.min(95, Math.max(65, 80 + mod)),
+      gap: Math.min(95, Math.max(65, gap)),
+      method: Math.min(95, Math.max(65, method)),
+      data: Math.min(95, Math.max(65, data)),
+      discussion: Math.min(95, Math.max(65, 80)),
       conclusion: Math.min(95, Math.max(65, 80 + mod)),
       references: Math.min(95, Math.max(70, 85 + mod)),
       overall
@@ -200,23 +198,27 @@ export class ATRQSEngine {
 
   private static normalizeScreenLayer(screen?: TriSourceInput['screenLayer'], input?: TriSourceInput) {
     if (screen && screen.novelty_rating) {
-      const nov = screen.novelty_rating * 20;
-      const met = (screen.methodology_rating || 3) * 20;
-      const cla = (screen.clarity_rating || 4) * 20;
+      const nov = ((screen.novelty_rating - 1) / 4) * 100;
+      const metRating = screen.methodology_rating ?? 3;
+      const clarityRating = screen.clarity_rating ?? 4;
+      if (![screen.novelty_rating, metRating, clarityRating].every((value) => Number.isFinite(value) && value >= 1 && value <= 5)) {
+        throw new Error('AT-RQS SCREEN ratings must be finite numbers in the range 1–5.');
+      }
+      const met = ((metRating - 1) / 4) * 100;
+      const cla = ((clarityRating - 1) / 4) * 100;
       const overall = 0.40 * nov + 0.40 * met + 0.20 * cla;
       return { novelty: nov, methodology: met, clarity: cla, overall };
     }
     const combined = `${input?.title || ''} ${input?.abstract || ''}`.toLowerCase();
-    const mod = this.getHashMod(input?.articleId);
     let nov = 70;
     if (/novelty|kebaruan|pertama|baru|unique|unik|inovatif/i.test(combined)) nov += 8;
     let met = 75;
     if (/metode|metodologi|kualitatif|kuantitatif|slr|regresi/i.test(combined)) met += 5;
     const cla = 80;
-    const overall = 0.40 * (nov + mod) + 0.40 * (met + mod) + 0.20 * cla;
+    const overall = 0.40 * nov + 0.40 * met + 0.20 * cla;
     return {
-      novelty: Math.min(95, Math.max(60, nov + mod)),
-      methodology: Math.min(95, Math.max(60, met + mod)),
+      novelty: Math.min(95, Math.max(60, nov)),
+      methodology: Math.min(95, Math.max(60, met)),
       clarity: cla,
       overall: Math.round(overall * 10) / 10
     };
