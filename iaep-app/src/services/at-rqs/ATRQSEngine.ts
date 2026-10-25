@@ -237,7 +237,7 @@ export class ATRQSEngine {
     else if (/deskriptif|frekuensi|persentase|descriptive/i.test(stats)) modelRobustness = 70;
 
     const limitationOpenness = clue.limitations?.trim() ? 90 : /keterbatasan|limitations|bias/i.test(String(clue.raw_clue_text || '')) ? 75 : 50;
-    const futureText = [clue.raw_clue_text, clue.practical_implications, clue.policy_relevance].filter(Boolean).join(' ').toLowerCase();
+    const futureText = [clue.future_research_agenda, clue.raw_clue_text].filter(Boolean).join(' ').toLowerCase();
     const futureAgenda = /riset masa depan|future research|penelitian selanjutnya|studi lanjutan|future studies/i.test(futureText)
       ? 88
       : /perlu diteliti|dapat dikembangkan|perbaikan|recommendation|rekomendasi|suggested improvement/i.test(futureText)
