@@ -19,7 +19,7 @@ describe('ATRQSEngine v1.0 Mathematical & Consistency Tests', () => {
         discussion: 8,
         conclusion: 8,
         references: 9,
-        overall_score: 8.3
+        overall_score: 8.4
       },
       screenLayer: {
         novelty_rating: 3,
