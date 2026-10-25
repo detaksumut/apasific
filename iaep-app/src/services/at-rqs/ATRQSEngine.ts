@@ -226,7 +226,7 @@ export class ATRQSEngine {
       return { overall: 50, consistencyScore: 50, modelRobustness: 50, samplingRigor, limitationOpenness: 50, futureAgenda: 50, practicalUtility: 50 };
     }
 
-    const stats = String(clue.model_statistics || clue.raw_clue_text || '').toLowerCase();
+    const stats = [clue.model_statistics, clue.raw_clue_text, clue.findings, clue.explained_variance].filter(Boolean).join(' ').toLowerCase();
     let modelRobustness = 50;
     const r2Match = stats.match(/(?:r\s*\^?2|r-squared|r2)\s*[:=<>]?\s*(0?\.\d+|1(?:\.0+)?)?/i);
     const pMatch = stats.match(/p\s*[:=<>]?\s*(0?\.\d+|1(?:\.0+)?)/i);
