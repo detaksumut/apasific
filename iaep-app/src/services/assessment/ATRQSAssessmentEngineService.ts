@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto';
 // src/services/assessment/ATRQSAssessmentEngineService.ts
 /**
  * APASIFIC Adaptive Multi-Taxonomy Evaluation Engine (AT-RQS™ v1.0)
@@ -129,7 +130,7 @@ export class ATRQSAssessmentEngineService {
         rawScore: raw,
         weightedScore: weighted,
         evidenceSnippet: inputScore.evidenceSnippet.trim(),
-        provenance: inputScore.provenance || 'SYSTEM_MATCHED',
+        provenance: inputScore.provenance || 'REVIEW_REQUIRED',
         evaluatorRole: inputScore?.evaluatorRole || 'AUTOMATED_AGENT'
       });
     }
@@ -157,8 +158,17 @@ export class ATRQSAssessmentEngineService {
     }
 
     const assessedAt = new Date().toISOString();
-    const reproducibilityPayload = `${submissionId}|${rubric.rubricVersion}|${compositeScore}|${tier}|${assessedAt}`;
-    const reproducibilityHash = Buffer.from(reproducibilityPayload).toString('base64').substring(0, 16);
+    const reproducibilityPayload = JSON.stringify({
+      submissionId,
+      rubricVersion: rubric.rubricVersion,
+      assessmentVersion,
+      articleType,
+      researchApproach: rubric.approachKey,
+      hasHighRiskSimilaritySignal,
+      disclosuresComplete,
+      criteriaScores: criteriaScores.map(({ criterionId, rawScore, weightedScore, evidenceSnippet, provenance, evaluatorRole }) => ({ criterionId, rawScore, weightedScore, evidenceSnippet, provenance, evaluatorRole }))
+    });
+    const reproducibilityHash = createHash('sha256').update(reproducibilityPayload, 'utf8').digest('hex');
 
     return {
       submissionId,
