@@ -109,7 +109,10 @@ export class ATRQSAssessmentEngineService {
 
     for (const critDef of rubric.criteria) {
       const inputScore = rawCriteriaScores.find(s => s.criterionId === critDef.id);
-      const raw = inputScore ? Math.min(100, Math.max(0, inputScore.rawScore)) : 70; // fallback sensible default
+      if (!inputScore) throw new Error('Missing evidence-backed score for required criterion: ' + critDef.criterionId);
+      if (typeof inputScore.rawScore !== 'number' || !Number.isFinite(inputScore.rawScore) || inputScore.rawScore < 0 || inputScore.rawScore > 100) throw new Error('Invalid 0–100 score for criterion: ' + critDef.criterionId);
+      if (typeof inputScore.evidenceSnippet !== 'string' || !inputScore.evidenceSnippet.trim()) throw new Error('Missing evidence snippet for criterion: ' + critDef.criterionId);
+      const raw = inputScore.rawScore;
       const weighted = Number(((raw / 100) * critDef.maxWeight).toFixed(2));
 
       if (critDef.layer === 'Layer 1: Identity') layer1Sum += weighted;
