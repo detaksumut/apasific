@@ -19,7 +19,23 @@ export class ATRQSEngine {
    */
   public static compute(input: TriSourceInput): ATRQSSnapshot {
     const articleId = input.articleId || 'canonical-article';
-    const isFallback = !input.scoreLayer || !input.screenLayer || !input.clueLayer;
+    // A source object alone is not proof that the source is complete or valid.
+    const validScore = typeof input.scoreLayer?.overall_score === 'number'
+      && Number.isFinite(input.scoreLayer.overall_score)
+      && input.scoreLayer.overall_score >= 0
+      && input.scoreLayer.overall_score <= 10;
+    const validScreen = [input.screenLayer?.novelty_rating, input.screenLayer?.methodology_rating, input.screenLayer?.clarity_rating]
+      .every((rating) => typeof rating === 'number' && Number.isFinite(rating) && rating >= 1 && rating <= 5);
+    const validClue = Boolean(
+      input.clueLayer && [
+        input.clueLayer.objective,
+        input.clueLayer.methodology,
+        input.clueLayer.findings,
+        input.clueLayer.limitations,
+        input.clueLayer.raw_clue_text
+      ].some((value) => typeof value === 'string' && value.trim().length > 0)
+    );
+    const isFallback = !(validScore && validScreen && validClue);
 
     // --- STAGE 1: Scoring Evidence Registry Normalization ---
     const scoreNorm = this.normalizeScoreLayer(input.scoreLayer, input);
