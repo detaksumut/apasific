@@ -236,12 +236,12 @@ export class ATRQSEngine {
 
     const stats = String(clue.model_statistics || clue.raw_clue_text || '').toLowerCase();
     let modelRobustness = 50;
-    const r2Match = stats.match(/(?:r\\s*\\^?2|r-squared|r2)\\s*[:=<>]?\\s*(0?\\.\\d+|1(?:\\.0+)?)?/i);
-    const pMatch = stats.match(/p\\s*[:=<>]?\\s*(0?\\.\\d+|1(?:\\.0+)?)/i);
+    const r2Match = stats.match(/(?:r\s*\^?2|r-squared|r2)\s*[:=<>]?\s*(0?\.\d+|1(?:\.0+)?)?/i);
+    const pMatch = stats.match(/p\s*[:=<>]?\s*(0?\.\d+|1(?:\.0+)?)/i);
     const r2 = r2Match?.[1] ? Number(r2Match[1]) : null;
     const pValue = pMatch?.[1] ? Number(pMatch[1]) : null;
     if (r2 !== null && pValue !== null && r2 >= 0.4 && pValue < 0.05) modelRobustness = 90;
-    else if (/regresi|anova|uji\\s*t|uji\\s*f|inferens|signifikansi|signifikan|model\\s*teruji/i.test(stats)) modelRobustness = 82;
+    else if (/regresi|anova|uji\s*t|uji\s*f|inferens|signifikansi|signifikan|model\s*teruji/i.test(stats)) modelRobustness = 82;
     else if (/deskriptif|frekuensi|persentase|descriptive/i.test(stats)) modelRobustness = 70;
 
     const limitationOpenness = clue.limitations?.trim() ? 90 : /keterbatasan|limitations|bias/i.test(String(clue.raw_clue_text || '')) ? 75 : 50;
