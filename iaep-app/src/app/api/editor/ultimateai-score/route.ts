@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getCurrentUser } from '@/app/actions/auth';
 import { isEditorOrAbove } from '@/lib/permissions';
+import { createClient } from '@supabase/supabase-js';
 
 const SCORE_FIELDS = ['topic_relevance', 'article_structure', 'abstract', 'research_gap', 'methodology', 'data_statistics', 'discussion', 'conclusion', 'references'] as const;
 
@@ -45,11 +46,10 @@ export async function GET(req: Request) {
       return NextResponse.json({ error: 'submissionId required' }, { status: 400 });
     }
 
-    const { createClient } = await import('@supabase/supabase-js');
-    const supabaseAdmin = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-    );
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+    if (!supabaseUrl || !serviceKey) throw new Error('Supabase server configuration is incomplete.');
+    const supabaseAdmin = createClient(supabaseUrl, serviceKey, { auth: { persistSession: false, autoRefreshToken: false } });
 
     const { data: setting } = await supabaseAdmin
       .from('system_settings')
@@ -82,11 +82,19 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Teks naskah terlalu pendek.' }, { status: 400 });
     }
 
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+    if (!supabaseUrl || !serviceKey) throw new Error('Supabase server configuration is incomplete.');
+    const supabaseAdmin = createClient(supabaseUrl, serviceKey, { auth: { persistSession: false, autoRefreshToken: false } });
+    const { data: submission, error: submissionError } = await supabaseAdmin.from('submissions').select('id, title, abstract').eq('id', submissionId).maybeSingle();
+    if (submissionError) throw new Error('Gagal memverifikasi naskah: ' + submissionError.message);
+    if (!submission) return NextResponse.json({ error: 'Naskah tidak ditemukan; penilaian dibatalkan.' }, { status: 404 });
+
     const pageInfo = pageCount
       ? `Jumlah halaman naskah: ${pageCount} halaman.`
       : `Jumlah halaman tidak diketahui.`;
 
-    const prompt = `Kamu adalah reviewer akademik ahli. Baca naskah berikut dan berikan penilaian skor untuk setiap kriteria dengan skala 0-10.
+    const prompt = `Anda melakukan penilaian akademik awal berbasis bukti. Gunakan hanya teks naskah yang diberikan. Jangan mengarang metode, data, hasil, kutipan, DOI, atau kesimpulan. Setiap kriteria wajib memiliki kutipan literal minimal 12 karakter yang benar-benar muncul pada teks dan alasan ringkas. Penilaian adalah rekomendasi, bukan keputusan penerimaan final. Berikan skor 0-10 untuk sembilan kriteria. Jangan menghitung overall_score atau direct_acceptance; server menghitung rata-rata dan rekomendasi secara deterministik.
 
 ${pageInfo}
 
@@ -106,9 +114,7 @@ Berikan output HANYA dalam format JSON berikut, tanpa teks tambahan apapun:
   "references": <skor 0-10>,
   "page_count": ${pageCount ?? null},
   "page_count_available": ${pageCount != null ? 'true' : 'false'},
-  "direct_acceptance": <true jika overall_score >= 7.5, false jika tidak>,
-  "overall_score": <rata-rata dari semua 9 skor di atas, dibulatkan 1 desimal>,
-  "recommendation": "<Accept | Minor Revision | Major Revision | Reject>"
+  "evidence": { "topic_relevance": {"quote":"kutipan literal", "rationale":"alasan"}, "article_structure": {"quote":"kutipan literal", "rationale":"alasan"}, "abstract": {"quote":"kutipan literal", "rationale":"alasan"}, "research_gap": {"quote":"kutipan literal", "rationale":"alasan"}, "methodology": {"quote":"kutipan literal", "rationale":"alasan"}, "data_statistics": {"quote":"kutipan literal", "rationale":"alasan"}, "discussion": {"quote":"kutipan literal", "rationale":"alasan"}, "conclusion": {"quote":"kutipan literal", "rationale":"alasan"}, "references": {"quote":"kutipan literal", "rationale":"alasan"} }
 }`;
 
     const baseUrl = (process.env.NINE_ROUTER_BASE_URL || 'http://localhost:20128/v1').replace(/\/$/, '');
