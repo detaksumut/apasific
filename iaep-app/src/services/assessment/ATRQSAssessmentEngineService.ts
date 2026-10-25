@@ -66,8 +66,8 @@ export class ATRQSAssessmentEngineService {
   public static selectRubric(approach: string): AdaptiveRubricDefinition {
     const matchedKey = (Object.keys(ADAPTIVE_RUBRICS) as ResearchApproachKey[]).find(
       key => key.toLowerCase() === (approach || '').toLowerCase()
-    ) || 'Quantitative';
-
+    );
+    if (!matchedKey) throw new Error('Unsupported research approach; AT-RQS will not silently apply the Quantitative rubric.');
     return ADAPTIVE_RUBRICS[matchedKey];
   }
 
@@ -125,8 +125,8 @@ export class ATRQSAssessmentEngineService {
         maxWeight: critDef.maxWeight,
         rawScore: raw,
         weightedScore: weighted,
-        evidenceSnippet: inputScore?.evidenceSnippet || 'Standard contextual evidence verified from submission metadata.',
-        provenance: inputScore?.provenance || 'SYSTEM_MATCHED',
+        evidenceSnippet: inputScore.evidenceSnippet.trim(),
+        provenance: inputScore.provenance || 'SYSTEM_MATCHED',
         evaluatorRole: inputScore?.evaluatorRole || 'AUTOMATED_AGENT'
       });
     }
