@@ -119,7 +119,17 @@ describe('ATRQSEngine v1.0 Mathematical & Consistency Tests', () => {
   test('SCREEN ratings use official 1-to-5 normalization before aggregation', () => {
     const input: TriSourceInput = {
       articleId: 'screen-normalization-test',
-      scoreLayer: { overall_score: 5 },
+      scoreLayer: {
+        research_gap: 5,
+        topic_relevance: 5,
+        methodology: 5,
+        data_statistics: 5,
+        article_structure: 5,
+        abstract: 5,
+        discussion: 5,
+        references: 5,
+        overall_score: 5
+      },
       screenLayer: {
         novelty_rating: 1,
         methodology_rating: 3,
@@ -128,6 +138,7 @@ describe('ATRQSEngine v1.0 Mathematical & Consistency Tests', () => {
       clueLayer: {
         objective: 'Objective',
         methodology: 'Method',
+        sample_size: 40,
         findings: 'Findings',
         conclusion: 'Conclusion',
         limitations: 'Limitations'
