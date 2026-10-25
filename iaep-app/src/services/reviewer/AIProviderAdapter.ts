@@ -245,7 +245,8 @@ export class GeminiProviderAdapter implements IAIProvider {
       summary_evaluation: rawJson.summary_evaluation.trim(),
       suggested_improvements: rawJson.suggested_improvements.trim()
     };
-  }}
+  }
+}
 
 /**
  * Factory class to choose active AI LLM provider.
