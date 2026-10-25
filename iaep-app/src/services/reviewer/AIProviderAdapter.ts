@@ -119,9 +119,6 @@ export class GeminiProviderAdapter implements IAIProvider {
 
       // Parse and strictly validate the JSON schema
       const parsed = JSON.parse(rawText.trim());
-      if (parsed.findings && Array.isArray(parsed.findings)) {
-        return parsed as any;
-      }
       return this.validateSchema(parsed);
     } catch (e: any) {
       console.error('[AIProviderAdapter] API call or parsing failed:', e);
