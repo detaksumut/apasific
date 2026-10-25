@@ -139,38 +139,55 @@ export class ATRQSEngine {
 
 
   private static normalizeScoreLayer(score?: TriSourceInput['scoreLayer'], input?: TriSourceInput) {
-    if (score && score.overall_score !== undefined) {
-      const values = [score.topic_relevance, score.article_structure, score.abstract, score.research_gap, score.methodology, score.data_statistics, score.discussion, score.conclusion, score.references, score.overall_score].filter((value) => value !== undefined && value !== null);
-      if (!values.every((value) => typeof value === 'number' && Number.isFinite(value) && value >= 0 && value <= 10)) {
-        throw new Error('AT-RQS SCORE values must be finite numbers in the range 0–10.');
+    if (score) {
+      const fields = [
+        ['topic_relevance', score.topic_relevance],
+        ['article_structure', score.article_structure],
+        ['abstract', score.abstract],
+        ['research_gap', score.research_gap],
+        ['methodology', score.methodology],
+        ['data_statistics', score.data_statistics],
+        ['discussion', score.discussion],
+        ['conclusion', score.conclusion],
+        ['references', score.references]
+      ] as const;
+      for (const [field, value] of fields) {
+        if (typeof value !== 'number' || !Number.isFinite(value) || value < 0 || value > 10) {
+          throw new Error('AT-RQS SCORE layer requires a valid 0–10 score for ' + field + '. Missing values cannot be inferred from overall_score.');
+        }
       }
-      const overall = score.overall_score * 10;
+      if (score.overall_score !== undefined && (typeof score.overall_score !== 'number' || !Number.isFinite(score.overall_score) || score.overall_score < 0 || score.overall_score > 10)) {
+        throw new Error('AT-RQS overall_score must be a finite number in the range 0–10 when supplied.');
+      }
+      const values = fields.map(([, value]) => value as number);
       return {
-        topic: (score.topic_relevance ?? score.overall_score) * 10,
-        structure: (score.article_structure ?? score.overall_score) * 10,
-        abstract: (score.abstract ?? score.overall_score) * 10,
-        gap: (score.research_gap ?? score.overall_score) * 10,
-        method: (score.methodology ?? score.overall_score) * 10,
-        data: (score.data_statistics ?? score.overall_score) * 10,
-        discussion: (score.discussion ?? score.overall_score) * 10,
-        conclusion: (score.conclusion ?? score.overall_score) * 10,
-        references: (score.references ?? score.overall_score) * 10,
-        overall
+        topic: score.topic_relevance! * 10,
+        structure: score.article_structure! * 10,
+        abstract: score.abstract! * 10,
+        gap: score.research_gap! * 10,
+        method: score.methodology! * 10,
+        data: score.data_statistics! * 10,
+        discussion: score.discussion! * 10,
+        conclusion: score.conclusion! * 10,
+        references: score.references! * 10,
+        overall: values.reduce((sum, value) => sum + value, 0) / values.length * 10
       };
     }
+
     // Official controlled fallback baselines from AT-RQS v1.0 evidence registry.
     // These are deterministic baselines, not AI findings, and are disclosed by is_fallback.
+    const values = [85, 80, 80, 75, 80, 80, 80, 80, 85];
     return {
-      topic: 85,
-      structure: 80,
-      abstract: 80,
-      gap: 75,
-      method: 80,
-      data: 80,
-      discussion: 80,
-      conclusion: 80,
-      references: 85,
-      overall: (85 + 80 + 80 + 75 + 80 + 80 + 80 + 80 + 85) / 9
+      topic: values[0],
+      structure: values[1],
+      abstract: values[2],
+      gap: values[3],
+      method: values[4],
+      data: values[5],
+      discussion: values[6],
+      conclusion: values[7],
+      references: values[8],
+      overall: values.reduce((sum, value) => sum + value, 0) / values.length
     };
   }
 
