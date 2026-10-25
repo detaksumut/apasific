@@ -391,9 +391,9 @@ export default function ArticlePaywallClient({ initialArticle, id }: ArticlePayw
         abstract: article.abstract,
         doi: article.doi
       });
-      return snap.at_rqs_ten_scale.toFixed(1);
+      return snap.is_fallback ? "Belum tersedia" : snap.at_rqs_ten_scale.toFixed(1);
     } catch {
-      return "8.4";
+      return "—";
     }
   }, [article.id, article.title, article.abstract, article.doi]);
   const normalizedTrend: { label: string; count: number }[] =
@@ -808,7 +808,7 @@ export default function ArticlePaywallClient({ initialArticle, id }: ArticlePayw
                         <span className="text-gray-400 font-mono text-[9px]">Skala 0–10.0 / 0–100</span>
                       </div>
                       <div className="text-gray-200 leading-snug">
-                        <strong className="text-[#ffd977]">AT-RQS</strong> = 30%(Evidence Quality) + 25%(Methodological Rigor) + 20%(Statistical Strength) + 15%(Research Integrity) + 10%(Scholarly Impact)
+                        <strong className="text-[#ffd977]">AT-RQS</strong> = BWS × CF, dengan BWS = Σ(Dᵢ × Wᵢ) untuk 7 dimensi resmi dan CF = 0.85 + 0.15 × (AECI / 100)
                       </div>
                       <div className="text-gray-400 text-[9px] pt-1 border-t border-gray-850">
                         <span className="text-[#c9a84c] font-semibold">Bounded Consistency:</span> AT-RQS<sub>final</sub> = Base Score × [0.85 + 0.15 × (AECI / 100)]

@@ -47,15 +47,19 @@ export default function ApasificResearchQualityProfile({ article }: Props) {
 
     async function loadSavedAssessment() {
       try {
-        const res = await fetch(`/api/editor/ultimateai-score?submissionId=${encodeURIComponent(article.id)}`);
-        if (res.ok) {
-          const data = await res.json();
-          if (data.success && data.assessment && isMounted) {
-            setSavedScore(data.assessment);
-          }
+        // This endpoint returns the actual persisted SCORE, SCREEN and completed review records.
+        const res = await fetch(`/api/article/tri-source-assessment?submissionId=${encodeURIComponent(article.id)}`);
+        if (!res.ok) return;
+        const data = await res.json();
+        if (isMounted && data.success) {
+          setSavedScore({
+            score: data.score || null,
+            screening: data.screening || null,
+            clueReviews: Array.isArray(data.clueReviews) ? data.clueReviews : []
+          });
         }
       } catch {
-        // Fallback to deterministic computation
+        if (isMounted) setSavedScore(null);
       }
     }
 
@@ -65,61 +69,85 @@ export default function ApasificResearchQualityProfile({ article }: Props) {
     };
   }, [article?.id]);
 
-  // Compute official AT-RQS snapshot
+  // Compute only from persisted sources. Reviewer text is used as evidence only when a section exists.
   const snapshot: ATRQSSnapshot = useMemo(() => {
+    const score = savedScore?.score;
+    const screening = savedScore?.screening;
+    const review = savedScore?.clueReviews?.[0];
+    const reviewText = typeof review?.comments_for_author === "string" ? review.comments_for_author : "";
+
+    const extract = (pattern: RegExp): string | undefined => {
+      const match = reviewText.match(pattern);
+      const value = match?.[1]?.trim();
+      return value && value.length > 0 ? value : undefined;
+    };
+
+    const scoreLayer = score && Number.isFinite(Number(score.overall_score))
+      ? {
+          topic_relevance: score.topic_relevance == null ? undefined : Number(score.topic_relevance),
+          article_structure: score.article_structure == null ? undefined : Number(score.article_structure),
+          abstract: score.abstract == null ? undefined : Number(score.abstract),
+          research_gap: score.research_gap == null ? undefined : Number(score.research_gap),
+          methodology: score.methodology == null ? undefined : Number(score.methodology),
+          data_statistics: score.data_statistics == null ? undefined : Number(score.data_statistics),
+          discussion: score.discussion == null ? undefined : Number(score.discussion),
+          conclusion: score.conclusion == null ? undefined : Number(score.conclusion),
+          references: score.references == null ? undefined : Number(score.references),
+          overall_score: Number(score.overall_score)
+        }
+      : null;
+
+    const screenLayer = screening
+      && screening.novelty_rating != null
+      && screening.methodology_rating != null
+      && screening.clarity_rating != null
+      ? {
+          novelty_rating: Number(screening.novelty_rating),
+          methodology_rating: Number(screening.methodology_rating),
+          clarity_rating: Number(screening.clarity_rating),
+          confidence_score: screening.confidence_score == null ? undefined : Number(screening.confidence_score),
+          summary_evaluation: screening.summary_evaluation || undefined,
+          suggested_improvements: screening.suggested_improvements || undefined
+        }
+      : null;
+
+    const clueLayer = reviewText.trim()
+      ? {
+          objective: extract(/(?:^|\n)\s*(?:2[.)]?\s*)?Tujuan(?:\s+Penelitian)?\s*[:\-]?\s*([\s\S]*?)(?=\n\s*(?:3[.)]?\s*)?Metodologi|$)/i),
+          methodology: extract(/(?:^|\n)\s*(?:3[.)]?\s*)?Metodologi\s*[:\-]?\s*([\s\S]*?)(?=\n\s*(?:4[.)]?\s*)?Temuan|$)/i),
+          findings: extract(/(?:^|\n)\s*(?:4[.)]?\s*)?Temuan(?:\s+Utama)?\s*[:\-]?\s*([\s\S]*?)(?=\n\s*(?:5[.)]?\s*)?Kesimpulan|$)/i),
+          conclusion: extract(/(?:^|\n)\s*(?:5[.)]?\s*)?Kesimpulan\s*[:\-]?\s*([\s\S]*?)(?=\n\s*(?:Keterbatasan|Limitations)\s*[:\-]?|$)/i),
+          limitations: extract(/(?:^|\n)\s*(?:Keterbatasan|Limitations)\s*[:\-]?\s*([\s\S]*?)(?=\n\s*(?:Implikasi|Policy|Saran)\b|$)/i),
+          sample_size: extract(/(?:^|\n)\s*(?:Ukuran Sampel|Jumlah Sampel|Sampel|Sample Size|Sample)\s*[:\-]?\s*([^\n]+)/i),
+          sampling_strategy: extract(/(?:^|\n)\s*(?:Teknik Sampling|Metode Sampling|Sampling Strategy|Sampling Method)\s*[:\-]?\s*([^\n]+)/i),
+          practical_implications: extract(/(?:Implikasi Praktis|Practical Implications)\s*[:\-]?\s*([\s\S]*?)(?=\n\s*(?:Relevansi Kebijakan|Policy Relevance|Saran)\b|$)/i),
+          policy_relevance: extract(/(?:Relevansi Kebijakan|Policy Relevance)\s*[:\-]?\s*([\s\S]*?)(?=\n\s*(?:Saran|Catatan)\b|$)/i),
+          raw_clue_text: reviewText
+        }
+      : null;
+
     const input: TriSourceInput = {
       articleId: article.id,
       title: article.title,
       abstract: article.abstract,
       doi: article.doi,
-      scoreLayer: savedScore
-        ? {
-            topic_relevance: Number(savedScore.topic_relevance ?? 9),
-            article_structure: Number(savedScore.article_structure ?? 8),
-            abstract: Number(savedScore.abstract ?? 8),
-            research_gap: Number(savedScore.research_gap ?? 9),
-            methodology: Number(savedScore.methodology ?? 8),
-            data_statistics: Number(savedScore.data_statistics ?? 9),
-            discussion: Number(savedScore.discussion ?? 8),
-            conclusion: Number(savedScore.conclusion ?? 8),
-            references: Number(savedScore.references ?? 9),
-            overall_score: Number(savedScore.overall_score ?? 8.3)
-          }
-        : null,
-      screenLayer: {
-        novelty_rating: 3,
-        methodology_rating: 4,
-        clarity_rating: 4,
-        confidence_score: 85,
-        summary_evaluation: "Empirical study with structured methodology and clear statistical regression analysis.",
-        suggested_improvements: "Expand sample size and explore longitudinal multi-period dynamics for broader cross-institutional generalization."
-      },
-      clueLayer: {
-        objective: `Analyze key empirical determinants and structural relationships for ${article.title}`,
-        methodology: "Quantitative survey-based associative causal design with statistical regression models.",
-        sample_size: 38,
-        sampling_strategy: "Defined population sample with instrument validity and classical assumption compliance.",
-        findings: "Empirical indicators demonstrate statistically significant positive relationships with robust model fit.",
-        conclusion: "Simultaneous combination of target determinants significantly optimizes operational performance.",
-        limitations: "Single-institution population context with cross-sectional observation scope.",
-        practical_implications: "Provides structured framework for organizational optimization and resource allocation.",
-        policy_relevance: "Actionable empirical benchmark for institutional governance and performance planning.",
-        explained_variance: "53.7%"
-      }
+      scoreLayer,
+      screenLayer,
+      clueLayer
     };
 
     return ATRQSEngine.compute(input);
   }, [article, savedScore]);
 
   const dims = [
-    { key: "academic_contribution", label: "A — Academic Contribution", score: snapshot.dimension_scores.academic_contribution, desc: "Novelty & Research Gap Rigor", isMeta: false },
-    { key: "procedural_rigor", label: "P — Procedural Rigor", score: snapshot.dimension_scores.procedural_rigor, desc: "Sampling & Methodology Design", isMeta: false },
-    { key: "analytical_strength", label: "A — Analytical Strength", score: snapshot.dimension_scores.analytical_strength, desc: "Statistical Power & Model Fit", isMeta: false },
-    { key: "scholarly_communication", label: "S — Scholarly Communication", score: snapshot.dimension_scores.scholarly_communication, desc: "Structure, Clarity & Citations", isMeta: false },
-    { key: "integrity_transparency", label: "I — Integrity & Transparency", score: snapshot.dimension_scores.integrity_transparency, desc: "Documented Limitations Openness", isMeta: false },
-    { key: "future_research_value", label: "F — Future Research Value", score: snapshot.dimension_scores.future_research_value, desc: "Follow-up Agenda & Gap Potential", isMeta: false },
-    { key: "impact_applicability", label: "I — Impact & Applicability", score: snapshot.dimension_scores.impact_applicability, desc: "Practical & Policy Utility", isMeta: false },
-    { key: "confidence_assessment", label: "C — Confidence Assessment", score: snapshot.aac, desc: "Tri-source agreement, evidence completeness & assessment reliability", isMeta: true },
+    { key: "academic_contribution", label: "A — Academic Contribution", score: snapshot.is_fallback ? 0 : snapshot.dimension_scores.academic_contribution, desc: "Novelty & Research Gap Rigor", isMeta: false },
+    { key: "procedural_rigor", label: "P — Procedural Rigor", score: snapshot.is_fallback ? 0 : snapshot.dimension_scores.procedural_rigor, desc: "Sampling & Methodology Design", isMeta: false },
+    { key: "analytical_strength", label: "A — Analytical Strength", score: snapshot.is_fallback ? 0 : snapshot.dimension_scores.analytical_strength, desc: "Statistical Power & Model Fit", isMeta: false },
+    { key: "scholarly_communication", label: "S — Scholarly Communication", score: snapshot.is_fallback ? 0 : snapshot.dimension_scores.scholarly_communication, desc: "Structure, Clarity & Citations", isMeta: false },
+    { key: "integrity_transparency", label: "I — Integrity & Transparency", score: snapshot.is_fallback ? 0 : snapshot.dimension_scores.integrity_transparency, desc: "Documented Limitations Openness", isMeta: false },
+    { key: "future_research_value", label: "F — Future Research Value", score: snapshot.is_fallback ? 0 : snapshot.dimension_scores.future_research_value, desc: "Follow-up Agenda & Gap Potential", isMeta: false },
+    { key: "impact_applicability", label: "I — Impact & Applicability", score: snapshot.is_fallback ? 0 : snapshot.dimension_scores.impact_applicability, desc: "Practical & Policy Utility", isMeta: false },
+    { key: "confidence_assessment", label: "C — Confidence Assessment", score: snapshot.is_fallback ? 0 : snapshot.aac, desc: "Tri-source agreement, evidence completeness & assessment reliability", isMeta: true },
   ];
 
   return (
@@ -145,12 +173,17 @@ export default function ApasificResearchQualityProfile({ article }: Props) {
                 APASIFIC RESEARCH QUALITY PROFILE™
               </h3>
               <span className="text-xs sm:text-sm uppercase font-extrabold tracking-wider px-3.5 py-1 rounded-full bg-gradient-to-r from-[#c9a84c]/25 to-[#997a2b]/25 text-[#ffd977] border-2 border-[#c9a84c]/60 shadow-lg shadow-[#c9a84c]/15">
-                OFFICIAL AT-RQS™ v1.0
+                {snapshot.is_fallback ? "ASSESSMENT INCOMPLETE" : "AT-RQS™ v1.0 • RUBRIC REVIEW"}
               </span>
             </div>
             <p className="text-xs sm:text-sm text-gray-400 mt-1">
               Tri-Source Research Quality Assessment • <span className="text-gray-300 font-medium">{snapshot.assessment_id}</span>
             </p>
+            {snapshot.is_fallback && (
+              <p role="status" className="text-xs sm:text-sm text-amber-300 mt-2 max-w-2xl">
+                Penilaian belum lengkap: satu atau lebih sumber SCORE, SCREEN, dan CLUE belum tersedia. Nilai yang ditampilkan bersifat sementara dan bukan hasil AT-RQS terverifikasi.
+              </p>
+            )}
           </div>
         </div>
 
@@ -162,6 +195,10 @@ export default function ApasificResearchQualityProfile({ article }: Props) {
           <HelpCircle className="w-4 h-4 text-[#c9a84c]" />
           <span>How was this score determined?</span>
         </button>
+      </div>
+
+      <div role="note" className="relative z-10 rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-xs sm:text-sm leading-relaxed text-amber-100">
+        <strong className="font-bold">Catatan metodologi:</strong> Formula normalisasi dan agregasi utama mengikuti spesifikasi AT-RQS v1.0. Pemetaan subindikator D1–D7 dan kategori CESS masih dalam proses pencocokan terhadap rubrik lengkap; profil dimensi ini belum boleh diperlakukan sebagai validasi metodologi final.
       </div>
 
       {/* 3 HERO KPI METRIC CARDS */}
@@ -176,15 +213,15 @@ export default function ApasificResearchQualityProfile({ article }: Props) {
           </span>
           <div className="flex items-baseline justify-center gap-1.5 my-2">
             <span className="text-4xl sm:text-5xl font-black text-white tracking-tight">
-              {snapshot.at_rqs}
+              {snapshot.is_fallback ? "—" : snapshot.at_rqs}
             </span>
             <span className="text-sm font-bold text-[#c9a84c]">/ 100</span>
           </div>
           <div className="inline-block px-3 py-1 rounded-lg bg-[#c9a84c]/15 border border-[#c9a84c]/30 text-[11px] font-extrabold text-[#e5c76b] tracking-wider uppercase">
-            {snapshot.quality_level}
+            {snapshot.is_fallback ? "BELUM LENGKAP" : snapshot.quality_level}
           </div>
           <span className="block text-[10px] text-gray-500 mt-2">
-            Scale 0.0–10.0: <strong className="text-gray-300">{snapshot.at_rqs_ten_scale} / 10</strong>
+            Scale 0.0–10.0: <strong className="text-gray-300">{snapshot.is_fallback ? "—" : snapshot.at_rqs_ten_scale} / 10</strong>
           </span>
         </div>
 
@@ -198,15 +235,15 @@ export default function ApasificResearchQualityProfile({ article }: Props) {
           </span>
           <div className="flex items-baseline justify-center gap-1.5 my-2">
             <span className="text-4xl sm:text-5xl font-black text-cyan-400 tracking-tight">
-              {snapshot.aeci}
+              {snapshot.is_fallback ? "—" : snapshot.aeci}
             </span>
             <span className="text-sm font-bold text-cyan-400/70">/ 100</span>
           </div>
           <div className="inline-block px-3 py-1 rounded-lg bg-cyan-500/15 border border-cyan-500/30 text-[11px] font-extrabold text-cyan-300 tracking-wider uppercase">
-            High Structural Alignment
+            {snapshot.aeci >= 80 ? "Evidence Coverage Detected" : "Evidence Incomplete"}
           </div>
           <span className="block text-[10px] text-gray-500 mt-2">
-            Evidence Coverage: <strong className="text-gray-300">{snapshot.provenance.evidence_elements_detected} / 5 Elements (100%)</strong>
+            Evidence Coverage: <strong className="text-gray-300">{snapshot.is_fallback ? "—" : `${snapshot.provenance.evidence_elements_detected} / 5 Elements (${Math.round(snapshot.provenance.evidence_coverage_ratio * 100)}%)`}</strong>
           </span>
         </div>
 
@@ -220,14 +257,14 @@ export default function ApasificResearchQualityProfile({ article }: Props) {
           </span>
           <div className="flex items-baseline justify-center gap-1.5 my-2">
             <span className="text-4xl sm:text-5xl font-black text-emerald-400 tracking-tight">
-              {snapshot.aac}%
+              {snapshot.is_fallback ? "—" : `${snapshot.aac}%`}
             </span>
           </div>
           <div className="inline-block px-3 py-1 rounded-lg bg-emerald-500/15 border border-emerald-500/30 text-[11px] font-extrabold text-emerald-300 tracking-wider uppercase">
-            Tri-Source Consensus
+            {snapshot.is_fallback ? "Incomplete Sources" : "Tri-Source Consensus"}
           </div>
           <span className="block text-[10px] text-gray-500 mt-2">
-            ARTI™ Agreement Index: <strong className="text-gray-300">{snapshot.arti} / 100</strong>
+            ARTI™ Agreement Index: <strong className="text-gray-300">{snapshot.is_fallback ? "—" : `${snapshot.arti} / 100`}</strong>
           </span>
         </div>
       </div>
@@ -242,43 +279,43 @@ export default function ApasificResearchQualityProfile({ article }: Props) {
             </h4>
           </div>
           <span className="text-xs sm:text-sm font-bold text-gray-300">
-            ARTI™ Triangulation: <strong className="text-base sm:text-lg text-[#c9a84c] font-black">{snapshot.arti}</strong>
+            ARTI™ Triangulation: <strong className="text-base sm:text-lg text-[#c9a84c] font-black">{snapshot.is_fallback ? "—" : snapshot.arti}</strong>
           </span>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 text-sm">
           <div>
             <div className="flex justify-between mb-1.5 text-gray-200 font-bold">
               <span>Layer 1: CLUE (Evidence &amp; Limits)</span>
-              <span className="text-white font-black text-base">{snapshot.provenance.clue_layer_norm}</span>
+              <span className="text-white font-black text-base">{snapshot.is_fallback ? "—" : snapshot.provenance.clue_layer_norm}</span>
             </div>
             <div className="h-3 w-full bg-gray-800 rounded-full overflow-hidden">
               <div 
                 className="h-full bg-gradient-to-r from-emerald-500 to-emerald-300 rounded-full" 
-                style={{ width: `${snapshot.provenance.clue_layer_norm}%` }} 
+                style={{ width: snapshot.is_fallback ? "0%" : `${snapshot.provenance.clue_layer_norm}%` }} 
               />
             </div>
           </div>
           <div>
             <div className="flex justify-between mb-1.5 text-gray-200 font-bold">
               <span>Layer 2: SCREEN (Risk &amp; Novelty)</span>
-              <span className="text-white font-black text-base">{snapshot.provenance.screen_layer_norm}</span>
+              <span className="text-white font-black text-base">{snapshot.is_fallback ? "—" : snapshot.provenance.screen_layer_norm}</span>
             </div>
             <div className="h-3 w-full bg-gray-800 rounded-full overflow-hidden">
               <div 
                 className="h-full bg-gradient-to-r from-cyan-500 to-cyan-300 rounded-full" 
-                style={{ width: `${snapshot.provenance.screen_layer_norm}%` }} 
+                style={{ width: snapshot.is_fallback ? "0%" : `${snapshot.provenance.screen_layer_norm}%` }} 
               />
             </div>
           </div>
           <div>
             <div className="flex justify-between mb-1.5 text-gray-200 font-bold">
               <span>Layer 3: SCORE (Quality Rubric)</span>
-              <span className="text-white font-black text-base">{snapshot.provenance.score_layer_norm}</span>
+              <span className="text-white font-black text-base">{snapshot.is_fallback ? "—" : snapshot.provenance.score_layer_norm}</span>
             </div>
             <div className="h-3 w-full bg-gray-800 rounded-full overflow-hidden">
               <div 
                 className="h-full bg-gradient-to-r from-[#c9a84c] to-[#e5c76b] rounded-full" 
-                style={{ width: `${snapshot.provenance.score_layer_norm}%` }} 
+                style={{ width: snapshot.is_fallback ? "0%" : `${snapshot.provenance.score_layer_norm}%` }} 
               />
             </div>
           </div>
@@ -317,7 +354,7 @@ export default function ApasificResearchQualityProfile({ article }: Props) {
                   )}
                 </div>
                 <span className={`font-black text-base sm:text-lg lg:text-xl ${d.isMeta ? "text-cyan-400" : "text-[#c9a84c]"}`}>
-                  {d.score} <span className="text-xs text-gray-400 font-normal">/ 100</span>
+                  {snapshot.is_fallback ? "—" : d.score} <span className="text-xs text-gray-400 font-normal">/ 100</span>
                 </span>
               </div>
               <div className="h-3 w-full bg-gray-800/90 rounded-full overflow-hidden mb-2">
@@ -327,7 +364,7 @@ export default function ApasificResearchQualityProfile({ article }: Props) {
                       ? "bg-gradient-to-r from-cyan-400 to-emerald-400" 
                       : "bg-gradient-to-r from-[#c9a84c] to-[#38bdf8]"
                   }`}
-                  style={{ width: `${d.score}%` }} 
+                  style={{ width: snapshot.is_fallback ? "0%" : `${d.score}%` }} 
                 />
               </div>
               <span className="text-xs sm:text-sm text-gray-300 font-medium block leading-snug">{d.desc}</span>
