@@ -40,11 +40,14 @@ export class ATRQSEngine {
     // Require at least one structured evidence field; missing sections remain incomplete.
     const hasText = (value: unknown) =>
       typeof value === 'string' && value.trim().length > 0;
+    const hasSampleSize = (value: unknown) =>
+      (typeof value === 'number' && Number.isFinite(value) && value > 0) ||
+      (typeof value === 'string' && value.trim().length > 0);
     const validClue = Boolean(
       input.clueLayer &&
       hasText(input.clueLayer.objective) &&
       hasText(input.clueLayer.methodology) &&
-      (hasText(input.clueLayer.sample_size) || typeof input.clueLayer.sample_size === 'number') &&
+      hasSampleSize(input.clueLayer.sample_size) &&
       hasText(input.clueLayer.findings) &&
       hasText(input.clueLayer.limitations)
     );
