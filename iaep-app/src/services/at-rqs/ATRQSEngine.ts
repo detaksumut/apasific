@@ -160,6 +160,10 @@ export class ATRQSEngine {
         throw new Error('AT-RQS overall_score must be a finite number in the range 0–10 when supplied.');
       }
       const values = fields.map(([, value]) => value as number);
+      const calculatedMean = values.reduce((sum, value) => sum + value, 0) / values.length;
+      if (score.overall_score !== undefined && Math.abs(score.overall_score - calculatedMean) > 0.11) {
+        throw new Error('AT-RQS overall_score does not match the deterministic mean of the nine criterion scores.');
+      }
       return {
         topic: score.topic_relevance! * 10,
         structure: score.article_structure! * 10,
