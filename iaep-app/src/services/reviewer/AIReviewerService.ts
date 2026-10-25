@@ -77,7 +77,8 @@ export class AIReviewerService {
 
       // 5. Call AI Adapter (Portability Layer)
       const provider = AIProviderFactory.getProvider(activeProvider);
-      const aiResult = await provider.generateAssessment(builtPrompt);\n      const scopedResult = { ...aiResult, assessment_scope: 'title_and_abstract_only', assessment_limitations: ['Penilaian ini hanya menggunakan judul dan abstrak yang tersimpan pada metadata submission.', 'Metode lengkap, data, hasil, referensi, dan naskah penuh belum diverifikasi oleh layanan screening ini.'] };
+      const aiResult = await provider.generateAssessment(builtPrompt);
+      const scopedResult = { ...aiResult, assessment_scope: 'title_and_abstract_only', assessment_limitations: ['Penilaian ini hanya menggunakan judul dan abstrak yang tersimpan pada metadata submission.', 'Metode lengkap, data, hasil, referensi, dan naskah penuh belum diverifikasi oleh layanan screening ini.'] };
 
       // 6. Save Assessment Result to Database
       const { error: saveErr } = await supabase
