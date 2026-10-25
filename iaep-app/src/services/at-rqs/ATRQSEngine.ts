@@ -229,25 +229,36 @@ export class ATRQSEngine {
   }
 
   private static normalizeClueLayer(clue?: TriSourceInput['clueLayer'], input?: TriSourceInput) {
+    const samplingRigor = this.evaluateSamplingRigor(clue, input?.abstract);
     if (!clue) {
-      return { overall: 80.0, consistencyScore: 80 };
+      return { overall: 50, consistencyScore: 50, modelRobustness: 50, samplingRigor, limitationOpenness: 50, futureAgenda: 50, practicalUtility: 50 };
     }
 
-    let detectedCount = 0;
-    if (clue.objective) detectedCount++;
-    if (clue.methodology) detectedCount++;
-    if (clue.findings) detectedCount++;
-    if (clue.conclusion) detectedCount++;
-    if (clue.limitations) detectedCount++;
+    const stats = String(clue.model_statistics || clue.raw_clue_text || '').toLowerCase();
+    let modelRobustness = 50;
+    const r2Match = stats.match(/(?:r\\s*\\^?2|r-squared|r2)\\s*[:=<>]?\\s*(0?\\.\\d+|1(?:\\.0+)?)?/i);
+    const pMatch = stats.match(/p\\s*[:=<>]?\\s*(0?\\.\\d+|1(?:\\.0+)?)/i);
+    const r2 = r2Match?.[1] ? Number(r2Match[1]) : null;
+    const pValue = pMatch?.[1] ? Number(pMatch[1]) : null;
+    if (r2 !== null && pValue !== null && r2 >= 0.4 && pValue < 0.05) modelRobustness = 90;
+    else if (/regresi|anova|uji\\s*t|uji\\s*f|inferens|signifikansi|signifikan|model\\s*teruji/i.test(stats)) modelRobustness = 82;
+    else if (/deskriptif|frekuensi|persentase|descriptive/i.test(stats)) modelRobustness = 70;
 
-    let clueNorm = 75;
-    if (detectedCount >= 5) clueNorm = 90;
-    else if (detectedCount === 4) clueNorm = 85;
-    else if (detectedCount === 3) clueNorm = 75;
-    else if (detectedCount === 2) clueNorm = 65;
-    else clueNorm = 55;
+    const limitationOpenness = clue.limitations?.trim() ? 90 : /keterbatasan|limitations|bias/i.test(String(clue.raw_clue_text || '')) ? 75 : 50;
+    const futureText = [clue.raw_clue_text, clue.practical_implications, clue.policy_relevance].filter(Boolean).join(' ').toLowerCase();
+    const futureAgenda = /riset masa depan|future research|penelitian selanjutnya|studi lanjutan|future studies/i.test(futureText)
+      ? 88
+      : /perlu diteliti|dapat dikembangkan|perbaikan|recommendation|rekomendasi|suggested improvement/i.test(futureText)
+        ? 75
+        : 50;
+    const practicalUtility = clue.practical_implications?.trim() || clue.policy_relevance?.trim()
+      ? 90
+      : /implikasi|manfaat|aplikasi|utility|policy|kebijakan|manajerial/i.test(String(clue.raw_clue_text || ''))
+        ? 80
+        : 50;
 
-    return { overall: clueNorm, consistencyScore: clueNorm };
+    const overall = 0.30 * modelRobustness + 0.25 * samplingRigor + 0.15 * limitationOpenness + 0.15 * futureAgenda + 0.15 * practicalUtility;
+    return { overall: Math.round(overall * 10) / 10, consistencyScore: Math.round(overall * 10) / 10, modelRobustness, samplingRigor, limitationOpenness, futureAgenda, practicalUtility };
   }
 
   private static computeDimensions(
@@ -256,7 +267,7 @@ export class ATRQSEngine {
     r: ReturnType<typeof ATRQSEngine.normalizeScreenLayer>,
     c: ReturnType<typeof ATRQSEngine.normalizeClueLayer>
   ): ATRQSDimensionBreakdown {
-    const samplingRigor = this.evaluateSamplingRigor(input.clueLayer, input.abstract);
+    const samplingRigor = c.samplingRigor;
 
     // 1. Academic Contribution (18%)
     const academic_contribution = Math.round(0.40 * s.gap + 0.35 * r.novelty + 0.25 * s.topic);
@@ -265,22 +276,22 @@ export class ATRQSEngine {
     const procedural_rigor = Math.round(0.50 * s.method + 0.30 * r.methodology + 0.20 * samplingRigor);
 
     // 3. Analytical Strength (16%)
-    const modelRobustness = input.clueLayer?.explained_variance ? 90 : 82;
+    const modelRobustness = c.modelRobustness;
     const analytical_strength = Math.round(0.60 * s.data + 0.40 * modelRobustness);
 
     // 4. Scholarly Communication (12%)
     const scholarly_communication = Math.round(0.35 * s.structure + 0.25 * s.abstract + 0.20 * s.discussion + 0.20 * s.references);
 
     // 5. Integrity & Transparency (12%)
-    const limitationOpenness = input.clueLayer?.limitations ? 90 : 75;
+    const limitationOpenness = c.limitationOpenness;
     const integrity_transparency = Math.round(0.50 * s.conclusion + 0.50 * limitationOpenness);
 
     // 6. Future Research Value (10%)
-    const futureGap = input.screenLayer?.suggested_improvements || input.clueLayer?.limitations ? 82 : 72;
+    const futureGap = c.futureAgenda;
     const future_research_value = Math.round(futureGap);
 
     // 7. Impact & Applicability (14%)
-    const practicalUtility = input.clueLayer?.practical_implications ? 88 : 82;
+    const practicalUtility = c.practicalUtility;
     const policyTransferability = input.clueLayer?.policy_relevance ? 86 : 80;
     const impact_applicability = Math.round(0.50 * practicalUtility + 0.50 * policyTransferability);
 
