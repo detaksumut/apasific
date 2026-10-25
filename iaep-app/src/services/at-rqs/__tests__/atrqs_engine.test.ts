@@ -58,7 +58,7 @@ describe('ATRQSEngine v1.0 Mathematical & Consistency Tests', () => {
     expect(snapshot.at_rqs).toBeGreaterThanOrEqual(75);
     expect(snapshot.at_rqs).toBeLessThanOrEqual(95);
     expect(snapshot.at_rqs_ten_scale).toBeCloseTo(snapshot.at_rqs / 10, 1);
-    expect(snapshot.quality_level).toBe('STRONG RESEARCH QUALITY');
+    expect(snapshot.quality_level).toBe('GOOD RESEARCH QUALITY');
 
     // AECI Consistency (Evidence Coverage 5/5 -> ECF = 1.0 -> AECI = 100.0)
     expect(snapshot.aeci).toBeCloseTo(100.0, 1);
