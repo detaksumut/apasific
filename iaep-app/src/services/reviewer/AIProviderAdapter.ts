@@ -19,12 +19,15 @@ export class GeminiProviderAdapter implements IAIProvider {
   private readonly apiKey: string;
   
   constructor() {
-    this.apiKey = process.env.NINE_ROUTER_API_KEY || process.env.GEMINI_API_KEY || process.env.NEXT_PUBLIC_GEMINI_API_KEY || '';
+    this.apiKey = process.env.NINE_ROUTER_API_KEY || '';
   }
 
   public async generateAssessment(prompt: string): Promise<AIResponse> {
     if (!this.apiKey) {
-      throw new Error('NINE_ROUTER_API_KEY or GEMINI_API_KEY is not configured in environment variables.');
+      throw new Error('NINE_ROUTER_API_KEY is not configured. Assessment requests must go through UltimateAI/9Router.');
+    }
+    if (!this.apiKey.startsWith('sk-254')) {
+      throw new Error('NINE_ROUTER_API_KEY format is not recognized; direct provider bypass is disabled for APASIFIC assessments.');
     }
 
     try {
@@ -136,7 +139,10 @@ export class GeminiProviderAdapter implements IAIProvider {
     history: Array<{ role: string; content: string }> = []
   ): Promise<string> {
     if (!this.apiKey) {
-      throw new Error('NINE_ROUTER_API_KEY or GEMINI_API_KEY is not configured.');
+      throw new Error('NINE_ROUTER_API_KEY is not configured. APASIFIC AI requests must go through UltimateAI/9Router.');
+    }
+    if (!this.apiKey.startsWith('sk-254')) {
+      throw new Error('NINE_ROUTER_API_KEY format is not recognized; direct provider bypass is disabled.');
     }
 
     const messages = [
@@ -264,7 +270,7 @@ export class AIProviderFactory {
     switch (providerType.toLowerCase()) {
       case 'gemini':
       default:
-        return 'Gemini 1.5 Flash';
+        return 'UltimateAI via 9Router';
     }
   }
 }
