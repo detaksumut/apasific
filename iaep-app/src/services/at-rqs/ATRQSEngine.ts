@@ -61,15 +61,8 @@ export class ATRQSEngine {
     // --- STAGE 2: 7 APASIFIC Quality Dimensions ---
     const dimensions = this.computeDimensions(input, scoreNorm, screenNorm, clueNorm);
 
-    // Base Weighted Score
-    const baseWeightedScore =
-      dimensions.academic_contribution * 0.18 +
-      dimensions.procedural_rigor * 0.18 +
-      dimensions.analytical_strength * 0.16 +
-      dimensions.scholarly_communication * 0.12 +
-      dimensions.integrity_transparency * 0.12 +
-      dimensions.future_research_value * 0.10 +
-      dimensions.impact_applicability * 0.14;
+    // Official BWS formula: sum of each standardized dimension times its official weight.
+    const baseWeightedScore = this.computeBaseWeightedScore(dimensions);
 
     // --- STAGE 3: Evidence Consistency (AECI) & Tri-Source Agreement (ARTI) ---
     const { aeci, ecf, detectedElements } = this.computeAECI(input);
@@ -171,6 +164,22 @@ export class ATRQSEngine {
     if (factorCount === 3) return 80;
     if (factorCount === 2) return 70;
     return 60;
+  }
+
+  /**
+   * Official AT-RQS v1.0 BWS aggregation.
+   * Kept separate so the published worked example can be regression-tested.
+   */
+  public static computeBaseWeightedScore(dimensions: ATRQSDimensionBreakdown): number {
+    return (
+      dimensions.academic_contribution * 0.18 +
+      dimensions.procedural_rigor * 0.18 +
+      dimensions.analytical_strength * 0.16 +
+      dimensions.scholarly_communication * 0.12 +
+      dimensions.integrity_transparency * 0.12 +
+      dimensions.future_research_value * 0.10 +
+      dimensions.impact_applicability * 0.14
+    );
   }
 
   // --- PRIVATE CALCULATORS ---
