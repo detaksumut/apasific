@@ -49,6 +49,10 @@ describe('ATRQSEngine v1.0 Mathematical & Consistency Tests', () => {
     expect(snapshot.assessment_id).toContain('APS-AT-RQS-3866e0a6');
     expect(snapshot.framework_version).toBe('v1.0');
     expect(snapshot.algorithm_version).toBe('AT-RQS-1.0');
+    // Official SCREEN normalization: ratings 3, 3, 4 => 50, 50, 75; composite = 55.
+    expect(snapshot.provenance.screen_layer_norm).toBeCloseTo(55, 1);
+    // SCORE composite must be recomputed from nine criteria, not trust the supplied overall_score.
+    expect(snapshot.provenance.score_layer_norm).toBeCloseTo((76 / 9) * 10, 1);
     
     // AT-RQS Quality Score
     expect(snapshot.at_rqs).toBeGreaterThanOrEqual(75);
@@ -104,7 +108,18 @@ describe('ATRQSEngine v1.0 Mathematical & Consistency Tests', () => {
     expect(Number.isNaN(snapshot.aac)).toBe(false);
   });
 
-  test('Case 3: Incomplete evidence coverage ECF is strictly bounded and does not cause crash', () => {
+  test('Case 3: Partial missing source layer is explicitly marked as fallback', () => {
+    const input: TriSourceInput = {
+      articleId: 'partial-layer-001',
+      title: 'Partial assessment',
+      abstract: 'Abstract text with enough context for a deterministic baseline.',
+      scoreLayer: { topic_relevance: 8, article_structure: 8, abstract: 8, research_gap: 7, methodology: 8, data_statistics: 8, discussion: 8, conclusion: 8, references: 8 }
+    };
+    const snapshot = ATRQSEngine.compute(input);
+    expect(snapshot.is_fallback).toBe(true);
+  });
+
+  test('Case 4: Incomplete evidence coverage ECF is strictly bounded and does not cause crash', () => {
     const input: TriSourceInput = {
       articleId: 'sparse-article-001',
       title: 'Very Short Note',
@@ -116,7 +131,7 @@ describe('ATRQSEngine v1.0 Mathematical & Consistency Tests', () => {
     expect(snapshot.provenance.consistency_factor).toBeLessThanOrEqual(1.00);
   });
 
-  test('Case 4: Sampling Rigor evaluates total population sampling appropriately', () => {
+  test('Case 5: Sampling Rigor evaluates total population sampling appropriately', () => {
     const score = ATRQSEngine.evaluateSamplingRigor({
       sampling_strategy: 'Total Sampling (38 pegawai)',
       methodology: 'Kuantitatif survei kausal pada populasi instansi BPPRD',
