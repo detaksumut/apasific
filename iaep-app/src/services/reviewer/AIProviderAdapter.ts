@@ -220,28 +220,32 @@ export class GeminiProviderAdapter implements IAIProvider {
    * Prevents textual ratings (e.g. "excellent") and forces rating ranges between 1 and 5.
    */
   private validateSchema(rawJson: any): AIResponse {
-    const coerceRating = (val: any): number => {
-      const parsedInt = parseInt(val, 10);
-      if (Number.isNaN(parsedInt)) return 3; // Neutral fallback if rating is textual
-      return Math.max(1, Math.min(5, parsedInt)); // Constraint between 1 and 5
+    const requireRating = (field: string): number => {
+      const value = rawJson?.[field];
+      if (typeof value !== 'number' || !Number.isInteger(value) || value < 1 || value > 5) {
+        throw new Error(`AI assessment rejected: ${field} must be an integer from 1 to 5; no fallback score is permitted.`);
+      }
+      return value;
     };
-
-    const coerceConfidence = (val: any): number => {
-      const parsedFloat = parseFloat(val);
-      if (Number.isNaN(parsedFloat)) return 80.00;
-      return Math.max(0, Math.min(100, parsedFloat));
-    };
-
+    const confidence = rawJson?.confidence_score;
+    if (typeof confidence !== 'number' || !Number.isFinite(confidence) || confidence < 0 || confidence > 100) {
+      throw new Error('AI assessment rejected: confidence_score must be a finite number from 0 to 100; no fallback confidence is permitted.');
+    }
+    if (typeof rawJson?.summary_evaluation !== 'string' || !rawJson.summary_evaluation.trim()) {
+      throw new Error('AI assessment rejected: summary_evaluation is missing.');
+    }
+    if (typeof rawJson?.suggested_improvements !== 'string' || !rawJson.suggested_improvements.trim()) {
+      throw new Error('AI assessment rejected: suggested_improvements is missing.');
+    }
     return {
-      novelty_rating: coerceRating(rawJson.novelty_rating),
-      methodology_rating: coerceRating(rawJson.methodology_rating),
-      clarity_rating: coerceRating(rawJson.clarity_rating),
-      confidence_score: coerceConfidence(rawJson.confidence_score),
-      summary_evaluation: String(rawJson.summary_evaluation || 'Penilaian ringkasan tidak tersedia.').trim(),
-      suggested_improvements: String(rawJson.suggested_improvements || 'Saran perbaikan tidak tersedia.').trim()
+      novelty_rating: requireRating('novelty_rating'),
+      methodology_rating: requireRating('methodology_rating'),
+      clarity_rating: requireRating('clarity_rating'),
+      confidence_score: confidence,
+      summary_evaluation: rawJson.summary_evaluation.trim(),
+      suggested_improvements: rawJson.suggested_improvements.trim()
     };
-  }
-}
+  }}
 
 /**
  * Factory class to choose active AI LLM provider.
