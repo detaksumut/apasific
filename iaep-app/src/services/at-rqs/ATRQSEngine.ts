@@ -192,11 +192,15 @@ export class ATRQSEngine {
   }
 
   private static normalizeScreenLayer(screen?: TriSourceInput['screenLayer'], input?: TriSourceInput) {
-    if (screen && screen.novelty_rating) {
-      const nov = ((screen.novelty_rating - 1) / 4) * 100;
-      const metRating = screen.methodology_rating ?? 3;
-      const clarityRating = screen.clarity_rating ?? 4;
-      if (![screen.novelty_rating, metRating, clarityRating].every((value) => Number.isFinite(value) && value >= 1 && value <= 5)) {
+    if (screen) {
+      const novRating = screen.novelty_rating;
+      const metRating = screen.methodology_rating;
+      const clarityRating = screen.clarity_rating;
+      if (novRating === undefined || metRating === undefined || clarityRating === undefined) {
+        throw new Error('AT-RQS SCREEN layer requires novelty_rating, methodology_rating, and clarity_rating.');
+      }
+      const nov = ((novRating - 1) / 4) * 100;
+      if (![novRating, metRating, clarityRating].every((value) => typeof value === 'number' && Number.isFinite(value) && value >= 1 && value <= 5)) {
         throw new Error('AT-RQS SCREEN ratings must be finite numbers in the range 1–5.');
       }
       const met = ((metRating - 1) / 4) * 100;
