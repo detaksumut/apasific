@@ -101,14 +101,14 @@ export default function ArticleScreeningReportCard({ articleId }: Props) {
         </div>
       </div>
 
-      {/* Official Transparency & Governance Disclaimer */}
-      <div className="bg-emerald-500/10 border border-emerald-500/30 rounded-2xl p-4 text-xs leading-relaxed text-emerald-200/90 flex gap-3">
-        <ShieldAlert className="w-5 h-5 text-emerald-400 flex-shrink-0 mt-0.5" />
+      {/* Transparency & Governance Disclaimer: does not imply verification of missing records. */}
+      <div className="bg-sky-500/10 border border-sky-500/30 rounded-2xl p-4 text-xs leading-relaxed text-sky-100/90 flex gap-3">
+        <ShieldAlert className="w-5 h-5 text-sky-300 flex-shrink-0 mt-0.5" />
         <div>
-          <strong className="text-emerald-300 font-semibold block mb-1 uppercase tracking-wider">
+          <strong className="text-sky-200 font-semibold block mb-1 uppercase tracking-wider">
             Transparansi Penilaian & Tata Kelola Editorial:
           </strong>
-          Skor, indeks, ringkasan evaluasi, dan sintesis yang ditampilkan pada halaman ini merupakan keluaran sistem yang dihasilkan berdasarkan data telaah sejawat yang telah diverifikasi serta kriteria penilaian editorial jurnal. Mitra Bestari memberikan data dan pertimbangan telaah, bukan skor numerik yang ditampilkan pada halaman ini. <strong>Keluaran sistem tersebut tidak menggantikan kewenangan Dewan Redaksi dalam menetapkan keputusan editorial.</strong>
+          Sistem menyajikan indikator berdasarkan data screening yang tersimpan dan tersedia. Status tersimpan tidak dengan sendirinya membuktikan validitas atau verifikasi independen atas data tersebut. Jika data belum tersedia, indikator tidak boleh ditafsirkan sebagai penilaian positif maupun negatif. <strong>Keluaran sistem tidak menggantikan kewenangan Dewan Redaksi dalam menetapkan keputusan editorial.</strong>
         </div>
       </div>
 
