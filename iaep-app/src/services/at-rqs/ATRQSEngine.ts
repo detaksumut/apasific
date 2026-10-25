@@ -321,13 +321,19 @@ export class ATRQSEngine {
     const c = input.clueLayer;
     const abs = input.abstract || '';
 
-    // Check 5 Core Elements
-    if (c?.objective || /tujuan|objective|aim/i.test(abs)) detected++;
-    if (c?.methodology || /metode|method|kuantitatif|kualitatif|prisma/i.test(abs)) detected++;
-    if (c?.sample_size || /sampel|sample|responden|populasi/i.test(abs)) detected++;
-    if (c?.findings || /hasil|temuan|findings|result|signifikan/i.test(abs)) detected++;
+    const hasText = (value: unknown) =>
+      typeof value === 'string' && value.trim().length > 0;
+    const hasSampleSize = (value: unknown) =>
+      (typeof value === 'number' && Number.isFinite(value) && value > 0) ||
+      (typeof value === 'string' && value.trim().length > 0);
+
+    // Check 5 Core Elements. Structured CLUE values must contain non-whitespace evidence.
+    if (hasText(c?.objective) || /tujuan|objective|aim/i.test(abs)) detected++;
+    if (hasText(c?.methodology) || /metode|method|kuantitatif|kualitatif|prisma/i.test(abs)) detected++;
+    if (hasSampleSize(c?.sample_size) || /sampel|sample|responden|populasi/i.test(abs)) detected++;
+    if (hasText(c?.findings) || /hasil|temuan|findings|result|signifikan/i.test(abs)) detected++;
     // The fifth required element is limitations (not conclusion or implications).
-    if (c?.limitations || /keterbatasan|limitations|limitation/i.test(abs)) detected++;
+    if (hasText(c?.limitations) || /keterbatasan|limitations|limitation/i.test(abs)) detected++;
 
     const ecf = detected / 5; // e.g. 5/5 = 1.0, 4/5 = 0.8, 3/5 = 0.6
     const structuralAlignmentBase = 100.0; // Pure theoretical maximum (100.0 scale)
