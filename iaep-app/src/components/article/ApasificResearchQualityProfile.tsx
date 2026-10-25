@@ -209,7 +209,7 @@ export default function ApasificResearchQualityProfile({ article }: Props) {
           </span>
           <div className="flex items-baseline justify-center gap-1.5 my-2">
             <span className="text-4xl sm:text-5xl font-black text-white tracking-tight">
-              {snapshot.at_rqs}
+              {snapshot.is_fallback ? "—" : snapshot.at_rqs}
             </span>
             <span className="text-sm font-bold text-[#c9a84c]">/ 100</span>
           </div>
@@ -217,7 +217,7 @@ export default function ApasificResearchQualityProfile({ article }: Props) {
             {snapshot.quality_level}
           </div>
           <span className="block text-[10px] text-gray-500 mt-2">
-            Scale 0.0–10.0: <strong className="text-gray-300">{snapshot.at_rqs_ten_scale} / 10</strong>
+            Scale 0.0–10.0: <strong className="text-gray-300">{snapshot.is_fallback ? "—" : snapshot.at_rqs_ten_scale} / 10</strong>
           </span>
         </div>
 
@@ -231,7 +231,7 @@ export default function ApasificResearchQualityProfile({ article }: Props) {
           </span>
           <div className="flex items-baseline justify-center gap-1.5 my-2">
             <span className="text-4xl sm:text-5xl font-black text-cyan-400 tracking-tight">
-              {snapshot.aeci}
+              {snapshot.is_fallback ? "—" : snapshot.aeci}
             </span>
             <span className="text-sm font-bold text-cyan-400/70">/ 100</span>
           </div>
@@ -239,7 +239,7 @@ export default function ApasificResearchQualityProfile({ article }: Props) {
             {snapshot.aeci >= 80 ? "Evidence Coverage Detected" : "Evidence Incomplete"}
           </div>
           <span className="block text-[10px] text-gray-500 mt-2">
-            Evidence Coverage: <strong className="text-gray-300">{snapshot.provenance.evidence_elements_detected} / 5 Elements ({Math.round(snapshot.provenance.evidence_coverage_ratio * 100)}%)</strong>
+            Evidence Coverage: <strong className="text-gray-300">{snapshot.is_fallback ? "—" : `${snapshot.provenance.evidence_elements_detected} / 5 Elements (${Math.round(snapshot.provenance.evidence_coverage_ratio * 100)}%)`}</strong>
           </span>
         </div>
 
@@ -253,14 +253,14 @@ export default function ApasificResearchQualityProfile({ article }: Props) {
           </span>
           <div className="flex items-baseline justify-center gap-1.5 my-2">
             <span className="text-4xl sm:text-5xl font-black text-emerald-400 tracking-tight">
-              {snapshot.aac}%
+              {snapshot.is_fallback ? "—" : `${snapshot.aac}%`}
             </span>
           </div>
           <div className="inline-block px-3 py-1 rounded-lg bg-emerald-500/15 border border-emerald-500/30 text-[11px] font-extrabold text-emerald-300 tracking-wider uppercase">
             {snapshot.is_fallback ? "Incomplete Sources" : "Tri-Source Consensus"}
           </div>
           <span className="block text-[10px] text-gray-500 mt-2">
-            ARTI™ Agreement Index: <strong className="text-gray-300">{snapshot.arti} / 100</strong>
+            ARTI™ Agreement Index: <strong className="text-gray-300">{snapshot.is_fallback ? "—" : `${snapshot.arti} / 100`}</strong>
           </span>
         </div>
       </div>
