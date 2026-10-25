@@ -304,7 +304,7 @@ export class ATRQSEngine {
     if (c?.methodology || /metode|method|kuantitatif|kualitatif|prisma/i.test(abs)) detected++;
     if (c?.sample_size || /sampel|sample|responden|populasi/i.test(abs)) detected++;
     if (c?.findings || /hasil|temuan|findings|result|signifikan/i.test(abs)) detected++;
-    if (c?.conclusion || c?.limitations || /kesimpulan|conclusion|implikasi/i.test(abs)) detected++;
+    if (c?.limitations || /keterbatasan|limitations|bias/i.test(abs)) detected++;
 
     const ecf = detected / 5; // e.g. 5/5 = 1.0, 4/5 = 0.8, 3/5 = 0.6
     const structuralAlignmentBase = 100.0; // Pure theoretical maximum (100.0 scale)
@@ -320,14 +320,16 @@ export class ATRQSEngine {
   }
 
   private static computeDataCompleteness(input: TriSourceInput): number {
-    let totalFields = 8;
+    const totalFields = 8;
     let available = 0;
-    if (input.title) available++;
-    if (input.abstract) available++;
-    if (input.doi) available++;
-    if (input.scoreLayer) available += 2;
+    if (input.title?.trim()) available++;
+    if (input.abstract?.trim()) available++;
+    if (input.doi?.trim()) available++;
+    if (input.scoreLayer) available++;
     if (input.screenLayer) available++;
-    if (input.clueLayer) available += 2;
+    if (input.clueLayer?.objective?.trim()) available++;
+    if (input.clueLayer?.methodology?.trim()) available++;
+    if (input.clueLayer?.findings?.trim()) available++;
 
     return Math.round((available / totalFields) * 100);
   }
