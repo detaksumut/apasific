@@ -47,15 +47,19 @@ export default function ApasificResearchQualityProfile({ article }: Props) {
 
     async function loadSavedAssessment() {
       try {
-        const res = await fetch(`/api/editor/ultimateai-score?submissionId=${encodeURIComponent(article.id)}`);
-        if (res.ok) {
-          const data = await res.json();
-          if (data.success && data.assessment && isMounted) {
-            setSavedScore(data.assessment);
-          }
+        // This endpoint returns the actual persisted SCORE, SCREEN and completed review records.
+        const res = await fetch(`/api/article/tri-source-assessment?submissionId=${encodeURIComponent(article.id)}`);
+        if (!res.ok) return;
+        const data = await res.json();
+        if (isMounted && data.success) {
+          setSavedScore({
+            score: data.score || null,
+            screening: data.screening || null,
+            clueReviews: Array.isArray(data.clueReviews) ? data.clueReviews : []
+          });
         }
       } catch {
-        // Fallback to deterministic computation
+        if (isMounted) setSavedScore(null);
       }
     }
 
@@ -65,31 +69,71 @@ export default function ApasificResearchQualityProfile({ article }: Props) {
     };
   }, [article?.id]);
 
-  // Compute official AT-RQS snapshot
+  // Compute only from persisted sources. Reviewer text is used as evidence only when a section exists.
   const snapshot: ATRQSSnapshot = useMemo(() => {
+    const score = savedScore?.score;
+    const screening = savedScore?.screening;
+    const review = savedScore?.clueReviews?.[0];
+    const reviewText = typeof review?.comments_for_author === "string" ? review.comments_for_author : "";
+
+    const extract = (pattern: RegExp): string | undefined => {
+      const match = reviewText.match(pattern);
+      const value = match?.[1]?.trim();
+      return value && value.length > 0 ? value : undefined;
+    };
+
+    const scoreLayer = score && Number.isFinite(Number(score.overall_score))
+      ? {
+          topic_relevance: score.topic_relevance == null ? undefined : Number(score.topic_relevance),
+          article_structure: score.article_structure == null ? undefined : Number(score.article_structure),
+          abstract: score.abstract == null ? undefined : Number(score.abstract),
+          research_gap: score.research_gap == null ? undefined : Number(score.research_gap),
+          methodology: score.methodology == null ? undefined : Number(score.methodology),
+          data_statistics: score.data_statistics == null ? undefined : Number(score.data_statistics),
+          discussion: score.discussion == null ? undefined : Number(score.discussion),
+          conclusion: score.conclusion == null ? undefined : Number(score.conclusion),
+          references: score.references == null ? undefined : Number(score.references),
+          overall_score: Number(score.overall_score)
+        }
+      : null;
+
+    const screenLayer = screening
+      && screening.novelty_rating != null
+      && screening.methodology_rating != null
+      && screening.clarity_rating != null
+      ? {
+          novelty_rating: Number(screening.novelty_rating),
+          methodology_rating: Number(screening.methodology_rating),
+          clarity_rating: Number(screening.clarity_rating),
+          confidence_score: screening.confidence_score == null ? undefined : Number(screening.confidence_score),
+          summary_evaluation: screening.summary_evaluation || undefined,
+          suggested_improvements: screening.suggested_improvements || undefined
+        }
+      : null;
+
+    const clueLayer = reviewText.trim()
+      ? {
+          objective: extract(/(?:^|\\n)\\s*(?:2[.)]?\\s*)?Tujuan(?:\\s+Penelitian)?\\s*[:\\-]?\\s*([\\s\\S]*?)(?=\\n\\s*(?:3[.)]?\\s*)?Metodologi|$)/i),
+          methodology: extract(/(?:^|\\n)\\s*(?:3[.)]?\\s*)?Metodologi\\s*[:\\-]?\\s*([\\s\\S]*?)(?=\\n\\s*(?:4[.)]?\\s*)?Temuan|$)/i),
+          findings: extract(/(?:^|\\n)\\s*(?:4[.)]?\\s*)?Temuan(?:\\s+Utama)?\\s*[:\\-]?\\s*([\\s\\S]*?)(?=\\n\\s*(?:5[.)]?\\s*)?Kesimpulan|$)/i),
+          conclusion: extract(/(?:^|\\n)\\s*(?:5[.)]?\\s*)?Kesimpulan\\s*[:\\-]?\\s*([\\s\\S]*?)(?=\\n\\s*(?:Keterbatasan|Limitations)\\s*[:\\-]?|$)/i),
+          limitations: extract(/(?:^|\\n)\\s*(?:Keterbatasan|Limitations)\\s*[:\\-]?\\s*([\\s\\S]*?)(?=\\n\\s*(?:Implikasi|Policy|Saran)\\b|$)/i),
+          sample_size: undefined,
+          sampling_strategy: undefined,
+          practical_implications: extract(/(?:Implikasi Praktis|Practical Implications)\\s*[:\\-]?\\s*([\\s\\S]*?)(?=\\n\\s*(?:Relevansi Kebijakan|Policy Relevance|Saran)\\b|$)/i),
+          policy_relevance: extract(/(?:Relevansi Kebijakan|Policy Relevance)\\s*[:\\-]?\\s*([\\s\\S]*?)(?=\\n\\s*(?:Saran|Catatan)\\b|$)/i),
+          raw_clue_text: reviewText
+        }
+      : null;
+
     const input: TriSourceInput = {
       articleId: article.id,
       title: article.title,
       abstract: article.abstract,
       doi: article.doi,
-      scoreLayer: savedScore && Number.isFinite(Number(savedScore.overall_score))
-        ? {
-            topic_relevance: savedScore.topic_relevance == null ? undefined : Number(savedScore.topic_relevance),
-            article_structure: savedScore.article_structure == null ? undefined : Number(savedScore.article_structure),
-            abstract: savedScore.abstract == null ? undefined : Number(savedScore.abstract),
-            research_gap: savedScore.research_gap == null ? undefined : Number(savedScore.research_gap),
-            methodology: savedScore.methodology == null ? undefined : Number(savedScore.methodology),
-            data_statistics: savedScore.data_statistics == null ? undefined : Number(savedScore.data_statistics),
-            discussion: savedScore.discussion == null ? undefined : Number(savedScore.discussion),
-            conclusion: savedScore.conclusion == null ? undefined : Number(savedScore.conclusion),
-            references: savedScore.references == null ? undefined : Number(savedScore.references),
-            overall_score: Number(savedScore.overall_score)
-          }
-        : null,
-      // Do not manufacture SCREEN or CLUE evidence. Until the persisted source records
-      // are mapped and verified, the snapshot must remain explicitly marked as fallback.
-      screenLayer: null,
-      clueLayer: null
+      scoreLayer,
+      screenLayer,
+      clueLayer
     };
 
     return ATRQSEngine.compute(input);
