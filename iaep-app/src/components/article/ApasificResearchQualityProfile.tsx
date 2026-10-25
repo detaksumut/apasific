@@ -287,7 +287,7 @@ export default function ApasificResearchQualityProfile({ article }: Props) {
             <div className="h-3 w-full bg-gray-800 rounded-full overflow-hidden">
               <div 
                 className="h-full bg-gradient-to-r from-emerald-500 to-emerald-300 rounded-full" 
-                style={{ width: `${snapshot.provenance.clue_layer_norm}%` }} 
+                style={{ width: snapshot.is_fallback ? "0%" : `${snapshot.provenance.clue_layer_norm}%` }} 
               />
             </div>
           </div>
@@ -299,7 +299,7 @@ export default function ApasificResearchQualityProfile({ article }: Props) {
             <div className="h-3 w-full bg-gray-800 rounded-full overflow-hidden">
               <div 
                 className="h-full bg-gradient-to-r from-cyan-500 to-cyan-300 rounded-full" 
-                style={{ width: `${snapshot.provenance.screen_layer_norm}%` }} 
+                style={{ width: snapshot.is_fallback ? "0%" : `${snapshot.provenance.screen_layer_norm}%` }} 
               />
             </div>
           </div>
@@ -311,7 +311,7 @@ export default function ApasificResearchQualityProfile({ article }: Props) {
             <div className="h-3 w-full bg-gray-800 rounded-full overflow-hidden">
               <div 
                 className="h-full bg-gradient-to-r from-[#c9a84c] to-[#e5c76b] rounded-full" 
-                style={{ width: `${snapshot.provenance.score_layer_norm}%` }} 
+                style={{ width: snapshot.is_fallback ? "0%" : `${snapshot.provenance.score_layer_norm}%` }} 
               />
             </div>
           </div>
@@ -350,7 +350,7 @@ export default function ApasificResearchQualityProfile({ article }: Props) {
                   )}
                 </div>
                 <span className={`font-black text-base sm:text-lg lg:text-xl ${d.isMeta ? "text-cyan-400" : "text-[#c9a84c]"}`}>
-                  {d.score} <span className="text-xs text-gray-400 font-normal">/ 100</span>
+                  {snapshot.is_fallback ? "—" : d.score} <span className="text-xs text-gray-400 font-normal">/ 100</span>
                 </span>
               </div>
               <div className="h-3 w-full bg-gray-800/90 rounded-full overflow-hidden mb-2">
@@ -360,7 +360,7 @@ export default function ApasificResearchQualityProfile({ article }: Props) {
                       ? "bg-gradient-to-r from-cyan-400 to-emerald-400" 
                       : "bg-gradient-to-r from-[#c9a84c] to-[#38bdf8]"
                   }`}
-                  style={{ width: `${d.score}%` }} 
+                  style={{ width: snapshot.is_fallback ? "0%" : `${d.score}%` }} 
                 />
               </div>
               <span className="text-xs sm:text-sm text-gray-300 font-medium block leading-snug">{d.desc}</span>
