@@ -51,18 +51,19 @@ export async function GET(req: Request) {
     if (!supabaseUrl || !serviceKey) throw new Error('Supabase server configuration is incomplete.');
     const supabaseAdmin = createClient(supabaseUrl, serviceKey, { auth: { persistSession: false, autoRefreshToken: false } });
 
-    const { data: setting } = await supabaseAdmin
+    const { data: setting, error: readError } = await supabaseAdmin
       .from('system_settings')
       .select('value')
       .eq('key', `ultimateai_score_${submissionId}`)
       .maybeSingle();
 
+    if (readError) throw new Error('Gagal membaca penilaian tersimpan: ' + readError.message);
     if (setting && setting.value) {
       const assessment = typeof setting.value === 'string' ? JSON.parse(setting.value) : setting.value;
       return NextResponse.json({ success: true, assessment });
     }
 
-    return NextResponse.json({ success: false, message: 'No assessment found' });
+    return NextResponse.json({ success: false, message: 'Penilaian belum tersedia.' }, { status: 404 });
   } catch (err: any) {
     return NextResponse.json({ error: err.message }, { status: 500 });
   }
