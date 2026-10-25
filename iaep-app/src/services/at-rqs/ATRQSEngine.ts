@@ -20,25 +20,33 @@ export class ATRQSEngine {
   public static compute(input: TriSourceInput): ATRQSSnapshot {
     const articleId = input.articleId || 'canonical-article';
     // A source object alone is not proof that the source is complete or valid.
-    const validScore = typeof input.scoreLayer?.overall_score === 'number'
-      && Number.isFinite(input.scoreLayer.overall_score)
-      && input.scoreLayer.overall_score >= 0
-      && input.scoreLayer.overall_score <= 10;
+    const requiredScoreFields: Array<keyof NonNullable<TriSourceInput['scoreLayer']>> = [
+      'research_gap',
+      'topic_relevance',
+      'methodology',
+      'data_statistics',
+      'article_structure',
+      'abstract',
+      'discussion',
+      'references'
+    ];
+    const validScore = requiredScoreFields.every((field) => {
+      const value = input.scoreLayer?.[field];
+      return typeof value === 'number' && Number.isFinite(value) && value >= 0 && value <= 10;
+    });
     const validScreen = [input.screenLayer?.novelty_rating, input.screenLayer?.methodology_rating, input.screenLayer?.clarity_rating]
       .every((rating) => typeof rating === 'number' && Number.isFinite(rating) && rating >= 1 && rating <= 5);
     // Raw reviewer text alone is not proof that the five CLUE elements were extracted.
     // Require at least one structured evidence field; missing sections remain incomplete.
+    const hasText = (value: unknown) =>
+      typeof value === 'string' && value.trim().length > 0;
     const validClue = Boolean(
-      input.clueLayer && [
-        input.clueLayer.objective,
-        input.clueLayer.methodology,
-        input.clueLayer.findings,
-        input.clueLayer.limitations,
-        input.clueLayer.practical_implications,
-        input.clueLayer.policy_relevance,
-        input.clueLayer.explained_variance,
-        input.clueLayer.model_statistics
-      ].some((value) => typeof value === 'string' && value.trim().length > 0)
+      input.clueLayer &&
+      hasText(input.clueLayer.objective) &&
+      hasText(input.clueLayer.methodology) &&
+      (hasText(input.clueLayer.sample_size) || typeof input.clueLayer.sample_size === 'number') &&
+      hasText(input.clueLayer.findings) &&
+      hasText(input.clueLayer.limitations)
     );
     const isFallback = !(validScore && validScreen && validClue);
 
