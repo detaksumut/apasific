@@ -170,6 +170,24 @@ describe('ATRQSEngine v1.0 Mathematical & Consistency Tests', () => {
     expect(snapshot.provenance.clue_layer_norm).toBe(89.7);
   });
 
+  test('Raw CLUE reviewer text alone does not mark a tri-source assessment complete', () => {
+    const input: TriSourceInput = {
+      articleId: 'raw-clue-text-only',
+      scoreLayer: { overall_score: 8 },
+      screenLayer: {
+        novelty_rating: 3,
+        methodology_rating: 3,
+        clarity_rating: 3
+      },
+      clueLayer: {
+        raw_clue_text: 'Reviewer comments exist, but no structured evidence sections were extracted.'
+      }
+    };
+
+    const snapshot = ATRQSEngine.compute(input);
+    expect(snapshot.is_fallback).toBe(true);
+  });
+
   test('AECI requires limitations as the fifth element; conclusion alone is insufficient', () => {
     const input: TriSourceInput = {
       articleId: 'aeci-limitations-required',
