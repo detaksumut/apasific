@@ -1,7 +1,43 @@
 import { NextResponse } from 'next/server';
+import { getCurrentUser } from '@/app/actions/auth';
+import { isEditorOrAbove } from '@/lib/permissions';
+
+const SCORE_FIELDS = ['topic_relevance', 'article_structure', 'abstract', 'research_gap', 'methodology', 'data_statistics', 'discussion', 'conclusion', 'references'] as const;
+
+async function requireEditor() {
+  const user: any = await getCurrentUser();
+  if (!user?.id) return { response: NextResponse.json({ error: 'Akses ditolak: pengguna tidak terautentikasi.' }, { status: 401 }) };
+  const roles = Array.isArray(user.roles) ? user.roles : [];
+  const role = roles.length ? String(roles[0]).toLowerCase() : String(user.role || '').toLowerCase();
+  if (!isEditorOrAbove(role)) return { response: NextResponse.json({ error: 'Akses ditolak: hanya Editor atau di atasnya.' }, { status: 403 }) };
+  return { user };
+}
+
+function normalizeText(value: string) { return value.normalize('NFKC').replace(/\\s+/g, ' ').trim().toLocaleLowerCase(); }
+
+function validateAssessment(raw: any, manuscript: string, pageCount: number | null) {
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw) || !raw.evidence || typeof raw.evidence !== 'object') throw new Error('Keluaran AI tidak memiliki struktur bukti yang valid.');
+  const normalized = normalizeText(manuscript);
+  const scores: number[] = [];
+  const evidence: Record<string, { quote: string; rationale: string }> = {};
+  for (const field of SCORE_FIELDS) {
+    const score = raw[field];
+    if (typeof score !== 'number' || !Number.isFinite(score) || score < 0 || score > 10) throw new Error('Skor ' + field + ' harus berupa angka 0–10.');
+    const item = raw.evidence[field];
+    if (!item || typeof item.quote !== 'string' || typeof item.rationale !== 'string') throw new Error('Bukti/alasan ' + field + ' tidak lengkap.');
+    const quote = item.quote.trim(), rationale = item.rationale.trim();
+    if (quote.length < 12 || !rationale || !normalized.includes(normalizeText(quote))) throw new Error('Kutipan bukti ' + field + ' kosong, terlalu pendek, atau tidak ditemukan persis pada teks naskah.');
+    scores.push(score); evidence[field] = { quote, rationale };
+  }
+  const overall = Math.round(scores.reduce((a, b) => a + b, 0) / scores.length * 10) / 10;
+  const recommendation = overall >= 8.5 ? 'Accept' : overall >= 7.5 ? 'Minor Revision' : overall >= 6 ? 'Major Revision' : 'Reject';
+  return { ...Object.fromEntries(SCORE_FIELDS.map((field) => [field, raw[field]])), page_count: pageCount, page_count_available: pageCount !== null, overall_score: overall, recommendation, direct_acceptance: null, editor_decision_required: true, evidence, assessment_integrity: { evidence_quotes_verified: true, scoring_engine: 'deterministic-server-validation', recommendation_is_advisory: true, note: 'Skor rata-rata dan rekomendasi dihitung server. Keputusan final tetap pada Editor.' } };
+}
 
 export async function GET(req: Request) {
   try {
+    const access = await requireEditor();
+    if ('response' in access) return access.response;
     const { searchParams } = new URL(req.url);
     const submissionId = searchParams.get('submissionId') || searchParams.get('id');
 
@@ -34,10 +70,15 @@ export async function GET(req: Request) {
 
 export async function POST(req: Request) {
   try {
+    const access = await requireEditor();
+    if ('response' in access) return access.response;
     const body = await req.json();
-    const { text, submissionId, pageCount } = body;
+    const { text, submissionId } = body;
+    const pageCount = body.pageCount == null ? null : Number(body.pageCount);
+    if (typeof submissionId !== 'string' || !submissionId.trim()) return NextResponse.json({ error: 'submissionId wajib diisi.' }, { status: 400 });
+    if (pageCount !== null && (!Number.isInteger(pageCount) || pageCount < 1)) return NextResponse.json({ error: 'pageCount harus bilangan bulat positif atau null.' }, { status: 400 });
 
-    if (!text || text.trim().length < 100) {
+    if (typeof text !== 'string' || text.trim().length < 100) {
       return NextResponse.json({ error: 'Teks naskah terlalu pendek.' }, { status: 400 });
     }
 
@@ -71,7 +112,8 @@ Berikan output HANYA dalam format JSON berikut, tanpa teks tambahan apapun:
 }`;
 
     const baseUrl = (process.env.NINE_ROUTER_BASE_URL || 'http://localhost:20128/v1').replace(/\/$/, '');
-    const apiKey = process.env.NINE_ROUTER_API_KEY || 'sk-254-local';
+    const apiKey = process.env.NINE_ROUTER_API_KEY;
+    if (!apiKey) return NextResponse.json({ error: 'NINE_ROUTER_API_KEY belum dikonfigurasi; penilaian tidak dijalankan.' }, { status: 503 });
 
     const response = await fetch(`${baseUrl}/chat/completions`, {
       method: 'POST',
@@ -83,8 +125,10 @@ Berikan output HANYA dalam format JSON berikut, tanpa teks tambahan apapun:
         model: 'UltimateAI',
         messages: [{ role: 'user', content: prompt }],
         stream: false,
+        response_format: { type: 'json_object' },
         temperature: 0
-      })
+      }),
+      signal: AbortSignal.timeout(90000)
     });
 
     if (!response.ok) {
@@ -96,39 +140,14 @@ Berikan output HANYA dalam format JSON berikut, tanpa teks tambahan apapun:
     const json = await response.json();
     const rawContent = json.choices?.[0]?.message?.content || '';
 
-    // Parse JSON from response — strip markdown fences if present
-    const cleaned = rawContent.replace(/```json\s*/gi, '').replace(/```\s*/g, '').trim();
-    let assessment;
-    try {
-      assessment = JSON.parse(cleaned);
-    } catch {
-      // Try extracting JSON block if wrapped in text
-      const match = cleaned.match(/\{[\s\S]*\}/);
-      if (match) {
-        assessment = JSON.parse(match[0]);
-      } else {
-        console.error('[ultimateai-score] Failed to parse JSON:', rawContent);
-        return NextResponse.json({ error: 'Gagal memparse respons UltimateAI.' }, { status: 500 });
-      }
-    }
-
-    // Persist assessment to Supabase system_settings if submissionId is provided
-    if (submissionId && assessment) {
-      try {
-        const { createClient } = await import('@supabase/supabase-js');
-        const supabaseAdmin = createClient(
-          process.env.NEXT_PUBLIC_SUPABASE_URL!,
-          process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-        );
-        await supabaseAdmin.from('system_settings').upsert({
-          key: `ultimateai_score_${submissionId}`,
-          value: assessment
-        }, { onConflict: 'key' });
-      } catch (saveErr) {
-        console.warn('[ultimateai-score] Failed to save assessment to system_settings:', saveErr);
-      }
-    }
-
+    const cleaned = rawContent.replace(/^```(?:json)?\\s*/i, '').replace(/\\s*```$/, '').trim();
+    let parsed: any;
+    try { parsed = JSON.parse(cleaned); } catch { return NextResponse.json({ error: 'Keluaran AI bukan JSON valid; penilaian tidak disimpan.' }, { status: 502 }); }
+    if (parsed.error) return NextResponse.json({ error: 'AI tidak dapat menyelesaikan penilaian berbasis bukti: ' + String(parsed.error) }, { status: 422 });
+    let assessment: Record<string, any>;
+    try { assessment = validateAssessment(parsed, text, pageCount); } catch (validationError: any) { return NextResponse.json({ error: validationError.message, assessment_saved: false }, { status: 422 }); }
+    const { error: saveError } = await supabaseAdmin.from('system_settings').upsert({ key: 'ultimateai_score_' + submissionId, value: assessment }, { onConflict: 'key' });
+    if (saveError) { console.error('[ultimateai-score] Failed to persist assessment:', saveError); return NextResponse.json({ error: 'Penilaian gagal disimpan; tidak dilaporkan sebagai selesai.', assessment_saved: false }, { status: 500 }); }
     return NextResponse.json({ success: true, assessment });
   } catch (error: any) {
     console.error('[ultimateai-score] Error:', error);
