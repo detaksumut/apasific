@@ -4,6 +4,24 @@ import { ATRQSEngine } from '../ATRQSEngine';
 import { TriSourceInput } from '../types';
 
 describe('ATRQSEngine v1.0 Mathematical & Consistency Tests', () => {
+  test('Official worked-example dimension values aggregate to BWS 83.04', () => {
+    const bws = ATRQSEngine.computeBaseWeightedScore({
+      academic_contribution: 79.5,
+      procedural_rigor: 80.5,
+      analytical_strength: 87,
+      scholarly_communication: 82,
+      integrity_transparency: 85,
+      future_research_value: 81,
+      impact_applicability: 87
+    });
+
+    expect(bws).toBeCloseTo(83.04, 8);
+    const aeci = 100;
+    const cf = 0.85 + 0.15 * (aeci / 100);
+    expect(bws * cf).toBeCloseTo(83.04, 8);
+    expect((bws * cf) / 10).toBeCloseTo(8.304, 8);
+  });
+
   test('Case 1: Full BPPRD Barito Kuala Tri-Source Input produces valid AT-RQS snapshot', () => {
     const input: TriSourceInput = {
       articleId: '3866e0a6-3b57-48ca-8bcd-4646af83c017',
