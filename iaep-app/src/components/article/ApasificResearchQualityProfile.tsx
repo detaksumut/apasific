@@ -173,7 +173,7 @@ export default function ApasificResearchQualityProfile({ article }: Props) {
                 APASIFIC RESEARCH QUALITY PROFILE™
               </h3>
               <span className="text-xs sm:text-sm uppercase font-extrabold tracking-wider px-3.5 py-1 rounded-full bg-gradient-to-r from-[#c9a84c]/25 to-[#997a2b]/25 text-[#ffd977] border-2 border-[#c9a84c]/60 shadow-lg shadow-[#c9a84c]/15">
-                {snapshot.is_fallback ? "ASSESSMENT INCOMPLETE" : "OFFICIAL AT-RQS™ v1.0"}
+                {snapshot.is_fallback ? "ASSESSMENT INCOMPLETE" : "AT-RQS™ v1.0 • RUBRIC REVIEW"}
               </span>
             </div>
             <p className="text-xs sm:text-sm text-gray-400 mt-1">
@@ -195,6 +195,10 @@ export default function ApasificResearchQualityProfile({ article }: Props) {
           <HelpCircle className="w-4 h-4 text-[#c9a84c]" />
           <span>How was this score determined?</span>
         </button>
+      </div>
+
+      <div role="note" className="relative z-10 rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-xs sm:text-sm leading-relaxed text-amber-100">
+        <strong className="font-bold">Catatan metodologi:</strong> Formula normalisasi dan agregasi utama mengikuti spesifikasi AT-RQS v1.0. Pemetaan subindikator D1–D7 dan kategori CESS masih dalam proses pencocokan terhadap rubrik lengkap; profil dimensi ini belum boleh diperlakukan sebagai validasi metodologi final.
       </div>
 
       {/* 3 HERO KPI METRIC CARDS */}
