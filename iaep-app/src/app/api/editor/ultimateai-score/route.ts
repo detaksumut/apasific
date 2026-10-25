@@ -14,7 +14,7 @@ async function requireEditor() {
   return { user };
 }
 
-function normalizeText(value: string) { return value.normalize('NFKC').replace(/\\s+/g, ' ').trim().toLocaleLowerCase(); }
+function normalizeText(value: string) { return value.normalize('NFKC').replace(/\s+/g, ' ').trim().toLocaleLowerCase(); }
 
 function validateAssessment(raw: any, manuscript: string, pageCount: number | null) {
   if (!raw || typeof raw !== 'object' || Array.isArray(raw) || !raw.evidence || typeof raw.evidence !== 'object') throw new Error('Keluaran AI tidak memiliki struktur bukti yang valid.');
@@ -146,7 +146,7 @@ Berikan output HANYA dalam format JSON berikut, tanpa teks tambahan apapun:
     const json = await response.json();
     const rawContent = json.choices?.[0]?.message?.content || '';
 
-    const cleaned = rawContent.replace(/^```(?:json)?\\s*/i, '').replace(/\\s*```$/, '').trim();
+    const cleaned = rawContent.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '').trim();
     let parsed: any;
     try { parsed = JSON.parse(cleaned); } catch { return NextResponse.json({ error: 'Keluaran AI bukan JSON valid; penilaian tidak disimpan.' }, { status: 502 }); }
     if (parsed.error) return NextResponse.json({ error: 'AI tidak dapat menyelesaikan penilaian berbasis bukti: ' + String(parsed.error) }, { status: 422 });
