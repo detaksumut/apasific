@@ -26,13 +26,18 @@ export class ATRQSEngine {
       && input.scoreLayer.overall_score <= 10;
     const validScreen = [input.screenLayer?.novelty_rating, input.screenLayer?.methodology_rating, input.screenLayer?.clarity_rating]
       .every((rating) => typeof rating === 'number' && Number.isFinite(rating) && rating >= 1 && rating <= 5);
+    // Raw reviewer text alone is not proof that the five CLUE elements were extracted.
+    // Require at least one structured evidence field; missing sections remain incomplete.
     const validClue = Boolean(
       input.clueLayer && [
         input.clueLayer.objective,
         input.clueLayer.methodology,
         input.clueLayer.findings,
         input.clueLayer.limitations,
-        input.clueLayer.raw_clue_text
+        input.clueLayer.practical_implications,
+        input.clueLayer.policy_relevance,
+        input.clueLayer.explained_variance,
+        input.clueLayer.model_statistics
       ].some((value) => typeof value === 'string' && value.trim().length > 0)
     );
     const isFallback = !(validScore && validScreen && validClue);
