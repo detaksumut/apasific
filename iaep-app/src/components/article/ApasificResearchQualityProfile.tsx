@@ -140,14 +140,14 @@ export default function ApasificResearchQualityProfile({ article }: Props) {
   }, [article, savedScore]);
 
   const dims = [
-    { key: "academic_contribution", label: "A — Academic Contribution", score: snapshot.dimension_scores.academic_contribution, desc: "Novelty & Research Gap Rigor", isMeta: false },
-    { key: "procedural_rigor", label: "P — Procedural Rigor", score: snapshot.dimension_scores.procedural_rigor, desc: "Sampling & Methodology Design", isMeta: false },
-    { key: "analytical_strength", label: "A — Analytical Strength", score: snapshot.dimension_scores.analytical_strength, desc: "Statistical Power & Model Fit", isMeta: false },
-    { key: "scholarly_communication", label: "S — Scholarly Communication", score: snapshot.dimension_scores.scholarly_communication, desc: "Structure, Clarity & Citations", isMeta: false },
-    { key: "integrity_transparency", label: "I — Integrity & Transparency", score: snapshot.dimension_scores.integrity_transparency, desc: "Documented Limitations Openness", isMeta: false },
-    { key: "future_research_value", label: "F — Future Research Value", score: snapshot.dimension_scores.future_research_value, desc: "Follow-up Agenda & Gap Potential", isMeta: false },
-    { key: "impact_applicability", label: "I — Impact & Applicability", score: snapshot.dimension_scores.impact_applicability, desc: "Practical & Policy Utility", isMeta: false },
-    { key: "confidence_assessment", label: "C — Confidence Assessment", score: snapshot.aac, desc: "Tri-source agreement, evidence completeness & assessment reliability", isMeta: true },
+    { key: "academic_contribution", label: "A — Academic Contribution", score: snapshot.is_fallback ? 0 : snapshot.dimension_scores.academic_contribution, desc: "Novelty & Research Gap Rigor", isMeta: false },
+    { key: "procedural_rigor", label: "P — Procedural Rigor", score: snapshot.is_fallback ? 0 : snapshot.dimension_scores.procedural_rigor, desc: "Sampling & Methodology Design", isMeta: false },
+    { key: "analytical_strength", label: "A — Analytical Strength", score: snapshot.is_fallback ? 0 : snapshot.dimension_scores.analytical_strength, desc: "Statistical Power & Model Fit", isMeta: false },
+    { key: "scholarly_communication", label: "S — Scholarly Communication", score: snapshot.is_fallback ? 0 : snapshot.dimension_scores.scholarly_communication, desc: "Structure, Clarity & Citations", isMeta: false },
+    { key: "integrity_transparency", label: "I — Integrity & Transparency", score: snapshot.is_fallback ? 0 : snapshot.dimension_scores.integrity_transparency, desc: "Documented Limitations Openness", isMeta: false },
+    { key: "future_research_value", label: "F — Future Research Value", score: snapshot.is_fallback ? 0 : snapshot.dimension_scores.future_research_value, desc: "Follow-up Agenda & Gap Potential", isMeta: false },
+    { key: "impact_applicability", label: "I — Impact & Applicability", score: snapshot.is_fallback ? 0 : snapshot.dimension_scores.impact_applicability, desc: "Practical & Policy Utility", isMeta: false },
+    { key: "confidence_assessment", label: "C — Confidence Assessment", score: snapshot.is_fallback ? 0 : snapshot.aac, desc: "Tri-source agreement, evidence completeness & assessment reliability", isMeta: true },
   ];
 
   return (
@@ -275,14 +275,14 @@ export default function ApasificResearchQualityProfile({ article }: Props) {
             </h4>
           </div>
           <span className="text-xs sm:text-sm font-bold text-gray-300">
-            ARTI™ Triangulation: <strong className="text-base sm:text-lg text-[#c9a84c] font-black">{snapshot.arti}</strong>
+            ARTI™ Triangulation: <strong className="text-base sm:text-lg text-[#c9a84c] font-black">{snapshot.is_fallback ? "—" : snapshot.arti}</strong>
           </span>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 text-sm">
           <div>
             <div className="flex justify-between mb-1.5 text-gray-200 font-bold">
               <span>Layer 1: CLUE (Evidence &amp; Limits)</span>
-              <span className="text-white font-black text-base">{snapshot.provenance.clue_layer_norm}</span>
+              <span className="text-white font-black text-base">{snapshot.is_fallback ? "—" : snapshot.provenance.clue_layer_norm}</span>
             </div>
             <div className="h-3 w-full bg-gray-800 rounded-full overflow-hidden">
               <div 
@@ -294,7 +294,7 @@ export default function ApasificResearchQualityProfile({ article }: Props) {
           <div>
             <div className="flex justify-between mb-1.5 text-gray-200 font-bold">
               <span>Layer 2: SCREEN (Risk &amp; Novelty)</span>
-              <span className="text-white font-black text-base">{snapshot.provenance.screen_layer_norm}</span>
+              <span className="text-white font-black text-base">{snapshot.is_fallback ? "—" : snapshot.provenance.screen_layer_norm}</span>
             </div>
             <div className="h-3 w-full bg-gray-800 rounded-full overflow-hidden">
               <div 
@@ -306,7 +306,7 @@ export default function ApasificResearchQualityProfile({ article }: Props) {
           <div>
             <div className="flex justify-between mb-1.5 text-gray-200 font-bold">
               <span>Layer 3: SCORE (Quality Rubric)</span>
-              <span className="text-white font-black text-base">{snapshot.provenance.score_layer_norm}</span>
+              <span className="text-white font-black text-base">{snapshot.is_fallback ? "—" : snapshot.provenance.score_layer_norm}</span>
             </div>
             <div className="h-3 w-full bg-gray-800 rounded-full overflow-hidden">
               <div 
