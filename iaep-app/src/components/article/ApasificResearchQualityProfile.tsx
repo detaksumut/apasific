@@ -118,8 +118,8 @@ export default function ApasificResearchQualityProfile({ article }: Props) {
           findings: extract(/(?:^|\n)\s*(?:4[.)]?\s*)?Temuan(?:\s+Utama)?\s*[:\-]?\s*([\s\S]*?)(?=\n\s*(?:5[.)]?\s*)?Kesimpulan|$)/i),
           conclusion: extract(/(?:^|\n)\s*(?:5[.)]?\s*)?Kesimpulan\s*[:\-]?\s*([\s\S]*?)(?=\n\s*(?:Keterbatasan|Limitations)\s*[:\-]?|$)/i),
           limitations: extract(/(?:^|\n)\s*(?:Keterbatasan|Limitations)\s*[:\-]?\s*([\s\S]*?)(?=\n\s*(?:Implikasi|Policy|Saran)\b|$)/i),
-          sample_size: undefined,
-          sampling_strategy: undefined,
+          sample_size: extract(/(?:^|\n)\s*(?:Ukuran Sampel|Jumlah Sampel|Sampel|Sample Size|Sample)\s*[:\-]?\s*([^\n]+)/i),
+          sampling_strategy: extract(/(?:^|\n)\s*(?:Teknik Sampling|Metode Sampling|Sampling Strategy|Sampling Method)\s*[:\-]?\s*([^\n]+)/i),
           practical_implications: extract(/(?:Implikasi Praktis|Practical Implications)\s*[:\-]?\s*([\s\S]*?)(?=\n\s*(?:Relevansi Kebijakan|Policy Relevance|Saran)\b|$)/i),
           policy_relevance: extract(/(?:Relevansi Kebijakan|Policy Relevance)\s*[:\-]?\s*([\s\S]*?)(?=\n\s*(?:Saran|Catatan)\b|$)/i),
           raw_clue_text: reviewText
