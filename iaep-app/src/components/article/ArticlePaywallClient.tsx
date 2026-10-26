@@ -1110,7 +1110,7 @@ export default function ArticlePaywallClient({ initialArticle, id }: ArticlePayw
         {/* APASIFIC Independence Statement — displayed on every published article */}
         <section
           aria-labelledby="apasific-independence-title"
-          className="relative mt-8 mb-6 overflow-hidden rounded-2xl border border-[#c9a84c]/60 bg-gradient-to-br from-[#11121d] via-[#0b0c16] to-[#15101d] px-5 py-7 shadow-xl sm:px-8 sm:py-9"
+          className="relative col-span-full mt-8 mb-6 block w-full max-w-none self-stretch overflow-hidden rounded-2xl border border-[#c9a84c]/60 bg-gradient-to-br from-[#11121d] via-[#0b0c16] to-[#15101d] px-5 py-7 shadow-xl sm:px-8 sm:py-9"
         >
           <div aria-hidden="true" className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-transparent via-[#c9a84c] to-transparent" />
           <div className="relative z-10 w-full max-w-none text-center">
