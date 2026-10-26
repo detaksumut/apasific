@@ -1159,6 +1159,7 @@ export default function ArticlePaywallClient({ initialArticle, id }: ArticlePayw
               </p>
               <p className="mt-3 text-xs text-gray-400">APASIFIC — Independent Academic Manuscript Assessment.</p>
             </div>
+            </div>
             <aside className="min-w-0 self-stretch rounded-xl border border-[#c9a84c]/30 bg-black/20 p-5 sm:p-6">
               <div className="flex h-full flex-col items-center justify-center text-center">
                 <div className="mb-5 flex h-28 w-28 items-center justify-center rounded-full border border-[#c9a84c]/40 bg-[#11121d] p-3 shadow-lg shadow-black/30">
