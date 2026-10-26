@@ -86,26 +86,40 @@ export default function ApasificResearchQualityProfile({ article }: Props) {
             overall_score: Number(savedScore.overall_score ?? 8.3)
           }
         : null,
-      screenLayer: {
-        novelty_rating: 3,
-        methodology_rating: 4,
-        clarity_rating: 4,
-        confidence_score: 85,
-        summary_evaluation: "Empirical study with structured methodology and clear statistical regression analysis.",
-        suggested_improvements: "Expand sample size and explore longitudinal multi-period dynamics for broader cross-institutional generalization."
-      },
-      clueLayer: {
-        objective: `Analyze key empirical determinants and structural relationships for ${article.title}`,
-        methodology: "Quantitative survey-based associative causal design with statistical regression models.",
-        sample_size: 38,
-        sampling_strategy: "Defined population sample with instrument validity and classical assumption compliance.",
-        findings: "Empirical indicators demonstrate statistically significant positive relationships with robust model fit.",
-        conclusion: "Simultaneous combination of target determinants significantly optimizes operational performance.",
-        limitations: "Single-institution population context with cross-sectional observation scope.",
-        practical_implications: "Provides structured framework for organizational optimization and resource allocation.",
-        policy_relevance: "Actionable empirical benchmark for institutional governance and performance planning.",
-        explained_variance: "53.7%"
-      }
+      // Never fabricate screening or evidence fields for a live article.
+      // AECI must be based only on evidence explicitly saved for this assessment.
+      screenLayer: savedScore && (
+        savedScore.novelty_rating != null ||
+        savedScore.methodology_rating != null ||
+        savedScore.clarity_rating != null
+      ) ? {
+        novelty_rating: savedScore.novelty_rating != null ? Number(savedScore.novelty_rating) : undefined,
+        methodology_rating: savedScore.methodology_rating != null ? Number(savedScore.methodology_rating) : undefined,
+        clarity_rating: savedScore.clarity_rating != null ? Number(savedScore.clarity_rating) : undefined,
+        confidence_score: savedScore.confidence_score != null ? Number(savedScore.confidence_score) : undefined,
+        summary_evaluation: typeof savedScore.summary_evaluation === "string" ? savedScore.summary_evaluation : undefined,
+        suggested_improvements: typeof savedScore.suggested_improvements === "string" ? savedScore.suggested_improvements : undefined
+      } : null,
+      clueLayer: savedScore && (
+        savedScore.objective || savedScore.evidence_objective ||
+        savedScore.evidence_methodology || savedScore.sample_size != null ||
+        savedScore.sampling_strategy || savedScore.findings ||
+        savedScore.evidence_findings || savedScore.evidence_conclusion ||
+        savedScore.conclusion || savedScore.limitations
+      ) ? {
+        objective: typeof (savedScore.evidence_objective ?? savedScore.objective) === "string" ? (savedScore.evidence_objective ?? savedScore.objective) : undefined,
+        methodology: typeof savedScore.evidence_methodology === "string" ? savedScore.evidence_methodology : undefined,
+        sample_size: savedScore.sample_size != null ? savedScore.sample_size : undefined,
+        sampling_strategy: typeof savedScore.sampling_strategy === "string" ? savedScore.sampling_strategy : undefined,
+        findings: typeof (savedScore.evidence_findings ?? savedScore.findings) === "string" ? (savedScore.evidence_findings ?? savedScore.findings) : undefined,
+        conclusion: typeof (savedScore.evidence_conclusion ?? savedScore.conclusion) === "string" ? (savedScore.evidence_conclusion ?? savedScore.conclusion) : undefined,
+        limitations: typeof savedScore.limitations === "string" ? savedScore.limitations : undefined,
+        practical_implications: typeof savedScore.practical_implications === "string" ? savedScore.practical_implications : undefined,
+        policy_relevance: typeof savedScore.policy_relevance === "string" ? savedScore.policy_relevance : undefined,
+        explained_variance: typeof savedScore.explained_variance === "string" ? savedScore.explained_variance : undefined,
+        model_statistics: typeof savedScore.model_statistics === "string" ? savedScore.model_statistics : undefined,
+        raw_clue_text: typeof savedScore.raw_clue_text === "string" ? savedScore.raw_clue_text : undefined
+      } : null
     };
 
     return ATRQSEngine.compute(input);
@@ -203,10 +217,10 @@ export default function ApasificResearchQualityProfile({ article }: Props) {
             <span className="text-sm font-bold text-cyan-400/70">/ 100</span>
           </div>
           <div className="inline-block px-3 py-1 rounded-lg bg-cyan-500/15 border border-cyan-500/30 text-[11px] font-extrabold text-cyan-300 tracking-wider uppercase">
-            High Structural Alignment
+            {snapshot.aeci >= 80 ? "High Evidence Coverage" : snapshot.aeci >= 60 ? "Partial Evidence Coverage" : "Insufficient Verified Evidence"}
           </div>
           <span className="block text-[10px] text-gray-500 mt-2">
-            Evidence Coverage: <strong className="text-gray-300">{snapshot.provenance.evidence_elements_detected} / 5 Elements (100%)</strong>
+            Evidence Coverage: <strong className="text-gray-300">{snapshot.provenance.evidence_elements_detected} / 5 Elements ({Math.round(snapshot.provenance.evidence_coverage_ratio * 100)}%)</strong>
           </span>
         </div>
 
