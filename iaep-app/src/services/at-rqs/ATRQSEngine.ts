@@ -259,7 +259,7 @@ export class ATRQSEngine {
     if (c?.methodology || /metode|method|kuantitatif|kualitatif|prisma/i.test(abs)) detected++;
     if (c?.sample_size || /sampel|sample|responden|populasi/i.test(abs)) detected++;
     if (c?.findings || /hasil|temuan|findings|result|signifikan/i.test(abs)) detected++;
-    if (c?.conclusion || c?.limitations || /kesimpulan|conclusion|implikasi/i.test(abs)) detected++;
+    if (c?.conclusion || c?.limitations || /kesimpulan|conclusion|implikasi|implication|limitation/i.test(abs)) detected++;
 
     const ecf = detected / 5; // e.g. 5/5 = 1.0, 4/5 = 0.8, 3/5 = 0.6
     const structuralAlignmentBase = 100.0; // Pure theoretical maximum (100.0 scale)
