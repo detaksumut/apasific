@@ -38,6 +38,7 @@ interface Props {
 
 export default function ApasificResearchQualityProfile({ article }: Props) {
   const [savedScore, setSavedScore] = useState<any>(null);
+  const [isScoreLoading, setIsScoreLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<"provenance" | "dimensions" | "methodology">("provenance");
 
@@ -47,18 +48,27 @@ export default function ApasificResearchQualityProfile({ article }: Props) {
 
     async function loadSavedAssessment() {
       try {
-        const res = await fetch(`/api/editor/ultimateai-score?submissionId=${encodeURIComponent(article.id)}`);
-        if (res.ok) {
-          const data = await res.json();
-          if (data.success && data.assessment && isMounted) {
-            setSavedScore(data.assessment);
-          }
+        const res = await fetch(`/api/editor/ultimateai-score?submissionId=${encodeURIComponent(article.id)}`, {
+          cache: "no-store",
+          headers: { "Cache-Control": "no-cache" }
+        });
+        if (!res.ok) throw new Error(`Assessment API returned ${res.status}`);
+        const data = await res.json();
+        if (isMounted && data.success && data.assessment) {
+          setSavedScore(data.assessment);
+        } else if (isMounted) {
+          setSavedScore(null);
         }
-      } catch {
-        // Fallback to deterministic computation
+      } catch (error) {
+        // Keep missing/unavailable evidence explicit; do not invent a saved assessment.
+        if (isMounted) setSavedScore(null);
+        console.error("[AT-RQS] Unable to load persisted assessment:", error);
+      } finally {
+        if (isMounted) setIsScoreLoading(false);
       }
     }
 
+    setIsScoreLoading(true);
     loadSavedAssessment();
     return () => {
       isMounted = false;
@@ -106,6 +116,16 @@ export default function ApasificResearchQualityProfile({ article }: Props) {
 
     return ATRQSEngine.compute(input);
   }, [article, savedScore]);
+
+  if (isScoreLoading) {
+    return (
+      <div className="my-8 rounded-2xl border border-[#c9a84c]/30 bg-[#0b0c16] p-8 text-center text-gray-300" role="status" aria-live="polite">
+        <div className="mx-auto mb-3 h-8 w-8 animate-spin rounded-full border-2 border-[#c9a84c]/30 border-t-[#c9a84c]" />
+        <p className="font-semibold text-white">Memuat hasil penilaian AT-RQS…</p>
+        <p className="mt-1 text-sm text-gray-400">Menunggu data penilaian tersimpan agar skor tidak menampilkan nilai sementara.</p>
+      </div>
+    );
+  }
 
   const dims = [
     { key: "academic_contribution", label: "A — Academic Contribution", score: snapshot.dimension_scores.academic_contribution, desc: "Novelty & Research Gap Rigor", isMeta: false },
