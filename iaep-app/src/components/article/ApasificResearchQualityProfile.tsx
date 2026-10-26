@@ -86,10 +86,22 @@ export default function ApasificResearchQualityProfile({ article }: Props) {
             overall_score: Number(savedScore.overall_score ?? 8.3)
           }
         : null,
-      // Never inject placeholder assessments as if they were verified article evidence.
-      // Until real SCREEN/CLUE extraction is available, leave these layers absent.
+      // SCREEN remains absent until a verified screening result is stored.
       screenLayer: null,
-      clueLayer: null
+      // Reuse only evidence explicitly extracted and persisted by the assessment API.
+      // Do not synthesize evidence from generic keywords or default scores.
+      clueLayer: savedScore
+        ? {
+            objective: String(savedScore.evidence_objective ?? "").trim() || undefined,
+            methodology: String(savedScore.evidence_methodology ?? "").trim() || undefined,
+            sample_size: String(savedScore.sample_size ?? "").trim() || undefined,
+            sampling_strategy: String(savedScore.sampling_strategy ?? "").trim() || undefined,
+            findings: String(savedScore.evidence_findings ?? "").trim() || undefined,
+            conclusion: String(savedScore.evidence_conclusion ?? "").trim() || undefined,
+            limitations: String(savedScore.limitations ?? "").trim() || undefined,
+            raw_clue_text: String(savedScore.raw_clue_text ?? "").trim() || undefined
+          }
+        : null
     };
 
     return ATRQSEngine.compute(input);
