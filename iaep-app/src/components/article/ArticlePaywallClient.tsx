@@ -1163,7 +1163,6 @@ export default function ArticlePaywallClient({ initialArticle, id }: ArticlePayw
               </div>
               <p className="mt-4 text-[10px] font-medium uppercase tracking-[0.14em] text-gray-500">Fair assessment · Verifiable evidence · Conclusions open to scrutiny</p>
             </div>
-            </div>
             <aside className="min-w-0 self-stretch rounded-xl border border-[#c9a84c]/30 bg-black/20 p-5 sm:p-6">
               <div className="flex h-full flex-col items-center justify-center text-center">
                 <div className="mb-5 flex h-40 w-40 items-center justify-center rounded-full border border-[#c9a84c]/40 bg-[#11121d] p-2 shadow-lg shadow-black/30 sm:h-44 sm:w-44">
