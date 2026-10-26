@@ -74,7 +74,7 @@ export async function POST(req: Request) {
       ? `Jumlah halaman naskah: ${pageCount} halaman.`
       : `Jumlah halaman tidak diketahui.`;
 
-    const prompt = `Kamu adalah reviewer akademik ahli. Baca naskah berikut. Berikan skor setiap kriteria 0-10 DAN ekstrak bukti penelitian yang benar-benar tertulis. Jangan mengarang atau mengisi bukti yang tidak ditemukan. Untuk field evidence_*, gunakan kutipan atau ringkasan yang dapat ditelusuri ke naskah; jika tidak ditemukan, isi string kosong. sample_size harus berupa nilai eksplisit dari naskah atau string kosong. Nilai hanya berdasarkan bukti yang benar-benar tercantum pada naskah yang diberikan.`;
+    const prompt = `Kamu adalah reviewer akademik ahli. Baca naskah berikut. Berikan skor setiap kriteria 0-10 DAN ekstrak bukti penelitian yang benar-benar tertulis. Jangan mengarang atau mengisi bukti yang tidak ditemukan. Untuk field evidence_*, gunakan kutipan atau ringkasan yang dapat ditelusuri ke naskah; jika tidak ditemukan, isi string kosong. sample_size harus berupa nilai eksplisit dari naskah atau string kosong. Nilai hanya berdasarkan bukti yang benar-benar tercantum pada naskah yang diberikan.
 
 ${pageInfo}
 
