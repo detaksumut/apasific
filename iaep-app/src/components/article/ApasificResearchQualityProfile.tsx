@@ -38,6 +38,7 @@ interface Props {
 
 export default function ApasificResearchQualityProfile({ article }: Props) {
   const [savedScore, setSavedScore] = useState<any>(null);
+  const [isScoreLoading, setIsScoreLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<"provenance" | "dimensions" | "methodology">("provenance");
 
@@ -47,18 +48,27 @@ export default function ApasificResearchQualityProfile({ article }: Props) {
 
     async function loadSavedAssessment() {
       try {
-        const res = await fetch(`/api/editor/ultimateai-score?submissionId=${encodeURIComponent(article.id)}`);
-        if (res.ok) {
-          const data = await res.json();
-          if (data.success && data.assessment && isMounted) {
-            setSavedScore(data.assessment);
-          }
+        const res = await fetch(`/api/editor/ultimateai-score?submissionId=${encodeURIComponent(article.id)}`, {
+          cache: "no-store",
+          headers: { "Cache-Control": "no-cache" }
+        });
+        if (!res.ok) throw new Error(`Assessment API returned ${res.status}`);
+        const data = await res.json();
+        if (isMounted && data.success && data.assessment) {
+          setSavedScore(data.assessment);
+        } else if (isMounted) {
+          setSavedScore(null);
         }
-      } catch {
-        // Fallback to deterministic computation
+      } catch (error) {
+        // Keep missing/unavailable evidence explicit; do not invent a saved assessment.
+        if (isMounted) setSavedScore(null);
+        console.error("[AT-RQS] Unable to load persisted assessment:", error);
+      } finally {
+        if (isMounted) setIsScoreLoading(false);
       }
     }
 
+    setIsScoreLoading(true);
     loadSavedAssessment();
     return () => {
       isMounted = false;
@@ -86,14 +96,36 @@ export default function ApasificResearchQualityProfile({ article }: Props) {
             overall_score: Number(savedScore.overall_score ?? 0)
           }
         : null,
-      // Do not synthesize screening or reviewer-clue evidence from article metadata.
-      // Until the source assessments are available, the engine must mark this snapshot as fallback.
+      // SCREEN remains absent until a verified screening result is stored.
       screenLayer: null,
-      clueLayer: null
+      // Reuse only evidence explicitly extracted and persisted by the assessment API.
+      // Do not synthesize evidence from generic keywords or default scores.
+      clueLayer: savedScore
+        ? {
+            objective: String(savedScore.evidence_objective ?? "").trim() || undefined,
+            methodology: String(savedScore.evidence_methodology ?? "").trim() || undefined,
+            sample_size: String(savedScore.sample_size ?? "").trim() || undefined,
+            sampling_strategy: String(savedScore.sampling_strategy ?? "").trim() || undefined,
+            findings: String(savedScore.evidence_findings ?? "").trim() || undefined,
+            conclusion: String(savedScore.evidence_conclusion ?? "").trim() || undefined,
+            limitations: String(savedScore.limitations ?? "").trim() || undefined,
+            raw_clue_text: String(savedScore.raw_clue_text ?? "").trim() || undefined
+          }
+        : null
     };
 
     return ATRQSEngine.compute(input);
   }, [article, savedScore]);
+
+  if (isScoreLoading) {
+    return (
+      <div className="my-8 rounded-2xl border border-[#c9a84c]/30 bg-[#0b0c16] p-8 text-center text-gray-300" role="status" aria-live="polite">
+        <div className="mx-auto mb-3 h-8 w-8 animate-spin rounded-full border-2 border-[#c9a84c]/30 border-t-[#c9a84c]" />
+        <p className="font-semibold text-white">Memuat hasil penilaian AT-RQS…</p>
+        <p className="mt-1 text-sm text-gray-400">Menunggu data penilaian tersimpan agar skor tidak menampilkan nilai sementara.</p>
+      </div>
+    );
+  }
 
   const dims = [
     { key: "academic_contribution", label: "A — Academic Contribution", score: snapshot.dimension_scores.academic_contribution, desc: "Novelty & Research Gap Rigor", isMeta: false },
@@ -186,8 +218,18 @@ export default function ApasificResearchQualityProfile({ article }: Props) {
             </span>
             <span className="text-sm font-bold text-cyan-400/70">/ 100</span>
           </div>
-          <div className="inline-block px-3 py-1 rounded-lg bg-cyan-500/15 border border-cyan-500/30 text-[11px] font-extrabold text-cyan-300 tracking-wider uppercase">
-            Evidence alignment not yet verified
+          <div className={`inline-block px-3 py-1 rounded-lg border text-[11px] font-extrabold tracking-wider uppercase ${
+            snapshot.provenance.evidence_elements_detected === 5
+              ? "bg-emerald-500/15 border-emerald-500/30 text-emerald-300"
+              : snapshot.provenance.evidence_elements_detected > 0
+                ? "bg-amber-500/15 border-amber-500/30 text-amber-300"
+                : "bg-rose-500/15 border-rose-500/30 text-rose-300"
+          }`}>
+            {snapshot.provenance.evidence_elements_detected === 5
+              ? "Verified Evidence Complete"
+              : snapshot.provenance.evidence_elements_detected > 0
+                ? "Evidence Incomplete"
+                : "Insufficient Verified Evidence"}
           </div>
           <span className="block text-[10px] text-gray-500 mt-2">
             Evidence Coverage: <strong className="text-gray-300">{snapshot.provenance.evidence_elements_detected} / 5 Elements ({Math.round(snapshot.provenance.evidence_coverage_ratio * 100)}%)</strong>
@@ -208,7 +250,9 @@ export default function ApasificResearchQualityProfile({ article }: Props) {
             </span>
           </div>
           <div className="inline-block px-3 py-1 rounded-lg bg-emerald-500/15 border border-emerald-500/30 text-[11px] font-extrabold text-emerald-300 tracking-wider uppercase">
-            Source completeness: {snapshot.is_fallback ? "Incomplete — verify sources" : "Tri-source assessment"}
+            {snapshot.provenance.evidence_elements_detected === 5
+              ? "Tri-Source Consensus"
+              : "Provisional Confidence"}
           </div>
           <span className="block text-[10px] text-gray-500 mt-2">
             ARTI™ Agreement Index: <strong className="text-gray-300">{snapshot.arti} / 100</strong>

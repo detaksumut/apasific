@@ -1115,55 +1115,58 @@ export default function ArticlePaywallClient({ initialArticle, id }: ArticlePayw
           <div aria-hidden="true" className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-transparent via-[#c9a84c] to-transparent" />
           <div className="relative z-10 grid w-full grid-cols-1 gap-8 lg:grid-cols-3">
             <div className="min-w-0 lg:col-span-2">
-            <p className="mb-2 text-xs font-extrabold uppercase tracking-[0.28em] text-[#e8c97a]">APASIFIC</p>
-            <h2 id="apasific-independence-title" className="text-sm font-extrabold tracking-[0.16em] text-white sm:text-base">
-              INDEPENDENT. OBJECTIVE. EVIDENCE-BASED.
-            </h2>
-            <p className="mx-auto mt-4 max-w-3xl text-base font-bold leading-relaxed text-[#f4f0e6] sm:text-xl">
-              We Don&apos;t Judge Who You Are. We Evaluate What You Write.
-            </p>
-            <div className="mx-auto my-5 h-px max-w-24 bg-[#c9a84c]/60" />
-            <div className="mx-auto w-full max-w-none space-y-4 text-justify text-sm leading-7 text-gray-300 sm:text-[15px]">
-              <p>
-                APASIFIC is an independent academic manuscript assessment organization committed to honesty, independence, transparency, and accountability to both authors and readers.
+              <div className="mb-5 flex flex-wrap items-center gap-3">
+                <span className="inline-flex items-center rounded-full border border-[#c9a84c]/40 bg-[#c9a84c]/10 px-3 py-1 text-[10px] font-black uppercase tracking-[0.24em] text-[#e8c97a]">APASIFIC · Editorial Integrity</span>
+                <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-gray-500">Our Independence Statement</span>
+              </div>
+              <h2 id="apasific-independence-title" className="max-w-3xl text-2xl font-black leading-tight tracking-tight text-white sm:text-3xl lg:text-4xl">
+                Independent thinking.<br />
+                <span className="bg-gradient-to-r from-[#f6df9a] via-[#c9a84c] to-[#f6df9a] bg-clip-text text-transparent">Evidence-led assessment.</span>
+              </h2>
+              <p className="mt-4 max-w-2xl border-l-2 border-[#c9a84c] pl-4 text-base font-semibold leading-relaxed text-[#f4f0e6] sm:text-lg">
+                We don&apos;t judge who you are. <span className="text-[#e8c97a]">We evaluate what you write.</span>
               </p>
-              <p>
-                We do not judge manuscripts by the author&apos;s name, institutional affiliation, academic title, professional position, reputation, or the identity of the reviewer. We focus exclusively on the quality of the academic work itself: the strength of its evidence, the soundness of its methodology, the integrity of its analysis, and the validity of its conclusions.
+              <p className="mt-5 max-w-3xl text-sm leading-7 text-gray-300 sm:text-base">
+                APASIFIC provides independent, impartial, and transparent academic manuscript assessment. We evaluate the work—not the author. Names, affiliations, titles, and reputations do not determine our findings.
               </p>
-              <p>
-                Every manuscript deserves to be assessed against the same standards. Strengths must be acknowledged, weaknesses must be disclosed, and gaps in evidence must be reported openly. Every assessment must be grounded in the manuscript itself, supported by verifiable evidence, and conducted in accordance with the applicable assessment methodology.
-              </p>
-              <p className="text-center font-bold text-[#e8c97a] sm:text-base">
-                We Do Not Judge by Names. We Assess by Evidence.
-              </p>
-              <p>
-                Our assessment findings are communicated honestly and transparently to authors and readers, enabling them to understand a manuscript&apos;s strengths, weaknesses, limitations, and suitability for use as an academic reference.
-              </p>
-              <p>
-                APASIFIC does not promise high scores, favorable assessments, or automatic endorsement of published work. A manuscript may have significant academic limitations and still be considered for publication, subject to the applicable editorial policies. However, publication does not automatically establish the validity of every claim in a manuscript or guarantee that the work is suitable as a reference for every academic purpose.
-              </p>
-              <p>
-                When evidence is insufficient, that insufficiency must be stated clearly. When a methodology is weak, the weakness must be explained. When a conclusion is not adequately supported by the available data, that gap must be identified. No assessment should invent evidence, conceal material limitations, or present unsupported conclusions as established facts.
-              </p>
-              <p>
-                Authors remain free to accept or reject recommendations for improvement. APASIFIC&apos;s responsibility is to provide an honest, independent, and evidence-based assessment so that authors, readers, and the wider academic community can make informed decisions about the quality and limitations of academic work.
-              </p>
-              <p>
-                Our commitment is not to make every manuscript appear excellent or inadequate. It is to assess every manuscript fairly, apply consistent standards, disclose findings honestly, and ensure that assessment conclusions can be examined and independently scrutinized.
-              </p>
-            </div>
-            <div className="mt-6 border-t border-[#c9a84c]/30 pt-5">
-              <p className="text-xs font-extrabold uppercase tracking-[0.2em] text-[#e8c97a]">Our Principle</p>
-              <p className="mx-auto mt-2 max-w-3xl text-sm font-bold leading-relaxed text-white sm:text-base">
-                Academic Credibility Must Be Earned Through Evidence, Not Granted Through Identity.
-              </p>
-              <p className="mt-3 text-xs text-gray-400">APASIFIC — Independent Academic Manuscript Assessment.</p>
-            </div>
+              <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-3">
+                <div className="rounded-xl border border-[#c9a84c]/25 bg-white/[0.035] p-4">
+                  <span className="mb-3 flex h-9 w-9 items-center justify-center rounded-lg border border-[#c9a84c]/30 bg-[#c9a84c]/10 text-lg text-[#e8c97a]">◎</span>
+                  <h3 className="text-xs font-extrabold uppercase tracking-[0.15em] text-white">Independence</h3>
+                  <p className="mt-2 text-xs leading-5 text-gray-400">Identity and reputation never replace academic merit.</p>
+                </div>
+                <div className="rounded-xl border border-[#c9a84c]/25 bg-white/[0.035] p-4">
+                  <span className="mb-3 flex h-9 w-9 items-center justify-center rounded-lg border border-[#c9a84c]/30 bg-[#c9a84c]/10 text-lg text-[#e8c97a]">⌕</span>
+                  <h3 className="text-xs font-extrabold uppercase tracking-[0.15em] text-white">Evidence</h3>
+                  <p className="mt-2 text-xs leading-5 text-gray-400">Findings must be supported by verifiable evidence.</p>
+                </div>
+                <div className="rounded-xl border border-[#c9a84c]/25 bg-white/[0.035] p-4">
+                  <span className="mb-3 flex h-9 w-9 items-center justify-center rounded-lg border border-[#c9a84c]/30 bg-[#c9a84c]/10 text-lg text-[#e8c97a]">↗</span>
+                  <h3 className="text-xs font-extrabold uppercase tracking-[0.15em] text-white">Transparency</h3>
+                  <p className="mt-2 text-xs leading-5 text-gray-400">Strengths, limitations, and evidence gaps are disclosed.</p>
+                </div>
+              </div>
+              <div className="mt-5 rounded-xl border border-[#c9a84c]/30 bg-gradient-to-r from-[#c9a84c]/10 via-white/[0.025] to-transparent p-4 sm:p-5">
+                <p className="text-[10px] font-extrabold uppercase tracking-[0.22em] text-[#e8c97a]">Our standard</p>
+                <p className="mt-2 text-sm font-semibold leading-6 text-gray-200 sm:text-base">
+                  We do not promise high scores or favorable outcomes. Where evidence is insufficient, methods are weak, or conclusions go beyond the data, we say so—clearly and honestly.
+                </p>
+              </div>
+              <div className="mt-5 flex items-start gap-3 rounded-xl border border-white/10 bg-black/20 p-4">
+                <span className="mt-0.5 text-xl leading-none text-[#e8c97a]">“</span>
+                <div>
+                  <p className="text-[10px] font-extrabold uppercase tracking-[0.2em] text-gray-500">Our principle</p>
+                  <p className="mt-1 text-sm font-extrabold leading-relaxed text-white sm:text-base">
+                    Academic credibility must be earned through evidence—not granted through identity.
+                  </p>
+                </div>
+              </div>
+              <p className="mt-4 text-[10px] font-medium uppercase tracking-[0.14em] text-gray-500">Fair assessment · Verifiable evidence · Conclusions open to scrutiny</p>
             </div>
             <aside className="min-w-0 self-stretch rounded-xl border border-[#c9a84c]/30 bg-black/20 p-5 sm:p-6">
               <div className="flex h-full flex-col items-center justify-center text-center">
-                <div className="mb-5 flex h-28 w-28 items-center justify-center rounded-full border border-[#c9a84c]/40 bg-[#11121d] p-3 shadow-lg shadow-black/30">
-                  <img src="/logobaru2.png" alt="Logo APASIFIC" className="max-h-full max-w-full object-contain" />
+                <div className="mb-5 flex h-40 w-40 items-center justify-center rounded-full border border-[#c9a84c]/40 bg-[#11121d] p-2 shadow-lg shadow-black/30 sm:h-44 sm:w-44">
+                  <img src="/logobaru2.png" alt="Logo APASIFIC" className="h-full w-full object-contain" />
                 </div>
                 <p className="text-xs font-extrabold uppercase tracking-[0.24em] text-[#e8c97a]">Identitas Institusi</p>
                 <h3 className="mt-3 text-xl font-black leading-tight text-white">APASIFIC</h3>

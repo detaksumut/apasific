@@ -250,21 +250,18 @@ export class ATRQSEngine {
   }
 
   private static computeAECI(input: TriSourceInput): { aeci: number; ecf: number; detectedElements: number } {
-    let detected = 0;
     const c = input.clueLayer;
+
+    let detected = 0;
     const abs = input.abstract || '';
+    if (c?.objective?.trim() || /tujuan|objective|aim/i.test(abs)) detected++;
+    if (c?.methodology?.trim() || /metode|method|kuantitatif|kualitatif|prisma/i.test(abs)) detected++;
+    if ((c?.sample_size !== undefined && c?.sample_size !== null && String(c.sample_size).trim() !== '') || /sampel|sample|responden|populasi/i.test(abs)) detected++;
+    if (c?.findings?.trim() || /hasil|temuan|findings|result|signifikan/i.test(abs)) detected++;
+    if (c?.conclusion?.trim() || c?.limitations?.trim() || /kesimpulan|conclusion|implikasi|implication|limitation/i.test(abs)) detected++;
 
-    // Check 5 Core Elements
-    if (c?.objective || /tujuan|objective|aim/i.test(abs)) detected++;
-    if (c?.methodology || /metode|method|kuantitatif|kualitatif|prisma/i.test(abs)) detected++;
-    if (c?.sample_size || /sampel|sample|responden|populasi/i.test(abs)) detected++;
-    if (c?.findings || /hasil|temuan|findings|result|signifikan/i.test(abs)) detected++;
-    if (c?.conclusion || c?.limitations || /kesimpulan|conclusion|implikasi|implication|limitation/i.test(abs)) detected++;
-
-    const ecf = detected / 5; // e.g. 5/5 = 1.0, 4/5 = 0.8, 3/5 = 0.6
-    const structuralAlignmentBase = 100.0; // Pure theoretical maximum (100.0 scale)
-
-    const aeci = structuralAlignmentBase * ecf;
+    const ecf = detected / 5;
+    const aeci = 100 * ecf;
     return { aeci: Math.round(aeci * 10) / 10, ecf, detectedElements: detected };
   }
 

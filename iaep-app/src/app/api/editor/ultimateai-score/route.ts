@@ -44,7 +44,7 @@ export async function GET(req: Request) {
           success: false,
           error: 'Penilaian tersimpan tidak valid dan tidak dapat ditampilkan sebagai hasil resmi.',
           invalidFields
-        }, { status: 502 });
+        }, { status: 502, headers: { 'Cache-Control': 'no-store, no-cache, must-revalidate' } });
       }
 
       // Recompute derived fields instead of trusting stale stored values.
@@ -52,7 +52,7 @@ export async function GET(req: Request) {
         (scoreFields.reduce((sum, key) => sum + assessment[key], 0) / scoreFields.length) * 10
       ) / 10;
       assessment.direct_acceptance = assessment.overall_score >= 7.5;
-      return NextResponse.json({ success: true, assessment });
+      return NextResponse.json({ success: true, assessment }, { headers: { 'Cache-Control': 'no-store, no-cache, must-revalidate' } });
     }
 
     return NextResponse.json({ success: false, message: 'No assessment found' });
@@ -74,7 +74,7 @@ export async function POST(req: Request) {
       ? `Jumlah halaman naskah: ${pageCount} halaman.`
       : `Jumlah halaman tidak diketahui.`;
 
-    const prompt = `Kamu adalah reviewer akademik untuk penilaian awal APASIFIC. Nilai hanya berdasarkan bukti yang benar-benar tercantum pada naskah yang diberikan. Jangan mengarang data, metode, temuan, sitasi, atau detail yang tidak tersedia. Jika informasi suatu kriteria tidak cukup, berikan skor konservatif yang sesuai dengan bukti yang tersedia; jangan menganggap informasi yang tidak terlihat sebagai bukti bahwa kualitasnya baik. Terapkan rubrik secara konsisten dan gunakan skala 0-10 untuk setiap kriteria. Rekomendasi harus selaras dengan sembilan skor.
+    const prompt = `Kamu adalah reviewer akademik ahli. Baca naskah berikut. Berikan skor setiap kriteria 0-10 DAN ekstrak bukti penelitian yang benar-benar tertulis. Jangan mengarang atau mengisi bukti yang tidak ditemukan. Untuk field evidence_*, gunakan kutipan atau ringkasan yang dapat ditelusuri ke naskah; jika tidak ditemukan, isi string kosong. sample_size harus berupa nilai eksplisit dari naskah atau string kosong. Nilai hanya berdasarkan bukti yang benar-benar tercantum pada naskah yang diberikan.`;
 
 ${pageInfo}
 
@@ -96,7 +96,16 @@ Berikan output HANYA dalam format JSON berikut, tanpa teks tambahan apapun:
   "page_count_available": ${pageCount != null ? 'true' : 'false'},
   "direct_acceptance": <true jika overall_score >= 7.5, false jika tidak>,
   "overall_score": <rata-rata dari semua 9 skor di atas, dibulatkan 1 desimal>,
-  "recommendation": "<Accept | Minor Revision | Major Revision | Reject>"
+  "recommendation": "<Accept | Minor Revision | Major Revision | Reject>",
+  "evidence_objective": "<kutipan/ringkasan eksplisit tujuan penelitian dari naskah; string kosong jika tidak ditemukan>",
+  "evidence_methodology": "<metode/desain penelitian yang eksplisit; string kosong jika tidak ditemukan>",
+  "sample_size": "<jumlah sampel/responden yang tertulis eksplisit, atau string kosong jika tidak tersedia>",
+  "sampling_strategy": "<strategi sampling eksplisit, atau string kosong jika tidak tersedia>",
+  "evidence_findings": "<temuan/hasil utama yang eksplisit; string kosong jika tidak ditemukan>",
+  "evidence_conclusion": "<kesimpulan eksplisit; string kosong jika tidak ditemukan>",
+  "limitations": "<keterbatasan yang dinyatakan eksplisit; jangan menyimpulkan sendiri; string kosong jika tidak disebutkan>",
+  "raw_clue_text": "<kutipan ringkas dari bagian naskah yang mendukung field bukti di atas>",
+  "evidence_extraction_note": "<jelaskan jika teks naskah tidak cukup atau field tidak ditemukan>"
 }`;
 
     const configuredBaseUrl = process.env.NINE_ROUTER_BASE_URL;
@@ -271,7 +280,7 @@ Berikan output HANYA dalam format JSON berikut, tanpa teks tambahan apapun:
       }
     }
 
-    return NextResponse.json({ success: true, assessment });
+    return NextResponse.json({ success: true, assessment }, { headers: { 'Cache-Control': 'no-store, no-cache, must-revalidate' } });
   } catch (error: any) {
     console.error('[ultimateai-score] Error:', error);
     return NextResponse.json({ error: error.message || 'Internal server error' }, { status: 500 });
