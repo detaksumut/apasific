@@ -1162,8 +1162,8 @@ export default function ArticlePaywallClient({ initialArticle, id }: ArticlePayw
             </div>
             <aside className="min-w-0 self-stretch rounded-xl border border-[#c9a84c]/30 bg-black/20 p-5 sm:p-6">
               <div className="flex h-full flex-col items-center justify-center text-center">
-                <div className="mb-5 flex h-28 w-28 items-center justify-center rounded-full border border-[#c9a84c]/40 bg-[#11121d] p-3 shadow-lg shadow-black/30">
-                  <img src="/logobaru2.png" alt="Logo APASIFIC" className="max-h-full max-w-full object-contain" />
+                <div className="mb-5 flex h-40 w-40 items-center justify-center rounded-full border border-[#c9a84c]/40 bg-[#11121d] p-2 shadow-lg shadow-black/30 sm:h-44 sm:w-44">
+                  <img src="/logobaru2.png" alt="Logo APASIFIC" className="h-full w-full object-contain" />
                 </div>
                 <p className="text-xs font-extrabold uppercase tracking-[0.24em] text-[#e8c97a]">Identitas Institusi</p>
                 <h3 className="mt-3 text-xl font-black leading-tight text-white">APASIFIC</h3>
