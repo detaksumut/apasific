@@ -4,10 +4,14 @@ import { AIProviderFactory } from './AIProviderAdapter';
 
 export class AIReviewerService {
   private static getSupabaseAdmin() {
-    return createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL || '',
-      process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
-    );
+    const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+    if (!url || !serviceRoleKey) {
+      throw new Error('AI reviewer service requires server-side Supabase URL and SUPABASE_SERVICE_ROLE_KEY; anonymous-key fallback is disabled.');
+    }
+    return createClient(url, serviceRoleKey, {
+      auth: { persistSession: false, autoRefreshToken: false }
+    });
   }
 
   /**
@@ -49,7 +53,7 @@ export class AIReviewerService {
       }
 
       // 3. Anonymization Layer (Double-blind Compliance)
-      const rawText = sub.abstract || sub.title || '';
+      const rawText = [sub.title, sub.abstract].filter((part: unknown) => typeof part === 'string' && part.trim()).join('\n\n');
       const { cleanText, report } = AnonymizationLayer.anonymize(rawText, {
         authorNames,
         affiliation: sub.university || '',
@@ -73,11 +77,12 @@ export class AIReviewerService {
         promptName = promptTemplate.name;
       }
 
-      const builtPrompt = template.replace('{{manuscript}}', cleanText);
+      const builtPrompt = template.replace('{{manuscript}}', cleanText) + '\n\nBATAS BUKTI WAJIB: Data yang tersedia untuk screening ini hanya JUDUL dan ABSTRAK, bukan naskah lengkap. Jangan menyimpulkan bahwa metode, hasil, data, atau referensi lengkap telah diperiksa. Berikan penilaian awal yang terbatas pada informasi yang benar-benar tertulis; jika bukti tidak cukup, nyatakan keterbatasan itu secara eksplisit. Penilaian ini bukan peer review penuh dan tidak boleh menjadi keputusan editorial otomatis.';
 
       // 5. Call AI Adapter (Portability Layer)
       const provider = AIProviderFactory.getProvider(activeProvider);
       const aiResult = await provider.generateAssessment(builtPrompt);
+      const scopedResult = { ...aiResult, assessment_scope: 'title_and_abstract_only', assessment_limitations: ['Penilaian ini hanya menggunakan judul dan abstrak yang tersimpan pada metadata submission.', 'Metode lengkap, data, hasil, referensi, dan naskah penuh belum diverifikasi oleh layanan screening ini.'] };
 
       // 6. Save Assessment Result to Database
       const { error: saveErr } = await supabase
@@ -92,7 +97,7 @@ export class AIReviewerService {
           suggested_improvements: aiResult.suggested_improvements,
           model_name: modelName,
           prompt_version: `${promptName} v${promptVer}`,
-          raw_ai_response: { ...aiResult, anonymization_report: report }
+          raw_ai_response: { ...scopedResult, anonymization_report: report }
         }, { onConflict: 'submission_id' });
 
       if (saveErr) throw saveErr;
@@ -105,7 +110,7 @@ export class AIReviewerService {
 
       return {
         success: true,
-        assessment: aiResult
+        assessment: scopedResult
       };
     } catch (e: any) {
       console.error('[AIReviewerService] Analysis failed:', e);

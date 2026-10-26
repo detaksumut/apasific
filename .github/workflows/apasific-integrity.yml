@@ -1,0 +1,46 @@
+name: APASIFIC integrity
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "iaep-app/**"
+      - ".github/workflows/apasific-integrity.yml"
+  push:
+    branches: [main]
+    paths:
+      - "iaep-app/**"
+      - ".github/workflows/apasific-integrity.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  integrity:
+    runs-on: ubuntu-latest
+    # Build-time placeholders only; never used for deployment or live data access.
+    env:
+      NEXT_PUBLIC_SUPABASE_URL: https://build-placeholder.supabase.co
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: build-placeholder-anon-key
+      SUPABASE_SERVICE_ROLE_KEY: build-placeholder-service-role-key
+    defaults:
+      run:
+        working-directory: iaep-app
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: iaep-app/package-lock.json
+      - name: Install locked dependencies
+        run: npm ci
+      - name: Verify source integrity contracts
+        run: npm run verify:integrity
+      - name: TypeScript type check
+        run: npx tsc --noEmit
+      - name: Production build
+        run: npm run build

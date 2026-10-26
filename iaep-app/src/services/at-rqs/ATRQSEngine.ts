@@ -19,7 +19,7 @@ export class ATRQSEngine {
    */
   public static compute(input: TriSourceInput): ATRQSSnapshot {
     const articleId = input.articleId || 'canonical-article';
-    const isFallback = !input.scoreLayer && !input.screenLayer && !input.clueLayer;
+    const isFallback = !input.scoreLayer || !input.screenLayer || !input.clueLayer;
 
     // --- STAGE 1: Scoring Evidence Registry Normalization ---
     const scoreNorm = this.normalizeScoreLayer(input.scoreLayer, input);
@@ -52,7 +52,7 @@ export class ATRQSEngine {
 
     // --- STAGE 5: Assessment Confidence (AAC) ---
     const dataCompleteness = this.computeDataCompleteness(input);
-    const extractionConsistency = clueNorm.consistencyScore;
+    const extractionConsistency = Math.max(0, 100 - (Math.abs(scoreNorm.overall - screenNorm.overall) + Math.abs(scoreNorm.overall - clueNorm.overall) + Math.abs(screenNorm.overall - clueNorm.overall)) / 3);
     const rawAac = 0.50 * arti + 0.30 * dataCompleteness + 0.20 * extractionConsistency;
     const finalAac = Math.min(100, Math.max(0, Math.round(rawAac)));
 
@@ -137,111 +137,120 @@ export class ATRQSEngine {
 
   // --- PRIVATE CALCULATORS ---
 
-  private static getHashMod(id?: string): number {
-    if (!id) return 0;
-    let hash = 0;
-    for (let i = 0; i < id.length; i++) {
-      hash = (hash << 5) - hash + id.charCodeAt(i);
-      hash |= 0;
-    }
-    return (Math.abs(hash) % 7) - 3; // range: -3 to +3
-  }
 
   private static normalizeScoreLayer(score?: TriSourceInput['scoreLayer'], input?: TriSourceInput) {
-    if (score && score.overall_score !== undefined) {
-      const overall = score.overall_score * 10;
+    if (score) {
+      const fields = [
+        ['topic_relevance', score.topic_relevance],
+        ['article_structure', score.article_structure],
+        ['abstract', score.abstract],
+        ['research_gap', score.research_gap],
+        ['methodology', score.methodology],
+        ['data_statistics', score.data_statistics],
+        ['discussion', score.discussion],
+        ['conclusion', score.conclusion],
+        ['references', score.references]
+      ] as const;
+      for (const [field, value] of fields) {
+        if (typeof value !== 'number' || !Number.isFinite(value) || value < 0 || value > 10) {
+          throw new Error('AT-RQS SCORE layer requires a valid 0–10 score for ' + field + '. Missing values cannot be inferred from overall_score.');
+        }
+      }
+      if (score.overall_score !== undefined && (typeof score.overall_score !== 'number' || !Number.isFinite(score.overall_score) || score.overall_score < 0 || score.overall_score > 10)) {
+        throw new Error('AT-RQS overall_score must be a finite number in the range 0–10 when supplied.');
+      }
+      const values = fields.map(([, value]) => value as number);
+      const calculatedMean = values.reduce((sum, value) => sum + value, 0) / values.length;
+      if (score.overall_score !== undefined && Math.abs(score.overall_score - calculatedMean) > 0.11) {
+        throw new Error('AT-RQS overall_score does not match the deterministic mean of the nine criterion scores.');
+      }
       return {
-        topic: (score.topic_relevance ?? score.overall_score) * 10,
-        structure: (score.article_structure ?? score.overall_score) * 10,
-        abstract: (score.abstract ?? score.overall_score) * 10,
-        gap: (score.research_gap ?? score.overall_score) * 10,
-        method: (score.methodology ?? score.overall_score) * 10,
-        data: (score.data_statistics ?? score.overall_score) * 10,
-        discussion: (score.discussion ?? score.overall_score) * 10,
-        conclusion: (score.conclusion ?? score.overall_score) * 10,
-        references: (score.references ?? score.overall_score) * 10,
-        overall
+        topic: score.topic_relevance! * 10,
+        structure: score.article_structure! * 10,
+        abstract: score.abstract! * 10,
+        gap: score.research_gap! * 10,
+        method: score.methodology! * 10,
+        data: score.data_statistics! * 10,
+        discussion: score.discussion! * 10,
+        conclusion: score.conclusion! * 10,
+        references: score.references! * 10,
+        overall: values.reduce((sum, value) => sum + value, 0) / values.length * 10
       };
     }
-    // Contextual evidence-based fallback
-    const combined = `${input?.title || ''} ${input?.abstract || ''}`.toLowerCase();
-    const wordCount = (input?.abstract || '').split(/\s+/).filter(Boolean).length;
-    const mod = this.getHashMod(input?.articleId);
 
-    let structure = 80;
-    if (wordCount >= 150) structure += 5;
-    else if (wordCount >= 80) structure += 2;
-    else structure -= 4;
-
-    let gap = 80;
-    if (/gap|novelty|kebaruan|kontribusi|agenda|future|limited|perbedaan/i.test(combined)) gap += 5;
-
-    let method = 80;
-    if (/kuantitatif|kualitatif|survey|survei|slr|systematic|regresi|sem|pls|case\s*study|purposive|total\s*sampling/i.test(combined)) method += 6;
-
-    let data = 82;
-    if (/r2|r-squared|signifikan|f=|t=|uji|statistik|koefisien|p\s*<|persentase|%/i.test(combined)) data += 6;
-
-    const overall = Math.min(95, Math.max(65, Math.round(((structure + gap + method + data + 80 + 80 + 85 + 85 + 80) / 9) + mod)));
-
+    // Official controlled fallback baselines from AT-RQS v1.0 evidence registry.
+    // These are deterministic baselines, not AI findings, and are disclosed by is_fallback.
+    const values = [85, 80, 80, 75, 80, 80, 80, 80, 85];
     return {
-      topic: Math.min(95, Math.max(70, 85 + mod)),
-      structure: Math.min(95, Math.max(65, structure + mod)),
-      abstract: Math.min(95, Math.max(65, structure + mod)),
-      gap: Math.min(95, Math.max(65, gap + mod)),
-      method: Math.min(95, Math.max(65, method + mod)),
-      data: Math.min(95, Math.max(65, data + mod)),
-      discussion: Math.min(95, Math.max(65, 80 + mod)),
-      conclusion: Math.min(95, Math.max(65, 80 + mod)),
-      references: Math.min(95, Math.max(70, 85 + mod)),
-      overall
+      topic: values[0],
+      structure: values[1],
+      abstract: values[2],
+      gap: values[3],
+      method: values[4],
+      data: values[5],
+      discussion: values[6],
+      conclusion: values[7],
+      references: values[8],
+      overall: values.reduce((sum, value) => sum + value, 0) / values.length
     };
   }
 
   private static normalizeScreenLayer(screen?: TriSourceInput['screenLayer'], input?: TriSourceInput) {
-    if (screen && screen.novelty_rating) {
-      const nov = screen.novelty_rating * 20;
-      const met = (screen.methodology_rating || 3) * 20;
-      const cla = (screen.clarity_rating || 4) * 20;
+    if (screen) {
+      const novRating = screen.novelty_rating;
+      const metRating = screen.methodology_rating;
+      const clarityRating = screen.clarity_rating;
+      if (novRating === undefined || metRating === undefined || clarityRating === undefined) {
+        throw new Error('AT-RQS SCREEN layer requires novelty_rating, methodology_rating, and clarity_rating.');
+      }
+      const nov = ((novRating - 1) / 4) * 100;
+      if (![novRating, metRating, clarityRating].every((value) => typeof value === 'number' && Number.isFinite(value) && value >= 1 && value <= 5)) {
+        throw new Error('AT-RQS SCREEN ratings must be finite numbers in the range 1–5.');
+      }
+      const met = ((metRating - 1) / 4) * 100;
+      const cla = ((clarityRating - 1) / 4) * 100;
       const overall = 0.40 * nov + 0.40 * met + 0.20 * cla;
       return { novelty: nov, methodology: met, clarity: cla, overall };
     }
-    const combined = `${input?.title || ''} ${input?.abstract || ''}`.toLowerCase();
-    const mod = this.getHashMod(input?.articleId);
-    let nov = 70;
-    if (/novelty|kebaruan|pertama|baru|unique|unik|inovatif/i.test(combined)) nov += 8;
-    let met = 75;
-    if (/metode|metodologi|kualitatif|kuantitatif|slr|regresi/i.test(combined)) met += 5;
-    const cla = 80;
-    const overall = 0.40 * (nov + mod) + 0.40 * (met + mod) + 0.20 * cla;
-    return {
-      novelty: Math.min(95, Math.max(60, nov + mod)),
-      methodology: Math.min(95, Math.max(60, met + mod)),
-      clarity: cla,
-      overall: Math.round(overall * 10) / 10
-    };
+    // Official controlled fallback baselines from the AT-RQS v1.0 evidence registry.
+    const novelty = 65;
+    const methodology = 75;
+    const clarity = 75;
+    const overall = 0.40 * novelty + 0.40 * methodology + 0.20 * clarity;
+    return { novelty, methodology, clarity, overall };
   }
 
   private static normalizeClueLayer(clue?: TriSourceInput['clueLayer'], input?: TriSourceInput) {
+    const samplingRigor = this.evaluateSamplingRigor(clue, input?.abstract);
     if (!clue) {
-      return { overall: 80.0, consistencyScore: 80 };
+      return { overall: 50, consistencyScore: 50, modelRobustness: 50, samplingRigor, limitationOpenness: 50, futureAgenda: 50, practicalUtility: 50 };
     }
 
-    let detectedCount = 0;
-    if (clue.objective) detectedCount++;
-    if (clue.methodology) detectedCount++;
-    if (clue.findings) detectedCount++;
-    if (clue.conclusion) detectedCount++;
-    if (clue.limitations) detectedCount++;
+    const stats = [clue.model_statistics, clue.raw_clue_text, clue.findings, clue.explained_variance].filter(Boolean).join(' ').toLowerCase();
+    let modelRobustness = 50;
+    const r2Match = stats.match(/(?:r\s*\^?2|r-squared|r2)\s*[:=<>]?\s*(0?\.\d+|1(?:\.0+)?)?/i);
+    const pMatch = stats.match(/p\s*[:=<>]?\s*(0?\.\d+|1(?:\.0+)?)/i);
+    const r2 = r2Match?.[1] ? Number(r2Match[1]) : null;
+    const pValue = pMatch?.[1] ? Number(pMatch[1]) : null;
+    if (r2 !== null && pValue !== null && r2 >= 0.4 && pValue < 0.05) modelRobustness = 90;
+    else if (/regresi|anova|uji\s*t|uji\s*f|inferens|signifikansi|signifikan|model\s*teruji/i.test(stats)) modelRobustness = 82;
+    else if (/deskriptif|frekuensi|persentase|descriptive/i.test(stats)) modelRobustness = 70;
 
-    let clueNorm = 75;
-    if (detectedCount >= 5) clueNorm = 90;
-    else if (detectedCount === 4) clueNorm = 85;
-    else if (detectedCount === 3) clueNorm = 75;
-    else if (detectedCount === 2) clueNorm = 65;
-    else clueNorm = 55;
+    const limitationOpenness = clue.limitations?.trim() ? 90 : /keterbatasan|limitations|bias/i.test(String(clue.raw_clue_text || '')) ? 75 : 50;
+    const futureText = [clue.future_research_agenda, clue.raw_clue_text].filter(Boolean).join(' ').toLowerCase();
+    const futureAgenda = /riset masa depan|future research|penelitian selanjutnya|studi lanjutan|future studies/i.test(futureText)
+      ? 88
+      : /perlu diteliti|dapat dikembangkan|perbaikan|recommendation|rekomendasi|suggested improvement/i.test(futureText)
+        ? 75
+        : 50;
+    const practicalUtility = clue.practical_implications?.trim() || clue.policy_relevance?.trim()
+      ? 90
+      : /implikasi|manfaat|aplikasi|utility|policy|kebijakan|manajerial/i.test(String(clue.raw_clue_text || ''))
+        ? 80
+        : 50;
 
-    return { overall: clueNorm, consistencyScore: clueNorm };
+    const overall = 0.30 * modelRobustness + 0.25 * samplingRigor + 0.15 * limitationOpenness + 0.15 * futureAgenda + 0.15 * practicalUtility;
+    return { overall: Math.round(overall * 10) / 10, consistencyScore: Math.round(overall * 10) / 10, modelRobustness, samplingRigor, limitationOpenness, futureAgenda, practicalUtility };
   }
 
   private static computeDimensions(
@@ -250,7 +259,7 @@ export class ATRQSEngine {
     r: ReturnType<typeof ATRQSEngine.normalizeScreenLayer>,
     c: ReturnType<typeof ATRQSEngine.normalizeClueLayer>
   ): ATRQSDimensionBreakdown {
-    const samplingRigor = this.evaluateSamplingRigor(input.clueLayer, input.abstract);
+    const samplingRigor = c.samplingRigor;
 
     // 1. Academic Contribution (18%)
     const academic_contribution = Math.round(0.40 * s.gap + 0.35 * r.novelty + 0.25 * s.topic);
@@ -259,22 +268,22 @@ export class ATRQSEngine {
     const procedural_rigor = Math.round(0.50 * s.method + 0.30 * r.methodology + 0.20 * samplingRigor);
 
     // 3. Analytical Strength (16%)
-    const modelRobustness = input.clueLayer?.explained_variance ? 90 : 82;
+    const modelRobustness = c.modelRobustness;
     const analytical_strength = Math.round(0.60 * s.data + 0.40 * modelRobustness);
 
     // 4. Scholarly Communication (12%)
     const scholarly_communication = Math.round(0.35 * s.structure + 0.25 * s.abstract + 0.20 * s.discussion + 0.20 * s.references);
 
     // 5. Integrity & Transparency (12%)
-    const limitationOpenness = input.clueLayer?.limitations ? 90 : 75;
+    const limitationOpenness = c.limitationOpenness;
     const integrity_transparency = Math.round(0.50 * s.conclusion + 0.50 * limitationOpenness);
 
     // 6. Future Research Value (10%)
-    const futureGap = input.screenLayer?.suggested_improvements || input.clueLayer?.limitations ? 82 : 72;
+    const futureGap = c.futureAgenda;
     const future_research_value = Math.round(futureGap);
 
     // 7. Impact & Applicability (14%)
-    const practicalUtility = input.clueLayer?.practical_implications ? 88 : 82;
+    const practicalUtility = c.practicalUtility;
     const policyTransferability = input.clueLayer?.policy_relevance ? 86 : 80;
     const impact_applicability = Math.round(0.50 * practicalUtility + 0.50 * policyTransferability);
 
@@ -299,7 +308,7 @@ export class ATRQSEngine {
     if (c?.methodology || /metode|method|kuantitatif|kualitatif|prisma/i.test(abs)) detected++;
     if (c?.sample_size || /sampel|sample|responden|populasi/i.test(abs)) detected++;
     if (c?.findings || /hasil|temuan|findings|result|signifikan/i.test(abs)) detected++;
-    if (c?.conclusion || c?.limitations || /kesimpulan|conclusion|implikasi/i.test(abs)) detected++;
+    if (c?.limitations || /keterbatasan|limitations|bias/i.test(abs)) detected++;
 
     const ecf = detected / 5; // e.g. 5/5 = 1.0, 4/5 = 0.8, 3/5 = 0.6
     const structuralAlignmentBase = 100.0; // Pure theoretical maximum (100.0 scale)
@@ -315,14 +324,16 @@ export class ATRQSEngine {
   }
 
   private static computeDataCompleteness(input: TriSourceInput): number {
-    let totalFields = 8;
+    const totalFields = 8;
     let available = 0;
-    if (input.title) available++;
-    if (input.abstract) available++;
-    if (input.doi) available++;
-    if (input.scoreLayer) available += 2;
+    if (input.title?.trim()) available++;
+    if (input.abstract?.trim()) available++;
+    if (input.doi?.trim()) available++;
+    if (input.scoreLayer) available++;
     if (input.screenLayer) available++;
-    if (input.clueLayer) available += 2;
+    if (input.clueLayer?.objective?.trim()) available++;
+    if (input.clueLayer?.methodology?.trim()) available++;
+    if (input.clueLayer?.findings?.trim()) available++;
 
     return Math.round((available / totalFields) * 100);
   }
@@ -336,31 +347,19 @@ export class ATRQSEngine {
   }
 
   private static extractInsights(input: TriSourceInput, dims: ATRQSDimensionBreakdown) {
-    let primaryStrength = 'Strong analytical evidence and robust statistical methodology';
-    let secondaryStrength = 'Clear empirical design with high practical and policy relevance';
+    const primaryStrength = input.clueLayer?.findings
+      ? 'Temuan yang tercatat pada lapisan CLUE tersedia untuk ditinjau; verifikasi tetap perlu dilakukan terhadap naskah sumber.'
+      : 'Belum ada bukti temuan yang cukup pada lapisan CLUE untuk menyatakan kekuatan utama.';
+    const secondaryStrength = input.clueLayer?.practical_implications || input.clueLayer?.policy_relevance
+      ? 'Implikasi praktis/kebijakan dicatat pada lapisan CLUE; relevansinya perlu diverifikasi terhadap teks sumber.'
+      : 'Implikasi praktis atau kebijakan belum didukung bukti pada lapisan CLUE.';
 
-    if (dims.analytical_strength >= 88) {
-      primaryStrength = 'Analytical evidence and high statistical regression model robustness';
-    }
-    if (dims.impact_applicability >= 85) {
-      secondaryStrength = 'Practical utility and direct organizational/policy applicability';
-    }
-
-    const limitations: string[] = [];
-    if (input.clueLayer?.limitations) {
-      limitations.push(input.clueLayer.limitations);
-    } else {
-      limitations.push('Single-institution empirical context with specific organizational scope.');
-      limitations.push('Cross-sectional survey design captures point-in-time perceptions.');
-    }
-
-    const opportunities: string[] = [];
-    if (input.screenLayer?.suggested_improvements) {
-      opportunities.push(input.screenLayer.suggested_improvements);
-    } else {
-      opportunities.push('Expansion of sample size across multi-sector agencies for broader generalizability.');
-      opportunities.push('Longitudinal tracking to observe multi-period organizational dynamics.');
-    }
+    const limitations: string[] = input.clueLayer?.limitations?.trim()
+      ? [input.clueLayer.limitations]
+      : ['Keterbatasan penelitian tidak tersedia atau belum terdeteksi pada data asesmen yang diberikan; ini bukan pernyataan bahwa naskah tidak memiliki keterbatasan.'];
+    const opportunities: string[] = input.screenLayer?.suggested_improvements?.trim()
+      ? [input.screenLayer.suggested_improvements]
+      : ['Agenda perbaikan/riset lanjutan belum tersedia pada data asesmen yang diberikan.'];
 
     return { primaryStrength, secondaryStrength, limitations, opportunities };
   }

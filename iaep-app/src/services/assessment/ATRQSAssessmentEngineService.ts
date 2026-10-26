@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto';
 // src/services/assessment/ATRQSAssessmentEngineService.ts
 /**
  * APASIFIC Adaptive Multi-Taxonomy Evaluation Engine (AT-RQS™ v1.0)
@@ -66,8 +67,8 @@ export class ATRQSAssessmentEngineService {
   public static selectRubric(approach: string): AdaptiveRubricDefinition {
     const matchedKey = (Object.keys(ADAPTIVE_RUBRICS) as ResearchApproachKey[]).find(
       key => key.toLowerCase() === (approach || '').toLowerCase()
-    ) || 'Quantitative';
-
+    );
+    if (!matchedKey) throw new Error('Unsupported research approach; AT-RQS will not silently apply the Quantitative rubric.');
     return ADAPTIVE_RUBRICS[matchedKey];
   }
 
@@ -109,7 +110,10 @@ export class ATRQSAssessmentEngineService {
 
     for (const critDef of rubric.criteria) {
       const inputScore = rawCriteriaScores.find(s => s.criterionId === critDef.id);
-      const raw = inputScore ? Math.min(100, Math.max(0, inputScore.rawScore)) : 70; // fallback sensible default
+      if (!inputScore) throw new Error('Missing evidence-backed score for required criterion: ' + critDef.id);
+      if (typeof inputScore.rawScore !== 'number' || !Number.isFinite(inputScore.rawScore) || inputScore.rawScore < 0 || inputScore.rawScore > 100) throw new Error('Invalid 0–100 score for criterion: ' + critDef.id);
+      if (typeof inputScore.evidenceSnippet !== 'string' || !inputScore.evidenceSnippet.trim()) throw new Error('Missing evidence snippet for criterion: ' + critDef.id);
+      const raw = inputScore.rawScore;
       const weighted = Number(((raw / 100) * critDef.maxWeight).toFixed(2));
 
       if (critDef.layer === 'Layer 1: Identity') layer1Sum += weighted;
@@ -125,8 +129,8 @@ export class ATRQSAssessmentEngineService {
         maxWeight: critDef.maxWeight,
         rawScore: raw,
         weightedScore: weighted,
-        evidenceSnippet: inputScore?.evidenceSnippet || 'Standard contextual evidence verified from submission metadata.',
-        provenance: inputScore?.provenance || 'SYSTEM_MATCHED',
+        evidenceSnippet: inputScore.evidenceSnippet.trim(),
+        provenance: inputScore.provenance || 'REVIEW_REQUIRED',
         evaluatorRole: inputScore?.evaluatorRole || 'AUTOMATED_AGENT'
       });
     }
@@ -154,8 +158,17 @@ export class ATRQSAssessmentEngineService {
     }
 
     const assessedAt = new Date().toISOString();
-    const reproducibilityPayload = `${submissionId}|${rubric.rubricVersion}|${compositeScore}|${tier}|${assessedAt}`;
-    const reproducibilityHash = Buffer.from(reproducibilityPayload).toString('base64').substring(0, 16);
+    const reproducibilityPayload = JSON.stringify({
+      submissionId,
+      rubricVersion: rubric.rubricVersion,
+      assessmentVersion,
+      articleType,
+      researchApproach: rubric.approachKey,
+      hasHighRiskSimilaritySignal,
+      disclosuresComplete,
+      criteriaScores: criteriaScores.map(({ criterionId, rawScore, weightedScore, evidenceSnippet, provenance, evaluatorRole }) => ({ criterionId, rawScore, weightedScore, evidenceSnippet, provenance, evaluatorRole }))
+    });
+    const reproducibilityHash = createHash('sha256').update(reproducibilityPayload, 'utf8').digest('hex');
 
     return {
       submissionId,

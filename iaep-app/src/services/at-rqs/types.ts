@@ -37,6 +37,7 @@ export interface ClueLayerInput {
   limitations?: string;
   practical_implications?: string;
   policy_relevance?: string;
+  future_research_agenda?: string;
   explained_variance?: string;   // e.g. "53.7%"
   model_statistics?: string;      // e.g. "F=15.294, p=0.000, R2=0.574"
   raw_clue_text?: string;

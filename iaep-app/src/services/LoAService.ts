@@ -39,13 +39,15 @@ export class LoAService {
         submissionId: string
     ): Promise<CreateLoAResult> {
         // 1. Check if LoA record already exists (idempotency)
-        const { data: existing } = await supabase
+        const { data: existing, error: existingErr } = await supabase
             .from('loa_records')
             .select('*')
             .eq('submission_id', submissionId)
             .maybeSingle();
 
+        if (existingErr) return { success: false, error: existingErr.message };
         if (existing) {
+            if (!existing.accepted_at || !existing.loa_number || existing.submission_id !== submissionId) return { success: false, error: 'Existing LoA record is incomplete or inconsistent; manual review is required.' };
             return { success: true, record: existing, alreadyExists: true };
         }
 
@@ -71,6 +73,7 @@ export class LoAService {
         }
 
         const acceptedAt: string = historyEntry.created_at;
+        if (!acceptedAt || Number.isNaN(Date.parse(acceptedAt))) return { success: false, error: 'Acceptance history contains an invalid official timestamp; LoA was not created.' };
 
         // 3. Generate persistent LoA number from accepted_at year
         const loaNumber = await LoAService.generateLoANumber(supabase, submissionId, acceptedAt);
@@ -94,7 +97,7 @@ export class LoAService {
                     .select('*')
                     .eq('submission_id', submissionId)
                     .maybeSingle();
-                if (raceRecord) {
+                if (raceRecord && raceRecord.submission_id === submissionId && raceRecord.accepted_at && raceRecord.loa_number) {
                     return { success: true, record: raceRecord, alreadyExists: true };
                 }
             }
@@ -113,11 +116,13 @@ export class LoAService {
         supabase: any,
         submissionId: string
     ): Promise<LoARecord | null> {
-        const { data } = await supabase
+        const { data, error } = await supabase
             .from('loa_records')
             .select('*')
             .eq('submission_id', submissionId)
             .maybeSingle();
+        if (error) throw new Error('Failed to read LoA record: ' + error.message);
+        if (data && (!data.accepted_at || !data.loa_number || data.submission_id !== submissionId)) throw new Error('LoA record is incomplete or inconsistent.');
         return data || null;
     }
 
@@ -131,7 +136,9 @@ export class LoAService {
         acceptedAt: string
     ): Promise<string> {
         const prefix = submissionId.split('-')[0].toUpperCase();
-        const year = new Date(acceptedAt).getFullYear();
+        const parsedDate = new Date(acceptedAt);
+        if (Number.isNaN(parsedDate.getTime())) throw new Error('Cannot generate LoA number from invalid acceptance timestamp.');
+        const year = parsedDate.getUTCFullYear();
         return `${prefix}/LoA/APASIFIC/${year}`;
     }
 }
