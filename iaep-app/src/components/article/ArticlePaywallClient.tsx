@@ -1113,7 +1113,7 @@ export default function ArticlePaywallClient({ initialArticle, id }: ArticlePayw
           className="relative mt-8 mb-6 overflow-hidden rounded-2xl border border-[#c9a84c]/60 bg-gradient-to-br from-[#11121d] via-[#0b0c16] to-[#15101d] px-5 py-7 shadow-xl sm:px-8 sm:py-9"
         >
           <div aria-hidden="true" className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-transparent via-[#c9a84c] to-transparent" />
-          <div className="mx-auto max-w-5xl text-center">
+          <div className="relative z-10 w-full max-w-none text-center">
             <p className="mb-2 text-xs font-extrabold uppercase tracking-[0.28em] text-[#e8c97a]">APASIFIC</p>
             <h2 id="apasific-independence-title" className="text-sm font-extrabold tracking-[0.16em] text-white sm:text-base">
               INDEPENDENT. OBJECTIVE. EVIDENCE-BASED.
@@ -1122,7 +1122,7 @@ export default function ArticlePaywallClient({ initialArticle, id }: ArticlePayw
               We Don&apos;t Judge Who You Are. We Evaluate What You Write.
             </p>
             <div className="mx-auto my-5 h-px max-w-24 bg-[#c9a84c]/60" />
-            <div className="mx-auto max-w-4xl space-y-4 text-left text-sm leading-7 text-gray-300 sm:text-[15px]">
+            <div className="mx-auto w-full max-w-none space-y-4 text-justify text-sm leading-7 text-gray-300 sm:text-[15px]">
               <p>
                 APASIFIC is an independent academic manuscript assessment organization committed to honesty, independence, transparency, and accountability to both authors and readers.
               </p>
