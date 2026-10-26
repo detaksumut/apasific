@@ -1113,7 +1113,8 @@ export default function ArticlePaywallClient({ initialArticle, id }: ArticlePayw
           className="relative col-span-full mt-8 mb-6 block w-full max-w-none self-stretch overflow-hidden rounded-2xl border border-[#c9a84c]/60 bg-gradient-to-br from-[#11121d] via-[#0b0c16] to-[#15101d] px-5 py-7 shadow-xl sm:px-8 sm:py-9"
         >
           <div aria-hidden="true" className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-transparent via-[#c9a84c] to-transparent" />
-          <div className="relative z-10 w-full max-w-none text-center">
+          <div className="relative z-10 grid w-full grid-cols-1 gap-8 lg:grid-cols-3">
+            <div className="min-w-0 lg:col-span-2">
             <p className="mb-2 text-xs font-extrabold uppercase tracking-[0.28em] text-[#e8c97a]">APASIFIC</p>
             <h2 id="apasific-independence-title" className="text-sm font-extrabold tracking-[0.16em] text-white sm:text-base">
               INDEPENDENT. OBJECTIVE. EVIDENCE-BASED.
@@ -1158,6 +1159,37 @@ export default function ArticlePaywallClient({ initialArticle, id }: ArticlePayw
               </p>
               <p className="mt-3 text-xs text-gray-400">APASIFIC — Independent Academic Manuscript Assessment.</p>
             </div>
+            <aside className="min-w-0 self-stretch rounded-xl border border-[#c9a84c]/30 bg-black/20 p-5 sm:p-6">
+              <div className="flex h-full flex-col items-center justify-center text-center">
+                <div className="mb-5 flex h-28 w-28 items-center justify-center rounded-full border border-[#c9a84c]/40 bg-[#11121d] p-3 shadow-lg shadow-black/30">
+                  <img src="/logobaru2.png" alt="Logo APASIFIC" className="max-h-full max-w-full object-contain" />
+                </div>
+                <p className="text-xs font-extrabold uppercase tracking-[0.24em] text-[#e8c97a]">Identitas Institusi</p>
+                <h3 className="mt-3 text-xl font-black leading-tight text-white">APASIFIC</h3>
+                <p className="mt-2 text-sm font-semibold leading-relaxed text-[#e8c97a]">Association of Asia Pacific Academician</p>
+                <div className="my-5 h-px w-16 bg-[#c9a84c]/60" />
+                <p className="text-sm leading-6 text-gray-300">Independent Academic Manuscript Assessment</p>
+                <div className="mt-5 w-full space-y-3 rounded-lg border border-white/10 bg-white/[0.03] p-4 text-left text-sm">
+                  <div>
+                    <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-gray-500">Prinsip Penilaian</p>
+                    <p className="mt-1 font-semibold text-gray-200">Independent · Objective · Evidence-Based</p>
+                  </div>
+                  <div>
+                    <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-gray-500">Fokus</p>
+                    <p className="mt-1 text-gray-300">Mutu naskah, kekuatan bukti, metodologi, dan validitas kesimpulan.</p>
+                  </div>
+                  <div>
+                    <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-gray-500">Situs Resmi</p>
+                    <a href="https://www.apasific.org/" target="_blank" rel="noreferrer" className="mt-1 inline-block break-all font-semibold text-[#e8c97a] underline decoration-[#c9a84c]/50 underline-offset-4 hover:text-white">www.apasific.org</a>
+                  </div>
+                  <div>
+                    <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-gray-500">Kontak Institusi</p>
+                    <a href="mailto:admin@apasific.org" className="mt-1 inline-block break-all text-gray-300 hover:text-[#e8c97a]">admin@apasific.org</a>
+                  </div>
+                </div>
+                <p className="mt-5 text-[11px] leading-5 text-gray-500">Penilaian dilakukan berdasarkan isi dan bukti akademik, bukan identitas atau reputasi penulis.</p>
+              </div>
+            </aside>
           </div>
         </section>
 
