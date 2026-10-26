@@ -186,8 +186,18 @@ export default function ApasificResearchQualityProfile({ article }: Props) {
             </span>
             <span className="text-sm font-bold text-cyan-400/70">/ 100</span>
           </div>
-          <div className="inline-block px-3 py-1 rounded-lg bg-cyan-500/15 border border-cyan-500/30 text-[11px] font-extrabold text-cyan-300 tracking-wider uppercase">
-            High Structural Alignment
+          <div className={`inline-block px-3 py-1 rounded-lg border text-[11px] font-extrabold tracking-wider uppercase ${
+            snapshot.provenance.evidence_elements_detected === 5
+              ? "bg-emerald-500/15 border-emerald-500/30 text-emerald-300"
+              : snapshot.provenance.evidence_elements_detected > 0
+                ? "bg-amber-500/15 border-amber-500/30 text-amber-300"
+                : "bg-rose-500/15 border-rose-500/30 text-rose-300"
+          }`}>
+            {snapshot.provenance.evidence_elements_detected === 5
+              ? "Verified Evidence Complete"
+              : snapshot.provenance.evidence_elements_detected > 0
+                ? "Evidence Incomplete"
+                : "Insufficient Verified Evidence"}
           </div>
           <span className="block text-[10px] text-gray-500 mt-2">
             Evidence Coverage: <strong className="text-gray-300">{snapshot.provenance.evidence_elements_detected} / 5 Elements ({Math.round(snapshot.provenance.evidence_coverage_ratio * 100)}%)</strong>
@@ -208,7 +218,9 @@ export default function ApasificResearchQualityProfile({ article }: Props) {
             </span>
           </div>
           <div className="inline-block px-3 py-1 rounded-lg bg-emerald-500/15 border border-emerald-500/30 text-[11px] font-extrabold text-emerald-300 tracking-wider uppercase">
-            Tri-Source Consensus
+            {snapshot.provenance.evidence_elements_detected === 5
+              ? "Tri-Source Consensus"
+              : "Provisional Confidence"}
           </div>
           <span className="block text-[10px] text-gray-500 mt-2">
             ARTI™ Agreement Index: <strong className="text-gray-300">{snapshot.arti} / 100</strong>
