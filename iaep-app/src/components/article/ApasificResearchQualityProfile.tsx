@@ -86,26 +86,10 @@ export default function ApasificResearchQualityProfile({ article }: Props) {
             overall_score: Number(savedScore.overall_score ?? 8.3)
           }
         : null,
-      screenLayer: {
-        novelty_rating: 3,
-        methodology_rating: 4,
-        clarity_rating: 4,
-        confidence_score: 85,
-        summary_evaluation: "Empirical study with structured methodology and clear statistical regression analysis.",
-        suggested_improvements: "Expand sample size and explore longitudinal multi-period dynamics for broader cross-institutional generalization."
-      },
-      clueLayer: {
-        objective: `Analyze key empirical determinants and structural relationships for ${article.title}`,
-        methodology: "Quantitative survey-based associative causal design with statistical regression models.",
-        sample_size: 38,
-        sampling_strategy: "Defined population sample with instrument validity and classical assumption compliance.",
-        findings: "Empirical indicators demonstrate statistically significant positive relationships with robust model fit.",
-        conclusion: "Simultaneous combination of target determinants significantly optimizes operational performance.",
-        limitations: "Single-institution population context with cross-sectional observation scope.",
-        practical_implications: "Provides structured framework for organizational optimization and resource allocation.",
-        policy_relevance: "Actionable empirical benchmark for institutional governance and performance planning.",
-        explained_variance: "53.7%"
-      }
+      // Never inject placeholder assessments as if they were verified article evidence.
+      // Until real SCREEN/CLUE extraction is available, leave these layers absent.
+      screenLayer: null,
+      clueLayer: null
     };
 
     return ATRQSEngine.compute(input);
@@ -206,7 +190,7 @@ export default function ApasificResearchQualityProfile({ article }: Props) {
             High Structural Alignment
           </div>
           <span className="block text-[10px] text-gray-500 mt-2">
-            Evidence Coverage: <strong className="text-gray-300">{snapshot.provenance.evidence_elements_detected} / 5 Elements (100%)</strong>
+            Evidence Coverage: <strong className="text-gray-300">{snapshot.provenance.evidence_elements_detected} / 5 Elements ({Math.round(snapshot.provenance.evidence_coverage_ratio * 100)}%)</strong>
           </span>
         </div>
 
