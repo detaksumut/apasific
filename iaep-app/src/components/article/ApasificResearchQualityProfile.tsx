@@ -38,6 +38,7 @@ interface Props {
 
 export default function ApasificResearchQualityProfile({ article }: Props) {
   const [savedScore, setSavedScore] = useState<any>(null);
+  const [clueReviewText, setClueReviewText] = useState<string>("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<"provenance" | "dimensions" | "methodology">("provenance");
 
@@ -60,6 +61,24 @@ export default function ApasificResearchQualityProfile({ article }: Props) {
     }
 
     loadSavedAssessment();
+
+    // Read the same completed peer-review record used by the public evidence card.
+    // Do not synthesize evidence from the abstract or from placeholder text.
+    async function loadClueReview() {
+      try {
+        const res = await fetch(`/api/article/tri-source-assessment?submissionId=${encodeURIComponent(article.id)}`);
+        if (!res.ok) return;
+        const data = await res.json();
+        const review = Array.isArray(data.clueReviews) ? data.clueReviews.find(
+          (item: any) => typeof item?.comments_for_author === "string" && item.comments_for_author.trim()
+        ) : null;
+        if (isMounted && review) setClueReviewText(review.comments_for_author);
+      } catch {
+        // Missing review evidence remains missing; do not substitute invented values.
+      }
+    }
+
+    loadClueReview();
     return () => {
       isMounted = false;
     };
@@ -100,26 +119,171 @@ export default function ApasificResearchQualityProfile({ article }: Props) {
         summary_evaluation: typeof savedScore.summary_evaluation === "string" ? savedScore.summary_evaluation : undefined,
         suggested_improvements: typeof savedScore.suggested_improvements === "string" ? savedScore.suggested_improvements : undefined
       } : null,
-      clueLayer: savedScore && (
-        savedScore.objective || savedScore.evidence_objective ||
-        savedScore.evidence_methodology || savedScore.sample_size != null ||
-        savedScore.sampling_strategy || savedScore.findings ||
-        savedScore.evidence_findings || savedScore.evidence_conclusion ||
-        savedScore.conclusion || savedScore.limitations
+      clueLayer: (() => {
+        const saved = savedScore || {};
+        const reviewText = clueReviewText;
+        // Only explicit, non-placeholder source fields count toward AECI.
+        // Support numbered headings in the completed review record without inventing
+        // default objective/methodology/findings when a section is absent.
+        const extract = (start: string, end?: string): string | undefined => {
+          if (!reviewText.trim()) return undefined;
+          const pattern = end
+            ? new RegExp(`(?:^|\\n)\\s*\\d*\\.?\\s*${start}\\s*[:：\\-]?\\s*([\\s\\S]*?)(?=(?:\\n\\s*\\d*\\.?\\s*${end})|$)`, "i")
+            : new RegExp(`(?:^|\\n)\\s*\\d*\\.?\\s*${start}\\s*[:：\\-]?\\s*([\\s\\S]*)// src/components/article/ApasificResearchQualityProfile.tsx
+"use client";
+
+import React, { useState, useEffect, useMemo } from "react";
+import { 
+  ShieldCheck, 
+  HelpCircle, 
+  ChevronRight, 
+  Award, 
+  BarChart3, 
+  CheckCircle2, 
+  AlertCircle, 
+  Scale, 
+  Info, 
+  X,
+  Layers,
+  Sparkles,
+  ExternalLink,
+  Download,
+  FileText
+} from "lucide-react";
+import { ATRQSEngine } from "@/services/at-rqs/ATRQSEngine";
+import { ATRQSSnapshot, TriSourceInput } from "@/services/at-rqs/types";
+
+interface Props {
+  article: {
+    id: string;
+    title: string;
+    abstract?: string;
+    doi?: string;
+    journal?: string;
+    volume?: string;
+    issue?: string;
+    published_at?: string;
+    created_at?: string;
+  };
+}
+
+export default function ApasificResearchQualityProfile({ article }: Props) {
+  const [savedScore, setSavedScore] = useState<any>(null);
+  const [clueReviewText, setClueReviewText] = useState<string>("");
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState<"provenance" | "dimensions" | "methodology">("provenance");
+
+  useEffect(() => {
+    if (!article?.id) return;
+    let isMounted = true;
+
+    async function loadSavedAssessment() {
+      try {
+        const res = await fetch(`/api/editor/ultimateai-score?submissionId=${encodeURIComponent(article.id)}`);
+        if (res.ok) {
+          const data = await res.json();
+          if (data.success && data.assessment && isMounted) {
+            setSavedScore(data.assessment);
+          }
+        }
+      } catch {
+        // Fallback to deterministic computation
+      }
+    }
+
+    loadSavedAssessment();
+
+    // Read the same completed peer-review record used by the public evidence card.
+    // Do not synthesize evidence from the abstract or from placeholder text.
+    async function loadClueReview() {
+      try {
+        const res = await fetch(`/api/article/tri-source-assessment?submissionId=${encodeURIComponent(article.id)}`);
+        if (!res.ok) return;
+        const data = await res.json();
+        const review = Array.isArray(data.clueReviews) ? data.clueReviews.find(
+          (item: any) => typeof item?.comments_for_author === "string" && item.comments_for_author.trim()
+        ) : null;
+        if (isMounted && review) setClueReviewText(review.comments_for_author);
+      } catch {
+        // Missing review evidence remains missing; do not substitute invented values.
+      }
+    }
+
+    loadClueReview();
+    return () => {
+      isMounted = false;
+    };
+  }, [article?.id]);
+
+  // Compute official AT-RQS snapshot
+  const snapshot: ATRQSSnapshot = useMemo(() => {
+    const input: TriSourceInput = {
+      articleId: article.id,
+      title: article.title,
+      abstract: article.abstract,
+      doi: article.doi,
+      scoreLayer: savedScore
+        ? {
+            topic_relevance: Number(savedScore.topic_relevance ?? 9),
+            article_structure: Number(savedScore.article_structure ?? 8),
+            abstract: Number(savedScore.abstract ?? 8),
+            research_gap: Number(savedScore.research_gap ?? 9),
+            methodology: Number(savedScore.methodology ?? 8),
+            data_statistics: Number(savedScore.data_statistics ?? 9),
+            discussion: Number(savedScore.discussion ?? 8),
+            conclusion: Number(savedScore.conclusion ?? 8),
+            references: Number(savedScore.references ?? 9),
+            overall_score: Number(savedScore.overall_score ?? 8.3)
+          }
+        : null,
+      // Never fabricate screening or evidence fields for a live article.
+      // AECI must be based only on evidence explicitly saved for this assessment.
+      screenLayer: savedScore && (
+        savedScore.novelty_rating != null ||
+        savedScore.methodology_rating != null ||
+        savedScore.clarity_rating != null
       ) ? {
-        objective: typeof (savedScore.evidence_objective ?? savedScore.objective) === "string" ? (savedScore.evidence_objective ?? savedScore.objective) : undefined,
-        methodology: typeof savedScore.evidence_methodology === "string" ? savedScore.evidence_methodology : undefined,
-        sample_size: savedScore.sample_size != null ? savedScore.sample_size : undefined,
-        sampling_strategy: typeof savedScore.sampling_strategy === "string" ? savedScore.sampling_strategy : undefined,
-        findings: typeof (savedScore.evidence_findings ?? savedScore.findings) === "string" ? (savedScore.evidence_findings ?? savedScore.findings) : undefined,
-        conclusion: typeof (savedScore.evidence_conclusion ?? savedScore.conclusion) === "string" ? (savedScore.evidence_conclusion ?? savedScore.conclusion) : undefined,
-        limitations: typeof savedScore.limitations === "string" ? savedScore.limitations : undefined,
-        practical_implications: typeof savedScore.practical_implications === "string" ? savedScore.practical_implications : undefined,
-        policy_relevance: typeof savedScore.policy_relevance === "string" ? savedScore.policy_relevance : undefined,
-        explained_variance: typeof savedScore.explained_variance === "string" ? savedScore.explained_variance : undefined,
-        model_statistics: typeof savedScore.model_statistics === "string" ? savedScore.model_statistics : undefined,
-        raw_clue_text: typeof savedScore.raw_clue_text === "string" ? savedScore.raw_clue_text : undefined
-      } : null
+        novelty_rating: savedScore.novelty_rating != null ? Number(savedScore.novelty_rating) : undefined,
+        methodology_rating: savedScore.methodology_rating != null ? Number(savedScore.methodology_rating) : undefined,
+        clarity_rating: savedScore.clarity_rating != null ? Number(savedScore.clarity_rating) : undefined,
+        confidence_score: savedScore.confidence_score != null ? Number(savedScore.confidence_score) : undefined,
+        summary_evaluation: typeof savedScore.summary_evaluation === "string" ? savedScore.summary_evaluation : undefined,
+        suggested_improvements: typeof savedScore.suggested_improvements === "string" ? savedScore.suggested_improvements : undefined
+      } : null,
+, "i");
+          const match = reviewText.match(pattern);
+          const value = match?.[1]?.trim();
+          return value && value.length > 12 ? value : undefined;
+        };
+        const objective = (typeof (saved.evidence_objective ?? saved.objective) === "string" && String(saved.evidence_objective ?? saved.objective).trim())
+          ? String(saved.evidence_objective ?? saved.objective).trim()
+          : extract("(?:Tujuan(?:\\s+Penelitian)?|Research Objectives?)", "(?:Metodologi|Methodology)");
+        const methodology = (typeof saved.evidence_methodology === "string" && saved.evidence_methodology.trim())
+          ? saved.evidence_methodology.trim()
+          : extract("(?:Metodologi(?:\\s+Riset)?|Methodology)", "(?:Temuan(?:\\s+Utama)?|Key Findings?|Kesimpulan)");
+        const findings = (typeof (saved.evidence_findings ?? saved.findings) === "string" && String(saved.evidence_findings ?? saved.findings).trim())
+          ? String(saved.evidence_findings ?? saved.findings).trim()
+          : extract("(?:Temuan(?:\\s+Utama)?|Key Findings?)", "(?:Kesimpulan|Academic Conclusion)");
+        const conclusion = (typeof (saved.evidence_conclusion ?? saved.conclusion) === "string" && String(saved.evidence_conclusion ?? saved.conclusion).trim())
+          ? String(saved.evidence_conclusion ?? saved.conclusion).trim()
+          : extract("(?:Kesimpulan(?:\\s+Akademik)?|Academic Conclusion)");
+        const limitations = typeof saved.limitations === "string" && saved.limitations.trim() ? saved.limitations.trim() : undefined;
+        const clue = {
+          objective,
+          methodology,
+          sample_size: saved.sample_size != null && String(saved.sample_size).trim() !== "" ? saved.sample_size : undefined,
+          sampling_strategy: typeof saved.sampling_strategy === "string" && saved.sampling_strategy.trim() ? saved.sampling_strategy.trim() : undefined,
+          findings,
+          conclusion,
+          limitations,
+          practical_implications: typeof saved.practical_implications === "string" && saved.practical_implications.trim() ? saved.practical_implications.trim() : undefined,
+          policy_relevance: typeof saved.policy_relevance === "string" && saved.policy_relevance.trim() ? saved.policy_relevance.trim() : undefined,
+          explained_variance: typeof saved.explained_variance === "string" && saved.explained_variance.trim() ? saved.explained_variance.trim() : undefined,
+          model_statistics: typeof saved.model_statistics === "string" && saved.model_statistics.trim() ? saved.model_statistics.trim() : undefined,
+          raw_clue_text: typeof saved.raw_clue_text === "string" && saved.raw_clue_text.trim() ? saved.raw_clue_text.trim() : undefined
+        };
+        return Object.values(clue).some(value => value !== undefined && value !== null && String(value).trim() !== "") ? clue : null;
+      })()
     };
 
     return ATRQSEngine.compute(input);
@@ -479,8 +643,8 @@ export default function ApasificResearchQualityProfile({ article }: Props) {
                     </div>
                   </div>
                   <div className="p-3.5 rounded-xl bg-[#121b19] border border-emerald-500/30 mt-3">
-                    <span className="text-emerald-300 font-semibold block mb-1">Evidence Coverage Ratio: 100% (5/5 Core Elements Verified)</span>
-                    <span className="text-gray-400">Objectives, Methodology, Sample Demographics, Regression Findings, and Documented Limitations were all detected and validated.</span>
+                    <span className="text-emerald-300 font-semibold block mb-1">Evidence coverage is calculated from explicit source fields (not assumed)</span>
+                    <span className="text-gray-400">Only documented objectives, methodology, sample details, findings, and conclusions/limitations count as evidence when present in the assessment record.</span>
                   </div>
                 </div>
               )}
